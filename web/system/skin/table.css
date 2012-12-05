@@ -1,0 +1,40 @@
+
+table
+{
+	border-collapse: collapse;
+}
+
+table,caption,tr
+{
+/*	border: 1px solid black;*/
+}
+
+caption,thead tr
+{
+	font-weight: bold;
+}
+
+tr.odd
+{
+	background-color: #F5F5F5;
+}
+
+tr.even
+{
+	background-color: #C0C0C0;
+}
+
+/*
+td
+{
+	vertical-align: top;
+	padding: 2px;
+	padding-left: 3px;
+	padding-right: 3px;
+}*/
+
+td.indent
+{
+	padding-left: 16px !important;
+    padding-right: 0px !important;
+}

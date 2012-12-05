@@ -1,0 +1,66 @@
+# see http://www.php.net/manual/de/session.configuration.php
+php_value session.hash_function 1
+php_value session.hash_bits_per_character 5
+
+RewriteEngine On
+
+#php_flag eaccelerator.enable 1
+#php_flag eaccelerator.optimizer 1
+
+# redirect NoCache files to the real ones
+RewriteRule (.*)_nc=([0-9]+)/(.*)\?(.*) $1$3&_nc=$2 [L,QSA]
+RewriteRule (.*)_nc=([0-9]+)/(.*) $1$3?_nc=$2 [L,QSA]
+RewriteRule (.*)nc([0-9]+)/(.*)\?(.*) $1$3&_nc=$2 [L,QSA]
+RewriteRule (.*)nc([0-9]+)/(.*) $1$3?_nc=$2 [L,QSA]
+
+<Files ~ "\.log">
+ Order allow,deny
+ Deny from all
+</Files>
+
+# deny access to some folders via http/s
+RewriteCond %{REQUEST_URI} !/modules/charting/charts
+RewriteCond %{REQUEST_URI} !/modules/charting/
+RewriteCond %{REQUEST_URI} /base/ [OR]
+RewriteCond %{REQUEST_URI} /modules/ [OR]
+RewriteCond %{REQUEST_URI} /lib/ [OR]
+RewriteCond %{REQUEST_URI} /nbproject/ [OR]
+RewriteCond %{REQUEST_URI} /reflection/ [OR]
+RewriteCond %{REQUEST_URI} /logs/
+RewriteRule .* - [F]
+
+############# performance optimization #####################
+<IfModule mod_deflate.c>
+<FilesMatch "(\.(js|css|html|jpg|jpeg|png|gif|php))|(\_js\.php)$">
+SetOutputFilter DEFLATE
+</FilesMatch>
+</IfModule>
+
+<FilesMatch "(\.(ico|pdf|flv|jpg|jpeg|png|gif|js|css|swf|gz))|(\_js\.php)?$">
+Header unset ETag
+FileETag None
+</FilesMatch>
+
+<FilesMatch "\_js\.php$">
+Header unset Pragma
+Header unset Cache-Control
+</FilesMatch>
+
+################ Expires Control ################
+ExpiresActive On
+ExpiresDefault A0
+<FilesMatch "\.(gif|jpg|jpeg|png|swf|ico)$">
+    ExpiresDefault "now plus 5 weeks"
+    Header append Cache-Control "public"
+</FilesMatch>
+<FilesMatch "\.(xml|txt|html)$">
+    ExpiresDefault "now plus 2 hours"
+    Header append Cache-Control "proxy-revalidate"
+</FilesMatch>
+<FilesMatch "(\.(js|css))|(\_js\.php)$">
+    ExpiresDefault "now plus 5 weeks"
+    Header append Cache-Control "proxy-revalidate"
+</FilesMatch>
+
+# allow cookies in IE iframe:
+Header set P3P: "CP=\"PAMFAX\""

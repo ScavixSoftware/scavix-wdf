@@ -1,0 +1,27 @@
+
+.pager
+{
+	/*background-color: #C0C0C0;*/
+}
+
+.pager a, .pager a:link, .pager a:visited, .pager a:active
+{
+	text-decoration: none;
+	border: 1px solid transparent;
+	color: black;
+	font-weight: normal;
+	padding-left :5px;
+	padding-right :2px;
+	margin-right :2px;
+}
+
+.pager a:hover
+{
+	border: 1px solid black;
+}
+
+.pager .current
+{
+	color: black;
+	font-weight: bold;
+}
