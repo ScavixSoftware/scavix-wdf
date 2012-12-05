@@ -54,7 +54,8 @@ function logging_init()
 	global $CONFIG;
 	
 	// remove error module from module-auto-load config and fake that it has been loaded
-	$CONFIG['system']['modules'] = array_diff($CONFIG['system']['modules'],array('error'));
+        if( isset($CONFIG['system']['modules']) && is_array($CONFIG['system']['modules']) )
+            $CONFIG['system']['modules'] = array_diff($CONFIG['system']['modules'],array('error'));
 	$GLOBALS["loaded_modules"]['error'] = __FILE__;
 	
 	//$CONFIG['class_path']['system'][]  = dirname(__FILE__).'/logging/';

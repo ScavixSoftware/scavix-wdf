@@ -112,6 +112,9 @@ function system_config_default($reset = true)
 	$CONFIG['system']['header']['X-XSS-Protection'] = "1; mode=block";
 	
 	$CONFIG['system']['url_root'] = "";
+    $CONFIG['system']['modules'] = array();
+    $CONFIG['system']['default_page'] = "HtmlPage";
+    $CONFIG['system']['default_event'] = false;
 }
 
 /**
@@ -323,6 +326,9 @@ function system_execute()
 		// getting query information
 		$PAGE = (isset($_REQUEST['page'])&&$_REQUEST['page']!="")?$_REQUEST['page']:$CONFIG['system']['default_page'];
 		$event = (isset($_REQUEST['event'])&&$_REQUEST['event']!="")?$_REQUEST['event']:$CONFIG['system']['default_event'];
+        
+        if( $PAGE === false )
+            system_die("No default page defined!");
 		// prevent XSS:
 		$PAGE = substr(preg_replace($pattern, "", $PAGE), 0, 256);
 		$event = substr(preg_replace($pattern, "", $event), 0, 256);
