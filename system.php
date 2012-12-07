@@ -940,75 +940,43 @@ function __autoload__template($controller,$template_name)
 	$useglobalcache = system_is_module_loaded("globalcache");
 	if( $template_name != "" )
 	{
-		if($useglobalcache)
-		{
-			$globalcachekey = "autoload_template-".(defined("_nc") ? _nc."-" : "").$template_name;
-			$r = globalcache_get($globalcachekey);
-			if(($r != false) && file_exists($r))
-				return $r;
-		}
-		elseif($insession)
-		{
-			$key = "t".$template_name;
-			if(isset($_SESSION["filepathbuffer"][$key]) && file_exists($_SESSION["filepathbuffer"][$key]))
-				return $_SESSION["filepathbuffer"][$key];
-		}
+        $key = "autoload_template-".(defined("_nc") ? _nc."-" : "").$template_name;
+        $r = cache_get($key);
+        if( ($r != false) && file_exists($r) )
+            return $r;
 
 		if( file_exists($template_name) )
 		{
-			if($useglobalcache)
-				globalcache_set($globalcachekey, $template_name, $CONFIG['system']['cache_ttl']);
-			elseif($insession)
-				$_SESSION["filepathbuffer"][$key] = $template_name;
+			cache_set($key, $template_name, $CONFIG['system']['cache_ttl']);
 			return $template_name;
 		}
 
 		$template_name2 = dirname(__search_file_for_class($class))."/".$template_name;
 		if( file_exists($template_name2) )
 		{
-			if($useglobalcache)
-				globalcache_set($globalcachekey, $template_name, $CONFIG['system']['cache_ttl']);
-			elseif($insession)
-				$_SESSION["filepathbuffer"][$key] = $template_name2;
+			cache_set($key, $template_name2, $CONFIG['system']['cache_ttl']);
 			return $template_name2;
 		}
 
         $template_name2 = dirname(__search_file_for_class($class))."/base/".$template_name;
 		if( file_exists($template_name2) )
 		{
-			if($useglobalcache)
-				globalcache_set($globalcachekey, $template_name, $CONFIG['system']['cache_ttl']);
-			elseif($insession)
-				$_SESSION["filepathbuffer"][$key] = $template_name2;
+			cache_set($key, $template_name2, $CONFIG['system']['cache_ttl']);
 			return $template_name2;
 		}
 	}
 
-	if($useglobalcache)
-	{
-		$globalcachekey_class = "autoload_template_class-".$class;
-		$r = globalcache_get($globalcachekey_class);
-		if(($r != false) && file_exists($r))
-			return $r;
-	}
-	elseif($insession)
-	{
-		$key = "tc".$class;
-		if(isset($_SESSION["filepathbuffer"][$key]) && file_exists($_SESSION["filepathbuffer"][$key]))
-			return $_SESSION["filepathbuffer"][$key];
-	}
-
-//	$file = strtolower($template_name);
+    $key = "autoload_template_class-".$class;
+    $r = cache_get($key);
+    if( ($r != false) && file_exists($r) )
+        return $r;
 
 	$file = __search_file_for_class($class);
 	$file = str_replace("class.php","tpl.php",$file?$file:"");
 
 	if( file_exists($file) )
 	{
-		if($useglobalcache)
-			globalcache_set($globalcachekey_class, $file, $CONFIG['system']['cache_ttl']);
-		elseif($insession)
-			$_SESSION["filepathbuffer"][$key] = $file;
+        cache_set($key, $file, $CONFIG['system']['cache_ttl']);
 		return $file;
 	}
 
@@ -1026,39 +994,15 @@ function __autoload__template($controller,$template_name)
  * @param <type> $classpath_limit
  * @return <type>
  */
-$filepathbuffer = array();
 function __search_file_for_class($class_name,$extension="class.php",$classpath_limit=false)
 {
-	global $CONFIG, $filepathbuffer;
-//	log_debug("__search_file_for_class: $class_name");
+	global $CONFIG;
 
-	$key = "k".(defined("_nc") ? _nc."-" : "").$class_name.$extension.$classpath_limit;
-	if(isset($filepathbuffer[$key]) )
-		return $filepathbuffer[$key];
-
-//	log_error("__search_file_for_class: $class_name.$extension global: ".(system_is_module_loaded("globalcache") ? "true" : "false"));
-	$useglobalcache = system_is_module_loaded("globalcache");
-	$insession = (session_id() != "");
-
-	if($useglobalcache)
-	{
-		$globalcachekey = "search_file_for_class-".(defined("_nc") ? _nc."-" : "").$class_name.$extension.$classpath_limit;
-		$r = globalcache_get($globalcachekey);
-//		log_debug($r);
-		if($r != false)
-		{
-//			log_debug("$class_name: $r");
-//			log_error("__search_file_for_class: $class_name.$extension ret: $r");
-
-			return $r;
-		}
-	}
-	elseif($insession)
-	{
-		if(isset($_SESSION["filepathbuffer"][$key])) // && file_exists($_SESSION["filepathbuffer"][$key]))
-			return $_SESSION["filepathbuffer"][$key];
-	}
-
+    $key = "search_file_for_class-".(defined("_nc") ? _nc."-" : "").$class_name.$extension.$classpath_limit;
+    $r = cache_get($key);
+    if( $r !== false )
+        return $r;
+    
 	$class_name_lc = strtolower($class_name);
 
 	$short_class_name = "";
@@ -1083,22 +1027,14 @@ function __search_file_for_class($class_name,$extension="class.php",$classpath_l
 			if( file_exists("$path$class_name.$extension") )
 			{
 				$ret = "$path$class_name.$extension";
-				$filepathbuffer[$key] = $ret;
-				if($useglobalcache)
-					globalcache_set($globalcachekey, $ret, $CONFIG['system']['cache_ttl']);
-				elseif($insession)
-					$_SESSION["filepathbuffer"][$key] = $ret;
+                cache_set($key, $ret, $CONFIG['system']['cache_ttl']);
 				return $ret;
 			}
 
 			if( file_exists("$path$class_name_lc.$extension") )
 			{
 				$ret = "$path$class_name_lc.$extension";
-				$filepathbuffer[$key] = $ret;
-				if($useglobalcache)
-					globalcache_set($globalcachekey, $ret, $CONFIG['system']['cache_ttl']);
-				elseif($insession)
-					$_SESSION["filepathbuffer"][$key] = $ret;
+				cache_set($key, $ret, $CONFIG['system']['cache_ttl']);
 				return $ret;
 			}
 
@@ -1107,30 +1043,19 @@ function __search_file_for_class($class_name,$extension="class.php",$classpath_l
 				if( file_exists("$path$short_class_name.$extension") )
 				{
 					$ret = "$path$short_class_name.$extension";
-					$filepathbuffer[$key] = $ret;
-					if($useglobalcache)
-						globalcache_set($globalcachekey, $ret, $CONFIG['system']['cache_ttl']);
-					elseif($insession)
-						$_SESSION["filepathbuffer"][$key] = $ret;
+					cache_set($key, $ret, $CONFIG['system']['cache_ttl']);
 					return $ret;
 				}
 
 				if( file_exists("$path$short_class_name_lc.$extension") )
 				{
 					$ret = "$path$short_class_name_lc.$extension";
-					$filepathbuffer[$key] = $ret;
-					if($useglobalcache)
-						globalcache_set($globalcachekey, $ret, $CONFIG['system']['cache_ttl']);
-					elseif($insession)
-						$_SESSION["filepathbuffer"][$key] = $ret;
+					cache_set($key, $ret, $CONFIG['system']['cache_ttl']);
 					return $ret;
 				}
 			}
 		}
 	}
-	$filepathbuffer[$key] = false;
-//	if($insession)
-//		$_SESSION["filepathbuffer"][$key] = false;
 	return false;
 }
 
@@ -1715,27 +1640,10 @@ function system_include_statics($classname,$method,&$cache)
 		$meth = $ref->getMethod($method);
 		$ref = $meth->getDeclaringClass();
 		$classname = strtolower($ref->getName());
-//		// didn't work :(
-//		if($useglobalcache)
-//		{
-//			$key = "system_include_statics-".$method;
-//			$ret = globalcache_get($key);
-//			if($ret === false)
-//			{
-//				$ret = $meth->invoke(null);
-//				globalcache_set($key, $ret, $CONFIG['system']['cache_ttl']);
-//			}
-//		}
-//		else
-		{
-			if( isset($cache[$classname]) )
-				return;
-			$cache[$classname] = $meth->invoke(null);
-		}
-//		if($useglobalcache)
-//			globalcache_set($classname, $cache[$classname], $CONFIG['system']['cache_ttl']);
-//		elseif($insession)
-//			$_SESSION["filepathbuffer"][$classname] = $cache[$classname];
+        
+        if( isset($cache[$classname]) )
+            return;
+        $cache[$classname] = $meth->invoke(null);
 
 		$ref = $ref->getParentClass();
 		if( $ref )
@@ -1926,7 +1834,7 @@ function cache_get($key,$default=false,$use_global_cache=true)
 	if( isset($_SESSION["system_internal_cache"][$key]) )
 		return $_SESSION["system_internal_cache"][$key];
     
-	if( $use_global_cache )
+	if( $use_global_cache && system_is_module_loaded('globalcache') )
     {
         $res = globalcache_get($key,$default);
         if( $res !== $default )
@@ -1948,10 +1856,17 @@ function cache_set($key,$value,$ttl=false,$use_global_cache=true)
 	if( $ttl === false )
 		$ttl = $CONFIG['system']['cache_ttl'];
 
-	if( $use_global_cache )
+	if( $use_global_cache && system_is_module_loaded('globalcache') )
 		globalcache_set($key, $value, $ttl);
 
 	$_SESSION["system_internal_cache"][$key] = $value;
+}
+
+function cache_clear($global_cache_too=true)
+{
+    $_SESSION["system_internal_cache"] = array();
+    if( $global_cache_too && system_is_module_loaded('globalcache') )
+		globalcache_clear();
 }
 
 function current_page( $strtolower=false )
@@ -2232,33 +2147,6 @@ function system_to_json($value)
 	return $res;
 }
 
-///**
-// * Wrapper function around file_exists to avoid too many filesystem calls on NFS.
-// * @param <string> $filename Full file path + filename
-// * @return <boolean> True when file exists
-// */
-//function system_file_exists($filename)
-//{
-////	return file_exists($filename);
-//
-//	//doesn't works as expected (slows down on live sys):
-//	global $CONFIG;
-//	$useglobalcache = system_is_module_loaded('globalcache');
-//	if($useglobalcache)
-//	{
-//		$key = 'system_file_exists-'.$filename;
-//		$exists = globalcache_get($key, $v = null);
-//		if($exists != null)
-//			return $exists;
-//	}
-//
-//	$exists = file_exists($filename);
-//	if($useglobalcache)
-//		globalcache_set($key, $exists, $CONFIG['system']['cache_ttl']);
-//
-//	return $exists;
-//}
-
 $time_start = microtime(true);
 $debug_track_events = array();
 function system_track_event($evtname)
@@ -2266,6 +2154,7 @@ function system_track_event($evtname)
 	global $debug_track_events;
 	$debug_track_events[$evtname] = microtime(true);
 }
+
 function system_print_tracking_times($printit = true)
 {
 	global $time_start, $debug_track_events;
@@ -2387,11 +2276,11 @@ function system_call_user_func_array_byref(&$object, $funcname, &$args)
 function system_method_exists($object_or_classname,$method_name)
 {
 	$key = (is_string($object_or_classname)?$object_or_classname:get_class($object_or_classname)).'.'.$method_name;
-	$ret = cache_get('method_exists', $key);
+	$ret = cache_get("method_exists_$key");
 	if( $ret != false )
 		return $ret=="1";
 	$ret = method_exists($object_or_classname,$method_name);
-	cache_set('method_exists', $key,$ret?"1":"0");
+	cache_set("method_exists_$key",$ret?"1":"0");
 	return $ret;
 }
 

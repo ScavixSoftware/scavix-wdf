@@ -262,7 +262,7 @@ function check_vat_number($vat_number)
 	if( $m[1] == $vat )
 	{
 		try{
-			$res = cache_get("vat_check", "{$country_code}_{$vat}");
+			$res = cache_get("vat_check_{$country_code}_{$vat}");
 			if( !$res )
 			{			
 				$sc = new SoapClient("http://ec.europa.eu/taxation_customs/vies/checkVatService.wsdl");
@@ -271,7 +271,7 @@ function check_vat_number($vat_number)
 					log_debug("VAT syntax ok, but SOAP says not",$vat_number,$country_code,$vat,$test);
 				
 				$res = $test->valid?"valid":"invalid";
-				cache_set("vat_check", "{$country_code}_{$vat}", $res);
+				cache_set("vat_check_{$country_code}_{$vat}", $res);
 			}
 			elseif( $res != "valid" )
 				log_debug("VAT syntax ok, but CACHE says not",$vat_number,$country_code,$vat);

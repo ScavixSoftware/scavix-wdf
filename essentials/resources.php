@@ -56,8 +56,8 @@ function resourceExists($filename, $return_url = false, $as_local_path = false)
 {
 	global $CONFIG;
 
-	$key = (isSSL()?"ssl_$filename":"$filename").($as_local_path?"_l":"");
-	if( ($res = cache_get('resource', $key)) !== false )
+	$key = (isSSL()?"ssl_resource_$filename":"resource_$filename").($as_local_path?"_l":"");
+	if( ($res = cache_get($key)) !== false )
 	{
 		log_debug("CACHE0 $key ",$res);
 		return $return_url?$res:($res != "0");
@@ -65,7 +65,7 @@ function resourceExists($filename, $return_url = false, $as_local_path = false)
 
 	$cnc = str_replace(array("_", "="), "", _nc).'/';
 	$key = "$cnc$key".($as_local_path?"_l":"");
-	if( ($res = cache_get('resource', $key)) !== false )
+	if( ($res = cache_get($key)) !== false )
 	{
 //		log_debug("CACHE1 $key ",$res);
 		return $return_url?$res:($res != "0");
@@ -86,11 +86,11 @@ function resourceExists($filename, $return_url = false, $as_local_path = false)
 			
 		$nc = $conf['append_nc']?$cnc:'';
 		$res = $conf['url'].$nc.$filename;
-		cache_set('resource', $key, $res);
-//		log_debug("Resource: $filename ->",$res);
+		cache_set($key, $res);
+		log_debug("Resource [$key]: $filename ->",$res);
 		return $return_url?$res:true;
 	}
-	cache_set('resource', $key, "0");
+	cache_set($key, "0");
 	log_warn("Resource not found! ",$filename, "Cache key: $key");
 	return false;
 }

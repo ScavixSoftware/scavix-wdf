@@ -65,12 +65,12 @@ class System_Reflector extends ReflectionClass
 		// now using a filemtime cache to check if an update is needed
 		$fn = $res->getFileName();
 		$ftime = filemtime($fn);
-		$mtime = cache_get('filemtime',$fn);
+		$mtime = cache_get("filemtime_$fn");
 		if( ($mtime === false) || ($ftime > $mtime) )
 		{
 //			log_debug("Updating cache for $fn (ftime: $ftime mtime: $mtime");
 			$res->UpdateCache();
-			cache_set('filemtime',$fn,$ftime);
+			cache_set("filemtime_$fn",$ftime);
 		}
 //		else
 //			log_debug("Using cache (".md5($fn).") for $fn");
@@ -107,7 +107,7 @@ class System_Reflector extends ReflectionClass
 		$key = $this->_getCacheKey($name,$filter);
 		$cache[$key] = $value;
 //		log_error("_setCached: $key");
-		cache_set('ref_attr',$key,$value);
+		cache_set("ref_attr_$key",$value);
 	}
 
 	private function _getCached(&$cache,$name,$filter)
@@ -118,7 +118,7 @@ class System_Reflector extends ReflectionClass
 			//log_debug("using ref cache $key");
 			return $cache[$key];
 		}
-		if( $ret = cache_get('ref_attr',$key) )
+		if( $ret = cache_get("ref_attr_$key") )
 			return $ret;
 		return false;
 	}
@@ -131,10 +131,10 @@ class System_Reflector extends ReflectionClass
 
 		$comment = trim($ref->getDocComment());
 		if( $comment && (strpos($comment, "/**") === 0) )
-			cache_set('doccomment',$key,$comment);
+			cache_set("doccomment_$key",$comment);
 		else
 		{
-			$comment = cache_get('doccomment',$key);
+			$comment = cache_get("doccomment_$key");
 			if( (!$comment || (strpos($comment, "/**") === false)) && !$return_empty )
 			{
 				$fn = $ref->getFileName();
@@ -162,7 +162,7 @@ class System_Reflector extends ReflectionClass
 //				if(count($doc) > 0)
 				{
 					$comment = implode("\n",array_reverse($doc));
-					cache_set('doccomment',$key,$comment." ");
+					cache_set("doccomment_$key",$comment." ");
 				}
 			}
 		}
@@ -267,13 +267,6 @@ class System_Reflector extends ReflectionClass
 			return $res;
 
 		$comment = $this->_getComment();
-//		$comment = trim($this->getDocComment());
-//		$key = $this->Classname;
-//		if( $comment )
-//			cache_set('doccomment',$key,$comment,-1);
-//		else
-//			$comment = cache_get('doccomment',$key);
-
 		$res = $this->_getAttributes($comment,$filter,$this->Instance,false,false,$allowAttrInheritance);
 		$this->_setCached($this->_attribute_cache,"",$filter,$res);
 

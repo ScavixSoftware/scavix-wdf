@@ -186,8 +186,9 @@ function routing_parse_uri()
 	if( $PAGE && $CONFIG['routing']['auto_update_routes'] && class_exists($PAGE) )
 	{
 		$ma = $ref->GetMethodAttributes($event,'Route');
-		foreach( $ma as $m )
-			$m->Save();
+        if( is_array($ma) )
+            foreach( $ma as $m )
+                $m->Save();
 	}
 }
 
