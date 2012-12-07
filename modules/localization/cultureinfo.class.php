@@ -125,6 +125,12 @@ class CultureInfo
 	
 	function OtherRegion($region_code)
 	{
+        if( $region_code instanceof RegionInfo )
+        {
+            $res = clone $this;
+            $res->Region = $region_code;
+            return $res;
+        }
 		$region_code = strtoupper($region_code);
 		foreach( internal_getRegionsForLanguage($this->Code) as $r )
 			if( $r->Code == $region_code )
@@ -138,12 +144,19 @@ class CultureInfo
 
 	function ResolveToLanguage()
 	{
-		$res = $this;
+		$res = clone $this;
 		while( isset($res->Parent) && !$res->IsNeutral() )
 			$res = $res->Parent;
 		return $res;
 	}
-
+    
+    function EnsureRegion()
+	{
+        $res = clone $this;
+		$res->OtherRegion($res->DefaultRegion());
+        return $res;
+    }
+    
 	function IsNeutral()
 	{
 		return !isset($this->Region);
