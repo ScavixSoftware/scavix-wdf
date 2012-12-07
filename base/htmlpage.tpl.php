@@ -28,7 +28,7 @@ echo '<?xml version="1.0" encoding="UTF-8" ?>'."\n";?>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<title><?=$title?></title>
-<? if(isset($favicon)) { ?>
+<? if(isset($favicon) && $favicon) { ?>
 	<link rel="shortcut icon" href="<?=$favicon?>" />
 <? } ?>
 	<? foreach($meta as $m) echo $m; ?>

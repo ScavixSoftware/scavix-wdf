@@ -67,7 +67,7 @@ function resourceExists($filename, $return_url = false, $as_local_path = false)
 	$key = "$cnc$key".($as_local_path?"_l":"");
 	if( ($res = cache_get('resource', $key)) !== false )
 	{
-		log_debug("CACHE1 $key ",$res);
+//		log_debug("CACHE1 $key ",$res);
 		return $return_url?$res:($res != "0");
 	}
 
@@ -87,7 +87,7 @@ function resourceExists($filename, $return_url = false, $as_local_path = false)
 		$nc = $conf['append_nc']?$cnc:'';
 		$res = $conf['url'].$nc.$filename;
 		cache_set('resource', $key, $res);
-		log_debug("Resource: $filename ->",$res);
+//		log_debug("Resource: $filename ->",$res);
 		return $return_url?$res:true;
 	}
 	cache_set('resource', $key, "0");

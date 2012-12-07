@@ -1,12 +1,5 @@
 <?
 /**
-define('globalcache_CACHE_OFF',0);
-define('globalcache_CACHE_EACCELERATOR',1);
-define('globalcache_CACHE_MEMCACHE',2);
-define('globalcache_CACHE_ZEND',3);
-define('globalcache_CACHE_APC',4);
-
-/**
  * PamConsult Web Development Framework
  *
  * Copyright (c) 2007-2012 PamConsult GmbH
@@ -29,7 +22,13 @@ define('globalcache_CACHE_APC',4);
  * @copyright 2007-2012 PamConsult GmbH
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
+
+define('globalcache_CACHE_OFF',0);
+define('globalcache_CACHE_EACCELERATOR',1);
+define('globalcache_CACHE_MEMCACHE',2);
+define('globalcache_CACHE_ZEND',3);
+define('globalcache_CACHE_APC',4);
+
 /**
  * functions to handle a global cache, which is independant from session
  * implementation based on memcachd, eaccelerator or Zend_Cache

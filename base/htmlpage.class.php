@@ -53,7 +53,7 @@ class HtmlPage extends Template implements ICallable
 		// for all derivered classes, unless they override it after
 		// parent::__initialize with $this->file = X
 		$file = str_replace(".class.php",".tpl.php",__FILE__);
-		global $CONFIG, $URL_PROTOCOL, $IS_SSL;
+		global $CONFIG;
 		parent::__initialize($file);
 
 		if( isset($CONFIG['htmlpage']['cookies_required']) )
@@ -250,18 +250,6 @@ class HtmlPage extends Template implements ICallable
 
 		$init_code .= "});";
 		$this->docready[0] = $this->vars['docready'][0] = $init_code;
-
-//		// @todo: FT Mantis #2782 if you write only to one of both ($this->docready[0] or $this->vars['docready'][0]) it is not always performed
-//		if( $this->ajaxWaitDialogId )
-//		{
-//			$this->docready[0] = $this->vars['docready'][0] =
-//				"HtmlPage_Init({request_id:'".request_id()."',ajax_wait_dlg_id:'".$this->ajaxWaitDialogId."',site_root:'".$CONFIG['system']['url_root']."'});";
-//		}
-//		else
-//		{
-//			$this->docready[0] = $this->vars['docready'][0] =
-//				"HtmlPage_Init({request_id:'".request_id()."',site_root:'".$CONFIG['system']['url_root']."'});";
-//		}
 
 		if( isset($GLOBALS['debugger']) )
 			$GLOBALS['debugger']->PreparePage($this);

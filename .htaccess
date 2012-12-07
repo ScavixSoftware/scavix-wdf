@@ -63,4 +63,4 @@ ExpiresDefault A0
 </FilesMatch>
 
 # allow cookies in IE iframe:
-Header set P3P: "CP=\"PAMFAX\""
+Header set P3P: "CP=\"SCAVIX-WDF\""
