@@ -30,30 +30,12 @@ function curlwrapper_init()
 
 function sendHTTPRequest($url, $postdata = false, $cacheTTLsec = false, &$response_header = false, $request_header = array(), $request_timeout = 120, $cookie_file=false)
 {
-	$useglobalcache = system_is_module_loaded("globalcache");
-	$insession = (session_id() != "");
-
-	if($cacheTTLsec)
+	if( $cacheTTLsec )
 	{
 		$hash = md5($url."|".($postdata ? serialize($postdata) : ""));
-		if($useglobalcache)
-		{
-			$ret = cache_get($hash);
-			if($ret !== false)
-				return $ret;
-		}
-		elseif($insession)
-		{
-			if(isset($_SESSION["curl_cache"][$hash]))
-			{
-				if($_SESSION["curl_cache"][$hash]["timestamp"] > time() - $cacheTTLsec)
-				{
-					$_SESSION["curl_cache"][$hash]["timestamp"] = time();
-					return $_SESSION["curl_cache"][$hash]["result"];
-				}
-				unset($_SESSION["curl_cache"][$hash]);
-			}
-		}
+		$ret = cache_get($hash);
+		if($ret !== false)
+			return $ret;
 	}
 
 	$ch = curl_init();
@@ -102,18 +84,7 @@ function sendHTTPRequest($url, $postdata = false, $cacheTTLsec = false, &$respon
 	$result = substr($result, $info['header_size']);
 
 	if($cacheTTLsec)
-	{
-		if($useglobalcache)
-			globalcache_set($hash, $result, $cacheTTLsec);
-		elseif($insession)
-		{
-			$_SESSION["curl_cache"][$hash] = array(
-				"url" => $url,
-				"result" => $result,
-				"timestamp" => time()
-			);
-		}
-	}
+		cache_set($hash, $result, $cacheTTLsec);
 	
 	return $result;
 }

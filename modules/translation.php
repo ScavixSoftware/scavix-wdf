@@ -255,13 +255,11 @@ function getString($constant, $arreplace = null, $unbuffered = false, $encoding 
 	if( !isset($GLOBALS['translation']['included_language']) || $GLOBALS['translation']['included_language'] != $GLOBALS['current_language'] )
 		translation_do_includes();
 	
-	if( system_is_module_loaded('globalcache') )
+	if( !$unbuffered )
 	{
 		$key = "lang_{$GLOBALS['translation']['included_language']}_$constant".md5($constant.serialize($arreplace).$GLOBALS['current_language'].$encoding);
-		$null = false;
-		if( isset($_GET['reloadstrings']) && $_GET['reloadstrings']=='1' )
-			globalcache_clear();
-		elseif( $res = globalcache_get($key,$null) )
+		$res = cache_get($key);
+        if( $res !== false )
 			return $res;
 	}
 	
@@ -287,10 +285,8 @@ function getString($constant, $arreplace = null, $unbuffered = false, $encoding 
 	if( !$GLOBALS['translation']['skip_buffering_once'] && preg_match_all($GLOBALS['__translate_regpattern'], $res, $m) )
 		$res = __translate($res);
 	
-	if( isset($null) && !$GLOBALS['translation']['skip_buffering_once'] )
-		globalcache_set($key,$res);
-//	else
-//		log_debug("translation skips buffering for '$constant'");
+	if( isset($key) && !$GLOBALS['translation']['skip_buffering_once'] )
+		cache_set($key,$res);
 
 	return $res;
 }
@@ -376,12 +372,9 @@ function translation_known_constants()
 {
 	global $CONFIG;
 	
-	if( system_is_module_loaded('globalcache') )
-	{
-		$null = false;
-		if( $res = globalcache_get('translation_known_constants',$null) )
-			return $res;
-	}
+    $res = cache_get('translation_known_constants');
+	if( $res )
+		return $res;
 	
 	if( !isset($GLOBALS['translation']['known_constants']) )
 	{
@@ -393,8 +386,7 @@ function translation_known_constants()
 		$GLOBALS['translation']['known_constants'] = array_keys($GLOBALS['translation']['strings']);
 	}
 	
-	if( !is_null($null) )
-		globalcache_set('translation_known_constants',$GLOBALS['translation']['known_constants']);
+	cache_set('translation_known_constants',$GLOBALS['translation']['known_constants']);
 	return $GLOBALS['translation']['known_constants'];
 }
 
