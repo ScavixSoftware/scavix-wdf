@@ -28,6 +28,7 @@ define('globalcache_CACHE_EACCELERATOR',1);
 define('globalcache_CACHE_MEMCACHE',2);
 define('globalcache_CACHE_ZEND',3);
 define('globalcache_CACHE_APC',4);
+define('globalcache_CACHE_DB',5);
 
 /**
  * functions to handle a global cache, which is independant from session
@@ -156,6 +157,20 @@ function globalcache_init()
 //			if(globalcache_get("globalcache_zend_test") != 1)
 //				die("globalcache Zend not working correct");
 			break;
+            
+        case globalcache_CACHE_DB:
+            if( !isset($_SESSION['globalcache_db_initialized']) )
+            {
+                $_SESSION['globalcache_db_initialized'] = true;
+                $cache = model_datasource($CONFIG['globalcache']['datasource']);
+                $cache->ExecuteSql(
+                    "CREATE TABLE IF NOT EXISTS internal_cache (
+                        ckey VARCHAR(32)  NOT NULL,
+                        cvalue TEXT  NOT NULL,
+                        valid_until DATETIME  NULL,
+                        PRIMARY KEY (ckey))");
+            }
+            break;
 	}
 
 	return $ret;
@@ -167,7 +182,7 @@ function globalcache_init()
  * @param <mixed> $value the object/string to save
  * @param <int> $ttl time to live (in seconds) of the caching
  */
-function globalcache_set($key, &$value, $ttl = false)
+function globalcache_set($key, $value, $ttl = false)
 {
 	global $CONFIG;
 	try
@@ -197,6 +212,18 @@ function globalcache_set($key, &$value, $ttl = false)
 			case globalcache_CACHE_MEMCACHE:
 				return $GLOBALS["memcache_object"]->set($GLOBALS["globalcache_key_prefix"].md5($key), $value, 0, ($ttl ? time() + $ttl : 0));
 				break;
+            
+            case globalcache_CACHE_DB:
+                $val = (is_array($value)||is_object($value))?addslashes(serialize($value)):$value;
+                $ds = model_datasource($CONFIG['globalcache']['datasource']);
+                if( $ttl > 0 )
+                    $ds->ExecuteSql("REPLACE INTO internal_cache(ckey,cvalue,valid_until)VALUES(?0,?1,?2)",
+                        array(md5($key),$val,$ds->Now($ttl)));
+                else
+                    $ds->ExecuteSql("REPLACE INTO internal_cache(ckey,cvalue)VALUES(?0,?1)",
+                        array(md5($key),$val));
+                return true;
+                break;
 		}
 	}
 	catch(Exception $ex)
@@ -212,7 +239,7 @@ function globalcache_set($key, &$value, $ttl = false)
  * @param <mixed> $default a default return value if the key can not be found in the cache
  * @return <type>
  */
-function globalcache_get($key, &$default = false)
+function globalcache_get($key, $default = false)
 {
 	global $CONFIG;
 	try {
@@ -241,6 +268,17 @@ function globalcache_get($key, &$default = false)
 				$ret = $GLOBALS["memcache_object"]->get($GLOBALS["globalcache_key_prefix"].md5($key));
 				return ($ret === false)?$default:$ret;
 				break;
+            
+            case globalcache_CACHE_DB:
+                $ds = model_datasource($CONFIG['globalcache']['datasource']);
+                $ret = $ds->ExecuteScalar("SELECT cvalue FROM internal_cache WHERE ckey=? AND (valid_until IS NULL OR valid_until>=?)",
+                    array(md5($key),$ds->Now()));
+                if( $ret === false )
+                    return $default;
+                if( starts_with($ret, "a:") || starts_with($ret, "o:") )
+                    return unserialize($ret);
+                return $ret;
+                break;
 		}
 	}
 	catch(Exception $ex)
@@ -277,6 +315,11 @@ function globalcache_clear()
 		case globalcache_CACHE_MEMCACHE:
 			return $GLOBALS["memcache_object"]->flush();
 			break;
+        
+        case globalcache_CACHE_DB:
+            $ds = model_datasource($CONFIG['globalcache']['datasource']);
+            $ds->ExecuteSql("DELETE FROM internal_cache");
+			break;
 	}
 	return false;
 }
@@ -311,6 +354,12 @@ function globalcache_delete($key)
 		case globalcache_CACHE_MEMCACHE:
 			return $GLOBALS["memcache_object"]->delete($GLOBALS["globalcache_key_prefix"].md5($key));
 			break;
+        
+        case globalcache_CACHE_DB:
+            $ds = model_datasource($CONFIG['globalcache']['datasource']);
+            $ds->ExecuteSql("DELETE FROM internal_cache WHERE ckey=?",md5($key));
+            return true;
+			break;
 	}
 	return false;
 }
@@ -328,6 +377,7 @@ function globalcache_info()
 		case globalcache_CACHE_OFF:
 		case globalcache_CACHE_ZEND:
 		case globalcache_CACHE_EACCELERATOR:
+        case globalcache_CACHE_DB:
 			return "no stats available";
 			break;
 

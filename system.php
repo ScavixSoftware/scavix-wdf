@@ -88,7 +88,6 @@ function system_config_default($reset = true)
 	$CONFIG['class_path']['content'][] = $thispath.'/lib/jquery-ui/slider/';
 	$CONFIG['class_path']['content'][] = $thispath.'/lib/widgets/';
 	$CONFIG['class_path']['content'][] = $thispath.'/lib/widgets/dialogs/';
-	$CONFIG['class_path']['content'][] = $thispath.'/modules/error/';
 	
 	$CONFIG['class_path']['order'] = array('system','model','content');
 
@@ -226,36 +225,7 @@ function system_init($application_name, $skip_header = false, $logging_category=
 	{
 		$_SERVER['SCRIPT_URI'] = $_SERVER['SERVER_NAME'].$_SERVER['SCRIPT_NAME'];
 	}
-
-	// initialize the internal cache
-	if(substr($CONFIG['model']['internal']['connection_string'], 0, 6) == "sqlite")
-	{
-		$cache = model_datasource($CONFIG['system']['cache_datasource']);
-		if( !$cache->TableExists('internal_cache') )
-		{
-//			if(substr($CONFIG['model']['internal']['connection_string'], 0, 6) == "sqlite")
-			{
-				$cache->ExecuteSql(
-					"CREATE TABLE internal_cache (
-						section VARCHAR(100)  NOT NULL,
-						ckey VARCHAR(32)  NOT NULL,
-						cvalue TEXT  NOT NULL,
-						valid_until DATE  NULL,
-						PRIMARY KEY (section,ckey))");
-			}
-//			else
-//			{
-//				$cache->ExecuteSql(
-//					"CREATE TABLE internal_cache (
-//						section VARCHAR(100)  NOT NULL,
-//						ckey VARCHAR(32)  NOT NULL,
-//						cvalue TEXT  NOT NULL,
-//						valid_until DATE  NULL,
-//						PRIMARY KEY (section,ckey),
-//						INDEX section_ckey_validuntil (section, ckey, valid_until))");
-//			}
-		}
-	}
+    
 	execute_hooks(HOOK_POST_INIT);
 }
 
@@ -1951,65 +1921,37 @@ function system_sanitize_parameters(&$params)
 	}
 }
 
-function cache_get($section,$key)
+function cache_get($key,$default=false,$use_global_cache=true)
 {
-	if(system_is_module_loaded("globalcache"))
-		return globalcache_get($section."-".$key);
-
-	global $CONFIG;
-	$key = strtolower($key);
-
-//	log_debug($section."/".$key);
-	if(isset($_SESSION["system_internal_cache"][$section."-".$key]))
-		return $_SESSION["system_internal_cache"][$section."-".$key];
-
-	$ds = model_datasource($CONFIG['system']['cache_datasource']);
-//	$ds->ExecuteSql("DELETE FROM internal_cache WHERE NOT valid_until=NULL AND valid_until<?0", array($ds->Now()));
-	$ttl = $CONFIG['system']['cache_ttl'];
-	$rs = $ds->ExecuteSql("SELECT cvalue FROM internal_cache WHERE section=?0 AND ckey=?1 AND (valid_until IS NULL OR valid_until>=?2)LIMIT 1",
-		array($section,md5($key),$ds->Now()));
-//	log_debug($rs->sql);
-	if( $rs->EOF )
-		return false;
-	$ret = $rs->fields['cvalue'];
-//	log_debug($ret);
-	if(starts_with($ret, "a:"))
-		$ret = unserialize($ret);
-
-	$_SESSION["system_internal_cache"][$section."-".$key] = $ret;
-	return $ret;
+	if( isset($_SESSION["system_internal_cache"][$key]) )
+		return $_SESSION["system_internal_cache"][$key];
+    
+	if( $use_global_cache )
+    {
+        $res = globalcache_get($key,$default);
+        if( $res !== $default )
+            $_SESSION["system_internal_cache"][$key] = $res;
+		return $res;
+    }
+    return $default;
 }
 
 /**
  * Stores a string value into the internal cache.
- * @param string $section a section identifier
  * @param string $key a key for the value
  * @param string $value the value to store
  * @param int $ttl Time to life in seconds. -1 if it shall live forever
  */
-function cache_set($section,$key,$value,$ttl=false)
+function cache_set($key,$value,$ttl=false,$use_global_cache=true)
 {
 	global $CONFIG;
 	if( $ttl === false )
 		$ttl = $CONFIG['system']['cache_ttl'];
 
-	if(system_is_module_loaded("globalcache"))
-		return globalcache_set($section."-".$key, $value, $ttl);
+	if( $use_global_cache )
+		globalcache_set($key, $value, $ttl);
 
-	$key = strtolower($key);
-
-	$val = $value;
-	if(is_array($value))
-		$val = addslashes(serialize($value));
-	$ds = model_datasource($CONFIG['system']['cache_datasource']);
-	if( $ttl > 0 )
-		$ds->ExecuteSql("REPLACE INTO internal_cache(section,ckey,cvalue,valid_until)VALUES(?0,?1,?2,?3)",
-			array($section,md5($key),$val,$ds->Now($ttl)));
-	else
-		$ds->ExecuteSql("REPLACE INTO internal_cache(section,ckey,cvalue)VALUES(?0,?1,?2)",
-			array($section,md5($key),$val));
-
-	$_SESSION["system_internal_cache"][$section."-".$key] = $value;
+	$_SESSION["system_internal_cache"][$key] = $value;
 }
 
 function current_page( $strtolower=false )

@@ -47,7 +47,7 @@ function routing_init()
 	if( !isset($CONFIG['routing']['redirect_to_route']) )
 		$CONFIG['routing']['redirect_to_route'] = true;
 
-	$CONFIG['class_path']['model'][] = dirname(__FILE__).'/routing/';
+	$CONFIG['class_path']['model'][] = __DIR__.'/routing/';
 	$ROUTES = false;
 	register_hook_function(HOOK_PARSE_URI,'routing_parse_uri');
 }
@@ -92,7 +92,8 @@ function routing_parse_uri()
 	if( $ROUTES === false )
 	{
 		$ds = model_datasource($CONFIG['routing']['datasource']);
-		$ROUTES = $ds->Select("UrlRoute");
+        $ROUTES = UrlRoute::Make($ds)->all();
+		//$ROUTES = $ds->Select("UrlRoute");
 		if(system_is_module_loaded('globalcache'))
 			globalcache_set('routing_url_routes', $ROUTES, $CONFIG['system']['cache_ttl']);
 	}

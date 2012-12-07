@@ -38,7 +38,7 @@ function sendHTTPRequest($url, $postdata = false, $cacheTTLsec = false, &$respon
 		$hash = md5($url."|".($postdata ? serialize($postdata) : ""));
 		if($useglobalcache)
 		{
-			$ret = globalcache_get($hash);
+			$ret = cache_get($hash);
 			if($ret !== false)
 				return $ret;
 		}

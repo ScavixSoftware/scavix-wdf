@@ -165,21 +165,15 @@ function get_countryname_by_ip()
 
 function get_timezone_by_ip($ip = false)
 {
-	$useglobalcache = system_is_module_loaded("globalcache");
-	$insession = (session_id() != "");
 	if($ip === false)
 		$ip = $GLOBALS['current_ip_addr'];
-	$key = "get_timezone_by_ip.".(defined("_nc") ? _nc."-" : "")."-".$ip;
 
-	if(starts_with($ip, "1.1 ") || starts_with($ip, "192.168.1."))
+	if( starts_with($ip, "1.1 ") || starts_with($ip, "192.168.1.") )
 		return false;
-	
-	$ret = false;
-	if($useglobalcache)
-		$ret = globalcache_get($key);
-	elseif($insession && isset($_SESSION[$key]))
-		$ret = $_SESSION[$key];
-	if($ret)
+    
+	$key = "get_timezone_by_ip.".(defined("_nc") ? _nc."-" : "")."-".$ip;
+    $ret = cache_get($key);
+	if( $ret )
 		return $ret;
 			
 	// new url with api key:
@@ -194,10 +188,7 @@ function get_timezone_by_ip($ip = false)
 		$zone = $zone[0];
 		if($zone[1] != "")
 		{
-			if($useglobalcache)
-				globalcache_set($key, $zone[1], 24 * 60 * 60);
-			elseif($insession)
-				$_SESSION[$key] = $zone[1];		
+            cache_set($key,$zone[1], 24 * 60 * 60);
 			return $zone[1];
 		}
 	}
@@ -208,12 +199,7 @@ function get_timezone_by_ip($ip = false)
 	{
 		log_error("No timezone found for IP ".$ip." (missing coordinates)");
 		// disaster-fallback: use our timezone:
-		$ret = "Etc/GMT+2";
-		if($useglobalcache)
-			globalcache_set($key, $ret, 24 * 60 * 60);
-		elseif($insession)
-			$_SESSION[$key] = $ret;		
-		return $ret;		
+		return "Etc/GMT+2";
 	}
 
 	// ALTERNATIVE 1:
@@ -228,10 +214,7 @@ function get_timezone_by_ip($ip = false)
 	if( preg_match_all('/<timezoneId>([^<]*)<\/timezoneId>/', $xml, $zone, PREG_SET_ORDER) )
 	{
 		$zone = $zone[0];
-		if($useglobalcache)
-			globalcache_set($key, $zone[1], 24 * 60 * 60);
-		elseif($insession)
-			$_SESSION[$key] = $zone[1];		
+		cache_set($key,$zone[1], 24 * 60 * 60);
 		return $zone[1];
 	}
 	log_error("No timezone found for ".$ip." via geonames.org");
@@ -248,20 +231,12 @@ function get_timezone_by_ip($ip = false)
 		$zone = $zone[0];
 		$zone[1] = round($zone[1], 0);
 		$ret = "Etc/GMT".($zone[1] < 0 ? $zone[1] : "+".$zone[1]);
-		if($useglobalcache)
-			globalcache_set($key, $ret, 24 * 60 * 60);
-		elseif($insession)
-			$_SESSION[$key] = $ret;		
+		cache_set($key,$ret, 24 * 60 * 60);
 		return $ret;
 	}
 	log_error("No timezone found for ".$ip." via earthtools.org");
 
 	// disaster-fallback: use our timezone:
-	$ret = "Etc/GMT+2";
-	if($useglobalcache)
-		globalcache_set($key, $ret, 24 * 60 * 60);
-	elseif($insession)
-		$_SESSION[$key] = $ret;		
-	return $ret;
+	return "Etc/GMT+2";
 }
 

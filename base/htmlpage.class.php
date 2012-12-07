@@ -342,45 +342,11 @@ class HtmlPage extends Template implements ICallable
 
 	function IncludeFiles($classname)
 	{
-		global $CONFIG;
-		$insession = (session_id() != "");
-		$useglobalcache = system_is_module_loaded("globalcache");
-		$key = "css.".(defined("_nc") ? _nc."-" : "")."$classname";
-		$ret = false;
-		if($useglobalcache)
-			$ret = globalcache_get($key);
-		elseif($insession && isset($_SESSION["filepathbuffer"][$key]))
-			$ret = $_SESSION["filepathbuffer"][$key];
-		if($ret)
-			$this->addCss($ret);
-		elseif( system_is_module_loaded("skins") && skinFileExists("$classname.css") )
-		{
-			$file = skinFile("$classname.css");
-			if($useglobalcache)
-				globalcache_set($key, $file, $CONFIG['system']['cache_ttl']);
-			elseif($insession)
-				$_SESSION["filepathbuffer"][$key] = $file;
-			$this->addCss($file);
-		}
+		if( system_is_module_loaded("skins") && skinFileExists("$classname.css") )
+			$this->addCss( skinFile("$classname.css") );
 
-		// and now the js files:
-		$key = "js.".(defined("_nc") ? _nc."-" : "")."$classname";
-		$ret = false;
-		if($useglobalcache)
-			$ret = globalcache_get($key);
-		elseif($insession && isset($_SESSION["filepathbuffer"][$key]))
-			$ret = $_SESSION["filepathbuffer"][$key];
-		if($ret)
-			$this->addJs($ret);
-		elseif( system_is_module_loaded("javascript") && jsFileExists("$classname.js") )
-		{
-			$file = jsFile("$classname.js");
-			if($useglobalcache)
-				globalcache_set($key, $file, $CONFIG['system']['cache_ttl']);
-			elseif($insession)
-				$_SESSION["filepathbuffer"][$key] = $file;
-			$this->addJs($file);
-		}
+		if( system_is_module_loaded("javascript") && jsFileExists("$classname.js") )
+			$this->addJs( jsFile("$classname.js") );
 	}
 	
 	function SetIE9PinningData($application,$tooltip,$start_url,$button_color=false)

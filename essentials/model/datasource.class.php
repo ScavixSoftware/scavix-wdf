@@ -318,6 +318,7 @@ class DataSource extends System_DataSource
 	function Select($type,$where="",$prms=false,$page=-1,$rows_per_page=-1)
 	{
 		// ignoring (also previously) ignored arguments $page and $rows_per_page
+        log_trace("HIT");
 		$dummy = new $type($this);
 		return $dummy->Find($where,$prms);
 	}
