@@ -106,7 +106,7 @@ function routing_parse_uri()
 	{
 		$rp = isset($_REQUEST['page'])?strtolower(filter_var($_REQUEST['page'], FILTER_SANITIZE_STRING)):false;
 		$re = isset($_REQUEST['event'])?strtolower(filter_var($_REQUEST['event'], FILTER_SANITIZE_STRING)):false;
-		if( $rp && $re )
+		if( $rp && $re && is_array($ROUTES) )
 		{
 			// search the routes because REQUEST args are unknown case
 			foreach( $ROUTES as $k=>$route )
@@ -115,30 +115,28 @@ function routing_parse_uri()
 		}
 	}
 
-	foreach( $ROUTES as $k=>$route )
-	{
-//		if( !starts_with($current, strtolower($route->route)) )
-//		{
-//			log_debug("check $current agains ".$route->route);
-//			continue;
-//		}
-		if( strtolower($route->route) != $current )
-			continue;
+    if( is_array($ROUTES) )
+    {
+        foreach( $ROUTES as $k=>$route )
+        {
+            if( strtolower($route->route) != $current )
+                continue;
 
-		if( class_exists($route->controller) )
-		{
-			$ref = System_Reflector::GetInstance($route->controller);
-			if( !$route->method || $ref->hasMethod($route->method) )
-			{
-				$PAGE = $route->controller;
-				$event = $route->method?$route->method:false;
-				break;
-			}
-		}
-		log_debug("deleting inexistent route ".$route->route);
-		$route->Delete();
-		unset($ROUTES[$k]);
-	}
+            if( class_exists($route->controller) )
+            {
+                $ref = System_Reflector::GetInstance($route->controller);
+                if( !$route->method || $ref->hasMethod($route->method) )
+                {
+                    $PAGE = $route->controller;
+                    $event = $route->method?$route->method:false;
+                    break;
+                }
+            }
+            log_debug("deleting inexistent route ".$route->route);
+            $route->Delete();
+            unset($ROUTES[$k]);
+        }
+    }
 
 	if( !$PAGE && $CONFIG['routing']['allow_unrouted_calls'] )
 	{
@@ -167,7 +165,7 @@ function routing_parse_uri()
 		return;
 	
 	$ref = System_Reflector::GetInstance($PAGE);
-	if( !$ref->hasMethod($event) )
+	if( is_array($ROUTES) && !$ref->hasMethod($event) )
 	{
 		$current = strtolower("$PAGE/$event");
 		foreach( $ROUTES as $k=>$route )

@@ -250,8 +250,9 @@ class MySql implements IDatabaseDriver
 		);
 	}
 	
-	function Now($seconds_to_add)
+	function Now($seconds_to_add=0)
 	{
+        log_if($seconds_to_add==0,"HIT");
 		return "(NOW() + INTERVAL $seconds_to_add SECOND)";
 	}
 }

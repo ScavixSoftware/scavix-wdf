@@ -67,8 +67,16 @@ class DataSource extends System_DataSource
 		$driver = $this->_pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
 		switch( $driver )
 		{
-			case 'sqlite': $this->Driver = new SqLite(); break;
-			case 'mysql': $this->Driver = new MySql(); break;
+			case 'sqlite': 
+                // trick out the autoloader as it consults the cache which needs a model thus circular...
+                require_once(__DIR__.'/driver/sqlite.class.php');
+                $this->Driver = new SqLite(); 
+                break;
+			case 'mysql': 
+                // trick out the autoloader as it consults the cache which needs a model thus circular...
+                require_once(__DIR__.'/driver/mysql.class.php');
+                $this->Driver = new MySql(); 
+                break;
 			default: throw new Exception("Unknown DB driver: $driver");
 		}
 		$this->Driver->initDriver($this,$this->_pdo);

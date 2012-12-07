@@ -39,5 +39,7 @@ interface IDatabaseDriver
 	
 	function getPagedStatement($sql,$page,$items_per_page);
 	function getPagingInfo($sql,$input_arguments=null);
+    
+    function Now($seconds_to_add=0);
 }
 ?>

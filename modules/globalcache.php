@@ -49,13 +49,10 @@ class globalcache
 	}
 }
 
-
 function globalcache_init()
 {
-	global $CONFIG, $LOCALHOST;
-
-//	$CONFIG['globalcache']['CACHE'] = globalcache_CACHE_MEMCACHE;
-//	if(isset($_GET["zend"]) && ($_GET["zend"] == 1))
+	global $CONFIG;
+	if( !isset($CONFIG['globalcache']['CACHE']) || !$CONFIG['globalcache']['CACHE'] )
 		$CONFIG['globalcache']['CACHE'] = (function_exists('apc_store') ? globalcache_CACHE_APC : globalcache_CACHE_ZEND);
 
 		
@@ -64,7 +61,12 @@ function globalcache_init()
 	else
 		$GLOBALS["globalcache_key_prefix"] = "K".md5($_SERVER['SERVER_NAME']."-".session_name()."-".(defined("_nc") ? _nc."-" : ""));
 
-//	$GLOBALS["globalcache_use_eaccelerator"] = function_exists('eaccelerator_get');
+    register_hook_function(HOOK_POST_INIT,'globalcache_initialize');
+}
+
+function globalcache_initialize()
+{
+    global $CONFIG, $LOCALHOST;
 	$ret = true;
 
 	switch($CONFIG['globalcache']['CACHE'])
@@ -151,15 +153,10 @@ function globalcache_init()
 													$backendOptions);
 
 			}
-
-			// test if it's working:
-//			globalcache_set("globalcache_zend_test", $x = 1);
-//			if(globalcache_get("globalcache_zend_test") != 1)
-//				die("globalcache Zend not working correct");
 			break;
             
         case globalcache_CACHE_DB:
-            if( !isset($_SESSION['globalcache_db_initialized']) )
+            if( true || !isset($_SESSION['globalcache_db_initialized']) )
             {
                 $_SESSION['globalcache_db_initialized'] = true;
                 $cache = model_datasource($CONFIG['globalcache']['datasource']);
@@ -172,8 +169,6 @@ function globalcache_init()
             }
             break;
 	}
-
-	return $ret;
 }
 
 /**
@@ -184,6 +179,9 @@ function globalcache_init()
  */
 function globalcache_set($key, $value, $ttl = false)
 {
+    if( !hook_already_fired(HOOK_POST_INIT) )
+        return false;
+    
 	global $CONFIG;
 	try
 	{
@@ -217,11 +215,12 @@ function globalcache_set($key, $value, $ttl = false)
                 $val = (is_array($value)||is_object($value))?addslashes(serialize($value)):$value;
                 $ds = model_datasource($CONFIG['globalcache']['datasource']);
                 if( $ttl > 0 )
-                    $ds->ExecuteSql("REPLACE INTO internal_cache(ckey,cvalue,valid_until)VALUES(?0,?1,?2)",
-                        array(md5($key),$val,$ds->Now($ttl)));
+                    $ds->ExecuteSql(
+                        "REPLACE INTO internal_cache(ckey,cvalue,valid_until)VALUES(?0,?1,".$ds->Driver->Now($ttl).")",
+                        array(md5($key),$val)
+                    );
                 else
-                    $ds->ExecuteSql("REPLACE INTO internal_cache(ckey,cvalue)VALUES(?0,?1)",
-                        array(md5($key),$val));
+                    $ds->ExecuteSql("REPLACE INTO internal_cache(ckey,cvalue)VALUES(?0,?1)",array(md5($key),$val));
                 return true;
                 break;
 		}
@@ -241,6 +240,9 @@ function globalcache_set($key, $value, $ttl = false)
  */
 function globalcache_get($key, $default = false)
 {
+    if( !hook_already_fired(HOOK_POST_INIT) )
+        return $default;
+    
 	global $CONFIG;
 	try {
 		switch($CONFIG['globalcache']['CACHE'])
@@ -271,8 +273,8 @@ function globalcache_get($key, $default = false)
             
             case globalcache_CACHE_DB:
                 $ds = model_datasource($CONFIG['globalcache']['datasource']);
-                $ret = $ds->ExecuteScalar("SELECT cvalue FROM internal_cache WHERE ckey=? AND (valid_until IS NULL OR valid_until>=?)",
-                    array(md5($key),$ds->Now()));
+                $ret = $ds->ExecuteScalar("SELECT cvalue FROM internal_cache WHERE ckey=? AND (valid_until IS NULL OR valid_until>=".$ds->Driver->Now().")",
+                    array(md5($key)));
                 if( $ret === false )
                     return $default;
                 if( starts_with($ret, "a:") || starts_with($ret, "o:") )
@@ -293,6 +295,9 @@ function globalcache_get($key, $default = false)
  */
 function globalcache_clear()
 {
+    if( !hook_already_fired(HOOK_POST_INIT) )
+        return false;
+    
 	global $CONFIG;
 	switch($CONFIG['globalcache']['CACHE'])
 	{
@@ -332,6 +337,9 @@ function globalcache_clear()
  */
 function globalcache_delete($key)
 {
+    if( !hook_already_fired(HOOK_POST_INIT) )
+        return false;
+    
 	global $CONFIG;
 	switch($CONFIG['globalcache']['CACHE'])
 	{
@@ -366,6 +374,9 @@ function globalcache_delete($key)
 
 function globalcache_info()
 {
+    if( !hook_already_fired(HOOK_POST_INIT) )
+        return false;
+    
 	global $CONFIG;
 	$ret = false;
 	switch($CONFIG['globalcache']['CACHE'])

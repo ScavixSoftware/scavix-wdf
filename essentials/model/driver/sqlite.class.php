@@ -169,10 +169,10 @@ class SqLite implements IDatabaseDriver
 	function getPagedStatement($sql,$page,$items_per_page){}
 	function getPagingInfo($sql,$input_arguments=null){}
 	
-	function Now($seconds_to_add)
+	function Now($seconds_to_add=0)
 	{
 		$seconds_to_add = ($seconds_to_add>=0)?"+$seconds_to_add":"-$seconds_to_add";
-		return "(datetime('now','$seconds_to_add seconds'))";
+		return "(datetime('now','$seconds_to_add seconds','localtime'))";
 	}
 }
 ?>
