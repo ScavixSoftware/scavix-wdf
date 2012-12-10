@@ -153,8 +153,6 @@ class SqLite implements IDatabaseDriver
 			$sql[] = $this->columnDef($col);
 
 		$sql = 'CREATE TABLE "'.$objSchema->Table.'" ('."\n".implode(",\n",$sql)."\n".')';
-		log_debug($sql);
-
 		$stmt = $this->_pdo->prepare($sql);//,array(PDO::ATTR_CURSOR=>PDO::CURSOR_SCROLL));
 		if( !$stmt->execute() )
 			throw new DatabaseException($stmt->errorInfo());

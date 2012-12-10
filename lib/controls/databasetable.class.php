@@ -87,9 +87,7 @@ class DatabaseTable extends Table
 		}
 		if( $this->DataSource->DB->ErrorMsg() )
 		{
-			error(get_class($this).": ".$this->DataSource->DB->ErrorMsg());
-//			log_debug($sql);
-//			log_debug($prms);
+			log_error(get_class($this).": ".$this->DataSource->DB->ErrorMsg());
 		}
 		$ADODB_COUNTRECS = $savec;
 	}

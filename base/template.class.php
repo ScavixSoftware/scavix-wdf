@@ -73,20 +73,6 @@ class Template implements IRenderable
 		return array('vars','file','translate','_storage_id','tpl_as_subtpl','_container_path');
 	}
 
-//	public function __clone()
-//	{
-//		$old = $this->_storage_id;
-//		create_storage_id($this);
-//        foreach( $this->vars as $name=>$val )
-//        {
-//        	if( $val == $old )
-//        		$this->vars[$name] = $this->_storage_id;
-//		}
-//
-//		if( in_object_storage($old) )
-//			store_object($this);
-//    }
-
 	/**
 	 * Set a variable for use in template file
 	 * @param string $name Var can be use in template under this name
@@ -219,12 +205,6 @@ class Template implements IRenderable
 	 */
 	function do_the_execution()
 	{
-//        if($this instanceof Template && $this->Tag == "option")
-//            return;
-//        TimeTrace("do_the_execution ".$this->_storage_id." ".get_class()." ".$this->Tag);
-//		if( method_exists($this, "__beforeexecute") )
-//			$this->__beforeexecute();
-
 		if( !($this instanceof HtmlElement) || $this->_ownTemplate )
 		{
 			if( system_is_module_loaded("skins") && skinFileExists("trans.gif") )
@@ -276,33 +256,7 @@ class Template implements IRenderable
 			unset($$key);
 		foreach( $buf as $key=>&$val )
 			$$key = $val;
-
-//		if( $this->translate && function_exists("__translate") )
-//			$contents = __translate($contents);
-
-/* // Uncommented to save performance
-		if( !($this instanceof HtmlPage || $this instanceof ControlState || $this instanceof Help) &&
-			$this->_storage_id != "to_be_overwritten_by_unserializer" && 
-			in_object_storage($this->_storage_id) && $this->_container_path === false )
-		{
-			$container_path = $this->_container_path?$this->_container_path:array();
-			$class_to_check = get_class($this);
-			$ref = System_Reflector::GetInstance($class_to_check);
-			$rights = $ref->GetClassAttributes(array('right','public','inheritedright'),$container_path);
-
-			$allow_access = false;//hasRight('all');
-			foreach( $rights as &$r )
-				$allow_access |= $r->Granted();
-
-// ToDo: Find the bug and reactivate the following
-//			if( !$allow_access )
-//			{
-//				trace("ViewAccess to (".get_class($this)."){$this->_storage_id} denied!\r\nContainer path is ".implode("->",$container_path));
-//				return "ACCESS DENIED";
-//			}
-		}
-*/
-//        TimeTrace("x");
+        
 		return $contents;
 	}
 

@@ -62,7 +62,7 @@ class System_Model extends Model
 	{
 		if( !$plain_array )
 		{
-			error("plain_array support not implemented");
+			log_error("plain_array support not implemented");
 			return;
 		}
 		

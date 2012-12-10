@@ -132,7 +132,6 @@ function routing_parse_uri()
                     break;
                 }
             }
-            log_debug("deleting inexistent route ".$route->route);
             $route->Delete();
             unset($ROUTES[$k]);
         }
@@ -178,8 +177,6 @@ function routing_parse_uri()
 			break;
 		}
 	}
-
-//	log_debug("routing_parse_uri $PAGE/$event");
 
 	if( $PAGE && $CONFIG['routing']['auto_update_routes'] && class_exists($PAGE) )
 	{

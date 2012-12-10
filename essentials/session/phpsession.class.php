@@ -41,20 +41,14 @@ class PhpSession extends SessionBase
 			// Implementations in system/modules/authorization.php and
 			// common/modules/fax_authorization.php
 			if( function_exists('logoutUser') )
-			{
-				log_info("logoutUser() triggered by session timeout");
 				logoutUser();
-			}
 		}
 
 		if( $CONFIG['session']['iplock'] )
 		{
 			$ip_address = get_ip_address();
 			if(isset($_SESSION[$prefix.'ip_address']) && function_exists('logoutUser') && ($_SESSION[$prefix.'ip_address'] != $ip_address))
-			{
-				log_info("logoutUser() triggered by IP Lock.");
 				logoutUser();
-			}
 			$_SESSION[$prefix.'ip_address'] = $ip_address;
 		}
 	}

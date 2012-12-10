@@ -181,18 +181,11 @@ class Serializer
 				
 			case 'r':
 				if( !isset($this->Stack[intval($line)]) )
-				{
-					log_debug($this);
 					system_die("Trying to reference unknown object.");
-				}
 				if( $this->Stack[intval($line)] instanceof System_DataSource )
-				{
-					//log_debug("restoring datasource '".$this->Stack[intval($line)]->_storage_id."' (thru obj-ref)","UNSER");
 					return model_datasource($this->Stack[intval($line)]->_storage_id);
-				}
 				return $this->Stack[intval($line)];
 			case 'm':
-				//log_debug("restoring datasource '$line' (straight)","UNSER");
 				return model_datasource($line);
 			case 'n':
 				return null;

@@ -35,10 +35,7 @@ class RouteAttribute extends System_Attribute
 	function Save()
 	{
 		if( !$this->Class )
-		{
-//			log_debug($this);
 			system_die("Trying to save route without Controller: ".$this->Route);
-		}
 		return routing_save_route($this->Route,$this->Class,$this->Method,true);
 	}
 }

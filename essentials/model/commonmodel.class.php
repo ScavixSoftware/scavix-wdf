@@ -49,16 +49,4 @@ class CommonModel extends Model
 			$ctor_args = array($this->_ds,$this->_tableName);
 		return parent::__ensureResults($ctor_args);
 	}
-	
-//	function __initialize($datasource=null)
-//	{
-//		if( $datasource )
-//		{
-//			$this->_cacheKey = $datasource->Database().$this->_tableName;
-//			$this->_tableSchema = false;
-//			$this->__ensureTableSchema();
-//			log_debug("SCHEMA",self::$_schemaCache);
-//		}
-//		parent::__initialize($datasource);
-//    }
 }

@@ -71,8 +71,7 @@ function sendHTTPRequest($url, $postdata = false, $cacheTTLsec = false, &$respon
 	$info = curl_getinfo($ch);
 	if($result === false)
 	{
-		log_error($info);
-		log_error('Curl error: ' . curl_error($ch));
+		log_error('Curl error: ' . curl_error($ch),"url = ",$url,"curl_info = ",$info);
 		curl_close($ch);
 		return $result;
 	}

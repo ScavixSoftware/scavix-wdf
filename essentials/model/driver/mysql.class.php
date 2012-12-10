@@ -188,7 +188,6 @@ class MySql implements IDatabaseDriver
 			else
 				$sql  = "INSERT INTO `".$model->GetTableName()."`(".implode(",",$all).")VALUES(".implode(',',$vals).")";
 		}
-//		log_debug("SAVE: $sql",$args);
 		$stmt = $this->_pdo->prepare($sql);//,array(PDO::ATTR_CURSOR=>PDO::CURSOR_SCROLL));
 		return $stmt;
 	}

@@ -265,7 +265,6 @@ class DataSource extends System_DataSource
 		// Dont think that using wrong values for performance reasons is best practice!
 		$sql = $this->Driver->Now($seconds_to_add);
 		$rs = $this->CacheExecuteSql("SELECT $sql as dt",array(),1);
-		//log_debug("Now($seconds_to_add) -> ".$rs->fields['dt']." (".date("Y-m-d H:i:s",time() + $seconds_to_add).")");
 		return $rs->fields['dt'];
 		
 		
@@ -326,7 +325,6 @@ class DataSource extends System_DataSource
 	function Select($type,$where="",$prms=false,$page=-1,$rows_per_page=-1)
 	{
 		// ignoring (also previously) ignored arguments $page and $rows_per_page
-        log_trace("HIT");
 		$dummy = new $type($this);
 		return $dummy->Find($where,$prms);
 	}

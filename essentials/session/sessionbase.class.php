@@ -101,12 +101,9 @@ abstract class SessionBase
 					$regen_needed = true;
 				}
 				$sid = preg_replace("/[^0-9a-zA-Z]/", "", $_REQUEST[$CONFIG['session']['session_name']]);
-				// Mantis #3813 prevent session fixation
-				//if(32 == strlen($sid))
 				$this->CleanUp();
 				if($sid != "")
 				{
-//					trace("new sid: $sid passed: R: ".$_REQUEST[$CONFIG['session']['session_name']]." C: ".$_COOKIE[$CONFIG['session']['session_name']]." sessionname: ".session_name()." regenerate: ".($regen_needed ? "yes" : "no") );
 					session_id($sid);
 					$try = 0;
 					while( (@session_start() === false) && ($try++ < 10) )
@@ -116,7 +113,6 @@ abstract class SessionBase
 					// generate a new session id if the passed one is not valid
 					if( $regen_needed && $allow_regenerate_id )
 						$this->RegenerateId(true);
-//					log_debug($_SESSION['object_id_storage']);
 				}
 				else
 				{
@@ -153,8 +149,6 @@ abstract class SessionBase
 	{
 		global $CONFIG;
 		$_SESSION[$CONFIG['session']['prefix']."session_lastaccess"] = time();
-		$start = microtime(true);
-//		log_debug(">>> Ensuring object persistance...");
 		foreach( $GLOBALS['object_storage'] as $id=>&$obj )
 		{
 			try
@@ -164,10 +158,9 @@ abstract class SessionBase
 			}
 			catch(Exception $ex)
 			{
-				error("updating session storage for object $id [".get_class($obj)."]: ".$ex->getMessage());
+				log_error("updating session storage for object $id [".get_class($obj)."]: ".$ex->getMessage());
 			}
 		}
-//		log_debug("<<< Ensuring object persistance: ".(microtime(true)-$start));
 	}
 
 	function RequestId()

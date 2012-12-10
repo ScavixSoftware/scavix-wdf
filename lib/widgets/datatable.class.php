@@ -155,7 +155,7 @@ class DataTable extends Template
 		$ADODB_COUNTRECS = true;
 		$this->_dataSet = $this->DataSource->DB->PageExecute($sql,$this->ItemsPerPage,$this->CurrentPage,$prms);
 		if( $this->DataSource->DB->ErrorMsg() )
-			error($this->DataSource->DB->ErrorMsg());
+			log_error($this->DataSource->DB->ErrorMsg());
 		$ADODB_COUNTRECS = $savec;
 	}
 
