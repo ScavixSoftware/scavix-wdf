@@ -55,5 +55,7 @@ class Form extends Control
 	function AddPassword($name, $value){ return $this->AddInput('password', $name, $value); }
 	function AddHidden($name, $value){ return $this->AddInput('hidden', $name, $value); }
 	function AddFile($name){ return $this->AddInput('file', $name); }
+    
+    function AddSubmit($label){ return $this->content( new SubmitButton($label) ); }
 }
 ?>

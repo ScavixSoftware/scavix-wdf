@@ -1,0 +1,90 @@
+body.translationhandler
+{
+    font-family: Verdana,Arial,serif;
+    font-size: 12px;
+    font-weight: normal;
+}
+
+/* tables */
+body.translationhandler table tr
+{
+    margin: 0px;
+    padding: 0px;
+}
+
+body.translationhandler table td
+{
+    margin: 0px;
+    padding: 5px;
+}
+
+body.translationhandler table thead tr
+{
+    background-color: orange;
+    font-weight: bold;
+    color: white;
+}
+
+/* login form */
+body.translationhandler form.login
+{
+    margin: auto;
+    font-size: 14px;
+    width: 400px;
+    border: 1px solid gray;
+}
+
+body.translationhandler form.login input[type="text"], 
+body.translationhandler form.login input[type="password"]
+{
+    width: 250px;
+}
+
+body.translationhandler form.login table
+{
+    width: 100%;
+}
+
+/* navigation */
+body.translationhandler div.navigation
+{
+    border-bottom: 1px dotted gray;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+}
+
+body.translationhandler div.navigation a,
+body.translationhandler div.navigation a:active,
+body.translationhandler div.navigation a:visited
+{
+    text-decoration: none;
+    text-align: center;
+    width: 200px;
+    border: 1px solid gray;
+    padding: 5px;
+    display: inline-block;
+    margin-right: 2px;
+    color: black;
+}
+
+body.translationhandler div.navigation a:hover,
+body.translationhandler div.navigation a.current
+{
+    background-color: orange;
+}
+
+/* new string editor */
+body.translationhandler table.new_string
+{
+    width: 500px;
+    float: left;
+    border: 1px solid gray;
+    margin: 5px;
+}
+
+body.translationhandler table.new_string textarea
+{
+    float:left; 
+    width:400px; 
+    height: 50px;
+}

@@ -156,7 +156,7 @@ function globalcache_initialize()
 			break;
             
         case globalcache_CACHE_DB:
-            if( true || !isset($_SESSION['globalcache_db_initialized']) )
+            if( !isset($_SESSION['globalcache_db_initialized']) )
             {
                 $_SESSION['globalcache_db_initialized'] = true;
                 $cache = model_datasource($CONFIG['globalcache']['datasource']);

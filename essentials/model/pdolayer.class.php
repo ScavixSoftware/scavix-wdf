@@ -27,10 +27,14 @@
  */
 class PdoLayer extends PDO
 {
+    var $Driver = false;
+    
 	function prepare($statement, $driver_options = null)
 	{
 		// remove the counter from ?0, ?,... so that they are simply ?,?,...
 		$statement = preg_replace('/\?\d+/','?',$statement);
+        if( $this->Driver )
+            $statement = $this->Driver->PreprocessSql($statement);
 		if( is_null($driver_options) )
 			return parent::prepare($statement);
 		return parent::prepare($statement, $driver_options);

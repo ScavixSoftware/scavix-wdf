@@ -172,5 +172,10 @@ class SqLite implements IDatabaseDriver
 		$seconds_to_add = ($seconds_to_add>=0)?"+$seconds_to_add":"-$seconds_to_add";
 		return "(datetime('now','$seconds_to_add seconds','localtime'))";
 	}
+    
+    function PreprocessSql($sql)
+    {
+        return $sql;
+    }
 }
 ?>

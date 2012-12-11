@@ -33,6 +33,7 @@ class MySql implements IDatabaseDriver
 		$this->_pdo = $pdo;
 		$this->_pdo->exec("SET CHARACTER SET utf8");
 		$this->_pdo->exec("SET NAMES utf8");
+        $this->_pdo->Driver = $this;
 	}
 
 	function listTables()
@@ -253,5 +254,10 @@ class MySql implements IDatabaseDriver
 	{
 		return "(NOW() + INTERVAL $seconds_to_add SECOND)";
 	}
+    
+    function PreprocessSql($sql)
+    {
+        return str_ireplace("INSERT OR IGNORE", "INSERT IGNORE", $sql);
+    }
 }
 ?>

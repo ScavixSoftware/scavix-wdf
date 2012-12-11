@@ -41,5 +41,7 @@ interface IDatabaseDriver
 	function getPagingInfo($sql,$input_arguments=null);
     
     function Now($seconds_to_add=0);
+    
+    function PreprocessSql($sql);
 }
 ?>

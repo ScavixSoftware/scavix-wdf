@@ -110,7 +110,8 @@ function system_config_default($reset = true)
 	$CONFIG['system']['header']['Content-Type'] = "text/html; charset=utf-8";
 	$CONFIG['system']['header']['X-XSS-Protection'] = "1; mode=block";
 	
-	$CONFIG['system']['url_root'] = "";
+    $path = explode("index.php",$_SERVER['PHP_SELF']);
+	$CONFIG['system']['url_root'] = "{$_SERVER['REQUEST_SCHEME']}://{$_SERVER['HTTP_HOST']}{$path[0]}";
     $CONFIG['system']['modules'] = array();
     $CONFIG['system']['default_page'] = "HtmlPage";
     $CONFIG['system']['default_event'] = false;
@@ -2303,4 +2304,9 @@ function urlScheme($append_slashes=false)
 	return isSSL()?"https":"http";
 }
 
+function system_ensure_path_ending(&$path)
+{
+    if( !ends_with($path, DIRECTORY_SEPARATOR) )
+        $path .= DIRECTORY_SEPARATOR;
+}
 ?>

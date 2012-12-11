@@ -218,6 +218,7 @@ class HtmlPage extends Template implements ICallable
 	{
 		$this->content[] = $content;
 		$this->set("content",$this->content);
+        return $content;
 	}
 
 	function addDialog(&$dialog)

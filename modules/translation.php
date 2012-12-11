@@ -34,7 +34,25 @@ function translation_init()
 
 	if( !isset($CONFIG['translation']['data_path']) )
 		system_die('Please define $CONFIG["translation"]["data_path"]');
-	
+
+    if( isset($CONFIG['translation']['sync']['provider']) && $CONFIG['translation']['sync']['provider'] )
+    {
+        if( !isset($CONFIG['translation']['sync']['username']) )
+            system_die('Please define $CONFIG["translation"]["sync"]["username"]');
+        if( !isset($CONFIG['translation']['sync']['password']) )
+            system_die('Please define $CONFIG["translation"]["sync"]["password"]');
+        
+        if( !isset($CONFIG['translation']['sync']['datasource']) )
+            $CONFIG['translation']['sync']['datasource'] = 'internal';
+        
+        $CONFIG['class_path']['system'][] = dirname(__FILE__).'/translation/';
+        $CONFIG['class_path']['system'][] = dirname(__FILE__).'/translation/'.strtolower($CONFIG['translation']['sync']['provider']).'/';
+        
+        register_hook_function(HOOK_POST_INIT,'translation_init_db');
+    }
+    else
+        $CONFIG['translation']['sync']['datasource'] = false;
+    
 	if( !isset($CONFIG['translation']['searchpatterns']) )
 		$CONFIG['translation']['searchpatterns'] = array();
 
@@ -60,10 +78,23 @@ function translation_init()
 		$reg[] = '('.$pat.'[a-zA-Z0-9_-]+)(\[[^\]]+\])*';
 	$reg = "/".implode("|",$reg)."/";
 	$GLOBALS['__translate_regpattern'] = $reg;
-	
-	$CONFIG['class_path']['system'][] = dirname(__FILE__).'/translation/';
-	
-	//include($CONFIG['translation']['data_path']."translation.inc.php");
+    
+    system_ensure_path_ending($CONFIG['translation']['data_path']);
+}
+
+function translation_init_db()
+{
+    if( !isset($_SESSION['translation_db_initialized']) )
+    {
+        $_SESSION['translation_db_initialized'] = true;
+        $ds = model_datasource($GLOBALS['CONFIG']['translation']['sync']['datasource']);
+        $ds->ExecuteSql(
+            "CREATE TABLE IF NOT EXISTS unknown_strings (
+                term VARCHAR(255) NOT NULL,
+                last_hit DATETIME NOT NULL,
+                hits INT DEFAULT 0,
+                PRIMARY KEY (term))");
+    }
 }
 
 function translation_do_includes()
@@ -85,7 +116,7 @@ function translation_do_includes()
 		}
 		else
 		{
-			log_fatal("No translations found!");
+			log_fatal("No translations found!",$CONFIG['translation']['data_path'].$CONFIG['localization']['default_language'].".inc.php");
 			$GLOBALS['translation']['properties'] = array();
 			$GLOBALS['translation']['strings'] = array();
 		}
@@ -159,7 +190,7 @@ function __translate_sort_constants($a,$b)
 
 function __translate($text)
 {
-	global $__unknown_constants;
+	global $CONFIG, $__unknown_constants;
 	
 	// TODO: reactivate loop regarding unknown constants and thos that shall not be translated
 	//while( preg_match($GLOBALS['__translate_regpattern'], $text) )
@@ -178,7 +209,22 @@ function __translate($text)
 		$text = substr($text, 0, -4);
 
 	if( count($__unknown_constants) > 0 )
-		log_debug("Unknown text constants: ".my_var_export(array_values($__unknown_constants)));
+    {
+        if( $CONFIG['translation']['sync']['datasource'] )
+        {
+            $ds = model_datasource($CONFIG['translation']['sync']['datasource']);
+            $now = $ds->Driver->Now();
+            $sql1 = "INSERT OR IGNORE INTO unknown_strings(term,last_hit,hits)VALUES(?,$now,0);";
+            $sql2 = "UPDATE unknown_strings SET last_hit=$now, hits=hits+1 WHERE term=?;";
+            foreach( $__unknown_constants as $uc )
+            {
+                $ds->Execute($sql1,$uc);
+                $ds->Execute($sql2,$uc);
+            }
+        }
+        else
+            log_debug("Unknown text constants: ".my_var_export(array_values($__unknown_constants)));
+    }
 
 	return $text;
 }
