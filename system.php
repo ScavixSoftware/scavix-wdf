@@ -23,33 +23,15 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
-define("HOOK_POST_INIT",1);
-define("HOOK_POST_INITSESSION",2);
-define("HOOK_PRE_EXECUTE",3);
-define("HOOK_PRE_RENDER",8);
-define("HOOK_POST_EXECUTE",4);
-define("HOOK_PRE_FINISH",5);
-define("HOOK_POST_MODULE_INIT",6);
-define("HOOK_PING_RECIEVED",7);
-define("HOOK_PARSE_URI",9);
-define("HOOK_PRE_PROCESSING",10);
+define('FRAMEWORK_LOADED','uSI7hcKMQgPaPKAQDXg5');
+require_once(__DIR__.'/system_functions.php');
 
-define("HOOK_AJAX_POST_LOADED",100);
-define("HOOK_AJAX_PRE_EXECUTE",101);
-define("HOOK_AJAX_POST_EXECUTE",102);
-
-define("HOOK_COOKIES_REQUIRED",200);
-
-define("HOOK_ARGUMENTS_PARSED",300);
-
-define("HOOK_SYSTEM_DIE",999);
-
+// Config handling
 system_config_default( !defined("NO_DEFAULT_CONFIG") );
-
 if( file_exists("config.php") )
 	include("config.php");
-elseif( file_exists(dirname(__FILE__)."/config.php") )
-	include(dirname(__FILE__)."/config.php");
+elseif( file_exists(__DIR__."/config.php") )
+	include(__DIR__."/config.php");
 elseif( !defined("NO_CONFIG_NEEDED") )
 	system_die("No valid configuration found!");
 
@@ -59,7 +41,6 @@ elseif( !defined("NO_CONFIG_NEEDED") )
  */
 function system_config($filename,$reset_to_defaults=true)
 {
-	global $CONFIG;
 	if( $reset_to_defaults )
 		system_config_default();
 	require_once($filename);
@@ -74,24 +55,24 @@ function system_config_default($reset = true)
 
 	if( $reset )
 		$CONFIG = array();
-	$thispath = dirname(__FILE__);
-	$CONFIG['class_path']['system'][]  = $thispath.'/reflection/';
-	$CONFIG['class_path']['system'][]  = $thispath.'/base/';
-	$CONFIG['class_path']['content'][] = $thispath.'/lib/';
-	$CONFIG['class_path']['content'][] = $thispath.'/lib/controls/';
-	$CONFIG['class_path']['content'][] = $thispath.'/lib/controls/';
-	$CONFIG['class_path']['content'][] = $thispath.'/lib/controls/extender/';
-	$CONFIG['class_path']['content'][] = $thispath.'/lib/controls/table/';
-	$CONFIG['class_path']['content'][] = $thispath.'/lib/controls/locale/';
-	$CONFIG['class_path']['content'][] = $thispath.'/lib/jquery-ui/';
-	$CONFIG['class_path']['content'][] = $thispath.'/lib/jquery-ui/dialog/';
-	$CONFIG['class_path']['content'][] = $thispath.'/lib/jquery-ui/slider/';
-	$CONFIG['class_path']['content'][] = $thispath.'/lib/widgets/';
-	$CONFIG['class_path']['content'][] = $thispath.'/lib/widgets/dialogs/';
+	
+	$CONFIG['class_path']['system'][]  = __DIR__.'/reflection/';
+	$CONFIG['class_path']['system'][]  = __DIR__.'/base/';
+	$CONFIG['class_path']['content'][] = __DIR__.'/lib/';
+	$CONFIG['class_path']['content'][] = __DIR__.'/lib/controls/';
+	$CONFIG['class_path']['content'][] = __DIR__.'/lib/controls/';
+	$CONFIG['class_path']['content'][] = __DIR__.'/lib/controls/extender/';
+	$CONFIG['class_path']['content'][] = __DIR__.'/lib/controls/table/';
+	$CONFIG['class_path']['content'][] = __DIR__.'/lib/controls/locale/';
+	$CONFIG['class_path']['content'][] = __DIR__.'/lib/jquery-ui/';
+	$CONFIG['class_path']['content'][] = __DIR__.'/lib/jquery-ui/dialog/';
+	$CONFIG['class_path']['content'][] = __DIR__.'/lib/jquery-ui/slider/';
+	$CONFIG['class_path']['content'][] = __DIR__.'/lib/widgets/';
+	$CONFIG['class_path']['content'][] = __DIR__.'/lib/widgets/dialogs/';
 	
 	$CONFIG['class_path']['order'] = array('system','model','content');
 
-	$CONFIG['system']['path_root'] = realpath($thispath);
+	$CONFIG['system']['path_root'] = __DIR__;
 
 	$CONFIG['requestparam']['ignore_case'] = true;
 	$CONFIG['requestparam']['tagstostrip'] = array('script');
@@ -160,24 +141,11 @@ function system_init($application_name, $skip_header = false, $logging_category=
 	global $CONFIG;
 	$thispath = dirname(__FILE__);
 
-	$useglobalcache = isset($CONFIG['system']['modules']) && in_array("globalcache", $CONFIG['system']['modules']);
-	if(!$useglobalcache)
-	{
-		if(!isset($_SESSION["system_internal_cache"]))
-			$_SESSION["system_internal_cache"] = array();
-
-		if(!isset($_SESSION["filepathbuffer"]))
-			$_SESSION["filepathbuffer"] = array();
-	}
+	if(!isset($_SESSION["system_internal_cache"]))
+		$_SESSION["system_internal_cache"] = array();
 
 	if( $application_name )
 	{
-//		$app_db = dirname(__FILE__).'/'.$application_name.'.db';
-//		if( !file_exists($app_db) )
-//		{
-//			touch($app_db);
-//			chmod($app_db, 0777);
-//		}
 		$CONFIG['system']['application_name'] = $application_name;
 		if(!isset($CONFIG['model']['internal']['connection_string']))
 			$CONFIG['model']['internal']['connection_string']  = 'sqlite::memory:';
@@ -216,8 +184,6 @@ function system_init($application_name, $skip_header = false, $logging_category=
 		try {
 			foreach( $CONFIG['system']['header'] as $k=>$v )
 				header("$k: $v");
-//			header('content-type: text/html; charset=utf-8');
-//			header('X-XSS-Protection: 1; mode=block');
 		} catch(Exception $ex) {}
 	}
 
@@ -231,17 +197,6 @@ function system_init($application_name, $skip_header = false, $logging_category=
 }
 
 /**
- * Tests if 'we are' currently handling an ajax request
- */
-function system_is_ajax_call()
-{
-	if(isset($_SERVER["HTTP_X_REQUESTED_WITH"]) && (strtolower($_SERVER["HTTP_X_REQUESTED_WITH"]) == "xmlhttprequest"))
-		return true;
-	return isset($_REQUEST['request_id']) && isset($_SESSION['request_id']) &&
-		$_REQUEST['request_id'] == $_SESSION['request_id'];
-}
-
-/**
  * Executes the current request.
  * Reacts on _REQUEST['page'] for straight pages or _REQUEST['load'] for ajax calls
  */
@@ -249,12 +204,8 @@ function system_execute()
 {
 	global $CONFIG,$PAGE,$event;
 
-	$dosession = system_is_module_loaded('session');
-	if( $dosession )
-	{
-		session_sanitize();
-		execute_hooks(HOOK_POST_INITSESSION);
-	}
+	session_sanitize();
+	execute_hooks(HOOK_POST_INITSESSION);
 
 	// Cleanup URL params to avoid XSS (partially)
 	if( is_array($CONFIG['requestparam']['tagstostrip']) && count($CONFIG['requestparam']['tagstostrip']) > 0 )
@@ -264,25 +215,6 @@ function system_execute()
 		system_sanitize_parameters($_COOKIE);
 		$GLOBALS['RAW_REQUEST'] = $_REQUEST;
 		$_REQUEST = array_merge($_GET, $_POST, $_COOKIE);
-
-//		// better performance instead of using foreach (see http://www.phpbench.com/)
-//		// cleanup GET:
-//		$keys = array_keys($_GET);
-//		$size = sizeOf($keys);
-//		for ($i=0; $i<$size; $i++)
-//			$_GET[$keys[$i]] = strip_only($_GET[$keys[$i]],$CONFIG['requestparam']['tagstostrip']);
-//
-//		// cleanup POST:
-//		$keys = array_keys($_POST);
-//		$size = sizeOf($keys);
-//		for ($i=0; $i<$size; $i++)
-//			$_POST[$keys[$i]] = strip_only($_POST[$keys[$i]],$CONFIG['requestparam']['tagstostrip']);
-//
-//		// cleanup REQUEST:
-//		$keys = array_keys($_REQUEST);
-//		$size = sizeOf($keys);
-//		for ($i=0; $i<$size; $i++)
-//			$_REQUEST[$keys[$i]] = strip_only($_REQUEST[$keys[$i]],$CONFIG['requestparam']['tagstostrip']);
 	}
 	
 	// if there's a handler bound to HOOK_PARSE_URI call it and let it prepare
@@ -307,14 +239,8 @@ function system_execute()
 			$_REQUEST['event'] = $event;
 	}
 	$_REQUEST['page'] = $PAGE;
-	
-//	if( (($PAGE == $CONFIG['system']['default_page']) && ($event == $CONFIG['system']['default_event'])) || ($event == "TokenExpired") )
-//	{
-//		log_error("Default page/event will be called: ".$CONFIG['system']['default_page']."/".$CONFIG['system']['default_event']." session_id: ".session_id(),$_REQUEST,$_SERVER);
-//	}
 
 	execute_hooks(HOOK_PRE_PROCESSING, array($PAGE,$event));
-
 
 	// respond to PING requests that are sended to keep the session alive
 	if( isset($_REQUEST['PING']) )
@@ -329,8 +255,6 @@ function system_execute()
 		die;
 	}
 
-	//if( $CONFIG['error']['clean_each_run'] )
-	//	log_debug("=== Execution ==============================================================");
 	$isstrpage = is_string($PAGE);
 	if( in_object_storage($PAGE) )
 	{
@@ -344,7 +268,6 @@ function system_execute()
 			||
 			($isstrpage && $PAGE==$CONFIG['system']['default_page'] && isset($_REQUEST['request_id']) && !isset($_SESSION['request_id'])))
 	{
-//		$default_url = buildQuery($CONFIG['system']['default_page'],$CONFIG['system']['default_event']);		
 		die("__SESSION_TIMEOUT__");
 	}
 
@@ -373,16 +296,13 @@ function system_execute()
 		$content = system_invoke_request($PAGE,$event,HOOK_PRE_EXECUTE);
 	}
 	execute_hooks(HOOK_POST_EXECUTE);
-	set_time_limit(30);
-//		if( function_exists('timetrace') )
-//			TimeTrace("before ".$_REQUEST['page']);
+	set_time_limit(ini_get('max_execution_time'));
 	if( !isset($content) || !$content )
 		$content =& $PAGE;
 
 	$dotranslate = (system_is_module_loaded("translation") || system_is_module_loaded("translation2"));
 	if( system_is_ajax_call() )
 	{
-//			log_debug("Rendering AJAX result");
 		if( $content instanceof JsResponse )
 			$content = $content->Render();
 		elseif( is_array($content) )
@@ -392,7 +312,6 @@ function system_execute()
 			{
 				if($dotranslate)
 					$c = __translate($c);
-				//$content[$k] = json_decode($c);
 				if($c instanceof ApiList)
 					$c = $c->GetArray();
 			}
@@ -432,13 +351,6 @@ function system_execute()
 	}
 	else
 	{
-		//log_debug("Rendering Page ".get_class($content));
-//			if(get_class($content) == "JsResponse")
-//				log_debug($_REQUEST);
-//			if(isset($_SESSION['request_id']))
-//				log_debug("SID: ".$_SESSION['request_id']);
-//			if(isset($_REQUEST['request_id']))
-//				log_debug("RID: ".$_REQUEST['request_id']);
 		$_SESSION['request_id'] = request_id();
 		if( $content instanceof IRenderable)
 		{
@@ -449,19 +361,11 @@ function system_execute()
 			$content = __translate($content);
 	}
 
-	if( $dosession )
-	{
-		model_store();
-//TimeTrace("1a");
-		session_update();
-	}
-//TimeTrace("2");
+	model_store();
+	session_update();
 	execute_hooks(HOOK_PRE_FINISH,array($content));
-	// echoing to browser
 
 	echo $content;
-	//if( $CONFIG['error']['clean_each_run'] )
-	//	log_debug("============================================================================");
 }
 
 /**
@@ -475,7 +379,6 @@ function system_execute()
  */
 function system_invoke_request($target_class,$target_event,$pre_execute_hook_type)
 {
-	global $CONFIG;
 	$ref = System_Reflector::GetInstance($target_class);
 	$params = $ref->GetMethodAttributes($target_event,"RequestParam");
 	$args = array();
@@ -507,17 +410,14 @@ function system_invoke_request($target_class,$target_event,$pre_execute_hook_typ
 	}
 	catch(Exception $ex)
 	{
-		log_debug("Failed calling ".get_class($target_class).":$target_event\n".$ex->getTraceAsString());
-		log_debug("arguments:");
-		log_debug($args);
-		log_debug("request:");
-		log_debug($req_data);
-		log_debug("arguments (checked):");
-		log_debug($argscheck);
+        $r = log_start_report("Failed calling ".get_class($target_class).":$target_event");
+        $r->add("Arguments: ", $args);
+        $r->add("REQUEST: ", $req_data);
+        $r->add("Arguments Checked: ", $argscheck);
+        $r->add("Arguments: ", $args);
+        log_report($r,'ERROR');
 		system_die($ex);
 	}
-//	$method = $ref->getMethod($target_event);
-//	return $method->invokeArgs($target_class,$args);
 }
 
 /**
@@ -527,18 +427,6 @@ function system_invoke_request($target_class,$target_event,$pre_execute_hook_typ
  */
 function system_die($reason,$additional_message=false)
 {
-	global $IS_DEVELOPSERVER;
-//	$IS_DEVELOPSERVER = true;
-	// Special processing for ADODB exceptions (just an example)
-//	if( $reason instanceof ADODB_Exception )
-//	{
-//		$txt = "%s\nFunction: %s\nSQL: %s\nParameter: %s\nHost: %s\nDatabase: %s\n";
-//		$reason = sprintf($txt,$reason->msg,$reason->fn,$reason->sql,$reason->params,$reason->host,$reason->database);
-//		log_debug($reason);
-//		//$stacktrace = $reason->getTrace();
-//	}
-//	else
-
 	if( $reason instanceof Exception )
 	{
 		$code = $reason->getCode();
@@ -565,13 +453,10 @@ function system_die($reason,$additional_message=false)
 
 	if( isset($GLOBALS['system']['hooks'][HOOK_SYSTEM_DIE]) && count($GLOBALS['system']['hooks'][HOOK_SYSTEM_DIE]) > 0 )
 	{
-//		log_debug("hooking");
 		execute_hooks(HOOK_SYSTEM_DIE,array(
 			$reason,
-			$stacktrace,
-			system_get_log()
+			$stacktrace
 		));
-//		log_debug('post hook');
 	}
 
     if( system_is_ajax_call() )
@@ -582,60 +467,30 @@ function system_die($reason,$additional_message=false)
 		die(system_to_json($res));
 		
 		$dlg = new uiDialog('system_error','Fatal System Error');
-		if($IS_DEVELOPSERVER)
+		if(isDev())
 		{
 			$dlg->addContent("<h2 style='text-align:left'>$reason</h2>");
 			$dlg->addContent("<pre style='text-align:left'>".addslashes(system_stacktrace_to_string($stacktrace))."</pre>");
 		}
 		else
 			$dlg->addContent("<h2 style='text-align:left'>Fatal System Error occured. Please restart your browser.</h2>");
-		die("$('#system_error').remove();".$dlg->encodeForJS(true));
+		die("$('#system_error').remove();".$dlg->Execute());
 	}
 	else
 	{
 		$logfile  = '<div style="font-size: 12pt; font-weight: bold;">Logfile:</div>';
-//		$logfile .= '<div style="background-color: rgb(232, 232, 232); padding-left: 30px;">'.htmlspecialchars(system_get_log()).'</div>';
 
 		$stacktrace = system_stacktrace_to_string($stacktrace);
 		$res  = "<html><head><title>Fatal system error</title></head>";
 		$res .= "<body>";
-		if($IS_DEVELOPSERVER)
+		if(isDev())
 			$res .= "<pre>$reason</pre><pre>".$stacktrace."$logfile</pre>";
 		else
 			$res .= "Fatal System Error occured.<br/>Please try again.<br/>Contact our technical support if this problem occurs again.<br/><br/>Apologies for any inconveniences this may have caused you."; //: $reason";
-//		if(function_exists("dump"))
-//			log_debug($reason."\r\n".$stacktrace."\r\n".$logfile);
-		// really log the error so we can track them:
-//		log_error($reason."\r\n".$stacktrace."\r\n".$logfile);
 		$res .= "</body></html>";
-//		if( system_is_module_loaded('error') )
-//        {
-//            try {
-//                error($reason,$stacktrace);
-//            } catch(Exception $ex) {}
-//        }
-//		if(function_exists("dump"))
-//			log_debug($res);
-//		else
-//			log_error(var_export($res, true));
         echo($res);
         exit(0);
 	}
-}
-
-/**
- * Returns the contents of the error log or "[NO LOGFILE FOUND]" if error module not initialized
- * or another error occures.
- * @return string The logfile contents
- */
-function system_get_log()
-{
-	if( function_exists('get_logfile_name') )
-	{
-		if( file_exists(get_logfile_name()) )
-			return tail_file(get_logfile_name(),20);
-	}
-	return "[NO LOGFILE FOUND]";
 }
 
 /**
@@ -657,16 +512,6 @@ function register_hook_function($type,$handler_method)
  */
 function register_hook($type,&$handler_obj,$handler_method)
 {
-//	if( hook_already_fired($type) )
-//	{
-//		$type = hook_type_to_string($type);
-//		$msg  = "Trying to register a hook for type $type, which has already been fired!";
-//		$msg .= "\nHookStack = ";
-//		foreach($GLOBALS['system']['hooks']['fired'] as $ht)
-//			$msg .= "\n".hook_type_to_string($ht);
-//		system_die($msg);
-//	}
-
 	if( !isset($GLOBALS['system']['hooks'][$type]) )
 		$GLOBALS['system']['hooks'][$type] = array();
 
@@ -937,8 +782,6 @@ function __autoload__template($controller,$template_name)
 	else
 		$class = $controller;
 
-	$insession = (session_id() != "");
-	$useglobalcache = system_is_module_loaded("globalcache");
 	if( $template_name != "" )
 	{
         $key = "autoload_template-".(defined("_nc") ? _nc."-" : "").$template_name;
@@ -1096,7 +939,7 @@ function system_get_fields($classname)
  */
 function buildQuery($page,$event="",$data="", $url_root=false)
 {
-	global $CONFIG,$IS_DEVELOPSERVER;
+	global $CONFIG;
 
     if(substr($page, 0, 4) == "http")
         return $page;
@@ -1133,7 +976,7 @@ function buildQuery($page,$event="",$data="", $url_root=false)
 		$res .= "$p$data";
 		$p = "&";
 	}
-	if($IS_DEVELOPSERVER && isset($_REQUEST["XDEBUG_PROFILE"]))
+	if(isDev() && isset($_REQUEST["XDEBUG_PROFILE"]))
         $res .= $p."XDEBUG_PROFILE";
 
 	if( !$url_root )
@@ -1196,43 +1039,6 @@ function generatePW($len = 8)
 }
 
 /**
- * generates random string in the given length. can be used as document name
- * @param <int> $len the length of the return string. default = 8
- * @return <string> the generated string sequence
- */
-function generateFilename($targetfolder = "/images/", $fileextension = "png", $length = 59)
-{
-	$chars  = "abcdefghijklmnopqrstuvwxyz";
-	$chars .= "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	$chars .= "0123456789";
-	$res = "";
-	mt_srand ((double) microtime() * 1000000);
-    do
-	{
-		while( strlen($res) < $length )
-			$res .= $chars[mt_rand(0,strlen($chars)-1)];
-	}
-	while( file_exists($targetfolder.$res.$fileextension) );
-
-	return $targetfolder.$res.$fileextension;
-}
-
-/**
- * Returns the docroot
- * @return string teh document root. 
- */
-function root_dir()
-{
-    global $CONFIG;
-	//log_debug($_SERVER);
-    return realpath($CONFIG['system']['path_root']."/..")."/";
-
-//	$root = $_SERVER['DOCUMENT_ROOT'].$_SERVER['SCRIPT_URL'];
-//	$root = str_replace("index.php","",$root);
-//	return $root;
-}
-
-/**
  * Appends a version parameter to a link. This is useful to
  * avoid browser-side CSS and JS caching.
  *
@@ -1256,29 +1062,17 @@ function root_dir()
  */
 function appendVersion($href)
 {
-    global $IS_DEVELOPSERVER;
-
     if( defined("_nc") )
     {
        $href = str_replace(array("_", "="), "", _nc)."/".$href;
        return $href;
     }
 
-//	if( !defined("APP_VERSION") )
-//    {
-//        if( !defined("_nc") )
-//            return $href;
-//        if(strpos(_nc, "=") === false)
-//            define("APP_VERSION", _nc); //"0.0.0.1");
-//        else
-//            define("APP_VERSION", substr(_nc, strpos(_nc, "=") + 1));
-//    }
-
 	if( strpos($href,"?") === false )
 		$href .= "?av=".APP_VERSION;
     else
 		$href .= "&av=".APP_VERSION;
-    if($IS_DEVELOPSERVER && isset($_REQUEST["XDEBUG_PROFILE"]))
+    if( isDev() && isset($_REQUEST["XDEBUG_PROFILE"]) )
         $href .= "&XDEBUG_PROFILE";
 	return $href;
 }
@@ -1381,42 +1175,6 @@ function makerelativeuri($realpath)
 }
 
 /**
- * Checks if a string starts with another one.
- * @param string $string String to check
- * @param string $start The start to be checked
- * @return bool true|false
- */
-function starts_with($string,$start)
-{
-	return strpos($string,$start) === 0;
-}
-
-/**
- * Checks if a string ends with another one.
- * @param string $string String to check
- * @param string $end The end to be checked
- * @return bool true|false
- */
-function ends_with($string,$end)
-{
-	$sub = substr($string,strlen($string)-strlen($end));
-	return $sub == $end;
-}
-
-/**
- * Tests if the first given argument is one of the others.
- * This is a shortcut for in_array.
- * Use like this:
- * is_in('nice','Hello','nice','World')
- */
-function is_in()
-{
-	$args = func_get_args();
-	$needle = array_shift($args);
-	return in_array($needle,$args);
-}
-
-/**
  * Recursive implode.
  * Will implode the given pieces into a string and handle
  * multidimentional arrays too.
@@ -1431,66 +1189,6 @@ function r_implode($glue,$pieces)
 			$pieces[$index] = r_implode($glue,$item);
 
 	return implode($glue,$pieces);
-}
-
-function px($cm)
-{
-	return $cm * 37.823529411764705882352941176471;
-}
-
-function cm($px)
-{
-	return $px / 37.823529411764705882352941176471;
-}
-
-/**
- * Starts output buffering for inner-template javascript code.
- * Use system_end_script to end buffering.
- */
-function system_start_script()
-{
-	ob_start();
-}
-
-/**
- * Ends output buffering for inner-template javascript code.
- * @param array|string $depends_on JS files that should be loaded before the code is executed
- */
-function system_end_script($depends_on=false)
-{
- 	$script = ob_get_contents();
-	ob_end_clean();
-	//log_debug("SCRIPT: ".$script);
-	if( $depends_on )
-	{
-		$loader = $script;
-		if( !is_array($depends_on) )
-			$depends_on = array($depends_on);
-
-		$depends_on = array_reverse($depends_on);
-		foreach( $depends_on as &$do )
-		{
-			$hash = preg_replace('/[^a-zA-Z0-9]/',"",$do);
-			$loader = "ajax_script('$hash','$do','".jsEscape($loader)."');";
-		}
-		echo $loader;
-	}
-	else
-		echo $script;
-}
-
-/**
- * Prints out(!) JavaScript code to load CSS files.
- * @param string|array $cssfiles A filename or an array of filenames to be loaded
- */
-function system_load_css($cssfiles)
-{
-	if( !is_array($cssfiles) )
-		$cssfiles = array($cssfiles);
-
-	foreach( $cssfiles as &$css )
-		//echo "$('head').append('<link rel=\"stylesheet\" type=\"text/css\" media=\"screen\" href=\"$css\"/>');";
-		echo "if( $('link[href=$css]').length == 0 ) $('head').append('<link rel=\"stylesheet\" type=\"text/css\" media=\"screen\" href=\"$css\"/>');"; //$('<link rel=\"stylesheet\" type=\"text/css\" media=\"screen\" href=\"$css\"/>').appendTo($('head'));";
 }
 
 /**
@@ -1603,7 +1301,6 @@ function system_collect_includes(&$controller,&$template,&$js_cache,&$css_cache,
 
 function system_include_files($classname,&$controller,&$js_cache,&$css_cache)
 {
-//		log_debug("Including $classname");
 	if( system_is_module_loaded("skins") && skinFileExists("$classname.css") )
 	{
 		$css_cache[] = skinFile("$classname.css");
@@ -1623,17 +1320,8 @@ function system_include_files($classname,&$controller,&$js_cache,&$css_cache)
  */
 function system_include_statics($classname,$method,&$cache)
 {
-	global $CONFIG;
-//	if(session_id() != "")
-//	{
-////		if(isset($_SESSION["filepathbuffer"][$classname]))
-////			return $_SESSION["filepathbuffer"][$classname];
-//	}
-	$useglobalcache = false; //is_string($cache);
-	if( ($classname == "array") || (!$useglobalcache && isset($cache[$classname])) || !class_exists($classname) )
+	if( ($classname == "array") || isset($cache[$classname]) || !class_exists($classname) )
 		return;
-
-//	log_debug("system_include_statics($classname, $method)");
 
 	$ref = new ReflectionClass($classname);
 	if( $ref->hasMethod($method) )
@@ -1664,14 +1352,6 @@ function system_flatten_array(array $ar)
 	foreach(new RecursiveIteratorIterator(new RecursiveArrayIterator($ar)) as $value)
 		$ret_array[] = $value;
 	return $ret_array;
-
-//	$res = array();
-//	foreach( $ar as $a )
-//		if( is_array($a) )
-//			$res = array_merge($res,system_flatten_array($a));
-//		else
-//			$res[] = $a;
-//	return $res;
 }
 
 /**
@@ -1683,7 +1363,6 @@ function system_flatten_array(array $ar)
  */
 function system_find(&$content,$classname,&$result = array(),$recursion=0, $stack=array())
 {
-//	log_debug("system_find: $classname rec: ".$recursive);
 	if($recursion > 10)
 		return true;
 	if( is_object($content) )
@@ -1712,88 +1391,6 @@ function system_find(&$content,$classname,&$result = array(),$recursion=0, $stac
 	return false;
 }
 
-/**
- * Returns a string containing JavaScript code to preload the given CSS files.
- * @param string|array $cssFiles Filename or array of filename to be loaded
- * @return string JavaScript code to load the files
- */
-function system_preload_css($cssFiles)
-{
-	if( !is_array($cssFiles) )
-		$cssFiles = array($cssFiles);
-
-	$res = array();
-	foreach( $cssFiles as $css )
-		$res[] = "if( $('link[href=$css]').length == 0 ) $('<link rel=\"stylesheet\" type=\"text/css\" href=\"$css\" media=\"screen\"/>').appendTo($('head'));";
-	return implode("\n",$res);
-}
-
-/**
- * Encapsulates the given JavaScript code with preloading code for the given dependencies.
- * @param string|array $scriptCode Code as string or codelines as array
- * @param atring|array $dependencies Filename or array of filenames with the dependencies
- * @return string Resulting JavaScript code
- */
-function system_preload_js($scriptCode, $dependencies=false)
-{
-	if( is_array($scriptCode) )
-		$scriptCode = implode("\n",$scriptCode);
-
-	if( trim($scriptCode) == "" )
-		return "";
-
-	if( $dependencies )
-	{
-		$loader = $scriptCode;
-		if( !is_array($dependencies) )
-			$dependencies = array($dependencies);
-
-		$dependencies = array_reverse($dependencies);
-		foreach( $dependencies as &$do )
-		{
-			$hash = preg_replace('/[^a-zA-Z0-9]/',"",$do);
-			$loader = "ajax_script('$hash','$do','".jsEscape($loader)."');";
-		}
-		$scriptCode = $loader;
-	}
-
-	return trim($scriptCode);
-	//return "try{".$scriptCode."}catch(e){ Debug(e); }\n";
-}
-
-/**
- * Strips given tags from string
- * @see http://www.php.net/manual/en/function.strip-tags.php#93567
- * @param string $str String to strip
- * @param array $tags Tags to be stripped
- * @return string cleaned up string
- */
-function strip_only(&$str, $tags)
-{
-	if(isset($str) && is_array($str))
-		return $str;
-    if(!is_array($tags))
-	{
-        $tags = (strpos($str, '>') !== false ? explode('>', str_replace('<', '', $tags)) : array($tags));
-        if(end($tags) == '') array_pop($tags);
-    }
-
-//    foreach($tags as $tag)
-	$size = sizeof($tags);
-	$keys = array_keys($tags);
-	for ($i=0; $i<$size; $i++)
-	{
-		$tag = $tags[$keys[$i]];
-		if(isset($tag) && is_array($tag))
-			$str = strip_only($str, $tag);
-		else
-		{
-			if(stripos($str, $tag) !== false)
-				$str = preg_replace('#</?'.$tag.'[^>]*>#is', '', $str);
-		}
-	}
-	return $str;
-}
 /**
  * Strips given tags from array (GET, POST, REQUEST)
  * @see http://www.php.net/manual/en/function.strip-tags.php#93567
@@ -1894,189 +1491,6 @@ function current_event( $strtolower=false )
 		return strtolower($event);
 
 	return $event;
-}
-
-/**
- * Returns the ordinal number for a char.
- * Code 'stolen' from php.net ;)
- * The following uniord function is simpler and more efficient than any of the ones suggested without
- * depending on mbstring or iconv.
- * It's also more validating (code points above U+10FFFF are invalid; sequences starting with 0xC0 and 0xC1 are
- * invalid overlong encodings of characters below U+0080),
- * though not entirely validating, so it still assumes proper input.
- * @see http://de3.php.net/manual/en/function.ord.php#77905
- * @param char $c Character to get ORD of
- * @return int The ORD code
- */
-function uniord($c)
-{
-	$h = ord($c{0});
-	if ($h <= 0x7F) {
-		return $h;
-	} else if ($h < 0xC2) {
-		return false;
-	} else if ($h <= 0xDF) {
-		return ($h & 0x1F) << 6 | (ord($c{1}) & 0x3F);
-	} else if ($h <= 0xEF) {
-		return ($h & 0x0F) << 12 | (ord($c{1}) & 0x3F) << 6
-								 | (ord($c{2}) & 0x3F);
-	} else if ($h <= 0xF4) {
-		return ($h & 0x0F) << 18 | (ord($c{1}) & 0x3F) << 12
-								 | (ord($c{2}) & 0x3F) << 6
-								 | (ord($c{3}) & 0x3F);
-	} else {
-		return false;
-	}
-}
-
-/**
- * Here's a PHP function which does just that when given a UTF-8 encoded string. It's probably not the best way to do it, but it works:
- * @see http://www.iamcal.com/understanding-bidirectional-text/
- * Uncommented PDF correction because it's too weak and kills some currency symbols in CurrencyFormat::Format
- */
-function unicode_cleanup_rtl($data)
-{
-	#
-	# LRE - U+202A - 0xE2 0x80 0xAA
-	# RLE - U+202B - 0xE2 0x80 0xAB
-	# LRO - U+202D - 0xE2 0x80 0xAD
-	# RLO - U+202E - 0xE2 0x80 0xAE
-	#
-	# PDF - U+202C - 0xE2 0x80 0xAC
-	#
-
-	$explicits	= '\xE2\x80\xAA|\xE2\x80\xAB|\xE2\x80\xAD|\xE2\x80\xAE';
-//	$pdf		= '\xE2\x80\xAC';
-
-	preg_match_all("!$explicits!",	$data, $m1, PREG_OFFSET_CAPTURE | PREG_SET_ORDER);
-	//preg_match_all("!$pdf!", 	$data, $m2, PREG_OFFSET_CAPTURE | PREG_SET_ORDER);
-	$m2 = array();
-
-	if (count($m1) || count($m2)){
-
-		$p = array();
-		foreach ($m1 as $m){ $p[$m[0][1]] = 'push'; }
-		foreach ($m2 as $m){ $p[$m[0][1]] = 'pop'; }
-		ksort($p);
-
-		$offset = 0;
-		$stack = 0;
-		foreach ($p as $pos => $type){
-
-			if ($type == 'push'){
-				$stack++;
-			}else{
-				if ($stack){
-					$stack--;
-				}else{
-					# we have a pop without a push - remove it
-					$data = substr($data, 0, $pos-$offset)
-						.substr($data, $pos+3-$offset);
-					$offset += 3;
-				}
-			}
-		}
-
-		# now add some pops if your stack is bigger than 0
-		for ($i=0; $i<$stack; $i++){
-			$data .= "\xE2\x80\xAC";
-		}
-
-		return $data;
-	}
-
-	return $data;
-}
-
-/**
- * @see http://stackoverflow.com/a/3742879
- */
-function utf8_clean($str)
-{
-    return iconv('UTF-8', 'UTF-8//IGNORE', $str);
-}
-
-
-/**
- * Return the client's IP address
- * @return string IP address
- * @todo #4163: Proxies might require a more comprehensive approach.
- */
-function get_ip_address()
-{
-//	global $IS_DEVELOPSERVER;
-//	if( $IS_DEVELOPSERVER )
-//	if( $_SERVER['REMOTE_ADDR'] == '192.168.1.211' )
-//		return "66.135.205.14";	// US (ebay.com)
-//		return "46.122.252.60"; // ljubljana
-//		return "190.172.82.24"; // argentinia? (#5444)
-//		return "84.154.26.132"; // probably invalid ip from munich
-//		return "203.208.37.104"; // google.cn
-//		return "62.215.83.54";	// kuwait
-//		return "41.250.146.224";	// Morocco (rtl!)
-//		return "85.13.144.94";	// pamfax.biz = DE
-//		return "66.135.205.14";	// US (ebay.com)
-//		return "121.243.179.122";	// india
-//		return "109.253.21.90";	// invalid (user says UK)
-//		return "82.53.187.74";	// IT
-//		return "190.172.82.24";	// AR
-//		return "99.230.167.125";	// CA
-//		return "95.220.134.145";	// N/A
-//		return "194.126.108.2";	// Tallinn/Estonia (Skype static IP)
-
-//if(isset($_GET["debug"]))
-//	return "89.2.169.141";
-
-	global $DETECTED_CLIENT_IP;
-
-	if( isset($DETECTED_CLIENT_IP) )
-		return $DETECTED_CLIENT_IP;
-
-	$proxy_headers = array(
-		'HTTP_VIA',
-		'HTTP_X_FORWARDED_FOR',
-		'HTTP_FORWARDED_FOR',
-		'HTTP_X_FORWARDED',
-		'HTTP_FORWARDED',
-		'HTTP_CLIENT_IP',
-		'HTTP_FORWARDED_FOR_IP',
-		'VIA',
-		'X_FORWARDED_FOR',
-		'FORWARDED_FOR',
-		'X_FORWARDED',
-		'FORWARDED',
-		'CLIENT_IP',
-		'FORWARDED_FOR_IP',
-		'HTTP_PROXY_CONNECTION',
-		'REMOTE_ADDR' // REMOTE_ADDR must be last -> fallback
-	);
-
-	foreach( $proxy_headers as $ph )
-	{
-		if(!empty($_SERVER) && isset($_SERVER[$ph]))
-		{
-			$DETECTED_CLIENT_IP = $_SERVER[$ph];
-			break;
-		}
-		else if(!empty($_ENV) && isset($_ENV[$ph]))
-		{
-			$DETECTED_CLIENT_IP = $_ENV[$ph];
-			break;
-		}
-		else if(@getenv($ph))
-		{
-			$DETECTED_CLIENT_IP = getenv($ph);
-			break;
-		}
-	}
-
-	if(!isset($DETECTED_CLIENT_IP))
-		return false;
-
-	$is_ip = preg_match('/^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/',$DETECTED_CLIENT_IP,$regs);
-	if( $is_ip && (count($regs) > 0) )
-		$DETECTED_CLIENT_IP = $regs[1];
-	return $DETECTED_CLIENT_IP;
 }
 
 /**
@@ -2285,28 +1699,4 @@ function system_method_exists($object_or_classname,$method_name)
 	return $ret;
 }
 
-/**
- * Returns true when the current request is SSL secured, else false
- */
-function isSSL()
-{
-	return (isset($_SERVER["HTTPS"]) && ($_SERVER["HTTPS"] == "on")) || (isset($_SERVER["HTTP_X_FORWARDED_PROTO"]) && $_SERVER["HTTP_X_FORWARDED_PROTO"] == "https");
-}
-
-/**
- * Returns http, https, http:// or https:// 
- * by checking the current request and depending on the append_slashes argument
- */
-function urlScheme($append_slashes=false)
-{
-	if( $append_slashes )
-		return isSSL()?"https://":"http://";
-	return isSSL()?"https":"http";
-}
-
-function system_ensure_path_ending(&$path)
-{
-    if( !ends_with($path, DIRECTORY_SEPARATOR) )
-        $path .= DIRECTORY_SEPARATOR;
-}
 ?>

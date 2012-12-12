@@ -79,7 +79,7 @@ class PayPal extends PaymentProvider
 	
 	public function StartCheckout(IShopOrder $order)
 	{
-		global $CONFIG, $IS_DEVELOPSERVER;
+		global $CONFIG;
 		
 		$invoice_id = false;
 		if( $tmp = $order->GetInvoiceId() )
@@ -171,7 +171,7 @@ class PayPal extends PaymentProvider
 	 */
 	private function CheckIPNCall(IShopOrder $order, $ipndata)
 	{
-		global $CONFIG, $IS_DEVELOPSERVER;
+		global $CONFIG;
 		$paypal_url = ($CONFIG["payment"]["paypal"]["use_sandbox"] ? "www.sandbox.paypal.com" : "www.paypal.com");
 		
 		// check if the money really was sent to us

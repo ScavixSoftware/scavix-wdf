@@ -34,8 +34,6 @@
 */
 function geoip_init()
 {
-	global $IS_DEVELOPSERVER;
-
 	if( !function_exists('geoip_country_code_by_name') )
 	{
 		require_once(dirname(__FILE__)."/geoip/geoip.inc");

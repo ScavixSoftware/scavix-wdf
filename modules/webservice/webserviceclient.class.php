@@ -232,8 +232,7 @@ class WebServiceClient extends SoapClient
 			ini_set("default_socket_timeout",$default_socket_timeout);
 			$bufferedrequest = $this->_currentRequest;
 
-            global $IS_DEVELOPSERVER;
-            if($IS_DEVELOPSERVER)
+            if(isDev())
             {
                 if( $this instanceof EmployeeService && $function_name == "SaveEmployee" )
                 {

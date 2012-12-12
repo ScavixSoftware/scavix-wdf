@@ -125,21 +125,13 @@ class Dialog extends Template
 		$this->set("content",$this->content);
 	}
 
-	function encodeForJS($plain=false,$load_js_code=false)
+	function encodeForJS($plain=false)
 	{
-		$this->set("no_js_code",!$load_js_code);
+		$this->set("no_js_code",true);
 
 		$dlg = jsEscape($this->do_the_execution());
 		$dlg = "unescape('$dlg')";
-
 		$res = "$($dlg).appendTo('body');dialog_show('{$this->_storage_id}');";
-		//$res = "$($dlg).jqm({overlay:60,overlayClass:'whiteOverlay',toTop:true}).jqmShow();";
-
-		if( $load_js_code )
-		{
-			$css = system_preload_css(array(skinFile('dialog.css')));
-			$res = $css."\n".system_preload_js($res,array(jsFile('dialog.js'),jsFile('jquery/jqModal.js')));
-		}
 
 		if( $plain )
 			return $res;

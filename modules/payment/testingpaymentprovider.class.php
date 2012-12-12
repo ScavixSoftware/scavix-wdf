@@ -30,14 +30,12 @@ class TestingPaymentProvider extends PaymentProvider
 	
 	function __construct()
 	{
-		global $CONFIG;
 		parent::__construct();
 	}
 	
 	public function IsAvailable()
 	{
-		global $IS_DEVELOPSERVER, $IS_BETASERVER;
-		return $IS_DEVELOPSERVER || $IS_BETASERVER;		// this one is only available on dev and beta
+		return isDevOrBeta();		// this one is only available on dev and beta
 	}	
 	
 	/**
@@ -45,8 +43,6 @@ class TestingPaymentProvider extends PaymentProvider
 	 */
 	public function StartCheckout(IShopOrder $order)
 	{
-		global $CONFIG, $IS_DEVELOPSERVER;
-
 		$order->SetPaid(PaymentProvider::PROCESSOR_TESTING, -1);
 		$order->Save();
 		

@@ -208,7 +208,7 @@ class Gate2Shop extends PaymentProvider
 	 */
 	private function CheckIPNCall(IShopOrder $order, $ipndata)
 	{
-		global $CONFIG, $IS_DEVELOPSERVER;
+		global $CONFIG;
 		foreach(array("PPP_TransactionID", "ppp_status", "responsechecksum") as $k => $v)
 		{
 			if(!isset($ipndata[$v]))
@@ -263,7 +263,7 @@ class Gate2Shop extends PaymentProvider
 	 */
 	public function HandleReturnFromPP($ipndata)
 	{
-		global $CONFIG, $IS_DEVELOPSERVER;
+		global $CONFIG;
 		foreach(array("totalAmount", "currency", "responseTimeStamp", "PPP_TransactionID", "Status", "productId", "advanceResponseChecksum") as $k => $v)
 		{
 			if(!isset($ipndata[$v]))

@@ -331,21 +331,13 @@ class Control implements IRenderable
 	 * You may specify dependencies in the form of JS files that must be loaded to
 	 * make the control work.
 	 * @param string|array $scriptCode The JavaScript code
-	 * @param atring|array $dependencies The dependencies as string (one file) or array
-	 * @param bool $justReturn If true, the method only returns code. Else code will be added to this controls output too.
 	 * @return string The code with additional Script-Loading code
 	 */
-	function script($scriptCode, $dependencies=false, $justReturn=false)
+	function script($scriptCode)
 	{
-		if( $dependencies )
-			$scriptCode = system_preload_js($scriptCode,$dependencies);
-
-		if( !$justReturn )
-		{
-			$k = "k".md5($scriptCode);
-			if(!isset($this->_script[$k]))
-				$this->_script[$k] = $scriptCode;
-		}
+		$k = "k".md5($scriptCode);
+		if(!isset($this->_script[$k]))
+			$this->_script[$k] = $scriptCode;
 		return $scriptCode;
 	}
 

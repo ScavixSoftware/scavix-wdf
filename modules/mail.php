@@ -39,12 +39,12 @@ function mail_init()
 
 function mail_prepare($recipient,$subject,$message,$plainmessage="",$attachments=array())
 {
-	global $CONFIG, $IS_DEVELOPSERVER;
+	global $CONFIG;
 
 	require_once(dirname(__FILE__)."/phpmailer/class.smtp.php");
 	require_once(dirname(__FILE__)."/phpmailer/class.phpmailer.php");
 
-	if( $IS_DEVELOPSERVER && isset($CONFIG['mail']['dev_whitelist']))
+	if( isDev() && isset($CONFIG['mail']['dev_whitelist']))
 	{
 		$isvalidrecipient = false;
 		// on dev server, only domains/recipients in the whitelist are allowed
@@ -100,8 +100,10 @@ function mail_prepare($recipient,$subject,$message,$plainmessage="",$attachments
 
 	$mail->WordWrap = 80;
 
-    if($IS_DEVELOPSERVER && !starts_with($subject, '[DEV]'))
-        $subject = '[DEV] '.$subject;
+	$env = getEnvironment();
+    if( isNotLive() && !starts_with($subject, "[$env]"))
+        $subject = "[$env] $subject";
+	
 	$mail->Subject = $subject;
 	$mail->ContentType = "text/html";
 

@@ -88,7 +88,7 @@ function model_store()
  */
 function &model_datasource($name)
 {
-	global $MODEL_DATABASES, $CONFIG, $IS_DEVELOPSERVER;
+	global $MODEL_DATABASES;
 
 	if( strpos($name,"DataSource::") !== false )
 	{
