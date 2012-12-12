@@ -60,7 +60,7 @@ function resourceExists($filename, $return_url = false, $as_local_path = false)
 	if( ($res = cache_get($key)) !== false )
 		return $return_url?$res:($res != "0");
 
-	$cnc = str_replace(array("_", "="), "", _nc).'/';
+	$cnc = substr(appendVersion('/'),1);
 	$key = "$cnc$key".($as_local_path?"_l":"");
 	if( ($res = cache_get($key)) !== false )
 		return $return_url?$res:($res != "0");

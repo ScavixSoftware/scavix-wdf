@@ -67,7 +67,7 @@ abstract class TranslationHandlerBase extends HtmlPage
     {
         $this->addContent("<h1>New strings</h1>");
         $ds = model_datasource($GLOBALS['CONFIG']['translation']['sync']['datasource']);
-        foreach( $ds->ExecuteSql("SELECT * FROM unknown_strings ORDER BY term") as $row )
+        foreach( $ds->ExecuteSql("SELECT * FROM wdf_unknown_strings ORDER BY term") as $row )
         {
             $ns = new TranslationNewString($row['term'],$row['hits'],$row['last_hit']);
             $this->addContent($ns);
@@ -80,7 +80,7 @@ abstract class TranslationHandlerBase extends HtmlPage
     function DeleteString($term)
     {
         $ds = model_datasource($GLOBALS['CONFIG']['translation']['sync']['datasource']);
-        $ds->ExecuteSql("DELETE FROM unknown_strings WHERE term=?",$term);
+        $ds->ExecuteSql("DELETE FROM wdf_unknown_strings WHERE term=?",$term);
         return 'ok';
     }
 }

@@ -42,6 +42,27 @@ function isLive(){ return $_ENV['CURRENT_ENVIRONMENT'] == ENVIRONMENT_LIVE; }
 function isNotLive(){ return $_ENV['CURRENT_ENVIRONMENT'] != ENVIRONMENT_LIVE; }
 function isDevOrBeta(){ return $_ENV['CURRENT_ENVIRONMENT'] == ENVIRONMENT_DEV || $_ENV['CURRENT_ENVIRONMENT'] == ENVIRONMENT_BETA; }
 
+function setAppVersion($major,$minor,$build,$codename="")
+{
+	$major = intval($major);
+	$minor = intval($minor);
+	$build = intval($build);
+	$GLOBALS['APP_VERSION'] = compact('major','minor','build','codename');
+	$GLOBALS['APP_VERSION']['string'] = "$major.$minor.$build";
+	if( $codename )
+		$GLOBALS['APP_VERSION']['string'] .= " ($codename)";
+	$GLOBALS['APP_VERSION']['nc'] = "nc$major$minor$build";
+}
+
+function getAppVersion($key=false)
+{
+	if( !isset($GLOBALS['APP_VERSION']) )
+		setAppVersion (0, 0, 0, "default");
+	
+	if( $key && isset($GLOBALS['APP_VERSION'][$key]) )
+		return $GLOBALS['APP_VERSION'][$key];
+	return $GLOBALS['APP_VERSION'];
+}
 
 /**
  * Returns true when the current request is SSL secured, else false

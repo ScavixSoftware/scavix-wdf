@@ -57,9 +57,9 @@ function globalcache_init()
 
 		
 	if(isset($CONFIG['globalcache']['key_prefix']))
-		$GLOBALS['globalcache_key_prefix'] = "K".md5($_SERVER['SERVER_NAME']."-".$CONFIG['globalcache']['key_prefix']."-".(defined("_nc") ? _nc."-" : ""));
+		$GLOBALS['globalcache_key_prefix'] = "K".md5($_SERVER['SERVER_NAME']."-".$CONFIG['globalcache']['key_prefix']."-".getAppVersion('nc'));
 	else
-		$GLOBALS["globalcache_key_prefix"] = "K".md5($_SERVER['SERVER_NAME']."-".session_name()."-".(defined("_nc") ? _nc."-" : ""));
+		$GLOBALS["globalcache_key_prefix"] = "K".md5($_SERVER['SERVER_NAME']."-".session_name()."-".getAppVersion('nc'));
 
     register_hook_function(HOOK_POST_INIT,'globalcache_initialize');
 }
@@ -156,17 +156,6 @@ function globalcache_initialize()
 			break;
             
         case globalcache_CACHE_DB:
-            if( !isset($_SESSION['globalcache_db_initialized']) )
-            {
-                $_SESSION['globalcache_db_initialized'] = true;
-                $cache = model_datasource($CONFIG['globalcache']['datasource']);
-                $cache->ExecuteSql(
-                    "CREATE TABLE IF NOT EXISTS internal_cache (
-                        ckey VARCHAR(32)  NOT NULL,
-                        cvalue TEXT  NOT NULL,
-                        valid_until DATETIME  NULL,
-                        PRIMARY KEY (ckey))");
-            }
             break;
 	}
 }
@@ -214,13 +203,32 @@ function globalcache_set($key, $value, $ttl = false)
             case globalcache_CACHE_DB:
                 $val = (is_array($value)||is_object($value))?addslashes(serialize($value)):$value;
                 $ds = model_datasource($CONFIG['globalcache']['datasource']);
-                if( $ttl > 0 )
-                    $ds->ExecuteSql(
-                        "REPLACE INTO internal_cache(ckey,cvalue,valid_until)VALUES(?0,?1,".$ds->Driver->Now($ttl).")",
-                        array(md5($key),$val)
-                    );
-                else
-                    $ds->ExecuteSql("REPLACE INTO internal_cache(ckey,cvalue)VALUES(?0,?1)",array(md5($key),$val));
+				try
+				{
+					if( $ttl > 0 )
+						$ds->ExecuteSql(
+							"REPLACE INTO wdf_cache(ckey,cvalue,valid_until)VALUES(?0,?1,".$ds->Driver->Now($ttl).")",
+							array(md5($key),$val)
+						);
+					else
+						$ds->ExecuteSql("REPLACE INTO wdf_cache(ckey,cvalue)VALUES(?0,?1)",array(md5($key),$val));
+				}
+				catch(Exception $ex)
+				{
+					$ds->ExecuteSql("CREATE TABLE IF NOT EXISTS wdf_cache (
+                        ckey VARCHAR(32)  NOT NULL,
+                        cvalue TEXT  NOT NULL,
+                        valid_until DATETIME  NULL,
+                        PRIMARY KEY (ckey))");
+					
+					if( $ttl > 0 )
+						$ds->ExecuteSql(
+							"REPLACE INTO wdf_cache(ckey,cvalue,valid_until)VALUES(?0,?1,".$ds->Driver->Now($ttl).")",
+							array(md5($key),$val)
+						);
+					else
+						$ds->ExecuteSql("REPLACE INTO wdf_cache(ckey,cvalue)VALUES(?0,?1)",array(md5($key),$val));
+				}
                 return true;
                 break;
 		}
@@ -273,8 +281,11 @@ function globalcache_get($key, $default = false)
             
             case globalcache_CACHE_DB:
                 $ds = model_datasource($CONFIG['globalcache']['datasource']);
-                $ret = $ds->ExecuteScalar("SELECT cvalue FROM internal_cache WHERE ckey=? AND (valid_until IS NULL OR valid_until>=".$ds->Driver->Now().")",
-                    array(md5($key)));
+				try
+				{
+					$ret = $ds->ExecuteScalar("SELECT cvalue FROM wdf_cache WHERE ckey=? AND (valid_until IS NULL OR valid_until>=".$ds->Driver->Now().")",
+						array(md5($key)));
+				}catch(Exception $ex){ return $default; }
                 if( $ret === false )
                     return $default;
                 if( starts_with($ret, "a:") || starts_with($ret, "o:") )
@@ -323,7 +334,7 @@ function globalcache_clear()
         
         case globalcache_CACHE_DB:
             $ds = model_datasource($CONFIG['globalcache']['datasource']);
-            $ds->ExecuteSql("DELETE FROM internal_cache");
+            $ds->ExecuteSql("DELETE FROM wdf_cache");
 			break;
 	}
 	return false;
@@ -365,7 +376,7 @@ function globalcache_delete($key)
         
         case globalcache_CACHE_DB:
             $ds = model_datasource($CONFIG['globalcache']['datasource']);
-            $ds->ExecuteSql("DELETE FROM internal_cache WHERE ckey=?",md5($key));
+            $ds->ExecuteSql("DELETE FROM wdf_cache WHERE ckey=?",md5($key));
             return true;
 			break;
 	}

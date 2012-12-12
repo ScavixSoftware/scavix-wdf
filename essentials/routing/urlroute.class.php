@@ -30,7 +30,7 @@ class UrlRoute extends System_Model
 		global $CONFIG;
 
 		if( !isset($CONFIG['model']['urlroute']) )
-			$CONFIG['model']['urlroute'] = 'url_routes';
+			$CONFIG['model']['urlroute'] = 'wdf_routes';
 
 		if( $datasource == null )
 			$datasource = model_datasource($CONFIG['routing']['datasource']);

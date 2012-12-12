@@ -169,7 +169,7 @@ function get_timezone_by_ip($ip = false)
 	if( starts_with($ip, "1.1 ") || starts_with($ip, "192.168.1.") )
 		return false;
     
-	$key = "get_timezone_by_ip.".(defined("_nc") ? _nc."-" : "")."-".$ip;
+	$key = "get_timezone_by_ip.".getAppVersion('nc')."-".$ip;
     $ret = cache_get($key);
 	if( $ret )
 		return $ret;

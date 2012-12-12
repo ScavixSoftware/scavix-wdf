@@ -47,8 +47,6 @@ function translation_init()
         
         $CONFIG['class_path']['system'][] = dirname(__FILE__).'/translation/';
         $CONFIG['class_path']['system'][] = dirname(__FILE__).'/translation/'.strtolower($CONFIG['translation']['sync']['provider']).'/';
-        
-        register_hook_function(HOOK_POST_INIT,'translation_init_db');
     }
     else
         $CONFIG['translation']['sync']['datasource'] = false;
@@ -80,21 +78,6 @@ function translation_init()
 	$GLOBALS['__translate_regpattern'] = $reg;
     
     system_ensure_path_ending($CONFIG['translation']['data_path']);
-}
-
-function translation_init_db()
-{
-    if( !isset($_SESSION['translation_db_initialized']) )
-    {
-        $_SESSION['translation_db_initialized'] = true;
-        $ds = model_datasource($GLOBALS['CONFIG']['translation']['sync']['datasource']);
-        $ds->ExecuteSql(
-            "CREATE TABLE IF NOT EXISTS unknown_strings (
-                term VARCHAR(255) NOT NULL,
-                last_hit DATETIME NOT NULL,
-                hits INT DEFAULT 0,
-                PRIMARY KEY (term))");
-    }
 }
 
 function translation_do_includes()
@@ -213,9 +196,15 @@ function __translate($text)
         if( $CONFIG['translation']['sync']['datasource'] )
         {
             $ds = model_datasource($CONFIG['translation']['sync']['datasource']);
+			$ds->ExecuteSql("CREATE TABLE IF NOT EXISTS wdf_unknown_strings (
+				term VARCHAR(255) NOT NULL,
+				last_hit DATETIME NOT NULL,
+				hits INT DEFAULT 0,
+				PRIMARY KEY (term))");
+			
             $now = $ds->Driver->Now();
-            $sql1 = "INSERT OR IGNORE INTO unknown_strings(term,last_hit,hits)VALUES(?,$now,0);";
-            $sql2 = "UPDATE unknown_strings SET last_hit=$now, hits=hits+1 WHERE term=?;";
+            $sql1 = "INSERT OR IGNORE INTO wdf_unknown_strings(term,last_hit,hits)VALUES(?,$now,0);";
+            $sql2 = "UPDATE wdf_unknown_strings SET last_hit=$now, hits=hits+1 WHERE term=?;";
             foreach( $__unknown_constants as $uc )
             {
                 $ds->Execute($sql1,$uc);

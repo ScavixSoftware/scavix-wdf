@@ -783,7 +783,7 @@ function __autoload__template($controller,$template_name)
 
 	if( $template_name != "" )
 	{
-        $key = "autoload_template-".(defined("_nc") ? _nc."-" : "").$template_name;
+        $key = "autoload_template-".getAppVersion('nc').$template_name;
         $r = cache_get($key);
         if( ($r != false) && file_exists($r) )
             return $r;
@@ -841,7 +841,7 @@ function __search_file_for_class($class_name,$extension="class.php",$classpath_l
 {
 	global $CONFIG;
 
-    $key = "search_file_for_class-".(defined("_nc") ? _nc."-" : "").$class_name.$extension.$classpath_limit;
+    $key = "search_file_for_class-".getAppVersion('nc').$class_name.$extension.$classpath_limit;
     $r = cache_get($key);
     if( $r !== false )
         return $r;
@@ -1040,40 +1040,15 @@ function generatePW($len = 8)
 /**
  * Appends a version parameter to a link. This is useful to
  * avoid browser-side CSS and JS caching.
- *
- * The global constant APP_VERSION will be used.
- * You may assign it in index.php like this:
- * define("APP_VERSION","0.9");
- * If it is not defined, the default value will be 0.0.0.1
- *
- * For example:
- * http://www.domain.de/index.php
- * will result in
- * http://www.domain.de/index.php?av=0.0.0.1
- *
- * Another:
- * http://www.domain.de/index.php?firstprm=something
- * will result in
- * http://www.domain.de/index.php?firstprm=something&av=0.0.0.1
- *
- * @param mixed $href The base link
- * @return A link appended the APP_VERSION constant
  */
 function appendVersion($href)
 {
-    if( defined("_nc") )
-    {
-       $href = str_replace(array("_", "="), "", _nc)."/".$href;
-       return $href;
-    }
-
-	if( strpos($href,"?") === false )
-		$href .= "?av=".APP_VERSION;
-    else
-		$href .= "&av=".APP_VERSION;
-    if( isDev() && isset($_REQUEST["XDEBUG_PROFILE"]) )
-        $href .= "&XDEBUG_PROFILE";
-	return $href;
+	if( !isset($GLOBALS['APP_VERSION']) )
+		setAppVersion (0, 0, 0, "default");
+	
+	if( !$href || $href[0] == '/' )
+		return "/{$GLOBALS['APP_VERSION']['nc']}$href";
+	return "{$GLOBALS['APP_VERSION']['nc']}/$href";
 }
 
 /**
