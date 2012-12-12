@@ -114,33 +114,33 @@ class Template implements IRenderable
 			$this->SkipRendering = true;
 			execute_hooks(HOOK_PRE_RENDER,array($this));
 		}
-		if( !$this->_container_path )
-		{
-			$bt = debug_backtrace();
-			$i = 0;
-			$btcnt = count($bt);
-			while( $i<$btcnt && isset($bt[$i]['object']) && strtolower($bt[$i]['function']) == 'execute' )
-				$i++;
-			if( $i<$btcnt )
-			{
-				$this->_container_path = array();
-				while( $i<$btcnt )
-				{
-					if( isset($bt[$i]['object']) && $bt[$i]['object'] instanceof IRenderable && isset($bt[$i]['object']->_container_path) )
-					{
-						if( is_array($bt[$i]['object']->_container_path) )
-							$this->_container_path = array_merge($this->_container_path,$bt[$i]['object']->_container_path);
-						else
-							$this->_container_path[] = get_class($bt[$i]['object']);
-					}
-					$i++;
-				}
-				$this->_container_path = array_values(array_unique($this->_container_path));
-			}
-		}
-
-        foreach( $this->vars as &$val )
-			$this->AssignContainer($val,$this,$this->_container_path);
+//		if( !$this->_container_path )
+//		{
+//			$bt = debug_backtrace();
+//			$i = 0;
+//			$btcnt = count($bt);
+//			while( $i<$btcnt && isset($bt[$i]['object']) && strtolower($bt[$i]['function']) == 'execute' )
+//				$i++;
+//			if( $i<$btcnt )
+//			{
+//				$this->_container_path = array();
+//				while( $i<$btcnt )
+//				{
+//					if( isset($bt[$i]['object']) && $bt[$i]['object'] instanceof IRenderable && isset($bt[$i]['object']->_container_path) )
+//					{
+//						if( is_array($bt[$i]['object']->_container_path) )
+//							$this->_container_path = array_merge($this->_container_path,$bt[$i]['object']->_container_path);
+//						else
+//							$this->_container_path[] = get_class($bt[$i]['object']);
+//					}
+//					$i++;
+//				}
+//				$this->_container_path = array_values(array_unique($this->_container_path));
+//			}
+//		}
+//
+//        foreach( $this->vars as &$val )
+//			$this->AssignContainer($val,$this,$this->_container_path);
 
         $res = $this->do_the_execution();
 		if( $encode )
@@ -148,56 +148,56 @@ class Template implements IRenderable
 		return $res;
 	}
 
-	/**
-	 * Injects a container path.
-	 * @param string $path_string A path seperated by '->'
-	 */
-	function SetContainerPath($path_string)
-	{
-		$this->_container_path = explode('->',$path_string);
-	}
-
-	/**
-	 * Creates a 'tree' of parent containers for the template.
-	 * @param object $obj The target object
-	 * @param object $parent The parent object
-	 * @param array $path OUT: The complete path
-	 */
-	function AssignContainer(&$obj, &$parent, $path = array())
-	{
-
-		if( $obj instanceof HtmlElement && $obj->AutoAjax )
-			store_object($obj);
-		elseif( $parent != null && $obj instanceof IRenderable &&
-			isset($obj->_storage_id) && $obj->_storage_id != "" && in_object_storage($obj->_storage_id) )
-		{
-			$path[] = get_class($parent);
-			$obj->_container_path = $path;
-			store_object($obj);
-		}
-
-		if( isset($obj->vars) && is_array($obj->vars) )
-		{
-			foreach($obj->vars as &$val )
-			{
-				if( $val instanceof IRenderable )
-				{
-					$path[] = get_class($parent);
-					$this->AssignContainer($val,$obj,$path);
-				}
-				elseif( is_array($val) )
-				{
-					foreach( $val as &$entry )
-						$this->AssignContainer($entry,$parent,$path);
-				}
-			}
-		}
-		elseif( is_array($obj) )
-		{
-			foreach( $obj as &$entry )
-				$this->AssignContainer($entry,$parent,$path);
-		}
-	}
+//	/**
+//	 * Injects a container path.
+//	 * @param string $path_string A path seperated by '->'
+//	 */
+//	function SetContainerPath($path_string)
+//	{
+//		$this->_container_path = explode('->',$path_string);
+//	}
+//
+//	/**
+//	 * Creates a 'tree' of parent containers for the template.
+//	 * @param object $obj The target object
+//	 * @param object $parent The parent object
+//	 * @param array $path OUT: The complete path
+//	 */
+//	function AssignContainer(&$obj, &$parent, $path = array())
+//	{
+//
+//		if( $obj instanceof HtmlElement && $obj->AutoAjax )
+//			store_object($obj);
+//		elseif( $parent != null && $obj instanceof IRenderable &&
+//			isset($obj->_storage_id) && $obj->_storage_id != "" && in_object_storage($obj->_storage_id) )
+//		{
+//			$path[] = get_class($parent);
+//			$obj->_container_path = $path;
+//			store_object($obj);
+//		}
+//
+//		if( isset($obj->vars) && is_array($obj->vars) )
+//		{
+//			foreach($obj->vars as &$val )
+//			{
+//				if( $val instanceof IRenderable )
+//				{
+//					$path[] = get_class($parent);
+//					$this->AssignContainer($val,$obj,$path);
+//				}
+//				elseif( is_array($val) )
+//				{
+//					foreach( $val as &$entry )
+//						$this->AssignContainer($entry,$parent,$path);
+//				}
+//			}
+//		}
+//		elseif( is_array($obj) )
+//		{
+//			foreach( $obj as &$entry )
+//				$this->AssignContainer($entry,$parent,$path);
+//		}
+//	}
 
 	/**
 	 * Inner redering method.
@@ -205,13 +205,13 @@ class Template implements IRenderable
 	 */
 	function do_the_execution()
 	{
-		if( !($this instanceof HtmlElement) || $this->_ownTemplate )
-		{
-			if( system_is_module_loaded("skins") && skinFileExists("trans.gif") )
-				$this->set("trans","<img src='".skinFile("trans.gif")."' alt='' width='1px' height='1px'/>");
-			else
-				$this->set("trans","");
-		}
+//		if( !($this instanceof HtmlElement) || $this->_ownTemplate )
+//		{
+//			if( system_is_module_loaded("skins") && skinFileExists("trans.gif") )
+//				$this->set("trans","<img src='".skinFile("trans.gif")."' alt='' width='1px' height='1px'/>");
+//			else
+//				$this->set("trans","");
+//		}
 
 		$tempvars = $this->execute_array($this->vars);
 
