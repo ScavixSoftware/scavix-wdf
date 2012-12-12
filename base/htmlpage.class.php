@@ -108,7 +108,6 @@ class HtmlPage extends Template implements ICallable
 			$this->addJs(jsFile("jquery.ajaxmanager.js"));
 			$this->addJs(jsFile("jquery.jcache.js"));
 
-			$this->addJs(jsFile("dialog.js"));
 			$this->addDocReady("");
 		}
 	}
