@@ -42,6 +42,158 @@ function isLive(){ return $_ENV['CURRENT_ENVIRONMENT'] == ENVIRONMENT_LIVE; }
 function isNotLive(){ return $_ENV['CURRENT_ENVIRONMENT'] != ENVIRONMENT_LIVE; }
 function isDevOrBeta(){ return $_ENV['CURRENT_ENVIRONMENT'] == ENVIRONMENT_DEV || $_ENV['CURRENT_ENVIRONMENT'] == ENVIRONMENT_BETA; }
 
+/**
+ * Sets a config value.
+ * 
+ * uses given arguments for key path like this:
+ * cfg_set('system','use_cfg','really',true);
+ * will set
+ * $CONFIG['system']['use_cfg']['really'] = true;
+ * 
+ * measured performance agains direct assignment: it is about 5 times
+ * slower on a Windows7 x64 system with 8GB RAM.
+ * But for 1000 calls it just needs 5ms, so just leave me alone with that.
+ */
+function cfg_set()
+{
+	global $CONFIG;
+	$args = func_get_args();
+	switch( func_num_args() )
+	{
+		case 2: $CONFIG[$args[0]] = $args[1]; break;
+		case 3: $CONFIG[$args[0]][$args[1]] = $args[2]; break;
+		case 4: $CONFIG[$args[0]][$args[1]][$args[2]] = $args[3]; break;
+		case 5: $CONFIG[$args[0]][$args[1]][$args[2]][$args[3]] = $args[4]; break;
+		case 6: $CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]] = $args[5]; break;
+		case 7: $CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]] = $args[6]; break;
+		default: throw new Exception("Illegal argument count: ".count($args));
+	}
+}
+
+/**
+ * sets a config value only if it has not been set.
+ * see cfg_set() for usage and performance thoughts
+ */
+function cfg_setd()
+{
+	global $CONFIG;
+	$args = func_get_args();
+	switch( func_num_args() )
+	{
+		case 2: if( !isset($CONFIG[$args[0]]) ) $CONFIG[$args[0]] = $args[1]; break;
+		case 3: if( !isset($CONFIG[$args[0]][$args[1]]) ) $CONFIG[$args[0]][$args[1]] = $args[2]; break;
+		case 4: if( !isset($CONFIG[$args[0]][$args[1]][$args[2]]) ) $CONFIG[$args[0]][$args[1]][$args[2]] = $args[3]; break;
+		case 5: if( !isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]]) ) $CONFIG[$args[0]][$args[1]][$args[2]][$args[3]] = $args[4]; break;
+		case 6: if( !isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]]) ) $CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]] = $args[5]; break;
+		case 7: if( !isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]]) ) $CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]] = $args[6]; break;
+		default: throw new Exception("Illegal argument count: ".count($args));
+	}
+}
+
+/**
+ * adds an entry to a config value array.
+ * see cfg_set() for usage and performance thoughts
+ */
+function cfg_add()
+{
+	global $CONFIG;
+	$args = func_get_args();
+	switch( func_num_args() )
+	{
+		case 2: $CONFIG[$args[0]][] = $args[1]; break;
+		case 3: $CONFIG[$args[0]][$args[1]][] = $args[2]; break;
+		case 4: $CONFIG[$args[0]][$args[1]][$args[2]][] = $args[3]; break;
+		case 5: $CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][] = $args[4]; break;
+		case 6: $CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][] = $args[5]; break;
+		case 7: $CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]][] = $args[6]; break;
+		default: throw new Exception("Illegal argument count: ".count($args));
+	}
+}
+
+/**
+ * gets a config value.
+ * see cfg_set() for usage and performance thoughts
+ */
+function cfg_get()
+{
+	global $CONFIG;
+	$args = func_get_args();
+	switch( func_num_args() )
+	{
+		case 1: return isset($CONFIG[$args[0]])?$CONFIG[$args[0]]:false;
+		case 2: return isset($CONFIG[$args[0]][$args[1]])?$CONFIG[$args[0]][$args[1]]:false;
+		case 3: return isset($CONFIG[$args[0]][$args[1]][$args[2]])?$CONFIG[$args[0]][$args[1]][$args[2]]:false;
+		case 4: return isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]])?$CONFIG[$args[0]][$args[1]][$args[2]][$args[3]]:false;
+		case 5: return isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]])?$CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]]:false;
+		case 6: return isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]])?$CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]]:false;
+		default: throw new Exception("Illegal argument count: ".count($args));
+	}
+}
+
+/**
+ * gets a config value and uses the last argument given as default if it is not set.
+ * see cfg_set() for usage and performance thoughts
+ */
+function cfg_getd()
+{
+	global $CONFIG;
+	$args = func_get_args();
+	switch( func_num_args() )
+	{
+		case 2: return isset($CONFIG[$args[0]])?$CONFIG[$args[0]]:$args[1];
+		case 3: return isset($CONFIG[$args[0]][$args[1]])?$CONFIG[$args[0]][$args[1]]:$args[2];
+		case 4: return isset($CONFIG[$args[0]][$args[1]][$args[2]])?$CONFIG[$args[0]][$args[1]][$args[2]]:$args[3];
+		case 5: return isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]])?$CONFIG[$args[0]][$args[1]][$args[2]][$args[3]]:$args[4];
+		case 6: return isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]])?$CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]]:$args[5];
+		case 7: return isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]])?$CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]]:$args[6];
+		default: throw new Exception("Illegal argument count: ".count($args));
+	}
+}
+
+/**
+ * deletes a config value
+ * see cfg_set() for usage and performance thoughts
+ */
+function cfg_del()
+{
+	global $CONFIG;
+	$args = func_get_args();
+	switch( func_num_args() )
+	{
+		case 1: unset($CONFIG[$args[0]]); break;
+		case 2: unset($CONFIG[$args[0]][$args[1]]); break;
+		case 3: unset($CONFIG[$args[0]][$args[1]][$args[2]]); break;
+		case 4: unset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]]); break;
+		case 5: unset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]]); break;
+		case 6: unset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]]); break;
+		default: throw new Exception("Illegal argument count: ".count($args));
+	}
+}
+
+/**
+ * checks if a config is set and throws an ex2ception if not.
+ * last argument will be used as exception message.
+ * see cfg_set() for usage and performance thoughts
+ */
+function cfg_check()
+{
+	global $CONFIG;
+	$args = func_get_args();
+	switch( func_num_args() )
+	{
+		case 2: if( !isset($CONFIG[$args[0]]) || !$CONFIG[$args[0]] ) throw new Exception($args[1]); break;
+		case 3: if( !isset($CONFIG[$args[0]][$args[1]]) || !$CONFIG[$args[0]][$args[1]] ) throw new Exception($args[2]); break;
+		case 4: if( !isset($CONFIG[$args[0]][$args[1]][$args[2]]) || $CONFIG[$args[0]][$args[1]][$args[2]] ) throw new Exception($args[3]); break;
+		case 5: if( !isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]]) || $CONFIG[$args[0]][$args[1]][$args[2]][$args[3]] ) throw new Exception($args[4]); break;
+		case 6: if( !isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]]) || !$CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]] ) throw new Exception($args[5]); break;
+		case 7: if( !isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]]) || !$CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]] ) throw new Exception($args[6]); break;
+		default: throw new Exception("Illegal argument count: ".count($args));
+	}
+}
+
+/**
+ * Sets the application version.
+ */
 function setAppVersion($major,$minor,$build,$codename="")
 {
 	$major = intval($major);
@@ -54,6 +206,10 @@ function setAppVersion($major,$minor,$build,$codename="")
 	$GLOBALS['APP_VERSION']['nc'] = "nc$major$minor$build";
 }
 
+/**
+ * gets the application version.
+ * if key is given, returns that part only.
+ */
 function getAppVersion($key=false)
 {
 	if( !isset($GLOBALS['APP_VERSION']) )
@@ -189,7 +345,6 @@ function strip_only(&$str, $tags)
         if(end($tags) == '') array_pop($tags);
     }
 
-//    foreach($tags as $tag)
 	$size = sizeof($tags);
 	$keys = array_keys($tags);
 	for ($i=0; $i<$size; $i++)
