@@ -354,7 +354,7 @@ class Control implements IRenderable
 	}
 
 	/**
-	 * Adds content to the HtmlElement.
+	 * Adds content to the Control.
 	 * @param mixed $content The content to be added
 	 * @param bool $replace if true replaces the whole content.
 	 */
