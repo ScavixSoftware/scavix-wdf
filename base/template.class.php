@@ -230,7 +230,7 @@ class Template implements IRenderable
 		{
 			$__template_file = __autoload__template($this,$this->SubTemplate?$this->SubTemplate:"");
 			if( $__template_file === false )
-				system_die("SubTemplate for class '".get_class($this)."' not found: ".$this->file);
+				system_die("SubTemplate for class '".get_class($this)."' not found: ".$this->file,$this->SubTemplate);
 
 			if( stripos($__template_file,"htmlpage.tpl.php") === false )
 			{
@@ -238,7 +238,6 @@ class Template implements IRenderable
 				require($__template_file);
 				$sub_template_content = ob_get_contents();
 				ob_end_clean();
-                log_debug("subtemplate processed: $__template_file");
 			}
 			$this->file = dirname(__FILE__)."/htmlpage.tpl.php";
 		}

@@ -213,8 +213,21 @@ function minify_collect_files($path_root,$paths,$kind)
 		if( !ends_with($path, "/") ) $path .= "/";
 		foreach( minify_list_files($path) as $f )
 			minify_collect_from_file($kind,$f,$res,$deps);
-		foreach( minify_list_files($path,"*.tpl.php") as $f )
-			minify_collect_from_file($kind,$f,$res,$deps);
+		
+		$done_templates = array();
+		foreach( array_reverse(cfg_get('system','tpl_ext')) as $tpl_ext )
+		{
+			$files = minify_list_files($path,"*.$tpl_ext");
+			foreach( $files as $f )
+			{
+				$skip = false;
+				foreach( $done_templates as $d )
+					if( isset($deps[basename($f,".$d")]) ){ $skip = true; break; }
+				if( $skip ) continue;
+				minify_collect_from_file($kind,$f,$res,$deps);
+			}
+			$done_templates[] = $tpl_ext;
+		}
 	}
 	if( $kind == "css" )
 	{

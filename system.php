@@ -95,6 +95,7 @@ function system_config_default($reset = true)
     $CONFIG['system']['modules'] = array();
     $CONFIG['system']['default_page'] = "HtmlPage";
     $CONFIG['system']['default_event'] = false;
+	$CONFIG['system']['tpl_ext'] = array("tpl.php");
 }
 
 /**
@@ -815,12 +816,14 @@ function __autoload__template($controller,$template_name)
         return $r;
 
 	$file = __search_file_for_class($class);
-	$file = str_replace("class.php","tpl.php",$file?$file:"");
-
-	if( file_exists($file) )
+	foreach( array_reverse($CONFIG['system']['tpl_ext']) as $tpl_ext )
 	{
-        cache_set($key, $file, $CONFIG['system']['cache_ttl']);
-		return $file;
+		$tpl_file = str_replace("class.php",$tpl_ext,$file?$file:"");
+		if( file_exists($tpl_file) )
+		{
+			cache_set($key, $tpl_file, $CONFIG['system']['cache_ttl']);
+			return $tpl_file;
+		}
 	}
 
 	$pclass = get_parent_class($class);

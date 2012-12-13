@@ -194,7 +194,7 @@ function cfg_check()
 /**
  * Sets the application version.
  */
-function setAppVersion($major,$minor,$build,$codename="")
+function setAppVersion($major,$minor,$build,$codename="",$nc_salt=false)
 {
 	$major = intval($major);
 	$minor = intval($minor);
@@ -203,7 +203,7 @@ function setAppVersion($major,$minor,$build,$codename="")
 	$GLOBALS['APP_VERSION']['string'] = "$major.$minor.$build";
 	if( $codename )
 		$GLOBALS['APP_VERSION']['string'] .= " ($codename)";
-	$GLOBALS['APP_VERSION']['nc'] = "nc$major$minor$build";
+	$GLOBALS['APP_VERSION']['nc'] = 'nc'.preg_replace('/[^0-9]/', '', md5($GLOBALS['APP_VERSION']['string'].$nc_salt));
 }
 
 /**
