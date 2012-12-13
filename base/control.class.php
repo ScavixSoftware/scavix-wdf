@@ -116,14 +116,16 @@ $GLOBALS['html_attributes'] = array(
 	'tr' => array('align','bgcolor','char','charoff','valign'),
 	'ul' => array('compact','type'),
 	'menu' => array('type'),
-	'menuitem' => array('label')
+	'menuitem' => array('label'),
+	'audio' => array('controls','autoplay','loop','preload','src','onload'),
+	'source' => array('src','type','onload'),
 );
 
 /**
  * Tags that need a closing tag wether there's content or not.
  */
 $GLOBALS['html_close_tag_needed'] = array(
-	'span','textarea','div','td','select'
+	'span','textarea','div','td','select','audio'
 );
 $GLOBALS['html_close_tag_needed'] = array_combine($GLOBALS['html_close_tag_needed'], $GLOBALS['html_close_tag_needed']);
 
