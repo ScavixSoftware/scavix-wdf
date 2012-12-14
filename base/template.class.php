@@ -36,6 +36,7 @@ class Template implements IRenderable
 	var $_storage_id;
 	var $tpl_as_subtpl = false;
 	var $_container_path = false;
+	var $_script = array();
 
     /**
 	 * Constructs a new object.
@@ -43,6 +44,11 @@ class Template implements IRenderable
 	 */
 	function __construct()
 	{
+		if( !hook_already_fired(HOOK_PRE_RENDER) )
+			register_hook(HOOK_PRE_RENDER,$this,"PreRender");
+		elseif( !hook_already_fired(HOOK_POST_EXECUTE) )
+			register_hook(HOOK_POST_EXECUTE,$this,"PreRender");
+		
 		if( !unserializer_active() )
 		{
 			$args = func_get_args();
@@ -59,7 +65,10 @@ class Template implements IRenderable
 		$this->file = $file;
 
 		if( !unserializer_active() )
+		{
 			create_storage_id($this);
+			$this->vars['id'] = $this->_storage_id;
+		}
 	}
 
 	function __getpropertynames($inherited=true)
@@ -72,6 +81,21 @@ class Template implements IRenderable
 	{
 		return array('vars','file','translate','_storage_id','tpl_as_subtpl','_container_path');
 	}
+	
+	/**
+	 * Will be executed on HOOK_PRE_RENDER.
+	 * Prepares the control and all it's extenders for output.
+	 * @internal
+	 */
+	function PreRender($args=array())
+	{
+		if( count($args) > 0 )
+		{
+			$page = $args[0];
+			if( $page instanceof HtmlPage )
+				$page->addDocReady(implode("\n",$this->_script)."\n");
+		}
+	}
 
 	/**
 	 * Set a variable for use in template file
@@ -81,6 +105,8 @@ class Template implements IRenderable
 	public function set($name, $value)
 	{
 		$this->vars[$name] = $value;
+		if( $name == 'id' )
+			$this->_storage_id = $value;
 	}
 
 	/**
@@ -99,6 +125,18 @@ class Template implements IRenderable
 			else
 				$this->vars[] = $vars;
 		}
+	}
+	
+	/**
+	 * Adds JavaScript-Code to the template.
+	 */
+	function script($scriptCode)
+	{
+		$scriptCode = str_replace("{self}", $this->_storage_id, $scriptCode);
+		$k = "k".md5($scriptCode);
+		if(!isset($this->_script[$k]))
+			$this->_script[$k] = $scriptCode;
+		return $scriptCode;
 	}
 
 	/**

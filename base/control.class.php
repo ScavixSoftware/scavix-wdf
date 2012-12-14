@@ -337,6 +337,7 @@ class Control implements IRenderable
 	 */
 	function script($scriptCode)
 	{
+		$scriptCode = str_replace("{self}", $this->id, $scriptCode);
 		$k = "k".md5($scriptCode);
 		if(!isset($this->_script[$k]))
 			$this->_script[$k] = $scriptCode;
