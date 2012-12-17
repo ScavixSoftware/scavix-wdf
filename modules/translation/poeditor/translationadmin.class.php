@@ -1,6 +1,6 @@
 <?
  
-class TranslationHandler extends TranslationHandlerBase
+class TranslationAdmin extends SysAdmin
 {
     function __initialize($title = "", $body_class = false)
     {
@@ -105,5 +105,28 @@ class TranslationHandler extends TranslationHandlerBase
         }
         
         return parent::DeleteString($term);
+    }
+	
+    /**
+     */
+    function NewStrings()
+    {
+        $this->addContent("<h1>New strings</h1>");
+        $ds = model_datasource($GLOBALS['CONFIG']['translation']['sync']['datasource']);
+        foreach( $ds->ExecuteSql("SELECT * FROM wdf_unknown_strings ORDER BY term") as $row )
+        {
+            $ns = new TranslationNewString($row['term'],$row['hits'],$row['last_hit']);
+            $this->addContent($ns);
+        }
+    }
+    
+    /**
+     * @attribute[RequestParam('term','string')]
+     */
+    function DeleteString($term)
+    {
+        $ds = model_datasource($GLOBALS['CONFIG']['translation']['sync']['datasource']);
+        $ds->ExecuteSql("DELETE FROM wdf_unknown_strings WHERE term=?",$term);
+        return 'ok';
     }
 }

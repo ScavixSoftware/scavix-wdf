@@ -58,7 +58,6 @@ function logging_init()
             $CONFIG['system']['modules'] = array_diff($CONFIG['system']['modules'],array('error'));
 	$GLOBALS["loaded_modules"]['error'] = __FILE__;
 	
-	//$CONFIG['class_path']['system'][]  = dirname(__FILE__).'/logging/';
 	require_once(dirname(__FILE__).'/logging/logentry.class.php');
 	require_once(dirname(__FILE__).'/logging/logreport.class.php');
 	require_once(dirname(__FILE__).'/logging/logger.class.php');

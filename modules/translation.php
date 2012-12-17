@@ -37,11 +37,6 @@ function translation_init()
 
     if( isset($CONFIG['translation']['sync']['provider']) && $CONFIG['translation']['sync']['provider'] )
     {
-        if( !isset($CONFIG['translation']['sync']['username']) )
-            system_die('Please define $CONFIG["translation"]["sync"]["username"]');
-        if( !isset($CONFIG['translation']['sync']['password']) )
-            system_die('Please define $CONFIG["translation"]["sync"]["password"]');
-        
         if( !isset($CONFIG['translation']['sync']['datasource']) )
             $CONFIG['translation']['sync']['datasource'] = 'internal';
         
@@ -78,6 +73,9 @@ function translation_init()
 	$GLOBALS['__translate_regpattern'] = $reg;
     
     system_ensure_path_ending($CONFIG['translation']['data_path']);
+
+	admin_register_handler('New strings','TranslationAdmin','NewStrings');
+	admin_register_handler('Fetch strings','TranslationAdmin','Fetch');
 }
 
 function translation_do_includes()

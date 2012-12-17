@@ -1,24 +1,26 @@
-body.translationhandler
+body.sysadmin
 {
     font-family: Verdana,Arial,serif;
     font-size: 12px;
     font-weight: normal;
+	padding: 0;
+	margin: 30px 0 0 30px;
 }
 
 /* tables */
-body.translationhandler table tr
+body.sysadmin table tr
 {
     margin: 0px;
     padding: 0px;
 }
 
-body.translationhandler table td
+body.sysadmin table td
 {
     margin: 0px;
     padding: 5px;
 }
 
-body.translationhandler table thead tr
+body.sysadmin table thead tr
 {
     background-color: orange;
     font-weight: bold;
@@ -26,7 +28,7 @@ body.translationhandler table thead tr
 }
 
 /* login form */
-body.translationhandler form.login
+body.sysadmin form.login
 {
     margin: auto;
     font-size: 14px;
@@ -34,32 +36,40 @@ body.translationhandler form.login
     border: 1px solid gray;
 }
 
-body.translationhandler form.login input[type="text"], 
-body.translationhandler form.login input[type="password"]
+body.sysadmin form.login input[type="text"], 
+body.sysadmin form.login input[type="password"]
 {
     width: 250px;
 }
 
-body.translationhandler form.login table
+body.sysadmin form.login table
 {
     width: 100%;
 }
 
 /* navigation */
-body.translationhandler div.navigation
+body.sysadmin div.navigation
 {
+    border-left: 1px dotted gray;
     border-bottom: 1px dotted gray;
-    margin-bottom: 10px;
-    padding-bottom: 10px;
+    display: block;
+    margin: 0;
+    padding: 10px 22px 10px 10px;
+    width: 200px;
+	position: fixed;
+	right: 0;
+	top: 0;
 }
 
-body.translationhandler div.navigation a,
-body.translationhandler div.navigation a:active,
-body.translationhandler div.navigation a:visited
+body.sysadmin div.navigation a,
+body.sysadmin div.navigation a:active,
+body.sysadmin div.navigation a:visited
 {
     text-decoration: none;
     text-align: center;
-    width: 200px;
+    width: 100%;
+	white-space: nowrap;
+	overflow: hidden;
     border: 1px solid gray;
     padding: 5px;
     display: inline-block;
@@ -67,14 +77,14 @@ body.translationhandler div.navigation a:visited
     color: black;
 }
 
-body.translationhandler div.navigation a:hover,
-body.translationhandler div.navigation a.current
+body.sysadmin div.navigation a:hover,
+body.sysadmin div.navigation a.current
 {
     background-color: orange;
 }
 
 /* new string editor */
-body.translationhandler table.new_string
+body.sysadmin table.new_string
 {
     width: 500px;
     float: left;
@@ -82,7 +92,7 @@ body.translationhandler table.new_string
     margin: 5px;
 }
 
-body.translationhandler table.new_string textarea
+body.sysadmin table.new_string textarea
 {
     float:left; 
     width:400px; 

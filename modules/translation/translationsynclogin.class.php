@@ -1,5 +1,0 @@
-<?
-class TranslationSyncLogin extends Template
-{
-	
-}

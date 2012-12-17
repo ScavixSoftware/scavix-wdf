@@ -80,7 +80,7 @@ function system_config_default($reset = true)
 	$CONFIG['model']['internal']['datasource_type']    = 'System_DataSource';	
 	$CONFIG['model']['internal']['debug']			   = false;
 
-	$CONFIG['system']['application_name'] = false;
+	$CONFIG['system']['application_name'] = 'project';
 	$CONFIG['system']['cache_datasource'] = 'internal';
 	$CONFIG['system']['cache_ttl'] = 3600; // secs
 
@@ -96,6 +96,10 @@ function system_config_default($reset = true)
     $CONFIG['system']['default_page'] = "HtmlPage";
     $CONFIG['system']['default_event'] = false;
 	$CONFIG['system']['tpl_ext'] = array("tpl.php");
+	
+	$CONFIG['system']['admin']['enabled']  = false;
+	$CONFIG['system']['admin']['username'] = false;
+	$CONFIG['system']['admin']['password'] = false;
 }
 
 /**
@@ -144,13 +148,8 @@ function system_init($application_name, $skip_header = false, $logging_category=
 	if(!isset($_SESSION["system_internal_cache"]))
 		$_SESSION["system_internal_cache"] = array();
 
-	if( $application_name )
-	{
-		$CONFIG['system']['application_name'] = $application_name;
-		if(!isset($CONFIG['model']['internal']['connection_string']))
-			$CONFIG['model']['internal']['connection_string']  = 'sqlite::memory:';
-	}
-	else
+	$CONFIG['system']['application_name'] = $application_name;
+	if(!isset($CONFIG['model']['internal']['connection_string']))
 		$CONFIG['model']['internal']['connection_string']  = 'sqlite::memory:';
 
 	// load essentials as if they were modules.

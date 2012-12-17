@@ -22,7 +22,14 @@
  * @copyright 2007-2012 PamConsult GmbH
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
+
+function minify_init()
+{
+	require_once(__DIR__."/minify/minifyadmin.class.php");
+	admin_register_handler('Minify CSS','MinifyAdmin','StartCss');
+	admin_register_handler('Minify JS','MinifyAdmin','StartJs');
+}
+
 function minify_all($path_root,$paths,$target_base_name,$nc_argument)
 {
 	$target_base_name .= (isSSL()?".1":".0");

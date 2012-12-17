@@ -242,8 +242,10 @@ function urlScheme($append_slashes=false)
 /**
  * Ensures that the given path ends with a directory separator
  */
-function system_ensure_path_ending(&$path)
+function system_ensure_path_ending(&$path, $make_realpath=false)
 {
+	if( $make_realpath )
+		$path = realpath($path);
     if( !ends_with($path, DIRECTORY_SEPARATOR) )
         $path .= DIRECTORY_SEPARATOR;
 }
@@ -535,4 +537,22 @@ function get_ip_address()
 	if( $is_ip && (count($regs) > 0) )
 		$DETECTED_CLIENT_IP = $regs[1];
 	return $DETECTED_CLIENT_IP;
+}
+
+function classpath_add($path, $recursive=true, $part=false)
+{
+	global $CONFIG;
+	system_ensure_path_ending($path,true);
+	if( !$part )
+		$part = $CONFIG['system']['application_name'];
+	
+	$CONFIG['class_path'][$part][] = $path;
+	if( !in_array($part, $CONFIG['class_path']['order']) )
+		$CONFIG['class_path']['order'][] = $part;
+			
+	if( $recursive )
+	{
+		foreach( glob($path.'*', GLOB_MARK|GLOB_ONLYDIR|GLOB_NOSORT) as $sub )
+			classpath_add($sub, true, $part);
+	}
 }
