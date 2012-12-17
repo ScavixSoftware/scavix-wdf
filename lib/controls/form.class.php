@@ -46,6 +46,11 @@ class Form extends Control
 			case "file":
 				$inp = new FileInput($name);
 				break;
+			case "checkbox":
+				$inp = new CheckBox($name);
+				if( $value )
+					$inp->value = $value;
+				break;
 		}
 		$this->content($inp);
 		return $inp;
@@ -55,6 +60,14 @@ class Form extends Control
 	function AddPassword($name, $value){ return $this->AddInput('password', $name, $value); }
 	function AddHidden($name, $value){ return $this->AddInput('hidden', $name, $value); }
 	function AddFile($name){ return $this->AddInput('file', $name); }
+	
+	function AddCheckbox($name,$label=false)
+	{
+		$res = $this->AddInput('checkbox', $name);
+		if( $label )
+			$this->content($res->CreateLabel($label));
+		return $res;
+	}
     
     function AddSubmit($label){ return $this->content( new SubmitButton($label) ); }
 }

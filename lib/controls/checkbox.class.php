@@ -32,11 +32,14 @@
 */
 class CheckBox extends Control
 {
-   function __initialize($name=false,$cid=false)
+	var $Label = false;
+	
+    function __initialize($name=false,$cid=false)
 	{
 		parent::__initialize("input");
 		$this->type = "checkbox";
 		$this->class = "checkbox";
+		$this->value = 1;
 		if( $name )
 			$this->name = $name;
 		if( $cid )
@@ -45,7 +48,8 @@ class CheckBox extends Control
 	
 	function CreateLabel($text)
 	{
-		return new Label($text,false,$this->id);
+		$this->Label = new Label($text,false,$this->id);
+		return $this->Label;
 	}
 }
 ?>

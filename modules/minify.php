@@ -25,20 +25,29 @@
 
 function minify_init()
 {
-	require_once(__DIR__."/minify/minifyadmin.class.php");
-	admin_register_handler('Minify CSS','MinifyAdmin','StartCss');
-	admin_register_handler('Minify JS','MinifyAdmin','StartJs');
+	global $CONFIG;
+	classpath_add(__DIR__."/minify/");
+	admin_register_handler('Minify','MinifyAdmin','Start');
+	
+	cfg_check('minify','target_path','Minify module needs a target_path');
+	
+	$target_base_name = cfg_get('minify','target_path');
+	system_ensure_path_ending($target_base_name,true);
+	$target_base_name .= $CONFIG['system']['application_name'].'-min';	
+	$base_uri = cfg_get('minify','url');
+	use_minified_file($target_base_name, 'js', $base_uri);
+	use_minified_file($target_base_name, 'css', $base_uri);
 }
 
-function minify_all($path_root,$paths,$target_base_name,$nc_argument)
+function minify_all($paths,$target_base_name,$nc_argument)
 {
 	$target_base_name .= (isSSL()?".1":".0");
 	foreach( glob($target_base_name.".*.*") as $f )
 		unlink($f);
 	
 	$v = preg_replace('/[^\d]*/', "", $nc_argument);
-	minify_js($path_root,$paths,$target_base_name.".$v.js");
-	minify_css($path_root,$paths,$target_base_name.".$v.css",$v);
+	minify_js($paths,$target_base_name.".$v.js");
+	minify_css($paths,$target_base_name.".$v.css",$v);
 }
 
 function use_minified_file($target_base_name,$kind,$base_uri)
@@ -47,16 +56,16 @@ function use_minified_file($target_base_name,$kind,$base_uri)
 	$target_base_name .= (isSSL()?".1":".0");
 	foreach( glob($target_base_name.".*.$kind") as $f )
 	{
-		$CONFIG["use_compiled_$kind"] = $base_uri."static/".basename($f);
+		$CONFIG["use_compiled_$kind"] = $base_uri.basename($f);
 		return;
 	}
 	unset($CONFIG["use_compiled_$kind"]);
 }
 
-function minify_js($path_root,$paths,$target_file)
+function minify_js($paths,$target_file)
 {
 	require_once(dirname(__FILE__)."/minify/jsmin.php");
-	$files = minify_collect_files($path_root, $paths, 'js');
+	$files = minify_collect_files($paths, 'js');
 	log_debug("JS files to minify: ",$files);
 	//die("stopped");
 	$code = "";
@@ -85,18 +94,17 @@ function minify_js($path_root,$paths,$target_file)
 	file_put_contents($target_file, $code);
 }
 
-function minify_css($path_root,$paths,$target_file,$nc_argument=false)
+function minify_css($paths,$target_file,$nc_argument=false)
 {
 	require_once(dirname(__FILE__)."/minify/cssmin.php");
 	global $current_url;
-	$files = minify_collect_files($path_root, $paths, 'css');
+	$files = minify_collect_files($paths, 'css');
 	log_debug("CSS files to minify: ",$files);	
 	//die("stopped");
 	$code = "";
 	$res = array();
 	$map = array();
 	
-	echo "<pre>";
 	foreach( $files as $f )
 	{
 		if( !$f )
@@ -158,13 +166,13 @@ function minify_css($path_root,$paths,$target_file,$nc_argument=false)
 						if( implode(",",$res[$k]) != implode(",",$mem) )
 						{
 							if( count($res[$k]) == count($mem) )
-								echo("[$k] defninition overrides previously defined\nFILE: $f\nPREV: {$map[$k]}\nNEW : ".implode(";",$res[$k])."\nORIG: ".implode(";",$mem)."\n");
+								log_debug("[$k] defninition overrides previously defined\nFILE: $f\nPREV: {$map[$k]}\nNEW : ".implode(";",$res[$k])."\nORIG: ".implode(";",$mem)."\n");
 							else
 							{
 								foreach( $mem as $m )
 									if( !in_array($m,$res[$k]) )
 									{
-										echo("[$k] defninition extends/overrides previously defined\nFILE: $f\nPREV: {$map[$k]}\nNEW : ".implode(";",$res[$k])."\nORIG: ".implode(";",$mem)."\n");
+										log_debug("[$k] defninition extends/overrides previously defined\nFILE: $f\nPREV: {$map[$k]}\nNEW : ".implode(";",$res[$k])."\nORIG: ".implode(";",$mem)."\n");
 									}
 							}
 						}
@@ -176,16 +184,7 @@ function minify_css($path_root,$paths,$target_file,$nc_argument=false)
 			}
 		}
 	}
-	echo "</pre>";
 	file_put_contents($target_file, $code);
-	return;
-	log_debug($res);
-	$code = array();
-	foreach( $res as $k=>$v )
-	{
-		$code[] = "$k{".implode(";",$v)."}";
-	}
-	file_put_contents($target_file, implode("\n",$code));
 }
 
 function minify_css_translate_url($match)
@@ -194,6 +193,8 @@ function minify_css_translate_url($match)
 	$copy = $current_url;
 	$url = parse_url(trim($match[1],"\"' "));
 	$url = array_merge($copy,$url);	
+	if( !isset($url['scheme']) || !$url['scheme'] )
+		$url['scheme'] = urlScheme();
 	$url = $url['scheme']."://".$url['host'].(isset($url['port'])?":{$url['port']}":"").$url['onlypath'].$url['path'];
 	return "url($url)";
 }
@@ -210,7 +211,7 @@ function minify_dependency_inc($file,$kind,&$sorted,&$deps,$root='',$inc=1)
 			minify_dependency_inc($df,$kind,$sorted,$deps,$file,$inc+(count($deps[$k])-$i+1));
 }
 
-function minify_collect_files($path_root,$paths,$kind)
+function minify_collect_files($paths,$kind)
 {
 	$deps = array();
 	$res = array();
@@ -327,9 +328,9 @@ function minify_collect_from_file($kind,$f,&$res,&$processed)
 					extract($GLOBALS);
 					foreach( $matches[1] as $m )
 					{
-						$m = "$m.$kind";
+						$m = strtolower("$m.$kind");
 						//log_debug('$m = '.$getmethod.'("'.$m.'");');
-						eval('$m = '.$getmethod.'("'.$m.'");');
+						eval('$m = strtolower('.$getmethod.'("'.$m.'"));');
 						if( in_array($m,$res) )
 							continue;
 //						log_debug("incontent: ".$m);
@@ -341,9 +342,9 @@ function minify_collect_from_file($kind,$f,&$res,&$processed)
 				}
 				break;
 			case 'self':
-				if( $existsmethod("$classname.$kind") )
+				if( $existsmethod(strtolower("$classname.$kind")) )
 				{
-					$tmp = $getmethod("$classname.$kind");
+					$tmp = $getmethod(strtolower("$classname.$kind"));
 //					log_debug("self: ".$tmp);
 					//$res[] = $tmp;
 					$res[$tmp] = isset($res[$tmp])?$res[$tmp]+1:1;
@@ -363,6 +364,7 @@ function minify_collect_from_file($kind,$f,&$res,&$processed)
 //						$buf = array_reverse($buf);
 					foreach( $buf as $b )
 					{
+						$b = strtolower($b);
 //						log_debug("eval: $b");
 						//$res[] = $b;
 						$res[$b] = isset($res[$b])?$res[$b]+1:1;

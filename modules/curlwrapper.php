@@ -30,6 +30,9 @@ function curlwrapper_init()
 
 function sendHTTPRequest($url, $postdata = false, $cacheTTLsec = false, &$response_header = false, $request_header = array(), $request_timeout = 120, $cookie_file=false)
 {
+	if( starts_with($url, '//') )
+		$url = urlScheme().':'.$url;
+	
 	if( $cacheTTLsec )
 	{
 		$hash = md5($url."|".($postdata ? serialize($postdata) : ""));
