@@ -5,6 +5,9 @@ class SysAdmin extends HtmlPage
 	function __initialize($title = "", $body_class = false)
     {
         global $CONFIG;
+		
+		unset($CONFIG["use_compiled_js"]);
+		unset($CONFIG["use_compiled_css"]);
         
         if( current_event(true) != 'login'
             &&

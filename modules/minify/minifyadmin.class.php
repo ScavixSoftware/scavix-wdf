@@ -5,8 +5,9 @@ class MinifyAdmin extends SysAdmin
 	/**
 	 * @attribute[RequestParam('submitter','bool',false)]
 	 * @attribute[RequestParam('skip_minify','bool',false)]
+	 * @attribute[RequestParam('random_nc','bool',false)]
 	 */
-	function Start($submitter,$skip_minify)
+	function Start($submitter,$skip_minify,$random_nc)
 	{
 		global $CONFIG;
 		
@@ -15,7 +16,8 @@ class MinifyAdmin extends SysAdmin
 			$this->addContent("<h1>Select what to minify</h1>");
 			$form = $this->addContent( new Form() );
 			$form->AddHidden('submitter','1');
-			$form->AddCheckbox('skip_minify','Skip minify (only collect and combine)');
+			$form->AddCheckbox('skip_minify','Skip minify (only collect and combine)<br/>');
+			$form->AddCheckbox('random_nc','Generate random name (instead of app version)<br/>');
 			$form->AddSubmit('Go');
 			return;
 		}
@@ -43,7 +45,7 @@ class MinifyAdmin extends SysAdmin
 		
 		$target_path = cfg_get('minify','target_path');
 		system_ensure_path_ending($target_path,true);
-		$target = $target_path.$CONFIG['system']['application_name'].'-min';
-		minify_all($root_paths, $target, getAppVersion('nc'));
+		$target = $target_path.cfg_get('minify','base_name');
+		minify_all($root_paths, $target, $random_nc?md5(time()):getAppVersion('nc'));
 	}
 }

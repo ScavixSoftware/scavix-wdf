@@ -30,10 +30,12 @@ function minify_init()
 	admin_register_handler('Minify','MinifyAdmin','Start');
 	
 	cfg_check('minify','target_path','Minify module needs a target_path');
+	cfg_check('minify','base_name','Minify module needs a base_name');
+	cfg_check('minify','url','Minify module needs an url');
 	
 	$target_base_name = cfg_get('minify','target_path');
 	system_ensure_path_ending($target_base_name,true);
-	$target_base_name .= $CONFIG['system']['application_name'].'-min';	
+	$target_base_name .= cfg_get('minify','base_name');
 	$base_uri = cfg_get('minify','url');
 	use_minified_file($target_base_name, 'js', $base_uri);
 	use_minified_file($target_base_name, 'css', $base_uri);
@@ -277,8 +279,8 @@ function minify_collect_from_file($kind,$f,&$res,&$processed)
 {
 	if( !$f )
 		return array();
-	$classname = basename($f,".class.php");
-	if( isset($processed[$classname]) )
+	$classname = strtolower(basename($f,".class.php"));
+	if( isset($processed[$classname]) || $classname=='sysadmin' )
 		return array();
 	
 	$order = ($kind == "js")
