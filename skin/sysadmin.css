@@ -27,6 +27,22 @@ body.sysadmin table thead tr
     color: white;
 }
 
+body.sysadmin table tfoot tr
+{
+    background-color: orange;
+}
+
+body.sysadmin table.bordered
+{
+	border: 1px solid gray;
+}
+
+body.sysadmin table.bordered tbody
+{
+	border-top: 1px solid gray;
+	border-bottom: 1px solid gray;
+}
+
 /* login form */
 body.sysadmin form.login
 {

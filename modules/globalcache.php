@@ -208,14 +208,12 @@ function globalcache_set($key, $value, $ttl = false)
 					if( $ttl > 0 )
 					{
 						$ds->ExecuteSql(
-							"REPLACE INTO wdf_cache(ckey,cvalue,valid_until)VALUES(?0,?1,".$ds->Driver->Now($ttl).")",
-							array(md5($key),$val)
+							"REPLACE INTO wdf_cache(ckey,full_key,cvalue,valid_until)VALUES(?,?,?,".$ds->Driver->Now($ttl).")",
+							array(md5($key),$key,$val)
 						);
-						if( $ds->getAffectedRowsCount() > 0 )
-							log_debug("Cache written: $key = $val");
 					}
 					else
-						$ds->ExecuteSql("REPLACE INTO wdf_cache(ckey,cvalue)VALUES(?0,?1)",array(md5($key),$val));
+						$ds->ExecuteSql("REPLACE INTO wdf_cache(ckey,full_key,cvalue)VALUES(?,?,?)",array(md5($key),$key,$val));
 				}
 				catch(Exception $ex)
 				{
@@ -223,15 +221,16 @@ function globalcache_set($key, $value, $ttl = false)
                         ckey VARCHAR(32)  NOT NULL,
                         cvalue TEXT  NOT NULL,
                         valid_until DATETIME  NULL,
+						full_key TEXT  NOT NULL,
                         PRIMARY KEY (ckey))");
 					
 					if( $ttl > 0 )
 						$ds->ExecuteSql(
-							"REPLACE INTO wdf_cache(ckey,cvalue,valid_until)VALUES(?0,?1,".$ds->Driver->Now($ttl).")",
-							array(md5($key),$val)
+							"REPLACE INTO wdf_cache(ckey,full_key,cvalue,valid_until)VALUES(?,?,?,".$ds->Driver->Now($ttl).")",
+							array(md5($key),$key,$val)
 						);
 					else
-						$ds->ExecuteSql("REPLACE INTO wdf_cache(ckey,cvalue)VALUES(?0,?1)",array(md5($key),$val));
+						$ds->ExecuteSql("REPLACE INTO wdf_cache(ckey,full_key,cvalue)VALUES(?,?,?)",array(md5($key),$key,$val));
 				}
                 return true;
                 break;
@@ -447,4 +446,31 @@ function globalcache_info()
 	}
 
 	return $ret;
+}
+
+function globalcache_list_keys()
+{
+    if( !hook_already_fired(HOOK_POST_INIT) )
+        return array();
+    
+	global $CONFIG;
+	switch($CONFIG['globalcache']['CACHE'])
+	{
+		case globalcache_CACHE_DB:
+			$ds = model_datasource($CONFIG['globalcache']['datasource']);
+			try
+			{
+				$rs = $ds->ExecuteSql("SELECT full_key FROM wdf_cache WHERE (valid_until IS NULL OR valid_until>=".$ds->Driver->Now().")");
+			}catch(Exception $ex){ return array(); }
+			
+			
+			$res = array();
+			foreach( $rs as $row )
+				$res[] = $row['full_key'];
+			return $res;
+		default:
+			system_die("globalcache_list_keys not implemented for handler {$CONFIG['globalcache']['CACHE']}");
+			break;
+	}
+	return array();
 }

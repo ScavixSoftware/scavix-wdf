@@ -843,7 +843,7 @@ function __search_file_for_class($class_name,$extension="class.php",$classpath_l
 {
 	global $CONFIG;
 
-    $key = "search_file_for_class-".getAppVersion('nc').$class_name.$extension.$classpath_limit;
+    $key = "autoload_class-".getAppVersion('nc').$class_name.$extension.$classpath_limit;
     $r = cache_get($key);
     if( $r !== false )
         return $r;
@@ -1437,12 +1437,31 @@ function cache_set($key,$value,$ttl=false,$use_global_cache=true,$use_session_ca
 		$_SESSION["system_internal_cache"][$key] = $value;
 }
 
+function cache_del($key)
+{
+	if( isset($_SESSION["system_internal_cache"][$key]) )
+		unset($_SESSION["system_internal_cache"][$key]);
+	if( system_is_module_loaded('globalcache') )
+		globalcache_delete($key);
+}
+
 function cache_clear($global_cache=true, $session_cache=true)
 {
 	if( $session_cache )
 		$_SESSION["system_internal_cache"] = array();
     if( $global_cache && system_is_module_loaded('globalcache') )
 		globalcache_clear();
+}
+
+function cache_list_keys($global_cache=true, $session_cache=true)
+{
+	$res = $session_cache?array_keys($_SESSION["system_internal_cache"]):array();
+	
+	if( $global_cache && system_is_module_loaded('globalcache') )
+		$res = array_merge($res, globalcache_list_keys() );
+	
+	sort($res);
+	return array_unique($res);
 }
 
 function current_page( $strtolower=false )
