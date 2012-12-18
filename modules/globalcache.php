@@ -337,7 +337,7 @@ function globalcache_clear()
         
         case globalcache_CACHE_DB:
             $ds = model_datasource($CONFIG['globalcache']['datasource']);
-            $ds->ExecuteSql("DELETE FROM wdf_cache");
+			try{ $ds->ExecuteSql("DELETE FROM wdf_cache"); }catch(Exception $ex){}
 			break;
 	}
 	return false;
@@ -379,7 +379,7 @@ function globalcache_delete($key)
         
         case globalcache_CACHE_DB:
             $ds = model_datasource($CONFIG['globalcache']['datasource']);
-            $ds->ExecuteSql("DELETE FROM wdf_cache WHERE ckey=?",md5($key));
+			try{ $ds->ExecuteSql("DELETE FROM wdf_cache WHERE ckey=?",md5($key)); }catch(Exception $ex){}
             return true;
 			break;
 	}
@@ -402,7 +402,6 @@ function globalcache_info()
 		case globalcache_CACHE_OFF:
 		case globalcache_CACHE_ZEND:
 		case globalcache_CACHE_EACCELERATOR:
-        case globalcache_CACHE_DB:
 			return "no stats available";
 			break;
 
@@ -443,6 +442,16 @@ function globalcache_info()
 			$ret .= "Number of bytes this server is allowed to use for storage: ".$MBSize." Mega Bytes\r\n";
 			$ret .= "Number of valid items removed from cache to free memory for new items: ".$status ["evictions"]."\r\n";
 			break;
+			
+        case globalcache_CACHE_DB:
+            $ds = model_datasource($CONFIG['globalcache']['datasource']);
+			try{ 
+				$ret  = "Global cache is handled by DB module.\n";
+				$ret .= "Datasource: {$CONFIG['globalcache']['datasource']}\n";
+				$ret .= "DSN: ".$ds->GetDsn()."\n";
+				$ret .= "Records: ".$ds->ExecuteScalar("SELECT count(*) FROM wdf_cache")."\n";
+			}catch(Exception $ex){}
+			break;
 	}
 
 	return $ret;
@@ -461,13 +470,9 @@ function globalcache_list_keys()
 			try
 			{
 				$rs = $ds->ExecuteSql("SELECT full_key FROM wdf_cache WHERE (valid_until IS NULL OR valid_until>=".$ds->Driver->Now().")");
-			}catch(Exception $ex){ return array(); }
-			
-			
-			$res = array();
-			foreach( $rs as $row )
-				$res[] = $row['full_key'];
-			return $res;
+				return $rs->Enumerate('full_key');
+			}catch(Exception $ex){}
+			return array(); 
 		default:
 			system_die("globalcache_list_keys not implemented for handler {$CONFIG['globalcache']['CACHE']}");
 			break;

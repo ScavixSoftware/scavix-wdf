@@ -148,6 +148,11 @@ class DataSource extends System_DataSource
 		return $this->_dsn == $ds->_dsn && $this->_username == $ds->_username && $this->_password == $ds->_password;
 	}
 	
+	function GetDsn()
+	{
+		return $this->_dsn;
+	}
+	
 	function EscapeArgument($value)
 	{
 		$res = $this->_pdo->quote($value);

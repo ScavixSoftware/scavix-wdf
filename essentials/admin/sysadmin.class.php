@@ -77,43 +77,58 @@ class SysAdmin extends HtmlPage
 	
 	/**
 	 * @attribute[RequestParam('search','string',false)]
+	 * @attribute[RequestParam('show_info','bool',false)]
+	 * @attribute[RequestParam('kind','string','Search key')]
      */
-    function Cache($search)
+    function Cache($search,$show_info,$kind)
     {
 		$this->addContent("<h1>Cache contents</h1>");
 		
 		$form = $this->addContent( new Form() );
 		$form->AddText('search',$search);
-		$form->AddSubmit('Search');
+		$form->AddSubmit('Search key')->name = 'kind';
+		$form->AddSubmit('Search content')->name = 'kind';
 		
 		$form->content( '&nbsp;&nbsp;&nbsp;' );
 		$form->content( new Anchor(buildQuery('SysAdmin','CacheClear'),'Clear the complete cache') );
 		
-		$form->content( '<br/>Predefined searches: ' );
+		if( system_is_module_loaded('globalcache') )
+		{
+			$form->content( '&nbsp;&nbsp;' );
+			$form->content( new Anchor(buildQuery('SysAdmin','Cache','show_info=1'),'Global cache info') );
+		}
+		
+		$form->content( '<div><b>Predefined searches:</b><br/>' );
 		foreach( $this->PrefedinedCacheSearches as $s )
 		{
 			$form->content( new Anchor(buildQuery('SysAdmin','Cache',"search=$s"),"$s") );
 			$form->content( '&nbsp;' );
 		}
+		$form->content( '</div>' );
 		
 		if( !isset($_SESSION['admin_handler_last_cache_searches']) )
 			$_SESSION['admin_handler_last_cache_searches'] = array();
 
 		if( count($_SESSION['admin_handler_last_cache_searches']) > 0 )
 		{
-			$form->content( '<br/>Last searches: ' );
+			$form->content( '<div><b>Last searches:</b><br/>' );
 			foreach( $_SESSION['admin_handler_last_cache_searches'] as $s )
 			{
-				$form->content( new Anchor(buildQuery('SysAdmin','Cache',"search=$s"),"$s") );
+				list($k,$s) = explode(":",$s);
+				$form->content( new Anchor(buildQuery('SysAdmin','Cache',"search=$s".($k!='key'?'&kind=Search content':'')),"$k:$s") );
 				$form->content( '&nbsp;' );
 			}
+			$form->content( '</div>' );
 		}
+		
+		if( $show_info && system_is_module_loaded('globalcache') )
+			$form->content( "<pre>".globalcache_info()."</pre>" );
 		
 		if( $search )
 		{
 			if( !in_array($search,$this->PrefedinedCacheSearches) )
 			{
-				$_SESSION['admin_handler_last_cache_searches'][] = $search;
+				$_SESSION['admin_handler_last_cache_searches'][] = ($kind=='Search content')?"content:$search":"key:$search";
 				$_SESSION['admin_handler_last_cache_searches'] = array_unique($_SESSION['admin_handler_last_cache_searches']);
 			}
 			
@@ -125,7 +140,10 @@ class SysAdmin extends HtmlPage
 			$q = buildQuery('SysAdmin','CacheDel');
 			foreach( cache_list_keys() as $key )
 			{
-				if( stripos($key, $search) !== false )
+				$found = ($kind=='Search content')
+					?stripos( my_var_export(cache_get($key,"")), $search) !== false
+					:stripos( $key, $search) !== false;
+				if( $found )
 				{
 					$cb = new CheckBox('keys[]');
 					$cb->value = $key;
