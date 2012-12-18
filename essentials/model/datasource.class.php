@@ -193,16 +193,16 @@ class DataSource extends System_DataSource
 		if( !system_is_module_loaded('globalcache') )
 			return $this->ExecuteSql($sql, $prms);
 		
-		$key = 'CacheExecuteSql_'.md5( $sql.serialize($prms) );
+		$key = 'DB_Cache_Sql_'.md5( $sql.serialize($prms) );
 		$null = null;
-		if( is_null($res = globalcache_get($key, $null)) )
+		if( is_null($res = cache_get($key, $null, true, false)) )
 		{
 			$res = $this->ExecuteSql($sql, $prms);
 			if( $res )
 			{
 				$res->fetchAll();
 				$data = $res->serialize();
-				globalcache_set($key, $data, $lifetime);
+				cache_set($key, $data, $lifetime, true, false);
 			}
 		}
 		else
@@ -215,12 +215,12 @@ class DataSource extends System_DataSource
 		if( !system_is_module_loaded('globalcache') )
 			return $this->DLookUp($field_name, $table_name, $where_condition, $parameter);
 		
-		$key = 'CacheDLookUp_'.md5( $field_name.$table_name.$where_condition.serialize($parameter) );
+		$key = 'DB_Cache_Look_'.md5( $field_name.$table_name.$where_condition.serialize($parameter) );
 		$null = null;
-		if( is_null($res = globalcache_get($key, $null)) )
+		if( is_null($res = cache_get($key, $null, true, false)) )
 		{
 			$res = $this->DLookUp($field_name, $table_name, $where_condition, $parameter);
-			globalcache_set($key, $res, $lifetime);
+			cache_set($key, $res, $lifetime, true, false);
 		}
 		return $res;
 	}
@@ -300,12 +300,12 @@ class DataSource extends System_DataSource
 		if( !system_is_module_loaded('globalcache') )
 			return $this->ExecuteScalar($sql, $prms);
 		
-		$key = 'CacheExecuteScalar_'.md5( $sql.serialize($prms) );
+		$key = 'SB_Cache_Scalar_'.md5( $sql.serialize($prms) );
 		$null = null;
-		if( is_null($res = globalcache_get($key, $null)) )
+		if( is_null($res = cache_get($key, $null, true, false)) )
 		{
 			$res = $this->ExecuteScalar($sql, $prms);
-			globalcache_set($key, $res, $lifetime);
+			cache_set($key, $res, $lifetime, true, false);
 		}
 		return $res;
 	}

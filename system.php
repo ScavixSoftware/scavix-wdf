@@ -1403,15 +1403,15 @@ function system_sanitize_parameters(&$params)
 	}
 }
 
-function cache_get($key,$default=false,$use_global_cache=true)
+function cache_get($key,$default=false,$use_global_cache=true,$use_session_cache=true)
 {
-	if( isset($_SESSION["system_internal_cache"][$key]) )
+	if( $use_session_cache && isset($_SESSION["system_internal_cache"][$key]) )
 		return $_SESSION["system_internal_cache"][$key];
     
 	if( $use_global_cache && system_is_module_loaded('globalcache') )
     {
         $res = globalcache_get($key,$default);
-        if( $res !== $default )
+        if( $use_session_cache && $res !== $default )
             $_SESSION["system_internal_cache"][$key] = $res;
 		return $res;
     }
@@ -1424,7 +1424,7 @@ function cache_get($key,$default=false,$use_global_cache=true)
  * @param string $value the value to store
  * @param int $ttl Time to life in seconds. -1 if it shall live forever
  */
-function cache_set($key,$value,$ttl=false,$use_global_cache=true)
+function cache_set($key,$value,$ttl=false,$use_global_cache=true,$use_session_cache=true)
 {
 	global $CONFIG;
 	if( $ttl === false )
@@ -1433,13 +1433,15 @@ function cache_set($key,$value,$ttl=false,$use_global_cache=true)
 	if( $use_global_cache && system_is_module_loaded('globalcache') )
 		globalcache_set($key, $value, $ttl);
 
-	$_SESSION["system_internal_cache"][$key] = $value;
+	if( $use_session_cache )
+		$_SESSION["system_internal_cache"][$key] = $value;
 }
 
-function cache_clear($global_cache_too=true)
+function cache_clear($global_cache=true, $session_cache=true)
 {
-    $_SESSION["system_internal_cache"] = array();
-    if( $global_cache_too && system_is_module_loaded('globalcache') )
+	if( $session_cache )
+		$_SESSION["system_internal_cache"] = array();
+    if( $global_cache && system_is_module_loaded('globalcache') )
 		globalcache_clear();
 }
 

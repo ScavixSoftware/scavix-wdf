@@ -80,7 +80,7 @@ function routing_parse_uri()
 	global $CONFIG, $ROUTES, $PAGE, $event;
     
 	if(( $ROUTES === false ) && (system_is_module_loaded('globalcache')))
-		$ROUTES = globalcache_get('routing_url_routes');
+		$ROUTES = cache_get('routing_url_routes',false,true,false);
 	if( $ROUTES === false )
 	{
 		$ds = model_datasource($CONFIG['routing']['datasource']);
@@ -95,7 +95,7 @@ function routing_parse_uri()
 		}
 		
 		if(system_is_module_loaded('globalcache'))
-			globalcache_set('routing_url_routes', $ROUTES, $CONFIG['system']['cache_ttl']);
+			cache_set('routing_url_routes', $ROUTES, $CONFIG['system']['cache_ttl'], true, false);
 	}
 
 	$virtual = explode("index.php",$_SERVER['PHP_SELF']);
