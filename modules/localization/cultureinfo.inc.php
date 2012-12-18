@@ -3125,7 +3125,7 @@ function internal_getCultureInfo($cultureCode)
 					return internal_getCultureInfo($codes[0]);
 				else
 				{
-					trace("unknown culture: $cultureCode");
+					log_trace("unknown culture: $cultureCode");
 					return false;
 				} 
             }                

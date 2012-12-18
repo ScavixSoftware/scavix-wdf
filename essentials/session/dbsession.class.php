@@ -155,7 +155,7 @@ class DbSession extends SessionBase
 		);
 		if( $rs->EOF )
 		{
-			trace("Trying to restore unknown object '$id'");
+			log_trace("Trying to restore unknown object '$id'");
 			$null = null;
 			return $null;
 		}

@@ -36,7 +36,7 @@ function sendHTTPRequest($url, $postdata = false, $cacheTTLsec = false, &$respon
 	if( $cacheTTLsec )
 	{
 		$hash = md5($url."|".($postdata ? serialize($postdata) : ""));
-		$ret = cache_get($hash);
+		$ret = cache_get("CURL_$hash");
 		if($ret !== false)
 			return $ret;
 	}
@@ -86,7 +86,7 @@ function sendHTTPRequest($url, $postdata = false, $cacheTTLsec = false, &$respon
 	$result = substr($result, $info['header_size']);
 
 	if($cacheTTLsec)
-		cache_set($hash, $result, $cacheTTLsec);
+		cache_set("CURL_$hash", $result, $cacheTTLsec);
 	
 	return $result;
 }

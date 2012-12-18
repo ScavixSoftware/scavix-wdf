@@ -56,12 +56,12 @@ function resourceExists($filename, $return_url = false, $as_local_path = false)
 {
 	global $CONFIG;
 
-	$key = (isSSL()?"ssl_resource_$filename":"resource_$filename").($as_local_path?"_l":"");
-	if( ($res = cache_get($key)) !== false )
-		return $return_url?$res:($res != "0");
+//	$key = (isSSL()?"Resource_SSL_$filename":"Resource_$filename").($as_local_path?"_l":"");
+//	if( ($res = cache_get($key)) !== false )
+//		return $return_url?$res:($res != "0");
 
 	$cnc = substr(appendVersion('/'),1);
-	$key = "$cnc$key".($as_local_path?"_l":"");
+	$key = (isSSL()?"resource_ssl_$filename":"resource_$filename")."_{$cnc}".($as_local_path?"_l":"");
 	if( ($res = cache_get($key)) !== false )
 		return $return_url?$res:($res != "0");
 

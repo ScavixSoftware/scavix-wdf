@@ -1670,7 +1670,7 @@ function system_method_exists($object_or_classname,$method_name)
 {
 	$key = (is_string($object_or_classname)?$object_or_classname:get_class($object_or_classname)).'.'.$method_name;
 	$ret = cache_get("method_exists_$key");
-	if( $ret != false )
+	if( $ret !== false )
 		return $ret=="1";
 	$ret = method_exists($object_or_classname,$method_name);
 	cache_set("method_exists_$key",$ret?"1":"0");

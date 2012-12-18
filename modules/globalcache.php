@@ -206,10 +206,14 @@ function globalcache_set($key, $value, $ttl = false)
 				try
 				{
 					if( $ttl > 0 )
+					{
 						$ds->ExecuteSql(
 							"REPLACE INTO wdf_cache(ckey,cvalue,valid_until)VALUES(?0,?1,".$ds->Driver->Now($ttl).")",
 							array(md5($key),$val)
 						);
+						if( $ds->getAffectedRowsCount() > 0 )
+							log_debug("Cache written: $key = $val");
+					}
 					else
 						$ds->ExecuteSql("REPLACE INTO wdf_cache(ckey,cvalue)VALUES(?0,?1)",array(md5($key),$val));
 				}

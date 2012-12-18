@@ -87,12 +87,6 @@ class User extends System_Model
 		$res = parent::Load($where,$bindarr);
 		if( $res )
 			$this->InitProperties();
-		else
-		{
-//			trace("User::Load failed");
-//			log_debug($where);
-//			log_debug($bindarr);
-		}
 		return $res;
 	}
 

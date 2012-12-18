@@ -155,10 +155,6 @@ function request_id()
 
 function store_object(&$obj,$id="",$autoload=false)
 {
-//	if( $id == 'user' && get_class($obj)=='stdClass' )
-//	{
-//		trace('store_object(...,user)');
-//	}
 	return $GLOBALS['fw_session_handler']->Store($obj,$id,$autoload);
 }
 

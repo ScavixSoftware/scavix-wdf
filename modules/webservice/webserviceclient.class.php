@@ -213,7 +213,7 @@ class WebServiceClient extends SoapClient
 			$res = $this->__soapCall( $function_name, $arguments );			
 			$bufferedresponse = $res;
 			if( time() - $start > 2 )
-				trace("Slow WebService call: $function_name");
+				log_trace("Slow WebService call: $function_name");
 
 			TimeTrace("__call 3");
             if( $res instanceof WsObjectBase )

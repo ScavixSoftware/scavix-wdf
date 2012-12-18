@@ -75,7 +75,6 @@ function authorization_init()
 
 function verifyUser($container="",$call_postverify=true,$pw_is_encrypted=false)
 {
-//    trace("authorization::verifyUser: $container");
 	global $CONFIG;
 	$ds = model_datasource($CONFIG['authorization']['datasource']);
 	
@@ -129,8 +128,7 @@ function verifyUserDirect()
 	$GLOBALS['authorization']['directly_logged_in'] = !$rs->EOF;
 	if( !$GLOBALS['authorization']['directly_logged_in'] )
 	{
-		log_debug("verifyUserDirect() fails: ".$rs->sql);
-		trace($_SESSION);
+		log_trace("verifyUserDirect() fails: ".$rs->sql,$_SESSION);
 	}
 }
 
@@ -296,7 +294,7 @@ function hasRight($right)
 
 	if( !loggedIn() )
     {
-        trace("hasRight($right) -> no user logged in");
+        log_trace("hasRight($right) -> no user logged in");
 		return false;
     }
 	$user = restore_object('user');

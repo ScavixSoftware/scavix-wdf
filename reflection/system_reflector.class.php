@@ -118,9 +118,7 @@ class System_Reflector extends ReflectionClass
 			//log_debug("using ref cache $key");
 			return $cache[$key];
 		}
-		if( $ret = cache_get("ref_attr_$key") )
-			return $ret;
-		return false;
+		return cache_get("ref_attr_$key");
 	}
 
 	private function _getComment($method_name = false, $return_empty = false)
@@ -129,7 +127,9 @@ class System_Reflector extends ReflectionClass
 		$ref = $method_name?$this->getMethod($method_name):$this;
 		$key = $CONFIG['session']['session_name']."-".($method_name?$this->Classname."::".$method_name:$this->Classname);
 
-		$comment = trim($ref->getDocComment());
+		$comment = cache_get("doccomment_$key");
+		if( $comment === false )
+			$comment = trim($ref->getDocComment());
 		if( $comment && (strpos($comment, "/**") === 0) )
 			cache_set("doccomment_$key",$comment);
 		else
@@ -159,7 +159,7 @@ class System_Reflector extends ReflectionClass
 							break;
 					}
 				}
-//				if(count($doc) > 0)
+				if(count($doc) > 0)
 				{
 					$comment = implode("\n",array_reverse($doc));
 					cache_set("doccomment_$key",$comment." ");
@@ -173,12 +173,9 @@ class System_Reflector extends ReflectionClass
 	private function _getAttributes($comment,$filter,$object=false,$method=false,$field=false,$allowAttrInheritance=true)
 	{
 		$pattern = '/@attribute\[([^\]]*)\]/im';
-		//log_debug($comment);
 		if( !preg_match_all($pattern, $comment, $matches) )
-		{
-			//trace("_getAttributes($comment,$filter) -> null");
 			return array();
-		}
+		
 		if( !is_array($filter) )
 			$filter = array($filter);
 		foreach( $filter as $i=>$f )
@@ -203,7 +200,7 @@ class System_Reflector extends ReflectionClass
 
 			if( !__search_file_for_class($name."Attribute") )
 			{
-				trace("Invalid Attribute: $m ({$name}Attribute) found in Comment '$comment'");
+				log_trace("Invalid Attribute: $m ({$name}Attribute) found in Comment '$comment'");
 				continue;
 			}
 
@@ -300,8 +297,9 @@ class System_Reflector extends ReflectionClass
 	 */
 	public function GetMethodAttributes($method_name, $filter=array(), $allowAttrInheritance=true)
 	{
-		$res = $this->_getCached($this->_attribute_cache,$this->Classname."::".$method_name,$filter);
-		if( $res )
+		$cache_key = $this->Classname."::".$method_name;
+		$res = $this->_getCached($this->_attribute_cache,$cache_key,$filter);
+		if( $res !== false )
 		{
 //			die("cached ".my_var_export($res));
 			return $res;
@@ -317,7 +315,7 @@ class System_Reflector extends ReflectionClass
 					$res = $ref2->GetMethodAttributes($method_name, $filter);
 					if( $res && count($res) > 0 )
 					{
-						$this->_setCached($this->_attribute_cache,$method_name,$filter,$res);
+						$this->_setCached($this->_attribute_cache,$cache_key,$filter,$res);
 						return $res;
 					}
 				}
@@ -332,7 +330,7 @@ class System_Reflector extends ReflectionClass
 		$comment = $this->_getComment($method_name);
 
 		$res = $this->_getAttributes($comment,$filter,$this->Instance,$method_name,false,$allowAttrInheritance);
-		$this->_setCached($this->_attribute_cache,$method_name,$filter,$res);
+		$this->_setCached($this->_attribute_cache,$cache_key,$filter,$res);
 		return $res;
 	}
 

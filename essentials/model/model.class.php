@@ -124,7 +124,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			$this->__ensureTableSchema();
 		}
 		else
-			trace("Missing datasource argument");
+			log_trace("Missing datasource argument");
     }
 	
 	function __wakeup()

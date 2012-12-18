@@ -469,7 +469,6 @@ class Control implements IRenderable
 
 	function addDocReady($js_code)
 	{
-//		trace("ControlRenderer: addDocReady: $js_code");
 		$this->script($js_code);
 	}
 

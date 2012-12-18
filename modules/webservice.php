@@ -90,7 +90,7 @@ function webservice_generate_classes($wsdl_path,$soap_class_name,$classes_path =
 	}
 	catch(Exception $ex)
 	{
-		trace($ex);
+		log_error($ex);
 	}
 }
 

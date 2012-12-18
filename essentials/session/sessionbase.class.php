@@ -181,7 +181,7 @@ abstract class SessionBase
 		if( unserializer_active() )
 		{
 			//$dumpid = isset($_REQUEST['load'])?$_REQUEST['load']:$_REQUEST['page'];
-			trace("create_storage_id while unserializing object of type ".get_class($obj));
+			log_trace("create_storage_id while unserializing object of type ".get_class($obj));
 			$obj->_storage_id = "to_be_overwritten_by_unserializer";
 			return $obj->_storage_id;
 		}

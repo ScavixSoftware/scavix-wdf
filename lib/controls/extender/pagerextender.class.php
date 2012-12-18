@@ -106,7 +106,6 @@ class PagerExtender extends ControlExtender
 
 	function PreRender()
 	{
-//		trace("PreRender: ".$this->CurrentPage);
 		if( isset($this->ExtendedControl->ResultSet) )
 			$this->Total = $this->ExtendedControl->ResultSet->MaxRecordCount();
 		$this->Render();
@@ -117,14 +116,7 @@ class PagerExtender extends ControlExtender
 	 */
 	function GotoPage($number)
 	{
-//		log_debug("GotoPage($number)");
 		$this->CurrentPage = $number;
-//		return;
-//        $res = $this->ExtendedControl->Execute();
-////		trace("GotoPage");
-//        // Attempt to fix Mantix #2862 - not functional
-//		//$res = strtr($res, array("\n" => "", "\r" => "", '\\x' => '\\\\x'));
-//		return "$('#{$this->ExtendedControl->id}').replaceWith(unescape('".jsEscape($res)."'));";
 	}
 }
 
