@@ -34,19 +34,19 @@
 			
 		$(settings['selectables']+':focus').addClass(settings['current_class']);
 			
-		$(document).keyup( function(e)
+		$(document).keydown( function(e)
+		{
+			var elem = $('.'+settings['current_class']);
+			if( elem.length == 0 )
+				return;
+			switch( e.which )
 			{
-				var elem = $('.'+settings['current_class']);
-				if( elem.length == 0 )
-					return;
-				switch( e.which )
-				{
-					case 37: if( elem.data('nav-left') ) elem.data('nav-left').focus(); break;
-					case 39: if( elem.data('nav-right') ) elem.data('nav-right').focus(); break;
-					case 38: if( elem.data('nav-up') ) elem.data('nav-up').focus(); break;
-					case 40: if( elem.data('nav-down') ) elem.data('nav-down').focus(); break;
-				}
-			});
+				case 37: if( elem.data('nav-left') ) elem.data('nav-left').focus(); break;
+				case 39: if( elem.data('nav-right') ) elem.data('nav-right').focus(); break;
+				case 38: if( elem.data('nav-up') ) elem.data('nav-up').focus(); break;
+				case 40: if( elem.data('nav-down') ) elem.data('nav-down').focus(); break;
+			}
+		});
 	};
 	
 	var tenfoot_nearest = function(direction,elem)
