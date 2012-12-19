@@ -7,7 +7,7 @@ class GoogleControl extends Control
 	
 	function __initialize()
 	{
-		parent::__initialize('div');
+		parent::__initialize('span');
 	}
 	
 	static function __js()

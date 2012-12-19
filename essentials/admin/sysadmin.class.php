@@ -197,9 +197,12 @@ class SysAdmin extends HtmlPage
 	function Testing()
 	{
 		GoogleVisualization::$DefaultDatasource = model_datasource('system');
-		$chart = new gvAreaChart();
-		$chart->EntityFromTable('wdf_cache');
-		$chart->gvQuery = "select valid_until, ckey";
+		$chart = gvTable::Make("Unknown strings")
+			->setDbQuery('wdf_unknown_strings', "select term, hits")
+			->opt('width',500)
+			->opt('height',400)
+			->opt('pageSize',3)
+			->opt('page','enable');
 		$this->addContent($chart);
 	}
 }

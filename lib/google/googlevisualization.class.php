@@ -11,9 +11,36 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	var $gvOptions;
 	var $gvQuery;
 	
+	protected static function _detectCallingClass()
+	{
+		$backtrace = debug_backtrace();
+		$i = 1;
+		do
+		{
+			$trace = $backtrace[$i++];
+			$file_obj = new SplFileObject( $trace['file'] );
+			$file_obj->seek( $trace['line']-1 );
+			$line = $file_obj->current();
+			$regex = '/.*\s([^'.$trace['type'][0].']*)'.$trace['type'].$trace['function'].'/';
+			if( !preg_match($regex, $line, $match) )
+				throw new Exception("Unable to detect calling class");
+		}while( strtolower($match[1]) == 'self' );
+		return $match[1];
+	}
+	
+	static function Make($title=false)
+	{
+		$className = self::_detectCallingClass();
+		$res = new $className();
+		if( $title )
+			return $res->opt('title',$title);
+		return $res;
+	}
+	
 	function __initialize($type=false,$options=array(),$query=false,$ds=false)
 	{
 		parent::__initialize();
+		$this->addClass('google_vis');
 		
 		$this->_ds = $ds?$ds:(self::$DefaultDatasource?self::$DefaultDatasource:model_datasource('internal'));
 		
@@ -21,7 +48,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		$this->gvOptions = $options?$options:array();
 		$this->gvQuery = $query;
 		
-		$this->content("TXT_GV_LOADING");
+		$this->content("<div class='loading'>&nbsp;</div>");
 		store_object($this);
 	}
 	
@@ -31,6 +58,12 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		$opts = json_encode($this->gvOptions);
 		$init = "var q = new google.visualization.Query('$q');q.setQuery('{$this->gvQuery}');q.send(function(r){ if(r.isError()){ $('#{$this->id}').html(r.getDetailedMessage()); }else{ var c=new google.visualization.{$this->gvType}($('#{$this->id}').get(0));c.draw(r.getDataTable(),$opts);}});";
 		$this->script("google.setOnLoadCallback(function(){ $init });");
+		
+		if( isset($this->gvOptions['width']) )
+			$this->css('width',"{$this->gvOptions['width']}px");
+		if( isset($this->gvOptions['height']) )
+			$this->css('height',"{$this->gvOptions['height']}px");
+		
 		return parent::PreRender($args);
 	}
 	
@@ -78,6 +111,21 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		}
 		$mc->handleRequest();
 		die("");
+	}
+	
+	function opt($name,$value=null)
+	{
+		if( is_null($value) )
+			return isset($this->gvOptions[$name])?$this->gvOptions[$name]:null;
+		$this->gvOptions[$name] = $value;
+		return $this;
+	}
+	
+	function setDbQuery($table_name,$query)
+	{
+		$this->EntityFromTable($table_name);
+		$this->gvQuery = $query;
+		return $this;
 	}
 	
 	function EntityFromTable($table_name, $alias=false)
