@@ -33,6 +33,7 @@ class SysAdmin extends HtmlPage
 			foreach( $CONFIG['system']['admin']['actions'] as $label=>$def )
 				$nav->content( new Anchor(buildQuery($def[0],$def[1]),$label) );
             $nav->content( new Anchor(buildQuery('SysAdmin','Cache'),'Cache') );
+            $nav->content( new Anchor(buildQuery('SysAdmin','Testing'),'Testing') );
             $nav->content( new Anchor(buildQuery('SysAdmin','Logout'),'Logout') );
             $nav->content( new Anchor(buildQuery('',''),'Back to app') );
         }
@@ -189,5 +190,16 @@ class SysAdmin extends HtmlPage
 	{
 		cache_clear();
 		redirect('SysAdmin','Cache');
+	}
+	
+	/**
+	 */
+	function Testing()
+	{
+		GoogleVisualization::$DefaultDatasource = model_datasource('system');
+		$chart = new gvAreaChart();
+		$chart->EntityFromTable('wdf_cache');
+		$chart->gvQuery = "select valid_until, ckey";
+		$this->addContent($chart);
 	}
 }
