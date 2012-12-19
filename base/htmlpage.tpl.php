@@ -35,13 +35,15 @@ echo '<?xml version="1.0" encoding="UTF-8" ?>'."\n";?>
 	<? foreach($css as $c) echo $c; ?>
 	<? foreach($js as $j) echo $j; ?>
 	<? if(isset($inlineCSS)) echo $inlineCSS; ?>
-<? if( count($docready) > 0): ?>
+<? if( count($docready) > 0 || count($plaindocready) > 0 ): ?>
 <script type='text/javascript'>
-$(document).ready( function(){
-<? foreach( $docready as $dr ): ?>
-	<?=$dr?>
-<? endforeach; ?>
+<? if( count($docready) > 0 ): ?>
+$(document).ready( function()
+{
+	<?=implode("\n\t",$docready);?>
 });
+<? endif; ?>
+<? if( count($plaindocready) > 0 ) echo implode("\n\t",$plaindocready)."\n"; ?>
 </script>
 <? endif; ?>
 </head>

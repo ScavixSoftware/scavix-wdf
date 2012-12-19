@@ -35,6 +35,7 @@ class HtmlPage extends Template implements ICallable
 	var $content = array();
 	var $dialogs = array();
 	var $docready = array("");
+	var $plaindocready = array();
 	var $ajaxWaitDialogId = false;
 	var $bodyEvents = array();
 
@@ -93,6 +94,7 @@ class HtmlPage extends Template implements ICallable
 		$this->set("css",$this->css);
 		$this->set("content",$this->content);
 		$this->set("docready",$this->docready);
+		$this->set("plaindocready",$this->plaindocready);
 		$this->set("bodyEvents",$this->bodyEvents);
 		$this->set("requireJs",$this->requireJs);
 		
@@ -197,7 +199,6 @@ class HtmlPage extends Template implements ICallable
 			return;
 		$js = "\t<script type='text/javascript' src='$src'></script>\n";
 		$this->js[$src] = $js;
-//		$this->set("js",$this->js);
 	}
 
 	/**
@@ -210,7 +211,6 @@ class HtmlPage extends Template implements ICallable
 			return;
 		$css = "\t<link rel='stylesheet' type='text/css' href='$src'/>\n";
 		$this->css[$src] = $css;
-//		$this->set("css",$this->css);
 	}
 
 	function addContent($content)
@@ -226,13 +226,29 @@ class HtmlPage extends Template implements ICallable
 		$this->set("dialogs",$this->dialogs);
 	}
 
-	function addDocReady($js_code)
+	function addDocReady($js_code,$jq_wrapped=true)
 	{
+		if( is_array($js_code) )
+			$js_code = implode("\n",$js_code);
+		if( !trim($js_code) )
+			return;
+		
 		$k = "k".md5($js_code);
-		if( !isset($this->docready[$k]) )
+		if( $jq_wrapped )
 		{
-			$this->docready[$k] = $js_code;
-			$this->set("docready",$this->docready);
+			if( !isset($this->docready[$k]) )
+			{
+				$this->docready[$k] = $js_code;
+				$this->set("docready",$this->docready);
+			}
+		}
+		else
+		{
+			if( !isset($this->plaindocready[$k]) )
+			{
+				$this->plaindocready[$k] = $js_code;
+				$this->set("plaindocready",$this->plaindocready);
+			}
 		}
 	}
 
