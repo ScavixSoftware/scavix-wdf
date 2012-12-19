@@ -41,8 +41,8 @@ function mail_prepare($recipient,$subject,$message,$plainmessage="",$attachments
 {
 	global $CONFIG;
 
-	require_once(dirname(__FILE__)."/phpmailer/class.smtp.php");
-	require_once(dirname(__FILE__)."/phpmailer/class.phpmailer.php");
+	require_once(dirname(__FILE__)."/mail/class.smtp.php");
+	require_once(dirname(__FILE__)."/mail/class.phpmailer.php");
 
 	if( isDev() && isset($CONFIG['mail']['dev_whitelist']))
 	{
@@ -64,8 +64,8 @@ function mail_prepare($recipient,$subject,$message,$plainmessage="",$attachments
 		}
 	}
 
-	$mail = new PHPMailer(true);	// mantis #5611
-	$mail->SetLanguage("en", dirname(__FILE__)."/phpmailer/language/");
+	$mail = new PHPMailer(true);
+	$mail->SetLanguage("en", dirname(__FILE__)."/mail/language/");
 	$mail->CharSet = "utf-8";
 
 	$mail->IsSMTP();
