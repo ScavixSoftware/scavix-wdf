@@ -769,7 +769,7 @@ function system_spl_autoload($class_name)
 spl_autoload_register("system_spl_autoload",true,true);
 
 /**
- * tries to load the template for the calling class
+ * Tries to load the template for the calling class
  * @param object|string $controller Object or class to load template for
  * @param string $template_name Pass '' (empty string) for this.
  * @return bool|string Returns the filename if found, else false
