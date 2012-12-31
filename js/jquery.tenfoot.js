@@ -45,6 +45,15 @@
 				case 39: if( elem.data('nav-right') ) elem.data('nav-right').focus(); break;
 				case 38: if( elem.data('nav-up') ) elem.data('nav-up').focus(); break;
 				case 40: if( elem.data('nav-down') ) elem.data('nav-down').focus(); break;
+				
+				/* ENTER and SPACE */
+				case 13:
+				case 32:
+					// trigger click for a elements without href attribute
+					if( elem.is('a') && !elem.attr('href') )
+						elem.click();
+					break;
+				default: Debug('key: '+e.which); break;
 			}
 		});
 	};
@@ -92,6 +101,29 @@
 		
 		if( nearest )
 			elem.data(prop,nearest);
+	};
+	
+	/* some 10foot related helper functions */
+	
+	$.nextOption = function( select_selector )
+	{  
+		var elem = $(select_selector);
+		var opt  = $(select_selector+' option[value="'+elem.val()+'"]');
+		var tobe = opt.next().val() || $(select_selector+' option:first').val();
+		return elem.val(tobe).change();
+	};
+	
+	$.prevOption = function( select_selector )
+	{  
+		var elem = $(select_selector);
+		var opt  = $(select_selector+' option[value="'+elem.val()+'"]');
+		var tobe = opt.prev().val() || $(select_selector+' option:last').val();
+		return elem.val(tobe).change();
+	};
+	
+	$.selectedLabel = function( select_selector )
+	{  
+		return $(select_selector+' option[value="'+$(select_selector).val()+'"]').html();
 	};
 	
 })( jQuery );
