@@ -92,6 +92,9 @@ function system_config_default($reset = true)
 	$CONFIG['system']['header']['X-XSS-Protection'] = "1; mode=block";
 	
     $path = explode("index.php",$_SERVER['PHP_SELF']);
+	if( !isset($_SERVER['REQUEST_SCHEME']) )
+		$_SERVER['REQUEST_SCHEME'] = 'http';
+	
 	$CONFIG['system']['url_root'] = "{$_SERVER['REQUEST_SCHEME']}://{$_SERVER['HTTP_HOST']}{$path[0]}";
     $CONFIG['system']['modules'] = array();
     $CONFIG['system']['default_page'] = "HtmlPage";
