@@ -38,6 +38,25 @@ class Template implements IRenderable
 	var $_container_path = false;
 	var $_script = array();
 
+	static function Make($template_basename)
+	{
+		if( file_exists($template_basename) )
+			$tpl_file = $template_basename;
+		else
+		{
+			foreach( array_reverse(cfg_get('system','tpl_ext')) as $tpl_ext )
+			{
+				$tpl_file = __search_file_for_class($template_basename,$tpl_ext);
+				if( $tpl_file )
+					break;
+			}
+		}
+		if( !$tpl_file )
+			system_die("Template not found: $template_basename");
+		$res = new Template($tpl_file);
+		return $res;
+	}
+	
     /**
 	 * Constructs a new object.
 	 * Will prevent constructor calls when objects are restored from session-storage.
