@@ -104,7 +104,7 @@ class TranslationAdmin extends SysAdmin
             $this->request(array('action'=>'update_language','language'=>'en','data'=>$data));
         }
         
-        return parent::DeleteString($term);
+        return $this->DeleteString($term);
     }
 	
     /**
