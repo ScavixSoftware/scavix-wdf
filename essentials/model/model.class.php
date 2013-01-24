@@ -522,12 +522,12 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
 
-	function eq($property,$value) { return $this->equal($property,$value); }
-	public function equal($property,$value)
+	function eq($property,$value,$value_is_sql=false) { return $this->equal($property,$value,$value_is_sql); }
+	public function equal($property,$value,$value_is_sql=false)
 	{
 		$res = clone $this;
 		$res->__ensureSelect();
-		$res->_query->equal($this->__ensureFieldname($property),$this->__toTypedValue($property,$value));
+		$res->_query->equal($this->__ensureFieldname($property),$value_is_sql?$value:$this->__toTypedValue($property,$value),$value_is_sql);
 		return $res;
 	}
 	

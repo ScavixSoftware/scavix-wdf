@@ -150,10 +150,10 @@ class Query
 		$this->__conditionTree()->Nest($count,"OR");
 	}
 
-	function equal($property,$value)
+	function equal($property,$value,$value_is_sql=false)
 	{
 		//debug("equal($property,$value)");
-		if( $value instanceof ColumnAttribute )
+		if( $value instanceof ColumnAttribute || $value_is_sql )
 			$this->__conditionTree()->Add(new Condition("=",$property,$value));
 		else
 		{

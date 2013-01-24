@@ -131,7 +131,7 @@ class uiButtonSet extends Control
 
 	static function __js()
 	{
-		return array(jsFile('jquery-ui/jquery.ui.all.js'));
+		return array(jsFile('jquery-ui/jquery-ui.js'));
 	}
 
 	function &AddButton($label,$click_event = false,$icon = false,$tab_id = "")

@@ -85,21 +85,12 @@ class LogEntry
     
     public function toReadable()
     {
-        $parts = array(date("Y-m-d H:i:s.m",$this->datetime));
-        
-        foreach( $this->categories as $c )
-            $parts[] = $c;
-		
-		if( $this->severity )
-			$parts[] = $this->severity;
-		
-		$parts[] = $this->message;
-
-		$content = implode("\t",$parts);
-		
+        $content = date("[Y-m-d H:i:s.m]",$this->datetime);
+		$content .= " [{$this->severity}]";
+		$content .= " (".implode(",",$this->categories).")";
+		$content .= "\t{$this->message}";
 		if( $this->trace )
 			$content .= "\n".$this->parseTrace($this->trace);
-        
         return $content;
     }
 	

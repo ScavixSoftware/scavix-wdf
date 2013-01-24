@@ -20,7 +20,7 @@ class uiSelectMenu extends Control
 
 	static function __js()
 	{
-		return array(jsFile('jquery-ui/jquery.ui.all.js'),jsFile('jquery-ui/ui.selectmenu.js'));
+		return array(jsFile('jquery-ui/jquery-ui.js'),jsFile('jquery-ui/ui.selectmenu.js'));
 	}
 
 	private function addIcon($path)

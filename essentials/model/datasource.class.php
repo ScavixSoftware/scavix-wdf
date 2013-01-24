@@ -158,6 +158,11 @@ class DataSource extends System_DataSource
 		$res = $this->_pdo->quote($value);
 		return substr($res, 1, count($res)-2);
 	}
+	
+	function QuoteArgument($value)
+	{
+		return $this->_pdo->quote($value);
+	}
 
 	function Prepare($sql)
 	{

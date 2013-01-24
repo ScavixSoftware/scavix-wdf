@@ -44,7 +44,7 @@ class uiAccordion extends Control
 
 	static function __js()
 	{
-		return array(jsFile('jquery-ui/jquery.ui.all.js'));
+		return array(jsFile('jquery-ui/jquery-ui.js'));
 	}
 
 	/**
