@@ -14,6 +14,7 @@ $(document).ready(function()
                 $('table.'+term).fadeOut( function(){ $('table.'+term).remove(); } );
                 return;
             }
+			$('body').append(d);
         });
     });
     

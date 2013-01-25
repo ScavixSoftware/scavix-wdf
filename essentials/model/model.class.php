@@ -272,6 +272,14 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $this->_query->GetPagingInfo();
 	}
 	
+	public function FieldValues()
+	{
+		$res = array();
+		foreach( func_get_args() as $col )
+			$res[] = $this->__typedValue($col);
+		return $res;
+	}
+	
 	/**
 	 * Wrapper around private method to allow overriding without breaking internal functionality
 	 */
@@ -655,6 +663,14 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$res = clone $this;
 		$res->__ensureSelect();
 		$res->_query->orderBy($this->__ensureFieldname($property),$direction);
+		return $res;
+	}
+	
+	public function shuffle()
+	{
+		$res = clone $this;
+		$res->__ensureSelect();
+		$res->_query->orderBy('rand()','');
 		return $res;
 	}
 

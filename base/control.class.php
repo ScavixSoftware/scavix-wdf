@@ -85,7 +85,7 @@ $GLOBALS['html_attributes'] = array(
 	'html' => array('version'),
 	'iframe' => array('align','frameborder','height','longdesc','marginwidth','marginheight','name','scrolling','src','width'),
 	'img' => array('align','alt','border','height','hspace','ismap','longdesc','name','src','usemap','vspace','width','onload'),
-	'input' => array('accept','accesskey','align','alt','checked','disabled','ismap','maxlength','name','onblur','onchange','onfocus','onselect','readonly','size','src','tabindex','type','usemap','value'),
+	'input' => array('accept','accesskey','align','alt','checked','disabled','ismap','maxlength','name','onblur','onchange','onfocus','onselect','readonly','size','src','tabindex','type','usemap','value','placeholder'),
 	'ins' => array('cite','datetime'),
 	'isindex' => array('prompt'),
 	'label' => array('accesskey','for','onblur','onfocus'),
@@ -125,7 +125,7 @@ $GLOBALS['html_attributes'] = array(
  * Tags that need a closing tag wether there's content or not.
  */
 $GLOBALS['html_close_tag_needed'] = array(
-	'span','textarea','div','td','select','audio'
+	'span','textarea','div','td','select','audio','iframe'
 );
 $GLOBALS['html_close_tag_needed'] = array_combine($GLOBALS['html_close_tag_needed'], $GLOBALS['html_close_tag_needed']);
 
@@ -325,6 +325,29 @@ class Control implements IRenderable
 	static function __css()
 	{
 		return array();
+	}
+	
+	public static function Make($tag="")
+    {
+		$className = self::DetectCallingClass();
+		return new $className($tag);
+	}
+	
+	public static function DetectCallingClass()
+	{
+		$backtrace = debug_backtrace();
+		$i = 1;
+		do
+		{
+			$trace = $backtrace[$i++];
+			$file_obj = new SplFileObject( $trace['file'] );
+			$file_obj->seek( $trace['line']-1 );
+			$line = $file_obj->current();
+			$regex = '/.*\s([^'.$trace['type'][0].']*)'.$trace['type'].$trace['function'].'/';
+			if( !preg_match($regex, $line, $match) )
+				throw new Exception("Unable to detect calling class");
+		}while( strtolower($match[1]) == 'self' );
+		return $match[1];
 	}
 
 	/**

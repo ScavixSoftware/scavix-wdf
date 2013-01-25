@@ -18,6 +18,11 @@ class TranslationAdmin extends SysAdmin
         //log_debug($data);
         $res = sendHTTPRequest('http://poeditor.com/api/',$data);
         $res = json_decode($res);
+        if( !$res )
+        {
+            log_error("Error connecting to the POEditor API");
+            return false;
+        }
         if( $res->response->code != 200 )
         {
             log_error("POEditor API returned error: ".$res->response->message,"Details: ",$res);
@@ -62,6 +67,9 @@ class TranslationAdmin extends SysAdmin
             $a->script("$('#{$a->id}').click(function(){ $('input','#{$div->id}').attr('checked',true); });");
             $div->content("&nbsp;&nbsp;");
             $div->AddSubmit("Fetch");
+			
+			$pid = $GLOBALS['CONFIG']['translation']['sync']['poeditor_project_id'];
+			$div->content("<br/><a href='http://poeditor.com/projects/view?id=$pid' target='_blank'>Open POEditor.com</a>");
             return;
         }
         
@@ -92,7 +100,10 @@ class TranslationAdmin extends SysAdmin
     {
         $data = array(array('term'=>$term));
         $data = json_encode($data);
-        $this->request(array('action'=>'add_terms','data'=>$data));
+        $res = $this->request(array('action'=>'add_terms','data'=>$data));
+		
+		if( !$res )
+			return new uiMessageBox("Could not create term.");
         
         if( $text )
         {
@@ -101,7 +112,9 @@ class TranslationAdmin extends SysAdmin
                 'definition' => array('forms'=>array($text),'fuzzy'=>0)
             ));
             $data = json_encode($data);
-            $this->request(array('action'=>'update_language','language'=>'en','data'=>$data));
+            $res = $this->request(array('action'=>'update_language','language'=>'en','data'=>$data));
+			if( !$res )
+				return new uiMessageBox("Could not set initial term content.");
         }
         
         return $this->DeleteString($term);
