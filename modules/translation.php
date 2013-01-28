@@ -269,7 +269,7 @@ function getStringLang($lang,$constant,$arreplace = null, $unbuffered = false)
 
 function _text($constant, $arreplace = null, $unbuffered = false, $encoding = null)
 {
-	return getString($constant,$n,$unbuffered,$encoding);
+	return getString($constant,$arreplace,$unbuffered,$encoding);
 }
 
 function getString($constant, $arreplace = null, $unbuffered = false, $encoding = null)
