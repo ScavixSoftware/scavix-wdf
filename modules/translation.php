@@ -267,6 +267,21 @@ function getStringLang($lang,$constant,$arreplace = null, $unbuffered = false)
 	return $res;
 }
 
+function _text($constant, $arreplace = null, $unbuffered = false, $encoding = null)
+{
+	return getString($constant,$n,$unbuffered,$encoding);
+}
+
+function getString($constant, $arreplace = null, $unbuffered = false, $encoding = null)
+{
+	if( !$arreplace )
+		return getStringOrig($constant,$arreplace,$unbuffered,$encoding);
+	$n = array();
+	foreach( $arreplace as $k=>$v )
+		if( $k[0] == '{' ) $n[$k] = $v; else $n['{'.$k.'}'] = $v;
+	return getStringOrig($constant,$n,$unbuffered,$encoding);
+}
+
 /**
  * returns a localized string from the current user's language. replaces all placeholders in string from arreplace
  * i.e. TXT_TEST => "this is a {tt}" with arreplace = aray("{tt}" => "test") => returns "this is a test"
@@ -278,7 +293,7 @@ function getStringLang($lang,$constant,$arreplace = null, $unbuffered = false)
  * @param <string> $encoding E.g. cp1252. Default "null" => UTF-8 will be returned
  * @return <string>
  */
-function getString($constant, $arreplace = null, $unbuffered = false, $encoding = null)
+function getStringOrig($constant, $arreplace = null, $unbuffered = false, $encoding = null)
 {
 	global $CONFIG;
 	
