@@ -129,7 +129,13 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	
 	function __wakeup()
 	{ 
-		log_warn(get_class($this).": You are saving a Model in the session. This may cause incorrect data. Please override __wakeup (implement special handling or just to ignore this message)."); 
+		$q = $this->_ds->Query($this->GetTableName());
+		foreach( $this->GetPrimaryColumns() as $pk )
+			$q = $q->eq($pk,$this->$pk);
+		$q = $q->current();
+		foreach( $this->GetColumnNames() as $cn )
+			$this->$cn = $q->$cn;
+		$this->__init_db_values();
 	}
 	
 	function __init_db_values($known_as_empty=false)

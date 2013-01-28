@@ -114,6 +114,7 @@ class Serializer
 
 	function Unserialize($data)
 	{
+//		log_debug("Unserialize(...)",$data);
 		if( !isset($GLOBALS['unserializing_level']) )
 			$GLOBALS['unserializing_level'] = 0;
 		$GLOBALS['unserializing_level']++;
@@ -161,18 +162,21 @@ class Serializer
 				$datasource = $datasource?model_datasource($datasource):null;
 
 				try{
-				$this->Stack[$id] = new $type($datasource);
-				for($i=0; $i<$len; $i++)
-				{
-					$field = $this->Unser_Inner();
-					if( $field == "" )
-						continue;
+					$this->Stack[$id] = new $type($datasource);
+					for($i=0; $i<$len; $i++)
+					{
+						$field = $this->Unser_Inner();
+						if( $field == "" )
+							continue;
 
-					$this->Stack[$id]->$field = $this->Unser_Inner();
-				}
+						$this->Stack[$id]->$field = $this->Unser_Inner();
+					}
 
-				if( system_method_exists($this->Stack[$id],'__wakeup') )
-					$this->Stack[$id]->__wakeup();
+					if( system_method_exists($this->Stack[$id],'__wakeup') )
+						$this->Stack[$id]->__wakeup();
+					else
+						log_debug("no __wakeup defined");
+					
 				}catch(Exception $ex){
 					log_error("Unserialise Exception in line '$line': ".$ex->getMessage());
 					return null;
