@@ -256,6 +256,22 @@ function detect_language()
 	return $GLOBALS['current_language'];
 }
 
+/**
+ * Sets the language and return the current one.
+ * If there was no current yet, detect_language() is called.
+ */
+function translation_set_language($code_or_ci)
+{
+	if( !isset($GLOBALS['current_language']) )
+		detect_language();
+	$res = $GLOBALS['current_language'];
+	if( $code_or_ci instanceof CultureInfo )
+		$GLOBALS['current_language'] = $code_or_ci->ResolveToLanguage()->Code;
+	else
+		$GLOBALS['current_language'] = $code_or_ci;
+	return $res;
+}
+
 function getStringLang($lang,$constant,$arreplace = null, $unbuffered = false)
 {
 	$mem = isset($GLOBALS['current_language'])?$GLOBALS['current_language']:false;
