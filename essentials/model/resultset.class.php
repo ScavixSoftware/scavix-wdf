@@ -308,23 +308,6 @@ class ResultSet extends PDOStatement
 		return $arr;
 	}
 	
-	function FieldTypesArray()
-	{
-		// as this is only used in datatable.class.php and only type=='datetime' is checked 
-		// we simply prepare for compatibility of that call
-		if( !$this->_field_types )
-		{
-			$this->_field_types = array();
-			for($i=0; $i<$this->columnCount(); $i++)
-			{
-				$r = (object)$this->getColumnMeta($i);
-				$r->type = strtolower($r->native_type);
-				$this->_field_types[] = $r;
-			}
-		}
-		return $this->_field_types;
-	}
-	
 	function MaxRecordCount()
 	{
 		if( !$this->GetPagingInfo() )
