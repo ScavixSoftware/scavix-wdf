@@ -114,6 +114,10 @@ class CellFormat
 				$content = str_replace($content,"$m:$s",$full_content);
 			}
 		}
+		if( $format == 'fixed' || $format == 'pre' || $format == 'preformatted' )
+		{
+			$content = str_replace($content,"<pre>$content</pre>",$full_content);
+		}
 		elseif( $culture )
 		{
 			switch( $format )

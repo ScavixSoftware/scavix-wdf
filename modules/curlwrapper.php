@@ -78,7 +78,7 @@ function sendHTTPRequest($url, $postdata = false, $cacheTTLsec = false, &$respon
 		curl_close($ch);
 		return $result;
 	}
-	//log_info($info);
+	log_info($info);
 	curl_close($ch);
 
     if($response_header !== false)
@@ -115,7 +115,7 @@ function sendHTTPRequest($url, $postdata = false, $cacheTTLsec = false, &$respon
  * @return array Array following the rules of the $_FILES superglobal (but without the first dimension) or FALSE if an error occured.
  *               Note that $_FILES may contain an error too!
  */
-function downloadFile($url, $postdata = false, $request_header = array(), $follow_location=false, $cookie_file=false)
+function downloadFile($url, $postdata = false, $request_header = array(), $follow_location=true, $cookie_file=false)
 {
 	$parsed_url = parse_url($url);
 	$GLOBALS['downloadFile_data'] = array();

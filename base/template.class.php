@@ -126,6 +126,7 @@ class Template implements IRenderable
 		$this->vars[$name] = $value;
 		if( $name == 'id' )
 			$this->_storage_id = $value;
+		return $this;
 	}
 
 	/**

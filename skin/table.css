@@ -23,3 +23,5 @@
 	padding-left: 16px !important;
     padding-right: 0px !important;
 }
+
+.divtable .td pre { font-family: Courier,monospace; margin: 0; }
