@@ -2,6 +2,8 @@
  
 class TranslationAdmin extends SysAdmin
 {
+	var $Lasterror = "";
+	
     function __initialize($title = "", $body_class = false)
     {
         parent::__initialize($title, $body_class);
@@ -20,14 +22,24 @@ class TranslationAdmin extends SysAdmin
         $res = json_decode($res);
         if( !$res )
         {
-            log_error("Error connecting to the POEditor API");
+			$this->Lasterror = "Error connecting to the POEditor API";
+            log_error($this->Lasterror);
             return false;
         }
         if( $res->response->code != 200 )
         {
-            log_error("POEditor API returned error: ".$res->response->message,"Details: ",$res);
+			$this->Lasterror = "POEditor API returned error: ".$res->response->message;
+            log_error($this->Lasterror,"Details: ",$res);
             return false;
         }
+		
+		$edited = ( isset($res->details->added)?$res->details->added:0 ) + ( isset($res->details->updated)?$res->details->updated:0 );
+		if( $edited == 0 )
+		{
+			$this->Lasterror = "POEditor API did not add anything";
+			log_error($this->Lasterror,"Details:",$res,"Request was:",$data);
+            return false;
+		}
         return $res;
     }
     
@@ -103,7 +115,7 @@ class TranslationAdmin extends SysAdmin
         $res = $this->request(array('action'=>'add_terms','data'=>$data));
 		
 		if( !$res )
-			return new uiMessageBox("Could not create term.");
+			return new uiMessageBox("Could not create term: ".$this->Lasterror);
         
         if( $text )
         {
@@ -114,7 +126,7 @@ class TranslationAdmin extends SysAdmin
             $data = json_encode($data);
             $res = $this->request(array('action'=>'update_language','language'=>'en','data'=>$data));
 			if( !$res )
-				return new uiMessageBox("Could not set initial term content.");
+				return new uiMessageBox("Could not set initial term content: ".$this->Lasterror);
         }
         
         return $this->DeleteString($term);

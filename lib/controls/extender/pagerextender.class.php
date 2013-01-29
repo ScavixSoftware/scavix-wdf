@@ -78,9 +78,9 @@ class PagerExtender extends ControlExtender
 		if( $this->CurrentPage > 1 )
 		{
 			if( $this->ShowFirstLast )
-				$ui->content( $this->createAnchor(1,"TXT_LINK_FIRST") );
+				$ui->content( $this->createAnchor(1,"|&lt;") );
 			if( $this->ShowPrevNext )
-				$ui->content( $this->createAnchor($this->CurrentPage-1,"TXT_LINK_PREV") );
+				$ui->content( $this->createAnchor($this->CurrentPage-1,"&lt;") );
 		}
 
 		$start = 1;
@@ -98,9 +98,9 @@ class PagerExtender extends ControlExtender
 		if( $this->CurrentPage < $pages )
 		{
 			if( $this->ShowPrevNext )
-				$ui->content( $this->createAnchor($this->CurrentPage+1,"TXT_LINK_NEXT") );
+				$ui->content( $this->createAnchor($this->CurrentPage+1,"&gt;") );
 			if( $this->ShowFirstLast )
-				$ui->content( $this->createAnchor($pages,"TXT_LINK_LAST") );
+				$ui->content( $this->createAnchor($pages,"&gt;|") );
 		}
 	}
 

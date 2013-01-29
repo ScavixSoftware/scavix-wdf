@@ -91,12 +91,6 @@ class RequestParamAttribute extends System_Attribute
 //			log_debug($CONFIG['requestparam']['ci_detection_func']);
 		}
 		$ci = $GLOBALS['request_param_detected_ci'];
-		
-		// get rid of XSS from our own strings
-		$data[$name] = str_replace("TXT_LINK_PREV", "", $data[$name]);
-		$data[$name] = str_replace("TXT_LINK_NEXT", "", $data[$name]);
-		$data[$name] = str_replace("TXT_LINK_FIRST", "", $data[$name]);
-		$data[$name] = str_replace("TXT_LINK_LAST", "", $data[$name]);
 
 		if( !is_null($this->Type) )
 		{
