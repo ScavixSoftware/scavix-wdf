@@ -222,4 +222,19 @@ function session_memcache_port()
 	return isset($u['port'])?$u['port']:11211;
 }
 
+function session_serialize($value)
+{
+	$s = new Serializer();
+	return $s->Serialize($value);
+}
+
+function session_unserialize($value)
+{
+	log_debug("session_unserialize(...)",$value);
+	$s = new Serializer();
+	$res = $s->Unserialize($value);
+	log_debug("session_unserialize -> ",$res);
+	return $res;
+}
+
 ?>

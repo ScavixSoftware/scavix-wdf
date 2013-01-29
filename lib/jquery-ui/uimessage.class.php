@@ -4,6 +4,9 @@ class uiMessage extends Template
 {
 	static function Hint($message)
 	{
+		if( function_exists('translation_string_exists') && translation_string_exists($message) )
+			$message = getString($message);
+		
 		$res = new uiMessage();
 		$res->set('message',$message);
 		return $res;

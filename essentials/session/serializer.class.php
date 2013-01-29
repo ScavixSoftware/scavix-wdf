@@ -67,6 +67,8 @@ class Serializer
 				return "x:".$data->format('c')."\n";
 			if( $data instanceof DateTime )
 				return "d:".$data->format('c')."\n";
+			if( $data instanceof Reflector )
+				return "y:".$data->getName()."\n";
 
 			foreach( $this->Stack as $index=>&$val )
 				if( equals($this->Stack[$index], $data) )
@@ -157,6 +159,8 @@ class Serializer
 				return new DateTime($line);
 			case 'x':
 				return new DateTimeEx($line);
+			case 'y':
+				return new System_Reflector($line);
 			case 'o':
 				list($id,$len,$type,$datasource) = explode(':',$line);
 				$datasource = $datasource?model_datasource($datasource):null;
@@ -174,11 +178,9 @@ class Serializer
 
 					if( system_method_exists($this->Stack[$id],'__wakeup') )
 						$this->Stack[$id]->__wakeup();
-					else
-						log_debug("no __wakeup defined");
 					
 				}catch(Exception $ex){
-					log_error("Unserialise Exception in line '$line': ".$ex->getMessage());
+					log_error("Unserialise Exception in line '$line' ($id,$len,$type,$datasource): ".$ex->getMessage());
 					return null;
 				}
 				return $this->Stack[$id];
