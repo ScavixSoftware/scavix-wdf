@@ -106,7 +106,7 @@ class System_Reflector extends ReflectionClass
 	{
 		$key = $this->_getCacheKey($name,$filter);
 		$cache[$key] = $value;
-		log_debug("_setCached: $key",$value);
+//		log_debug("_setCached: $key",$value);
 		cache_set("ref_attr_$key",$value);
 	}
 

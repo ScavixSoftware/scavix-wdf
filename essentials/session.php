@@ -230,10 +230,8 @@ function session_serialize($value)
 
 function session_unserialize($value)
 {
-	log_debug("session_unserialize(...)",$value);
 	$s = new Serializer();
 	$res = $s->Unserialize($value);
-	log_debug("session_unserialize -> ",$res);
 	return $res;
 }
 
