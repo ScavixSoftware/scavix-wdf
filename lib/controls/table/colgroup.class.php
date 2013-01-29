@@ -29,12 +29,14 @@ class ColGroup extends Control
 
 	function __initialize()
 	{
-		parent::__initialize("colgroup");
+		parent::__initialize("div");
+		$this->class = "colgroup";
 	}
 
     function &NewCol($width=false,$align=false)
     {
-        $this->current_col = new Control("col");
+        $this->current_col = new Control("div");
+		$this->current_col->class = "col";
 		if( $width )
 			$this->current_col->width = $width;
 		if( $align )

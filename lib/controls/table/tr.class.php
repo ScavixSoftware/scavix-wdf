@@ -33,8 +33,8 @@ class Tr extends Control
 
 	function __initialize($options=false)
 	{
-		parent::__initialize("tr");
-
+		parent::__initialize("div");
+		$this->class = "tr";
         $this->options = $options;
 
 		if( $options )

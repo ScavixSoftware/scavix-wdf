@@ -711,5 +711,16 @@ class Control implements IRenderable
 		$res->content($this);
 		return $res;
 	}
+	
+	function appendTo($target)
+	{
+		if( $target instanceof Control )
+			$target->content($this);
+		elseif( $target instanceof HtmlPage )
+			$target->addContent($this);
+		else
+			throw new Exception("Target must be of type Control or HtmlPage");
+		return $this;
+	}
 }
 ?>

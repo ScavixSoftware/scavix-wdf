@@ -1,8 +1,5 @@
 
-.pager
-{
-	/*background-color: #C0C0C0;*/
-}
+.pager {}
 
 .pager a, .pager a:link, .pager a:visited, .pager a:active
 {

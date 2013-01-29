@@ -73,7 +73,7 @@ class PagerExtender extends ControlExtender
 //			log_debug("PagerExtender: No pages to render");
 			return;
 		}
-		$ui->class = "pager";
+		$ui->addClass("pager");
 
 		if( $this->CurrentPage > 1 )
 		{

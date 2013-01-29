@@ -39,9 +39,14 @@ class Table extends Control
 	var $ColFormats = array();
 	var $Culture = false;
 	
+	const RENDER_MODE_NORMAL = 0;
+	const RENDER_MODE_JQUERYUI = 1;
+	var $RenderMode = 0;
+	
 	function __initialize()
 	{
-		parent::__initialize("table");
+		parent::__initialize("div");
+		$this->class = 'divtable';
 	}
 	
 	static function Make(){ return new Table(); }
@@ -139,6 +144,14 @@ class Table extends Control
 	
 	function do_the_execution()
     {
+		if( $this->RenderMode == self::RENDER_MODE_JQUERYUI )
+		{
+			$this->addClass('ui-widget ui-widget-content ui-corner-all');
+			if( $this->header ) $this->header->addClass('ui-widget-header');
+			if( $this->Caption ) $this->Caption->addClass('ui-widget-header');
+			if( $this->footer ) $this->footer->addClass('ui-widget-content');
+		}
+		
         if( $this->footer )
             $this->_content = array_merge(array($this->footer),$this->_content);
         if( $this->header )
@@ -199,6 +212,15 @@ class Table extends Control
 	function SetHeader()
 	{
 		$this->Header()->NewRow(func_get_args());
+		return $this;
+	}
+	
+	/**
+	 * Same as NewRowGroup($options) but returns $this to allow method chaining
+	 */
+	function AddNewRowGroup($options=false)
+	{
+		$this->NewRowGroup($options);
 		return $this;
 	}
 	
@@ -268,6 +290,16 @@ class Table extends Control
 	function SetCulture($ci)
 	{
 		$this->Culture = $ci;
+		return $this;
+	}
+	
+	/**
+	 * Just sets the rendering mode. 
+	 * Possible values are Table::RENDER_MODE_NORMAL and Table::RENDER_MODE_JQUERYUI
+	 */
+	function SetRenderMode($mode)
+	{
+		$this->RenderMode = $mode;
 		return $this;
 	}
 }

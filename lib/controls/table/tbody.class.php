@@ -34,9 +34,10 @@ class TBody extends Control
 
 	var $RowOptions = array();
 
-	function __initialize($options,$tag="tbody",&$parent_table=false)
+	function __initialize($options,$class="tbody",&$parent_table=false)
 	{
-		parent::__initialize($tag);
+		parent::__initialize("div");
+		$this->class = $class;
         $this->options = $options;
 		$this->table = $parent_table;
 	}

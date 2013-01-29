@@ -27,10 +27,13 @@ class Td extends Control
 {
     var $options = false;
 	var $CellFormat = false;
+	
+	var $colspan = "";
 
 	function __initialize($options)
 	{
-		parent::__initialize("td");
+		parent::__initialize("div");
+		$this->class = "td";
         $this->options = $options;
 	}
 
