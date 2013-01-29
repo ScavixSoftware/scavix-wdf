@@ -179,6 +179,14 @@ class CultureInfo
 		$this->TimeZone = $timezone;
 		$this->_alwaysConvertTimesToTimezone = $alwaysConvertTimesToTimezone;
 	}
+	
+	function SetCurrency($code)
+	{
+		$ci = internal_getCulturesByCurrency($code);
+		$ci = internal_getCultureInfo($ci[0]);
+		if( $this->CurrencyFormat->Code != $ci->CurrencyFormat->Code )
+			$this->CurrencyFormat = $ci->CurrencyFormat;
+	}
 
 	function FormatNumber($number, $decimals=false, $use_plain=false)
 	{
