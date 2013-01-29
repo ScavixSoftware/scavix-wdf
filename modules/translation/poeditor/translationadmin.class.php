@@ -33,12 +33,15 @@ class TranslationAdmin extends SysAdmin
             return false;
         }
 		
-		$edited = ( isset($res->details->added)?$res->details->added:0 ) + ( isset($res->details->updated)?$res->details->updated:0 );
-		if( $edited == 0 )
+		if( isset($res->details) )
 		{
-			$this->Lasterror = "POEditor API did not add anything";
-			log_error($this->Lasterror,"Details:",$res,"Request was:",$data);
-            return false;
+			$edited = ( isset($res->details->added)?$res->details->added:0 ) + ( isset($res->details->updated)?$res->details->updated:0 );
+			if( $edited == 0 )
+			{
+				$this->Lasterror = "POEditor API did not add anything";
+				log_error($this->Lasterror,"Details:",$res,"Request was:",$data);
+				return false;
+			}
 		}
         return $res;
     }

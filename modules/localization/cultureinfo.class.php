@@ -153,8 +153,7 @@ class CultureInfo
     function EnsureRegion()
 	{
         $res = clone $this;
-		$res->OtherRegion($res->DefaultRegion());
-        return $res;
+		return $res->OtherRegion($res->DefaultRegion());
     }
     
 	function IsNeutral()
