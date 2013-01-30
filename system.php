@@ -1700,4 +1700,15 @@ function system_method_exists($object_or_classname,$method_name)
 	return $ret;
 }
 
-?>
+/**
+ * Shuffle an array and preserve key=>value binding
+ * http://www.php.net/manual/en/function.shuffle.php#94697
+ */
+function shuffle_assoc(&$array)
+{
+	$keys = array_keys($array);
+	shuffle($keys);
+	foreach($keys as $key)
+		$new[$key] = $array[$key];
+	$array = $new;
+}
