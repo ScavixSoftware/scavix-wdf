@@ -60,6 +60,7 @@ function sendHTTPRequest($url, $postdata = false, $cacheTTLsec = false, &$respon
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 	
 	if( $cookie_file )
 	{
@@ -78,7 +79,7 @@ function sendHTTPRequest($url, $postdata = false, $cacheTTLsec = false, &$respon
 		curl_close($ch);
 		return $result;
 	}
-	log_info($info);
+	//log_info($info);
 	curl_close($ch);
 
     if($response_header !== false)
