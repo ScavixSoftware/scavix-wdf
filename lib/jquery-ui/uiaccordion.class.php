@@ -6,14 +6,13 @@ class uiAccordion extends Control
 	var $_sections = array();
 	var $_options;
 	
-    function __initialize($css_propertys = array(),$options = array())
+    function __initialize($options = array(),$css_propertys = array())
 	{
 		parent::__initialize("div");
 		$this->_options  = array(
-				"animated"=>true,
-				"autoHeight"=>false,
-				"autoWidth"=>true,
-				"collapsible"=>true
+				"animate"=>false,
+				"collapsible"=>true,
+				"heightStyleType"=>'content'
 			);
 
 		if(!is_array($options))
@@ -29,7 +28,7 @@ class uiAccordion extends Control
 	{
 		foreach($this->_sections as $section=>$section_content)
 		{
-			$this->content("<h3><a href='#'>$section</a></h3>");
+			$this->content("<h3>$section</h3>");
 			$this->content($section_content);
 		}
 		
@@ -59,7 +58,6 @@ class uiAccordion extends Control
 			$ctrl = new Control("div");
 			$this->_sections[$section_title] = $ctrl;
 			return $ctrl;
-			
 		}
 	}
 	/**
