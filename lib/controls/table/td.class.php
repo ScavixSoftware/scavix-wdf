@@ -41,19 +41,13 @@ class Td extends Control
 	{
 		$tmp = clone $this;
 		$tmp->Tag = "";
-		return $tmp->Execute();
+		return $tmp->WdfRender();
 	}
 
 	function SetContent($content)
 	{
 		$this->content($content,true);
 	}
-
-//	function do_the_execution()
-//	{
-//		$res = parent::do_the_execution();
-//		return "$res\t";
-//	}
 }
 
 ?>

@@ -6,7 +6,7 @@
 	Description: tabs taken from jQuery UI documentation at:
 				 http://jqueryui.com/demos/tabs/
 */
-class uiTabs extends Template
+class uiTabs extends uiTemplate
 {
 	protected $_tabContent = array();
 	protected $_tabIds = array();
@@ -38,14 +38,14 @@ class uiTabs extends Template
 		return array(skinFile('jquery-ui/jquery-ui.css'));
 	}
 
-	public function do_the_execution($generate_script_code=true)
+	public function WdfRender()
 	{
 		$this->set('tab_content',$this->_tabContent);
 		$this->set('tab_ids',$this->_tabIds);
 		$this->set('options',$this->PrepareOptions());
 		$this->set('sortable',$this->_sortable);
 
-		return parent::do_the_execution($generate_script_code);
+		return parent::WdfRender();
 	}
 
 	function AddTab($tabid,$content="",$label=false)

@@ -1,6 +1,6 @@
 <?php
 
-class uiButtonSet extends Control
+class uiButtonSet extends uiControl
 {
 	var $buttons = array();
 	var $sortable;
@@ -114,8 +114,6 @@ class uiButtonSet extends Control
 				{
 					$this->script("$('#{$this->buttons[$index]['button']->id}').$event(function(){ $function }); ");
 				}
-//				if(array_key_exists("icon",$this->buttons[$index]))
-//					$this->script("$('#{$this->buttons[$index]['button']->id}').button({icons:{primary:'{$this->buttons[$index]['icon']}',secondary:null}});");
 			}
 			$this->script("$(function(){ $('#".$this->id."').buttonset(); });");
 			if($this->sortable)

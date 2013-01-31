@@ -258,7 +258,9 @@ class System_Reflector extends ReflectionClass
 	 */
 	public function GetClassAttributes($filter=array(), $container_path = array(), $allowAttrInheritance=true)
 	{
-		//log_debug( $this->getName()."->GetClassAttributes('".implode("|",$filter)."','".implode("->",$container_path)."')");
+		if( !is_array($filter) )
+			$filter = array($filter);
+		
 		$res = $this->_getCached($this->_attribute_cache,$this->Classname,$filter);
 		if( $res )
 			return $res;

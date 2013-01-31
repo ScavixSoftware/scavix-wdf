@@ -262,7 +262,7 @@ function system_execute()
 	if( in_object_storage($PAGE) )
 	{
 		$PAGE_test = restore_object($PAGE);
-		if( $PAGE_test instanceof IRenderable )
+		if( $PAGE_test instanceof Renderable )
 			$PAGE = $PAGE_test;
 
 		$isstrpage = is_object($PAGE)?false:strtolower($PAGE) == 'internal';	// $PAGE is now an object
@@ -283,10 +283,10 @@ function system_execute()
 
 	if( system_is_ajax_call() )
 	{
-		if( !($PAGE instanceof IRenderable) )
-			system_die("ACCESS FORBIDDEN",get_class($PAGE)." is no IRenderable");
+		if( !($PAGE instanceof Renderable) )
+			system_die("ACCESS FORBIDDEN",get_class($PAGE)." is no Renderable");
 		if( $isstrpage && !($PAGE instanceof ICallable) ) 
-			log_warn("AJAX call to IRenderable class: ".get_class($PAGE)."/$event",$_REQUEST);
+			log_warn("AJAX call to Renderable class: ".get_class($PAGE)."/$event",$_REQUEST);
 	}
 	else
 	{
@@ -324,24 +324,35 @@ function system_execute()
 		else
 		{
 			$res = new stdClass();
-			if( $content instanceof IRenderable )
+			if( $content instanceof Renderable )
 			{
 				$dotranslate = $dotranslate && ( !isset($content->_translate) || $content->_translate );
 						
 				if( isset($CONFIG['use_compiled_js']) && isset($CONFIG['use_compiled_css']) )
-					$content = $content->execute(false,true);
+					$content = $content->WdfRenderAsRoot();
 				else
 				{
-					$js = array();
-					$css = array();
-					system_collect_includes($content,$content,$js,$css);
-					$js = array_unique(system_flatten_array($js));
-					$css = array_unique(system_flatten_array($css));
-					$content = $content->execute(false,true);
-					if( !isset($CONFIG['use_compiled_js']) && count($js) > 0)
-						$res->dep_js = $js;
-					if( !isset($CONFIG['use_compiled_css']) && count($css) > 0)
-						$res->dep_css = $css;
+//					$js = array();
+//					$css = array();
+//					system_collect_includes($content,$content,$js,$css);
+//					$js = array_unique(system_flatten_array($js));
+//					$css = array_unique(system_flatten_array($css));
+//					$content = $content->WdfRenderAsRoot();
+//					if( !isset($CONFIG['use_compiled_js']) && count($js) > 0)
+//						$res->dep_js = $js;
+//					if( !isset($CONFIG['use_compiled_css']) && count($css) > 0)
+//						$res->dep_css = $css;
+					
+					$resources = $content->__collectResources();
+					log_debug("AJAX Resources:",$resources);
+					foreach( $resources as $r )
+					{
+						if( ends_with($r, '.css') )
+							$res->dep_css[] = $r;
+						else
+							$res->dep_js[] = $r;
+					}
+					$content = $content->WdfRenderAsRoot();
 				}
 			}
 			if( starts_with($content, '[NT]') )
@@ -355,10 +366,10 @@ function system_execute()
 	else
 	{
 		$_SESSION['request_id'] = request_id();
-		if( $content instanceof IRenderable)
+		if( $content instanceof Renderable)
 		{
 			$dotranslate = $content->_translate;
-			$content = $content->execute();
+			$content = $content->WdfRenderAsRoot();
 		}
 		if( $dotranslate && function_exists("__translate") )
 			$content = __translate($content);
@@ -477,7 +488,7 @@ function system_die($reason,$additional_message=false)
 		}
 		else
 			$dlg->addContent("<h2 style='text-align:left'>Fatal System Error occured. Please restart your browser.</h2>");
-		die("$('#system_error').remove();".$dlg->Execute());
+		die("$('#system_error').remove();".$dlg->WdfRender());
 	}
 	else
 	{
@@ -1020,7 +1031,7 @@ function redirect($page,$event="",$data="",$url_root=false)
 	else
 		$url = buildQuery($page,$event,$data,$url_root);
 
-//	log_debug("redirect: $url");
+	log_debug("redirect: $url");
 	header("Location: ".$url);
 	exit;
 }
@@ -1213,16 +1224,13 @@ function system_collect_includes(&$controller,&$template,&$js_cache,&$css_cache,
 	$classname = strtolower($isot?get_class($template):(string)$template);
 //	log_debug("system_collect_includes(".get_class($controller).",$classname,...)");
 
-	if( $isot && system_method_exists($template,'PreparePage') )
-		$template->PreparePage($controller);
-
 	if($isot && !$isat)
 	{
 		system_include_statics($classname,'__js',$js_cache);
 		system_include_statics($classname,'__css',$css_cache);
 	}
 
-	if( $isot && $template instanceof IRenderable )//is_subclass_of($template,"Template") )
+	if( $isot && $template instanceof Renderable )//is_subclass_of($template,"Template") )
 	{
 		system_include_files($classname,$controller,$js_cache,$css_cache);
 		$parent = strtolower(get_parent_class($template));
@@ -1233,10 +1241,10 @@ function system_collect_includes(&$controller,&$template,&$js_cache,&$css_cache,
 		}
 	}
 
-	if( $isot && isset($template->vars) && is_array($template->vars) && count($template->vars)>0 )
+	if( $isot && isset($template->_data) && is_array($template->_data) && count($template->_data)>0 )
 	{
 //		log_debug($pre."IsTemplate (".get_class($template).") id=".$template->id);
-		foreach( $template->vars as $varname=>$var )
+		foreach( $template->_data as $varname=>$var )
 		{
 //			log_debug($pre."->$varname...");
 			system_collect_includes($controller,$var,$js_cache,$css_cache,"\t$pre");
@@ -1711,4 +1719,21 @@ function shuffle_assoc(&$array)
 	foreach($keys as $key)
 		$new[$key] = $array[$key];
 	$array = $new;
+}
+
+function system_render_object_tree($array_of_objects)
+{
+	$res = array();
+	foreach( $array_of_objects as $key=>&$val )
+	{
+		if( $val instanceof Renderable )
+			$res[$key] = $val->WdfRender();
+		elseif( is_array($val) )
+			$res[$key] = system_render_object_tree($val);
+		elseif( $val instanceof DateTime )
+			$res[$key] = $val->format("Y-m-d H:i:s");
+		else
+			$res[$key] = $val;
+	}
+	return $res;
 }

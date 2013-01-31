@@ -23,6 +23,9 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * @attribute[Resource('locale_settings.js')]
+ */
 class CurrencySelect extends Select
 {
 	var $current_currency_code = false;

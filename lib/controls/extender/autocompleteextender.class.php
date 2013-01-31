@@ -22,7 +22,11 @@
  * @copyright 2007-2012 PamConsult GmbH
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
+
+/**
+ * @attribute[Resource('jquery/jquery.autocomplete.js')]
+ * @attribute[Resource('autocomplete.css')]
+ */
 class AutoCompleteExtender extends ControlExtender
 {
 	function __initialize(&$control,&$handler=null,$method=false)

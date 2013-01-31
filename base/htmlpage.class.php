@@ -26,13 +26,14 @@
 /**
  * Base class for all Html pages.
  * Will perform all rendering and collect js, css, meta and more.
+ * 
+ * @attribute[Resource('jquery.js')]
  */
 class HtmlPage extends Template implements ICallable
 {
 	var $meta = array();
 	var $js = array();
 	var $css = array();
-	var $content = array();
 	var $dialogs = array();
 	var $docready = array("");
 	var $plaindocready = array();
@@ -92,7 +93,7 @@ class HtmlPage extends Template implements ICallable
 		$this->set("meta",$this->meta);
 		$this->set("js",$this->js);
 		$this->set("css",$this->css);
-		$this->set("content",$this->content);
+		$this->set("content",array());
 		$this->set("docready",$this->docready);
 		$this->set("plaindocready",$this->plaindocready);
 		$this->set("bodyEvents",$this->bodyEvents);
@@ -114,12 +115,12 @@ class HtmlPage extends Template implements ICallable
 		}
 	}
 
-	function do_the_execution()
+	function WdfRender()
 	{
 		global $CONFIG;
 
 		// moved here to allow derivered classes to set isrtl based on another CI
-		if( !isset($this->vars['isrtl']) && system_is_module_loaded('localization') )
+		if( !$this->get('isrtl') && system_is_module_loaded('localization') )
 		{
 			$ci = Localization::detectCulture();
 			if( $ci->IsRTL )
@@ -141,7 +142,7 @@ class HtmlPage extends Template implements ICallable
 		$this->set("js",$this->js);
 		
 		$this->set("meta",$this->meta);
-		return parent::do_the_execution();
+		return parent::WdfRender();
 	}
 
 	/**
@@ -213,10 +214,10 @@ class HtmlPage extends Template implements ICallable
 		$this->css[$src] = $css;
 	}
 
-	function addContent($content)
+	function addContent($content) { return $this->content($content); }
+	function content($content)
 	{
-		$this->content[] = $content;
-		$this->set("content",$this->content);
+		$this->add2var("content",$content);
         return $content;
 	}
 
@@ -237,22 +238,16 @@ class HtmlPage extends Template implements ICallable
 		if( $jq_wrapped )
 		{
 			if( !isset($this->docready[$k]) )
-			{
 				$this->docready[$k] = $js_code;
-				$this->set("docready",$this->docready);
-			}
 		}
 		else
 		{
 			if( !isset($this->plaindocready[$k]) )
-			{
 				$this->plaindocready[$k] = $js_code;
-				$this->set("plaindocready",$this->plaindocready);
-			}
 		}
 	}
 
-	function execute($encode=false)
+	function WdfRenderAsRoot()
 	{
 		global $CONFIG;
 		execute_hooks(HOOK_PRE_RENDER,array($this));
@@ -265,104 +260,21 @@ class HtmlPage extends Template implements ICallable
 			$init_code .= ",session_name:'".session_name()."',session_id:'".session_id()."'";
 
 		$init_code .= "});";
-		$this->docready[0] = $this->vars['docready'][0] = $init_code;
+		$this->docready[0] = $init_code;
+		$this->set("docready",$this->docready);
+		$this->set("plaindocready",$this->plaindocready);
 
-		if( isset($GLOBALS['debugger']) )
-			$GLOBALS['debugger']->PreparePage($this);
-
-		$_SESSION['cssCache'] = array();
-		$_SESSION['jsCache'] = array();
-
-		$this->CollectIncludes($this);
-		$this->CollectIncludes($this->dialogs);
-
-		foreach( $_SESSION['cssCache'] as $css )
+		$res = $this->__collectResources();
+		log_debug("Resources:",$res);
+		foreach( $res as $r )
 		{
-			if( is_array($css) )
-				foreach( $css as $c ) $this->addCss($c);
+			if( ends_with($r, '.css') )
+				$this->addCss($r);
 			else
-				$this->addCss($css);
+				$this->addjs($r);
 		}
-		foreach( $_SESSION['jsCache'] as $js )
-		{
-			if( is_array($js) )
-				foreach( $js as $j ) $this->addJs($j);
-			else
-				$this->addJs($js);
-		}
-		$ret = parent::execute($encode);
+		$ret = parent::WdfRenderAsRoot();
         return $ret;
-	}
-
-	private function CollectIncludes(&$template)
-	{
-		$isot = is_object($template);
-		$isat = is_array($template);
-		if( !$isat )
-			$classname = strtolower($isot?get_class($template):(string)$template);
-
-		if( $isot && system_method_exists($template,'PreparePage') )
-			$template->PreparePage($this);
-
-		if($isot && !$isat)
-		{
-			system_include_statics($classname,'__css',$_SESSION['cssCache']);
-			system_include_statics($classname,'__js',$_SESSION['jsCache']);
-		}
-
-		if( $template instanceof IRenderable )
-		{
-			$this->IncludeFiles($classname);
-			$parent = strtolower(get_parent_class($template));
-			while($parent != "" && $parent != "template" && $parent != "control" && $parent != "controlextender")
-			{
-				$this->IncludeFiles($parent);
-				$parent = strtolower(get_parent_class($parent));
-			}
-		}
-
-		if( $isot )
-		{
-			if(isset($template->vars) && is_array($template->vars) )
-			{
-				foreach( $template->vars as $varname=>$var )
-				{
-					$this->CollectIncludes($var);
-				}
-			}
-			
-			if(isset($template->_content) && is_array($template->_content) )
-			{
-				foreach( $template->_content as $var )
-				{
-					$this->CollectIncludes($var);
-				}
-			}
-
-			if( isset($template->_extender) && is_array($template->_extender) )
-			{
-				foreach( $template->_extender as $varname=>$var )
-				{
-					$this->CollectIncludes($var);
-				}
-			}
-		}
-		elseif( $isat )
-		{
-			foreach( $template as $key=>$v )
-			{
-				$this->CollectIncludes($v);
-			}
-		}
-	}
-
-	function IncludeFiles($classname)
-	{
-		if( system_is_module_loaded("skins") && skinFileExists("$classname.css") )
-			$this->addCss( skinFile("$classname.css") );
-
-		if( system_is_module_loaded("javascript") && jsFileExists("$classname.js") )
-			$this->addJs( jsFile("$classname.js") );
 	}
 	
 	function SetIE9PinningData($application,$tooltip,$start_url,$button_color=false)

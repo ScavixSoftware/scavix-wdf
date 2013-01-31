@@ -1,6 +1,6 @@
 <?php
 
-class uiAutocomplete extends Control
+class uiAutocomplete extends uiControl
 {
 	protected $hidden;
 	protected $ui;

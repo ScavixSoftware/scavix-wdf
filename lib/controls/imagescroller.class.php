@@ -23,6 +23,10 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * @attribute[Resource('simplyscroll.js')]
+ * @attribute[Resource('simplyscroll.css')]
+ */
 class ImageScroller extends Control
 {
 	var $Options = array();
@@ -59,38 +63,8 @@ class ImageScroller extends Control
 			$img->onclick = "document.location.href='$clicktarget';";
 			$img->css("cursor", 'pointer');
 		}
-		$this->content("<li>".$img->Execute()."</li>");
+		$this->content("<li>".$img->WdfRender()."</li>");
 	}
-
-//	/**
-//	 * Sets a method to be the loading handler.
-//	 * This function has to return JSON data in
-//	 * format [{"src":"images/pic.jpg","title":"title","link":"http://"},{etc..}]
-//	 * @param <type> $object
-//	 * @param <type> $method
-//	 */
-//	function SetLoader(&$object,$method)
-//	{
-////		$this->Options['jsonSource'] = "?load=".$object->_storage_id."&event=".$method;
-//		$options = jsArray2JSON($this->Options);
-////		$code = "$('#$id').simplyScroll($options);";
-//		$this->_script = array();
-////		$this->script($code);
-////
-////		$this->_content = array();
-////		$this->Tag = "div";
-//
-//		$loop  = "for(var i=0; i<d.length; i++) {";
-//		$loop .= " var img = $('<img/>').attr('src',d[i].src).attr('title',d[i].title);";
-//		$loop .= " if( d[i].link ) img.click(function(){document.location.href=d[i].link;}).css({cursor:'pointer'});";
-//		$loop .= " var li = $('<li/>');";
-//		$loop .= " li.append(img);";
-//		$loop .= " $('#{$this->_storage_id}').append(li);";
-//		$loop .= "}";
-//
-//		$code = "$.get('?load={$object->_storage_id}&event=$method',function(d){ eval('d = '+d); $loop $('#{$this->_storage_id}').simplyScroll($options); })";
-//		$this->script($code);
-//	}
 }
 
 ?>

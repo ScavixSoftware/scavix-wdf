@@ -1,10 +1,10 @@
 <?php
-/*
-    Document   : starselect.class.php
-    Created on : Sep 1, 2009, 12:13:53 PM
-    Author     : Florian A. Talg
-*/
-class uiStarSelect extends Control
+
+/**
+ * @attribute[Resource('jquery-ui/ui.stars.js')]
+ * @attribute[Resource('jquery-ui/ui.stars.css')]
+ */
+class uiStarSelect extends uiControl
 {
 	private $_value = 3;
 	private $_options;
@@ -42,7 +42,7 @@ class uiStarSelect extends Control
 		return array(skinFile('jquery-ui/jquery-ui.css'),skinFile('jquery-ui/ui.stars.css'));
 	}
 
-	public function do_the_execution($generate_script_code=true)
+	public function WdfRender()
 	{
 		if( isset($this->_options['captionEl']) )
 		{
@@ -73,7 +73,7 @@ class uiStarSelect extends Control
 		$this->script($script);
 //		log_debug($generate_script_code?"doing: $script":"");
 
-		return parent::do_the_execution($generate_script_code);
+		return parent::WdfRender();
 	}
 
 	private function CreateSelect($sel_name)

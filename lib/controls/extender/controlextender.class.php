@@ -23,7 +23,7 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
-abstract class ControlExtender implements IRenderable
+abstract class ControlExtender extends Renderable
 {
 	var $ExtendedControl = null;
 
@@ -43,8 +43,9 @@ abstract class ControlExtender implements IRenderable
 	}
 	
 	function PreRender(){}
-	function Execute(){ return ""; }
-	function do_the_execution(){ return ""; }
+	function WdfRenderAsRoot(){ return ""; }
+	function WdfRender(){ return ""; }
+	function __getContentVars(){ return array(); }
 }
 
 ?>

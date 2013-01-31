@@ -23,6 +23,9 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * @attribute[Resource('jquery/jquery.tools.min.js')]
+ */
 class jqToolsScrollable extends Template
 {
 	var $ItemGroups = array();
@@ -46,12 +49,12 @@ class jqToolsScrollable extends Template
 		$this->set('height',$height);
 	}
 	
-	function do_the_execution()
+	function WdfRender()
 	{
 		$this->set('itemgroups',$this->ItemGroups);
 		$this->set('options',jsArray2JSON($this->_options));
 
-		return parent::do_the_execution();
+		return parent::WdfRender();
 	}
 
 	static function __js()

@@ -119,7 +119,7 @@ class GoogleChartMap extends Template
 		$this->set("title",$this->_title);
 	}
 
-	function do_the_execution()
+	function WdfRender()
 	{
 		$map  = "http://chart.apis.google.com/chart";
 		$map .= "?chco=".$this->_empty.",".implode(",",$this->_colorrange);
@@ -132,7 +132,7 @@ class GoogleChartMap extends Template
 
 		$this->set("legends",$this->_legends);
 		$this->set("map",$map);
-		return parent::do_the_execution();
+		return parent::WdfRender();
 	}
 	
 	/**

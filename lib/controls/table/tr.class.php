@@ -30,6 +30,7 @@ class Tr extends Control
 //    var $row_groups = array();
     var $options = false;
     var $current_cell = false;
+	var $model = false;
 
 	function __initialize($options=false)
 	{
@@ -82,7 +83,7 @@ class Tr extends Control
 		return count($this->_content);
 	}
 
-	function do_the_execution()
+	function WdfRender()
 	{
 		if( isset($this->options['oddclass']) && isset($this->options['evenclass']) )
 		{
@@ -93,7 +94,7 @@ class Tr extends Control
 			}
 		}
 
-		return parent::do_the_execution();
+		return parent::WdfRender();
 	}
 }
 

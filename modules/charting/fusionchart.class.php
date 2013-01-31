@@ -23,6 +23,9 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * @attribute[Resource('FusionCharts.js')]
+ */
 class FusionChart extends Control
 {
 	var $Width;

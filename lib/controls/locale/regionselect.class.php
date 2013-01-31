@@ -23,6 +23,9 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * @attribute[Resource('locale_settings.js')]
+ */
 class RegionSelect extends Select
 {
 	function __initialize($current_language_code=false, $current_region_code=false)

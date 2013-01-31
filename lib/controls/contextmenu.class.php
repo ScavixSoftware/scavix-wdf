@@ -23,11 +23,9 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
-/*
-    Document   : contextmenu.class.php
-    Created on : Oct 5, 2009, 12:13:53 PM
-    Author     : Florian A. Talg
-*/
+/**
+ * @attribute[Resource('jquery/jquery.contextmenu.r2.js')]
+ */
 class ContextMenu extends Control
 {
 	public $_content = array();
@@ -49,7 +47,7 @@ class ContextMenu extends Control
 		store_object($this);
 	}
 
-	public function do_the_execution($generate_script_code=true)
+	public function WdfRender()
 	{
         $script = "";
         $trigger = implode(",",$this->_triggers);
@@ -74,7 +72,7 @@ class ContextMenu extends Control
         $this->script($script);
         $this->_content[] = $this->CreateUL();
 
-        return parent::do_the_execution($generate_script_code);
+        return parent::WdfRender();
 	}
 
     /**

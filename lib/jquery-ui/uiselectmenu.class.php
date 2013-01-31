@@ -1,9 +1,14 @@
 <?php
 
-// see http://www.filamentgroup.com/lab/jquery_ui_selectmenu_an_aria_accessible_plugin_for_styling_a_html_select/
-// this component is only very few tested
-// known issue: weird effects in uiDialog
-class uiSelectMenu extends Control
+/**
+ * see http://www.filamentgroup.com/lab/jquery_ui_selectmenu_an_aria_accessible_plugin_for_styling_a_html_select/
+ * this component is only very few tested
+ * known issue: weird effects in uiDialog
+ * 
+ * @attribute[Resource('jquery-ui/ui.selectmenu.js')]
+ * @attribute[Resource('jquery-ui/ui.selectmenu.css')]
+ */
+class uiSelectMenu extends uiControl
 {
 	var $_icons = array();
 

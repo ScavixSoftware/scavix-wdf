@@ -231,7 +231,7 @@ class DatabaseTable extends Table
 		return $row;
 	}
 
-	function do_the_execution()
+	function WdfRender()
     {
 //		log_debug("{$this->id} start");
         $this->GetData();
@@ -252,7 +252,6 @@ class DatabaseTable extends Table
 				
 			$td = $this->SetColFormat(0,"")->NewCell($this->contentNoData);
 			$td->colspan = $this->header->GetMaxCellCount();
-			return parent::do_the_execution();
 		}
         else
         {
@@ -274,8 +273,8 @@ class DatabaseTable extends Table
                 $this->ResultSet->MoveNext();
             }
 //			log_debug("{$this->id} added rows");
-            return parent::do_the_execution();
         }
+		return parent::WdfRender();
     }
 	
 	const EXPORT_FORMAT_XLS  = 'xls';

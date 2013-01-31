@@ -23,6 +23,9 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * @attribute[Resource('locale_settings.js')]
+ */
 class CurrencyFormatSelect extends Select
 {
 	function __initialize($currency_code, $selected_format=false)

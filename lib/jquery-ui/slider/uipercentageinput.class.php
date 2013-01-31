@@ -1,6 +1,6 @@
 <?php
 
-class uiPercentageInput extends Control
+class uiPercentageInput extends uiControl
 {
 	function __initialize($id, $defvalue=0, $onchange="",$decimal_point=',')
 	{

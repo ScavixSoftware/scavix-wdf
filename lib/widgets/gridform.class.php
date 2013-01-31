@@ -46,20 +46,20 @@ class GridForm extends Template
 
 	function addGroupLabel($label)
 	{
-		$this->vars["labels"][] = $label;
-		$this->vars["controls"][] = "";
-		$this->vars["hints"][] = "";
+		$this->add2var("labels",$label);
+		$this->add2var("controls","");
+		$this->add2var("hints","");
 	}
 
 	function Add(&$webcontrol,$label)
 	{
-		$this->vars["labels"][] = $label;
-		$this->vars["controls"][] = $webcontrol;
+		$this->add2var("labels",$label);
+		$this->add2var("controls",$webcontrol);
 
 		$hint = new Image(skinFile('trans.gif'));
 		$hint->class = "gridform_hint";
 		$hint->id = $webcontrol->id."_hint";
-		$this->vars["hints"][] = $hint;
+		$this->add2var("hints",$hint);
 	}
 }
 

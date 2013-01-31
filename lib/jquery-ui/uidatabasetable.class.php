@@ -28,7 +28,7 @@ class uiDatabaseTable extends DatabaseTable
 //		return $res;
 //    }
 
-	function do_the_execution()
+	function WdfRender()
     {
 		if( $this->footer )
 		{
@@ -39,7 +39,7 @@ class uiDatabaseTable extends DatabaseTable
 				$c->class = isset($c->class)?$c->class." ui-corner-all":"ui-corner-all";
 			}
 		}
-		return parent::do_the_execution();
+		return parent::WdfRender();
 	}
 }
 ?>

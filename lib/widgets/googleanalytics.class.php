@@ -39,7 +39,7 @@ class GoogleAnalytics extends Template
 
 	function addClickTracking($selector)
 	{
-		$this->vars['tracker'][] = $selector;
+		$this->add2var('tracker',$selector);
 	}
 }
 ?>

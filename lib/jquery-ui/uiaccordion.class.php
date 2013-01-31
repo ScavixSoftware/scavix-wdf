@@ -1,7 +1,7 @@
 <?php
 
 //for more information about the accordion visit: http://jqueryui.com/demos/accordion/
-class uiAccordion extends Control
+class uiAccordion extends uiControl
 {
 	var $_sections = array();
 	var $_options;
@@ -82,7 +82,6 @@ class uiAccordion extends Control
 	public function AddOptions($options = array())
 	{
 		$this->_options = array_merge($this->_options,$options);
-	//	$this->script("$('#".$this->id."').accordion(".system_to_json($this->_options).")");
 	}
 }
 ?>

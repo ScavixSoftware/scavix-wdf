@@ -1,6 +1,10 @@
 <?php
 
-class uiContainer extends Control
+/**
+ * @attribute[Resource('jquery-ui/ui.container.js')]
+ * @attribute[Resource('jquery-ui/ui.container.css')]
+ */
+class uiContainer extends uiControl
 {
 	private $_options = array();
 

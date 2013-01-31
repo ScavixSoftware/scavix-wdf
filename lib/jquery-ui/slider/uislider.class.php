@@ -1,6 +1,6 @@
 <?php
 
-class uiSlider extends Control
+class uiSlider extends uiControl
 {
 	var $min = 1;
 	var $max = 100;
@@ -25,7 +25,7 @@ class uiSlider extends Control
 		return array(skinFile('jquery-ui/jquery-ui.css'));
 	}
 
-	function do_the_execution($generate_script_code = false)
+	function WdfRender()
 	{
 		$opts = array();
 		if( $this->min !== false )
@@ -49,7 +49,7 @@ class uiSlider extends Control
 
 		$opts = jsArray2JSON($opts);
 		$this->script("$('#{$this->id}').slider($opts);");
-		return parent::do_the_execution(true);
+		return parent::WdfRender();
 	}
 }
 

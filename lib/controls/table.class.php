@@ -22,8 +22,8 @@
  * @copyright 2007-2012 PamConsult GmbH
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
-class Table extends Control
+
+class Table extends uiControl
 {
     var $header = false;
     var $footer = false;
@@ -47,6 +47,7 @@ class Table extends Control
 	{
 		parent::__initialize("div");
 		$this->class = 'divtable';
+		$this->script("$('#{self}').table();");
 	}
 	
 	static function Make(){ return new Table(); }
@@ -142,7 +143,7 @@ class Table extends Control
 		parent::PreRender($args);
 	}
 	
-	function do_the_execution()
+	function WdfRender()
     {
 		if( $this->RenderMode == self::RENDER_MODE_JQUERYUI )
 		{
@@ -192,7 +193,7 @@ class Table extends Control
 				}
 			}
         }
-		return parent::do_the_execution();
+		return parent::WdfRender();
     }
 	
 /* --------------- High level methods returning $this for easy usage --------------------- */
@@ -300,6 +301,50 @@ class Table extends Control
 	function SetRenderMode($mode)
 	{
 		$this->RenderMode = $mode;
+		return $this;
+	}
+	
+	var $_actions = false;
+	var $_actionHandler = array();
+	var $_rowModels = array();
+	function AddRowAction($icon,$label,$handler=false,$method=false)
+	{
+		if( !$this->_actions )
+			$this->_actions = $this->content(new Control('div'))->css('display','none')->css('position','absolute')->addClass('ui-table-actions');
+		
+		$ra = $this->_actions->content( new Control('span') );
+		$ra->class = "ui-icon ui-icon-$icon";
+		$ra->title = $label;
+		$ra->id = $ra->_storage_id;
+		
+		if( $handler && $method )
+			$this->_actionHandler[$ra->id] = array($handler,$method);
+		
+		store_object($this);
+		return $this;
+	}
+	
+	/**
+	 * @attribute[RequestParam('action','string')]
+	 * @attribute[RequestParam('row','string')]
+	 */
+	function OnActionClicked($action,$row)
+	{
+		if( isset($this->_actionHandler[$action]) )
+		{
+			$model = $this->_rowModels[$row];
+			return call_user_func($this->_actionHandler[$action],array($model));
+		}
+		log_warn("No handler defined for $action");
+		return " ";
+	}
+	
+	function AddDataToRow($model)
+	{
+		if( !$this->current_row )
+			throw new Exception("No row added");
+		$this->current_row->id = $this->current_row->_storage_id;
+		$this->_rowModels[$this->current_row->id] = $model;
 		return $this;
 	}
 }

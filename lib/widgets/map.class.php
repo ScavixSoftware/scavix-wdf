@@ -23,6 +23,9 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * @attribute[ExternalResource('https://maps.googleapis.com/maps/api/js?v=3&sensor=false')]
+ */
 class Map extends Control
 {
 	var $Width;

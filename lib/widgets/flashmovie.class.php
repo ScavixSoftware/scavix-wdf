@@ -23,6 +23,9 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * @attribute[Resource('flowplayer-3.1.4.min.js')]
+ */
 class FlashMovie extends Template
 {
 	function __initialize($id,$src,$width="230px",$height="",$autoplay=true)

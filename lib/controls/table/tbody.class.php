@@ -111,7 +111,7 @@ class TBody extends Control
 		return $res;
 	}
 
-    function do_the_execution()
+    function WdfRender()
     {
         if( $this->options )
         {
@@ -179,7 +179,7 @@ class TBody extends Control
 //			}
 //		}
 
-        return parent::do_the_execution();
+        return parent::WdfRender();
     }
 }
 

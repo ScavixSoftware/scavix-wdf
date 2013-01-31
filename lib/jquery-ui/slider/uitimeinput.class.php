@@ -1,6 +1,6 @@
 <?php
 
-class uiTimeInput extends Control
+class uiTimeInput extends uiControl
 {
 	function __initialize($id, $defvalue=0, $onchange = "")
 	{

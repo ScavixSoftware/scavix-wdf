@@ -49,21 +49,11 @@ class SuperfishMenu extends Control
 		return $this->AddItem($label,$href,'$is_link$');
 	}
 	
-	static function __js()
-	{
-		return array(jsFile('superfish.js'));
-	}
-
-	static function __css()
-	{
-		return array(skinFile("superfish.css"));
-	}
-	
-	function do_the_execution()
+	function WdfRender()
 	{
 		if( count($this->_content) > 0 )
 			$this->content('<li class="closer"></li>');
-		return parent::do_the_execution();
+		return parent::WdfRender();
 	}
 	
 	function DetectSelected()
@@ -156,11 +146,11 @@ class SuperfishMenuItem extends Control
 			$this->addClass('current_page_item');
 	}
 	
-	function do_the_execution()
+	function WdfRender()
 	{
 		if( $this->sub )
 			$this->sub->content('<li class="page_item"><span class="subclsr">&nbsp;</span></li>');
-		return parent::do_the_execution();
+		return parent::WdfRender();
 	}
 }
 ?>

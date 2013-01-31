@@ -1,5 +1,8 @@
 <?
 
+/**
+ * @attribute[ExternalResource('//www.google.com/jsapi')]
+ */
 class GoogleControl extends Control
 {
 	private static $_packages = array();

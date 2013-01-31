@@ -70,9 +70,6 @@ if( isset($dialogs) && count($dialogs) > 0 )
 	foreach($dialogs as $dlg) echo $dlg;
 	echo "</div>";
 }
-
-if( isset($GLOBALS['debugger']) )
-	echo $GLOBALS['debugger']->execute();
 ?>
 <? if( $requireJs ): ?>
 </div>

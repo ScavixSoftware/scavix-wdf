@@ -115,7 +115,7 @@ class Graph
 		return $plot_obj;
 	}
 
-	function Execute()
+	function WdfRenderAsRoot()
 	{
 		$this->Graph->done();
 	}

@@ -1,6 +1,6 @@
 <?php
 
-class uiDatePicker extends Control
+class uiDatePicker extends uiControl
 {
 	// all possible settings at http://jqueryui.com/demos/datepicker/#option
 	protected $Options = array(

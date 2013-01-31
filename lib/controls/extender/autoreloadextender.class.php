@@ -65,8 +65,6 @@ class AutoReloadExtender extends ControlExtender
 	
 	function ReloadPage()
 	{
-//		$res = $this->ExtendedControl->Execute();
-//		return "$('#{$this->ExtendedControl->id}').replaceWith(unescape('".jsEscape($res)."'));";
 	}
 }
 

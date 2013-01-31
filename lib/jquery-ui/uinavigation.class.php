@@ -1,6 +1,10 @@
 <?php
 
-class uiNavigation extends Control
+/**
+ * @attribute[Resource('jquery-ui/ui.navigation.js')]
+ * @attribute[Resource('jquery-ui/ui.navigation.css')]
+ */
+class uiNavigation extends uiControl
 {
 	function __initialize($is_sub_navigation=false)
 	{

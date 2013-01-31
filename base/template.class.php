@@ -28,15 +28,12 @@
  * When adding new Templates, make sure that the folders are added to
  * $CONFIG['class_path']['content'][] in /index.php
  */
-class Template implements IRenderable
+class Template extends Renderable
 {
-	var $vars = array();
+	var $_data = array();
 	var $file = "";
-	var $_translate = true;
-	var $_storage_id;
-	var $tpl_as_subtpl = false;
-	var $_container_path = false;
-	var $_script = array();
+	
+	function __getContentVars(){ return array_merge(parent::__getContentVars(),array('_data')); }
 
 	static function Make($template_basename)
 	{
@@ -86,24 +83,24 @@ class Template implements IRenderable
 		if( !unserializer_active() )
 		{
 			create_storage_id($this);
-			$this->vars['id'] = $this->_storage_id;
+			$this->set('id',$this->_storage_id);
 		}
 	}
 
 	function __getpropertynames($inherited=true)
 	{
 		$res = System_Reflector::GetPropertyNames($inherited);
-		return array_merge(array('vars','file','translate','_storage_id','tpl_as_subtpl','_container_path'),$res);
+		return array_merge(array('_data','file','_translate','_storage_id'),$res);
 	}
 
 	function __getminimalpropertynames()
 	{
-		return array('vars','file','translate','_storage_id','tpl_as_subtpl','_container_path');
+		return array('_data','file','_translate','_storage_id');
 	}
 	
 	/**
 	 * Will be executed on HOOK_PRE_RENDER.
-	 * Prepares the control and all it's extenders for output.
+	 * Prepares the template for output.
 	 * @internal
 	 */
 	function PreRender($args=array())
@@ -123,9 +120,20 @@ class Template implements IRenderable
 	 */
 	public function set($name, $value)
 	{
-		$this->vars[$name] = $value;
+		$this->_data[$name] = $value;
 		if( $name == 'id' )
 			$this->_storage_id = $value;
+		return $this;
+	}
+	
+	public function add2var($name, $value)
+	{
+		if( !isset($this->_data[$name]) )
+			$this->_data[$name] = array($value);
+		elseif( !is_array($this->_data[$name]) )
+			$this->_data[$name] = array($this->_data[$name],$value);
+		else
+			$this->_data[$name][] = $value;
 		return $this;
 	}
 
@@ -137,14 +145,25 @@ class Template implements IRenderable
 	function set_vars($vars, $clear = false)
 	{
 		if($clear) {
-			$this->vars = $vars;
+			$this->_data = $vars;
 		}
 		else {
 			if(is_array($vars))
-				$this->vars = array_merge($this->vars, $vars);
+				$this->_data = array_merge($this->_data, $vars);
 			else
-				$this->vars[] = $vars;
+				$this->_data[] = $vars;
 		}
+		return $this;
+	}
+	
+	function get($name)
+	{
+		return isset($this->_data[$name])?$this->_data[$name]:null;
+	}
+	
+	function get_vars()
+	{
+		return $this->_data;
 	}
 	
 	/**
@@ -156,7 +175,7 @@ class Template implements IRenderable
 		$k = "k".md5($scriptCode);
 		if(!isset($this->_script[$k]))
 			$this->_script[$k] = $scriptCode;
-		return $scriptCode;
+		return $this;
 	}
 
 	/**
@@ -165,113 +184,21 @@ class Template implements IRenderable
 	 * @param bool $encode Deprecated! Do not use!
 	 * @return string The rendered content
 	 */
-	function execute($encode=false,$is_root_node=false)
+	function WdfRenderAsRoot()
 	{
-		if( $is_root_node && !hook_already_fired(HOOK_PRE_RENDER) )
-		{
-			$this->SkipRendering = true;
+		if( !hook_already_fired(HOOK_PRE_RENDER) )
 			execute_hooks(HOOK_PRE_RENDER,array($this));
-		}
-//		if( !$this->_container_path )
-//		{
-//			$bt = debug_backtrace();
-//			$i = 0;
-//			$btcnt = count($bt);
-//			while( $i<$btcnt && isset($bt[$i]['object']) && strtolower($bt[$i]['function']) == 'execute' )
-//				$i++;
-//			if( $i<$btcnt )
-//			{
-//				$this->_container_path = array();
-//				while( $i<$btcnt )
-//				{
-//					if( isset($bt[$i]['object']) && $bt[$i]['object'] instanceof IRenderable && isset($bt[$i]['object']->_container_path) )
-//					{
-//						if( is_array($bt[$i]['object']->_container_path) )
-//							$this->_container_path = array_merge($this->_container_path,$bt[$i]['object']->_container_path);
-//						else
-//							$this->_container_path[] = get_class($bt[$i]['object']);
-//					}
-//					$i++;
-//				}
-//				$this->_container_path = array_values(array_unique($this->_container_path));
-//			}
-//		}
-//
-//        foreach( $this->vars as &$val )
-//			$this->AssignContainer($val,$this,$this->_container_path);
 
-        $res = $this->do_the_execution();
-		if( $encode )
-			return sprintf('document.write(unescape("%s"));', rawurlencode($res));
-		return $res;
+        return $this->WdfRender();
 	}
-
-//	/**
-//	 * Injects a container path.
-//	 * @param string $path_string A path seperated by '->'
-//	 */
-//	function SetContainerPath($path_string)
-//	{
-//		$this->_container_path = explode('->',$path_string);
-//	}
-//
-//	/**
-//	 * Creates a 'tree' of parent containers for the template.
-//	 * @param object $obj The target object
-//	 * @param object $parent The parent object
-//	 * @param array $path OUT: The complete path
-//	 */
-//	function AssignContainer(&$obj, &$parent, $path = array())
-//	{
-//
-//		if( $obj instanceof HtmlElement && $obj->AutoAjax )
-//			store_object($obj);
-//		elseif( $parent != null && $obj instanceof IRenderable &&
-//			isset($obj->_storage_id) && $obj->_storage_id != "" && in_object_storage($obj->_storage_id) )
-//		{
-//			$path[] = get_class($parent);
-//			$obj->_container_path = $path;
-//			store_object($obj);
-//		}
-//
-//		if( isset($obj->vars) && is_array($obj->vars) )
-//		{
-//			foreach($obj->vars as &$val )
-//			{
-//				if( $val instanceof IRenderable )
-//				{
-//					$path[] = get_class($parent);
-//					$this->AssignContainer($val,$obj,$path);
-//				}
-//				elseif( is_array($val) )
-//				{
-//					foreach( $val as &$entry )
-//						$this->AssignContainer($entry,$parent,$path);
-//				}
-//			}
-//		}
-//		elseif( is_array($obj) )
-//		{
-//			foreach( $obj as &$entry )
-//				$this->AssignContainer($entry,$parent,$path);
-//		}
-//	}
 
 	/**
 	 * Inner redering method.
 	 * @return string The rendered object
 	 */
-	function do_the_execution()
+	function WdfRender()
 	{
-//		if( !($this instanceof HtmlElement) || $this->_ownTemplate )
-//		{
-//			if( system_is_module_loaded("skins") && skinFileExists("trans.gif") )
-//				$this->set("trans","<img src='".skinFile("trans.gif")."' alt='' width='1px' height='1px'/>");
-//			else
-//				$this->set("trans","");
-//		}
-
-		$tempvars = $this->execute_array($this->vars);
+		$tempvars = system_render_object_tree($this->get_vars());
 
 		foreach( $GLOBALS as $key=>&$val )
 			$$key = $val;
@@ -315,18 +242,6 @@ class Template implements IRenderable
 			$$key = $val;
         
 		return $contents;
-	}
-
-	protected function execute_array($array)
-	{
-		foreach( $array as $key=>&$val )
-		{
-			if( $val instanceof IRenderable )
-				$array[$key] = $val->do_the_execution();
-			elseif( is_array($val) )
-				$array[$key] = $this->execute_array($val);
-		}
-		return $array;
 	}
 }
 

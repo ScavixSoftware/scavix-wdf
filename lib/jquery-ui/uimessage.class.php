@@ -1,6 +1,6 @@
 <?php
 
-class uiMessage extends Template
+class uiMessage extends uiTemplate
 {
 	static function Hint($message)
 	{

@@ -23,6 +23,10 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * @attribute[Resource('thickbox.js')]
+ * @attribute[Resource('thickbox.css')]
+ */
 class ImageFlow extends Control
 {
 	protected $_isEmpty = true;
@@ -68,7 +72,7 @@ class ImageFlow extends Control
 		$this->script("$('#{$this->id}').show();");
 	}
 
-	public function do_the_execution($generate_script_code=true)
+	public function WdfRender()
 	{
 		if( !isset($this->_options['startID']) )
 			$this->_options['startID'] = floor(count($this->_content) / 2);
@@ -82,7 +86,7 @@ class ImageFlow extends Control
 		$code .= "tb_pathToImage = '".skinFile('loading.gif')."';";
 		$this->script($code);
 		$this->script("$('#{$this->id}').show();");
-		return parent::do_the_execution($generate_script_code);
+		return parent::WdfRender();
 	}
 
 	static function __js()
@@ -139,31 +143,8 @@ class ImageFlow extends Control
 			$this->_isEmpty = false;
 			$this->_content = array();
 			$this->_script = array();
-
-//			$code  = "var flow = new ImageFlow();";
-//			$code .= "flow.init($this->_options);";
-//			$code .= "tb_pathToImage = '".skinFile('loading.gif')."';";
-//			$this->script($code);
-//			$this->script("$('#{$this->id}').show();");
 		}
-//		$size = getimagesize($filename);
-//		$img = new Image($filename);
-//
-//		if( $maxHeight )
-//		{
-//			$w = $size[0]; $h = $size[1];
-//			$r = $w / $h;
-//			$img->width  = $r * min($maxHeight,$h);
-//			$img->height = $img->width / $r;
-//			$img->width = intval($img->width);
-//			$img->height = intval($img->height);
-//		}
-//		$img->class = 'thickbox';
-//		if( $title )
-//			$img->alt = $title;
-//		if( $clicktarget )
-//			$img->longdesc = $clicktarget;
-//
+
 		$img = $this->_createImage($filename,$clicktarget,$title,$maxHeight);
 
 		if( $this->_pagerHandler )

@@ -47,12 +47,12 @@ class Anchor extends Control
 		$this->CloseTagNeeded();
 	}
 	
-	public function do_the_execution($generate_script_code=true)
+	public function WdfRender()
 	{
         if($this->href == "")
 			$this->href = "javascript:{}";
 
-        return parent::do_the_execution($generate_script_code);
+        return parent::WdfRender();
 	}	
 }
 

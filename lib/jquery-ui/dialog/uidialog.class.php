@@ -1,5 +1,5 @@
 <?php
-class uiDialog extends Control
+class uiDialog extends uiControl
 {
 	protected $Options = array();
 	protected $Buttons = array();

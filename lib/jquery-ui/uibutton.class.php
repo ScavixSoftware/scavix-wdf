@@ -1,6 +1,6 @@
 <?php
 
-class uiButton extends Control
+class uiButton extends uiControl
 {
 	private $_icon;
 	function __initialize($text,$icon=false,$css = array())
@@ -19,7 +19,6 @@ class uiButton extends Control
 		
 		$this->type = "button";
 		$this->content($text);
-//		$this->script("$('#".$this->id."').button(".system_to_json($opts).");");
 	}
 	
 	static function Make($label,$onclick=false)

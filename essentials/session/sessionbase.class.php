@@ -153,7 +153,7 @@ abstract class SessionBase
 		{
 			try
 			{
-				if( isset($obj->_ensurePersistance) && $obj->_ensurePersistance )
+				if( $obj instanceof Renderable )
 					store_object($obj,$id);
 			}
 			catch(Exception $ex)

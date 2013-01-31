@@ -1,6 +1,6 @@
 <?php
 
-class uiCurrencyInput extends Control
+class uiCurrencyInput extends uiControl
 {
 	function __initialize($id, $defvalue=0, $onchange="")
 	{

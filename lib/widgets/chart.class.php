@@ -23,6 +23,9 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * @attribute[Resource('FusionCharts.js')]
+ */
 class Chart extends Template
 {
 	var $Width;
@@ -189,19 +192,6 @@ class Chart extends Template
 		return array(jsFile('FusionCharts.js'));
 	}
 
-	function PreparePage(&$page)
-	{
-		if( $this->_performLazyLoad && $this->_contentFromCache === false)
-		{
-			$id  = $this->_storage_id;
-			$fn  = "$id.setDataXML(d);";
-			$fn .= "$id.setTransparent(true);";
-			$fn .= "$id.render('dv".$id."');";
-			$code = "$.get('?',{load:'$id',event:'LazyLoad'},function(d){ $fn });";
-			$page->AddDocReady("$code");
-		}
-	}
-
 	function CleanupXML($xml)
 	{
 		$xml = str_replace("			", " ", $xml);
@@ -230,8 +220,17 @@ class Chart extends Template
 		}
 		else
 		{
-			//log_debug("storing object $this. SAP=".$this->ShowAsPercent);
 			store_object($this);
+		}
+		
+		if( $this->_performLazyLoad && $this->_contentFromCache === false)
+		{
+			$id  = $this->_storage_id;
+			$fn  = "$id.setDataXML(d);";
+			$fn .= "$id.setTransparent(true);";
+			$fn .= "$id.render('dv".$id."');";
+			$code = "$.get('?',{load:'$id',event:'LazyLoad'},function(d){ $fn });";
+			$this->script("$code");
 		}
 	}
 

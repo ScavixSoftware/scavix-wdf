@@ -27,6 +27,8 @@
  * These are unsiversal HTML attributes.
  * Each (1st dimension) array key represents an attribute and the value (array) contains
  * all tags it is allowed to be used in.
+ * 
+ * @attribute[Resource('jquery.js')]
  */
 $GLOBALS['html_universals'] = array(
 	'class' => array('base', 'basefont', 'head', 'html', 'meta', 'param', 'script', 'style', 'title'),
@@ -140,23 +142,20 @@ $GLOBALS['html_skip_if_empty'] = array_combine($GLOBALS['html_skip_if_empty'], $
 /**
  * Base class for interactive webpage content like AJAX TextInputs
  */
-class Control implements IRenderable
+class Control extends Renderable
 {
 	var $Tag = "";
-	var $_translate = true;
-	var $_storage_id = false;
-	var $_attributes = array();
-	var $_content = array();
+	
 	var $_css = array();
+	var $_attributes = array();
+	var $_data_attributes = array();
+	
 	var $_extender = array();
 	var $_extenders_rendered = false;
-	var $_script = array();
-	var $_ajaxscript = array();
-	var $_container_path = false;
-	var $_ensurePersistance = true;
-	var $_data_attributes = array();
 
-	var $SkipRendering = false;
+	var $_skipRendering = false;
+	
+	function __getContentVars(){ return array_merge(parent::__getContentVars(),array('_extender')); }
 
 	/**
 	 * The one and only constructor for all subclasses.
@@ -180,11 +179,7 @@ class Control implements IRenderable
 
 		if( !unserializer_active() )
 		{
-			if( isset($GLOBALS['CONFIG']['system']['ensureObjectPersistance']) &&
-				!$GLOBALS['CONFIG']['system']['ensureObjectPersistance'] )
-				$this->_ensurePersistance = false;
 			create_storage_id($this);
-			//$this->id = $this->_storage_id;
 			$args = func_get_args();
 			system_call_user_func_array_byref($this, '__initialize', $args);
 		}
@@ -308,7 +303,6 @@ class Control implements IRenderable
 	 */
 	function __wakeup()
 	{
-		$this->_ajaxscript = array();
 		$this->_extenders_rendered = false;
 	}
 
@@ -364,7 +358,7 @@ class Control implements IRenderable
 		$k = "k".md5($scriptCode);
 		if(!isset($this->_script[$k]))
 			$this->_script[$k] = $scriptCode;
-		return $scriptCode;
+		return $this;
 	}
 
 	/**
@@ -438,7 +432,7 @@ class Control implements IRenderable
 	 */
 	function PreRender($args=array())
 	{
-		if( $this->SkipRendering )
+		if( $this->_skipRendering )
 			return;
 //		log_debug(get_class($this)."->PreRender()");
 		if( count($args) > 0 )
@@ -500,15 +494,14 @@ class Control implements IRenderable
 	 * This is the 'outer' rendering startpoint when only this control is rendered.
 	 * @internal
 	 */
-	function Execute($generate_script_code = false,$is_root_node=false)
+	function WdfRenderAsRoot()
 	{
-		if( $is_root_node && !hook_already_fired(HOOK_PRE_RENDER) )
+		if( !hook_already_fired(HOOK_PRE_RENDER) )
 		{
-			$this->SkipRendering = true;
+			$this->_skipRendering = true;
 			execute_hooks(HOOK_PRE_RENDER,array($this));
 		}
-		$res = $this->do_the_execution($generate_script_code);
-		return $res;
+		return $this->WdfRender();
 	}
 
 	/**
@@ -517,7 +510,7 @@ class Control implements IRenderable
 	 * as part of a parent container.
 	 * @internal
 	 */
-	function do_the_execution($generate_script_code = false)
+	function WdfRender()
 	{
 		//log_debug("rendering ".$this->Tag);
 		$this->PreRenderExtender();
@@ -533,7 +526,7 @@ class Control implements IRenderable
 			$attr[] = "data-$name='".str_replace("'","\\'",$value)."'";
 		}
 		
-		$content = $this->execute_array($this->_content);
+		$content = system_render_object_tree($this->_content);
 
 		if( isset($GLOBALS['html_skip_if_empty'][$this->Tag]) )
 			if( trim(implode(" ",$content)) == "" )
@@ -557,7 +550,7 @@ class Control implements IRenderable
 		else
 			$res = "{$content}";
 			
-		if( $generate_script_code || system_is_ajax_call() )
+		if( system_is_ajax_call() )
 			$res .= $this->PackInlineScript();
 		return $res;
 	}
@@ -571,27 +564,6 @@ class Control implements IRenderable
 			return "<script> ".implode("\n",$this->_script)."</script>";
 		else
 			return "<script>$(document).ready( function() { ".implode("\n",$this->_script)." });</script>";
-	}
-
-	/**
-	 * Recursive rendering for array properties.
-	 * @internal
-	 */
-	protected function execute_array($array)
-	{
-		$res = array();
-		foreach( $array as $key=>&$val )
-		{
-			if( $val instanceof IRenderable )
-				$res[$key] = $val->do_the_execution();
-			elseif( is_array($val) )
-				$res[$key] = $this->execute_array($val);
-			elseif( $val instanceof DateTime )
-				$res[$key] = $val->format("Y-m-d H:i:s");
-			else
-				$res[$key] = $val;
-		}
-		return $res;
 	}
 
 	/**

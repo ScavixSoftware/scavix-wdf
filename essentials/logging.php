@@ -336,8 +336,8 @@ function logging_render_var($content,&$stack=array(),$indent="")
 	{
 		if( count($content) == 0 )
 			return "*EmptyArray*";
-		$res[] = "Array\n$indent(";
-		$stack[] = $content;
+		$res[] = "Array(".count($content).")\n$indent(";
+//		$stack[] = $content; // trying to ignore recursion as i'm not sure if this may happen with arrays-only
 		foreach( $content as $i=>$val )
 			$res[] = $indent."\t[$i]: ".logging_render_var($val,$stack,$indent."\t");
 		$res[] = $indent.")";
