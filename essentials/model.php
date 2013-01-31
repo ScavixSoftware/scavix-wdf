@@ -115,7 +115,7 @@ function &model_datasource($name)
 		if( !$model_db )
 			system_die("Unable to connect to database '$name'.");
 
-		if( $usememcache && system_is_module_loaded('session') && session_use_memcache() )
+		if( $usememcache && session_use_memcache() )
 		{
 			// todo: implement caching
 		}

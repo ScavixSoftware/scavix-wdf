@@ -41,11 +41,6 @@ class CurrencyFormatSelect extends Select
 		foreach($samples as $code => $label)
 			$this->AddOption($code, $label);
 	}
-
-	static function __js()
-	{
-		return array(jsFile('locale_settings.js'));
-	}
 	
 	/**
 	 * @attribute[RequestParam('currency','string')]

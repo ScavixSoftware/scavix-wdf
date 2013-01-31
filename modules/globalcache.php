@@ -76,9 +76,6 @@ function globalcache_initialize()
 			break;
 
 		case globalcache_CACHE_EACCELERATOR:
-			if( !system_is_module_loaded('session') )
-				system_die("Missing module 'session'");
-
 			if( !isset($CONFIG['globalcache']['server']) )
 				$CONFIG['globalcache']['server'] = (isset($LOCALHOST) ? $LOCALHOST : "localhost");
 			break;

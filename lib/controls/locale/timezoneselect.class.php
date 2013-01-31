@@ -42,10 +42,5 @@ class TimezoneSelect extends Select
 			$this->AddOption($tz, str_replace("_"," ",$tz));
 		}
 	}
-	
-	static function __js()
-	{
-		return array(jsFile('locale_settings.js'));
-	}
 }
 

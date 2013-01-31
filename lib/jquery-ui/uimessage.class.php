@@ -18,14 +18,4 @@ class uiMessage extends uiTemplate
 		$res->set('type','error');
 		return $res;
 	}
-	
-	static function __css()
-	{
-		return array(skinFile('jquery-ui/jquery-ui.css'));
-	}
-
-	static function __js()
-	{
-		return array(jsFile('jquery-ui/jquery-ui.js'));
-	}
 }

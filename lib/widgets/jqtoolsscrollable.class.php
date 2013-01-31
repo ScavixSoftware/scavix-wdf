@@ -52,16 +52,9 @@ class jqToolsScrollable extends Template
 	function WdfRender()
 	{
 		$this->set('itemgroups',$this->ItemGroups);
-		$this->set('options',jsArray2JSON($this->_options));
+		$this->set('options',system_to_json($this->_options));
 
 		return parent::WdfRender();
-	}
-
-	static function __js()
-	{
-		return array(
-			jsFile('jquery/jquery.tools.min.js')
-		);
 	}
 
 	/**

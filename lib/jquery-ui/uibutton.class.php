@@ -28,16 +28,6 @@ class uiButton extends uiControl
 		return $res;
 	}
 
-	static function __css()
-	{
-		return array(skinFile('jquery-ui/jquery-ui.css'));
-	}
-
-	static function __js()
-	{
-		return array(jsFile('jquery-ui/jquery-ui.js'));
-	}
-
 	function PreRender($args=array())
 	{
 		if( count($args) > 0 )

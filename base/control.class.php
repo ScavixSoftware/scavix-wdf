@@ -305,21 +305,6 @@ class Control extends Renderable
 	{
 		$this->_extenders_rendered = false;
 	}
-
-	/**
-	 * Returns an array of JavaScript files that must be loaded into HTML to make this control work.
-	 * Override this Method in subclasses to add your own files, but dont forget to call the parent!
-	 * @return array All the JavaScript files to be loaded
-	 */
-	static function __js()
-	{
-		return array(jsFile('jquery.js'),jsFile('control.js'));
-	}
-
-	static function __css()
-	{
-		return array();
-	}
 	
 	public static function Make($tag="")
     {
@@ -434,39 +419,12 @@ class Control extends Renderable
 	{
 		if( $this->_skipRendering )
 			return;
-//		log_debug(get_class($this)."->PreRender()");
+
 		if( count($args) > 0 )
 		{
 			$page = $args[0];
 			if( $page instanceof HtmlPage )
 				$page->addDocReady(implode("\n",$this->_script)."\n");
-//			if( count($this->_script) > 0 )
-//				log_debug("adding doc ready:\n".implode("\n",$this->_script));
-
-			$cache = array();
-			foreach( $this->_extender as &$ex )
-				system_include_statics(get_class($ex), '__css', $cache);
-			foreach( system_flatten_array($cache) as $css )
-				$page->addCss($css);
-
-			$cache = array();
-			foreach( $this->_extender as &$ex )
-				system_include_statics(get_class($ex), '__js', $cache);
-			foreach( system_flatten_array($cache) as $js )
-				$page->addJs($js);
-		}
-		else
-		{
-			$res = array();
-			$cache = array();
-			foreach( $this->_extender as &$ex )
-				system_include_statics(get_class($ex), '__css', $cache);
-			$res['css'] = system_flatten_array($cache);
-			$cache = array();
-			foreach( $this->_extender as &$ex )
-				system_include_statics(get_class($ex), '__js', $cache);
-			$res['js'] = system_flatten_array($cache);
-			return $res;
 		}
 	}
 

@@ -37,11 +37,6 @@ class FlashMovie extends Template
 		$this->set("height",$height);
 		$this->set("autoplay",$autoplay);
 	}
-
-	static function __js()
-	{
-		return array(jsFile('flowplayer-3.1.4.min.js'));
-	}
 }
 
 ?>

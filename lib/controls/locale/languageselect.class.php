@@ -48,10 +48,5 @@ class LanguageSelect extends Select
 			$this->AddOption($code, "{$lang->NativeName} ({$lang->EnglishName})");
 		}
 	}
-	
-	static function __js()
-	{
-		return array(jsFile('locale_settings.js'));
-	}
 }
 

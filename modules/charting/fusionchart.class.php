@@ -144,11 +144,6 @@ class FusionChart extends Control
 		$this->script("initFusionChart(".json_encode($settings).");");
 	}
 
-	static function __js()
-	{
-		return array(jsFile('fusionchart.js'),jsFile('FusionCharts.js'));
-	}
-
 	function &AddPlot($title = "", $type = "")
 	{
 		if($type == "")

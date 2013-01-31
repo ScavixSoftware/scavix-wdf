@@ -40,8 +40,8 @@ class PagerExtender extends ControlExtender
 		$this->Container = $container;
 		$this->ItemsPerPage = $itemsperpage;
 
-		$oi = skinFile('jquery-ui/images/ui-bg_diagonals-small_0_aaaaaa_40x40.png');
-		$li = skinFile('images/loading.gif');
+		$oi = resFile('jquery-ui/images/ui-bg_diagonals-small_0_aaaaaa_40x40.png');
+		$li = resFile('images/loading.gif');
 
 		$control->script("$('#{$this->ExtendedControl->id}').control('PE_Init','$oi','$li');");
 	}

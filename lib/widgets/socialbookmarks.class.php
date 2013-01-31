@@ -32,73 +32,73 @@ class SocialBookmarks extends Template
 		$links = array();
 		$links[] = $this->CreateLink("TwitThis",
 			"http://twitter.com/home?status={url}",
-			skinFile("socialbookmarks/twitter.png"));
+			resFile("socialbookmarks/twitter.png"));
 		$links[] = $this->CreateLink("LinkedIn",
 			"http://www.linkedin.com/shareArticle?mini=true&url={url}&title={title}&source={domain}&summary=EXCERPT",
-			skinFile("socialbookmarks/linkedin.png"));
+			resFile("socialbookmarks/linkedin.png"));
 		$links[] = $this->CreateLink("MySpace",
 			"http://www.myspace.com/Modules/PostTo/Pages/?u={url}&t={title}",
-			skinFile("socialbookmarks/myspace.png"));
+			resFile("socialbookmarks/myspace.png"));
 		$links[] = $this->CreateLink("del.icio.us",
 			"http://delicious.com/post?url={url}&title={title}",
-			skinFile("socialbookmarks/delicious.png"));
+			resFile("socialbookmarks/delicious.png"));
 		$links[] = $this->CreateLink("Digg",
 			"http://digg.com/submit?phase=2&url={url}&title={title}",
-			skinFile("socialbookmarks/digg.png"));
+			resFile("socialbookmarks/digg.png"));
 		$links[] = $this->CreateLink("StumbleUpon",
 			"http://www.stumbleupon.com/submit.php?url={url}",
-			skinFile("socialbookmarks/stumbleupon.png"));
+			resFile("socialbookmarks/stumbleupon.png"));
 		$links[] = $this->CreateLink("Reddit",
 			"http://reddit.com/submit?url={url}&title={title}",
-			skinFile("socialbookmarks/reddit.png"));
+			resFile("socialbookmarks/reddit.png"));
 		$links[] = $this->CreateLink("Y!GG",
 			"http://yigg.de/neu?exturl={url}&exttitle={title}",
-			skinFile("socialbookmarks/yigg.png"));
+			resFile("socialbookmarks/yigg.png"));
 		$links[] = $this->CreateLink("Google Bookmarks",
 			"http://www.google.com/bookmarks/mark?op=edit&output=popup&bkmk={url}&title={title}",
-			skinFile("socialbookmarks/google.png"));
+			resFile("socialbookmarks/google.png"));
 		$links[] = $this->CreateLink("Webnews",
 			"http://www.webnews.de/einstellen?url={url}&title={title}",
-			skinFile("socialbookmarks/webnews.png"));
+			resFile("socialbookmarks/webnews.png"));
 		$links[] = $this->CreateLink("YahooMyWeb",
 			"http://myweb2.search.yahoo.com/myresults/bookmarklet?u={url}&={title}",
-			skinFile("socialbookmarks/yahoomyweb.png"));
+			resFile("socialbookmarks/yahoomyweb.png"));
 		$links[] = $this->CreateLink("Furl",
 			"http://www.furl.net/storeIt.jsp?u={url}&t={title}",
-			skinFile("socialbookmarks/furl.png"));
+			resFile("socialbookmarks/furl.png"));
 		$links[] = $this->CreateLink("Live-MSN",
 			"https://favorites.live.com/quickadd.aspx?marklet=1&mkt=en-us&url={url}&title={title}&top=1",
-			skinFile("socialbookmarks/live.png"));
+			resFile("socialbookmarks/live.png"));
 		$links[] = $this->CreateLink("BlinkList",
 			"http://www.blinklist.com/index.php?Action=Blink/addblink.php&Url={url}&Title={title}",
-			skinFile("socialbookmarks/blinklist.png"));
+			resFile("socialbookmarks/blinklist.png"));
 		$links[] = $this->CreateLink("co.mments",
 			"http://co.mments.com/track?url={url}&title={title}",
-			skinFile("socialbookmarks/co.mments.png"));
+			resFile("socialbookmarks/co.mments.png"));
 		$links[] = $this->CreateLink("Facebook",
 			"http://www.facebook.com/share.php?u={url}",
-			skinFile("socialbookmarks/facebook.png"));
+			resFile("socialbookmarks/facebook.png"));
 		$links[] = $this->CreateLink("Faves",
 			"http://faves.com/Authoring.aspx?u={url}&title={title}",
-			skinFile("socialbookmarks/faves.png"));
+			resFile("socialbookmarks/faves.png"));
 		$links[] = $this->CreateLink("Folkd",
 			"http://www.folkd.com/submit/{url}",
-			skinFile("socialbookmarks/folkd.png"));
+			resFile("socialbookmarks/folkd.png"));
 		$links[] = $this->CreateLink("Squidoo",
 			"http://www.squidoo.com/lensmaster/bookmark?{url}",
-			skinFile("socialbookmarks/squidoo.png"));
+			resFile("socialbookmarks/squidoo.png"));
 		$links[] = $this->CreateLink("Wikio",
 			"http://www.wikio.com/vote?url={url}",
-			skinFile("socialbookmarks/wikio.png"));
+			resFile("socialbookmarks/wikio.png"));
 		$links[] = $this->CreateLink("Ma.gnolia",
 			"http://ma.gnolia.com/bookmarklet/add?url={url}&title={title}",
-			skinFile("socialbookmarks/magnolia.png"));
+			resFile("socialbookmarks/magnolia.png"));
 		$links[] = $this->CreateLink("NewsVine",
 			"http://www.newsvine.com/_tools/seed&save?u={url}&h={title}",
-			skinFile("socialbookmarks/newsvine.png"));
+			resFile("socialbookmarks/newsvine.png"));
 		$links[] = $this->CreateLink("Shadows",
 			"http://www.shadows.com/features/tcr.htm?url={url}&title={title}",
-			skinFile("socialbookmarks/shadows.png"));
+			resFile("socialbookmarks/shadows.png"));
 		$this->set("links", $links);
 	}
 

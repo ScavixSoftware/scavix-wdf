@@ -28,16 +28,6 @@ class uiTabs extends uiTemplate
 		$this->set('id',$id);
 	}
 
-	static function __js()
-	{
-		return array(jsFile('jquery-ui/jquery-ui.js'));
-	}
-
-	static function __css()
-	{
-		return array(skinFile('jquery-ui/jquery-ui.css'));
-	}
-
 	public function WdfRender()
 	{
 		$this->set('tab_content',$this->_tabContent);

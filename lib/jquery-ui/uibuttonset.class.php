@@ -122,16 +122,6 @@ class uiButtonSet extends uiControl
 		parent::PreRender($args);
 	}
 
-	static function  __css()
-	{
-		return array(skinFile('jquery-ui/jquery-ui.css'));
-	}
-
-	static function __js()
-	{
-		return array(jsFile('jquery-ui/jquery-ui.js'));
-	}
-
 	function &AddButton($label,$click_event = false,$icon = false,$tab_id = "")
 	{
 		$ctn = count($this->buttons);

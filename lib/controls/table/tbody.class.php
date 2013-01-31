@@ -140,7 +140,7 @@ class TBody extends Control
 
 				$speed = "500";
 				$func = "function(){ $('#{$this->table->id}').click(); Debug('Click invoked'); }";
-				$func = "setTimeout(unescape('".jsEscape("$('#{$this->table->id}').click();")."'),$speed+10);";
+				$func = "setTimeout(unescape(".json_encode("$('#{$this->table->id}').click();")."),$speed+10);";
                 $this->header->onclick = "$func $(this).siblings('tr').css('display') == 'none' ? $(this).siblings('tr').fadeIn($speed) : $(this).siblings('tr').fadeOut($speed);".$this->header->onclick;
 
                 $this->header->css("cursor","pointer");

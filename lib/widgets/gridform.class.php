@@ -56,7 +56,7 @@ class GridForm extends Template
 		$this->add2var("labels",$label);
 		$this->add2var("controls",$webcontrol);
 
-		$hint = new Image(skinFile('trans.gif'));
+		$hint = new Image(resFile('trans.gif'));
 		$hint->class = "gridform_hint";
 		$hint->id = $webcontrol->id."_hint";
 		$this->add2var("hints",$hint);

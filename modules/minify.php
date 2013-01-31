@@ -288,8 +288,6 @@ function minify_collect_from_file($kind,$f,&$res,&$processed)
 		:array('self','eval','inherited','instanciated','incontent');
 		//:array('self','incontent','instanciated','inherited');
 	
-	$getmethod = ($kind == "js")?"jsFile":"skinFile";
-	$existsmethod = ($kind == "js")?"jsFileExists":"skinFileExists";
 	$processed[$classname] = array();
 	$content = file_get_contents($f);
 	
@@ -325,14 +323,13 @@ function minify_collect_from_file($kind,$f,&$res,&$processed)
 				}
 				break;
 			case 'incontent':
-				if( preg_match_all('/'.$getmethod.'\([\s"\']+([^,;]*)\.'.$kind.'[\s"\']+\)/U', $content, $matches) )
+				if( preg_match_all('/resFile\([\s"\']+([^,;]*)\.'.$kind.'[\s"\']+\)/U', $content, $matches) )
 				{
 					extract($GLOBALS);
 					foreach( $matches[1] as $m )
 					{
 						$m = strtolower("$m.$kind");
-						//log_debug('$m = '.$getmethod.'("'.$m.'");');
-						eval('$m = strtolower('.$getmethod.'("'.$m.'"));');
+						eval('$m = strtolower(resFile("'.$m.'"));');
 						if( in_array($m,$res) )
 							continue;
 //						log_debug("incontent: ".$m);
@@ -344,9 +341,9 @@ function minify_collect_from_file($kind,$f,&$res,&$processed)
 				}
 				break;
 			case 'self':
-				if( $existsmethod(strtolower("$classname.$kind")) )
+				if( resourceExists(strtolower("$classname.$kind")) )
 				{
-					$tmp = $getmethod(strtolower("$classname.$kind"));
+					$tmp = resFile(strtolower("$classname.$kind"));
 //					log_debug("self: ".$tmp);
 					//$res[] = $tmp;
 					$res[$tmp] = isset($res[$tmp])?$res[$tmp]+1:1;

@@ -35,16 +35,6 @@ class uiContainer extends uiControl
 		return $default;
 	}
 
-	static function __css()
-	{
-		return array(skinFile('jquery-ui/jquery-ui.css'),skinFile('jquery-ui/ui.container.css'));
-	}
-
-	static function __js()
-	{
-		return array(jsFile('jquery-ui/jquery-ui.js'),jsFile('jquery-ui/ui.container.js'));
-	}
-
 	function AddButton($icon,$function)
 	{
 		if( isset($this->_options['buttons']) )

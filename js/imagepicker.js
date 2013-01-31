@@ -3,7 +3,7 @@ function uploadFile(fuid,target_url,preview_id)
 	{
 //		$("#"+fuid+"_view")
 //			.ajaxStart(function(){
-//				$(this).attr({src: '<?=skinFile('loading.gif')?>'});
+//				$(this).attr({src: '<?=resFile('loading.gif')?>'});
 //			});
 
 		$.ajaxFileUpload

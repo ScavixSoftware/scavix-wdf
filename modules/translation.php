@@ -155,8 +155,8 @@ function __translate_callback($matches)
 		return $trans;
 	}
 
-	if( $do_js && system_is_module_loaded('javascript') )
-		return jsEscape($trans);
+	if( $do_js )
+		return substr(json_encode($trans),1,-1);
 	if( $as_attribute )
 		return htmlentities($trans,ENT_QUOTES,'UTF-8',false);
 	return $trans;
@@ -358,9 +358,7 @@ function getStringOrig($constant, $arreplace = null, $unbuffered = false, $encod
 function getJsString($constant, $arreplace = null, $unbuffered = false, $encoding = null)
 {
 	$res = getString($constant, $arreplace, $unbuffered, $encoding);
-	if( system_is_module_loaded("javascript") )
-		$res = jsEscape($res);
-	return $res;
+	return substr(json_encode($res),1,-1);
 }
 
 function ReplaceVariables($text, $arreplace = null)

@@ -284,14 +284,14 @@ function system_execute()
 	if( system_is_ajax_call() )
 	{
 		if( !($PAGE instanceof Renderable) )
-			system_die("ACCESS FORBIDDEN",get_class($PAGE)." is no Renderable");
+			throw new Exception("ACCESS FORBIDDEN",get_class($PAGE)." is no Renderable");
 		if( $isstrpage && !($PAGE instanceof ICallable) ) 
 			log_warn("AJAX call to Renderable class: ".get_class($PAGE)."/$event",$_REQUEST);
 	}
 	else
 	{
 		if( !($PAGE instanceof ICallable) )
-			system_die("ACCESS FORBIDDEN",get_class($PAGE)." is no ICallable");
+			throw new Exception("ACCESS FORBIDDEN: ".get_class($PAGE)." is no ICallable");
 	}	
 	
 	if( system_method_exists($PAGE,$event) || (system_method_exists($PAGE,'__method_exists') && $PAGE->__method_exists($event) ) )
@@ -303,7 +303,7 @@ function system_execute()
 	if( !isset($content) || !$content )
 		$content =& $PAGE;
 
-	$dotranslate = (system_is_module_loaded("translation") || system_is_module_loaded("translation2"));
+	$dotranslate = (system_is_module_loaded("translation") );
 	if( system_is_ajax_call() )
 	{
 		if( $content instanceof JsResponse )
@@ -331,18 +331,7 @@ function system_execute()
 				if( isset($CONFIG['use_compiled_js']) && isset($CONFIG['use_compiled_css']) )
 					$content = $content->WdfRenderAsRoot();
 				else
-				{
-//					$js = array();
-//					$css = array();
-//					system_collect_includes($content,$content,$js,$css);
-//					$js = array_unique(system_flatten_array($js));
-//					$css = array_unique(system_flatten_array($css));
-//					$content = $content->WdfRenderAsRoot();
-//					if( !isset($CONFIG['use_compiled_js']) && count($js) > 0)
-//						$res->dep_js = $js;
-//					if( !isset($CONFIG['use_compiled_css']) && count($css) > 0)
-//						$res->dep_css = $css;
-					
+				{					
 					$resources = $content->__collectResources();
 					log_debug("AJAX Resources:",$resources);
 					foreach( $resources as $r )
@@ -475,7 +464,7 @@ function system_die($reason,$additional_message=false)
 
     if( system_is_ajax_call() )
 	{
-		$code = "alert(unescape('".jsEscape($logged_reason."\n".$additional_message)."'));";
+		$code = "alert(unescape(".json_encode($logged_reason."\n".$additional_message)."));";
 		$res = new stdClass();
 		$res->html = "<script>$code</script>";
 		die(system_to_json($res));
@@ -960,27 +949,18 @@ function buildQuery($page,$event="",$data="", $url_root=false)
     if(substr($page, 0, 4) == "http")
         return $page;
 
-	if( system_is_module_loaded('routing') )
-	{
-		if($page != "")
-			$res = "$page/";
-		else
-			$res = "";
-		if( $event != "" )
-		{
-			$res .= $event;
-			if( '#' != substr($event, 0, 1) )
-					$res .= '/';			
-		}
-		$p = "?";
-	}
+	if($page != "")
+		$res = "$page/";
 	else
+		$res = "";
+	if( $event != "" )
 	{
-		$res = "?page=$page";
-		if( $event != "" )
-			$res .= "&event=$event";
-		$p = "&";
+		$res .= $event;
+		if( '#' != substr($event, 0, 1) )
+				$res .= '/';			
 	}
+	$p = "?";
+	
 	if( is_array($data) )
 	{
 		if( isset($data['page']) ) unset($data['page']);
@@ -1113,8 +1093,7 @@ function makerelative($realpath)
 {
 	global $CONFIG;
 	$current_script = $_SERVER['SCRIPT_FILENAME'];
-
-//log_debug("1: r: $realpath cs: $current_script");
+	
 	$current_script = explode("/",$current_script);
 	$realpath = explode("/",$realpath);
 
@@ -1126,33 +1105,27 @@ function makerelative($realpath)
 	
 	$current_script = implode("/",$current_script);
 	$realpath = implode("/",$realpath);
-//log_debug("2: r: $realpath cs: $current_script");
+	
 	if(substr($realpath, 1, 1) == "/")
 		$realpath = str_repeat("../",count(explode("/",$current_script))+1) . $realpath;
     $realpath = str_replace("system/../", "", $realpath);
-//log_debug("3: r: $realpath cs: $current_script");
-    if( system_is_module_loaded('routing') )
-    {
-        // add some '..' when there's a 'virtual' URL called
-        // ex.: http://server/Hallo/Welt will become http://server/index.php/Hallo/Welt due
-        // to htaccess in dirname(index.php)
-        $virtual = explode("index.php",$_SERVER['PHP_SELF']);
-        if( count($virtual) > 0 )
-        {
-            $virtual = explode("/",trim($virtual[1],"/"));
-            if( count($virtual) > 0 && !(count($virtual)==1 && $virtual[0]==""))
-            {
-                // add count() because root is currently index.php/
-                //log_debug($realpath." -> ".str_repeat("../",count($virtual)).$realpath);
-                $realpath = str_repeat("../",count($virtual)).$realpath;
-            }
-            //else
-                //log_debug("skipping $realpath");
-        }
-    }
-//	if( $CONFIG['system']['path_root'] != "" )
-//		$realpath = str_replace($CONFIG['system']['path_root']."/",'',$realpath);
-//log_debug("4: r: $realpath cs: $current_script");
+
+	// add some '..' when there's a 'virtual' URL called
+	// ex.: http://server/Hallo/Welt will become http://server/index.php/Hallo/Welt due
+	// to htaccess in dirname(index.php)
+	$virtual = explode("index.php",$_SERVER['PHP_SELF']);
+	if( count($virtual) > 0 )
+	{
+		$virtual = explode("/",trim($virtual[1],"/"));
+		if( count($virtual) > 0 && !(count($virtual)==1 && $virtual[0]==""))
+		{
+			// add count() because root is currently index.php/
+			//log_debug($realpath." -> ".str_repeat("../",count($virtual)).$realpath);
+			$realpath = str_repeat("../",count($virtual)).$realpath;
+		}
+		//else
+			//log_debug("skipping $realpath");
+	}
     return $realpath;
 }
 
@@ -1195,151 +1168,6 @@ function is_host($host_or_ip)
 	if( gethostbyaddr($ip_address) == $host_or_ip )
 		return true;
 	return false;
-}
-
-$sci_stack = array();
-function system_collect_includes(&$controller,&$template,&$js_cache,&$css_cache,$pre = "")
-{
-	global $sci_stack;
-	$isot = is_object($template);
-	$isat = is_array($template);
-	if( !$isot && !$isat )
-		return;
-
-	if( $pre == "" )
-		$sci_stack = array();
-
-	if( $isot )
-	{
-		foreach( $sci_stack as &$s )
-			if( equals($s,$template) )
-			{
-				$classname = strtolower($isot?get_class($template):(string)$template);
-//				log_debug($pre."BREAK system_collect_includes(".get_class($controller).",$classname,...) id=".$template->id);
-				return;
-			}
-		$sci_stack[] = $template;
-	}
-	
-	$classname = strtolower($isot?get_class($template):(string)$template);
-//	log_debug("system_collect_includes(".get_class($controller).",$classname,...)");
-
-	if($isot && !$isat)
-	{
-		system_include_statics($classname,'__js',$js_cache);
-		system_include_statics($classname,'__css',$css_cache);
-	}
-
-	if( $isot && $template instanceof Renderable )//is_subclass_of($template,"Template") )
-	{
-		system_include_files($classname,$controller,$js_cache,$css_cache);
-		$parent = strtolower(get_parent_class($template));
-		while($parent != "" && $parent != "template" && $parent != "control" && $parent != "controlextender")
-		{
-			system_include_files($parent,$controller,$js_cache,$css_cache);
-			$parent = strtolower(get_parent_class($parent));
-		}
-	}
-
-	if( $isot && isset($template->_data) && is_array($template->_data) && count($template->_data)>0 )
-	{
-//		log_debug($pre."IsTemplate (".get_class($template).") id=".$template->id);
-		foreach( $template->_data as $varname=>$var )
-		{
-//			log_debug($pre."->$varname...");
-			system_collect_includes($controller,$var,$js_cache,$css_cache,"\t$pre");
-		}
-//		log_debug($pre."<<<IsTemplate(".get_class($template).")");
-	}
-
-	if( $isot && $template instanceof Control )
-	{
-//		log_debug($pre."IsControl (".get_class($template).") id=".$template->id);
-		$vars = get_object_vars($template);
-		foreach( $vars as $name=>&$var )
-		{
-//			log_debug($pre."->$name...");
-			system_collect_includes($controller,$var,$js_cache,$css_cache,"\t$pre");
-		}
-//		log_debug($pre."<<<IsControl(".get_class($template).")");
-	}
-
-	if( $isot && isset($template->_extender) && is_array($template->_extender) && count($template->_extender) > 0 )
-	{
-//		log_debug($pre."IsExtender (".get_class($template).") id=".$template->id);
-		foreach( $template->_extender as $varname=>$var )
-		{
-//			log_debug($pre."->$varname...");
-			system_collect_includes($controller,$var,$js_cache,$css_cache,"\t$pre");
-		}
-//		log_debug($pre."<<<IsExtender(".get_class($template).")");
-	}
-
-	if( $isat && count($template) > 0 )
-	{
-//		log_debug($pre."IsArray");
-		foreach( $template as $key=>$v )
-		{
-//			log_debug($pre."->$key...");
-			system_collect_includes($controller,$v,$js_cache,$css_cache,"\t$pre");
-		}
-//		log_debug($pre."<<<IsArray");
-	}
-}
-
-function system_include_files($classname,&$controller,&$js_cache,&$css_cache)
-{
-	if( system_is_module_loaded("skins") && skinFileExists("$classname.css") )
-	{
-		$css_cache[] = skinFile("$classname.css");
-	}
-	if( system_is_module_loaded("javascript") && jsFileExists("$classname.js") )
-	{
-		$js_cache[] = jsFile("$classname.js");
-	}
-}
-
-/**
- * Will collect all static data for a given classname and method into a (also given) cache.
- * Will check all parent classes too!
- * @param string $classname The classname to be checked
- * @param string $method The name of the static method
- * @param array $cache The cache to be used
- */
-function system_include_statics($classname,$method,&$cache)
-{
-	if( ($classname == "array") || isset($cache[$classname]) || !class_exists($classname) )
-		return;
-
-	$ref = new ReflectionClass($classname);
-	if( $ref->hasMethod($method) )
-	{
-		$meth = $ref->getMethod($method);
-		$ref = $meth->getDeclaringClass();
-		$classname = strtolower($ref->getName());
-        
-        if( isset($cache[$classname]) )
-            return;
-        $cache[$classname] = $meth->invoke(null);
-
-		$ref = $ref->getParentClass();
-		if( $ref )
-			system_include_statics(strtolower($ref->getName()),$method,$cache);
-	}
-}
-
-/**
- * Converts a multidimensional array to a single dimensional one.
- * Duplicated keys will get the value of the last accessible.
- * @param array $ar Array to be flattened
- * @return array The resulting array.
- */
-function system_flatten_array(array $ar)
-{
-	$ret_array = array();
-	foreach(new RecursiveIteratorIterator(new RecursiveArrayIterator($ar)) as $value)
-		$ret_array[] = $value;
-	return $ret_array;
 }
 
 /**

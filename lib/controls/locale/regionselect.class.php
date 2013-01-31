@@ -77,11 +77,6 @@ class RegionSelect extends Select
 		return strnatcasecmp($a, $b);
     }
 	
-	static function __js()
-	{
-		return array(jsFile('locale_settings.js'));
-	}
-	
 	/**
 	 * @attribute[RequestParam('language','string')]
 	 */

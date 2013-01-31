@@ -67,16 +67,6 @@ class uiTimeInput extends uiControl
 		$this->content("<input type='hidden' id='{$id}_hidden' name='{$id}' value='$defvalue' onchange='$onchange'/>");
 		$this->content("<br style='clear:both; line-height:0'/>");
 	}
-
-	static function __js()
-	{
-		return array(jsFile('jquery-ui/jquery-ui.js'));
-	}
-
-	static function __css()
-	{
-		return array(skinFile('jquery-ui/jquery-ui.css'));
-	}
 }
 
 ?>

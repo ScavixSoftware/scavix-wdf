@@ -18,16 +18,6 @@ class uiSelectMenu extends uiControl
 		$this->script("$('#{$this->id}').selectmenu();");
 	}
 
-	static function  __css()
-	{
-		return array(skinFile('jquery-ui/jquery-ui.css'),skinFile('jquery-ui/ui.selectmenu.css'));
-	}
-
-	static function __js()
-	{
-		return array(jsFile('jquery-ui/jquery-ui.js'),jsFile('jquery-ui/ui.selectmenu.js'));
-	}
-
 	private function addIcon($path)
 	{
 		$key = "sm_icon_".count($this->_icons);

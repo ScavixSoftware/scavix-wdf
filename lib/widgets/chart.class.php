@@ -187,11 +187,6 @@ class Chart extends Template
 		$this->set("performLazyLoad",$this->_performLazyLoad);
 	}
 
-	static function __js()
-	{
-		return array(jsFile('FusionCharts.js'));
-	}
-
 	function CleanupXML($xml)
 	{
 		$xml = str_replace("			", " ", $xml);

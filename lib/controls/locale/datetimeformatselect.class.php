@@ -65,11 +65,6 @@ class DateTimeFormatSelect extends Select
 			}
 		}
 	}
-
-	static function __js()
-	{
-		return array(jsFile('locale_settings.js'));
-	}
 	
 	/**
 	 * @attribute[RequestParam('culture_code','string')]

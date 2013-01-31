@@ -42,8 +42,8 @@ class FilterExtender extends ControlExtender
 			system_die("FilterExtender needs valid fieldnames to know where to filter");
 		$this->FieldsToFilter = $fieldsToFilter;
 
-		$oi = skinFile('overlay.png');
-		$li = skinFile('images/loading.gif');
+		$oi = resFile('overlay.png');
+		$li = resFile('images/loading.gif');
 
 		$control->script("$('#{$this->ExtendedControl->id}').control('FE_Init','$oi','$li');");
 

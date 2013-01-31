@@ -27,16 +27,6 @@ class uiDialog extends uiControl
 		$this->Options[$name] = $value;
 	}
 
-	static function __js()
-	{
-		return array(jsFile('jquery-ui/jquery-ui.js'));
-	}
-
-	static function __css()
-	{
-		return array(skinFile('jquery-ui/jquery-ui.css'));
-	}
-
 	function PreRender($args=array())
 	{
 		if( count($args) > 0 )

@@ -184,11 +184,5 @@ class ContextMenu extends Control
 
         return $defaults;
     }
-
-	static function __js()
-	{
-		return array(jsFile("jquery/jquery.contextmenu.r2.js"));
-	}
-
 }
 ?>

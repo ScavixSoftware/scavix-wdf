@@ -29,11 +29,6 @@ abstract class Renderable
 			$res = array_merge($res,$static);
 //			log_debug("$classname STATIC NEW",$static);
 			
-			$cache = array();
-			system_include_statics($classname,'__js',$cache);
-			system_include_statics($classname,'__css',$cache);
-//			log_debug("$classname STATIC OLD",$cache);
-
 			if( $template instanceof Renderable )
 			{
 				// then check all contents and collect theis includes

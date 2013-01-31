@@ -45,11 +45,6 @@ class Map extends Control
 		$this->Language = $language;
 	}
 
-	static function __js()
-	{
-		return array("https://maps.googleapis.com/maps/api/js?v=3&sensor=false");
-	}
-
 	function PreRender($args=array())
 	{
 		if( count($args) > 0 )

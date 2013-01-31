@@ -28,6 +28,8 @@
  * Will perform all rendering and collect js, css, meta and more.
  * 
  * @attribute[Resource('jquery.js')]
+ * @attribute[Resource('jquery.ajaxmanager.js')]
+ * @attribute[Resource('jquery.jcache.js')]
  */
 class HtmlPage extends Template implements ICallable
 {
@@ -102,17 +104,8 @@ class HtmlPage extends Template implements ICallable
 		if( $body_class )
 			$this->set("bodyClass",$body_class);
 
-		if(system_is_module_loaded("skins"))
-			$this->set("favicon", skinFile("favicon.ico"));
-
-		if(system_is_module_loaded("javascript"))
-		{
-			$this->addJs(jsFile("jquery.js"));
-			$this->addJs(jsFile("jquery.ajaxmanager.js"));
-			$this->addJs(jsFile("jquery.jcache.js"));
-
-			$this->addDocReady("");
-		}
+		if( resourceExists("favicon.ico") )
+			$this->set("favicon", resFile("favicon.ico"));
 	}
 
 	function WdfRender()

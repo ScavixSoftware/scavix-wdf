@@ -35,7 +35,7 @@ class Gate2Shop extends PaymentProvider
 		if(!isset($CONFIG["payment"]) || !isset($CONFIG["payment"]["gate2shop"]))
 			system_die("Gate2Shop payment provider not configured");
 		
-		$this->small_image = skinFile("gate2shop.png");
+		$this->small_image = resFile("gate2shop.png");
 	}
 	
 	private function EnsureCurrency($order)

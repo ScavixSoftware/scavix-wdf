@@ -39,8 +39,8 @@ class AutoReloadExtender extends ControlExtender
 		$this->AutoReload = $autoreload;
 		$id = $this->ExtendedControl->id;
 		
-		$oi = skinFile('jquery-ui/images/ui-bg_diagonals-small_0_aaaaaa_40x40.png');
-		$li = skinFile('loading.gif');
+		$oi = resFile('jquery-ui/images/ui-bg_diagonals-small_0_aaaaaa_40x40.png');
+		$li = resFile('loading.gif');
 
 		$control->script("$('#{$this->ExtendedControl->id}').control('AE_Init','$oi','$li','$autoreload');");
 

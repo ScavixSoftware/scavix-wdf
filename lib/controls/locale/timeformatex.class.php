@@ -73,12 +73,6 @@ class TimeFormatEx extends Control
 		return $dtf->Format($value, $date_format)." ".$dtf->Format($value, $time_format);
 	}
 	
-
-	static function __js()
-	{
-		return array(jsFile('locale_settings.js'));
-	}
-	
 	/**
 	 * @attribute[RequestParam('append_timezone','bool')]
 	 * @attribute[RequestParam('timezone','string')]

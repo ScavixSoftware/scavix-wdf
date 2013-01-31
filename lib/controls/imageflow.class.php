@@ -56,7 +56,6 @@ class ImageFlow extends Control
 		if( !isset($this->_options['imagesHeight']) )
 			$this->_options['imagesHeight'] = 0.67;
 
-		//$this->_options = jsArray2JSON($this->_options);
 		if( $add_click )
 		{
 			//$this->_options = substr($this->_options,1);
@@ -77,30 +76,16 @@ class ImageFlow extends Control
 		if( !isset($this->_options['startID']) )
 			$this->_options['startID'] = floor(count($this->_content) / 2);
 
-		$this->_options = jsArray2JSON($this->_options);
+		$this->_options = system_to_json($this->_options);
 
 		$code  = "if( !window.global_image_flows )\n\twindow.global_image_flows = new Array();";
 		$code .= "var flow = new ImageFlow();";
 		$code .= "flow.init($this->_options);";
 		$code .= "\nwindow.global_image_flows.push(flow);\n";
-		$code .= "tb_pathToImage = '".skinFile('loading.gif')."';";
+		$code .= "tb_pathToImage = '".resFile('loading.gif')."';";
 		$this->script($code);
 		$this->script("$('#{$this->id}').show();");
 		return parent::WdfRender();
-	}
-
-	static function __js()
-	{
-		$res = parent::__js();
-		$res[] = jsFile("thickbox.js");
-		return $res;
-	}
-
-	static function __css()
-	{
-		$res = parent::__css();
-		$res[] = skinFile("thickbox.css");
-		return $res;
 	}
 
 	function Reflect2()
@@ -168,21 +153,21 @@ class ImageFlow extends Control
 		if( $nextpage != -1 && $prevpage != -1)
 		{
 			$load_next = "javascript: ImageFlowLoadData('{$handler->_storage_id}','$method','{$this->id}','{$prevpage}','{$nextpage}')";
-			$next = $this->_createImage(skinFile('imageflow/next.png',false),$load_next,"TXT_IMAGEFLOW_NEXT");
+			$next = $this->_createImage(resFile('imageflow/next.png',false),$load_next,"TXT_IMAGEFLOW_NEXT");
 			$this->_content[] = $next;
 
 			$p = $prevpage-2;
 			$n = $p+2;
 
 			$load_prev = "javascript: ImageFlowLoadData('{$handler->_storage_id}','$method','{$this->id}','{$p}','{$n}')";
-			$prev = $this->_createImage(skinFile('imageflow/prev.png',false),$load_prev,"TXT_IMAGEFLOW_PREV");
+			$prev = $this->_createImage(resFile('imageflow/prev.png',false),$load_prev,"TXT_IMAGEFLOW_PREV");
 			array_unshift($this->_content,$prev);
 		}
 		elseif( $prevpage == -1 && $nextpage != -1 )
 		{
 			$p =$nextpage-2;
 			$load_next = "javascript: ImageFlowLoadData('{$handler->_storage_id}','$method','{$this->id}','{$p}','{$nextpage}')";
-			$next = $this->_createImage(skinFile('imageflow/next.png',false),$load_next,"TXT_IMAGEFLOW_NEXT");
+			$next = $this->_createImage(resFile('imageflow/next.png',false),$load_next,"TXT_IMAGEFLOW_NEXT");
 			$this->_content[] = $next;
 
 		}
@@ -192,7 +177,7 @@ class ImageFlow extends Control
 			$n = $p+2;
 			log_debug("last page: n:$n, p:$p");
 			$load_prev = "javascript: ImageFlowLoadData('{$handler->_storage_id}','$method','{$this->id}','{$p}','{$n}')";
-			$prev = $this->_createImage(skinFile('imageflow/prev.png',false),$load_prev,"TXT_IMAGEFLOW_PREV");
+			$prev = $this->_createImage(resFile('imageflow/prev.png',false),$load_prev,"TXT_IMAGEFLOW_PREV");
 			array_unshift($this->_content,$prev);
 		}
 	}

@@ -35,7 +35,7 @@ class PayPal extends PaymentProvider
 		if(!isset($CONFIG["payment"]) || !isset($CONFIG["payment"]["paypal"]))
 			system_die("PayPal payment provider not configured");
 		
-		$this->small_image = skinFile("paypal.gif");
+		$this->small_image = resFile("paypal.gif");
 	}
 	
 	private function EnsureCurrency($order)

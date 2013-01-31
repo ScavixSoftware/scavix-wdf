@@ -41,21 +41,10 @@ class AutoCompleteExtender extends ControlExtender
 		$code = array();
 		foreach( $results as $res )
 		{
-			$code[] = jsArray2JSON($res);
+			$code[] = system_to_json($res);
 		}
 		return "[".implode(",",$code)."]";
 	}
-
-	static function __js()
-	{
-		return array(jsFile('jquery/jquery.autocomplete.js'));
-	}
-
-	static function __css()
-	{
-		return array(skinFile('autocomplete.css'));
-	}
-
 }
 
 ?>

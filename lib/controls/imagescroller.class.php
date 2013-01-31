@@ -38,19 +38,9 @@ class ImageScroller extends Control
 		if( !isset($options['autoMode']) ) $options['autoMode'] = 'loop';
 
 		$this->Options = $options;
-		$options = jsArray2JSON($this->Options);
+		$options = system_to_json($this->Options);
 		$code = "$('#$id').simplyScroll($options);";
 		$this->script($code);
-	}
-
-	static function __js()
-	{
-		return array(jsFile('simplyscroll.js'));
-	}
-
-	static function __css()
-	{
-		return array(skinFile('simplyscroll.css'));
 	}
 
 	function AddImage($filename,$clicktarget=false,$title=false)

@@ -15,16 +15,6 @@ class uiSlider extends uiControl
 		$this->id = $id;		
 	}
 
-	static function __js()
-	{
-		return array(jsFile('jquery-ui/jquery-ui.js'));
-	}
-
-	static function __css()
-	{
-		return array(skinFile('jquery-ui/jquery-ui.css'));
-	}
-
 	function WdfRender()
 	{
 		$opts = array();
@@ -47,7 +37,7 @@ class uiSlider extends uiControl
 
 		}
 
-		$opts = jsArray2JSON($opts);
+		$opts = system_to_json($opts);
 		$this->script("$('#{$this->id}').slider($opts);");
 		return parent::WdfRender();
 	}

@@ -27,16 +27,6 @@ class uiDatePicker extends uiControl
 		}
 	}
 
-	static function __js()
-	{
-		return array(jsFile('jquery-ui/jquery-ui.js'));
-	}
-
-	static function __css()
-	{
-		return array(skinFile('jquery-ui/jquery-ui.css'));
-	}
-
 	function PreRender($args = array())
 	{
 		if( !$this->CultureInfo )

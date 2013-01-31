@@ -13,11 +13,6 @@ class GoogleControl extends Control
 		parent::__initialize('span');
 	}
 	
-	static function __js()
-	{
-		return array('//www.google.com/jsapi');
-	}
-	
 	function PreRender($args = array())
 	{
 		if( !self::$_initCodeRendered )

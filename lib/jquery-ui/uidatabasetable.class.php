@@ -9,24 +9,12 @@ class uiDatabaseTable extends DatabaseTable
 		$this->css("border-collapse","separate");
 	}
 
-	static function __css()
-	{
-		return array(skinFile('jquery-ui/jquery-ui.css'));
-	}
-
 	function &Header()
     {
         $res = parent::Header();
 		$res->RowOptions = array("tr_class"=>"ui-widget-header ui-corner-all");
 		return $res;
     }
-
-//	function &Footer()
-//    {
-//        $res = parent::Footer();
-//		$res->class = "ui-corner-all";
-//		return $res;
-//    }
 
 	function WdfRender()
     {

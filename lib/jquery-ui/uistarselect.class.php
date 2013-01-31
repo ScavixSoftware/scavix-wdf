@@ -32,16 +32,6 @@ class uiStarSelect extends uiControl
 		store_object($this);
 	}
 
-	static function __js()
-	{
-		return array(jsFile('jquery-ui/jquery-ui.js'),jsFile('jquery-ui/ui.stars.js'));
-	}
-
-	static function __css()
-	{
-		return array(skinFile('jquery-ui/jquery-ui.css'),skinFile('jquery-ui/ui.stars.css'));
-	}
-
 	public function WdfRender()
 	{
 		if( isset($this->_options['captionEl']) )
@@ -56,7 +46,7 @@ class uiStarSelect extends uiControl
 			unset($this->_options['captionEl']);
 			unset($this->_options['captionTitle']);
 
-			$this->_options = jsArray2JSON($this->_options);
+			$this->_options = system_to_json($this->_options);
 			$this->_options = str_replace("}",$caption,$this->_options);
 
 			$this->_content[] = $labTitle;
@@ -65,7 +55,7 @@ class uiStarSelect extends uiControl
 		}
 		else
 		{
-			$this->_options = jsArray2JSON($this->_options);
+			$this->_options = system_to_json($this->_options);
 			$this->_content[] = $this->CreateSelect($this->id."_select");
 		}
 		

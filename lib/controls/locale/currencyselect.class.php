@@ -48,10 +48,5 @@ class CurrencySelect extends Select
 			$this->AddOption($code, "{$ci->CurrencyFormat->Code} ({$ci->CurrencyFormat->Symbol})");
 		}
 	}
-	
-	static function __js()
-	{
-		return array(jsFile('locale_settings.js'));
-	}
 }
 
