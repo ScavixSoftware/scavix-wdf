@@ -173,8 +173,6 @@ class Control extends Renderable
 				register_hook(HOOK_POST_EXECUTE,$this,"PreRender");
 			}
 
-		//register_hook(HOOK_AJAX_POST_LOADED,$this,"AjaxPostConstruct");
-
 		if( !unserializer_active() )
 		{
 			create_storage_id($this);

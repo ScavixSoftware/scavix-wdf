@@ -29,5 +29,5 @@ function initFusionChart(settings)
 		});
 	}
 	else
-		Debug(fcid+": Missing data or dataurl setting");		
+		wdf.debug(fcid+": Missing data or dataurl setting");		
 }

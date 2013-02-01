@@ -4,7 +4,6 @@ $(document).ready( function() {
 {
 	controlHandler.prototype.AE_Init = function(overlayimg,loadingimg)
 	{
-//		Debug("AE_Init");
 		controlHandler.prototype.OverlayImage = overlayimg;
 		controlHandler.prototype.LoadingImage = loadingimg;
 	};
@@ -56,11 +55,7 @@ $(document).ready( function() {
 
 	controlHandler.prototype.AE_ReloadPage = function()
 	{
-//		Debug('controlHandler.prototype.AE_ReloadPage');
-		var data =
-		{
-//			reload:1
-		}
+		var data = {};
 
 		var selector = '#'+$j(this.element).attr('id');
 		var _container = $(selector);
@@ -92,8 +87,8 @@ $(document).ready( function() {
 		}).resize();
 		disabler.fadeIn(200);
 
-		var url = document.site_root+_container.attr('id')+"/ReloadPage/";
-		$j.post(url,data,function(d){ 
+		var url = _container.attr('id')+"/ReloadPage/";
+		wdf.post(url,data,function(d){ 
 			_container.replaceWith(d);
 			disabler.fadeOut(200, function() { $(this).remove(); } );
 		});

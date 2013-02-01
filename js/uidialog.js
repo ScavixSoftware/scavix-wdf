@@ -1,6 +1,5 @@
 function uidialog_show(id,url)
 {
-	//Debug("uidialog_show("+id+","+url+")");
 	if( url )
 	{
 		var data = {id: id};

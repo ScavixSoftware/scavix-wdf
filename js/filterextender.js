@@ -4,7 +4,7 @@ $(document).ready( function() {
 {
 	controlHandler.prototype.FE_Init = function(overlayimg,loadingimg)
 	{
-		//console.log("PE_Init");
+		//wdf.log("PE_Init");
 		controlHandler.prototype.OverlayImage = overlayimg;
 		controlHandler.prototype.LoadingImage = loadingimg;
 	};
@@ -112,9 +112,9 @@ $(document).ready( function() {
 			disabler.fadeIn(200);
 			fe_elem.css("backgound-color","yellow").attr("readonly",true).blur();
 
-			var url = document.site_root + data.load + "/" + data.event + "/";
+			var url = data.load + "/" + data.event + "/";
 			data = { filter:filter };
-			$j.post(url,data,function(d){ _container.replaceWith(d); disabler.fadeOut(200, function() { $(elem).remove(); } ); })
+			wdf.post(url,data,function(d){ _container.replaceWith(d); disabler.fadeOut(200, function() { $(elem).remove(); } ); })
 		},1000,$j,data,this,fe_elem);
 		fe_elem.attr('current_call',cc);
 	};

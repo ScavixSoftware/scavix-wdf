@@ -115,7 +115,7 @@ $.widget("ui.container", {
 					{
 						$.post(self.options.dataUrl,function(d)
 						{
-							Debug("show: loading");
+							wdf.debug("show: loading");
 							self._loadAjaxContent();
 						});
 					}
@@ -173,7 +173,6 @@ $.widget("ui.container", {
 		// add additional buttons
 		if( self.options.buttons )
 		{
-//			Debug(self.options.buttons);
 			for(var icon in self.options.buttons)
 			{
 //				if( typeof(self.options.buttons[icon]) == 'string' )
@@ -248,7 +247,7 @@ $.widget("ui.container", {
 			{
 				if( typeof(click[label]) != 'function' )
 				{
-					Debug('Wrong type for click function "'+label+'". Function expected!');
+					wdf.debug('Wrong type for click function "'+label+'". Function expected!');
 					continue;
 				}
 				var a = $('<a/>').html(label).css({whiteSpace:'nowrap'});
@@ -273,11 +272,6 @@ $.widget("ui.container", {
 					collision: "none"
 				}).zIndex( btn.zIndex() + 1 );
 
-//				var mw = menu.width();
-//				var pw = btn.width();
-//				if( menu.position().left + mw > pw )
-//					menu.css({left: pw - mw - 5});
-
 				setTimeout(function()
 				{
 					$(document).one('click', function()
@@ -285,8 +279,6 @@ $.widget("ui.container", {
 						menu.hide();
 					});
 				},1);
-//				Debug(mw + "/" + pw + "/" + menu.position().left);
-//				Debug(mw + "/" + pw + "/" + menu.offset().left);				
 			});
 		}
 		

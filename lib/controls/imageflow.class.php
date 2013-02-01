@@ -59,7 +59,7 @@ class ImageFlow extends Control
 		if( $add_click )
 		{
 			//$this->_options = substr($this->_options,1);
-			$click  = "function() { Debug($(this).attr('original'));";
+			$click  = "function() { wdf.debug($(this).attr('original'));";
 			$click .= " if( this.url ) { if( this.url.match(/^javascript:/) ) eval(this.url); else document.location = this.url;}";
 //			$click .= " if( this.url ) { if( !this.url.match(/^javascript:/) ) document.location = this.url;}";
 			$click .= " else tb_show($(this).attr('alt'),$(this).attr('original'));";

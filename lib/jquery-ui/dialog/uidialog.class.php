@@ -12,7 +12,7 @@ class uiDialog extends uiControl
 		$this->title = $title;
 
 		$this->Options = array_merge(array(
-				'autoOpen'=>false,
+				'autoOpen'=>true,
 				'modal'=>true,
 				'resizable'=>false,
 				'draggable'=>false,
@@ -43,7 +43,7 @@ class uiDialog extends uiControl
 			$this->Options['buttons'] = $this->Buttons;
 			$tmp = $this->_script;
 			$this->_script = array();
-			$this->script("try{ $('#{$this->id}').dialog(".system_to_json($this->Options)."); }catch(ex){ Debug(ex); }");
+			$this->script("try{ $('#{$this->id}').dialog(".system_to_json($this->Options)."); }catch(ex){ wdf.debug(ex); }");
 			$this->script("$('#{$this->id}').parent().find('.ui-button').click(function(){ $(this).parent().find('.ui-button').button('disable'); });");
 			$this->_script = array_merge($this->_script,$tmp);
 

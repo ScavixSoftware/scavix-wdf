@@ -7,7 +7,7 @@ $(document).ready(function()
     { 
         var term = $(this).data('term');
         var text = $('textarea.'+term).val()||'';
-        $.post(document.site_root+document.controller+'/CreateString',{term:term,text:text},function(d)
+        wdf.controller.post('CreateString',{term:term,text:text},function(d)
         {
             if( d == 'ok' )
             {
@@ -21,7 +21,7 @@ $(document).ready(function()
     $('table.new_string input.delete').click( function()
     { 
         var term = $(this).data('term');
-        $.post(document.site_root+document.controller+'/DeleteString',{term:term},function(d)
+        wdf.controller.post('DeleteString',{term:term},function(d)
         {
             if( d == 'ok' )
             {

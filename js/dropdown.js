@@ -11,7 +11,7 @@ $(document).ready( function(){
 
 function dropdown_init(dd_id)
 {
-	//console.log("dropdown_init("+dd_id+")");
+	//wdf.log("dropdown_init("+dd_id+")");
 	dd_id = "#" + dd_id;
 
 	$(dd_id + '_list').attr("height",'0');

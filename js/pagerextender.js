@@ -94,7 +94,7 @@ $(document).ready( function() {
 			disabler.css({zIndex:maxZ}); 
 		});
 
-		var url = document.site_root+$(this.element).attr('id')+"/GotoPage/";
-		$.post(url,data,function(d){ _container.replaceWith(d); disabler.fadeOut(200, function() { $(this).remove(); } ); })
+		var url = $(this.element).attr('id')+"/GotoPage/";
+		wdf.post(url,data,function(d){ _container.replaceWith(d); disabler.fadeOut(200, function() { $(this).remove(); } ); })
 	};
 });

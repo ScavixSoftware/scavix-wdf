@@ -16,9 +16,11 @@ $.widget("ui.table",
 				.children()
 				.click(function()
 				{
-					console.log("clicked",current_row);
-					$.post(document.site_root+self.attr('id')+'/OnActionClicked',{action:$(this).attr('id'),row:current_row.attr('id')},function(d){ console.log(d); })
+					wdf.post(self.attr('id')+'/OnActionClicked',
+						{action:$(this).data('action'),row:current_row.attr('id')},
+						function(d){ $('body').append(d); });
 				})
+				.hover( function(){ $(this).toggleClass('ui-state-hover') } )
 				.each(function(){w+=$(this).width();});
 			actions.width(w);
 			
@@ -30,8 +32,8 @@ $.widget("ui.table",
 			};
 			var off = function(){ $('.ui-table-actions',self).hide(); };
 			
-			$('.tbody .tr',self)
-				.bind('mouseenter click',on);
+			$('.tbody .tr',self).bind('mouseenter click',on);
+			$('.caption, .thead, .tfoot',self).bind('mouseenter',off);
 			self.bind('mouseleave',off);
 				
 			$('.tbody .tr .td:last-child',self).css('padding-right',w)

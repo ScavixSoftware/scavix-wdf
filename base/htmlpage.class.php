@@ -39,7 +39,6 @@ class HtmlPage extends Template implements ICallable
 	var $dialogs = array();
 	var $docready = array("");
 	var $plaindocready = array();
-	var $ajaxWaitDialogId = false;
 	var $bodyEvents = array();
 
 	var $requireCookies = false;
@@ -245,15 +244,16 @@ class HtmlPage extends Template implements ICallable
 		
 		execute_hooks(HOOK_PRE_RENDER,array($this));
 
-		$init_code = "HtmlPage_Init({request_id:'".request_id()."',site_root:'".$CONFIG['system']['url_root']."'";
-		if( $this->ajaxWaitDialogId )
-			$init_code .= ",ajax_wait_dlg_id:'".$this->ajaxWaitDialogId."'";
+		$init_data = array('request_id' => request_id(),'site_root' => cfg_get('system','url_root'));
+		if( cfg_getd('system','attach_session_to_ajax',false) )
+		{
+			$init_data['session_id'] = session_id();
+			$init_data['session_name'] = session_name();
+		}
+		if( isDevOrBeta() )
+			$init_data['log_to_console'] = true;
 
-		if( isset($CONFIG['system']['attach_session_to_ajax']) && $CONFIG['system']['attach_session_to_ajax'] )
-			$init_code .= ",session_name:'".session_name()."',session_id:'".session_id()."'";
-
-		$init_code .= "});";
-		$this->docready[0] = $init_code;
+		$this->docready[0] = "wdf.init(".json_encode($init_data).");";
 		$this->set("docready",$this->docready);
 		$this->set("plaindocready",$this->plaindocready);
 

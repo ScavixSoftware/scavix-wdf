@@ -7,13 +7,11 @@ var mapsloaded = false;
 
 function map_loaded()
 {
-//	Debug("map_loaded");
 	map_initialize(mapid);
 }
 
 function map_initialize(id, options)
 {
-//	Debug("map_initialize: " + id);
 	try {
 		mapsloaded = (google + "" != "undefined") && (google.maps + "" != "undefined") && (google.maps.LatLng + "" != "undefined");
 	} catch(ex) {}
@@ -42,7 +40,6 @@ function map_initialize(id, options)
 
 function map_add_address(id, address)
 {
-//	Debug("map_add_address: " + id + " " + address);
 	if( !geocoder )
 		geocoder = new google.maps.Geocoder();
 
@@ -74,7 +71,6 @@ function map_add_address(id, address)
 
 function map_add_marker(id,longitude,latitude,options)
 {
-//	Debug("map_add_marker(" + id + ", " + longitude + ", " + latitude + ")");
 	var pos = false;
 	try {
 		pos = new google.maps.LatLng(latitude,longitude);
@@ -119,7 +115,6 @@ function map_add_marker(id,longitude,latitude,options)
 
 function map_show_all(id)
 {
-//	Debug("map_show_all: " + id);
 	if( (geocoder_requests > 0) || !mapsloaded )
 	{
 		setTimeout(function(){map_show_all(id);},100);

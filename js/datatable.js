@@ -3,7 +3,7 @@ var external_loadings = new Object();
 
 function dt_init(tableid,loading_id)
 {
-	//console.log("dt_init "+tableid);
+	//wdf.log("dt_init "+tableid);
 	$('#' + tableid + '_overlay').hide();
 	$('#' + tableid + ' span.pager a').click( function() {
 
@@ -17,12 +17,12 @@ function dt_init(tableid,loading_id)
 /*
 function dt_init_from_code(code)
 {
-	//console.log("dt_init_from_code ");
+	//wdf.log("dt_init_from_code ");
 	$(code).each( function() {
-		//console.log(this);
+		//wdf.log(this);
 		if( !$(this).attr('class') && $(this).attr('id'))
 		{
-			//console.log("after load");
+			//wdf.log("after load");
 			dt_init($(this).attr('id'),'');
 			return false;
 		}

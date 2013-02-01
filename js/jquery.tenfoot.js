@@ -53,7 +53,7 @@
 					if( elem.is('a') && !elem.attr('href') )
 						elem.click();
 					break;
-				default: Debug('key: '+e.which); break;
+				default: wdf.debug('key: '+e.which); break;
 			}
 		});
 	};

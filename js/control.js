@@ -22,16 +22,22 @@ function controlHandler(el)
 			}
 		});
 	}
+	
+	$j.fn.enumAttr = function(attr_name)
+	{
+		var attr = []
+		this.each( function(){ if( $(this).attr(attr_name) ) attr.push($(this).attr(attr_name)); } );
+		return attr;
+	}
 
 	controlHandler.prototype.bindMethod = function(event,handler,method,caller)
 	{
-		//Debug("bindMethod: "+caller);
 		if( event == "autocomplete" )
 		{
 			//var url = framework_root_offset+"?load="+handler+"&event="+method;
-			var url = document.site_root + handler + "/" + method + "/";
+			var url = wdf.settings.site_root + handler + "/" + method + "/";
 			var opts = {
-				extraParams: {request_id:document.request_id,caller:caller},
+				extraParams: {request_id:wdf.request_id,caller:caller},
 				minChars: 3,
 				autoFill: false,
 				highlight: false,
@@ -46,7 +52,6 @@ function controlHandler(el)
 			};
 			$j(this.element).autocomplete(url,opts).result(function(e,row)
 			{
-				//Debug("autocomplete "+$j(this).attr("id"));
 				$j(this).change();
 				if( row.select )
 					eval(unescape(row.select));
@@ -56,13 +61,13 @@ function controlHandler(el)
 		{
 			$j(this.element).bind(event+".method",function()
 			{
-				var data = {request_id:document.request_id,caller:caller};
+				var data = {request_id:wdf.request_id,caller:caller};
 
 				if( event == 'change' )
 					data.value = $j('#'+caller).val();
 
-				var url = document.site_root + handler + "/" + method + "/";
-				$j.post(url,data,function(){},'script');
+				var url = handler + "/" + method + "/";
+				wdf.post(url,data,function(){},'script');
 			});
 		}
 	};
@@ -72,9 +77,9 @@ function controlHandler(el)
 		$j(this.element).bind('change.property',function()
 		{
 			var val = $j(this).attr(attribute);
-			var data = {property:property,value:val,request_id:document.request_id,caller:caller};
-			var url = document.site_root + object + "/AssignProperty/";
-			$j.post(url,data,function(){},'script');
+			var data = {property:property,value:val,request_id:wdf.request_id,caller:caller};
+			var url = object + "/AssignProperty/";
+			wdf.post(url,data,function(){},'script');
 		});
 	};
 

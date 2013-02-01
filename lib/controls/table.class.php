@@ -163,12 +163,13 @@ class Table extends uiControl
 
         if( $this->Caption )
         {
-            if( $this->Caption instanceof Control && $this->Caption->Tag == "caption" )
+            if( $this->Caption instanceof Control && $this->Caption->class == "caption" )
                 $this->_content = array_merge(array($this->Caption),$this->_content);
             else
             {
-                $tmp = new Control("caption");
+                $tmp = new Control("div");
                 $tmp->content($this->Caption);
+				$tmp->class = "caption";
                 $this->_content = array_merge(array($tmp),$this->_content);
             }
         }
@@ -213,6 +214,15 @@ class Table extends uiControl
 	function SetHeader()
 	{
 		$this->Header()->NewRow(func_get_args());
+		return $this;
+	}
+	
+	/**
+	 * Takes all arguments given and uses each as row-title
+	 */
+	function SetFooter()
+	{
+		$this->Footer()->NewRow(func_get_args());
 		return $this;
 	}
 	
@@ -305,20 +315,40 @@ class Table extends uiControl
 	}
 	
 	var $_actions = false;
-	var $_actionHandler = array();
 	var $_rowModels = array();
+	var $_actionHandler = array();
+	var $_sortHandler = false;
+	
+	function AddDataToRow($model)
+	{
+		if( !$this->current_row )
+			throw new Exception("No row added");
+		$this->current_row->id = $this->current_row->_storage_id;
+		$this->_rowModels[$this->current_row->id] = $model;
+		return $this;
+	}
+	
+	function GetRowModel($row_id)
+	{
+		return $this->_rowModels[$row_id];
+	}
+		
 	function AddRowAction($icon,$label,$handler=false,$method=false)
 	{
 		if( !$this->_actions )
+		{
 			$this->_actions = $this->content(new Control('div'))->css('display','none')->css('position','absolute')->addClass('ui-table-actions');
+			//$this->_actions->addClass('ui-state-default');
+		}
 		
 		$ra = $this->_actions->content( new Control('span') );
 		$ra->class = "ui-icon ui-icon-$icon";
 		$ra->title = $label;
 		$ra->id = $ra->_storage_id;
+		$ra->setData('action',$icon);
 		
 		if( $handler && $method )
-			$this->_actionHandler[$ra->id] = array($handler,$method);
+			$this->_actionHandler[$icon] = array($handler,$method);
 		
 		store_object($this);
 		return $this;
@@ -333,20 +363,27 @@ class Table extends uiControl
 		if( isset($this->_actionHandler[$action]) )
 		{
 			$model = $this->_rowModels[$row];
-			return call_user_func($this->_actionHandler[$action],array($model));
+			return call_user_func_array($this->_actionHandler[$action],array($this,$action,$model));
 		}
 		log_warn("No handler defined for $action");
 		return " ";
 	}
 	
-	function AddDataToRow($model)
+	function Sortable($handler,$method)
 	{
-		if( !$this->current_row )
-			throw new Exception("No row added");
-		$this->current_row->id = $this->current_row->_storage_id;
-		$this->_rowModels[$this->current_row->id] = $model;
+		$this->_sortHandler = array($handler,$method);
+		$s = "wdf.post('{self}/OnReordered',{rows:$('#{self} .tbody .tr').enumAttr('id')})";
+		$s = "$('#{self} .tbody').sortable({ update: function(){ $s } });";
+		$this->script($s);
+		store_object($this);
 		return $this;
 	}
+	
+	/**
+	 * @attribute[RequestParam('rows','array',array())]
+	 */
+	function OnReordered($rows)
+	{
+		return call_user_func_array($this->_sortHandler,array($this,$rows));
+	}
 }
-
-?>

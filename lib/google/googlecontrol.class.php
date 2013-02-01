@@ -28,7 +28,7 @@ class GoogleControl extends Control
 						foreach( $pack as $version=>$packages )
 							$loader[] = "google.load('$api','$version',".json_encode($packages).");";
 					$page->addDocReady($loader,false);
-					$page->addDocReady("google.setOnLoadCallback(function(){ Debug('Google APIs loaded'); });");
+					$page->addDocReady("google.setOnLoadCallback(function(){ wdf.debug('Google APIs loaded'); });");
 				}
 			}
 		}

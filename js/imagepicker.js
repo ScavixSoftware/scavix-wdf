@@ -1,11 +1,6 @@
 
 function uploadFile(fuid,target_url,preview_id)
 	{
-//		$("#"+fuid+"_view")
-//			.ajaxStart(function(){
-//				$(this).attr({src: '<?=resFile('loading.gif')?>'});
-//			});
-
 		$.ajaxFileUpload
 		(
 			{
@@ -18,7 +13,7 @@ function uploadFile(fuid,target_url,preview_id)
 					if(typeof(data.error) != 'undefined')
 					{
 						if(data.error != '')
-							Debug(data.error);
+							wdf.debug(data.error);
 						else
 						{
 							data.url = data.url.replace(/&amp;/g, "&");
@@ -34,7 +29,7 @@ function uploadFile(fuid,target_url,preview_id)
 				},
 				error: function (data, status, e)
 				{
-					Debug(e);
+					wdf.debug(e);
 				}
 			}
 		)

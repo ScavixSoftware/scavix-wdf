@@ -12,7 +12,6 @@ $(document).ready(function()
 				cultureInfo = data.html;
 			else
 				cultureInfo = data;
-//			Debug(cultureInfo);
 		});
 
 		$(document).find('.float_input').bind('change',function(){
