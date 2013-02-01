@@ -22,8 +22,10 @@
  * @copyright 2007-2012 PamConsult GmbH
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
+
+require_once(__DIR__.'/session/serializer.class.php');
 define("FW_SESSION_MODULE_LOADED",true);
+
 function session_init()
 {
 	global $CONFIG;

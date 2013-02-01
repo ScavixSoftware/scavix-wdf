@@ -1,5 +1,8 @@
 <?
 
+/**
+ * @attribute[NoMinify]
+ */
 class MinifyAdmin extends SysAdmin
 {
 	/**

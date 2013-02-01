@@ -1,5 +1,8 @@
 <?
  
+/**
+ * @attribute[NoMinify]
+ */
 class SysAdmin extends HtmlPage
 {
 	var $PrefedinedCacheSearches = array('autoload_template','autoload_class',

@@ -27,8 +27,6 @@
  * These are unsiversal HTML attributes.
  * Each (1st dimension) array key represents an attribute and the value (array) contains
  * all tags it is allowed to be used in.
- * 
- * @attribute[Resource('jquery.js')]
  */
 $GLOBALS['html_universals'] = array(
 	'class' => array('base', 'basefont', 'head', 'html', 'meta', 'param', 'script', 'style', 'title'),

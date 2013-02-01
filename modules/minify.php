@@ -33,12 +33,48 @@ function minify_init()
 	cfg_check('minify','base_name','Minify module needs a base_name');
 	cfg_check('minify','url','Minify module needs an url');
 	
+//	$target_base_name = cfg_get('minify','target_path');
+//	system_ensure_path_ending($target_base_name,true);
+//	$target_base_name .= cfg_get('minify','base_name');
+//	$base_uri = cfg_get('minify','url');
+//	use_minified_file($target_base_name, 'js', $base_uri);
+//	use_minified_file($target_base_name, 'css', $base_uri);
+	register_hook_function(HOOK_PRE_RENDER, 'minify_pre_render_handler');
+}
+
+function minify_pre_render_handler($args)
+{
+	if( count($args)>0 )
+	{
+		if( minify_forbidden($args[0]) )
+			return;
+	}
+	
 	$target_base_name = cfg_get('minify','target_path');
 	system_ensure_path_ending($target_base_name,true);
 	$target_base_name .= cfg_get('minify','base_name');
 	$base_uri = cfg_get('minify','url');
 	use_minified_file($target_base_name, 'js', $base_uri);
 	use_minified_file($target_base_name, 'css', $base_uri);
+}
+
+function minify_forbidden($classname)
+{
+	if( is_string($classname) && strpos($classname, '.') !== false )
+	{
+		$classname = explode('.',$classname);
+		$classname = $classname[0];
+	}
+	try
+	{
+		$ref = System_Reflector::GetInstance($classname);
+		return count($ref->GetClassAttributes('NoMinify')) > 0;
+	}
+	catch(Exception $ex)
+	{
+		log_debug("minify_forbidden($classname)",$ex);
+		return false;
+	}
 }
 
 function minify_all($paths,$target_base_name,$nc_argument)
@@ -195,34 +231,28 @@ function minify_css_translate_url($match)
 	$copy = $current_url;
 	$url = parse_url(trim($match[1],"\"' "));
 	$url = array_merge($copy,$url);	
-	if( !isset($url['scheme']) || !$url['scheme'] )
-		$url['scheme'] = urlScheme();
-	$url = $url['scheme']."://".$url['host'].(isset($url['port'])?":{$url['port']}":"").$url['onlypath'].$url['path'];
+	if( isset($url['host']) )
+	{
+		if( !isset($url['scheme']) || !$url['scheme'] )
+			$url['scheme'] = urlScheme();
+		$url = $url['scheme']."://".$url['host'].(isset($url['port'])?":{$url['port']}":"").$url['onlypath'].$url['path'];
+	}
+	else
+		$url = $url['onlypath'].$url['path'];
 	return "url($url)";
-}
-
-function minify_dependency_inc($file,$kind,&$sorted,&$deps,$root='',$inc=1)
-{
-	if( $file == $root )
-		return;
-	//log_debug("[$kind] minify_dependency_inc",$file,$root);
-	$sorted[$file] = isset($sorted[$file])?$sorted[$file]+$inc:$inc;
-	$k = basename($file,".$kind");
-	if( isset($deps[$k]) )
-		foreach( $deps[$k] as $i=>$df )
-			minify_dependency_inc($df,$kind,$sorted,$deps,$file,$inc+(count($deps[$k])-$i+1));
 }
 
 function minify_collect_files($paths,$kind)
 {
-	$deps = array();
-	$res = array();
+	global $dependency_info, $res_file_storage;
+	$dependency_info = array();
+	$res_file_storage = array();
 	
 	foreach( $paths as $path )
 	{
 		if( !ends_with($path, "/") ) $path .= "/";
 		foreach( minify_list_files($path) as $f )
-			minify_collect_from_file($kind,$f,$res,$deps);
+			minify_collect_from_file($kind,$f);
 		
 		$done_templates = array();
 		foreach( array_reverse(cfg_get('system','tpl_ext')) as $tpl_ext )
@@ -232,66 +262,63 @@ function minify_collect_files($paths,$kind)
 			{
 				$skip = false;
 				foreach( $done_templates as $d )
-					if( isset($deps[basename($f,".$d")]) ){ $skip = true; break; }
+					if( isset($res_file_storage[basename($f,".$d")]) ){ $skip = true; break; }
 				if( $skip ) continue;
-				minify_collect_from_file($kind,$f,$res,$deps);
+				minify_collect_from_file($kind,$f);
 			}
 			$done_templates[] = $tpl_ext;
 		}
 	}
-	if( $kind == "css" )
-	{
-		log_debug("found files",$res);
-		return array_keys($res);
-	}
 	
-	log_debug("Dependencies: ",$deps);
-	$new = array();
-	foreach( array_keys($res) as $file )
-		minify_dependency_inc($file,$kind,$new,$deps);
-	arsort($new,SORT_NUMERIC);
-	$max = array_values($new);
-	$max = $max[0] + 1;
-	foreach( array_keys($new) as $file )
-	{
-		$k = basename($file,".$kind");
-		if( isset($deps[$k]) && ($k=='htmlpage' || $k=='control') )
-		{
-			foreach( $deps[$k] as $df )
-				$new[$df] += $max;
-			$new[$file] = $max;
-		}
-	}
-	arsort($new,SORT_NUMERIC);
+	log_debug("minify file info",$dependency_info,$res_file_storage);
 	
-	log_debug("dep sorted files",$new);
-	return array_keys($new);
+	$res = array();
+	$classes = array_keys($res_file_storage);
+	foreach( $classes as $class )
+		$res = array_merge($res, minify_resolve_dependencies($class,$dependency_info,$res_file_storage));
 	
-	arsort($res,SORT_NUMERIC);
-	log_debug("found files",$res);
-	return array_keys($res);
-	
-	$res = array_unique($res);
-	return array_values($res);
+	unset($dependency_info);
+	unset($res_file_storage);
+	return array_unique($res);
 }
 
-function minify_collect_from_file($kind,$f,&$res,&$processed)
+function minify_resolve_dependencies($classname,&$dependency_info,&$res_file_storage,$tree=array())
 {
-	if( !$f )
-		return array();
-	$classname = strtolower(basename($f,".class.php"));
-	if( isset($processed[$classname]) || $classname=='sysadmin' )
-		return array();
+	$res = array();
+	if( isset($dependency_info[$classname]) )
+	{	
+		if( !in_array($classname,$tree) )
+		{
+			$tree[] = $classname;
+			foreach( $dependency_info[$classname] as $dependency )
+				$res = array_merge($res,  
+					minify_resolve_dependencies($dependency, $dependency_info, $res_file_storage, $tree));
+		}
+	}
 	
-	$order = ($kind == "js")
-		?array('inherited','instanciated','incontent','self','eval')
-		:array('self','eval','inherited','instanciated','incontent');
+	if( isset($res_file_storage[$classname]) )
+	{
+		$res = array_merge($res, $res_file_storage[$classname]);
+		unset($res_file_storage[$classname]);
+	}
+	return $res;
+}
+
+function minify_collect_from_file($kind,$f,$debug_path='')
+{
+	global $dependency_info, $res_file_storage;
+	
+	if( !$f )
+		return;
+	$classname = strtolower(basename($f,".class.php"));
+	if( isset($res_file_storage[$classname]) || minify_forbidden($classname) )
+		return;
+	
+	$order = array('static','inherited','instanciated','self');
 		//:array('self','incontent','instanciated','inherited');
 	
-	$processed[$classname] = array();
+	$res_file_storage[$classname] = array();
 	$content = file_get_contents($f);
-	
-//	log_debug("minify_collect_from_file($classname)");
 	
 	// remove block-comments
 	$content = preg_replace("|/\*.*\*/|sU","",$content);
@@ -310,33 +337,28 @@ function minify_collect_from_file($kind,$f,&$res,&$processed)
 			case 'inherited':
 				if( preg_match_all('/class\s+[^\s]+\s+extends\s+([^\s]+)/', $content, $matches, PREG_SET_ORDER) )
 				{
+//					log_debug("minify_collect_from_file [$debug_path/$classname]: INHERITED",$matches);
 					foreach( $matches as $m )
-						minify_collect_from_file($kind,__search_file_for_class($m[1]),$res,$processed);
+					{
+						$file_for_class = __search_file_for_class($m[1]);
+						if( !$file_for_class )
+							continue;
+						$dependency_info[$classname][] = strtolower($m[1]);
+						minify_collect_from_file($kind,$file_for_class,$debug_path.'/'.$classname);
+					}
 				}
 				break;
 			case 'instanciated':
 				if( preg_match_all('/new\s+([^\(]+)\(/', $content, $matches, PREG_SET_ORDER) )
 				{
-					//log_debug($matches);
+//					log_debug("minify_collect_from_file [$debug_path/$classname]: INSTANCIATED",$matches);
 					foreach( $matches as $m )
-						minify_collect_from_file($kind,__search_file_for_class($m[1]),$res,$processed);
-				}
-				break;
-			case 'incontent':
-				if( preg_match_all('/resFile\([\s"\']+([^,;]*)\.'.$kind.'[\s"\']+\)/U', $content, $matches) )
-				{
-					extract($GLOBALS);
-					foreach( $matches[1] as $m )
 					{
-						$m = strtolower("$m.$kind");
-						eval('$m = strtolower(resFile("'.$m.'"));');
-						if( in_array($m,$res) )
+						$file_for_class = __search_file_for_class($m[1]);
+						if( !$file_for_class )
 							continue;
-//						log_debug("incontent: ".$m);
-						//$res[] = $m;
-						$res[$m] = isset($res[$m])?$res[$m]+1:1;
-						if( basename($m,".$kind") != $classname && !in_array($m,$processed[$classname]) )
-							$processed[$classname][] = $m;
+						$dependency_info[$classname][] = strtolower($m[1]);
+						minify_collect_from_file($kind,$file_for_class,$debug_path.'/'.$classname);
 					}
 				}
 				break;
@@ -344,39 +366,27 @@ function minify_collect_from_file($kind,$f,&$res,&$processed)
 				if( resourceExists(strtolower("$classname.$kind")) )
 				{
 					$tmp = resFile(strtolower("$classname.$kind"));
-//					log_debug("self: ".$tmp);
-					//$res[] = $tmp;
-					$res[$tmp] = isset($res[$tmp])?$res[$tmp]+1:1;
-					if( basename($tmp,".$kind") != $classname && !in_array($tmp,$processed[$classname]) )
-						$processed[$classname][] = $tmp;
+					if( !in_array($tmp,$res_file_storage[$classname]) )
+						$res_file_storage[$classname][] = $tmp;
 				}
 				break;
-			case 'eval':
+			case 'static':
 				try
 				{
-					$ref = System_Reflector::GetInstance($classname);
-					if( !$ref->hasMethod("__$kind") )
-						break;
-					$mi = $ref->getMethod("__$kind");
-					$buf = $mi->invoke(null);
-//					if( $kind == "css" )
-//						$buf = array_reverse($buf);
+					$buf = ResourceAttribute::ResolveAll(ResourceAttribute::Collect($classname));
 					foreach( $buf as $b )
 					{
+						if( !ends_with($b, $kind) )
+							continue;
 						$b = strtolower($b);
-//						log_debug("eval: $b");
-						//$res[] = $b;
-						$res[$b] = isset($res[$b])?$res[$b]+1:1;
-						if( basename($b,".$kind") != $classname && !in_array($b,$processed[$classname]) )
-							$processed[$classname][] = $b;
+						if( !in_array($b,$res_file_storage[$classname]) )
+							$res_file_storage[$classname][] = $b;
 					}
 				}
 				catch(Exception $ex){}
 				break;
 		}
 	}
-
-	return $res;
 }
 
 function minify_list_files($path='',$pattern='*.class.php')

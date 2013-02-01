@@ -116,10 +116,14 @@ class DataSource extends System_DataSource
 				$this->Driver = $ds->Driver;
 			}
 			else
+			{
+				error_log("hahahahah");
 				register_hook(HOOK_POST_INITSESSION,$this,'__wakeup_extended');
+			}
 		}
 		else
 		{
+			error_log(var_export(debug_backtrace(),true));
 			register_hook(HOOK_POST_INITSESSION,$this,'__wakeup_extended');
 		}
 	}
@@ -137,7 +141,7 @@ class DataSource extends System_DataSource
 		$this->_password = $ds->_password;
 		$this->_pdo = $ds->_pdo;
 		$this->Driver = $ds->Driver;
-		dump($this->_storage_id." -> ".$this->Database(),"HOOK::__wakeup_extended");
+		log_debug($this->_storage_id." -> ".$this->Database(),"HOOK::__wakeup_extended");
 	}
 	
 	function __equals(&$ds)

@@ -198,7 +198,7 @@ function globalcache_set($key, $value, $ttl = false)
 				break;
             
             case globalcache_CACHE_DB:
-                $val = (is_array($value)||is_object($value))?addslashes(session_serialize($value)):$value;
+                $val = session_serialize($value);
                 $ds = model_datasource($CONFIG['globalcache']['datasource']);
 				try
 				{
@@ -288,9 +288,7 @@ function globalcache_get($key, $default = false)
 				}catch(Exception $ex){ return $default; }
                 if( $ret === false )
                     return $default;
-                if( starts_with($ret, "a:") || starts_with($ret, "o:") )
-                    return session_unserialize($ret);
-                return $ret;
+                return session_unserialize($ret);
                 break;
 		}
 	}

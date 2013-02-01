@@ -1,5 +1,8 @@
 <?
  
+/**
+ * @attribute[NoMinify]
+ */
 class TranslationAdmin extends SysAdmin
 {
 	var $Lasterror = "";

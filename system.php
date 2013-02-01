@@ -332,6 +332,7 @@ function system_execute()
 					$content = $content->WdfRenderAsRoot();
 				else
 				{					
+					$rendered = $content->WdfRenderAsRoot();
 					$resources = $content->__collectResources();
 					log_debug("AJAX Resources:",$resources);
 					foreach( $resources as $r )
@@ -341,7 +342,7 @@ function system_execute()
 						else
 							$res->dep_js[] = $r;
 					}
-					$content = $content->WdfRenderAsRoot();
+					$content = $rendered;
 				}
 			}
 			if( starts_with($content, '[NT]') )
@@ -541,14 +542,19 @@ function execute_hooks($type,$arguments = array())
 
 	$hkcnt = count($GLOBALS['system']['hooks'][$type]);
 	$loghooks = ( $CONFIG['system']['hook_logging']); // && function_exists('dump') );
+	
+	if( $loghooks )
+		log_debug("BEGIN ".hook_type_to_string($type));
 	for($i=0; $i<$hkcnt; $i++)
 	{
 		$hook = $GLOBALS['system']['hooks'][$type][$i];
 		if( is_object($hook[0]) )
 		{
 			if( $loghooks )
-				log_debug( "Executing (".get_class($hook[0]).")(".$hook[0].")->".$hook[1]."(...)",hook_type_to_string($type) );
+				log_debug( "Executing ".get_class($hook[0])."->".$hook[1]."(...)",hook_type_to_string($type) );
 			$res = $hook[0]->$hook[1]($arguments);
+			if( $loghooks )
+				log_debug( "result:",$res);
 		}
 		else
 		{
@@ -558,8 +564,14 @@ function execute_hooks($type,$arguments = array())
 		}
 
 		if( $res === false )
+		{
+			if( $loghooks )
+				log_debug("ABORT ".hook_type_to_string($type));
 			break;
+		}
 	}
+	if( $loghooks )
+		log_debug("END ".hook_type_to_string($type));
 }
 
 /**
@@ -1246,13 +1258,13 @@ function system_sanitize_parameters(&$params)
 function cache_get($key,$default=false,$use_global_cache=true,$use_session_cache=true)
 {
 	if( $use_session_cache && isset($_SESSION["system_internal_cache"][$key]) )
-		return $_SESSION["system_internal_cache"][$key];
+		return session_unserialize($_SESSION["system_internal_cache"][$key]);
     
 	if( $use_global_cache && system_is_module_loaded('globalcache') )
     {
         $res = globalcache_get($key,$default);
         if( $use_session_cache && $res !== $default )
-            $_SESSION["system_internal_cache"][$key] = $res;
+            $_SESSION["system_internal_cache"][$key] = session_serialize($res);
 		return $res;
     }
     return $default;
@@ -1274,7 +1286,7 @@ function cache_set($key,$value,$ttl=false,$use_global_cache=true,$use_session_ca
 		globalcache_set($key, $value, $ttl);
 
 	if( $use_session_cache )
-		$_SESSION["system_internal_cache"][$key] = $value;
+		$_SESSION["system_internal_cache"][$key] = session_serialize($value);
 }
 
 function cache_del($key)

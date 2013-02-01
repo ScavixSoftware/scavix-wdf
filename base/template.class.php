@@ -105,11 +105,13 @@ class Template extends Renderable
 	 */
 	function PreRender($args=array())
 	{
-		if( count($args) > 0 )
+		if( count($args) > 0 && count($this->_script) > 0 )
 		{
 			$page = $args[0];
 			if( $page instanceof HtmlPage )
+			{
 				$page->addDocReady(implode("\n",$this->_script)."\n");
+			}
 		}
 	}
 
@@ -188,7 +190,6 @@ class Template extends Renderable
 	{
 		if( !hook_already_fired(HOOK_PRE_RENDER) )
 			execute_hooks(HOOK_PRE_RENDER,array($this));
-
         return $this->WdfRender();
 	}
 

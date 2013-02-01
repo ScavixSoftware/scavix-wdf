@@ -120,21 +120,20 @@ class HtmlPage extends Template implements ICallable
 				$this->set("isrtl", " dir='rtl'");
 		}
 		
-		if( isset($CONFIG['use_compiled_css']) )
+		$res = $this->__collectResources();
+		log_debug("Resources:",$res);
+		foreach( $res as $r )
 		{
-			$this->css = array();
-			$this->addCss($CONFIG['use_compiled_css']);
+			if( ends_with($r, '.css') )
+				$this->addCss($r);
+			else
+				$this->addjs($r);
 		}
+		
 		$this->set("css",$this->css);
-		
-		if( isset($CONFIG['use_compiled_js']) )
-		{
-			$this->js = array();
-			$this->addJs($CONFIG['use_compiled_js']);
-		}
 		$this->set("js",$this->js);
-		
 		$this->set("meta",$this->meta);
+		
 		return parent::WdfRender();
 	}
 
@@ -226,7 +225,7 @@ class HtmlPage extends Template implements ICallable
 			$js_code = implode("\n",$js_code);
 		if( !trim($js_code) )
 			return;
-		
+
 		$k = "k".md5($js_code);
 		if( $jq_wrapped )
 		{
@@ -243,6 +242,7 @@ class HtmlPage extends Template implements ICallable
 	function WdfRenderAsRoot()
 	{
 		global $CONFIG;
+		
 		execute_hooks(HOOK_PRE_RENDER,array($this));
 
 		$init_code = "HtmlPage_Init({request_id:'".request_id()."',site_root:'".$CONFIG['system']['url_root']."'";
@@ -257,17 +257,7 @@ class HtmlPage extends Template implements ICallable
 		$this->set("docready",$this->docready);
 		$this->set("plaindocready",$this->plaindocready);
 
-		$res = $this->__collectResources();
-		log_debug("Resources:",$res);
-		foreach( $res as $r )
-		{
-			if( ends_with($r, '.css') )
-				$this->addCss($r);
-			else
-				$this->addjs($r);
-		}
-		$ret = parent::WdfRenderAsRoot();
-        return $ret;
+		return parent::WdfRenderAsRoot();
 	}
 	
 	function SetIE9PinningData($application,$tooltip,$start_url,$button_color=false)

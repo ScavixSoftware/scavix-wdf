@@ -1,5 +1,8 @@
 <?
- 
+
+/**
+ * @attribute[Resource('jquery.js')]
+ */
 abstract class Renderable 
 {
 	var $_translate = true;
@@ -12,11 +15,47 @@ abstract class Renderable
 	
 	function __getContentVars(){ return array('_content'); }
 	
-	function __collectResources($template=false)
+	function __collectResources()
 	{
-		if( $template === false ) 
-			$template = $this;
+		global $CONFIG;
 		
+		$min_js_file = isset($CONFIG['use_compiled_js'])?$CONFIG['use_compiled_js']:false;
+		$min_css_file = isset($CONFIG['use_compiled_css'])?$CONFIG['use_compiled_css']:false;
+		
+		if( $min_js_file && $min_css_file )
+			return array($min_css_file,$min_js_file);
+
+		$res = $this->__collectResourcesInternal($this);
+		if( !$min_js_file && !$min_css_file )
+			return $res;
+		
+		$js = array(); $css = array();
+		foreach( $res as $r )
+		{
+			if( ends_with($r, '.js') )
+			{
+				if( !$min_js_file )
+					$js[] = $r;
+			}
+			else
+			{
+				if( !$min_css_file )
+					$css[] = $r;
+			}
+		}
+		
+		if( $min_js_file )
+		{
+			$css[] = $min_js_file;
+			return $css;
+		}
+		
+		$js[] = $min_css_file;
+		return $js;
+	}
+	
+	private function __collectResourcesInternal($template)
+	{
 		$res = array();
 		
 		if( is_object($template) )
@@ -38,7 +77,7 @@ abstract class Renderable
 					foreach( $template->$varname as $var )
 					{
 						if( is_object($var)|| is_array($var) )
-							$sub = array_merge($sub,$this->__collectResources($var));
+							$sub = array_merge($sub,$this->__collectResourcesInternal($var));
 					}
 					$res = array_merge($res,$sub);
 //					log_debug("$classname CONTENT $varname",$sub);
@@ -65,7 +104,7 @@ abstract class Renderable
 			foreach( $template as $var )
 			{
 				if( is_object($var)|| is_array($var) )
-					$res = array_merge($res,$this->__collectResources($var));
+					$res = array_merge($res,$this->__collectResourcesInternal($var));
 			}
 		}
 		return array_unique($res);
