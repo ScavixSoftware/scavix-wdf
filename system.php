@@ -236,22 +236,34 @@ function system_parse_request_path()
 	return array($controller,$event);
 }
 
+function system_instanciate_controller($controller_id)
+{
+	if( in_object_storage($controller_id) )
+		$res = restore_object($controller_id);
+	elseif( class_exists($controller_id) )
+		$res = new $controller_id();
+	
+	if( system_is_ajax_call() )
+	{
+		if( !($res instanceof Renderable) )
+		{
+			log_fatal("ACCESS DENIED: $controller_id is no Renderable");
+			die("__SESSION_TIMEOUT__");
+		}
+	}
+	else if( !($res instanceof ICallable) )
+		throw new Exception("ACCESS DENIED: $controller_id is no ICallable");
+	
+	return $res;
+}
+
 /**
  * Executes the current request.
  */
 function system_execute()
 {
-	global $CONFIG;
-
 	session_sanitize();
 	execute_hooks(HOOK_POST_INITSESSION);
-
-	Args::strip_tags();
-	
-	global $current_controller,$current_event;
-	list($current_controller,$current_event) = system_parse_request_path();
-
-	execute_hooks(HOOK_PRE_PROCESSING, array($current_controller,$current_event));
 
 	// respond to PING requests that are sended to keep the session alive
 	if( Args::request('ping',false) )
@@ -261,46 +273,18 @@ function system_execute()
 		die("PONG");
 	}
 
-	$isstrpage = is_string($current_controller);
-	if( in_object_storage($current_controller) )
-	{
-		$controller_test = restore_object($current_controller);
-		if( $controller_test instanceof Renderable )
-			$current_controller = $controller_test;
-
-		$isstrpage = is_object($current_controller)?false:strtolower($current_controller) == 'internal';	// $controller is now an object
-	}
-	elseif( ($isstrpage && !class_exists($current_controller) && system_is_ajax_call())
-			||
-			($isstrpage && $current_controller==$CONFIG['system']['default_page'] && isset($_REQUEST['request_id']) && !isset($_SESSION['request_id'])))
-	{
-		die("__SESSION_TIMEOUT__");
-	}
-
-	if( $isstrpage )
-	{
-		if( !class_exists($current_controller) )
-			die("Unknown page handler '$current_controller'");
-		$current_controller = new $current_controller();
-	}
-
-	if( system_is_ajax_call() )
-	{
-		if( !($current_controller instanceof Renderable) )
-			throw new Exception("ACCESS FORBIDDEN",get_class($current_controller)." is no Renderable");
-		if( $isstrpage && !($current_controller instanceof ICallable) ) 
-			log_warn("AJAX call to Renderable class: ".get_class($current_controller)."/$current_event",$_REQUEST);
-	}
-	else
-	{
-		if( !($current_controller instanceof ICallable) )
-			throw new Exception("ACCESS FORBIDDEN: ".get_class($current_controller)." is no ICallable");
-	}	
+	Args::strip_tags();
 	
-	if( system_method_exists($current_controller,$current_event) || (system_method_exists($current_controller,'__method_exists') && $current_controller->__method_exists($current_event) ) )
+	global $current_controller,$current_event;
+	list($current_controller,$current_event) = system_parse_request_path();
+	$current_controller = system_instanciate_controller($current_controller);
+	
+	if( system_method_exists($current_controller,$current_event) || 
+		(system_method_exists($current_controller,'__method_exists') && $current_controller->__method_exists($current_event) ) )
 	{
 		$content = system_invoke_request($current_controller,$current_event,HOOK_PRE_EXECUTE);
 	}
+	
 	execute_hooks(HOOK_POST_EXECUTE);
 	set_time_limit(ini_get('max_execution_time'));
 	if( !isset($content) || !$content )
@@ -504,7 +488,7 @@ function is_valid_hook_type($type)
 	    $type == HOOK_PRE_EXECUTE || $type == HOOK_POST_EXECUTE ||
 		$type == HOOK_PRE_FINISH || $type == HOOK_POST_MODULE_INIT ||
 		$type == HOOK_PING_RECIEVED || $type == HOOK_SYSTEM_DIE || $type == HOOK_PRE_RENDER ||
-		$type == HOOK_PRE_PROCESSING || $type == HOOK_COOKIES_REQUIRED ||
+		$type == HOOK_COOKIES_REQUIRED ||
 		$type == HOOK_ARGUMENTS_PARSED
 		)
 		return true;
@@ -530,7 +514,6 @@ function hook_type_to_string($type)
 		case HOOK_PING_RECIEVED: return 'HOOK_PING_RECIEVED';
 		case HOOK_SYSTEM_DIE: return 'HOOK_SYSTEM_DIE';
 		case HOOK_PRE_RENDER: return "HOOK_PRE_RENDER";
-		case HOOK_PRE_PROCESSING: return "HOOK_PRE_PROCESSING";
 		case HOOK_COOKIES_REQUIRED: return 'HOOK_COOKIES_REQUIRED';
 		case HOOK_ARGUMENTS_PARSED: return 'HOOK_ARGUMENTS_PARSED';
 
