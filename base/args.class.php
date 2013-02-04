@@ -363,7 +363,7 @@ class Args
 					   $params[$paramkeys[$j]] = preg_replace('#</?'.$tag.'[^>]*>#is', '', $params[$paramkeys[$j]]);
 			   }
 			   elseif(is_array($params[$paramkeys[$j]]))
-				   Args::strip_tags($params[$paramkeys[$j]]);
+				   Args::array_strip_tags($params[$paramkeys[$j]]);
 		   }
 	   }
    }

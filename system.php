@@ -277,8 +277,9 @@ function system_execute()
 	
 	global $current_controller,$current_event;
 	list($current_controller,$current_event) = system_parse_request_path();
+
 	$current_controller = system_instanciate_controller($current_controller);
-	
+
 	if( system_method_exists($current_controller,$current_event) || 
 		(system_method_exists($current_controller,'__method_exists') && $current_controller->__method_exists($current_event) ) )
 	{
