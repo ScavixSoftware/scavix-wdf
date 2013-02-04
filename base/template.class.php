@@ -107,10 +107,10 @@ class Template extends Renderable
 	{
 		if( count($args) > 0 && count($this->_script) > 0 )
 		{
-			$page = $args[0];
-			if( $page instanceof HtmlPage )
+			$controller = $args[0];
+			if( $controller instanceof HtmlPage )
 			{
-				$page->addDocReady(implode("\n",$this->_script)."\n");
+				$controller->addDocReady(implode("\n",$this->_script)."\n");
 			}
 		}
 	}

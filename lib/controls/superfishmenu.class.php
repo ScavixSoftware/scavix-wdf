@@ -32,9 +32,9 @@ class SuperfishMenu extends Control
 		$this->script('$("#'.$this->id.'").superfish();');
 	}
 	
-	function AddItem($label,$page,$event="",$data=array())
+	function AddItem($label,$controller,$event="",$data=array())
 	{
-		$item = new SuperfishMenuItem($label,$page,$event,$data);
+		$item = new SuperfishMenuItem($label,$controller,$event,$data);
 		$this->content($item);
 		return $item;
 	}
@@ -58,7 +58,7 @@ class SuperfishMenu extends Control
 	
 	function DetectSelected()
 	{
-		$page = strtolower(current_page_class());
+		$controller = strtolower(current_controller());
 		$event = current_event(true);
 		$data = md5(my_var_export($_GET));
 		
@@ -69,7 +69,7 @@ class SuperfishMenu extends Control
 				if( $level < 4 )
 					foreach( $item->GetItems() as $sub )
 					{
-						if( $sub->page == $page && 
+						if( $sub->controller == $controller && 
 							($level > 2 || $sub->event == $event) && 
 							($level > 1 || $sub->data == $data) )
 						{
@@ -79,7 +79,7 @@ class SuperfishMenu extends Control
 						}
 					}
 				else
-					if( $item->page == $page && 
+					if( $item->controller == $controller && 
 						($level > 5 || $item->event == $event) && 
 						($level > 4 || $item->data == $data) )
 					{
@@ -95,32 +95,32 @@ class SuperfishMenuItem extends Control
 {
 	var $is_parent = true;
 	var $sub = false;
-	var $page = false;
+	var $controller = false;
 	var $event = false;
 	var $data = false;
 	
-	function __initialize($label,$page,$event="",$data=array())
+	function __initialize($label,$controller,$event="",$data=array())
 	{
 		parent::__initialize("li");
 		$this->class = "";
 		if( $event == '$is_link$' )
-			$this->content(new Anchor($page, $label));
+			$this->content(new Anchor($controller, $label));
 		else
-			$this->content(new Anchor(buildQuery($page,$event,$data), $label));
+			$this->content(new Anchor(buildQuery($controller,$event,$data), $label));
 		
-		$this->page = strtolower($page);
+		$this->controller = strtolower($controller);
 		if( $event ) $this->event = strtolower($event);
 		$this->data = md5(my_var_export($data));
 	}
 	
-	function AddItem($label,$page,$event="",$data=array())
+	function AddItem($label,$controller,$event="",$data=array())
 	{
 		if( !$this->sub )
 		{
 			$this->sub = $this->content(new Control('ul'));
 			$this->sub->class = "subnavi";
 		}
-		$item = new SuperfishMenuItem($label,$page,$event,$data);
+		$item = new SuperfishMenuItem($label,$controller,$event,$data);
 		$item->is_parent = false;
 		$this->sub->content($item);
 		return $item;

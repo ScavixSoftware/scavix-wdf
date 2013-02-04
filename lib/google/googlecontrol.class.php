@@ -20,15 +20,15 @@ class GoogleControl extends Control
 			self::$_initCodeRendered = true;
 			if( count($args) > 0 )
 			{
-				$page = $args[0];
-				if( $page instanceof HtmlPage )
+				$controller = $args[0];
+				if( $controller instanceof HtmlPage )
 				{
 					$loader = array();
 					foreach( self::$_packages as $api=>$pack )
 						foreach( $pack as $version=>$packages )
 							$loader[] = "google.load('$api','$version',".json_encode($packages).");";
-					$page->addDocReady($loader,false);
-					$page->addDocReady("google.setOnLoadCallback(function(){ wdf.debug('Google APIs loaded'); });");
+					$controller->addDocReady($loader,false);
+					$controller->addDocReady("google.setOnLoadCallback(function(){ wdf.debug('Google APIs loaded'); });");
 				}
 			}
 		}

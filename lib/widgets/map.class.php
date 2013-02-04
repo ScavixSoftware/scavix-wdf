@@ -49,10 +49,9 @@ class Map extends Control
 	{
 		if( count($args) > 0 )
 		{
-			$page = &$args[0];
+			$controller = $args[0];
 
-//			if(count($Options) > 0)
-				$page->addDocReady( "map_initialize('{$this->id}');" );
+			$controller->addDocReady( "map_initialize('{$this->id}');" );
 			$script   = array();
 			foreach( $this->Markers as $m )
 				$script[] = $m->ToJavascript($this->id);
@@ -60,8 +59,8 @@ class Map extends Control
 				$script[] = "map_add_address('{$this->id}','$a');";
 
 			foreach( $script as $s )
-				$page->addDocReady($s);
-			$page->addDocReady( "map_show_all('{$this->id}');" );
+				$controller->addDocReady($s);
+			$controller->addDocReady( "map_show_all('{$this->id}');" );
 		}
 		return parent::PreRender($args);
 	}

@@ -46,10 +46,10 @@ class PagerExtender extends ControlExtender
 		$control->script("$('#{$this->ExtendedControl->id}').control('PE_Init','$oi','$li');");
 	}
 
-	private function createAnchor($page,$label=false)
+	private function createAnchor($controller,$label=false)
 	{
-		$label = $label?$label:$page;
-		if( $page == $this->CurrentPage )
+		$label = $label?$label:$controller;
+		if( $controller == $this->CurrentPage )
 			return "<span class='current'>$label</span>";
 
 		if( !isset($this->ExtendedControl->id) || $this->ExtendedControl->id == "" )
@@ -57,7 +57,7 @@ class PagerExtender extends ControlExtender
 
 		$id = $this->ExtendedControl->id;
 		$res = new Anchor("javascript: void(0);",$label);
-		$res->onclick = "$('#$id').control('PE_GotoPage',$page);";
+		$res->onclick = "$('#$id').control('PE_GotoPage',$controller);";
 		return $res;
 	}
 

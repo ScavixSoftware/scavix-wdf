@@ -418,9 +418,9 @@ class Control extends Renderable
 
 		if( count($args) > 0 )
 		{
-			$page = $args[0];
-			if( $page instanceof HtmlPage )
-				$page->addDocReady(implode("\n",$this->_script)."\n");
+			$controller = $args[0];
+			if( $controller instanceof HtmlPage )
+				$controller->addDocReady(implode("\n",$this->_script)."\n");
 		}
 	}
 

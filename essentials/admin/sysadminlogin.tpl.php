@@ -1,4 +1,4 @@
-<form action="<?=buildQuery(current_page_class(),'Login')?>" method="post" class="login">
+<form action="<?=buildQuery(current_controller(),'Login')?>" method="post" class="login">
     <table>
         <thead>
             <tr>

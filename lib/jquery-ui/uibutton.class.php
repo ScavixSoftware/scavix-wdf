@@ -32,12 +32,12 @@ class uiButton extends uiControl
 	{
 		if( count($args) > 0 )
 		{
-			$page = &$args[0];
+			$controller = $args[0];
 			
 			$opts = array();
 			if(isset($this->_icon))
 				$opts['icons'] = array('primary'=>"ui-icon-".$this->_icon);
-			$page->addDocReady("$('#".$this->id."').button(".system_to_json($opts).");");
+			$controller->addDocReady("$('#".$this->id."').button(".system_to_json($opts).");");
 		}
 		return parent::PreRender($args);
 	}

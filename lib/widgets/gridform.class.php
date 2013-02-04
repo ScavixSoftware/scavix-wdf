@@ -25,15 +25,15 @@
  
 class GridForm extends Template
 {
-	function __initialize($page=null,$event="",$method="post")
+	function __initialize($controller=null,$event="",$method="post")
 	{
 		parent::__initialize();
 
-		if( $page != null )
+		if( $controller != null )
 		{
 			$this->id = $this->_storage_id;
 			$this->set("id",$this->_storage_id);
-			$this->set("action",buildQuery($page,$event));
+			$this->set("action",buildQuery($controller,$event));
 			$this->set("method",$method);
 
 			$this->set("labels",array());

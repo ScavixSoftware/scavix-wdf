@@ -167,8 +167,8 @@ abstract class SessionBase
 	{
 		if( !isset($GLOBALS['session_request_id']) )
 		{
-			$p = isset($_REQUEST['page'])?$_REQUEST['page']:'';
-			$e = isset($_REQUEST['event'])?$_REQUEST['event']:'';
+			$p = current_controller();
+			$e = current_event();
 			$GLOBALS['session_request_id'] = md5($p.$e.microtime());
 		}
 		return $GLOBALS['session_request_id'];
@@ -180,7 +180,6 @@ abstract class SessionBase
 
 		if( unserializer_active() )
 		{
-			//$dumpid = isset($_REQUEST['load'])?$_REQUEST['load']:$_REQUEST['page'];
 			log_trace("create_storage_id while unserializing object of type ".get_class($obj));
 			$obj->_storage_id = "to_be_overwritten_by_unserializer";
 			return $obj->_storage_id;

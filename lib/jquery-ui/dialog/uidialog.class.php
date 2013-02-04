@@ -31,7 +31,7 @@ class uiDialog extends uiControl
 	{
 		if( count($args) > 0 )
 		{
-			$page = &$args[0];
+			$controller = &$args[0];
 			// just to render close button with the right id
 			if( !is_null($this->CloseButton) )
 			{
@@ -49,7 +49,7 @@ class uiDialog extends uiControl
 
 			foreach( $this->_script as $s )
 			{
-				$page->addDocReady($s);
+				$controller->addDocReady($s);
 			}
 		}
 		return parent::PreRender($args);

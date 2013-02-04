@@ -25,16 +25,16 @@
  
 class Button extends Control
 {
-	function __initialize( $label, $page="", $event="", $data="")
+	function __initialize( $label, $controller="", $event="", $data="")
 	{
 		parent::__initialize("input");
 		$this->type = "button";
 		$this->value = $label;
 
-		if( $page != "" && strpos($page,"$") === false && strpos($page,"?") === false )
-			$query = "document.location.href='".buildQuery($page,$event,$data)."'";
+		if( $controller != "" && strpos($controller,"$") === false && strpos($controller,"?") === false )
+			$query = "document.location.href='".buildQuery($controller,$event,$data)."'";
 		else
-			$query = $page;
+			$query = $controller;
 
 		if( $query != "" )
 			$this->onclick = $query;

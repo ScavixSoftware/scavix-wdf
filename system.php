@@ -199,13 +199,42 @@ function system_init($application_name, $skip_header = false, $logging_category=
 	execute_hooks(HOOK_POST_INIT);
 }
 
+function system_parse_request_path()
+{
+	// parse the request for controller and event	
+	$path = explode("index.php",$_SERVER['PHP_SELF']);
+	$path = explode("/",trim($path[1],"/"));
+	if( count($path)>0 )
+	{
+		if( class_exists($path[0]) || in_object_storage($path[0]) )
+		{
+			$controller = $path[0];
+			if( count($path)>1 )
+			{
+				$event = $path[1];
+				if( count($path)>2 )
+					$GLOBALS['routing_args'] = array_slice($path,2);
+			}
+		}
+	}
+	
+	if( !isset($controller) || !$controller )
+		$controller = Args::request('page', cfg_get('system','default_page')); // really oldschool
+	if( !isset($event) || !$event )
+		$event = Args::request('event', cfg_get('system','default_event')); // really oldschool
+	
+	$pattern = "/[^A-Za-z0-9\-_]/";
+	$controller = substr(preg_replace($pattern, "", $controller), 0, 256);
+	$event = substr(preg_replace($pattern, "", $event), 0, 256);
+	return array($controller,$event);
+}
+
 /**
  * Executes the current request.
- * Reacts on _REQUEST['page'] for straight pages or _REQUEST['load'] for ajax calls
  */
 function system_execute()
 {
-	global $CONFIG,$PAGE,$event;
+	global $CONFIG;
 
 	session_sanitize();
 	execute_hooks(HOOK_POST_INITSESSION);
@@ -220,30 +249,10 @@ function system_execute()
 		$_REQUEST = array_merge($_GET, $_POST, $_COOKIE);
 	}
 	
-	// if there's a handler bound to HOOK_PARSE_URI call it and let it prepare
-	// page and event parameters
-	if( hook_bound(HOOK_PARSE_URI) )
-	{
-		execute_hooks(HOOK_PARSE_URI);		
-	}
-	else
-	{
-		$pattern = "/[^A-Za-z0-9\-_]/";
-		// getting query information
-		$PAGE = (isset($_REQUEST['page'])&&$_REQUEST['page']!="")?$_REQUEST['page']:$CONFIG['system']['default_page'];
-		$event = (isset($_REQUEST['event'])&&$_REQUEST['event']!="")?$_REQUEST['event']:$CONFIG['system']['default_event'];
-        
-        if( $PAGE === false )
-            system_die("No default page defined!");
-		// prevent XSS:
-		$PAGE = substr(preg_replace($pattern, "", $PAGE), 0, 256);
-		$event = substr(preg_replace($pattern, "", $event), 0, 256);
-		if(isset($_REQUEST['event']) && ($_REQUEST['event'] != ""))
-			$_REQUEST['event'] = $event;
-	}
-	$_REQUEST['page'] = $PAGE;
+	global $current_controller,$current_event;
+	list($current_controller,$current_event) = system_parse_request_path();
 
-	execute_hooks(HOOK_PRE_PROCESSING, array($PAGE,$event));
+	execute_hooks(HOOK_PRE_PROCESSING, array($current_controller,$current_event));
 
 	// respond to PING requests that are sended to keep the session alive
 	if( isset($_REQUEST['PING']) )
@@ -258,50 +267,50 @@ function system_execute()
 		die;
 	}
 
-	$isstrpage = is_string($PAGE);
-	if( in_object_storage($PAGE) )
+	$isstrpage = is_string($current_controller);
+	if( in_object_storage($current_controller) )
 	{
-		$PAGE_test = restore_object($PAGE);
-		if( $PAGE_test instanceof Renderable )
-			$PAGE = $PAGE_test;
+		$controller_test = restore_object($current_controller);
+		if( $controller_test instanceof Renderable )
+			$current_controller = $controller_test;
 
-		$isstrpage = is_object($PAGE)?false:strtolower($PAGE) == 'internal';	// $PAGE is now an object
+		$isstrpage = is_object($current_controller)?false:strtolower($current_controller) == 'internal';	// $controller is now an object
 	}
-	elseif( ($isstrpage && !class_exists($PAGE) && system_is_ajax_call())
+	elseif( ($isstrpage && !class_exists($current_controller) && system_is_ajax_call())
 			||
-			($isstrpage && $PAGE==$CONFIG['system']['default_page'] && isset($_REQUEST['request_id']) && !isset($_SESSION['request_id'])))
+			($isstrpage && $current_controller==$CONFIG['system']['default_page'] && isset($_REQUEST['request_id']) && !isset($_SESSION['request_id'])))
 	{
 		die("__SESSION_TIMEOUT__");
 	}
 
 	if( $isstrpage )
 	{
-		if( !class_exists($PAGE) )
-			die("Unknown page handler '$PAGE'");
-		$PAGE = new $PAGE();
+		if( !class_exists($current_controller) )
+			die("Unknown page handler '$current_controller'");
+		$current_controller = new $current_controller();
 	}
 
 	if( system_is_ajax_call() )
 	{
-		if( !($PAGE instanceof Renderable) )
-			throw new Exception("ACCESS FORBIDDEN",get_class($PAGE)." is no Renderable");
-		if( $isstrpage && !($PAGE instanceof ICallable) ) 
-			log_warn("AJAX call to Renderable class: ".get_class($PAGE)."/$event",$_REQUEST);
+		if( !($current_controller instanceof Renderable) )
+			throw new Exception("ACCESS FORBIDDEN",get_class($current_controller)." is no Renderable");
+		if( $isstrpage && !($current_controller instanceof ICallable) ) 
+			log_warn("AJAX call to Renderable class: ".get_class($current_controller)."/$current_event",$_REQUEST);
 	}
 	else
 	{
-		if( !($PAGE instanceof ICallable) )
-			throw new Exception("ACCESS FORBIDDEN: ".get_class($PAGE)." is no ICallable");
+		if( !($current_controller instanceof ICallable) )
+			throw new Exception("ACCESS FORBIDDEN: ".get_class($current_controller)." is no ICallable");
 	}	
 	
-	if( system_method_exists($PAGE,$event) || (system_method_exists($PAGE,'__method_exists') && $PAGE->__method_exists($event) ) )
+	if( system_method_exists($current_controller,$current_event) || (system_method_exists($current_controller,'__method_exists') && $current_controller->__method_exists($current_event) ) )
 	{
-		$content = system_invoke_request($PAGE,$event,HOOK_PRE_EXECUTE);
+		$content = system_invoke_request($current_controller,$current_event,HOOK_PRE_EXECUTE);
 	}
 	execute_hooks(HOOK_POST_EXECUTE);
 	set_time_limit(ini_get('max_execution_time'));
 	if( !isset($content) || !$content )
-		$content =& $PAGE;
+		$content = $current_controller;
 
 	$dotranslate = (system_is_module_loaded("translation") );
 	if( system_is_ajax_call() )
@@ -949,20 +958,20 @@ function system_get_fields($classname)
 
 /**
  * Builds a request
- * @param string $page The page to be loaded
+ * @param string $controller The page to be loaded
  * @param string $event The event to be executed
  * @param array|string $data Optional data to be passed
  * @return string A complete Request (for use as HREF)
  */
-function buildQuery($page,$event="",$data="", $url_root=false)
+function buildQuery($controller,$event="",$data="", $url_root=false)
 {
 	global $CONFIG;
 
-    if(substr($page, 0, 4) == "http")
-        return $page;
+    if(substr($controller, 0, 4) == "http")
+        return $controller;
 
-	if($page != "")
-		$res = "$page/";
+	if($controller != "")
+		$res = "$controller/";
 	else
 		$res = "";
 	if( $event != "" )
@@ -999,29 +1008,27 @@ function buildQuery($page,$event="",$data="", $url_root=false)
  */
 function samePage($data="")
 {
-	global $CONFIG,$PAGE,$event;
-
-	return buildQuery(current_page_class(),current_event(),$data);
+	return buildQuery(current_controller(),current_event(),$data);
 }
 
 /**
  * Executed a header redirect to another page.
  * Will terminate the current processing silently!
- * @param string $page The page to be called
+ * @param string $controller The page to be called
  * @param string $event The event to be executed
  * @param array|string $data Optional data to be passed
  */
-function redirect($page,$event="",$data="",$url_root=false)
+function redirect($controller,$event="",$data="",$url_root=false)
 {
-	if( is_array($page) )
+	if( is_array($controller) )
 	{
 		$url = array();
-		foreach( $page as $key=>&$val )
+		foreach( $controller as $key=>&$val )
 			$url[] = "$key=$val";
 		$url = '?'.implode("&",$url);
 	}
 	else
-		$url = buildQuery($page,$event,$data,$url_root);
+		$url = buildQuery($controller,$event,$data,$url_root);
 
 	log_debug("redirect: $url");
 	header("Location: ".$url);
@@ -1316,30 +1323,18 @@ function cache_list_keys($global_cache=true, $session_cache=true)
 	return array_unique($res);
 }
 
-function current_page( $strtolower=false )
+function current_controller($as_string=true)
 {
-	if(!isset($_REQUEST['page']))
-		return false;
-	
-	if( $strtolower )
-		return strtolower($_REQUEST['page']);
-	
-	return $_REQUEST['page'];
+	if( !isset($GLOBALS['current_controller']) )
+		return $as_string?'':null;
+	if( $as_string )
+		return strtolower(get_class($GLOBALS['current_controller']));
+	return $GLOBALS['current_controller'];
 }
 
-function current_page_class()
+function current_event()
 {
-	$cp = current_page();
-	return is_object($cp)?get_class($cp):$cp;
-}
-
-function current_event( $strtolower=false )
-{
-	global $event;
-	if( $strtolower )
-		return strtolower($event);
-
-	return $event;
+	return isset($GLOBALS['current_event'])?strtolower($GLOBALS['current_event']):'';
 }
 
 /**
