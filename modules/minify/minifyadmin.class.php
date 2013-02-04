@@ -44,7 +44,7 @@ class MinifyAdmin extends SysAdmin
 		}
 		
 		if( $skip_minify )
-			$_GET['nominify'] = '1';
+			$GLOBALS['nominify'] = '1';
 		
 		$target_path = cfg_get('minify','target_path');
 		system_ensure_path_ending($target_path,true);

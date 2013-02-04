@@ -246,15 +246,7 @@ function system_execute()
 	session_sanitize();
 	execute_hooks(HOOK_POST_INITSESSION);
 
-	// Cleanup URL params to avoid XSS (partially)
-	if( is_array($CONFIG['requestparam']['tagstostrip']) && count($CONFIG['requestparam']['tagstostrip']) > 0 )
-	{
-		system_sanitize_parameters($_GET);
-		system_sanitize_parameters($_POST);
-		system_sanitize_parameters($_COOKIE);
-		$GLOBALS['RAW_REQUEST'] = $_REQUEST;
-		$_REQUEST = array_merge($_GET, $_POST, $_COOKIE);
-	}
+	Args::strip_tags();
 	
 	global $current_controller,$current_event;
 	list($current_controller,$current_event) = system_parse_request_path();
@@ -262,16 +254,11 @@ function system_execute()
 	execute_hooks(HOOK_PRE_PROCESSING, array($current_controller,$current_event));
 
 	// respond to PING requests that are sended to keep the session alive
-	if( isset($_REQUEST['PING']) )
+	if( Args::request('ping',false) )
 	{
 		session_keep_alive();
-		$result = array();
-		execute_hooks(HOOK_PING_RECIEVED,$result);
-		if( count($result) == 0 )
-			die("PONG");
-		foreach( $result as $r )
-			echo $r;
-		die;
+		execute_hooks(HOOK_PING_RECIEVED);
+		die("PONG");
 	}
 
 	$isstrpage = is_string($current_controller);
@@ -319,73 +306,33 @@ function system_execute()
 	if( !isset($content) || !$content )
 		$content = $current_controller;
 
-	$dotranslate = (system_is_module_loaded("translation") );
 	if( system_is_ajax_call() )
 	{
-		if( $content instanceof JsResponse )
-			$content = $content->Render();
-		elseif( is_array($content) )
-		{
-			$res = new stdClass();
-			foreach( $content as $k=>&$c )
-			{
-				if($dotranslate)
-					$c = __translate($c);
-				if($c instanceof ApiList)
-					$c = $c->GetArray();
-			}
-			$res->html = $content;
-			$content = system_to_json($res);
-		}
+		if( $content instanceof AjaxResponse )
+			$response = $content->Render();
+		elseif( $content instanceof Renderable )
+			$response = AjaxResponse::Renderable($content)->Render();
 		else
-		{
-			$res = new stdClass();
-			if( $content instanceof Renderable )
-			{
-				$dotranslate = $dotranslate && ( !isset($content->_translate) || $content->_translate );
-						
-				if( isset($CONFIG['use_compiled_js']) && isset($CONFIG['use_compiled_css']) )
-					$content = $content->WdfRenderAsRoot();
-				else
-				{					
-					$rendered = $content->WdfRenderAsRoot();
-					$resources = $content->__collectResources();
-					log_debug("AJAX Resources:",$resources);
-					foreach( $resources as $r )
-					{
-						if( ends_with($r, '.css') )
-							$res->dep_css[] = $r;
-						else
-							$res->dep_js[] = $r;
-					}
-					$content = $rendered;
-				}
-			}
-			if( starts_with($content, '[NT]') )
-				$content = substr($content, 4);
-			elseif( $dotranslate )
-				$content = __translate($content);
-			$res->html = str_replace("\\\\", "\\", $content);
-			$content = system_to_json($res);
-		}
+			throw new WdfException("Unknown AJAX return value");
 	}
 	else
 	{
 		$_SESSION['request_id'] = request_id();
 		if( $content instanceof Renderable)
 		{
-			$dotranslate = $content->_translate;
-			$content = $content->WdfRenderAsRoot();
+			$response = $content->WdfRenderAsRoot();
+			if( $content->_translate && system_is_module_loaded("translation") )
+				$response = __translate($response);
 		}
-		if( $dotranslate && function_exists("__translate") )
-			$content = __translate($content);
+		elseif( system_is_module_loaded("translation") )
+			$response = __translate($content);
 	}
 
 	model_store();
 	session_update();
-	execute_hooks(HOOK_PRE_FINISH,array($content));
+	execute_hooks(HOOK_PRE_FINISH,array($response));
 
-	echo $content;
+	echo $response;
 }
 
 /**
@@ -1173,42 +1120,6 @@ function system_find(&$content,$classname,&$result = array(),$recursion=0, $stac
 				return true;
     }
 	return false;
-}
-
-/**
- * Strips given tags from array (GET, POST, REQUEST)
- * @see http://www.php.net/manual/en/function.strip-tags.php#93567
- * @param array $param Parameter array to strip
- */
-function system_sanitize_parameters(&$params)
-{
-	global $CONFIG;
-	$tags = $CONFIG['requestparam']['tagstostrip'];
-    if(!is_array($tags))
-	{
-        $tags = (strpos($str, '>') !== false ? explode('>', str_replace('<', '', $tags)) : array($tags));
-        if(end($tags) == '') array_pop($tags);
-    }
-
-	$size = sizeof($tags);
-	$keys = array_keys($tags);
-	$paramsize = sizeof($params);
-	$paramkeys = array_keys($params);
-
-	for ($j=0; $j<$paramsize; $j++)
-	{
-		for ($i=0; $i<$size; $i++)
-		{
-			$tag = $tags[$keys[$i]];
-			if(is_string($params[$paramkeys[$j]]))
-			{
-				if(stripos($params[$paramkeys[$j]], $tag) !== false)
-					$params[$paramkeys[$j]] = preg_replace('#</?'.$tag.'[^>]*>#is', '', $params[$paramkeys[$j]]);
-			}
-			elseif(is_array($params[$paramkeys[$j]]))
-				system_sanitize_parameters ($params[$paramkeys[$j]]);
-		}
-	}
 }
 
 function cache_get($key,$default=false,$use_global_cache=true,$use_session_cache=true)

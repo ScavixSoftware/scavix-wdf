@@ -103,11 +103,8 @@ class Localization
 
 	public static function getBrowserCulture()
 	{
-		if( isset($_COOKIE['culture']) && $_COOKIE['culture'] )
-			return self::getCultureInfo($_COOKIE['culture']);
-
-		if( isset($_GET['culture']) && $_GET['culture'] )
-			return self::getCultureInfo($_GET['culture']);
+		if( Args::sanitized('culture', false, 'CG') )
+			return self::getCultureInfo(Args::sanitized('culture', false, 'CG'));
 
 		// language detection forced by request (like api calls from client, portal, ...)
 		if( isset($_SERVER['HTTP_FORCE_LANGUAGE']) )

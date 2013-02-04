@@ -71,7 +71,7 @@ class Args
 		if( !isset(self::$_buffer[$order]) )
 		{
 			self::$_buffer[$order] = array();
-			for($i=0;$i<count($order);$i++)
+			for($i=0;$i<strlen($order);$i++)
 			{
 				switch( $order[$i] )
 				{
@@ -325,4 +325,46 @@ class Args
 	{
 		return self::sanitized($name,$default,null,$filter,$filter_options);
 	}
+	
+	public static function strip_tags()
+	{
+		$tags = cfg_getd('requestparam','tagstostrip',false);
+		if( !$tags ) return;
+		self::array_strip_tags($_GET);
+		self::array_strip_tags($_POST);
+		self::array_strip_tags($_COOKIE);
+		$_REQUEST = array_merge($_GET, $_POST, $_COOKIE);
+	}
+	
+	/**
+	* Strips given tags from array (GET, POST, REQUEST)
+	* @see http://www.php.net/manual/en/function.strip-tags.php#93567
+	* @param array $param Parameter array to strip
+	*/
+   private static function array_strip_tags(&$params)
+   {
+	   $tags = cfg_getd('requestparam','tagstostrip',false);
+	   if( !$tags )
+		   return;
+
+	   $size = sizeof($tags);
+	   $keys = array_keys($tags);
+	   $paramsize = sizeof($params);
+	   $paramkeys = array_keys($params);
+
+	   for ($j=0; $j<$paramsize; $j++)
+	   {
+		   for ($i=0; $i<$size; $i++)
+		   {
+			   $tag = $tags[$keys[$i]];
+			   if(is_string($params[$paramkeys[$j]]))
+			   {
+				   if(stripos($params[$paramkeys[$j]], $tag) !== false)
+					   $params[$paramkeys[$j]] = preg_replace('#</?'.$tag.'[^>]*>#is', '', $params[$paramkeys[$j]]);
+			   }
+			   elseif(is_array($params[$paramkeys[$j]]))
+				   Args::strip_tags($params[$paramkeys[$j]]);
+		   }
+	   }
+   }
 }

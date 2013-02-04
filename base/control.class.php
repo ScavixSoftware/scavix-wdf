@@ -580,7 +580,7 @@ class Control extends Renderable
 	function AssignProperty($property,$value)
 	{
 		$this->$property = $value;
-		return new JsResponse();
+		return AjaxResponse::None();
 	}
 
 	function addClass($class)

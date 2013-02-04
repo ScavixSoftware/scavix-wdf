@@ -174,7 +174,7 @@ class SysAdmin extends HtmlPage
     function CacheDel($key)
 	{
 		cache_del($key);
-		return " ";
+		AjaxResponse::None();
 	}
 	
 	/**

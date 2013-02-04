@@ -116,7 +116,7 @@ function minify_js($paths,$target_file)
 			continue;
 		
 		$js = "/* FILE: $f */\n$js";
-		if( !isset($_GET['nominify']) )
+		if( !isset($GLOBALS['nominify']) )
 		{
 			try {
 				$code .= jsmin::minify($js)."\n";
@@ -163,7 +163,7 @@ function minify_css($paths,$target_file,$nc_argument=false)
 		$css = preg_replace_callback("/url\s*\((.*)\)/siU", "minify_css_translate_url", $css);
 		$css = preg_replace_callback("/AlphaImageLoader\(src='([^']*)'/siU", "minify_css_translate_url", $css);
 		$css = "/* FILE: $f */\n$css";
-		if( !isset($_GET['nominify']) )
+		if( !isset($GLOBALS['nominify']) )
 			$code .= cssmin::minify($css)."\n";
 		else
 		{

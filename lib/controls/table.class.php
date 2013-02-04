@@ -145,14 +145,6 @@ class Table extends uiControl
 	
 	function WdfRender()
     {
-		if( $this->RenderMode == self::RENDER_MODE_JQUERYUI )
-		{
-			$this->addClass('ui-widget ui-widget-content ui-corner-all');
-			if( $this->header ) $this->header->addClass('ui-widget-header');
-			if( $this->Caption ) $this->Caption->addClass('ui-widget-header');
-			if( $this->footer ) $this->footer->addClass('ui-widget-content');
-		}
-		
         if( $this->footer )
             $this->_content = array_merge(array($this->footer),$this->_content);
         if( $this->header )
@@ -163,17 +155,24 @@ class Table extends uiControl
 
         if( $this->Caption )
         {
-            if( $this->Caption instanceof Control && $this->Caption->class == "caption" )
-                $this->_content = array_merge(array($this->Caption),$this->_content);
-            else
+            if( !($this->Caption instanceof Control) )
             {
                 $tmp = new Control("div");
                 $tmp->content($this->Caption);
-				$tmp->class = "caption";
-                $this->_content = array_merge(array($tmp),$this->_content);
+				$tmp->class = 'caption';
+				$this->Caption = $tmp;
             }
+            $this->_content = array_merge(array($this->Caption),$this->_content);
         }
 
+		if( $this->RenderMode == self::RENDER_MODE_JQUERYUI )
+		{
+			$this->addClass('ui-widget ui-widget-content ui-corner-all');
+			if( $this->header ) $this->header->addClass('ui-widget-header');
+			if( $this->Caption ) $this->Caption->addClass('ui-widget-header');
+			if( $this->footer ) $this->footer->addClass('ui-widget-content');
+		}
+		
         foreach( $this->_content as &$c )
         {
 			if( !is_object($c) || (get_class($c) != "TBody") )
@@ -366,7 +365,7 @@ class Table extends uiControl
 			return call_user_func_array($this->_actionHandler[$action],array($this,$action,$model));
 		}
 		log_warn("No handler defined for $action");
-		return " ";
+		return AjaxResponse::None();
 	}
 	
 	function Sortable($handler,$method)

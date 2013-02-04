@@ -69,7 +69,7 @@ class HtmlPage extends Template implements ICallable
 		{
 			if(!isset($_COOKIE["cookietest"]) && (isset($CONFIG['session']['session_name']) && !isset($_COOKIE[$CONFIG['session']['session_name']])))
 			{
-				if(!isset($_GET['redirected']))
+				if( !Args::get('redirected',false) )
 				{
 					$query_string = (isset($_SERVER["QUERY_STRING"]) && $_SERVER["QUERY_STRING"] != "" ) ? "?".$_SERVER["QUERY_STRING"]."&redirected=1" : '?redirected=1';
 					$redir_uri  = urlScheme(true).$_SERVER['HTTP_HOST'];
@@ -82,7 +82,7 @@ class HtmlPage extends Template implements ICallable
 					header('location: '.  $redir_uri.$query_string);
 					exit;
 				}
-				if(isset($_GET['redirected']) && $_GET['redirected']==1)
+				else
 				{
 					// after reload, check if the cookie is still there:
 					execute_hooks(HOOK_COOKIES_REQUIRED);
