@@ -93,7 +93,7 @@ class AjaxResponse
 		elseif( $this->_text )
 			$res = $this->_text;
 		else
-			return "";
+			return '""'; // return an empty string JSON encoded to not kill the app JS side
 		return system_is_module_loaded("translation")?__translate($res):$res;
 	}
 }

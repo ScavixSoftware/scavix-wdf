@@ -26,5 +26,5 @@
 
 .divtable .td pre { font-family: Courier,monospace; margin: 0; }
 
-.ui-table-actions .ui-icon { cursor: pointer; float:left; }
-.ui-table-actions .ui-icon:hover { cursor: pointer; float:left; margin: -1px; }
+.ui-table-actions > div { cursor: pointer; float:left; display: inline-block; width: 16px; }
+.ui-table-actions > div.ui-state-hover { margin: -1px; }

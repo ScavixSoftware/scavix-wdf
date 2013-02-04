@@ -340,11 +340,13 @@ class Table extends uiControl
 			//$this->_actions->addClass('ui-state-default');
 		}
 		
-		$ra = $this->_actions->content( new Control('span') );
+		$ra = new Control('span');
 		$ra->class = "ui-icon ui-icon-$icon";
 		$ra->title = $label;
 		$ra->id = $ra->_storage_id;
 		$ra->setData('action',$icon);
+		
+		$this->_actions->content( $ra->wrap('div') );
 		
 		if( $handler && $method )
 			$this->_actionHandler[$icon] = array($handler,$method);

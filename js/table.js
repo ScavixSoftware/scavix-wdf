@@ -20,15 +20,15 @@ $.widget("ui.table",
 						{action:$(this).data('action'),row:current_row.attr('id')},
 						function(d){ $('body').append(d); });
 				})
-				.hover( function(){ $(this).toggleClass('ui-state-hover') } )
-				.each(function(){w+=$(this).width();});
+				.hover( function(){ $(this).toggleClass('ui-state-hover'); } )
+				.each(function(){ w+=$(this).width(); });
 			actions.width(w);
 			
 			var on = function()
 			{
 				current_row = $(this); 
 				$('.ui-table-actions',self).show()
-					.position({my:'right center',at:'right center',of:current_row});
+					.position({my:'right center',at:'right-1 center',of:current_row});
 			};
 			var off = function(){ $('.ui-table-actions',self).hide(); };
 			
