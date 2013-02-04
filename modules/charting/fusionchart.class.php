@@ -109,7 +109,7 @@ class FusionChart extends Control
 		if( $async )
 		{
 			if( !$handler || !$method )
-				system_die("Data handler and method needed for asynchronous charts");
+				throw new WdfException("Data handler and method needed for asynchronous charts");
 			$data_url = buildQuery($handler->id,$method);
 		}
 		else
@@ -138,7 +138,7 @@ class FusionChart extends Control
 		elseif( isset($data_url) )
 			$settings['dataurl'] = $data_url;
 //		else
-//			system_die("No data and no data_url specified");
+//			throw new WdfException("No data and no data_url specified");
 
 		$this->_script = array();
 		$this->script("initFusionChart(".json_encode($settings).");");

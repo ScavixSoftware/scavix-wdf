@@ -99,7 +99,7 @@ function globalcache_initialize()
 
 		case globalcache_CACHE_ZEND:
 //			if( !system_is_module_loaded('zend') )
-//				system_die("Missing module 'zend'");
+//				throw new WdfException("Missing module 'zend'");
 			system_load_module("modules/zend.php");
 			zend_load("Zend/Cache.php");
 
@@ -469,7 +469,7 @@ function globalcache_list_keys()
 			}catch(Exception $ex){}
 			return array(); 
 		default:
-			system_die("globalcache_list_keys not implemented for handler {$CONFIG['globalcache']['CACHE']}");
+			throw new WdfException("globalcache_list_keys not implemented for handler {$CONFIG['globalcache']['CACHE']}");
 			break;
 	}
 	return array();

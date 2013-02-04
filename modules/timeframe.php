@@ -93,7 +93,7 @@ class TimeFrame
 		if( $obj instanceof ITimeframeDataobject )
 			$GLOBALS['timeframe']['data_object'] = $obj;
 		else
-			system_die("Trying to set an invalid dataobject. ITimeframeDataobject needed!");
+			throw new WdfException("Trying to set an invalid dataobject. ITimeframeDataobject needed!");
 	}
 
 	static function currentTimeFrame()

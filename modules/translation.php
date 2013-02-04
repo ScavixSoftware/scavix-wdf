@@ -27,13 +27,13 @@ function translation_init()
 {
 	global $CONFIG;
 	if( !in_array("localization",$CONFIG['system']['modules']) )
-		system_die("Missing dependency 'localization'!");
+		throw new WdfException("Missing dependency 'localization'!");
 
 	$GLOBALS['__unknown_constants'] = array();
 	$GLOBALS['__translate_functions'] = array();
 
 	if( !isset($CONFIG['translation']['data_path']) )
-		system_die('Please define $CONFIG["translation"]["data_path"]');
+		throw new WdfException('Please define $CONFIG["translation"]["data_path"]');
 
     if( isset($CONFIG['translation']['sync']['provider']) && $CONFIG['translation']['sync']['provider'] )
     {

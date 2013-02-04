@@ -251,7 +251,7 @@ class Control extends Renderable
 			if( system_method_exists($ex,$name) )
 				return system_call_user_func_array_byref($ex, $name, $arguments);
 		}
-		system_die("Call to undefined method '$name' on object of type '".get_class($this)."'");
+		throw new WdfException("Call to undefined method '$name' on object of type '".get_class($this)."'");
     }
 
 	/**

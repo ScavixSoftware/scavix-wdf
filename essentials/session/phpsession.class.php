@@ -74,7 +74,7 @@ class PhpSession extends SessionBase
 		if( $id == "" )
 		{
 			if( !isset($obj->_storage_id) )
-				system_die("Trying to store an object without storage_id!");
+				throw new WdfException("Trying to store an object without storage_id!");
 			$id = $obj->_storage_id;
 		}
 		else

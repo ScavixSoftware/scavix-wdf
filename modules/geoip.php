@@ -41,7 +41,7 @@ function geoip_init()
 	}
 
 	if( !system_is_module_loaded('curlwrapper') )
-		system_die("Missing module: curlwrapper!");
+		throw new WdfException("Missing module: curlwrapper!");
 		
 	if( !isset($GLOBALS['current_ip_addr']) )
 		$GLOBALS['current_ip_addr'] = get_ip_address();

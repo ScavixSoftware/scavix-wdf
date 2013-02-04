@@ -169,7 +169,7 @@ class CultureInfo
 		if( is_string($child) )
 			$child = Localization::getCultureInfo($child);
 		if( !($child instanceof CultureInfo))
-			return false; //system_die("Invalid Culture!");
+			return false; 
 
 		return $child->IsChildOf($this);
 	}

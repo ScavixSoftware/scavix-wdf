@@ -35,16 +35,16 @@ function invoices_init()
 	zend_load("pdf/pdfdocument.class.php");
 	
 	if(!isset($GLOBALS['VAT_COUNTRIES']))
-		system_die("VAT_COUNTRIES not defined (invoices_init)");
+		throw new WdfException("VAT_COUNTRIES not defined (invoices_init)");
 }
 
 function invoices_check_requirements()
 {
 	global $CONFIG;
 	if( !isset($CONFIG['invoices']['logofile']) )
-		system_die("\$CONFIG['invoices']['logofile'] not defined");	
+		throw new WdfException("\$CONFIG['invoices']['logofile'] not defined");	
 	if(!file_exists($CONFIG['invoices']['logofile']))
-		system_die("invoice logo (".$CONFIG['invoices']['logofile'].") not found");	
+		throw new WdfException("invoice logo (".$CONFIG['invoices']['logofile'].") not found");	
 }
 
 function invoiceStandardLogo()

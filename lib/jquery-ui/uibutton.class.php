@@ -9,7 +9,7 @@ class uiButton extends uiControl
 		if( $icon )
 		{
 			if( !isset($this->_icons[$icon]) )
-				system_die("Invalid Icon. See uiButton class for allowed icons.");
+				throw new WdfException("Invalid Icon. See uiButton class for allowed icons.");
 
 			$this->_icon = $icon;
 		}

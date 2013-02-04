@@ -8,7 +8,7 @@ function admin_init()
 	{
 		$CONFIG['class_path']['system'][]   = __DIR__.'/admin/';
 		if( !$CONFIG['system']['admin']['username'] || !$CONFIG['system']['admin']['username'] )
-			system_die("System admin needs username and password to be set!");
+			throw new WdfException("System admin needs username and password to be set!");
 		
 		$CONFIG['system']['admin']['actions'] = array();
 	}

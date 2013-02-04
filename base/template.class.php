@@ -49,7 +49,7 @@ class Template extends Renderable
 			}
 		}
 		if( !$tpl_file )
-			system_die("Template not found: $template_basename");
+			throw new WdfException("Template not found: $template_basename");
 		$res = new Template($tpl_file);
 		return $res;
 	}
@@ -216,7 +216,7 @@ class Template extends Renderable
 		{
 			$__template_file = __autoload__template($this,$this->SubTemplate?$this->SubTemplate:"");
 			if( $__template_file === false )
-				system_die("SubTemplate for class '".get_class($this)."' not found: ".$this->file,$this->SubTemplate);
+				throw new WdfException("SubTemplate for class '".get_class($this)."' not found: ".$this->file,$this->SubTemplate);
 
 			if( stripos($__template_file,"htmlpage.tpl.php") === false )
 			{
@@ -230,7 +230,7 @@ class Template extends Renderable
 
 		$__template_file = __autoload__template($this,$this->file);
 		if( $__template_file === false )
-			system_die("Template for class '".get_class($this)."' not found: ".$this->file);
+			throw new WdfException("Template for class '".get_class($this)."' not found: ".$this->file);
 
 		ob_start();
 		require($__template_file);

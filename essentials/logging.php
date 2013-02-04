@@ -126,6 +126,8 @@ function global_exception_handler($ex)
 	{
 		// system_die will handle logging itself. perhaps restructure that to
 		// keep things in place and let that function only handle the exception
+		foreach( $GLOBALS['logging_logger'] as $l )
+			$l->fatal($ex);
 		system_die($ex);
 	}
 	catch(Exception $fatal)
@@ -344,16 +346,24 @@ function logging_render_var($content,&$stack=array(),$indent="")
 	}
 	elseif( is_object($content) )
 	{
-		$res[] = "Object(".get_class($content).")\n$indent{";
 		$stack[] = $content;
-		foreach( get_object_vars($content) as $name=>$val )
+		if( $content instanceof Exception )
 		{
-			if( $val === $content )
-				$res[] = $indent."\t->$name: *RECURSION*";
-			else
-				$res[] = $indent."\t->$name: ".logging_render_var($val,$stack,$indent."\t");
+			$res[] = get_class($content).": ".$content->getMessage();
+			$res[] = $content->getTraceAsString();
 		}
-		$res[] = $indent."}";
+		else
+		{
+			$res[] = "Object(".get_class($content).")\n$indent{";
+			foreach( get_object_vars($content) as $name=>$val )
+			{
+				if( $val === $content )
+					$res[] = $indent."\t->$name: *RECURSION*";
+				else
+					$res[] = $indent."\t->$name: ".logging_render_var($val,$stack,$indent."\t");
+			}
+			$res[] = $indent."}";
+		}
 	}
 	elseif( is_bool($content) )
 		return (count($stack)>0?"(bool)":"").($content?"true":"false");

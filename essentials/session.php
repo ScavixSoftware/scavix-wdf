@@ -73,7 +73,7 @@ function session_run()
 	{
 		if( ($CONFIG['session']['usephpsession'] && $CONFIG['session']['handler'] != "PhpSession") ||
 			(!$CONFIG['session']['usephpsession'] && $CONFIG['session']['handler'] == "PhpSession") )
-			system_die('Do not use $CONFIG[\'session\'][\'usephpsession\'] anymore! See session_init() for details.');
+			throw new WdfException('Do not use $CONFIG[\'session\'][\'usephpsession\'] anymore! See session_init() for details.');
 	}
 	$GLOBALS['fw_session_handler'] = new $CONFIG['session']['handler']();
 

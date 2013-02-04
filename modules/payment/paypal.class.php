@@ -33,7 +33,7 @@ class PayPal extends PaymentProvider
 		global $CONFIG;
 		parent::__construct();
 		if(!isset($CONFIG["payment"]) || !isset($CONFIG["payment"]["paypal"]))
-			system_die("PayPal payment provider not configured");
+			throw new WdfException("PayPal payment provider not configured");
 		
 		$this->small_image = resFile("paypal.gif");
 	}

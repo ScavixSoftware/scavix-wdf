@@ -24,6 +24,7 @@
  */
  
 define('FRAMEWORK_LOADED','uSI7hcKMQgPaPKAQDXg5');
+require_once(__DIR__.'/system_exceptions.php');
 require_once(__DIR__.'/system_functions.php');
 
 // Config handling
@@ -157,8 +158,14 @@ function system_init($application_name, $skip_header = false, $logging_category=
 		$CONFIG['model']['internal']['connection_string']  = 'sqlite::memory:';
 
 	// load essentials as if they were modules.
-	foreach( glob($thispath.'/essentials/*.php') as $essential )
+	system_load_module('essentials/logging.php');
+	system_load_module('essentials/model.php');
+	system_load_module('essentials/session.php');
+	system_load_module('essentials/resources.php');
+	system_load_module('essentials/admin.php');
+	foreach( glob($thispath.'/essentials/*.php') as $essential ) // load all other essentials
 		system_load_module($essential);
+	
 	if( $logging_category )
 		logging_add_category($logging_category);
 	logging_set_user(); // works as both (session and logging) are now essentials
@@ -414,23 +421,7 @@ function system_invoke_request($target_class,$target_event,$pre_execute_hook_typ
 		execute_hooks(HOOK_ARGUMENTS_PARSED, $failedargs);
 
 	execute_hooks($pre_execute_hook_type,array($target_class,$target_event,$args));
-	try{
-//		$mi = $ref->getMethod($target_event);
-//		$res = $mi->invokeArgs($target_class,$args);
-//		log_debug("invoked ".get_class($target_class)."->$target_event(".implode(",",$args).") -> ".get_class($res));
-//		return $res;
-		return call_user_func_array(array(&$target_class,$target_event), $args);
-	}
-	catch(Exception $ex)
-	{
-        $r = log_start_report("Failed calling ".get_class($target_class).":$target_event");
-        $r->add("Arguments: ", $args);
-        $r->add("REQUEST: ", $req_data);
-        $r->add("Arguments Checked: ", $argscheck);
-        $r->add("Arguments: ", $args);
-        log_report($r,'ERROR');
-		system_die($ex);
-	}
+	return call_user_func_array(array(&$target_class,$target_event), $args);
 }
 
 /**
@@ -438,7 +429,7 @@ function system_invoke_request($target_class,$target_event,$pre_execute_hook_typ
  * Will be called from exception and error handlers.
  * @param string $reason
  */
-function system_die($reason,$additional_message=false)
+function system_die($reason,$additional_message='')
 {
 	if( $reason instanceof Exception )
 	{
@@ -449,17 +440,6 @@ function system_die($reason,$additional_message=false)
 		if( $code )
 			$reason = "[$code] $reason";
 	}
-
-	log_fatal($reason,isset($stacktrace)?$stacktrace:null);
-	$logged_reason = $reason;
-
-	$lines = explode("\n",$reason);
-	$reason = array();
-	foreach( $lines as $line )
-		$reason[] = trim($line);
-	$reason = "<h1>".implode("\n",$reason)."</h1>";
-	if( $additional_message )
-		$reason .= "<p>$additional_message</p>";
 
 	if( !isset($stacktrace) )
 		$stacktrace = debug_backtrace();
@@ -474,35 +454,22 @@ function system_die($reason,$additional_message=false)
 
     if( system_is_ajax_call() )
 	{
-		$code = "alert(unescape(".json_encode($logged_reason."\n".$additional_message)."));";
+		$code = "alert(unescape(".json_encode($reason."\n".$additional_message)."));";
 		$res = new stdClass();
 		$res->html = "<script>$code</script>";
 		die(system_to_json($res));
-		
-		$dlg = new uiDialog('system_error','Fatal System Error');
-		if(isDev())
-		{
-			$dlg->addContent("<h2 style='text-align:left'>$reason</h2>");
-			$dlg->addContent("<pre style='text-align:left'>".addslashes(system_stacktrace_to_string($stacktrace))."</pre>");
-		}
-		else
-			$dlg->addContent("<h2 style='text-align:left'>Fatal System Error occured. Please restart your browser.</h2>");
-		die("$('#system_error').remove();".$dlg->WdfRender());
 	}
 	else
 	{
-		$logfile  = '<div style="font-size: 12pt; font-weight: bold;">Logfile:</div>';
-
 		$stacktrace = system_stacktrace_to_string($stacktrace);
 		$res  = "<html><head><title>Fatal system error</title></head>";
 		$res .= "<body>";
 		if(isDev())
-			$res .= "<pre>$reason</pre><pre>".$stacktrace."$logfile</pre>";
+			$res .= "<pre>$reason</pre><pre>$additional_message</pre><pre>".$stacktrace."</pre>";
 		else
-			$res .= "Fatal System Error occured.<br/>Please try again.<br/>Contact our technical support if this problem occurs again.<br/><br/>Apologies for any inconveniences this may have caused you."; //: $reason";
+			$res .= "Fatal System Error occured.<br/>Please try again.<br/>Contact our technical support if this problem occurs again.<br/><br/>Apologies for any inconveniences this may have caused you.";
 		$res .= "</body></html>";
-        echo($res);
-        exit(0);
+        die($res);
 	}
 }
 
@@ -599,7 +566,7 @@ function is_valid_hook_type($type)
 		)
 		return true;
 
-	system_die("Invalid hook type ($type)!");
+	throw new WdfException("Invalid hook type ($type)!");
 }
 
 /**
@@ -673,6 +640,13 @@ function system_stacktrace_to_string($stacktrace, $include_file_excerpt = true, 
 		else
 			$function = $t1['function'];
 
+		if( $i == 1 )
+		{
+			if( isset($t0['class']) && isset($t0['type']) && isset($t0['function']) )
+				$stack[] = "in method {$t0['class']}{$t0['type']}{$t0['function']}()";
+			elseif( isset($t0['function']) )
+				$stack[] = "in function {$t0['function']}()";
+		}
 		if( isset($t0['file']) && isset($t0['line']) )
 		{
 			$rp_file = $t0['file'];
@@ -879,7 +853,7 @@ function __search_file_for_class($class_name,$extension="class.php",$classpath_l
 	foreach( $CONFIG['class_path']['order'] as $cp_part )
 	{
 		if( !isset($CONFIG['class_path'][$cp_part]))
-			system_die("Invalid ClassPath! No entry for '$cp_part'.");
+			throw new WdfException("Invalid ClassPath! No entry for '$cp_part'.");
 
 		if( $classpath_limit && $cp_part != $classpath_limit )
 			continue;

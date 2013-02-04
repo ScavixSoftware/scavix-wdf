@@ -219,7 +219,7 @@ class WebServiceClient extends SoapClient
             if( $res instanceof WsObjectBase )
 				$res->__init($this);
 //			else
-//				system_die("Unwrapped object type: ".get_class($res));
+//				throw new WdfException("Unwrapped object type: ".get_class($res));
 
 //			if( $function_name == "LoadAbsencesByMDNrFromTo")
 //				log_debug($res);
@@ -284,7 +284,7 @@ class WebServiceClient extends SoapClient
                     {
                         log_debug($bufferedrequest);
 						log_debug($res);
-//                        system_die("SaveEmployee fails partially: ".my_var_export($diff));
+//                        throw new WdfException("SaveEmployee fails partially: ".my_var_export($diff));
                     }
                 }
             }
@@ -305,12 +305,12 @@ class WebServiceClient extends SoapClient
 		catch( ErrorException $ex)
 		{
 			ini_set("default_socket_timeout",$default_socket_timeout);
-			system_die($ex->getMessage());
+			throw new WdfException($ex->getMessage());
 		}
 		catch( SoapFault $ex )
 		{
             $this->DumpRequest();
-			system_die($ex->faultstring);
+			throw new WdfException($ex->faultstring);
 		}
 		ini_set("default_socket_timeout",$default_socket_timeout);
 		return false;

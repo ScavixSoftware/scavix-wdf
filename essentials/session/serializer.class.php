@@ -187,7 +187,7 @@ class Serializer
 				
 			case 'r':
 				if( !isset($this->Stack[intval($line)]) )
-					system_die("Trying to reference unknown object.");
+					throw new WdfException("Trying to reference unknown object.");
 				if( $this->Stack[intval($line)] instanceof System_DataSource )
 					return model_datasource($this->Stack[intval($line)]->_storage_id);
 				return $this->Stack[intval($line)];
@@ -200,7 +200,7 @@ class Serializer
 			case 'b':
 				return $line==1;
 			default:
-				system_die("Unserialize found unknown datatype '$type'. Line was $orig_line");
+				throw new WdfException("Unserialize found unknown datatype '$type'. Line was $orig_line");
 		}
 	}
 }
