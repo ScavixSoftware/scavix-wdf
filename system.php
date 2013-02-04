@@ -593,10 +593,8 @@ function is_valid_hook_type($type)
 	if( $type == HOOK_POST_INIT || $type == HOOK_POST_INITSESSION ||
 	    $type == HOOK_PRE_EXECUTE || $type == HOOK_POST_EXECUTE ||
 		$type == HOOK_PRE_FINISH || $type == HOOK_POST_MODULE_INIT ||
-		$type == HOOK_PING_RECIEVED ||
-		$type == HOOK_AJAX_POST_LOADED || $type == HOOK_AJAX_PRE_EXECUTE ||
-		$type == HOOK_AJAX_POST_EXECUTE || $type == HOOK_SYSTEM_DIE || $type == HOOK_PRE_RENDER ||
-		$type == HOOK_PARSE_URI || $type == HOOK_PRE_PROCESSING || $type == HOOK_COOKIES_REQUIRED ||
+		$type == HOOK_PING_RECIEVED || $type == HOOK_SYSTEM_DIE || $type == HOOK_PRE_RENDER ||
+		$type == HOOK_PRE_PROCESSING || $type == HOOK_COOKIES_REQUIRED ||
 		$type == HOOK_ARGUMENTS_PARSED
 		)
 		return true;
@@ -620,13 +618,8 @@ function hook_type_to_string($type)
 		case HOOK_PRE_FINISH: return 'HOOK_PRE_FINISH';
 		case HOOK_POST_MODULE_INIT: return 'HOOK_POST_MODULE_INIT';
 		case HOOK_PING_RECIEVED: return 'HOOK_PING_RECIEVED';
-
-		case HOOK_AJAX_POST_LOADED: return 'HOOK_AJAX_POST_LOADED';
-		case HOOK_AJAX_PRE_EXECUTE: return 'HOOK_AJAX_PRE_EXECUTE';
-		case HOOK_AJAX_POST_EXECUTE: return 'HOOK_AJAX_POST_EXECUTE';
 		case HOOK_SYSTEM_DIE: return 'HOOK_SYSTEM_DIE';
 		case HOOK_PRE_RENDER: return "HOOK_PRE_RENDER";
-		case HOOK_PARSE_URI: return "HOOK_PARSE_URI";
 		case HOOK_PRE_PROCESSING: return "HOOK_PRE_PROCESSING";
 		case HOOK_COOKIES_REQUIRED: return 'HOOK_COOKIES_REQUIRED';
 		case HOOK_ARGUMENTS_PARSED: return 'HOOK_ARGUMENTS_PARSED';
