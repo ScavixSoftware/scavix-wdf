@@ -432,13 +432,9 @@ function system_invoke_request($target_class,$target_event,$pre_execute_hook_typ
 function system_die($reason,$additional_message='')
 {
 	if( $reason instanceof Exception )
-	{
-		$code = $reason->getCode();
+	{		
 		$stacktrace = $reason->getTrace();
-
-		$reason = $reason->getMessage();
-		if( $code )
-			$reason = "[$code] $reason";
+		$reason = logging_render_var($reason);
 	}
 
 	if( !isset($stacktrace) )
@@ -620,13 +616,10 @@ function hook_bound($type)
 /**
  * Returns a string representation of the given stacktrace
  * @param array $stacktrace Use debug_backtrace() to get this
- * @param bool $include_file_excerpt include a file excerpt of the first stacktrace entry
- * @param string $crlf Line separator
  * @return string The stacktrace-string
  */
-function system_stacktrace_to_string($stacktrace, $include_file_excerpt = true, $crlf = "\n")
+function system_stacktrace_to_string($stacktrace,$crlf="\n")
 {
-	global $CONFIG;
 	$stack = array();
 
 	$stcnt = count($stacktrace);
@@ -639,14 +632,7 @@ function system_stacktrace_to_string($stacktrace, $include_file_excerpt = true, 
 			$function = $t1['class'].$t1['type'].$t1['function'];
 		else
 			$function = $t1['function'];
-
-		if( $i == 1 )
-		{
-			if( isset($t0['class']) && isset($t0['type']) && isset($t0['function']) )
-				$stack[] = "in method {$t0['class']}{$t0['type']}{$t0['function']}()";
-			elseif( isset($t0['function']) )
-				$stack[] = "in function {$t0['function']}()";
-		}
+		
 		if( isset($t0['file']) && isset($t0['line']) )
 		{
 			$rp_file = $t0['file'];
@@ -655,11 +641,7 @@ function system_stacktrace_to_string($stacktrace, $include_file_excerpt = true, 
 		else
 			$stack[] = sprintf("+ %s(...)",$function);
 	}
-	
-	if( $include_file_excerpt && isset($CONFIG['error']['show_lines']) && $CONFIG['error']['show_lines'] == true )
-		return implode($crlf,$stack).$crlf.system_get_file_excerpt($stacktrace);
-	else
-		return implode($crlf,$stack);
+	return implode($crlf,$stack);
 }
 
 /**

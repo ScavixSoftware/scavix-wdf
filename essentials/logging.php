@@ -350,7 +350,7 @@ function logging_render_var($content,&$stack=array(),$indent="")
 		if( $content instanceof Exception )
 		{
 			$res[] = get_class($content).": ".$content->getMessage();
-			$res[] = $content->getTraceAsString();
+			$res[] = "in ".$content->getFile().":".$content->getLine();
 		}
 		else
 		{
