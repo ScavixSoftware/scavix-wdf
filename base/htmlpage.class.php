@@ -30,6 +30,7 @@
  * @attribute[Resource('jquery.js')]
  * @attribute[Resource('jquery.ajaxmanager.js')]
  * @attribute[Resource('jquery.jcache.js')]
+ * @attribute[Resource('htmlpage.js')]
  */
 class HtmlPage extends Template implements ICallable
 {
