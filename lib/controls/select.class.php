@@ -59,7 +59,7 @@ class Select extends Control
 		if( !$selected && $this->_current )
 			$selected = $value == $this->_current;
 		$selected = $selected?" selected='selected'":"";
-		$opt = "<option value='$value'$selected".($htmlextra != "" ? " ".$htmlextra : "").">$label</option>\r\n";
+		$opt = "<option value='$value'$selected".($htmlextra != "" ? " ".$htmlextra : "").">".htmlspecialchars($label)."</option>\r\n";
 		$this->content($opt);
 	}
 
