@@ -121,13 +121,16 @@ class HtmlPage extends Template implements ICallable
 		}
 		
 		$res = $this->__collectResources();
-		foreach( $res as $r )
+		log_debug($res);
+		$this->js = array_reverse($this->js,true);
+		foreach( array_reverse($res) as $r )
 		{
 			if( ends_with($r, '.css') )
 				$this->addCss($r);
 			else
 				$this->addjs($r);
 		}
+		$this->js = array_reverse($this->js,true);
 		
 		$this->set("css",$this->css);
 		$this->set("js",$this->js);
