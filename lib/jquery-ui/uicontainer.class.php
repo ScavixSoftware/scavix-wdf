@@ -65,6 +65,7 @@ class uiContainer extends uiControl
 		else
 			$buttons = array();
 
+		$icon = self::Icon($icon);
 		if( is_array($function))
 			$buttons[$icon] = $function;
 		else
