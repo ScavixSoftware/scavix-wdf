@@ -51,7 +51,7 @@ for($i=0; $i<$cnt; $i++ ): ?>
 <? endif; ?>
 </form>
 <script>
-$(document).ready( function(){
+wdf.ready.add( function(){
 
 	$('a').filter(':not(.<?=$id?>_link,.<?=$id?> a)').click( function(){
 

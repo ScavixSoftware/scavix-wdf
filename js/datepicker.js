@@ -1,5 +1,5 @@
 
-$(document).ready(
+wdf.ready.add(
 	function()
 	{
 		try{

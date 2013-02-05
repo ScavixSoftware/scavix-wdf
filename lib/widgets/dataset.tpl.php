@@ -46,9 +46,7 @@
 </table>
 <? if( isset($external_loading) && $external_loading ): ?>
 <script>
-$(document).ready( function(){
-	$('#<?=$external_loading?>').fadeOut('fast');
-});
+wdf.ready.add(function(){ $('#<?=$external_loading?>').fadeOut('fast'); });
 </script>
 <? endif; ?>
 <? endif; ?>

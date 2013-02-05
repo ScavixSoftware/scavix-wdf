@@ -41,7 +41,7 @@ try
 	<?=$js_varname?>._trackPageview();
 	<? endif; ?>
 
-	$(document).ready( function()
+	wdf.ready.add( function()
 	{
 		$('*[title]').each( function()
 		{

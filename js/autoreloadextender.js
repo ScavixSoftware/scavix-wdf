@@ -1,5 +1,5 @@
 
-$(document).ready( function() {
+wdf.ready.add( function() {
 (function($j)
 {
 	controlHandler.prototype.AE_Init = function(overlayimg,loadingimg)

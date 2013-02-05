@@ -1,5 +1,5 @@
 
-$(document).ready( function() {
+wdf.ready.add( function() {
 	controlHandler.prototype.PE_Init = function(overlayimg,loadingimg)
 	{
 		controlHandler.prototype.OverlayImage = overlayimg;

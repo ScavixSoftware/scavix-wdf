@@ -1,4 +1,4 @@
-$(document).ready( function(){
+wdf.ready.add( function(){
 
 	$(document).click( function(){
 		var dd_id = top.opened_dropdown_id;

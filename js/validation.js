@@ -1,9 +1,9 @@
 
 var cultureInfo = null;
 
-$(document).ready(function()
+wdf.ready.add(function()
 {
-	if( $(document).find('.float_input').length != 0 )
+	if( $('.float_input').length != 0 )
 	{
 		$.post('/flow/GetCultureInfo', {}, function(d)
 		{
@@ -14,7 +14,7 @@ $(document).ready(function()
 				cultureInfo = data;
 		});
 
-		$(document).find('.float_input').bind('change',function(){
+		$('.float_input').bind('change',function(){
 			validateFloat(this.value);
 		}).bind('keyup',function(){
 			stripNonNumbers(this);
