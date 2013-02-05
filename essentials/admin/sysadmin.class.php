@@ -59,6 +59,7 @@ class SysAdmin extends HtmlPage
 			foreach( $CONFIG['system']['admin']['actions'] as $label=>$def )
 				$nav->content( new Anchor(buildQuery($def[0],$def[1]),$label) );
             $nav->content( new Anchor(buildQuery('SysAdmin','Cache'),'Cache') );
+            $nav->content( new Anchor(buildQuery('SysAdmin','PhpInfo'),'PHP info') );
             $nav->content( new Anchor(buildQuery('SysAdmin','Testing'),'Testing') );
             $nav->content( new Anchor(buildQuery('SysAdmin','Logout'),'Logout') );
             $nav->content( new Anchor(buildQuery('',''),'Back to app') );
@@ -216,6 +217,92 @@ class SysAdmin extends HtmlPage
 	{
 		cache_clear();
 		redirect('SysAdmin','Cache');
+	}
+	
+	/**
+	 * @see http://www.php.net/manual/de/function.phpinfo.php#106862
+	 */
+	function phpinfo_array()
+	{
+		ob_start();
+		phpinfo();
+		$info_arr = array();
+		$info_lines = explode("\n", strip_tags(ob_get_clean(), "<tr><td><h2>"));
+		$cat = "General";
+		foreach($info_lines as $line)
+		{
+			// new cat?
+			preg_match("~<h2>(.*)</h2>~", $line, $title) ? $cat = $title[1] : null;
+			if(preg_match("~<tr><td[^>]+>([^<]*)</td><td[^>]+>([^<]*)</td></tr>~", $line, $val))
+			{
+				$info_arr[$cat][trim($val[1])] = array("local" => $val[2], "master" => "");
+			}
+			elseif(preg_match("~<tr><td[^>]+>([^<]*)</td><td[^>]+>([^<]*)</td><td[^>]+>([^<]*)</td></tr>~", $line, $val))
+			{
+				$info_arr[$cat][trim($val[1])] = array("local" => $val[2], "master" => $val[3]);
+			}
+		}
+		return $info_arr;
+	}
+	/**
+	 * @attribute[RequestParam('extension','string',null)]
+	 * @attribute[RequestParam('search','string',false)]
+	 */
+	function PhpInfo($extension,$search)
+	{
+		log_debug("PhpInfo($extension,$search)");
+		
+		if( $search )
+			$extension = null;
+		
+		foreach( ini_get_all() as $k=>$v)
+		{
+			$k = explode('.',$k,2);
+			if( count($k)<2 )
+				$k = array('Core',$k[0]);
+
+			$data[$k[0]][$k[1]] = $v;
+		}
+		ksort($data);
+		
+		$ext_nav = $this->addContent(new Control('div'))->css('margin-bottom','25px');
+		$ext_nav->content("Select extension: ");
+		$sel = $ext_nav->content(new Select());
+		$ext_nav->content("&nbsp;&nbsp;&nbsp;Or search: ");
+		$tb = $ext_nav->content(new TextInput());
+		$tb->value = $search;
+		
+		$q = buildQuery('SysAdmin','PhpInfo');
+		$sel->onchange = "location.href='$q?extension='+$(this).val()";
+		$tb->onkeydown = "if( event.which==13 ) location.href='$q?search='+$(this).val()";
+		
+		$sel->SetCurrentValue($extension)->AddOption('','<select one>');
+		$sel->AddOption('all','All values');
+		foreach( array_keys($data) as $ext )
+			$sel->AddOption($ext);
+		
+		if( $extension || $extension == 'all' || $search )
+		{
+			foreach( $data as $k=>$config )
+			{
+				if( !$search && $k != $extension && $extension != 'all' )
+					continue;
+				
+				$tab = false;
+				foreach( $config as $ck=>$v )
+				{
+					if( $search && stripos($ck,$search)===false && stripos($v['local_value'],$search)===false && stripos($v['global_value'],$search)===false )
+						continue;
+					
+					if( !$tab )
+						$tab = $this->content( new Table() )
+							->addClass('phpinfo')
+							->SetCaption($k)
+							->SetHeader('Name','Local','Master');
+					$tab->AddNewRow($ck,$v['local_value'],$v['global_value']);
+				}
+			}
+		}
 	}
 	
 	/**

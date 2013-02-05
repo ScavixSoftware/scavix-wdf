@@ -66,6 +66,7 @@ body.sysadmin form.login table
 /* navigation */
 body.sysadmin div.navigation
 {
+	background-color: white;
     border-left: 1px dotted gray;
     border-bottom: 1px dotted gray;
     display: block;
@@ -114,4 +115,30 @@ body.sysadmin table.new_string textarea
     float:left; 
     width:400px; 
     height: 50px;
+}
+
+body.sysadmin .phpinfo
+{
+	border: 1px solid gray;
+	margin-bottom: 15px;
+	width: 50%;
+}
+
+body.sysadmin .phpinfo .caption, 
+body.sysadmin .phpinfo .thead
+{
+	background-color: orange;
+}
+
+body.sysadmin .phpinfo .caption
+{
+	border: 1px solid gray;
+	border-bottom: 0;
+	padding: 5px;
+	font-size: +1;
+}
+
+body.sysadmin .phpinfo .tbody .tr:nth-child(even)
+{
+	background: lightgray;
 }
