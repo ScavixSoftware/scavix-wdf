@@ -220,31 +220,6 @@ class SysAdmin extends HtmlPage
 	}
 	
 	/**
-	 * @see http://www.php.net/manual/de/function.phpinfo.php#106862
-	 */
-	function phpinfo_array()
-	{
-		ob_start();
-		phpinfo();
-		$info_arr = array();
-		$info_lines = explode("\n", strip_tags(ob_get_clean(), "<tr><td><h2>"));
-		$cat = "General";
-		foreach($info_lines as $line)
-		{
-			// new cat?
-			preg_match("~<h2>(.*)</h2>~", $line, $title) ? $cat = $title[1] : null;
-			if(preg_match("~<tr><td[^>]+>([^<]*)</td><td[^>]+>([^<]*)</td></tr>~", $line, $val))
-			{
-				$info_arr[$cat][trim($val[1])] = array("local" => $val[2], "master" => "");
-			}
-			elseif(preg_match("~<tr><td[^>]+>([^<]*)</td><td[^>]+>([^<]*)</td><td[^>]+>([^<]*)</td></tr>~", $line, $val))
-			{
-				$info_arr[$cat][trim($val[1])] = array("local" => $val[2], "master" => $val[3]);
-			}
-		}
-		return $info_arr;
-	}
-	/**
 	 * @attribute[RequestParam('extension','string',null)]
 	 * @attribute[RequestParam('search','string',false)]
 	 */
@@ -265,6 +240,21 @@ class SysAdmin extends HtmlPage
 		}
 		ksort($data);
 		
+		$tab = $this->addContent( new Table() );
+		$tab->addClass('phpinfo')
+			->SetCaption("Basic information")
+			->AddNewRow("PHP version",phpversion())
+			->AddNewRow("PHP ini file",php_ini_loaded_file())
+			->AddNewRow("SAPI",php_sapi_name())
+			->AddNewRow("OS",php_uname())
+			->AddNewRow("Apache version",apache_get_version())
+			->AddNewRow("Apache modules",implode(', ',apache_get_modules()))
+			->AddNewRow("Loaded extensions",implode(', ',get_loaded_extensions()))
+			->AddNewRow("Stream wrappers",implode(', ',stream_get_wrappers()))
+			->AddNewRow("Stream transports",implode(', ',stream_get_transports()))
+			->AddNewRow("Stream filters",implode(', ',stream_get_filters()))
+			;
+		
 		$ext_nav = $this->addContent(new Control('div'))->css('margin-bottom','25px');
 		$ext_nav->content("Select extension: ");
 		$sel = $ext_nav->content(new Select());
@@ -276,10 +266,19 @@ class SysAdmin extends HtmlPage
 		$sel->onchange = "location.href='$q?extension='+$(this).val()";
 		$tb->onkeydown = "if( event.which==13 ) location.href='$q?search='+$(this).val()";
 		
+		$get_version = function($ext)
+		{
+			$res = ($ext=='zend')?zend_version():phpversion($ext);
+			return $res?" [$res]":'';
+		};
+		
 		$sel->SetCurrentValue($extension)->AddOption('','<select one>');
 		$sel->AddOption('all','All values');
 		foreach( array_keys($data) as $ext )
-			$sel->AddOption($ext);
+		{
+			$ver = ($ext=='zend')?zend_version():phpversion($ext);
+			$sel->AddOption($ext,$ext.$get_version($ext)." (".count($data[$ext]).")");
+		}
 		
 		if( $extension || $extension == 'all' || $search )
 		{
@@ -295,11 +294,15 @@ class SysAdmin extends HtmlPage
 						continue;
 					
 					if( !$tab )
+					{
 						$tab = $this->content( new Table() )
 							->addClass('phpinfo')
-							->SetCaption($k)
+							->SetCaption($k.$get_version($k))
 							->SetHeader('Name','Local','Master');
-					$tab->AddNewRow($ck,$v['local_value'],$v['global_value']);
+					}
+					$tr = $tab->NewRow(array($ck,$v['local_value'],$v['global_value']));
+					if( $v['local_value']!=='' && $v['local_value'] != $v['global_value'] )
+						$tr->GetCell(2)->css('color','red');
 				}
 			}
 		}

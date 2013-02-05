@@ -142,3 +142,8 @@ body.sysadmin .phpinfo .tbody .tr:nth-child(even)
 {
 	background: lightgray;
 }
+
+body.sysadmin .phpinfo .tbody .tr .td:nth-child(3)
+{
+	color: gray;
+}
