@@ -517,7 +517,7 @@ class Control extends Renderable
 		if(system_is_ajax_call())
 			return "<script> ".implode("\n",$this->_script)."</script>";
 		else
-			return "<script>$(document).ready( function() { ".implode("\n",$this->_script)." });</script>";
+			return "<script>wdf.ready.add( function() { ".implode("\n",$this->_script)." });</script>";
 	}
 
 	/**

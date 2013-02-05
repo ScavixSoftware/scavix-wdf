@@ -76,6 +76,14 @@ class AjaxResponse
 		return AjaxResponse::Json($wrapped);
 	}
 	
+	public static function Error($message,$abort_handling=false)
+	{
+		$data = new stdClass();
+		$data->error = $message;
+		$data->abort = $abort_handling;
+		return AjaxResponse::Json($data);
+	}
+	
 	function AddScript($script)
 	{
 		if( is_array($script) )

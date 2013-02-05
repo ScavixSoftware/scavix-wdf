@@ -382,6 +382,8 @@ function system_die($reason,$additional_message='')
 
     if( system_is_ajax_call() )
 	{
+		$res = AjaxResponse::Error($reason."\n".$additional_message,true);
+		die($res->Render());
 		$code = "alert(unescape(".json_encode($reason."\n".$additional_message)."));";
 		$res = new stdClass();
 		$res->html = "<script>$code</script>";

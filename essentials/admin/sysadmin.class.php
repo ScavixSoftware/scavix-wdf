@@ -198,7 +198,7 @@ class SysAdmin extends HtmlPage
     function CacheDel($key)
 	{
 		cache_del($key);
-		AjaxResponse::None();
+		return AjaxResponse::None();
 	}
 	
 	/**
@@ -220,13 +220,11 @@ class SysAdmin extends HtmlPage
 	}
 	
 	/**
-	 * @attribute[RequestParam('extension','string',null)]
+	 * @attribute[RequestParam('extension','string',false)]
 	 * @attribute[RequestParam('search','string',false)]
 	 */
 	function PhpInfo($extension,$search)
 	{
-		log_debug("PhpInfo($extension,$search)");
-		
 		if( $search )
 			$extension = null;
 		

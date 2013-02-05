@@ -144,7 +144,7 @@ class TranslationAdmin extends SysAdmin
         $res = $this->request(array('action'=>'add_terms','data'=>$data));
 		
 		if( !$res )
-			return new uiMessageBox("Could not create term: ".$this->Lasterror);
+			return AjaxResponse::Error("Could not create term: ".$this->Lasterror,true);
         
         if( $text )
         {
@@ -155,7 +155,7 @@ class TranslationAdmin extends SysAdmin
             $data = json_encode($data);
             $res = $this->request(array('action'=>'update_language','language'=>'en','data'=>$data));
 			if( !$res )
-				return new uiMessageBox("Could not set initial term content: ".$this->Lasterror);
+				return AjaxResponse::Error("Could not set initial term content: ".$this->Lasterror,true);
         }
         
         return $this->DeleteString($term);
@@ -181,6 +181,6 @@ class TranslationAdmin extends SysAdmin
     {
         $ds = model_datasource($GLOBALS['CONFIG']['translation']['sync']['datasource']);
         $ds->ExecuteSql("DELETE FROM wdf_unknown_strings WHERE term=?",$term);
-        return 'ok';
+        return AjaxResponse::None();
     }
 }

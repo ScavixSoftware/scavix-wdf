@@ -11,8 +11,17 @@ var original_jQuery_ajax = jQuery.ajax;
 	win.wdf = 
 	{
 		/* see http://api.jquery.com/jQuery.Callbacks/ */
-		ajaxReady: $.Callbacks(),  // fires without args, just notifier
-		ajaxError: $.Callbacks(), // fires with args (XmlHttpRequest object, TextStatus, ResponseText)
+		ready: $.Callbacks('unique memory'),
+		ajaxReady: $.Callbacks('unique'),  // fires without args, just notifier
+		ajaxError: $.Callbacks('unique'),  // fires with args (XmlHttpRequest object, TextStatus, ResponseText)
+		exception: $.Callbacks('unique'),  // fires with string arg containing the message
+		
+		setCallbackDefault: function(name, func)
+		{
+			wdf[name].empty().add( func );
+			wdf[name]._add = wdf[name].add;
+			wdf[name].add = function( fn ){ wdf[name].empty()._add(fn); wdf[name].add = wdf[name]._add; delete(wdf[name]._add); };
+		},
 		
 		init: function(settings)
 		{
@@ -69,6 +78,8 @@ var original_jQuery_ajax = jQuery.ajax;
 			}
 			
 			this.resetPing();
+			this.setCallbackDefault('exception', function(msg){ alert('ERROR: '+msg); });
+			this.ready.fire();
 		},
 		
 		resetPing: function()
@@ -163,6 +174,13 @@ var original_jQuery_ajax = jQuery.ajax;
 									}
 								}
 							
+							}
+							
+							if( json_result.error )
+							{
+								wdf.exception.fire(json_result.error);
+								if( json_result.abort )
+									return;
 							}
 						}
 

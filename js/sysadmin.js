@@ -1,5 +1,5 @@
 
-$(document).ready(function()
+wdf.ready.add(function()
 {
     $('div.navigation a[href="'+document.location.href+'"]').addClass("current");
     
@@ -7,27 +7,20 @@ $(document).ready(function()
     { 
         var term = $(this).data('term');
         var text = $('textarea.'+term).val()||'';
-        wdf.controller.post('CreateString',{term:term,text:text},function(d)
+        wdf.controller.post('CreateString',{term:term,text:text},function()
         {
-            if( d == 'ok' )
-            {
-                $('table.'+term).fadeOut( function(){ $('table.'+term).remove(); } );
-                return;
-            }
-			$('body').append(d);
+			$('table.'+term).fadeOut( function(){ $('table.'+term).remove(); } );
         });
     });
     
     $('table.new_string input.delete').click( function()
     { 
         var term = $(this).data('term');
-        wdf.controller.post('DeleteString',{term:term},function(d)
+        wdf.controller.post('DeleteString',{term:term},function()
         {
-            if( d == 'ok' )
-            {
-                $('table.'+term).fadeOut( function(){ $('table.'+term).remove(); } );
-                return;
-            }
+            $('table.'+term).fadeOut( function(){ $('table.'+term).remove(); } );
         });
     });
+	
+	wdf.exception.add( function(msg){ alert(msg); } );
 });

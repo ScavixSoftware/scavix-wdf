@@ -37,7 +37,7 @@ class HtmlPage extends Template implements ICallable
 	var $js = array();
 	var $css = array();
 	var $dialogs = array();
-	var $docready = array("");
+	var $docready = array();
 	var $plaindocready = array();
 	var $bodyEvents = array();
 
@@ -120,7 +120,6 @@ class HtmlPage extends Template implements ICallable
 		}
 		
 		$res = $this->__collectResources();
-		log_debug("Resources:",$res);
 		foreach( $res as $r )
 		{
 			if( ends_with($r, '.css') )
@@ -253,7 +252,7 @@ class HtmlPage extends Template implements ICallable
 		if( isDevOrBeta() )
 			$init_data['log_to_console'] = true;
 
-		$this->docready[0] = "wdf.init(".json_encode($init_data).");";
+		$this->set("wdf_init","wdf.init(".json_encode($init_data).");");
 		$this->set("docready",$this->docready);
 		$this->set("plaindocready",$this->plaindocready);
 

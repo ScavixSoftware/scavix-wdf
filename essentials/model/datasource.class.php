@@ -62,6 +62,8 @@ class DataSource extends System_DataSource
 		$this->_password = $password;
 		
         $this->_pdo = new PdoLayer($dsn,$username,$password);
+		if( !$this->_pdo )
+			throw new WdfException("Something went horribly wrong with the PdoLayer");
 		$this->_pdo->setAttribute( PDO::ATTR_STATEMENT_CLASS, array( "ResultSet", array($this) ) );
 
 		$driver = $this->_pdo->getAttribute(PDO::ATTR_DRIVER_NAME);

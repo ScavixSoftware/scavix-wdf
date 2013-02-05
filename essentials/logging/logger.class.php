@@ -75,6 +75,8 @@ class Logger
 		if( !isset($this->path) )
 			$this->path = dirname(ini_get('error_log'))."/";
 		
+		if( !is_object($this) || !isset($this) )
+			error_log(getmypid()." STACK: ".var_export(debug_backtrace(),true));
 		$this->path = realpath($this->path);
 		
 		if( isset($this->min_severity) )
