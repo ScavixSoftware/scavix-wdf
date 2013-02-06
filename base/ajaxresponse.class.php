@@ -25,7 +25,6 @@
  
 class AjaxResponse
 {
-	var $_script = false;
 	var $_data = false;
 	var $_text = false;
 	
@@ -34,12 +33,13 @@ class AjaxResponse
 		return new AjaxResponse();
 	}
 	
-	public static function Js($script=false)
+	public static function Js($script=false,$abort_handling=false)
 	{
-		$res = new AjaxResponse();
-		if( $script )
-			$res->_script = is_array($script)?$script:array($script);
-		return $res;
+		$data = new stdClass();
+		$data->script = is_array($script)?implode("\n",$script):$script;
+		$data->script = "<script>{$data->script}</script>";
+		$data->abort = $abort_handling;
+		return AjaxResponse::Json($data);
 	}
 	
 	public static function Json($data=null)
@@ -84,19 +84,15 @@ class AjaxResponse
 		return AjaxResponse::Json($data);
 	}
 	
-	function AddScript($script)
+	public static function Redirect($controller,$event='',$data='')
 	{
-		if( is_array($script) )
-			$this->_script = array_merge($this->script,$script);
-		else
-			$this->_script[] = $script;
+		$q = buildQuery($controller,$event,$data);
+		return AjaxResponse::Js("wdf.redirect('$q');");
 	}
 	
 	function Render()
 	{
-		if( $this->_script )
-			$res = implode("\n",$this->_script);
-		elseif( $this->_data )
+		if( $this->_data )
 			$res = system_to_json($this->_data);
 		elseif( $this->_text )
 			$res = $this->_text;

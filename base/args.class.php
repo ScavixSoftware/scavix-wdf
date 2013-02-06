@@ -58,14 +58,14 @@ class Args
 	 * 
 	 * For details on the possible values for $filter see Args::sanitize below.
 	 * 
-	 * @param string $name Name of the variable
+	 * @param string $name Name of the variable, if false a list of keys in the requested array is returned
 	 * @param mixed $default Default value, null if none
 	 * @param string $order Specific Superglobals order. NULL if default shall be used. See setOrder for details
 	 * @param string|int $filter Specifies a filter to apply on the value. See description above
 	 * @param mixed $filter_options Optional options for the $filter argument
-	 * @return mixed Sanitized value
+	 * @return mixed Sanitized value or a list of requested array's keys
 	 */
-	public static function sanitized($name,$default=null,$order=null,$filter=null,$filter_options=null)
+	public static function sanitized($name=false,$default=null,$order=null,$filter=null,$filter_options=null)
 	{
 		$order = is_null($order)?self::$_order:$order;
 		if( !isset(self::$_buffer[$order]) )
@@ -96,6 +96,8 @@ class Args
 				}
 			}
 		}
+		if( !$name )
+			return array_keys(self::$_buffer[$order]);
 		if( isset(self::$_buffer[$order][$name]) )
 			return is_null($filter)?self::$_buffer[$order][$name]:self::sanitize(self::$_buffer[$order][$name],$filter,$filter_options);
 		if( !is_null($default) )
@@ -271,7 +273,7 @@ class Args
 	/**
 	 * Shortcut method to access ENV values.
 	 */
-	public static function env($name,$default=null,$filter=null,$filter_options=null)
+	public static function env($name=false,$default=null,$filter=null,$filter_options=null)
 	{
 		return self::sanitized($name,$default,"E",$filter,$filter_options);
 	}
@@ -279,7 +281,7 @@ class Args
 	/**
 	 * Shortcut method to access GET values.
 	 */
-	public static function get($name,$default=null,$filter=null,$filter_options=null)
+	public static function get($name=false,$default=null,$filter=null,$filter_options=null)
 	{
 		return self::sanitized($name,$default,"G",$filter,$filter_options);
 	}
@@ -287,7 +289,7 @@ class Args
 	/**
 	 * Shortcut method to access POST values.
 	 */
-	public static function post($name,$default=null,$filter=null,$filter_options=null)
+	public static function post($name=false,$default=null,$filter=null,$filter_options=null)
 	{
 		return self::sanitized($name,$default,"P",$filter,$filter_options);
 	}
@@ -295,7 +297,7 @@ class Args
 	/**
 	 * Shortcut method to access COOKIE values.
 	 */
-	public static function cookie($name,$default=null,$filter=null,$filter_options=null)
+	public static function cookie($name=false,$default=null,$filter=null,$filter_options=null)
 	{
 		return self::sanitized($name,$default,"C",$filter,$filter_options);
 	}
@@ -303,7 +305,7 @@ class Args
 	/**
 	 * Shortcut method to access SERVER values.
 	 */
-	public static function server($name,$default=null,$filter=null,$filter_options=null)
+	public static function server($name=false,$default=null,$filter=null,$filter_options=null)
 	{
 		return self::sanitized($name,$default,"S",$filter,$filter_options);
 	}
@@ -311,7 +313,7 @@ class Args
 	/**
 	 * Shortcut method to access SESSION values.
 	 */
-	public static function session($name,$default=null,$filter=null,$filter_options=null)
+	public static function session($name=false,$default=null,$filter=null,$filter_options=null)
 	{
 		return self::sanitized($name,$default,"O",$filter,$filter_options);
 	}
@@ -321,7 +323,7 @@ class Args
 	 * 
 	 * Uses the default (or set via setOrder) superglobal query order.
 	 */
-	public static function request($name,$default=null,$filter=null,$filter_options=null)
+	public static function request($name=false,$default=null,$filter=null,$filter_options=null)
 	{
 		return self::sanitized($name,$default,null,$filter,$filter_options);
 	}

@@ -8,21 +8,21 @@ $.widget("ui.table",
 	{
 		var self = this.element, o = this.options, current_row;
 		
-		var actions = $('.ui-table-actions',self);
+		var actions = $('.ui-table-actions .ui-icon',self);
 		if( actions.length > 0 )
 		{
 			var w = 0;
-			actions
-				.children()
-				.click(function()
-				{
-					wdf.post(self.attr('id')+'/OnActionClicked',
-						{action:$(this).data('action'),row:current_row.attr('id')},
-						function(d){ $('body').append(d); });
-				})
+			$('.ui-table-actions > div',self)
 				.hover( function(){ $(this).toggleClass('ui-state-hover'); } )
 				.each(function(){ w+=$(this).width(); });
-			actions.width(w);
+				
+			$('.ui-table-actions .ui-icon',self)
+				.click(function()
+				{
+					wdf.post(self.attr('id')+'/OnActionClicked',{action:$(this).data('action'),row:current_row.attr('id')});
+				})
+				
+			$('.ui-table-actions',self).width(w);
 			
 			var on = function()
 			{

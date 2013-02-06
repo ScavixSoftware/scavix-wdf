@@ -78,7 +78,7 @@ var original_jQuery_ajax = jQuery.ajax;
 			}
 			
 			this.resetPing();
-			this.setCallbackDefault('exception', function(msg){ alert('ERROR: '+msg); });
+			this.setCallbackDefault('exception', function(msg){ alert(msg); });
 			this.ready.fire();
 		},
 		
@@ -93,7 +93,11 @@ var original_jQuery_ajax = jQuery.ajax;
 
 		reloadWithoutArgs: function()
 		{
-			var href = location.href.split('?').shift();
+			wdf.redirect(location.href.split('?').shift());
+		},
+		
+		redirect: function(href)
+		{
 			if( location.href == href )
 				location.reload();
 			else
@@ -109,6 +113,14 @@ var original_jQuery_ajax = jQuery.ajax;
 					wdf.resetPing();
 					if( !s.data )
 						s.data = {};
+					else if( $.isArray(s.data) )
+					{
+						var tmp = {};
+						for(var i=0; i<s.data.length; i++)
+							tmp[s.data[i].name] = s.data[i].value;
+						wdf.log("remapped serialized data",s.data,tmp);
+						s.data = tmp;
+					}
 					s.data.request_id = wdf.request_id;
 
 					if( wdf.settings.session_name && wdf.settings.session_id )
@@ -182,18 +194,26 @@ var original_jQuery_ajax = jQuery.ajax;
 								if( json_result.abort )
 									return;
 							}
+							if( json_result.script )
+							{
+								$('body').append(json_result.script);
+								if( json_result.abort )
+									return;
+							}
 						}
 
-						if( s.original_success )
+						var param = json_result ? (json_result.html ? json_result.html : json_result) : null;
+						if( s.original_success || param )
 						{
-							var param = json_result ? (json_result.html ? json_result.html : json_result) : null;
-
 							// async exec JS after all JS have been loaded
 							var cbloaded = function()
 							{
-								if(($("script[ajaxdelayload='1']").length == 0)) // && ($("link[rel=stylesheet][ajaxdelayload=1]").length == 0))
+								if(($("script[ajaxdelayload='1']").length == 0)) 
 								{
-									s.original_success(param, status);
+									if( s.original_success )
+										s.original_success(param, status);
+									else if( param )
+										$('body').append(param);
 									wdf.ajaxReady.fire();
 								}
 								else

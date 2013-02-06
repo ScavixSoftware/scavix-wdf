@@ -28,7 +28,7 @@ class uiDialog extends uiControl
 	protected $Options = array();
 	protected $Buttons = array();
 	protected $CloseButton = null;
-	protected $CloseButtonAction = null;
+	var $CloseButtonAction = null;
 
 	function __initialize($title="TITLE_DIALOG", $options=array())
 	{
@@ -44,11 +44,15 @@ class uiDialog extends uiControl
 				'height'=>150,
 				'open'=>"function(){ $(this).parent().find('.ui-button').button('enable'); }",
 			),$options);
+		
+		$rem = system_is_ajax_call()?".remove()":'';
+		$this->CloseButtonAction = "function(){ $('#{$this->id}').dialog('close')$rem; }";
 	}
 
 	function SetOption($name,$value)
 	{
 		$this->Options[$name] = $value;
+		return $this;
 	}
 
 	function PreRender($args=array())
@@ -59,8 +63,6 @@ class uiDialog extends uiControl
 			// just to render close button with the right id
 			if( !is_null($this->CloseButton) )
 			{
-				if(is_null($this->CloseButtonAction))
-					$this->CloseButtonAction = "[jscode] function(){ $('#{$this->id}').dialog('close'); }";
 				$temp = array( $this->CloseButton => $this->CloseButtonAction );
 				$this->Buttons = array_merge($this->Buttons, $temp);
 			}
@@ -68,7 +70,7 @@ class uiDialog extends uiControl
 			$tmp = $this->_script;
 			$this->_script = array();
 			$this->script("try{ $('#{$this->id}').dialog(".system_to_json($this->Options)."); }catch(ex){ wdf.debug(ex); }");
-			$this->script("$('#{$this->id}').parent().find('.ui-button').click(function(){ $(this).parent().find('.ui-button').button('disable'); });");
+			$this->script("$('#{$this->id}').parent().find('.ui-dialog-buttonpane .ui-button').click(function(){ $(this).parent().find('.ui-button').button('disable'); });");
 			$this->_script = array_merge($this->_script,$tmp);
 
 			foreach( $this->_script as $s )
@@ -83,8 +85,10 @@ class uiDialog extends uiControl
 	 */
 	function AddButton($label,$action)
 	{
-		//$label = getString($label);
+		if( !starts_with($action, '[jscode]') && !starts_with($action, 'function') )
+			$action = "function(){ $action }";
 		$this->Buttons[$label] = $action;
+		return $this;
 	}
 
 	function AddCloseButton($label, $action = false)
@@ -92,6 +96,7 @@ class uiDialog extends uiControl
 		$this->CloseButton = $label;
 		if($action !== false)
 			$this->CloseButtonAction = $action;
+		return $this;
 	}
 }
 ?>
