@@ -86,11 +86,6 @@ class MySql implements IDatabaseDriver
 		return $res;
 	}
 
-	function lastInsertId($table=null)
-	{
-		return $this->_pdo->lastInsertId($table);
-	}
-
 	function listColumns($tablename)
 	{
 		$sql = 'SHOW COLUMNS FROM `'.$tablename.'`';

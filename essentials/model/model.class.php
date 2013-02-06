@@ -788,7 +788,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		{
 			$id = $pkcols[0];
 			if( !isset($this->$id) )
-				$this->$id = $this->_ds->Driver->lastInsertId();
+				$this->$id = $this->_ds->LastInsertId();
 		}
 		$this->__init_db_values();
 		return true;

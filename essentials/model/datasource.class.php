@@ -404,6 +404,11 @@ class DataSource extends System_DataSource
 			return false;
 		return trim($m[1]);
 	}
+	
+	function LastInsertId($table=null)
+	{
+		return $this->_pdo->lastInsertId($table);
+	}
 }
 
 ?>
