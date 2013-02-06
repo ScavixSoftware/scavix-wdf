@@ -1,10 +1,5 @@
 
-var ping_timer = false;
-var ajax_manager = false;
-var ajax_disabled = false;
-$.jCache.maxSize = 100;
 $.ajaxSetup({cache:false});
-var original_jQuery_ajax = jQuery.ajax;
 
 (function(win,$,undefined)
 {
@@ -106,8 +101,8 @@ var original_jQuery_ajax = jQuery.ajax;
 		
 		initAjax: function()
 		{
-			ajax_manager = $.manageAjax({manageType: 'queue', maxReq: 4, blockSameRequest: false, cache: false});
-			jQuery.extend({
+			wdf.original_ajax = $.ajax;
+			$.extend({
 				ajax: function( s )
 				{
 					wdf.resetPing();
@@ -132,10 +127,10 @@ var original_jQuery_ajax = jQuery.ajax;
 					}
 
 					if( s.dataType == 'json' || s.dataType == 'script' )
-						return original_jQuery_ajax(s);
+						return wdf.original_ajax(s);
 
 					if( s.data && s.data.PING )
-						return original_jQuery_ajax(s);
+						return wdf.original_ajax(s);
 
 					if( s.success )
 						s.original_success = s.success;
@@ -232,7 +227,7 @@ var original_jQuery_ajax = jQuery.ajax;
 						wdf.ajaxError.fire(xhr,st,xhr.responseText);
 					}
 
-					return original_jQuery_ajax(s);
+					return wdf.original_ajax(s);
 				}
 			});
 
