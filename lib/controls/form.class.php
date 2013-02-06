@@ -73,8 +73,7 @@ class Form extends Control
 	
 	function AjaxSubmitTo($controller,$event)
 	{
-		$q = ($controller instanceof Renderable)?"{$controller->_storage_id}/$event":"$controller/$event";
-		$s = "wdf.post('$q',$(this).serializeArray());";
+		$s = AjaxAction::Post($controller,$event,"$(this).serializeArray()");
 		$this->script("$('#{self}').submit( function(){ $s return false; } );");
 		return $this;
 	}

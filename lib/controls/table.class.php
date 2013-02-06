@@ -46,7 +46,7 @@ class Table extends uiControl
 	function __initialize()
 	{
 		parent::__initialize("div");
-		$this->class = 'divtable';
+		$this->class = 'table';
 		$this->script("$('#{self}').table();");
 	}
 	
@@ -364,7 +364,7 @@ class Table extends uiControl
 		if( isset($this->_actionHandler[$action]) )
 		{
 			$model = $this->_rowModels[$row];
-			return call_user_func_array($this->_actionHandler[$action],array($this,$action,$model));
+			return call_user_func_array($this->_actionHandler[$action],array($this,$action,$model,$row));
 		}
 		log_warn("No handler defined for $action");
 		return AjaxResponse::None();
@@ -373,8 +373,8 @@ class Table extends uiControl
 	function Sortable($handler,$method)
 	{
 		$this->_sortHandler = array($handler,$method);
-		$s = "wdf.post('{self}/OnReordered',{rows:$('#{self} .tbody .tr').enumAttr('id')})";
-		$s = "$('#{self} .tbody').sortable({ update: function(){ $s } });";
+		$s = "wdf.post('{self}/OnReordered',{rows:$('#{self} .tbody .tr').enumAttr('id')}); $('#{self} .ui-table-actions').removeClass('sorting');";
+		$s = "$('#{self} .tbody').sortable({distance:5,update: function(){ $s }, start:function(){ $('#{self} .ui-table-actions').addClass('sorting').hide(); } });";
 		$this->script($s);
 		store_object($this);
 		return $this;

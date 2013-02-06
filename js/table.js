@@ -26,6 +26,8 @@ $.widget("ui.table",
 			
 			var on = function()
 			{
+				if( $('.ui-table-actions.sorting',self).length>0 )
+					return;
 				current_row = $(this); 
 				$('.ui-table-actions',self).show()
 					.position({my:'right center',at:'right-1 center',of:current_row});

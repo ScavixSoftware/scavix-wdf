@@ -1,30 +1,30 @@
-.divtable { display: table; }
+.table { display: table; }
 
-.divtable .caption { display: table-caption; font-weight: bold; }
+.table .caption { display: table-caption; font-weight: bold; }
 
-.divtable .colgroup { display: table-column-group; }
+.table .colgroup { display: table-column-group; }
 
-.divtable .col { display: table-column; }
+.table .col { display: table-column; }
 
-.divtable .thead { display: table-header-group; font-weight: bold; }
+.table .thead { display: table-header-group; font-weight: bold; }
 
-.divtable .tbody { display: table-row-group; }
+.table .tbody { display: table-row-group; }
 
-.divtable .tfoot { display: table-footer-group; }
+.table .tfoot { display: table-footer-group; }
 
-.divtable .tr { display: table-row; }
+.table .tr { display: table-row; }
 
-.divtable .td { display: table-cell; padding: 3px; }
+.table .td { display: table-cell; padding: 3px; }
 
-.divtable .tr.odd { background-color: #F5F5F5; }
-.divtable .tr.even { background-color: #C0C0C0; }
-.divtable .td.indent
+.table .tbody .tr:nth-child(odd) { background-color: transparent; }
+.table .tbody .tr:nth-child(even) { background-color: transparent; }
+.table .td.indent
 {
 	padding-left: 16px !important;
     padding-right: 0px !important;
 }
 
-.divtable .td pre { font-family: Courier,monospace; margin: 0; }
+.table .td pre { font-family: Courier,monospace; margin: 0; }
 
 .ui-table-actions > div { cursor: pointer; float:left; display: inline-block; width: 16px; }
 .ui-table-actions > div.ui-state-hover { margin: -1px; }

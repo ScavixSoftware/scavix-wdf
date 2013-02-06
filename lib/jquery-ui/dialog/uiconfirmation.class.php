@@ -27,8 +27,9 @@ class uiConfirmation extends uiDialog
 {
 	const OK_CANCEL = 1;
 	const YES_NO = 2;
+	var $Mode;
 	
-	function __initialize($title='TITLE_CONFIRMATION',$text='TXT_CONFIRMATION',$ok_callback=false,$button_mode=self::OK_CANCEL)
+	function __initialize($text_base='CONFIRMATION',$ok_callback=false,$button_mode=self::OK_CANCEL)
 	{
 		$options = array(
 			'autoOpen'=>true,
@@ -36,6 +37,9 @@ class uiConfirmation extends uiDialog
 			'width'=>450,
 			'height'=>300
 		);
+		
+		$title = "TITLE_$text_base";
+		$text  = "TXT_$text_base";
 		
 		parent::__initialize($title,$options);
 		switch( $button_mode )
@@ -51,7 +55,21 @@ class uiConfirmation extends uiDialog
 			default:
 				throw new Exception("Wrong button_mode: $button_mode");
 		}
+		$this->Mode = $button_mode;
 		$this->content($text);
+	}
+	
+	function SetOkCallback($action)
+	{
+		switch( $this->Mode )
+		{
+			case self::OK_CANCEL:
+				$this->SetButton('BTN_OK',$action);
+				break;
+			case self::YES_NO:
+				$this->SetButton('BTN_YES',$action);
+				break;
+		}
 	}
 }
 ?>

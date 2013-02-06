@@ -90,6 +90,10 @@ class uiDialog extends uiControl
 		$this->Buttons[$label] = $action;
 		return $this;
 	}
+	function SetButton($label,$action)
+	{
+		return $this->AddButton($label, $action);
+	}
 
 	function AddCloseButton($label, $action = false)
 	{
