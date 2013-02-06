@@ -27,9 +27,10 @@ $icon = $type=='highlight'?'info':'alert';
 $message = isset($message)?$message:'Unknown error';
 ?>
 <div class="ui-widget ui-message">
-	<div style="padding: 0 .7em;" class="ui-state-<?=$type?> ui-corner-all">
+	<div class="ui-state-<?=$type?> ui-corner-all">
+		<span class="ui-icon ui-icon-close" onclick="$(this).parent().parent().slideUp('fast', function(){ $(this).remove(); })"></span>
 		<p>
-			<span style="float: left; margin-right: 0.3em; margin-top: 0.1em;" class="ui-icon ui-icon-<?=$icon?>"></span>
+			<span class="ui-icon ui-icon-<?=$icon?>"></span>
 			<?=$message?>
 		</p>
 	</div>

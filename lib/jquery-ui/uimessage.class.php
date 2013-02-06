@@ -23,6 +23,9 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
+/**
+ * @attribute[Resource('jquery-ui/ui.message.css')]
+ */
 class uiMessage extends uiTemplate
 {
 	static function Hint($message)
