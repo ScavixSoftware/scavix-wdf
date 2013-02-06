@@ -849,6 +849,9 @@ function buildQuery($controller,$event="",$data="", $url_root=false)
 {
 	global $CONFIG;
 
+	if( $controller instanceof Renderable )
+		$controller = $controller->_storage_id;
+		
     if(substr($controller, 0, 4) == "http")
         return $controller;
 
