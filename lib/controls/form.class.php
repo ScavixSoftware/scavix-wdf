@@ -28,6 +28,7 @@ class Form extends Control
     function __initialize()
 	{
 		parent::__initialize("form");
+		$this->method = 'post';
 	}
 	
 	function AddInput($type,$name,$value='')
