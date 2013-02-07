@@ -117,15 +117,15 @@ function creditcard_check ($cardnumber, $cardname, &$errornumber, &$errortext) {
   $ccErrorNo = 0;
 
   // Unknown card type
-  $ccErrors [0] = "ERR_UNKNOWN_CARD_TYPE";
+  $ccErrors [0] = tds('ERR_UNKNOWN_CARD_TYPE','Unknown card type');
   // No card number provided
-  $ccErrors [1] = "ERR_NO_CARD_NUMBER_PROVIDED";
+  $ccErrors [1] = tds('ERR_NO_CARD_NUMBER_PROVIDED','Card number missing');
   // Credit card number has invalid format
-  $ccErrors [2] = "ERR_CREDIT_CARD_NUMBER_HAS_INVALID_FORMAT";
+  $ccErrors [2] = tds('ERR_CREDIT_CARD_NUMBER_HAS_INVALID_FORMAT','Invalid card number format');
   // Credit card number is invalid
-  $ccErrors [3] = "ERR_CREDIT_CARD_NUMBER_IS_INVALID";
+  $ccErrors [3] = tds('ERR_CREDIT_CARD_NUMBER_IS_INVALID','Invalid card number');
   // Credit card number is wrong length
-  $ccErrors [4] = "ERR_CREDIT_CARD_NUMBER_IS_WRONG_LENGTH";
+  $ccErrors [4] = tds('ERR_CREDIT_CARD_NUMBER_IS_WRONG_LENGTH','Wrong card number length');
                
   // Establish card type
   $cardType = -1;
