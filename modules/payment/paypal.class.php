@@ -234,7 +234,7 @@ class PayPal extends PaymentProvider
 				{
 					// log for manual investigation
 					log_error("PayPal IPN Verification failed: ".$res." ".$paypal_url."?".$req);
-//					mail("alert@pamfax.biz", "Invalid PayPal IPN Request #$order_id", "Order #$order_id returned $res in PayPal recheck:\r\n\r\n".var_export($_REQUEST, true));
+//					mail("<somevalidmailaddress>", "Invalid PayPal IPN Request #$order_id", "Order #$order_id returned $res in PayPal recheck:\r\n\r\n".var_export($_REQUEST, true));
 					break;
 				}
 			}

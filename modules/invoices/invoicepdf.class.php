@@ -78,9 +78,9 @@ class InvoicePdf extends PdfDocument
 	{
 		parent::__construct();
 		$this->OrderDate = time();
-		$this->Author = "PamFax";
-		$this->Creator = "PamFax";
-		$this->Producer = "PamFax";
+		$this->Author = "Scavix";
+		$this->Creator = "Scavix";
+		$this->Producer = "Scavix";
 	}
 	
 	/**

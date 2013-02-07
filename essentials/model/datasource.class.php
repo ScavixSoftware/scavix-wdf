@@ -273,7 +273,7 @@ class DataSource extends System_DataSource
 	
 	function Now($seconds_to_add=0)
 	{
-		// Reactivating DB querying because this is cause of MANY error (we only see the obvious: PamFax SPH are reregistering all the time)
+		// Reactivating DB querying because this is cause of MANY errors
 		// Sample from DEV system: 
 		// - SELECT NOW() -> 2012-01-25 09:42:59
 		// - time()       -> 2012-01-25 08:43:36

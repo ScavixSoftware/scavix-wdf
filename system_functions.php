@@ -492,12 +492,11 @@ function get_ip_address()
 //	if( isDev() )
 //		return "66.135.205.14";	// US (ebay.com)
 //		return "46.122.252.60"; // ljubljana
-//		return "190.172.82.24"; // argentinia? (#5444)
+//		return "190.172.82.24"; // argentinia?
 //		return "84.154.26.132"; // probably invalid ip from munich
 //		return "203.208.37.104"; // google.cn
 //		return "62.215.83.54";	// kuwait
 //		return "41.250.146.224";	// Morocco (rtl!)
-//		return "85.13.144.94";	// pamfax.biz = DE
 //		return "66.135.205.14";	// US (ebay.com)
 //		return "121.243.179.122";	// india
 //		return "109.253.21.90";	// invalid (user says UK)
