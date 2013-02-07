@@ -22,6 +22,7 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
+default_string('TITLE_WARNING', 'Warning');
 
 class uiMessageBox extends uiDialog
 {
@@ -38,7 +39,7 @@ class uiMessageBox extends uiDialog
 		$this->class = $type;
 
 		$this->content($message_text);
-		$this->AddCloseButton('BTN_OK');
+		$this->AddCloseButton(tds('BTN_OK','Ok'));
 	}
 }
 ?>

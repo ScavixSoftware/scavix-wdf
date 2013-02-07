@@ -47,12 +47,12 @@ class uiConfirmation extends uiDialog
 		switch( $button_mode )
 		{
 			case self::OK_CANCEL:
-				$this->AddButton('BTN_OK',$ok_callback);
-				$this->AddCloseButton('BTN_CANCEL');
+				$this->AddButton(tds('BTN_OK','Ok'),$ok_callback);
+				$this->AddCloseButton(tds('BTN_CANCEL','Cancel'));
 				break;
 			case self::YES_NO:
-				$this->AddButton('BTN_YES',$ok_callback);
-				$this->AddCloseButton('BTN_NO');
+				$this->AddButton(tds('BTN_YES','Yes'),$ok_callback);
+				$this->AddCloseButton(tds('BTN_NO','No'));
 				break;
 			default:
 				throw new Exception("Wrong button_mode: $button_mode");
@@ -66,10 +66,10 @@ class uiConfirmation extends uiDialog
 		switch( $this->Mode )
 		{
 			case self::OK_CANCEL:
-				$this->SetButton('BTN_OK',$action);
+				$this->SetButton(tds('BTN_OK','Ok'),$action);
 				break;
 			case self::YES_NO:
-				$this->SetButton('BTN_YES',$action);
+				$this->SetButton(tds('BTN_YES','Yes'),$action);
 				break;
 		}
 	}

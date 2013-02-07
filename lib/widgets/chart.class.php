@@ -81,9 +81,9 @@ class Chart extends Template
 
 		global $CONFIG;
 		$swfurl = $CONFIG['system']['system_uri']."modules/charting/charts/".$type.".swf";
-		$swfurl .= "?PBarLoadingText=".urlencode(getString("MSG_CHART_LOADING"));
-		$swfurl .= "&ChartNoDataText=".urlencode(getString("TXT_NO_DATA_FOUND"));
-		$swfurl .= "&InvalidXMLText=".urlencode(getString("MSG_CHART_INVALID_XML"));
+		$swfurl .= "?PBarLoadingText=".urlencode(getString(tds('TXT_CHART_LOADING','loading')));
+		$swfurl .= "&ChartNoDataText=".urlencode(getString(tds('TXT_NO_DATA_FOUND','no data found')));
+		$swfurl .= "&InvalidXMLText=".urlencode(getString(tds('TXT_CHART_INVALID_XML','invalid XML')));
 
 		$this->set("chartswffile", $swfurl);
 		$this->set("chartid", $this->_storage_id);

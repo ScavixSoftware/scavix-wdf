@@ -63,7 +63,7 @@ function translation_init()
 
 	$CONFIG['translation']['searchpatterns'] = array_merge(
 		$CONFIG['translation']['searchpatterns'],
-		array("WINDOW_","TITLE_","BTN_","MSG_","TXT_","ERR_","LAB_")
+		array("WINDOW_","TITLE_","BTN_","TXT_","ERR_")
 	);
 
 	// build reg pattern once:
