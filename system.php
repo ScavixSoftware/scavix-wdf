@@ -163,6 +163,8 @@ function system_init($application_name, $skip_header = false, $logging_category=
 	system_load_module('essentials/session.php');
 	system_load_module('essentials/resources.php');
 	system_load_module('essentials/admin.php');
+	system_load_module('essentials/localization.php');
+	system_load_module('essentials/translation.php');
 	foreach( glob($thispath.'/essentials/*.php') as $essential ) // load all other essentials
 		system_load_module($essential);
 	
@@ -300,6 +302,8 @@ function system_execute()
 		else
 			throw new WdfException("Unknown AJAX return value");
 	}
+	elseif( $content instanceof AjaxResponse ) // is system_is_ajax_call() failed to detect AJAX but response in fact IS for AJAX
+		die("__SESSION_TIMEOUT__");
 	else
 	{
 		$_SESSION['request_id'] = request_id();

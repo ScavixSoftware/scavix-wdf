@@ -36,7 +36,7 @@ function localization_init()
 	if( !isset($CONFIG['localization']['detection_order']) )
 		$CONFIG['localization']['detection_order'] = array(Localization::USE_BROWSER,Localization::USE_IP);
 
-	$p = dirname(__FILE__).'/localization/';
+	$p = __DIR__.'/localization/';
 	$CONFIG['class_path']['system'][] = $p;
 	require_once($p.'cultureinfo.inc.php');
 }
