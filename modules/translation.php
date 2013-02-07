@@ -57,6 +57,9 @@ function translation_init()
 
 	if( !isset($CONFIG['translation']['detect_ci_callback']) )
 		$CONFIG['translation']['detect_ci_callback'] = false;
+	
+	if( !isset($CONFIG['translation']['default_strings']) )
+		$CONFIG['translation']['default_strings'] = array();
 
 	$CONFIG['translation']['searchpatterns'] = array_merge(
 		$CONFIG['translation']['searchpatterns'],
@@ -81,8 +84,7 @@ function translation_init()
 function translation_do_includes()
 {
 	global $CONFIG;
-//	include($CONFIG['translation']['data_path']."translation.inc.php");
-//	include($CONFIG['translation']['data_path'].$CONFIG['localization']['default_language'].".inc.php");
+
 	if( file_exists($CONFIG['translation']['data_path'].$GLOBALS['current_language'].".inc.php") )
 	{
 		include($CONFIG['translation']['data_path'].$GLOBALS['current_language'].".inc.php");
@@ -97,15 +99,14 @@ function translation_do_includes()
 		}
 		else
 		{
-			log_fatal("No translations found!",$CONFIG['translation']['data_path'].$CONFIG['localization']['default_language'].".inc.php");
+			log_warn("No translations found!",$CONFIG['translation']['data_path'].$CONFIG['localization']['default_language'].".inc.php");
 			$GLOBALS['translation']['properties'] = array();
 			$GLOBALS['translation']['strings'] = array();
 		}
 	}
-
-//	$GLOBALS['translation']['known_constants'] = array_keys($GLOBALS['translation']['strings']);
-//	if( !is_null($null) )
-//		globalcache_set('translation_known_constants',$GLOBALS['translation']['known_constants']);
+	
+	// remove those default strings that are now defined
+	$CONFIG['translation']['default_strings'] = array_diff_key($CONFIG['translation']['default_strings'],$GLOBALS['translation']['strings']);
 }
 
 function translation_add_function($func)
@@ -147,13 +148,9 @@ function __translate_callback($matches)
 
 	if( isset($__unknown_constants["k".$val]) )
 		return $val."?";
-
 	$trans = getString($val,null,$unbuffered);
-	if( $trans == "$val?" )
-	{
-		$__unknown_constants["k".$val] = $val;
+	if( isset($__unknown_constants["k".$val]) )
 		return $trans;
-	}
 
 	if( $do_js )
 		return substr(json_encode($trans),1,-1);
@@ -198,14 +195,16 @@ function __translate($text)
 				term VARCHAR(255) NOT NULL,
 				last_hit DATETIME NOT NULL,
 				hits INT DEFAULT 0,
+				default_val TEXT,
 				PRIMARY KEY (term))");
 			
             $now = $ds->Driver->Now();
-            $sql1 = "INSERT OR IGNORE INTO wdf_unknown_strings(term,last_hit,hits)VALUES(?,$now,0);";
+            $sql1 = "INSERT OR IGNORE INTO wdf_unknown_strings(term,last_hit,hits,default_val)VALUES(?,$now,0,?);";
             $sql2 = "UPDATE wdf_unknown_strings SET last_hit=$now, hits=hits+1 WHERE term=?;";
             foreach( $__unknown_constants as $uc )
             {
-                $ds->Execute($sql1,$uc);
+				$def = cfg_getd('translation','default_strings',$uc,'');
+                $ds->Execute($sql1,array($uc,$def));
                 $ds->Execute($sql2,$uc);
             }
         }
@@ -333,14 +332,28 @@ function getStringOrig($constant, $arreplace = null, $unbuffered = false, $encod
         $res = $GLOBALS['translation']['strings'][$constant];
         $res = ReplaceVariables($res, $arreplace);
     }
-    else // $constant is not really a constant, but just a string, so we just need to replace the vars in there
+    else 
     {
-        $res = ReplaceVariables($constant, $arreplace);
-        if($res == $constant)
-        {
-            $res = htmlspecialchars($constant)."?";
+		// may be one of the system default strings
+		$def = cfg_get('translation','default_strings',$constant);
+		if( $def )
+		{
+			$res = ReplaceVariables($def, $arreplace);
 			$GLOBALS['translation']['skip_buffering_once'] = true;
-        }
+			$GLOBALS['__unknown_constants']["k".$constant] = $constant;
+		}
+		else
+		{
+			// $constant is not really a constant, but just a string, so we just need to replace the vars in there
+			$res = ReplaceVariables($constant, $arreplace);
+			if($res == $constant)
+			{
+				// if still the same, constant is unknown
+				$res = htmlspecialchars($constant)."?";
+				$GLOBALS['translation']['skip_buffering_once'] = true;
+				$GLOBALS['__unknown_constants']["k".$constant] = $constant;
+			}
+		}
     }
 
 	if(!is_null($encoding))
@@ -468,4 +481,12 @@ function translation_ensure_nt($text_potentially_named_like_a_constant)
 	if( !translation_string_exists($text_potentially_named_like_a_constant) )
 		return $text_potentially_named_like_a_constant;
 	return $text_potentially_named_like_a_constant."[NT]";
+}
+
+function tds($constant,$text){ return default_string($constant, $text); }
+function default_string($constant,$text)
+{
+	if( translation_string_exists($constant) )
+		cfg_set('translation','default_strings',$constant,$text);
+	return $constant;
 }

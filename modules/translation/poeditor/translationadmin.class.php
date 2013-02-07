@@ -167,9 +167,11 @@ class TranslationAdmin extends SysAdmin
     {
         $this->addContent("<h1>New strings</h1>");
         $ds = model_datasource($GLOBALS['CONFIG']['translation']['sync']['datasource']);
-        foreach( $ds->ExecuteSql("SELECT * FROM wdf_unknown_strings ORDER BY term") as $row )
+		foreach( $ds->Query('wdf_unknown_strings')->all() as $row )
         {
-            $ns = new TranslationNewString($row['term'],$row['hits'],$row['last_hit']);
+			$ns = Template::Make('translationnewstring');
+			foreach( $row->GetColumnNames() as $col )
+				$ns->set($col,$row->$col);
             $this->addContent($ns);
         }
     }
