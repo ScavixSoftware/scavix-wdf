@@ -46,12 +46,16 @@ class GoogleControl extends Control
 				$controller = $args[0];
 				if( $controller instanceof HtmlPage )
 				{
+					// let these controls render plain, not wrapped into jQuery's document ready function
+					// note the FALSE in the addDocReady calls!
 					$loader = array();
 					foreach( self::$_packages as $api=>$pack )
 						foreach( $pack as $version=>$packages )
 							$loader[] = "google.load('$api','$version',".json_encode($packages).");";
 					$controller->addDocReady($loader,false);
-					$controller->addDocReady("google.setOnLoadCallback(function(){ wdf.debug('Google APIs loaded'); });");
+					$controller->addDocReady("google.setOnLoadCallback(function(){ wdf.debug('Google APIs loaded'); });",false);
+					$controller->addDocReady(implode("\n",$this->_script),false);
+					return;
 				}
 			}
 		}

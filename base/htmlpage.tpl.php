@@ -48,8 +48,8 @@ $(function(){
 	});
 <? endif; ?>
 	<?=$wdf_init?>
-	<?=implode("\n\t",$plaindocready)?>
 });
+	<?=implode("\n\t",$plaindocready)?>
 </script>
 </head>
 <body<? foreach($bodyEvents as $k=>$v) echo " $k='$v'";?><?=isset($isrtl)?"$isrtl":""?><?=isset($bodyClass)?" class='$bodyClass'":""?>>
