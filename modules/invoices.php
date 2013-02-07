@@ -109,18 +109,6 @@ function createShopInvoice($invoicenr, $user, $shop)
 	while (!$rsi->EOF)
 	{
 		$itemname = str_replace('?', '', $rsi->fields['item_name']);
-		if(stripos($itemname, "PLAN") !== false)
-		{
-			// find fax-in number and print on invoice (mantis #7255)
-			$fin = $ds->CreateInstance("FaxInNumber");
-			if( $fin->Load("order_id=? AND user_id=? ORDER BY id DESC", array($rs->fields['order_id'], $user->id)) )
-			{
-				$ni = PNR::GetNumberInfo($fin->number);
-				$itemname = $user->getString($itemname);
-				$itemname .= "\r\n".$user->getString("TXT_PERSONAL_FAX_NUMBER").": ".NumberInfoObject::FormatNumber($ni);
-				$itemname .= "\r\n".$user->getString("TXT_EXPIRES", array("{date}" => $pdf->CI->FormatDate($fin->valid_until)));
-			}
-		}		
 		$itemname = invoicePdfPreFormatText($itemname,$pdf->Language->Code,$user);
 		$price = $rs->fields['currency_rate'] * $rsi->fields['price'];				
 		$pdf->AddItem($itemname, $rsi->fields['quantity'], $price);
