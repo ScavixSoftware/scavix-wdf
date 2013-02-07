@@ -163,13 +163,11 @@ class Control extends Renderable
 	{
 		if( !hook_already_fired(HOOK_PRE_RENDER) )
 		{
-//			log_debug(get_class($this).":Registering prerender hook");
 			register_hook(HOOK_PRE_RENDER,$this,"PreRender");
 		}
 		else
 			if( !hook_already_fired(HOOK_POST_EXECUTE) )
 			{
-//				log_debug(get_class($this).": Registering postexec hook");
 				register_hook(HOOK_POST_EXECUTE,$this,"PreRender");
 			}
 
@@ -304,25 +302,8 @@ class Control extends Renderable
 	
 	public static function Make($tag="")
     {
-		$className = self::DetectCallingClass();
+		$className = get_called_class();
 		return new $className($tag);
-	}
-	
-	public static function DetectCallingClass()
-	{
-		$backtrace = debug_backtrace();
-		$i = 1;
-		do
-		{
-			$trace = $backtrace[$i++];
-			$file_obj = new SplFileObject( $trace['file'] );
-			$file_obj->seek( $trace['line']-1 );
-			$line = $file_obj->current();
-			$regex = '/.*\s([^'.$trace['type'][0].']*)'.$trace['type'].$trace['function'].'/';
-			if( !preg_match($regex, $line, $match) )
-				throw new Exception("Unable to detect calling class");
-		}while( strtolower($match[1]) == 'self' );
-		return $match[1];
 	}
 
 	/**

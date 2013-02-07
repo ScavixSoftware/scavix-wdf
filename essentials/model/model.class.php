@@ -304,7 +304,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
 	public static function &Select($datasource)
 	{
-		$className = self::DetectCallingClass();
+		$className = get_called_class();
 		$res = new $className($datasource);
 		$res->__ensureSelect();
 		return $res;
@@ -312,7 +312,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	
 	public static function &Query($sql,$args=array(),$datasource=null)
 	{
-		$className = self::DetectCallingClass();
+		$className = get_called_class();
 		$res = new $className($datasource);
 		$res->__ensureSelect();
 		$res->_querySql = $sql;
@@ -322,7 +322,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
 	public static function &Make($datasource=null,$pk_value=false)
     {
-		$className = self::DetectCallingClass();
+		$className = get_called_class();
 		$res = new $className($datasource);
 		if( $pk_value !== false )
 		{
@@ -345,23 +345,6 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		}
 		return $res;
     }
-	
-	public static function DetectCallingClass()
-	{
-		$backtrace = debug_backtrace();
-		$i = 1;
-		do
-		{
-			$trace = $backtrace[$i++];
-			$file_obj = new SplFileObject( $trace['file'] );
-			$file_obj->seek( $trace['line']-1 );
-			$line = $file_obj->current();
-			$regex = '/.*\s([^'.$trace['type'][0].']*)'.$trace['type'].$trace['function'].'/';
-			if( !preg_match($regex, $line, $match) )
-				throw new Exception("Unable to detect calling class");
-		}while( strtolower($match[1]) == 'self' );
-		return $match[1];
-	}
 	
 	public static function EnsureDateTime($value,$convert_now_to_value=false)
 	{

@@ -238,7 +238,7 @@ class SysAdmin extends HtmlPage
 		}
 		ksort($data);
 		
-		$tab = $this->addContent( new Table() );
+		$tab = $this->addContent( Table::Make() );
 		$tab->addClass('phpinfo')
 			->SetCaption("Basic information")
 			->AddNewRow("PHP version",phpversion())

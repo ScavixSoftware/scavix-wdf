@@ -50,8 +50,6 @@ class Table extends uiControl
 		$this->script("$('#{self}').table();");
 	}
 	
-	static function Make(){ return new Table(); }
-
 	function SetColFormat($index,$format,$blank_if_false=false,$conditional_css=array())
 	{
 		$this->ColFormats[$index] = new CellFormat($format, $blank_if_false, $conditional_css);

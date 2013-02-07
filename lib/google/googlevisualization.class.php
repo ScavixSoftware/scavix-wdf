@@ -34,26 +34,9 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	var $gvOptions;
 	var $gvQuery;
 	
-	protected static function _detectCallingClass()
-	{
-		$backtrace = debug_backtrace();
-		$i = 1;
-		do
-		{
-			$trace = $backtrace[$i++];
-			$file_obj = new SplFileObject( $trace['file'] );
-			$file_obj->seek( $trace['line']-1 );
-			$line = $file_obj->current();
-			$regex = '/.*\s([^'.$trace['type'][0].']*)'.$trace['type'].$trace['function'].'/';
-			if( !preg_match($regex, $line, $match) )
-				throw new Exception("Unable to detect calling class");
-		}while( strtolower($match[1]) == 'self' );
-		return $match[1];
-	}
-	
 	static function Make($title=false)
 	{
-		$className = self::_detectCallingClass();
+		$className = get_called_class();
 		$res = new $className();
 		if( $title )
 			return $res->opt('title',$title);

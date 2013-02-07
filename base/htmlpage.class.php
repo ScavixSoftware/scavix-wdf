@@ -71,11 +71,28 @@ class HtmlPage extends Template implements ICallable
 			$this->set("favicon", resFile("favicon.ico"));
 	}
 
+	function WdfRenderAsRoot()
+	{
+		execute_hooks(HOOK_PRE_RENDER,array($this));
+
+		$init_data = array('request_id' => request_id(),'site_root' => cfg_get('system','url_root'));
+		if( cfg_getd('system','attach_session_to_ajax',false) )
+		{
+			$init_data['session_id'] = session_id();
+			$init_data['session_name'] = session_name();
+		}
+		if( isDevOrBeta() )
+			$init_data['log_to_console'] = true;
+
+		$this->set("wdf_init","wdf.init(".json_encode($init_data).");");
+		$this->set("docready",$this->docready);
+		$this->set("plaindocready",$this->plaindocready);
+
+		return parent::WdfRenderAsRoot();
+	}
+	
 	function WdfRender()
 	{
-		global $CONFIG;
-
-		// moved here to allow derivered classes to set isrtl based on another CI
 		if( !$this->get('isrtl') && system_is_module_loaded('localization') )
 		{
 			$ci = Localization::detectCulture();
@@ -84,7 +101,6 @@ class HtmlPage extends Template implements ICallable
 		}
 		
 		$res = $this->__collectResources();
-		log_debug($res);
 		$this->js = array_reverse($this->js,true);
 		foreach( array_reverse($res) as $r )
 		{
@@ -124,11 +140,8 @@ class HtmlPage extends Template implements ICallable
 	 */
 	function addMeta($name,$content,$scheme="")
 	{
-//		if( isset($this->meta[$name]) )
-//			return;
 		$meta = "\t<meta name='$name' content='$content'".(($scheme=="")?"":" scheme='$scheme'")."/>\n";
 		$this->meta[$name.$content] = $meta;
-//		$this->set("meta",$this->meta);
 	}
 
 	/**
@@ -144,7 +157,6 @@ class HtmlPage extends Template implements ICallable
 			return;
 		$meta = "\t<link rel='$rel' type='$type' title=\"$title\" href='$href'/>\n";
 		$this->meta[$rel.$href.$type] = $meta;
-//		$this->set("meta",$this->meta);
 	}
 
 	/**
@@ -198,28 +210,6 @@ class HtmlPage extends Template implements ICallable
 		}
 	}
 
-	function WdfRenderAsRoot()
-	{
-		global $CONFIG;
-		
-		execute_hooks(HOOK_PRE_RENDER,array($this));
-
-		$init_data = array('request_id' => request_id(),'site_root' => cfg_get('system','url_root'));
-		if( cfg_getd('system','attach_session_to_ajax',false) )
-		{
-			$init_data['session_id'] = session_id();
-			$init_data['session_name'] = session_name();
-		}
-		if( isDevOrBeta() )
-			$init_data['log_to_console'] = true;
-
-		$this->set("wdf_init","wdf.init(".json_encode($init_data).");");
-		$this->set("docready",$this->docready);
-		$this->set("plaindocready",$this->plaindocready);
-
-		return parent::WdfRenderAsRoot();
-	}
-	
 	function SetIE9PinningData($application,$tooltip,$start_url,$button_color=false)
 	{
 		if ( !isset($_SERVER['HTTP_USER_AGENT']) || ((strpos( $_SERVER['HTTP_USER_AGENT'], 'MSIE 9' ) === false) && (strpos( $_SERVER['HTTP_USER_AGENT'], 'MSIE 10' ) === false)) )
