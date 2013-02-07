@@ -131,6 +131,17 @@ class TranslationAdmin extends SysAdmin
             );
             $this->addContent("<div>Created translation file for $lang</div>");
         }
+		
+		$ds = model_datasource($GLOBALS['CONFIG']['translation']['sync']['datasource']);
+		$ds->ExecuteSql("TRUNCATE TABLE wdf_unknown_strings");
+		$this->addContent("<div>Cleared the unknown strings table</div>");
+		
+		foreach( cache_list_keys() as $key )
+		{
+			if( starts_with($key, 'lang_') )
+				cache_del($key);
+		}
+		$this->addContent("<div>Cleared the string cache</div>");
     }
     
     /**

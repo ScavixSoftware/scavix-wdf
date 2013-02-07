@@ -82,7 +82,7 @@ function system_config_default($reset = true)
 	$CONFIG['model']['internal']['datasource_type']    = 'System_DataSource';	
 	$CONFIG['model']['internal']['debug']			   = false;
 
-	$CONFIG['system']['application_name'] = 'project';
+	$CONFIG['system']['application_name'] = 'wdf_application';
 	$CONFIG['system']['cache_datasource'] = 'internal';
 	$CONFIG['system']['cache_ttl'] = 3600; // secs
 
@@ -1179,7 +1179,7 @@ function current_controller($as_string=true)
 	if( !isset($GLOBALS['current_controller']) )
 		return $as_string?'':null;
 	if( $as_string )
-		return strtolower(get_class($GLOBALS['current_controller']));
+		return strtolower(is_object($GLOBALS['current_controller'])?get_class($GLOBALS['current_controller']):$GLOBALS['current_controller']);
 	return $GLOBALS['current_controller'];
 }
 

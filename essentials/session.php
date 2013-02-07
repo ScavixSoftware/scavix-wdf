@@ -24,7 +24,6 @@
  */
 
 require_once(__DIR__.'/session/serializer.class.php');
-define("FW_SESSION_MODULE_LOADED",true);
 
 function session_init()
 {
@@ -34,7 +33,7 @@ function session_init()
 	$GLOBALS['object_storage'] = array();
 
 	if( !isset($CONFIG['session']['session_name']) )
-		$CONFIG['session']['session_name'] = 'FW_SESSION';
+		$CONFIG['session']['session_name'] = isset($CONFIG['system']['application_name'])?$CONFIG['system']['application_name']:'WDF_SESSION';
 
 	if( !isset($CONFIG['session']['datasource']) )
 		$CONFIG['session']['datasource'] = 'internal';
