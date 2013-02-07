@@ -22,7 +22,8 @@
  * @copyright 2007-2012 PamConsult GmbH
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
+default_string("TXT_NO_DATA_FOUND","no data found");
+
 class DatabaseTable extends Table
 {
 	const PB_NOPROCESSING = 0x00;

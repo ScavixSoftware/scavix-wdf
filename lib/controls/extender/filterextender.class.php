@@ -22,11 +22,12 @@
  * @copyright 2007-2012 PamConsult GmbH
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
+default_string("TXT_NOFILTER",'No filter');
+
 class FilterExtender extends ControlExtender
 {
 	var $CurrentFilter = "";
-	var $NoFilterText = "TXT_NOFILTER";
+	var $NoFilterText;
 	var $Container = false;
 	var $DefaultOnAddHandler = false;
 	var $FieldsToFilter = array();

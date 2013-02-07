@@ -122,9 +122,9 @@ class FusionChart extends Control
 
 		$str_data = ($this->Title)?$this->Title:'';
 		$swfurl = $CONFIG['system']['system_uri'].appendVersion("/modules/charting/charts/".$this->Type.".swf");
-		$swfurl .= "?PBarLoadingText=".urlencode($str_data.":\n".getString("MSG_CHART_LOADING"));
-		$swfurl .= "&ChartNoDataText=".urlencode($str_data.":\n".getString("TXT_NO_DATA_FOUND"));
-		$swfurl .= "&InvalidXMLText=".urlencode($str_data.":\n".getString("MSG_CHART_INVALID_XML"));
+		$swfurl .= "?PBarLoadingText=".urlencode($str_data.":\n".getString(tds("MSG_CHART_LOADING",'loading')));
+		$swfurl .= "&ChartNoDataText=".urlencode($str_data.":\n".getString(tds("TXT_NO_DATA_FOUND",'no data found')));
+		$swfurl .= "&InvalidXMLText=".urlencode($str_data.":\n".getString(tds("MSG_CHART_INVALID_XML",'invalid XML')));
 
 		$settings = array(
 			'swfurl' => $swfurl,

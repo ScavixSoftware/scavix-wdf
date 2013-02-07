@@ -22,7 +22,8 @@
  * @copyright 2007-2012 PamConsult GmbH
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
+
+default_string('ERR_JAVASCRIPT_AND_COOKIES_REQUIRED','This page requires JavaScript and Cookies.');
 /**
  * Base class for all Html pages.
  * Will perform all rendering and collect js, css, meta and more.

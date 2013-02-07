@@ -52,7 +52,7 @@ class TimeFormatEx extends Control
 		$cb->value = 1;
 		if( $append_timezone )
 			$cb->checked = "checked";
-		$lab = $cb->CreateLabel("TXT_APPEND_TIMEZONE ");
+		$lab = $cb->CreateLabel(tds("TXT_APPEND_TIMEZONE","Append timezone")." ");
 		$lab->content($sample);
 		
 		$this->append($cb)->append($lab);

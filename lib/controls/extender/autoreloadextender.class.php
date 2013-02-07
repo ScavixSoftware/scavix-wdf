@@ -54,7 +54,7 @@ class AutoReloadExtender extends ControlExtender
 	{
 		$id = $this->ExtendedControl->id;
 
-		$ReloadButton = new Button("TXT_RELOAD");
+		$ReloadButton = new Button(tds("TXT_RELOAD","Reload"));
 		$ReloadButton->id = "reload_table";
 		$ReloadButton->name = "reload_table";
 		$ReloadButton->onclick = "$('#$id').control('AE_ReloadPage');";

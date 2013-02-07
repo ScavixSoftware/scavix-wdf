@@ -22,7 +22,8 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-
+default_string("TXT_UNKNOWN", 'Unknown');
+	
 /**
  * @attribute[Resource('jquery-ui/ui.container.js')]
  * @attribute[Resource('jquery-ui/ui.container.css')]
