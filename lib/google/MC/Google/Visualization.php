@@ -986,9 +986,9 @@ class MC_Google_Visualization {
                         $digits = (int) $matches[1];
                         $extras = $matches[2];
                         if($extras) {
-                            $formatted = $prefix . number_format($val, $digits, $extras[0], $extras[1]);
+                            $formatted = number_format($val, $digits, $extras[0], $extras[1]);
                         } else {
-                            $formatted = $prefix . number_format($val, $digits);
+                            $formatted = number_format($val, $digits);
                         }
                     } elseif($format == 'dollars') {
                         $formatted = '$' . number_format($val, 2);
