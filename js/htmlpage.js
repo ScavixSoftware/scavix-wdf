@@ -243,7 +243,7 @@ $.ajaxSetup({cache:false});
 			for( var method in {'log':1,'debug':1,'warn':1,'error':1,'info':1} )
 			{
 				if( console[method] === undefined || !this.settings.log_to_console )
-					this[method] = function(){ /*just a dummy*/ };
+					this[method] = function(){ /* just a dummy */ };
 				else
 					this[method] = console[method];
 			}

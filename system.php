@@ -491,7 +491,6 @@ function is_valid_hook_type($type)
 	    $type == HOOK_PRE_EXECUTE || $type == HOOK_POST_EXECUTE ||
 		$type == HOOK_PRE_FINISH || $type == HOOK_POST_MODULE_INIT ||
 		$type == HOOK_PING_RECIEVED || $type == HOOK_SYSTEM_DIE || $type == HOOK_PRE_RENDER ||
-		$type == HOOK_COOKIES_REQUIRED ||
 		$type == HOOK_ARGUMENTS_PARSED
 		)
 		return true;
@@ -517,7 +516,6 @@ function hook_type_to_string($type)
 		case HOOK_PING_RECIEVED: return 'HOOK_PING_RECIEVED';
 		case HOOK_SYSTEM_DIE: return 'HOOK_SYSTEM_DIE';
 		case HOOK_PRE_RENDER: return "HOOK_PRE_RENDER";
-		case HOOK_COOKIES_REQUIRED: return 'HOOK_COOKIES_REQUIRED';
 		case HOOK_ARGUMENTS_PARSED: return 'HOOK_ARGUMENTS_PARSED';
 
 	}
