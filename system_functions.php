@@ -1,4 +1,4 @@
-<? if( !defined('FRAMEWORK_LOADED') || FRAMEWORK_LOADED != 'uSI7hcKMQgPaPKAQDXg5' ) die('');
+<?
 /**
  * Scavix Web Development Framework
  *
@@ -22,6 +22,8 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
+
+if( !defined('FRAMEWORK_LOADED') || FRAMEWORK_LOADED != 'uSI7hcKMQgPaPKAQDXg5' ) die('');
 
 define("HOOK_POST_INIT",1);
 define("HOOK_POST_INITSESSION",2);

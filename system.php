@@ -580,48 +580,6 @@ function system_stacktrace_to_string($stacktrace,$crlf="\n")
 }
 
 /**
- * Show Excerpt from File where Error has its origin
- *
- * @param mixed $stacktrace
- * @param int $index
- * @return string
- */
-function system_get_file_excerpt($stacktrace,$index = 0, $for_html=true)
-{
-	$file = $stacktrace[$index]['file'];
-	$line = $stacktrace[$index]['line'];
-	$start_line = $line-6;
-
-	if(file_exists($file))
-		$arfile = file($file);
-    else
-        return;
-
-	$error_lines = array();
-	$error_lines = array_slice($arfile, $start_line, 11, true);
-	if( $for_html )
-		$file_excerpt = "	<div style='font-size:12pt; font-weight:bold;'>Excerpt: ".basename($file)."</div>
-							<div style='background-color:#E8E8E8; padding-left:30px;'>";
-	else
-		$file_excerpt = "Excerpt: ".basename($file)."\n";
-
-	foreach($error_lines as $key => $value)
-	{
-		$key++;
-
-		$value = htmlspecialchars($value);
-
-		if($key == $line && $for_html)
-			$file_excerpt .= "<b style='background-color:red;'>".$key." - ".$value."</b>";
-		else
-			$file_excerpt .= $key." - ".$value;
-	}
-	if( $for_html )
-		$file_excerpt.="</div>";
-	return $file_excerpt;
-}
-
-/**
  * Sets a specific key of the classpath array to be searched first.
  * @param string $key_to_priorize the key to be priorized
  * @return array The classpath array before reordering
@@ -656,19 +614,12 @@ function __set_classpath_order($class_path_order)
  */
 function system_spl_autoload($class_name)
 {
-//    log_error("autoload: ".$class_name);
 	if(($class_name == "") || ($class_name{0} == "<"))
 		return;  // it's html
     try
     {
         $file = __search_file_for_class($class_name);
-//		log_error("autoload: $class_name file: $file");
-        if( $file === false )
-		{
-            //log_error("Unable to find file for class $class_name");
-			//log_error("ClassPath ".var_export($GLOBALS['CONFIG']['class_path'],true));
-		}
-        elseif( is_readable($file) )
+        if( $file && is_readable($file) )
             require_once($file);
     } 
     catch(Exception $ex)
@@ -777,7 +728,6 @@ function __search_file_for_class($class_name,$extension="class.php",$classpath_l
 
 		foreach( $CONFIG['class_path'][$cp_part] as $path )
 		{
-//			log_debug("$path$class_name.$extension","CPS");
 			if( file_exists("$path$class_name.$extension") )
 			{
 				$ret = "$path$class_name.$extension";
@@ -917,7 +867,6 @@ function redirect($controller,$event="",$data="",$url_root=false)
 	else
 		$url = buildQuery($controller,$event,$data,$url_root);
 
-	log_debug("redirect: $url");
 	header("Location: ".$url);
 	exit;
 }
@@ -993,72 +942,6 @@ function referrer($part='')
 		return $res[$part];
 
 	return $res;
-}
-
-function makerelative($realpath)
-{
-	global $CONFIG;
-	$current_script = $_SERVER['SCRIPT_FILENAME'];
-	
-	$current_script = explode("/",$current_script);
-	$realpath = explode("/",$realpath);
-
-	while( $current_script[0] == $realpath[0] )
-	{
-		$current_script = array_slice($current_script,1);
-		$realpath = array_slice($realpath,1);
-	}
-	
-	$current_script = implode("/",$current_script);
-	$realpath = implode("/",$realpath);
-	
-	if(substr($realpath, 1, 1) == "/")
-		$realpath = str_repeat("../",count(explode("/",$current_script))+1) . $realpath;
-    $realpath = str_replace("system/../", "", $realpath);
-
-	// add some '..' when there's a 'virtual' URL called
-	// ex.: http://server/Hallo/Welt will become http://server/index.php/Hallo/Welt due
-	// to htaccess in dirname(index.php)
-	$virtual = explode("index.php",$_SERVER['PHP_SELF']);
-	if( count($virtual) > 0 )
-	{
-		$virtual = explode("/",trim($virtual[1],"/"));
-		if( count($virtual) > 0 && !(count($virtual)==1 && $virtual[0]==""))
-		{
-			// add count() because root is currently index.php/
-			//log_debug($realpath." -> ".str_repeat("../",count($virtual)).$realpath);
-			$realpath = str_repeat("../",count($virtual)).$realpath;
-		}
-		//else
-			//log_debug("skipping $realpath");
-	}
-    return $realpath;
-}
-
-function makerelativeuri($realpath)
-{
-	global $CONFIG;
-    $realpath = makerelative($realpath);
-    $realpath = str_replace($_SERVER['DOCUMENT_ROOT']."/",'',$realpath);
-    $realpath = preg_replace('/\/([^\/]+)\/\.\.\//', '/', $realpath);
-	return $realpath;
-}
-
-/**
- * Recursive implode.
- * Will implode the given pieces into a string and handle
- * multidimentional arrays too.
- * @param string $glue String to be used as 'connector'
- * @param array $pieces The pieces to be joined
- * @return string Resulting string
- */
-function r_implode($glue,$pieces)
-{
-	foreach( $pieces as $index=>&$item )
-		if( is_array($item) )
-			$pieces[$index] = r_implode($glue,$item);
-
-	return implode($glue,$pieces);
 }
 
 /**
