@@ -28,42 +28,61 @@
  */
 class GoogleControl extends Control
 {
-	private static $_packages = array();
-	private static $_initCodeRendered = false;
+	protected static $_apis = array();
+	private static $_delayedHookAdded = false;
 	
-	function __initialize()
+	function __initialize($tag='span')
 	{
-		parent::__initialize('span');
+		parent::__initialize($tag);
 	}
 	
 	function PreRender($args = array())
 	{
-		if( !self::$_initCodeRendered )
+		// we register a new HOOK_PRE_RENDER handler here so that it will be executed when all others are
+		// finished. so derivered classes can add their loader code in PreRender as usual.
+		if( count($args) > 0 )
 		{
-			self::$_initCodeRendered = true;
-			if( count($args) > 0 )
+			$controller = $args[0];
+			if( $controller instanceof HtmlPage )
 			{
-				$controller = $args[0];
-				if( $controller instanceof HtmlPage )
+				if( !self::$_delayedHookAdded )
 				{
-					// let these controls render plain, not wrapped into jQuery's document ready function
-					// note the FALSE in the addDocReady calls!
-					$loader = array();
-					foreach( self::$_packages as $api=>$pack )
-						foreach( $pack as $version=>$packages )
-							$loader[] = "google.load('$api','$version',".json_encode($packages).");";
-					$controller->addDocReady($loader,false);
-					$controller->addDocReady("google.setOnLoadCallback(function(){ wdf.debug('Google APIs loaded'); });",false);
-					$controller->addDocReady(implode("\n",$this->_script),false);
-					return;
+					self::$_delayedHookAdded = true;
+					register_hook(HOOK_PRE_RENDER, $this, 'AddLoaderCode');
 				}
 			}
 		}
 		return parent::PreRender($args);
 	}
 	
-	protected function _loadPackage($api,$version,$package)
+	function AddLoaderCode($args)
 	{
-		self::$_packages[$api][$version]['packages'][] = $package;
+		log_debug(self::$_apis);
+		$loader = array();
+		foreach( self::$_apis as $api=>$definition )
+		{
+			list($version,$options) = $definition;
+			if( isset($options['callback']) )
+				$options['callback'] = "function(){ ".implode("\n",$options['callback'])." }";
+			$loader[] = "google.load('$api','$version',".system_to_json($options).");";
+		}
+		$controller = $args[0];
+		$controller->addDocReady($loader,false); // <- see the 'false'? we add these codes inline, not into the ready handler as this crashes
+	}
+	
+	protected function _loadApi($api,$version,$options)
+	{
+		self::$_apis[$api] = array($version, $options);
+	}
+	
+	protected function _addLoadCallback($api,$script)
+	{
+		if( !isset(self::$_apis[$api][1]['callback']) )
+			self::$_apis[$api][1]['callback'] = array();
+		
+		if( is_array($script) )
+			self::$_apis[$api][1]['callback'][] = implode("\n",$script);
+		else
+			self::$_apis[$api][1]['callback'][] = $script;
 	}
 }

@@ -318,5 +318,13 @@ class SysAdmin extends HtmlPage
 			->opt('pageSize',3)
 			->opt('page','enable');
 		$this->addContent($chart);
+		
+		$map = gMap::Make()
+			->css('width','500px')
+			->css('height','400px')
+			->AddMarker(-34.397, 150.644)
+			->AddMarkerTitled(-14.397, 150.644, 'Huhuhu')
+			->AddAddress("Rotdornweg 13a, 29389 Bad Bodenteich");
+		$this->addContent($map);
 	}
 }

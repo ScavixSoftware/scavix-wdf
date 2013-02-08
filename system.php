@@ -451,12 +451,13 @@ function execute_hooks($type,$arguments = array())
 
 	is_valid_hook_type($type);
 
-	$hkcnt = count($GLOBALS['system']['hooks'][$type]);
 	$loghooks = ( $CONFIG['system']['hook_logging']); // && function_exists('dump') );
 	
 	if( $loghooks )
 		log_debug("BEGIN ".hook_type_to_string($type));
-	for($i=0; $i<$hkcnt; $i++)
+	
+	// note: as hooks may be added to the chain do not remove the count(...) here: it may grow!
+	for($i=0; $i<count($GLOBALS['system']['hooks'][$type]); $i++)
 	{
 		$hook = $GLOBALS['system']['hooks'][$type][$i];
 		if( is_object($hook[0]) )
@@ -1123,7 +1124,6 @@ function name_from_constant($class_name,$constant_value,$prefix=false)
 function system_to_json($value)
 {
 	$res = json_encode($value);
-	//$res = preg_replace('/\"\[jscode\](.*)\"([,\]\}])/U', '$1$2', $res );
 	$res = preg_replace_callback('/\"\[jscode\](.*)\"([,\]\}])/U',
 		create_function(
             // single quotes are essential here,
@@ -1131,12 +1131,12 @@ function system_to_json($value)
             '$m',
             'return stripcslashes($m[1]).$m[2];'
         ), $res );
-	$res = preg_replace_callback('/\"(function\()(.*)\"([,\]\}])/U',
+	$res = preg_replace_callback('/\"function\(.*[^\\\\]\"/U',
 		create_function(
             // single quotes are essential here,
             // or alternative escape all $ as \$
             '$m',
-            'return $m[1].stripcslashes($m[2]).$m[3];'
+            'return json_decode($m[0]);'
         ), $res );
 	return $res;
 }

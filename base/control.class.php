@@ -300,9 +300,11 @@ class Control extends Renderable
 		$this->_extenders_rendered = false;
 	}
 	
-	public static function Make($tag="")
+	public static function Make($tag=false)
     {
 		$className = get_called_class();
+		if( $tag === false )
+			return new $className();
 		return new $className($tag);
 	}
 
