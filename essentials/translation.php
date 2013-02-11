@@ -31,7 +31,7 @@ function translation_init()
 
 	if( !isset($CONFIG['translation']['data_path']) )
 	{
-		log_warn('Please define $CONFIG["translation"]["data_path"]');
+		//log_warn('Please define $CONFIG["translation"]["data_path"]');
 		$CONFIG['translation']['data_path'] = __DIR__.'/UNDEFINED/';
 	}
 

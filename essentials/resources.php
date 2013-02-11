@@ -33,8 +33,8 @@ function resources_init()
 	if( !isset($CONFIG['resources']) )
 		$CONFIG['resources'] = array();
 	
-	if( !isset($CONFIG['resources_system_url_root']) )
-		$CONFIG['resources_system_url_root'] = $CONFIG['system']['url_root'].'system/';
+	if( !isset($CONFIG['resources_system_url_root']) || !$CONFIG['resources_system_url_root'] )
+		$CONFIG['resources_system_url_root'] = $CONFIG['system']['url_root'].'WdfResource/';
 
 	$CONFIG['resources'][] = array
 	(
@@ -92,4 +92,15 @@ function resFile($filename, $as_local_path = false)
 	if( $conf = resourceExists($filename,true,$as_local_path) )
 		return $conf;
 	return "";
+}
+
+class WdfResource implements ICallable
+{
+	function __construct()
+	{
+		$res = explode("WdfResource",$_SERVER['PHP_SELF']);
+		$res = realpath(__DIR__.'/../'.$res[1]);
+		readfile($res);
+		die();
+	}
 }
