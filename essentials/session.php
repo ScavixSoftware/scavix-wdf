@@ -47,10 +47,6 @@ function session_init()
 	if( !isset($CONFIG['session']['lifetime']) )
 		$CONFIG['session']['lifetime'] = '10';
 
-	// Deprecated! Use $CONFIG['session']['handler'] instead!
-//	if( !isset($CONFIG['session']['usephpsession']) )
-//		$CONFIG['session']['usephpsession'] = true;
-
 	// Bind sessions to one ip address
 	if( !isset($CONFIG['session']['iplock']))
 		$CONFIG['session']['iplock'] = false;

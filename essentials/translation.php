@@ -67,8 +67,6 @@ function translation_init()
 	);
 
 	// build reg pattern once:
-//	$chars = "A-Z0-9_";
-//	$reg = "/(WINDOW_[$chars]+)|(TITLE_[$chars]+)|(BTN_[$chars]+)|(MSG_[$chars]+|(TXT_[$chars]+)|(ERR_[$chars]+)|(LAB_[$chars]+))/";
 	$reg = array();
 	foreach( $CONFIG['translation']['searchpatterns'] as $pat )
 		$reg[] = '('.$pat.'[a-zA-Z0-9_-]+)(\[[^\]]+\])*';
@@ -137,14 +135,12 @@ function __translate_callback($matches)
 			$as_attribute = true;
 			break;
 		default:
-//			log_debug("Unknown tm? $mod");
 			if( preg_match('/^\[.*\]$/', $mod) )
 				log_debug("Unknown translation modifier: $mod");
 			else
 				$val = $mod;
 			break;
 	}
-//	log_debug("post = $mod/$val");
 
 	if( isset($__unknown_constants["k".$val]) )
 		return $val."?";
@@ -233,7 +229,6 @@ function noTranslate($content)
 		'__noTranslate_callback',
 		$content
 	);
-//	log_debug("noTranslate($content) -> ",$res);
 	return $res;
 }
 
@@ -271,6 +266,9 @@ function translation_set_language($code_or_ci)
 	return $res;
 }
 
+/**
+ * Like getString(), but for a specific language
+ */
 function getStringLang($lang,$constant,$arreplace = null, $unbuffered = false)
 {
 	$mem = isset($GLOBALS['current_language'])?$GLOBALS['current_language']:false;
@@ -282,6 +280,9 @@ function getStringLang($lang,$constant,$arreplace = null, $unbuffered = false)
 	return $res;
 }
 
+/**
+ * Shortcut function for getString()
+ */
 function _text($constant, $arreplace = null, $unbuffered = false, $encoding = null)
 {
 	return getString($constant,$arreplace,$unbuffered,$encoding);
@@ -383,6 +384,9 @@ function ReplaceVariables($text, $arreplace = null)
 	return $text;
 }
 
+/**
+ * Returns a list of all languages that have enough translated strings to be usable
+ */
 function getAvailableLanguages( $min_percent_translated=false )
 {
 	global $CONFIG;
@@ -410,6 +414,9 @@ function getAvailableLanguages( $min_percent_translated=false )
 	return $res;
 }
 
+/**
+ * Checks if there are translations for the given culture
+ */
 function checkForExistingLanguage($cultureCode)
 {
 	$key = "existing_language_check_".$cultureCode;
@@ -470,12 +477,20 @@ function translation_skip_buffering()
 	$GLOBALS['translation']['skip_buffering_once'] = true;
 }
 
+/**
+ * Checks if a string constant exists.
+ * 
+ * You can use this to test if a string is a translation constant too.
+ */
 function translation_string_exists($constant)
 {
 	$known = translation_known_constants();
 	return in_array($constant, $known);
 }
 
+/**
+ *  Ensures that a string will not be translated
+ */
 function translation_ensure_nt($text_potentially_named_like_a_constant)
 {
 	if( !translation_string_exists($text_potentially_named_like_a_constant) )
@@ -483,10 +498,21 @@ function translation_ensure_nt($text_potentially_named_like_a_constant)
 	return $text_potentially_named_like_a_constant."[NT]";
 }
 
-function tds($constant,$text){ return default_string($constant, $text); }
+/**
+ * 'Registers' a string in the translation system with a default value.
+ * 
+ * This is used in WDF when components require user-interaction without forcing the implementor to
+ * create 100ths of strings as the first he must do.
+ */
 function default_string($constant,$text)
 {
 	if( translation_string_exists($constant) )
 		cfg_set('translation','default_strings',$constant,$text);
 	return $constant;
 }
+
+/**
+ * Alias function for default_string() just to have it short when used inline like this:
+ * $label = tds('TXT_LABEL','My first label');
+ */
+function tds($constant,$text){ return default_string($constant, $text); }

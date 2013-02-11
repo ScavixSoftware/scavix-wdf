@@ -64,6 +64,9 @@ function resources_init()
 	);
 }
 
+/**
+ * Checks if a resource exists and returns it if so
+ */
 function resourceExists($filename, $return_url = false, $as_local_path = false)
 {
 	global $CONFIG;
@@ -95,6 +98,9 @@ function resourceExists($filename, $return_url = false, $as_local_path = false)
 	return false;
 }
 
+/**
+ * Returns aresource file, as local path or as URI
+ */
 function resFile($filename, $as_local_path = false)
 {
 	if( $conf = resourceExists($filename,true,$as_local_path) )
@@ -102,6 +108,13 @@ function resFile($filename, $as_local_path = false)
 	return "";
 }
 
+/**
+ * This is a wrapper/router for system (wdf) resources.
+ * 
+ * It tries to map *WdfResource* urls to the file in the local filessystem and writes it out using readfile().
+ * This is to let users place the wdf folder outside the doc root while still beeing able to access resources in there
+ * without having to create a domain for that. Natually doing that would be better because faster!
+ */
 class WdfResource implements ICallable
 {
 	function __construct()
