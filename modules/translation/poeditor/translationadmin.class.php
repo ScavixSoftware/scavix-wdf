@@ -119,11 +119,11 @@ class TranslationAdmin extends SysAdmin
             $head[$lang->code] = array('percentage_complete'=>$lang->percentage/100, 'percentage_empty'=>(1-$lang->percentage/100), 'syntax_error_qty'=>0);
         $info = "\$GLOBALS['translation']['properties'] = ".var_export($head,true);
         
-        $en = $this->fetchTerms('en');
+        $defaults = $this->fetchTerms($CONFIG['localization']['default_language']);
         foreach( array_unique($languages) as $lang )
         {
             $lang = strtolower($lang);
-            $data = $lang == 'en'?$en:$this->fetchTerms($lang,$en);
+            $data = $lang == $CONFIG['localization']['default_language']?$defaults:$this->fetchTerms($lang,$defaults);
             $strings = "\$GLOBALS['translation']['strings'] = ".var_export($data,true);
             file_put_contents(
                 $CONFIG['translation']['data_path'].$lang.'.inc.php', 
@@ -139,6 +139,7 @@ class TranslationAdmin extends SysAdmin
      */
     function CreateString($term,$text)
     {
+        global $CONFIG;
         $data = array(array('term'=>$term));
         $data = json_encode($data);
         $res = $this->request(array('action'=>'add_terms','data'=>$data));
@@ -153,7 +154,7 @@ class TranslationAdmin extends SysAdmin
                 'definition' => array('forms'=>array($text),'fuzzy'=>0)
             ));
             $data = json_encode($data);
-            $res = $this->request(array('action'=>'update_language','language'=>'en','data'=>$data));
+            $res = $this->request(array('action'=>'update_language','language'=>$CONFIG['localization']['default_language'],'data'=>$data));
 			if( !$res )
 				return AjaxResponse::Error("Could not set initial term content: ".$this->Lasterror,true);
         }

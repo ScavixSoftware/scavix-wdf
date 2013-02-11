@@ -119,7 +119,7 @@ class HtmlPage extends Template implements ICallable
 		}
 		
 		$res = $this->__collectResources();
-		log_debug($res);
+//		log_debug($res);
 		$this->js = array_reverse($this->js,true);
 		foreach( array_reverse($res) as $r )
 		{
