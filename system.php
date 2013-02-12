@@ -71,6 +71,7 @@ function system_config_default($reset = true)
 	$CONFIG['class_path']['content'][] = __DIR__.'/lib/jquery-ui/slider/';
 	$CONFIG['class_path']['content'][] = __DIR__.'/lib/widgets/';
 	$CONFIG['class_path']['content'][] = __DIR__.'/lib/google/';
+	$CONFIG['class_path']['content'][] = __DIR__.'/lib/fusioncharts/';
 	
 	$CONFIG['class_path']['order'] = array('system','model','content');
 
