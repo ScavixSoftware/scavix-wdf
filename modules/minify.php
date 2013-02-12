@@ -80,7 +80,7 @@ function minify_forbidden($classname)
 function minify_all($paths,$target_base_name,$nc_argument)
 {
 	$target_base_name .= (isSSL()?".1":".0");
-	foreach( glob($target_base_name.".*.*") as $f )
+	foreach( system_glob($target_base_name.".*.*") as $f )
 		unlink($f);
 	
 	$v = preg_replace('/[^\d]*/', "", $nc_argument);
@@ -92,7 +92,7 @@ function use_minified_file($target_base_name,$kind,$base_uri)
 {
 	global $CONFIG;
 	$target_base_name .= (isSSL()?".1":".0");
-	foreach( glob($target_base_name.".*.$kind") as $f )
+	foreach( system_glob($target_base_name.".*.$kind") as $f )
 	{
 		$CONFIG["use_compiled_$kind"] = $base_uri.basename($f);
 		return;
@@ -391,8 +391,8 @@ function minify_collect_from_file($kind,$f,$debug_path='')
 
 function minify_list_files($path='',$pattern='*.class.php')
 {
-	$paths = glob($path.'*', GLOB_MARK|GLOB_ONLYDIR|GLOB_NOSORT);
-	$files = glob($path.$pattern);
+	$paths = system_glob($path.'*', GLOB_MARK|GLOB_ONLYDIR|GLOB_NOSORT);
+	$files = system_glob($path.$pattern);
 	foreach($paths as $path) { $files = array_merge($files,minify_list_files($path,$pattern)); }
 	return $files;
 }

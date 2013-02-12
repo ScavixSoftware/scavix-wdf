@@ -186,7 +186,7 @@ interface IShopOrderItem
 function payment_list_providers()
 {
 	$res = array();
-	foreach( glob(dirname(__FILE__).'/payment/*.class.php') as $file )
+	foreach( system_glob(dirname(__FILE__).'/payment/*.class.php') as $file )
 	{
 		$cn = basename($file,".class.php");
 		$cn = new $cn();

@@ -1682,7 +1682,7 @@ class PHPExcel_Calculation {
 
 	private function __construct() {
 		$localeFileDirectory = PHPEXCEL_ROOT.'PHPExcel/locale/';
-		foreach (glob($localeFileDirectory.'/*',GLOB_ONLYDIR) as $filename) {
+		foreach (system_glob($localeFileDirectory.'/*',GLOB_ONLYDIR) as $filename) {
 			$filename = substr($filename,strlen($localeFileDirectory)+1);
 			if ($filename != 'en') {
 				self::$_validLocaleLanguages[] = $filename;

@@ -309,7 +309,6 @@ class Localization
 		if( $cultureCode !== false && !is_string($cultureCode) )
 			WdfException::Raise("Who calls this function with a wrong param? Provide string please!");
 		$ci = self::getCultureInfo($cultureCode);
-        log_debug($ci);
 		return $ci->FormatCurrency($amount,$use_code);
 	}
 

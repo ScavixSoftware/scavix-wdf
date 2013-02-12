@@ -34,7 +34,7 @@ class SoapTypeMapper
 
 		//log_debug($wrapper_classes_dir."*.class.php");
 		$class_map = array();
-		foreach( glob($wrapper_classes_dir."*.class.php") as $wrapper_classes_file )
+		foreach( system_glob($wrapper_classes_dir."*.class.php") as $wrapper_classes_file )
 		{
 
 			$content = file_get_contents($wrapper_classes_file);
