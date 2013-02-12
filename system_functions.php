@@ -1,4 +1,4 @@
-<? if( !defined('FRAMEWORK_LOADED') || FRAMEWORK_LOADED != 'uSI7hcKMQgPaPKAQDXg5' ) die('');
+<?
 /**
  * Scavix Web Development Framework
  *
@@ -23,6 +23,8 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
+if( !defined('FRAMEWORK_LOADED') || FRAMEWORK_LOADED != 'uSI7hcKMQgPaPKAQDXg5' ) die('');
+
 define("HOOK_POST_INIT",1);
 define("HOOK_POST_INITSESSION",2);
 define("HOOK_PRE_EXECUTE",3);
@@ -31,7 +33,6 @@ define("HOOK_POST_EXECUTE",4);
 define("HOOK_PRE_FINISH",5);
 define("HOOK_POST_MODULE_INIT",6);
 define("HOOK_PING_RECIEVED",7);
-define("HOOK_COOKIES_REQUIRED",200);
 define("HOOK_ARGUMENTS_PARSED",300);
 define("HOOK_SYSTEM_DIE",999);
 
@@ -84,7 +85,7 @@ function cfg_set()
 		case 5: $CONFIG[$args[0]][$args[1]][$args[2]][$args[3]] = $args[4]; break;
 		case 6: $CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]] = $args[5]; break;
 		case 7: $CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]] = $args[6]; break;
-		default: throw new Exception("Illegal argument count: ".count($args));
+		default: WdfException::Raise("Illegal argument count: ".count($args));
 	}
 }
 
@@ -104,7 +105,7 @@ function cfg_setd()
 		case 5: if( !isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]]) ) $CONFIG[$args[0]][$args[1]][$args[2]][$args[3]] = $args[4]; break;
 		case 6: if( !isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]]) ) $CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]] = $args[5]; break;
 		case 7: if( !isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]]) ) $CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]] = $args[6]; break;
-		default: throw new Exception("Illegal argument count: ".count($args));
+		default: WdfException::Raise("Illegal argument count: ".count($args));
 	}
 }
 
@@ -124,7 +125,7 @@ function cfg_add()
 		case 5: $CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][] = $args[4]; break;
 		case 6: $CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][] = $args[5]; break;
 		case 7: $CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]][] = $args[6]; break;
-		default: throw new Exception("Illegal argument count: ".count($args));
+		default: WdfException::Raise("Illegal argument count: ".count($args));
 	}
 }
 
@@ -144,7 +145,7 @@ function cfg_get()
 		case 4: return isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]])?$CONFIG[$args[0]][$args[1]][$args[2]][$args[3]]:false;
 		case 5: return isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]])?$CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]]:false;
 		case 6: return isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]])?$CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]]:false;
-		default: throw new Exception("Illegal argument count: ".count($args));
+		default: WdfException::Raise("Illegal argument count: ".count($args));
 	}
 }
 
@@ -164,7 +165,7 @@ function cfg_getd()
 		case 5: return isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]])?$CONFIG[$args[0]][$args[1]][$args[2]][$args[3]]:$args[4];
 		case 6: return isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]])?$CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]]:$args[5];
 		case 7: return isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]])?$CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]]:$args[6];
-		default: throw new Exception("Illegal argument count: ".count($args));
+		default: WdfException::Raise("Illegal argument count: ".count($args));
 	}
 }
 
@@ -184,7 +185,7 @@ function cfg_del()
 		case 4: unset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]]); break;
 		case 5: unset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]]); break;
 		case 6: unset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]]); break;
-		default: throw new Exception("Illegal argument count: ".count($args));
+		default: WdfException::Raise("Illegal argument count: ".count($args));
 	}
 }
 
@@ -199,13 +200,13 @@ function cfg_check()
 	$args = func_get_args();
 	switch( func_num_args() )
 	{
-		case 2: if( !isset($CONFIG[$args[0]]) || !$CONFIG[$args[0]] ) throw new Exception($args[1]); break;
-		case 3: if( !isset($CONFIG[$args[0]][$args[1]]) || !$CONFIG[$args[0]][$args[1]] ) throw new Exception($args[2]); break;
-		case 4: if( !isset($CONFIG[$args[0]][$args[1]][$args[2]]) || $CONFIG[$args[0]][$args[1]][$args[2]] ) throw new Exception($args[3]); break;
-		case 5: if( !isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]]) || $CONFIG[$args[0]][$args[1]][$args[2]][$args[3]] ) throw new Exception($args[4]); break;
-		case 6: if( !isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]]) || !$CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]] ) throw new Exception($args[5]); break;
-		case 7: if( !isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]]) || !$CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]] ) throw new Exception($args[6]); break;
-		default: throw new Exception("Illegal argument count: ".count($args));
+		case 2: if( !isset($CONFIG[$args[0]]) || !$CONFIG[$args[0]] ) WdfException::Raise($args[1]); break;
+		case 3: if( !isset($CONFIG[$args[0]][$args[1]]) || !$CONFIG[$args[0]][$args[1]] ) WdfException::Raise($args[2]); break;
+		case 4: if( !isset($CONFIG[$args[0]][$args[1]][$args[2]]) || $CONFIG[$args[0]][$args[1]][$args[2]] ) WdfException::Raise($args[3]); break;
+		case 5: if( !isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]]) || $CONFIG[$args[0]][$args[1]][$args[2]][$args[3]] ) WdfException::Raise($args[4]); break;
+		case 6: if( !isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]]) || !$CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]] ) WdfException::Raise($args[5]); break;
+		case 7: if( !isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]]) || !$CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]] ) WdfException::Raise($args[6]); break;
+		default: WdfException::Raise("Illegal argument count: ".count($args));
 	}
 }
 
@@ -341,11 +342,14 @@ function array_val_is($array,$key,$needle)
  */
 function system_is_ajax_call()
 {
-	if( array_val_is($_SERVER, 'HTTP_X_REQUESTED_WITH', 'xmlhttprequest') )
-		return true;
-	return 
-		isset($_REQUEST['request_id']) && isset($_SESSION['request_id']) &&
-		$_REQUEST['request_id'] == $_SESSION['request_id'];
+	if( !isset($GLOBALS['result_of_system_is_ajax_call']) )
+	{
+		$GLOBALS['result_of_system_is_ajax_call'] = strtolower(array_val($_SERVER, 'HTTP_X_REQUESTED_WITH', '')) == 'xmlhttprequest';
+		if( !$GLOBALS['result_of_system_is_ajax_call'] )
+			$GLOBALS['result_of_system_is_ajax_call'] = isset($_REQUEST['request_id']) && isset($_SESSION['request_id']) && 
+				$_REQUEST['request_id'] == $_SESSION['request_id'];
+	}
+	return $GLOBALS['result_of_system_is_ajax_call'];
 }
 
 /**
@@ -490,12 +494,11 @@ function get_ip_address()
 //	if( isDev() )
 //		return "66.135.205.14";	// US (ebay.com)
 //		return "46.122.252.60"; // ljubljana
-//		return "190.172.82.24"; // argentinia? (#5444)
+//		return "190.172.82.24"; // argentinia?
 //		return "84.154.26.132"; // probably invalid ip from munich
 //		return "203.208.37.104"; // google.cn
 //		return "62.215.83.54";	// kuwait
 //		return "41.250.146.224";	// Morocco (rtl!)
-//		return "85.13.144.94";	// pamfax.biz = DE
 //		return "66.135.205.14";	// US (ebay.com)
 //		return "121.243.179.122";	// india
 //		return "109.253.21.90";	// invalid (user says UK)

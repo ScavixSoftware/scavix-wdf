@@ -34,26 +34,9 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	var $gvOptions;
 	var $gvQuery;
 	
-	protected static function _detectCallingClass()
-	{
-		$backtrace = debug_backtrace();
-		$i = 1;
-		do
-		{
-			$trace = $backtrace[$i++];
-			$file_obj = new SplFileObject( $trace['file'] );
-			$file_obj->seek( $trace['line']-1 );
-			$line = $file_obj->current();
-			$regex = '/.*\s([^'.$trace['type'][0].']*)'.$trace['type'].$trace['function'].'/';
-			if( !preg_match($regex, $line, $match) )
-				throw new Exception("Unable to detect calling class");
-		}while( strtolower($match[1]) == 'self' );
-		return $match[1];
-	}
-	
 	static function Make($title=false)
 	{
-		$className = self::_detectCallingClass();
+		$className = get_called_class();
 		$res = new $className();
 		if( $title )
 			return $res->opt('title',$title);
@@ -77,10 +60,11 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	
 	function PreRender($args = array())
 	{
+		$id = $this->id;
 		$q = buildQuery($this->id,'Query');
 		$opts = json_encode($this->gvOptions);
-		$init = "var q = new google.visualization.Query('$q');q.setQuery('{$this->gvQuery}');q.send(function(r){ if(r.isError()){ $('#{$this->id}').html(r.getDetailedMessage()); }else{ var c=new google.visualization.{$this->gvType}($('#{$this->id}').get(0));c.draw(r.getDataTable(),$opts);}});";
-		$this->script("google.setOnLoadCallback(function(){ $init });");
+		$init = "var $id = new google.visualization.Query('$q');$id.setQuery('{$this->gvQuery}');$id.send(function(r){ if(r.isError()){ $('#$id').html(r.getDetailedMessage()); }else{ var c=new google.visualization.{$this->gvType}($('#$id').get(0));c.draw(r.getDataTable(),$opts);}});";
+		$this->_addLoadCallback('visualization', $init);
 		
 		if( isset($this->gvOptions['width']) )
 			$this->css('width',"{$this->gvOptions['width']}px");
@@ -92,7 +76,10 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	
 	protected function _loadPackage($package)
 	{
-		parent::_loadPackage('visualization','1',$package);
+		if( isset(self::$_apis['visualization']) )
+			self::$_apis['visualization'][1]['packages'][] = $package;
+		else
+			parent::_loadApi('visualization','1',array('packages'=>array($package)));
 	}
 	
 	protected function _createMC($ds)
@@ -154,7 +141,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	function EntityFromTable($table_name, $alias=false)
 	{
 		$schema = $this->_ds->Driver->getTableSchema($table_name);
-		log_debug($schema);
+//		log_debug($schema);
 		$entity = array(
 			'table' => $schema->Name,
 			'fields' => array()

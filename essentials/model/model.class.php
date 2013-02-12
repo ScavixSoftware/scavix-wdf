@@ -114,7 +114,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	function __initialize($datasource=null)
 	{
 		if( $datasource && !($datasource instanceof DataSource) )
-			throw new Exception("Invalid argument. Object of type DataSource expected");
+			WdfDbException::Raise("Invalid argument. Object of type DataSource expected",$datasource);
 		
         $this->_ds = $datasource;
 		if( $this->_ds )
@@ -212,7 +212,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 				}
 				catch(Exception $ex)
 				{
-					log_error($ex->getMessage(),$value);
+					WdfException::Log("date/time error with value '$value'",$ex);
 				}
 				break;
 		}
@@ -233,7 +233,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			return $this->_tableSchema;
 		
 		if( !$this->_ds )
-			throw new Exception("Missing Datasource");
+			WdfDbException::Raise("Missing Datasource");
 
 		if( !isset(self::$_schemaCache[$this->_cacheKey]) )
 		{
@@ -244,7 +244,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			$this->_tableSchema = self::$_schemaCache[$this->_cacheKey];
 		}
 		if( !($this->_tableSchema) )
-			throw new Exception("Error using table schema");
+			WdfDbException::Raise("Error using table schema");
 		
 		return $this->_tableSchema;
 	}
@@ -304,7 +304,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
 	public static function &Select($datasource)
 	{
-		$className = self::DetectCallingClass();
+		$className = get_called_class();
 		$res = new $className($datasource);
 		$res->__ensureSelect();
 		return $res;
@@ -312,7 +312,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	
 	public static function &Query($sql,$args=array(),$datasource=null)
 	{
-		$className = self::DetectCallingClass();
+		$className = get_called_class();
 		$res = new $className($datasource);
 		$res->__ensureSelect();
 		$res->_querySql = $sql;
@@ -322,7 +322,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
 	public static function &Make($datasource=null,$pk_value=false)
     {
-		$className = self::DetectCallingClass();
+		$className = get_called_class();
 		$res = new $className($datasource);
 		if( $pk_value !== false )
 		{
@@ -333,7 +333,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			foreach( $pkcols as $pkc )
 			{
 				if( !isset($pk_value[$pkc]) )
-					throw new Exception ("Missing value for primary key column '{$pkc}'");
+					WdfDbException::Raise("Missing value for primary key column '{$pkc}'");
 				$q = $q->equal($pkc,$pk_value[$pkc]);
 			}
 			if( count($q) > 0 )
@@ -345,23 +345,6 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		}
 		return $res;
     }
-	
-	public static function DetectCallingClass()
-	{
-		$backtrace = debug_backtrace();
-		$i = 1;
-		do
-		{
-			$trace = $backtrace[$i++];
-			$file_obj = new SplFileObject( $trace['file'] );
-			$file_obj->seek( $trace['line']-1 );
-			$line = $file_obj->current();
-			$regex = '/.*\s([^'.$trace['type'][0].']*)'.$trace['type'].$trace['function'].'/';
-			if( !preg_match($regex, $line, $match) )
-				throw new Exception("Unable to detect calling class");
-		}while( strtolower($match[1]) == 'self' );
-		return $match[1];
-	}
 	
 	public static function EnsureDateTime($value,$convert_now_to_value=false)
 	{
@@ -472,7 +455,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
 		if( $this->HasColumn($name) )
 			return $name;
-		throw new Exception("Unknown column '$name' in table '{$this->_tableSchema->Name}'");
+		WdfDbException::Raise("Unknown column '$name' in table '{$this->_tableSchema->Name}'");
 	}
 
 	private function __ensureSelect()
@@ -745,7 +728,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			return $this->_ds->_storage_id;
 		elseif( self::$DefaultDatasource )
 			return self::$DefaultDatasource->_storage_id;
-		throw new Exception("Model has no valid DataSource");
+		WdfDbException::Raise("Model has no valid DataSource");
 	}
 	
 	/*--- Compatibility to old model ---*/
@@ -781,7 +764,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			return true; // nothing to save
 				
 		if( !$stmt->execute($args) )
-			throw new Exception(my_var_export($stmt->ErrorOutput()));
+			WdfDbException::Raise(my_var_export($stmt->ErrorOutput()));
 
 		$pkcols = $this->GetPrimaryColumns();
 		if( count($pkcols) == 1 )

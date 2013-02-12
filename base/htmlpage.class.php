@@ -22,7 +22,8 @@
  * @copyright 2007-2012 PamConsult GmbH
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
+
+default_string('ERR_JAVASCRIPT_AND_COOKIES_REQUIRED','This page requires JavaScript and Cookies.');
 /**
  * Base class for all Html pages.
  * Will perform all rendering and collect js, css, meta and more.
@@ -35,13 +36,9 @@ class HtmlPage extends Template implements ICallable
 	var $meta = array();
 	var $js = array();
 	var $css = array();
-	var $dialogs = array();
 	var $docready = array();
 	var $plaindocready = array();
 	var $bodyEvents = array();
-
-	var $requireCookies = false;
-	var $requireJs = false; 
 
 	/**
 	 * Setting this to a filename (relative to class) will load it as subtemplate
@@ -58,37 +55,6 @@ class HtmlPage extends Template implements ICallable
 		global $CONFIG;
 		parent::__initialize($file);
 
-		if( isset($CONFIG['htmlpage']['cookies_required']) )
-			$this->requireCookies = $CONFIG['htmlpage']['cookies_required'];
-
-		if( isset($CONFIG['htmlpage']['js_required']) )
-			$this->requireJs = $CONFIG['htmlpage']['js_required'];
-
-		if( $this->requireCookies )
-		{
-			if(!isset($_COOKIE["cookietest"]) && (isset($CONFIG['session']['session_name']) && !isset($_COOKIE[$CONFIG['session']['session_name']])))
-			{
-				if( !Args::get('redirected',false) )
-				{
-					$query_string = (isset($_SERVER["QUERY_STRING"]) && $_SERVER["QUERY_STRING"] != "" ) ? "?".$_SERVER["QUERY_STRING"]."&redirected=1" : '?redirected=1';
-					$redir_uri  = urlScheme(true).$_SERVER['HTTP_HOST'];
-					$redir_uri .= isset($_SERVER["QUERY_STRING"])?str_replace($_SERVER["QUERY_STRING"],"",$_SERVER['REQUEST_URI']):$_SERVER['REQUEST_URI'];
-					setcookie("cookietest", "test", time() + 3600, "/", null, isSSL(), true);
-
-					// remove trailing ? if present
-					$redir_uri = preg_replace('/\?$/',"",$redir_uri);
-
-					header('location: '.  $redir_uri.$query_string);
-					exit;
-				}
-				else
-				{
-					// after reload, check if the cookie is still there:
-					execute_hooks(HOOK_COOKIES_REQUIRED);
-				}
-			}
-		}
-
 		$this->set("title",$title);
 		$this->set("meta",$this->meta);
 		$this->set("js",$this->js);
@@ -97,20 +63,36 @@ class HtmlPage extends Template implements ICallable
 		$this->set("docready",$this->docready);
 		$this->set("plaindocready",$this->plaindocready);
 		$this->set("bodyEvents",$this->bodyEvents);
-		$this->set("requireJs",$this->requireJs);
 		
 		if( $body_class )
-			$this->set("bodyClass",$body_class);
+			$this->set("bodyClass","$body_class");
 
 		if( resourceExists("favicon.ico") )
 			$this->set("favicon", resFile("favicon.ico"));
 	}
 
+	function WdfRenderAsRoot()
+	{
+		execute_hooks(HOOK_PRE_RENDER,array($this));
+
+		$init_data = array('request_id' => request_id(),'site_root' => cfg_get('system','url_root'));
+		if( cfg_getd('system','attach_session_to_ajax',false) )
+		{
+			$init_data['session_id'] = session_id();
+			$init_data['session_name'] = session_name();
+		}
+		if( isDevOrBeta() )
+			$init_data['log_to_console'] = true;
+
+		$this->set("wdf_init","wdf.init(".json_encode($init_data).");");
+		$this->set("docready",$this->docready);
+		$this->set("plaindocready",$this->plaindocready);
+
+		return parent::WdfRenderAsRoot();
+	}
+	
 	function WdfRender()
 	{
-		global $CONFIG;
-
-		// moved here to allow derivered classes to set isrtl based on another CI
 		if( !$this->get('isrtl') && system_is_module_loaded('localization') )
 		{
 			$ci = Localization::detectCulture();
@@ -119,7 +101,6 @@ class HtmlPage extends Template implements ICallable
 		}
 		
 		$res = $this->__collectResources();
-//		log_debug($res);
 		$this->js = array_reverse($this->js,true);
 		foreach( array_reverse($res) as $r )
 		{
@@ -159,11 +140,8 @@ class HtmlPage extends Template implements ICallable
 	 */
 	function addMeta($name,$content,$scheme="")
 	{
-//		if( isset($this->meta[$name]) )
-//			return;
 		$meta = "\t<meta name='$name' content='$content'".(($scheme=="")?"":" scheme='$scheme'")."/>\n";
 		$this->meta[$name.$content] = $meta;
-//		$this->set("meta",$this->meta);
 	}
 
 	/**
@@ -179,7 +157,6 @@ class HtmlPage extends Template implements ICallable
 			return;
 		$meta = "\t<link rel='$rel' type='$type' title=\"$title\" href='$href'/>\n";
 		$this->meta[$rel.$href.$type] = $meta;
-//		$this->set("meta",$this->meta);
 	}
 
 	/**
@@ -213,12 +190,6 @@ class HtmlPage extends Template implements ICallable
         return $content;
 	}
 
-	function addDialog(&$dialog)
-	{
-		$this->dialogs[] = $dialog;
-		$this->set("dialogs",$this->dialogs);
-	}
-
 	function addDocReady($js_code,$jq_wrapped=true)
 	{
 		if( is_array($js_code) )
@@ -239,28 +210,6 @@ class HtmlPage extends Template implements ICallable
 		}
 	}
 
-	function WdfRenderAsRoot()
-	{
-		global $CONFIG;
-		
-		execute_hooks(HOOK_PRE_RENDER,array($this));
-
-		$init_data = array('request_id' => request_id(),'site_root' => cfg_get('system','url_root'));
-		if( cfg_getd('system','attach_session_to_ajax',false) )
-		{
-			$init_data['session_id'] = session_id();
-			$init_data['session_name'] = session_name();
-		}
-		if( isDevOrBeta() )
-			$init_data['log_to_console'] = true;
-
-		$this->set("wdf_init","wdf.init(".json_encode($init_data).");");
-		$this->set("docready",$this->docready);
-		$this->set("plaindocready",$this->plaindocready);
-
-		return parent::WdfRenderAsRoot();
-	}
-	
 	function SetIE9PinningData($application,$tooltip,$start_url,$button_color=false)
 	{
 		if ( !isset($_SERVER['HTTP_USER_AGENT']) || ((strpos( $_SERVER['HTTP_USER_AGENT'], 'MSIE 9' ) === false) && (strpos( $_SERVER['HTTP_USER_AGENT'], 'MSIE 10' ) === false)) )

@@ -33,9 +33,21 @@ function resources_init()
 	if( !isset($CONFIG['resources']) )
 		$CONFIG['resources'] = array();
 	
-	if( !isset($CONFIG['resources_system_url_root']) )
-		$CONFIG['resources_system_url_root'] = $CONFIG['system']['url_root'].'system/';
+	if( !isset($CONFIG['resources_system_url_root']) || !$CONFIG['resources_system_url_root'] )
+		$CONFIG['resources_system_url_root'] = $CONFIG['system']['url_root'].'WdfResource/';
 
+	
+	foreach( $CONFIG['resources'] as $i=>$conf )
+	{
+		if( substr($conf['url'],0,4) == 'http' )
+			continue;
+		if( substr($conf['url'],0,2) == '//' )
+			continue;
+		if( substr($conf['url'],0,2) == './' )
+			continue;
+		$CONFIG['resources'][$i]['url'] = $CONFIG['system']['url_root'].$conf['url'];
+	}
+	
 	$CONFIG['resources'][] = array
 	(
 		'ext' => 'js',
@@ -52,13 +64,12 @@ function resources_init()
 	);
 }
 
+/**
+ * Checks if a resource exists and returns it if so
+ */
 function resourceExists($filename, $return_url = false, $as_local_path = false)
 {
 	global $CONFIG;
-
-//	$key = (isSSL()?"Resource_SSL_$filename":"Resource_$filename").($as_local_path?"_l":"");
-//	if( ($res = cache_get($key)) !== false )
-//		return $return_url?$res:($res != "0");
 
 	$cnc = substr(appendVersion('/'),1);
 	$key = (isSSL()?"resource_ssl_$filename":"resource_$filename")."_{$cnc}".($as_local_path?"_l":"");
@@ -87,9 +98,30 @@ function resourceExists($filename, $return_url = false, $as_local_path = false)
 	return false;
 }
 
+/**
+ * Returns aresource file, as local path or as URI
+ */
 function resFile($filename, $as_local_path = false)
 {
 	if( $conf = resourceExists($filename,true,$as_local_path) )
 		return $conf;
 	return "";
+}
+
+/**
+ * This is a wrapper/router for system (wdf) resources.
+ * 
+ * It tries to map *WdfResource* urls to the file in the local filessystem and writes it out using readfile().
+ * This is to let users place the wdf folder outside the doc root while still beeing able to access resources in there
+ * without having to create a domain for that. Natually doing that would be better because faster!
+ */
+class WdfResource implements ICallable
+{
+	function __construct()
+	{
+		$res = explode("WdfResource",$_SERVER['PHP_SELF']);
+		$res = realpath(__DIR__.'/../'.$res[1]);
+		readfile($res);
+		die();
+	}
 }

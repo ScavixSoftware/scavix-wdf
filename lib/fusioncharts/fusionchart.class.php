@@ -109,7 +109,7 @@ class FusionChart extends Control
 		if( $async )
 		{
 			if( !$handler || !$method )
-				throw new WdfException("Data handler and method needed for asynchronous charts");
+				WdfException::Raise("Data handler and method needed for asynchronous charts");
 			$data_url = buildQuery($handler->id,$method);
 		}
 		else
@@ -122,9 +122,9 @@ class FusionChart extends Control
 
 		$str_data = ($this->Title)?$this->Title:'';
 		$swfurl = $CONFIG['system']['system_uri'].appendVersion("/modules/charting/charts/".$this->Type.".swf");
-		$swfurl .= "?PBarLoadingText=".urlencode($str_data.":\n".getString("MSG_CHART_LOADING"));
-		$swfurl .= "&ChartNoDataText=".urlencode($str_data.":\n".getString("TXT_NO_DATA_FOUND"));
-		$swfurl .= "&InvalidXMLText=".urlencode($str_data.":\n".getString("MSG_CHART_INVALID_XML"));
+		$swfurl .= "?PBarLoadingText=".urlencode($str_data.":\n".getString(tds("TXT_CHART_LOADING",'loading')));
+		$swfurl .= "&ChartNoDataText=".urlencode($str_data.":\n".getString(tds("TXT_NO_DATA_FOUND",'no data found')));
+		$swfurl .= "&InvalidXMLText=".urlencode($str_data.":\n".getString(tds("TXT_CHART_INVALID_XML",'invalid XML')));
 
 		$settings = array(
 			'swfurl' => $swfurl,
@@ -137,8 +137,6 @@ class FusionChart extends Control
 			$settings['data'] = $data;
 		elseif( isset($data_url) )
 			$settings['dataurl'] = $data_url;
-//		else
-//			throw new WdfException("No data and no data_url specified");
 
 		$this->_script = array();
 		$this->script("initFusionChart(".json_encode($settings).");");

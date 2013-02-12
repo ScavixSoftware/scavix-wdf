@@ -37,7 +37,7 @@
         </tr>
         <tr>
             <td>
-                <textarea class="<?=$term?>"></textarea>
+                <textarea class="<?=$term?>"><?=$default_val?></textarea>
             </td>
             <td>
                 <input class="delete" type="button" value="Delete" data-term="<?=$term?>"/><br/>

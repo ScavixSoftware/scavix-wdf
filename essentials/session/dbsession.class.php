@@ -88,7 +88,7 @@ class DbSession extends SessionBase
 		if( $id == "" )
 		{
 			if( !isset($obj->_storage_id) )
-				throw new WdfException("Trying to store an object without storage_id!");
+				WdfException::Raise("Trying to store an object without storage_id!");
 			$id = $obj->_storage_id;
 		}
 		else

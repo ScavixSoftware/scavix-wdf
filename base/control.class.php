@@ -163,13 +163,11 @@ class Control extends Renderable
 	{
 		if( !hook_already_fired(HOOK_PRE_RENDER) )
 		{
-//			log_debug(get_class($this).":Registering prerender hook");
 			register_hook(HOOK_PRE_RENDER,$this,"PreRender");
 		}
 		else
 			if( !hook_already_fired(HOOK_POST_EXECUTE) )
 			{
-//				log_debug(get_class($this).": Registering postexec hook");
 				register_hook(HOOK_POST_EXECUTE,$this,"PreRender");
 			}
 
@@ -232,7 +230,7 @@ class Control extends Renderable
 					return;
 				}
 			}
-			throw new Exception("'$varname' is not an allowed attriute for a control of type '{$this->Tag}'");
+			WdfException::Raise("'$varname' is not an allowed attriute for a control of type '{$this->Tag}'");
 		}
 		$this->_attributes[$varname] = $value;
 
@@ -251,7 +249,7 @@ class Control extends Renderable
 			if( system_method_exists($ex,$name) )
 				return system_call_user_func_array_byref($ex, $name, $arguments);
 		}
-		throw new WdfException("Call to undefined method '$name' on object of type '".get_class($this)."'");
+		WdfException::Raise("Call to undefined method '$name' on object of type '".get_class($this)."'");
     }
 
 	/**
@@ -302,27 +300,17 @@ class Control extends Renderable
 		$this->_extenders_rendered = false;
 	}
 	
-	public static function Make($tag="")
+	/**
+	 * Static creator method that is cabable of creating derivered classes too:
+	 * Control::Make('div')->content('Doh!');
+	 * TextInput::Make()->css('width','300px');
+	 */
+	public static function Make($tag=false)
     {
-		$className = self::DetectCallingClass();
+		$className = get_called_class();
+		if( $tag === false )
+			return new $className();
 		return new $className($tag);
-	}
-	
-	public static function DetectCallingClass()
-	{
-		$backtrace = debug_backtrace();
-		$i = 1;
-		do
-		{
-			$trace = $backtrace[$i++];
-			$file_obj = new SplFileObject( $trace['file'] );
-			$file_obj->seek( $trace['line']-1 );
-			$line = $file_obj->current();
-			$regex = '/.*\s([^'.$trace['type'][0].']*)'.$trace['type'].$trace['function'].'/';
-			if( !preg_match($regex, $line, $match) )
-				throw new Exception("Unable to detect calling class");
-		}while( strtolower($match[1]) == 'self' );
-		return $match[1];
 	}
 
 	/**
@@ -343,14 +331,15 @@ class Control extends Renderable
 	}
 
 	/**
-	 * Adds a CSS property to the control
+	 * Adds a CSS property to the control.
+	 * If value is an integer (or numeric string like '12') 'px' will be added.
 	 * @param string $name Name of the CSS property (like width, background-image,...)
 	 * @param string $value Value of the CSS property
 	 */
 	function css($name,$value)
 	{
 		$name = strtolower($name);
-		$this->_css[$name] = $value;
+		$this->_css[$name] = is_numeric($value)?$value.'px':$value;
 		return $this;
 	}
 
@@ -645,7 +634,7 @@ class Control extends Renderable
 		elseif( $target instanceof HtmlPage )
 			$target->addContent($this);
 		else
-			throw new Exception("Target must be of type Control or HtmlPage");
+			WdfException::Raise("Target must be of type Control or HtmlPage");
 		return $this;
 	}
 }

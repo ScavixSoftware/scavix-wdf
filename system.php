@@ -24,7 +24,7 @@
  */
  
 define('FRAMEWORK_LOADED','uSI7hcKMQgPaPKAQDXg5');
-require_once(__DIR__.'/system_exceptions.php');
+require_once(__DIR__.'/system_objects.php');
 require_once(__DIR__.'/system_functions.php');
 
 // Config handling
@@ -63,6 +63,7 @@ function system_config_default($reset = true)
 	$CONFIG['class_path']['content'][] = __DIR__.'/lib/controls/';
 	$CONFIG['class_path']['content'][] = __DIR__.'/lib/controls/';
 	$CONFIG['class_path']['content'][] = __DIR__.'/lib/controls/extender/';
+	$CONFIG['class_path']['content'][] = __DIR__.'/lib/controls/form/';
 	$CONFIG['class_path']['content'][] = __DIR__.'/lib/controls/table/';
 	$CONFIG['class_path']['content'][] = __DIR__.'/lib/controls/locale/';
 	$CONFIG['class_path']['content'][] = __DIR__.'/lib/jquery-ui/';
@@ -70,6 +71,7 @@ function system_config_default($reset = true)
 	$CONFIG['class_path']['content'][] = __DIR__.'/lib/jquery-ui/slider/';
 	$CONFIG['class_path']['content'][] = __DIR__.'/lib/widgets/';
 	$CONFIG['class_path']['content'][] = __DIR__.'/lib/google/';
+	$CONFIG['class_path']['content'][] = __DIR__.'/lib/fusioncharts/';
 	
 	$CONFIG['class_path']['order'] = array('system','model','content');
 
@@ -82,7 +84,7 @@ function system_config_default($reset = true)
 	$CONFIG['model']['internal']['datasource_type']    = 'System_DataSource';	
 	$CONFIG['model']['internal']['debug']			   = false;
 
-	$CONFIG['system']['application_name'] = 'project';
+	$CONFIG['system']['application_name'] = 'wdf_application';
 	$CONFIG['system']['cache_datasource'] = 'internal';
 	$CONFIG['system']['cache_ttl'] = 3600; // secs
 
@@ -163,6 +165,8 @@ function system_init($application_name, $skip_header = false, $logging_category=
 	system_load_module('essentials/session.php');
 	system_load_module('essentials/resources.php');
 	system_load_module('essentials/admin.php');
+	system_load_module('essentials/localization.php');
+	system_load_module('essentials/translation.php');
 	foreach( glob($thispath.'/essentials/*.php') as $essential ) // load all other essentials
 		system_load_module($essential);
 	
@@ -252,7 +256,7 @@ function system_instanciate_controller($controller_id)
 		}
 	}
 	else if( !($res instanceof ICallable) )
-		throw new Exception("ACCESS DENIED: $controller_id is no ICallable");
+		WdfException::Raise("ACCESS DENIED: $controller_id is no ICallable");
 	
 	return $res;
 }
@@ -298,8 +302,10 @@ function system_execute()
 		elseif( $content instanceof Renderable )
 			$response = AjaxResponse::Renderable($content)->Render();
 		else
-			throw new WdfException("Unknown AJAX return value");
+			WdfException::Raise("Unknown AJAX return value");
 	}
+	elseif( $content instanceof AjaxResponse ) // is system_is_ajax_call() failed to detect AJAX but response in fact IS for AJAX
+		die("__SESSION_TIMEOUT__");
 	else
 	{
 		$_SESSION['request_id'] = request_id();
@@ -364,8 +370,8 @@ function system_invoke_request($target_class,$target_event,$pre_execute_hook_typ
 function system_die($reason,$additional_message='')
 {
 	if( $reason instanceof Exception )
-	{		
-		$stacktrace = $reason->getTrace();
+	{
+		$stacktrace = ($reason instanceof WdfException)?$reason->getTraceEx():$reason->getTrace();
 		$reason = logging_render_var($reason);
 	}
 
@@ -446,12 +452,13 @@ function execute_hooks($type,$arguments = array())
 
 	is_valid_hook_type($type);
 
-	$hkcnt = count($GLOBALS['system']['hooks'][$type]);
 	$loghooks = ( $CONFIG['system']['hook_logging']); // && function_exists('dump') );
 	
 	if( $loghooks )
 		log_debug("BEGIN ".hook_type_to_string($type));
-	for($i=0; $i<$hkcnt; $i++)
+	
+	// note: as hooks may be added to the chain do not remove the count(...) here: it may grow!
+	for($i=0; $i<count($GLOBALS['system']['hooks'][$type]); $i++)
 	{
 		$hook = $GLOBALS['system']['hooks'][$type][$i];
 		if( is_object($hook[0]) )
@@ -491,12 +498,11 @@ function is_valid_hook_type($type)
 	    $type == HOOK_PRE_EXECUTE || $type == HOOK_POST_EXECUTE ||
 		$type == HOOK_PRE_FINISH || $type == HOOK_POST_MODULE_INIT ||
 		$type == HOOK_PING_RECIEVED || $type == HOOK_SYSTEM_DIE || $type == HOOK_PRE_RENDER ||
-		$type == HOOK_COOKIES_REQUIRED ||
 		$type == HOOK_ARGUMENTS_PARSED
 		)
 		return true;
 
-	throw new WdfException("Invalid hook type ($type)!");
+	WdfException::Raise("Invalid hook type ($type)!");
 }
 
 /**
@@ -517,7 +523,6 @@ function hook_type_to_string($type)
 		case HOOK_PING_RECIEVED: return 'HOOK_PING_RECIEVED';
 		case HOOK_SYSTEM_DIE: return 'HOOK_SYSTEM_DIE';
 		case HOOK_PRE_RENDER: return "HOOK_PRE_RENDER";
-		case HOOK_COOKIES_REQUIRED: return 'HOOK_COOKIES_REQUIRED';
 		case HOOK_ARGUMENTS_PARSED: return 'HOOK_ARGUMENTS_PARSED';
 
 	}
@@ -578,48 +583,6 @@ function system_stacktrace_to_string($stacktrace,$crlf="\n")
 }
 
 /**
- * Show Excerpt from File where Error has its origin
- *
- * @param mixed $stacktrace
- * @param int $index
- * @return string
- */
-function system_get_file_excerpt($stacktrace,$index = 0, $for_html=true)
-{
-	$file = $stacktrace[$index]['file'];
-	$line = $stacktrace[$index]['line'];
-	$start_line = $line-6;
-
-	if(file_exists($file))
-		$arfile = file($file);
-    else
-        return;
-
-	$error_lines = array();
-	$error_lines = array_slice($arfile, $start_line, 11, true);
-	if( $for_html )
-		$file_excerpt = "	<div style='font-size:12pt; font-weight:bold;'>Excerpt: ".basename($file)."</div>
-							<div style='background-color:#E8E8E8; padding-left:30px;'>";
-	else
-		$file_excerpt = "Excerpt: ".basename($file)."\n";
-
-	foreach($error_lines as $key => $value)
-	{
-		$key++;
-
-		$value = htmlspecialchars($value);
-
-		if($key == $line && $for_html)
-			$file_excerpt .= "<b style='background-color:red;'>".$key." - ".$value."</b>";
-		else
-			$file_excerpt .= $key." - ".$value;
-	}
-	if( $for_html )
-		$file_excerpt.="</div>";
-	return $file_excerpt;
-}
-
-/**
  * Sets a specific key of the classpath array to be searched first.
  * @param string $key_to_priorize the key to be priorized
  * @return array The classpath array before reordering
@@ -654,23 +617,16 @@ function __set_classpath_order($class_path_order)
  */
 function system_spl_autoload($class_name)
 {
-//    log_error("autoload: ".$class_name);
 	if(($class_name == "") || ($class_name{0} == "<"))
 		return;  // it's html
     try
     {
         $file = __search_file_for_class($class_name);
-//		log_error("autoload: $class_name file: $file");
-        if( $file === false )
-		{
-            //log_error("Unable to find file for class $class_name");
-			//log_error("ClassPath ".var_export($GLOBALS['CONFIG']['class_path'],true));
-		}
-        elseif( is_readable($file) )
+        if( $file && is_readable($file) )
             require_once($file);
     } 
     catch(Exception $ex)
-    { error_log("system_spl_autoload: ".$ex->getMessage()); };
+    { WdfException::Log("system_spl_autoload",$ex); };
 }
 spl_autoload_register("system_spl_autoload",true,true);
 
@@ -768,14 +724,13 @@ function __search_file_for_class($class_name,$extension="class.php",$classpath_l
 	foreach( $CONFIG['class_path']['order'] as $cp_part )
 	{
 		if( !isset($CONFIG['class_path'][$cp_part]))
-			throw new WdfException("Invalid ClassPath! No entry for '$cp_part'.");
+			WdfException::Raise("Invalid ClassPath! No entry for '$cp_part'.");
 
 		if( $classpath_limit && $cp_part != $classpath_limit )
 			continue;
 
 		foreach( $CONFIG['class_path'][$cp_part] as $path )
 		{
-//			log_debug("$path$class_name.$extension","CPS");
 			if( file_exists("$path$class_name.$extension") )
 			{
 				$ret = "$path$class_name.$extension";
@@ -915,7 +870,6 @@ function redirect($controller,$event="",$data="",$url_root=false)
 	else
 		$url = buildQuery($controller,$event,$data,$url_root);
 
-	log_debug("redirect: $url");
 	header("Location: ".$url);
 	exit;
 }
@@ -991,72 +945,6 @@ function referrer($part='')
 		return $res[$part];
 
 	return $res;
-}
-
-function makerelative($realpath)
-{
-	global $CONFIG;
-	$current_script = $_SERVER['SCRIPT_FILENAME'];
-	
-	$current_script = explode("/",$current_script);
-	$realpath = explode("/",$realpath);
-
-	while( $current_script[0] == $realpath[0] )
-	{
-		$current_script = array_slice($current_script,1);
-		$realpath = array_slice($realpath,1);
-	}
-	
-	$current_script = implode("/",$current_script);
-	$realpath = implode("/",$realpath);
-	
-	if(substr($realpath, 1, 1) == "/")
-		$realpath = str_repeat("../",count(explode("/",$current_script))+1) . $realpath;
-    $realpath = str_replace("system/../", "", $realpath);
-
-	// add some '..' when there's a 'virtual' URL called
-	// ex.: http://server/Hallo/Welt will become http://server/index.php/Hallo/Welt due
-	// to htaccess in dirname(index.php)
-	$virtual = explode("index.php",$_SERVER['PHP_SELF']);
-	if( count($virtual) > 0 )
-	{
-		$virtual = explode("/",trim($virtual[1],"/"));
-		if( count($virtual) > 0 && !(count($virtual)==1 && $virtual[0]==""))
-		{
-			// add count() because root is currently index.php/
-			//log_debug($realpath." -> ".str_repeat("../",count($virtual)).$realpath);
-			$realpath = str_repeat("../",count($virtual)).$realpath;
-		}
-		//else
-			//log_debug("skipping $realpath");
-	}
-    return $realpath;
-}
-
-function makerelativeuri($realpath)
-{
-	global $CONFIG;
-    $realpath = makerelative($realpath);
-    $realpath = str_replace($_SERVER['DOCUMENT_ROOT']."/",'',$realpath);
-    $realpath = preg_replace('/\/([^\/]+)\/\.\.\//', '/', $realpath);
-	return $realpath;
-}
-
-/**
- * Recursive implode.
- * Will implode the given pieces into a string and handle
- * multidimentional arrays too.
- * @param string $glue String to be used as 'connector'
- * @param array $pieces The pieces to be joined
- * @return string Resulting string
- */
-function r_implode($glue,$pieces)
-{
-	foreach( $pieces as $index=>&$item )
-		if( is_array($item) )
-			$pieces[$index] = r_implode($glue,$item);
-
-	return implode($glue,$pieces);
 }
 
 /**
@@ -1177,7 +1065,7 @@ function current_controller($as_string=true)
 	if( !isset($GLOBALS['current_controller']) )
 		return $as_string?'':null;
 	if( $as_string )
-		return strtolower(is_string($GLOBALS['current_controller']) ? $GLOBALS['current_controller'] : get_class($GLOBALS['current_controller']));
+		return strtolower(is_object($GLOBALS['current_controller'])?get_class($GLOBALS['current_controller']):$GLOBALS['current_controller']);
 	return $GLOBALS['current_controller'];
 }
 
@@ -1237,7 +1125,6 @@ function name_from_constant($class_name,$constant_value,$prefix=false)
 function system_to_json($value)
 {
 	$res = json_encode($value);
-	//$res = preg_replace('/\"\[jscode\](.*)\"([,\]\}])/U', '$1$2', $res );
 	$res = preg_replace_callback('/\"\[jscode\](.*)\"([,\]\}])/U',
 		create_function(
             // single quotes are essential here,
@@ -1245,12 +1132,12 @@ function system_to_json($value)
             '$m',
             'return stripcslashes($m[1]).$m[2];'
         ), $res );
-	$res = preg_replace_callback('/\"(function\()(.*)\"([,\]\}])/U',
+	$res = preg_replace_callback('/\"function\(.*[^\\\\]\"/U',
 		create_function(
             // single quotes are essential here,
             // or alternative escape all $ as \$
             '$m',
-            'return $m[1].stripcslashes($m[2]).$m[3];'
+            'return json_decode($m[0]);'
         ), $res );
 	return $res;
 }

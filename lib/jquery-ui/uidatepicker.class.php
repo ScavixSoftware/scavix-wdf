@@ -22,16 +22,20 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
+default_string('BTN_DP_NEXT', 'Next');
+default_string('BTN_DP_PREV', 'Prev');
+default_string('TXT_DP_CLOSE', 'Close');
+default_string('TXT_DP_CURRENT', 'Today');
 
 class uiDatePicker extends uiControl
 {
 	// all possible settings at http://jqueryui.com/demos/datepicker/#option
 	protected $Options = array(
-		'nextText' => 'BTN_NEXT',
-		'prevText' => 'BTN_PREV',
-		'buttonText' => '...', //BTN_BUTTON_TEXT',
-		'closeText' => 'TXT_CLOSE_TEXT',
-		'currentText' => 'TXT_CURRENT_TEXT',
+		'nextText' => 'BTN_DP_NEXT',
+		'prevText' => 'BTN_DP_PREV',
+		'buttonText' => '...',
+		'closeText' => 'TXT_DP_CLOSE',
+		'currentText' => 'TXT_DP_CURRENT',
 	);
 
 	protected $CultureInfo = false;

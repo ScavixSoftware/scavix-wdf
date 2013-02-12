@@ -22,7 +22,14 @@
  * @copyright 2007-2012 PamConsult GmbH
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
+
+/**
+ * Allows to automatically pass REQUEST parameters to methods arguments.
+ * 
+ * <at>attribute[RequestParam('joe','string',false)]
+ * in the doccomment will make the following usable:
+ * function SomeMethod($joe){ log_debug($joe); }
+ */
 class RequestParamAttribute extends System_Attribute
 {
 	var $Name = null;

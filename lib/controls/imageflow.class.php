@@ -22,7 +22,7 @@
  * @copyright 2007-2012 PamConsult GmbH
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
+default_string("TXT_NO_DATA_FOUND","no data found");
 /**
  * @attribute[Resource('thickbox.js')]
  * @attribute[Resource('thickbox.css')]
@@ -35,7 +35,7 @@ class ImageFlow extends Control
 	private $_pagerHandler = false;
 	private $_pagerMethod = false;
 
-	function __initialize($id,$options=array(),$text_if_empty = "ERR_NO_DATA_AVAILABLE")
+	function __initialize($id,$options=array(),$text_if_empty = "TXT_NO_DATA_FOUND")
 	{
 		parent::__initialize("div");
 		$this->id = $id;

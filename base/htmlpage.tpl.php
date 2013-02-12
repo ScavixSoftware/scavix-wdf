@@ -22,9 +22,11 @@
  * @copyright 2007-2012 PamConsult GmbH
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
+
+$js_cookie_error = '<div style="display: block !important; font-weight:bold; text-align: center;"><br/>ERR_JAVASCRIPT_AND_COOKIES_REQUIRED</div>';
+
 echo '<?xml version="1.0" encoding="UTF-8" ?>'."\n";?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<title><?=$title?></title>
@@ -37,6 +39,8 @@ echo '<?xml version="1.0" encoding="UTF-8" ?>'."\n";?>
 	<? if(isset($inlineCSS)) echo $inlineCSS; ?>
 <script type='text/javascript'>
 $(function(){ 
+	if( !navigator.cookieEnabled )
+		return $('body').empty().append('<?=$js_cookie_error?>');
 <? if( count($docready) > 0 ): ?>
 	wdf.ready.add(function()
 	{
@@ -44,36 +48,22 @@ $(function(){
 	});
 <? endif; ?>
 	<?=$wdf_init?>
-	<?=implode("\n\t",$plaindocready)?>
 });
+	<?=implode("\n\t",$plaindocready)?>
 </script>
 </head>
 <body<? foreach($bodyEvents as $k=>$v) echo " $k='$v'";?><?=isset($isrtl)?"$isrtl":""?><?=isset($bodyClass)?" class='$bodyClass'":""?>>
-<? if( $requireJs ): ?>
 <noscript>
-	<div id="noscript_message"><br/>ERR_NO_JAVASCRIPT</div>
 	<style type="text/css">
-		#spcontentcontainer {display: none;}
-		#noscript_message {display: block !important; font-weight:bold; text-align: center;}
+		body>*:not(noscript) { display:none !important; }
 	</style>
+	<?=$js_cookie_error?>
 </noscript>
-<div id="spcontentcontainer">
-<? endif; ?>
 <?
 if( isset($sub_template_content) )
 	echo $sub_template_content;
 else
 	foreach($content as $c) echo $c;
-
-if( isset($dialogs) && count($dialogs) > 0 )
-{
-	echo "<div id='GlobalDialogContainer' style='display:none'>";
-	foreach($dialogs as $dlg) echo $dlg;
-	echo "</div>";
-}
 ?>
-<? if( $requireJs ): ?>
-</div>
-<? endif; ?>
 </body>
 </html>

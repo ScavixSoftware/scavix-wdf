@@ -36,7 +36,7 @@ function localization_init()
 	if( !isset($CONFIG['localization']['detection_order']) )
 		$CONFIG['localization']['detection_order'] = array(Localization::USE_BROWSER,Localization::USE_IP);
 
-	$p = dirname(__FILE__).'/localization/';
+	$p = __DIR__.'/localization/';
 	$CONFIG['class_path']['system'][] = $p;
 	require_once($p.'cultureinfo.inc.php');
 }
@@ -279,13 +279,13 @@ class Localization
 		global $CONFIG;
 
 		if( $cultureCode !== false && !is_string($cultureCode) )
-			throw new WdfException("Who calls this function with a wrong param? Provide string please!");
+			WdfException::Raise("Who calls this function with a wrong param? Provide string please!");
 
 		switch( strtolower($cultureCode) )
 		{
 			case "usd":
 			case "eur":
-				throw new WdfException("DO NOT PUT CURRENCY CODES INTO CULTURECODE VARIABLES!!!11elf");
+				WdfException::Raise("DO NOT PUT CURRENCY CODES INTO CULTURECODE VARIABLES!!!11elf");
 		}
 		$ci = self::getCultureInfo($cultureCode);
 		if( !isset($ci->CurrencyFormat) )
@@ -299,7 +299,7 @@ class Localization
 	public static function format_number($number, $cultureCode = false, $decimals = false)
 	{
 		if( $cultureCode !== false && !is_string($cultureCode) )
-			throw new WdfException("Who calls this function with a wrong param? Provide string please!");
+			WdfException::Raise("Who calls this function with a wrong param? Provide string please!");
 		$ci = self::getCultureInfo($cultureCode);
 		return $ci->FormatNumber($number, $decimals);
 	}
@@ -307,7 +307,7 @@ class Localization
 	public static function format_currency($amount, $cultureCode = false, $use_code=false)
 	{
 		if( $cultureCode !== false && !is_string($cultureCode) )
-			throw new WdfException("Who calls this function with a wrong param? Provide string please!");
+			WdfException::Raise("Who calls this function with a wrong param? Provide string please!");
 		$ci = self::getCultureInfo($cultureCode);
         log_debug($ci);
 		return $ci->FormatCurrency($amount,$use_code);
@@ -316,7 +316,7 @@ class Localization
 	public static function format_date($date, $cultureCode = false)
 	{
 		if( $cultureCode !== false && !is_string($cultureCode) )
-			throw new WdfException("Who calls this function with a wrong param? Provide string please!");
+			WdfException::Raise("Who calls this function with a wrong param? Provide string please!");
 		$ci = self::getCultureInfo($cultureCode);
 		return $ci->FormatDate($date);
 	}
@@ -324,7 +324,7 @@ class Localization
 	public static function format_date_time($date, $cultureCode = false)
 	{
 		if( $cultureCode !== false && !is_string($cultureCode) )
-			throw new WdfException("Who calls this function with a wrong param? Provide string please!");
+			WdfException::Raise("Who calls this function with a wrong param? Provide string please!");
 		$ci = self::getCultureInfo($cultureCode);
 		return $ci->FormatDate($date)." ".$ci->FormatDate($date, DateTimeFormat::DF_SHORTTIME);
 	}

@@ -33,7 +33,7 @@ class PayPal extends PaymentProvider
 		global $CONFIG;
 		parent::__construct();
 		if(!isset($CONFIG["payment"]) || !isset($CONFIG["payment"]["paypal"]))
-			throw new WdfException("PayPal payment provider not configured");
+			WdfException::Raise("PayPal payment provider not configured");
 		
 		$this->small_image = resFile("paypal.gif");
 	}
@@ -234,7 +234,7 @@ class PayPal extends PaymentProvider
 				{
 					// log for manual investigation
 					log_error("PayPal IPN Verification failed: ".$res." ".$paypal_url."?".$req);
-//					mail("alert@pamfax.biz", "Invalid PayPal IPN Request #$order_id", "Order #$order_id returned $res in PayPal recheck:\r\n\r\n".var_export($_REQUEST, true));
+//					mail("<somevalidmailaddress>", "Invalid PayPal IPN Request #$order_id", "Order #$order_id returned $res in PayPal recheck:\r\n\r\n".var_export($_REQUEST, true));
 					break;
 				}
 			}

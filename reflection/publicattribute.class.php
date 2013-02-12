@@ -22,7 +22,11 @@
  * @copyright 2007-2012 PamConsult GmbH
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
+
+/**
+ * Not sure if this is deprecated, but of course still usable to mark classes/methods as public.
+ * Note: currently not used in WDF itself.
+ */
 class PublicAttribute extends System_Attribute
 {
 	function __construct()

@@ -33,7 +33,7 @@ class AjaxAction
 				return "$data";
 			if( is_array($data) || is_object($data) )
 				return json_encode($data);
-			throw new WdfException("Invalid argmuent: 'data' should be string, array or object, but '".gettype($data)."' detected");
+			WdfException::Raise("Invalid argmuent: 'data' should be string, array or object, but '".gettype($data)."' detected");
 		}
 		return '';
 	}

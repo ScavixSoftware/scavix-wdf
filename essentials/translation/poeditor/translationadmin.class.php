@@ -34,9 +34,9 @@ class TranslationAdmin extends SysAdmin
     {
         parent::__initialize($title, $body_class);
         if( !isset($GLOBALS['CONFIG']['translation']['sync']['poeditor_api_key']) || !$GLOBALS['CONFIG']['translation']['sync']['poeditor_api_key'] )
-            throw new WdfException("POEditor API key missing!");
+            WdfException::Raise("POEditor API key missing!");
         if( !isset($GLOBALS['CONFIG']['translation']['sync']['poeditor_project_id']) || !$GLOBALS['CONFIG']['translation']['sync']['poeditor_project_id'] )
-            throw new WdfException("POEditor ProjectID missing!");
+            WdfException::Raise("POEditor ProjectID missing!");
     }
     
     private function request($data=array())
@@ -131,6 +131,17 @@ class TranslationAdmin extends SysAdmin
             );
             $this->addContent("<div>Created translation file for $lang</div>");
         }
+		
+		$ds = model_datasource($GLOBALS['CONFIG']['translation']['sync']['datasource']);
+		$ds->ExecuteSql("TRUNCATE TABLE wdf_unknown_strings");
+		$this->addContent("<div>Cleared the unknown strings table</div>");
+		
+		foreach( cache_list_keys() as $key )
+		{
+			if( starts_with($key, 'lang_') )
+				cache_del($key);
+		}
+		$this->addContent("<div>Cleared the string cache</div>");
     }
     
     /**
@@ -168,9 +179,11 @@ class TranslationAdmin extends SysAdmin
     {
         $this->addContent("<h1>New strings</h1>");
         $ds = model_datasource($GLOBALS['CONFIG']['translation']['sync']['datasource']);
-        foreach( $ds->ExecuteSql("SELECT * FROM wdf_unknown_strings ORDER BY term") as $row )
+		foreach( $ds->Query('wdf_unknown_strings')->all() as $row )
         {
-            $ns = new TranslationNewString($row['term'],$row['hits'],$row['last_hit']);
+			$ns = Template::Make('translationnewstring');
+			foreach( $row->GetColumnNames() as $col )
+				$ns->set($col,$row->$col);
             $this->addContent($ns);
         }
     }

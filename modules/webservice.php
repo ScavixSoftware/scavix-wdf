@@ -94,4 +94,41 @@ function webservice_generate_classes($wsdl_path,$soap_class_name,$classes_path =
 	}
 }
 
-?>
+function makerelative($realpath)
+{
+	$current_script = $_SERVER['SCRIPT_FILENAME'];
+	
+	$current_script = explode("/",$current_script);
+	$realpath = explode("/",$realpath);
+
+	while( $current_script[0] == $realpath[0] )
+	{
+		$current_script = array_slice($current_script,1);
+		$realpath = array_slice($realpath,1);
+	}
+	
+	$current_script = implode("/",$current_script);
+	$realpath = implode("/",$realpath);
+	
+	if(substr($realpath, 1, 1) == "/")
+		$realpath = str_repeat("../",count(explode("/",$current_script))+1) . $realpath;
+    $realpath = str_replace("system/../", "", $realpath);
+
+	// add some '..' when there's a 'virtual' URL called
+	// ex.: http://server/Hallo/Welt will become http://server/index.php/Hallo/Welt due
+	// to htaccess in dirname(index.php)
+	$virtual = explode("index.php",$_SERVER['PHP_SELF']);
+	if( count($virtual) > 0 )
+	{
+		$virtual = explode("/",trim($virtual[1],"/"));
+		if( count($virtual) > 0 && !(count($virtual)==1 && $virtual[0]==""))
+		{
+			// add count() because root is currently index.php/
+			//log_debug($realpath." -> ".str_repeat("../",count($virtual)).$realpath);
+			$realpath = str_repeat("../",count($virtual)).$realpath;
+		}
+		//else
+			//log_debug("skipping $realpath");
+	}
+    return $realpath;
+}

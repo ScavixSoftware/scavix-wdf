@@ -336,7 +336,7 @@ class DateTimeFormat
 					}
 			}catch(Exception $ex)
 			{
-				log_debug("Invalid RegEx: $format");
+				WdfException::Log("Invalid RegEx: $format",$ex);
 			}
 		}
 		if( count($found) < 1 )

@@ -45,7 +45,7 @@ class SqLite implements IDatabaseDriver
 			case 'bool':
 				return $colAttr->Name.' INTEGER(1)';
 		}
-		throw new DatabaseException("Unknown columne type {$colAttr->Type}");
+		WdfDbException::Raise("Unknown columne type {$colAttr->Type}");
 	}
 
 	function initDriver($datasource,$pdo)
@@ -97,28 +97,16 @@ class SqLite implements IDatabaseDriver
 		$tableSql = $tableSql['sql'];
 
 		if( !$tableSql )
-		{
-			log_fatal("PDO error info: ",$this->_pdo->errorInfo());
-			throw new Exception("Table `$tablename` not found!");
-		}
+			WdfDbException::Raise("Table `$tablename` not found!","PDO error info: ",$this->_pdo->errorInfo());
 
 		$res = new TableSchema($this->_ds, $tablename);
 		$sql = 'PRAGMA table_info("'.$tablename.'")';
 		foreach($this->_pdo->query($sql) as $row)
 		{
-//			$col = new ColumnAttribute($row['name'],$row['type']);
-//			if( preg_match('/"'.$row['name'].'" '.$row['type'].' ([^,]*)/i', $tableSql, $match) )
-//				$col->Contraints = $match[1];
-//			$res->Columns[] = $col;
-			
-			
 			$col = new ColumnSchema($row['name']);
 			$col->Type = $row['type'];
-//			$col->Size = $size;
 			$col->Null = $row['notnull'] == 0;
 			$col->Key = ($row['pk']==1)?"PRIMARY":null;
-//			$col->Default = $row['Default'];
-//			$col->Extra = $row['Extra'];
 			$res->Columns[] = $col;
 		}
 		return $res;
@@ -140,7 +128,7 @@ class SqLite implements IDatabaseDriver
 		$stmt->setFetchMode(PDO::FETCH_NUM);
 		$stmt->bindValue(1,$tablename);
 		if( !$stmt->execute() )
-			throw new DatabaseException($stmt->errorInfo());
+			WdfDbException::Raise($stmt->errorInfo());
 		$row = $stmt->fetch();
 		return is_array($row) && count($row)>0;
 	}
@@ -155,17 +143,20 @@ class SqLite implements IDatabaseDriver
 		$sql = 'CREATE TABLE "'.$objSchema->Table.'" ('."\n".implode(",\n",$sql)."\n".')';
 		$stmt = $this->_pdo->prepare($sql);//,array(PDO::ATTR_CURSOR=>PDO::CURSOR_SCROLL));
 		if( !$stmt->execute() )
-			throw new DatabaseException($stmt->errorInfo());
+			WdfDbException::Raise($stmt->errorInfo());
 	}
 
 	function getSaveStatement($model,&$args)
-	{
-		throw new Exception("TODO");
-	}
+	{ ToDoException::Raise("implement SqLite->getSaveStatement()"); }
 	
-	function getDeleteStatement($model,&$args){}
-	function getPagedStatement($sql,$page,$items_per_page){}
-	function getPagingInfo($sql,$input_arguments=null){}
+	function getDeleteStatement($model,&$args)
+	{ ToDoException::Raise("implement SqLite->getDeleteStatement()"); }
+	
+	function getPagedStatement($sql,$page,$items_per_page)
+	{ ToDoException::Raise("implement SqLite->getPagedStatement()"); }
+	
+	function getPagingInfo($sql,$input_arguments=null)
+	{ ToDoException::Raise("implement SqLite->getPagingInfo()"); }
 	
 	function Now($seconds_to_add=0)
 	{

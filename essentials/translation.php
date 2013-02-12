@@ -26,14 +26,14 @@
 function translation_init()
 {
 	global $CONFIG;
-	if( !in_array("localization",$CONFIG['system']['modules']) )
-		throw new WdfException("Missing dependency 'localization'!");
-
 	$GLOBALS['__unknown_constants'] = array();
 	$GLOBALS['__translate_functions'] = array();
 
 	if( !isset($CONFIG['translation']['data_path']) )
-		throw new WdfException('Please define $CONFIG["translation"]["data_path"]');
+	{
+		//log_warn('Please define $CONFIG["translation"]["data_path"]');
+		$CONFIG['translation']['data_path'] = __DIR__.'/UNDEFINED/';
+	}
 
     if( isset($CONFIG['translation']['sync']['provider']) && $CONFIG['translation']['sync']['provider'] )
     {
@@ -57,15 +57,16 @@ function translation_init()
 
 	if( !isset($CONFIG['translation']['detect_ci_callback']) )
 		$CONFIG['translation']['detect_ci_callback'] = false;
+	
+	if( !isset($CONFIG['translation']['default_strings']) )
+		$CONFIG['translation']['default_strings'] = array();
 
 	$CONFIG['translation']['searchpatterns'] = array_merge(
 		$CONFIG['translation']['searchpatterns'],
-		array("WINDOW_","TITLE_","BTN_","MSG_","TXT_","ERR_","LAB_")
+		array("WINDOW_","TITLE_","BTN_","TXT_","ERR_")
 	);
 
 	// build reg pattern once:
-//	$chars = "A-Z0-9_";
-//	$reg = "/(WINDOW_[$chars]+)|(TITLE_[$chars]+)|(BTN_[$chars]+)|(MSG_[$chars]+|(TXT_[$chars]+)|(ERR_[$chars]+)|(LAB_[$chars]+))/";
 	$reg = array();
 	foreach( $CONFIG['translation']['searchpatterns'] as $pat )
 		$reg[] = '('.$pat.'[a-zA-Z0-9_-]+)(\[[^\]]+\])*';
@@ -81,8 +82,7 @@ function translation_init()
 function translation_do_includes()
 {
 	global $CONFIG;
-//	include($CONFIG['translation']['data_path']."translation.inc.php");
-//	include($CONFIG['translation']['data_path'].$CONFIG['localization']['default_language'].".inc.php");
+
 	if( file_exists($CONFIG['translation']['data_path'].$GLOBALS['current_language'].".inc.php") )
 	{
 		include($CONFIG['translation']['data_path'].$GLOBALS['current_language'].".inc.php");
@@ -97,15 +97,14 @@ function translation_do_includes()
 		}
 		else
 		{
-			log_fatal("No translations found!",$CONFIG['translation']['data_path'].$CONFIG['localization']['default_language'].".inc.php");
+			log_warn("No translations found!",$CONFIG['translation']['data_path'].$CONFIG['localization']['default_language'].".inc.php");
 			$GLOBALS['translation']['properties'] = array();
 			$GLOBALS['translation']['strings'] = array();
 		}
 	}
-
-//	$GLOBALS['translation']['known_constants'] = array_keys($GLOBALS['translation']['strings']);
-//	if( !is_null($null) )
-//		globalcache_set('translation_known_constants',$GLOBALS['translation']['known_constants']);
+	
+	// remove those default strings that are now defined
+	$CONFIG['translation']['default_strings'] = array_diff_key($CONFIG['translation']['default_strings'],$GLOBALS['translation']['strings']);
 }
 
 function translation_add_function($func)
@@ -136,24 +135,18 @@ function __translate_callback($matches)
 			$as_attribute = true;
 			break;
 		default:
-//			log_debug("Unknown tm? $mod");
 			if( preg_match('/^\[.*\]$/', $mod) )
 				log_debug("Unknown translation modifier: $mod");
 			else
 				$val = $mod;
 			break;
 	}
-//	log_debug("post = $mod/$val");
 
 	if( isset($__unknown_constants["k".$val]) )
 		return $val."?";
-
 	$trans = getString($val,null,$unbuffered);
-	if( $trans == "$val?" )
-	{
-		$__unknown_constants["k".$val] = $val;
+	if( isset($__unknown_constants["k".$val]) )
 		return $trans;
-	}
 
 	if( $do_js )
 		return substr(json_encode($trans),1,-1);
@@ -198,14 +191,16 @@ function __translate($text)
 				term VARCHAR(255) NOT NULL,
 				last_hit DATETIME NOT NULL,
 				hits INT DEFAULT 0,
+				default_val TEXT,
 				PRIMARY KEY (term))");
 			
             $now = $ds->Driver->Now();
-            $sql1 = "INSERT OR IGNORE INTO wdf_unknown_strings(term,last_hit,hits)VALUES(?,$now,0);";
+            $sql1 = "INSERT OR IGNORE INTO wdf_unknown_strings(term,last_hit,hits,default_val)VALUES(?,$now,0,?);";
             $sql2 = "UPDATE wdf_unknown_strings SET last_hit=$now, hits=hits+1 WHERE term=?;";
             foreach( $__unknown_constants as $uc )
             {
-                $ds->Execute($sql1,$uc);
+				$def = cfg_getd('translation','default_strings',$uc,'');
+                $ds->Execute($sql1,array($uc,$def));
                 $ds->Execute($sql2,$uc);
             }
         }
@@ -234,7 +229,6 @@ function noTranslate($content)
 		'__noTranslate_callback',
 		$content
 	);
-//	log_debug("noTranslate($content) -> ",$res);
 	return $res;
 }
 
@@ -272,6 +266,9 @@ function translation_set_language($code_or_ci)
 	return $res;
 }
 
+/**
+ * Like getString(), but for a specific language
+ */
 function getStringLang($lang,$constant,$arreplace = null, $unbuffered = false)
 {
 	$mem = isset($GLOBALS['current_language'])?$GLOBALS['current_language']:false;
@@ -283,6 +280,9 @@ function getStringLang($lang,$constant,$arreplace = null, $unbuffered = false)
 	return $res;
 }
 
+/**
+ * Shortcut function for getString()
+ */
 function _text($constant, $arreplace = null, $unbuffered = false, $encoding = null)
 {
 	return getString($constant,$arreplace,$unbuffered,$encoding);
@@ -333,14 +333,28 @@ function getStringOrig($constant, $arreplace = null, $unbuffered = false, $encod
         $res = $GLOBALS['translation']['strings'][$constant];
         $res = ReplaceVariables($res, $arreplace);
     }
-    else // $constant is not really a constant, but just a string, so we just need to replace the vars in there
+    else 
     {
-        $res = ReplaceVariables($constant, $arreplace);
-        if($res == $constant)
-        {
-            $res = htmlspecialchars($constant)."?";
+		// may be one of the system default strings
+		$def = cfg_get('translation','default_strings',$constant);
+		if( $def )
+		{
+			$res = ReplaceVariables($def, $arreplace);
 			$GLOBALS['translation']['skip_buffering_once'] = true;
-        }
+			$GLOBALS['__unknown_constants']["k".$constant] = $constant;
+		}
+		else
+		{
+			// $constant is not really a constant, but just a string, so we just need to replace the vars in there
+			$res = ReplaceVariables($constant, $arreplace);
+			if($res == $constant)
+			{
+				// if still the same, constant is unknown
+				$res = htmlspecialchars($constant)."?";
+				$GLOBALS['translation']['skip_buffering_once'] = true;
+				$GLOBALS['__unknown_constants']["k".$constant] = $constant;
+			}
+		}
     }
 
 	if(!is_null($encoding))
@@ -370,6 +384,9 @@ function ReplaceVariables($text, $arreplace = null)
 	return $text;
 }
 
+/**
+ * Returns a list of all languages that have enough translated strings to be usable
+ */
 function getAvailableLanguages( $min_percent_translated=false )
 {
 	global $CONFIG;
@@ -397,6 +414,9 @@ function getAvailableLanguages( $min_percent_translated=false )
 	return $res;
 }
 
+/**
+ * Checks if there are translations for the given culture
+ */
 function checkForExistingLanguage($cultureCode)
 {
 	$key = "existing_language_check_".$cultureCode;
@@ -457,15 +477,42 @@ function translation_skip_buffering()
 	$GLOBALS['translation']['skip_buffering_once'] = true;
 }
 
+/**
+ * Checks if a string constant exists.
+ * 
+ * You can use this to test if a string is a translation constant too.
+ */
 function translation_string_exists($constant)
 {
 	$known = translation_known_constants();
 	return in_array($constant, $known);
 }
 
+/**
+ *  Ensures that a string will not be translated
+ */
 function translation_ensure_nt($text_potentially_named_like_a_constant)
 {
 	if( !translation_string_exists($text_potentially_named_like_a_constant) )
 		return $text_potentially_named_like_a_constant;
 	return $text_potentially_named_like_a_constant."[NT]";
 }
+
+/**
+ * 'Registers' a string in the translation system with a default value.
+ * 
+ * This is used in WDF when components require user-interaction without forcing the implementor to
+ * create 100ths of strings as the first he must do.
+ */
+function default_string($constant,$text)
+{
+	if( translation_string_exists($constant) )
+		cfg_set('translation','default_strings',$constant,$text);
+	return $constant;
+}
+
+/**
+ * Alias function for default_string() just to have it short when used inline like this:
+ * $label = tds('TXT_LABEL','My first label');
+ */
+function tds($constant,$text){ return default_string($constant, $text); }

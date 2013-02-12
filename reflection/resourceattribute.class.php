@@ -1,7 +1,7 @@
 <?
 
 /**
- * 
+ * Specifies that a resource file is needed.
  */
 class ResourceAttribute extends System_Attribute
 {
@@ -23,7 +23,6 @@ class ResourceAttribute extends System_Attribute
 		$attrs = $ref->GetClassAttributes(array('Resource','ExternalResource'));
 		$ref = $ref->getParentClass();
 		$parents = $ref?self::Collect($ref->getName(),"*$pre"):array();
-//		log_debug("$pre Collect($classname)",$attrs,$parents);
 		$attrs = array_merge($parents,$attrs);
 		return $attrs;
 	}

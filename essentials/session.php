@@ -24,7 +24,6 @@
  */
 
 require_once(__DIR__.'/session/serializer.class.php');
-define("FW_SESSION_MODULE_LOADED",true);
 
 function session_init()
 {
@@ -34,7 +33,7 @@ function session_init()
 	$GLOBALS['object_storage'] = array();
 
 	if( !isset($CONFIG['session']['session_name']) )
-		$CONFIG['session']['session_name'] = 'FW_SESSION';
+		$CONFIG['session']['session_name'] = isset($CONFIG['system']['application_name'])?$CONFIG['system']['application_name']:'WDF_SESSION';
 
 	if( !isset($CONFIG['session']['datasource']) )
 		$CONFIG['session']['datasource'] = 'internal';
@@ -47,10 +46,6 @@ function session_init()
 
 	if( !isset($CONFIG['session']['lifetime']) )
 		$CONFIG['session']['lifetime'] = '10';
-
-	// Deprecated! Use $CONFIG['session']['handler'] instead!
-//	if( !isset($CONFIG['session']['usephpsession']) )
-//		$CONFIG['session']['usephpsession'] = true;
 
 	// Bind sessions to one ip address
 	if( !isset($CONFIG['session']['iplock']))
@@ -73,7 +68,7 @@ function session_run()
 	{
 		if( ($CONFIG['session']['usephpsession'] && $CONFIG['session']['handler'] != "PhpSession") ||
 			(!$CONFIG['session']['usephpsession'] && $CONFIG['session']['handler'] == "PhpSession") )
-			throw new WdfException('Do not use $CONFIG[\'session\'][\'usephpsession\'] anymore! See session_init() for details.');
+			WdfException::Raise('Do not use $CONFIG[\'session\'][\'usephpsession\'] anymore! See session_init() for details.');
 	}
 	$GLOBALS['fw_session_handler'] = new $CONFIG['session']['handler']();
 
@@ -214,7 +209,7 @@ function session_memcache_host()
 {
 	$u = parse_url(session_save_path());
 	if( !isset($u['host']) )
-		throw new Exception("Invalid memcache server or not using memcache");
+		WdfException::Raise("Invalid memcache server or not using memcache");
 	return $u['host'];
 }
 

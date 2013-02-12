@@ -22,6 +22,8 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
+default_string("TITLE_CONFIRMATION", "Confirm");
+default_string("TXT_CONFIRMATION", "Please confirm");
 
 class uiConfirmation extends uiDialog
 {
@@ -45,15 +47,15 @@ class uiConfirmation extends uiDialog
 		switch( $button_mode )
 		{
 			case self::OK_CANCEL:
-				$this->AddButton('BTN_OK',$ok_callback);
-				$this->AddCloseButton('BTN_CANCEL');
+				$this->AddButton(tds('BTN_OK','Ok'),$ok_callback);
+				$this->AddCloseButton(tds('BTN_CANCEL','Cancel'));
 				break;
 			case self::YES_NO:
-				$this->AddButton('BTN_YES',$ok_callback);
-				$this->AddCloseButton('BTN_NO');
+				$this->AddButton(tds('BTN_YES','Yes'),$ok_callback);
+				$this->AddCloseButton(tds('BTN_NO','No'));
 				break;
 			default:
-				throw new Exception("Wrong button_mode: $button_mode");
+				WdfException::Raise("Wrong button_mode: $button_mode");
 		}
 		$this->Mode = $button_mode;
 		$this->content($text);
@@ -64,10 +66,10 @@ class uiConfirmation extends uiDialog
 		switch( $this->Mode )
 		{
 			case self::OK_CANCEL:
-				$this->SetButton('BTN_OK',$action);
+				$this->SetButton(tds('BTN_OK','Ok'),$action);
 				break;
 			case self::YES_NO:
-				$this->SetButton('BTN_YES',$action);
+				$this->SetButton(tds('BTN_YES','Yes'),$action);
 				break;
 		}
 	}

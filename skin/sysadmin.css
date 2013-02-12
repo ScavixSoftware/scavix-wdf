@@ -8,36 +8,36 @@ body.sysadmin
 }
 
 /* tables */
-body.sysadmin table tr
+body.sysadmin .table .tr, body.sysadmin table tr
 {
     margin: 0px;
     padding: 0px;
 }
 
-body.sysadmin table td
+body.sysadmin .table .td, body.sysadmin table td
 {
     margin: 0px;
     padding: 5px;
 }
 
-body.sysadmin table thead tr
+body.sysadmin .table .thead .tr, body.sysadmin table thead tr
 {
     background-color: orange;
     font-weight: bold;
     color: white;
 }
 
-body.sysadmin table tfoot tr
+body.sysadmin .table .tfoot .tr, body.sysadmin table tfoot tr
 {
     background-color: orange;
 }
 
-body.sysadmin table.bordered
+body.sysadmin .bordered
 {
 	border: 1px solid gray;
 }
 
-body.sysadmin table.bordered tbody
+body.sysadmin .bordered .tbody, body.sysadmin .bordered tbody
 {
 	border-top: 1px solid gray;
 	border-bottom: 1px solid gray;

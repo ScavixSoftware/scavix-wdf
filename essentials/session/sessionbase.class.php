@@ -158,7 +158,7 @@ abstract class SessionBase
 			}
 			catch(Exception $ex)
 			{
-				log_error("updating session storage for object $id [".get_class($obj)."]: ".$ex->getMessage());
+				WdfException::Log("updating session storage for object $id [".get_class($obj)."]",$ex);
 			}
 		}
 	}

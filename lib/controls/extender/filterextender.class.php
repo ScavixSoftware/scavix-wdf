@@ -22,11 +22,12 @@
  * @copyright 2007-2012 PamConsult GmbH
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
+default_string("TXT_NOFILTER",'No filter');
+
 class FilterExtender extends ControlExtender
 {
 	var $CurrentFilter = "";
-	var $NoFilterText = "TXT_NOFILTER";
+	var $NoFilterText;
 	var $Container = false;
 	var $DefaultOnAddHandler = false;
 	var $FieldsToFilter = array();
@@ -39,7 +40,7 @@ class FilterExtender extends ControlExtender
 		$this->NoFilterText = $nofiltertext;
 
 		if( !$fieldsToFilter || !is_array($fieldsToFilter) || in_array("*",$fieldsToFilter) )
-			throw new WdfException("FilterExtender needs valid fieldnames to know where to filter");
+			WdfException::Raise("FilterExtender needs valid fieldnames to know where to filter");
 		$this->FieldsToFilter = $fieldsToFilter;
 
 		$oi = resFile('overlay.png');
