@@ -1177,7 +1177,7 @@ function current_controller($as_string=true)
 	if( !isset($GLOBALS['current_controller']) )
 		return $as_string?'':null;
 	if( $as_string )
-		return strtolower(get_class($GLOBALS['current_controller']));
+		return strtolower(is_string($GLOBALS['current_controller']) ? $GLOBALS['current_controller'] : get_class($GLOBALS['current_controller']));
 	return $GLOBALS['current_controller'];
 }
 

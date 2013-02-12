@@ -570,7 +570,10 @@ function classpath_add($path, $recursive=true, $part=false)
 			
 	if( $recursive )
 	{
-		foreach( glob($path.'*', GLOB_MARK|GLOB_ONLYDIR|GLOB_NOSORT) as $sub )
+        $folders = glob($path.'*', GLOB_MARK|GLOB_ONLYDIR|GLOB_NOSORT);
+        if( !is_array($folders) )
+            return;
+		foreach( $folders as $sub )
 			classpath_add($sub, true, $part);
 	}
 }
