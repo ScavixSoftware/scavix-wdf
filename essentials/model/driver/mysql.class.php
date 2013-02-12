@@ -70,7 +70,6 @@ class MySql implements IDatabaseDriver
 			if( $row['Key'] == 'PRI' )
 				$row['Key'] = 'PRIMARY';
 
-			//debug("ColumnAttribute({$row['Field']},{$row['Type']},$size,{$row['Key']})");
 			$col = new ColumnSchema($row['Field']);
 			$col->Type = $row['Type'];
 			$col->Size = $size;
@@ -106,12 +105,8 @@ class MySql implements IDatabaseDriver
 	}
 
 	function createTable($objSchema)
-	{
+	{ ToDoException::Raise("implement MySql->createTable()"); }
 
-	}
-
-	private $server_datetime;
-	
 	function getSaveStatement($model,&$args)
 	{
 		$cols = array();

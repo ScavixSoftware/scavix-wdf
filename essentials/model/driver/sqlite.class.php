@@ -103,19 +103,10 @@ class SqLite implements IDatabaseDriver
 		$sql = 'PRAGMA table_info("'.$tablename.'")';
 		foreach($this->_pdo->query($sql) as $row)
 		{
-//			$col = new ColumnAttribute($row['name'],$row['type']);
-//			if( preg_match('/"'.$row['name'].'" '.$row['type'].' ([^,]*)/i', $tableSql, $match) )
-//				$col->Contraints = $match[1];
-//			$res->Columns[] = $col;
-			
-			
 			$col = new ColumnSchema($row['name']);
 			$col->Type = $row['type'];
-//			$col->Size = $size;
 			$col->Null = $row['notnull'] == 0;
 			$col->Key = ($row['pk']==1)?"PRIMARY":null;
-//			$col->Default = $row['Default'];
-//			$col->Extra = $row['Extra'];
 			$res->Columns[] = $col;
 		}
 		return $res;
@@ -156,13 +147,16 @@ class SqLite implements IDatabaseDriver
 	}
 
 	function getSaveStatement($model,&$args)
-	{
-		ToDoException::Raise("implement SqLite->getSaveStatement()");
-	}
+	{ ToDoException::Raise("implement SqLite->getSaveStatement()"); }
 	
-	function getDeleteStatement($model,&$args){}
-	function getPagedStatement($sql,$page,$items_per_page){}
-	function getPagingInfo($sql,$input_arguments=null){}
+	function getDeleteStatement($model,&$args)
+	{ ToDoException::Raise("implement SqLite->getDeleteStatement()"); }
+	
+	function getPagedStatement($sql,$page,$items_per_page)
+	{ ToDoException::Raise("implement SqLite->getPagedStatement()"); }
+	
+	function getPagingInfo($sql,$input_arguments=null)
+	{ ToDoException::Raise("implement SqLite->getPagingInfo()"); }
 	
 	function Now($seconds_to_add=0)
 	{
