@@ -209,7 +209,6 @@ class WebServiceClient extends SoapClient
 
 			$default_socket_timeout = ini_get("default_socket_timeout");
 			ini_set("default_socket_timeout",$CONFIG['webservice']['call_timeout']);
-//            log_debug("pre call");
 			$res = $this->__soapCall( $function_name, $arguments );			
 			$bufferedresponse = $res;
 			if( time() - $start > 2 )
@@ -218,11 +217,6 @@ class WebServiceClient extends SoapClient
 			TimeTrace("__call 3");
             if( $res instanceof WsObjectBase )
 				$res->__init($this);
-//			else
-//				throw new WdfException("Unwrapped object type: ".get_class($res));
-
-//			if( $function_name == "LoadAbsencesByMDNrFromTo")
-//				log_debug($res);
 
 			while( $res instanceof WsObjectBase && $res->IsContainer() )
 				$res = $res->GetOnlyProperty();
@@ -284,7 +278,7 @@ class WebServiceClient extends SoapClient
                     {
                         log_debug($bufferedrequest);
 						log_debug($res);
-//                        throw new WdfException("SaveEmployee fails partially: ".my_var_export($diff));
+//                        WdfException::Raise("SaveEmployee fails partially: ".my_var_export($diff));
                     }
                 }
             }
@@ -305,12 +299,12 @@ class WebServiceClient extends SoapClient
 		catch( ErrorException $ex)
 		{
 			ini_set("default_socket_timeout",$default_socket_timeout);
-			throw new WdfException($ex->getMessage());
+			WdfException::Raise($ex->getMessage());
 		}
 		catch( SoapFault $ex )
 		{
             $this->DumpRequest();
-			throw new WdfException($ex->faultstring);
+			WdfException::Raise($ex->faultstring);
 		}
 		ini_set("default_socket_timeout",$default_socket_timeout);
 		return false;

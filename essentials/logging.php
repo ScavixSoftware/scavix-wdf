@@ -347,7 +347,12 @@ function logging_render_var($content,&$stack=array(),$indent="")
 	elseif( is_object($content) )
 	{
 		$stack[] = $content;
-		if( $content instanceof Exception )
+		if( $content instanceof WdfException )
+		{
+			$res[] = get_class($content).": ".$content->getMessageEx();
+			$res[] = "in ".$content->getFileEx().":".$content->getLineEx();
+		}
+		elseif( $content instanceof Exception )
 		{
 			$res[] = get_class($content).": ".$content->getMessage();
 			$res[] = "in ".$content->getFile().":".$content->getLine();

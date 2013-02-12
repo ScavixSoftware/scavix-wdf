@@ -274,7 +274,7 @@ class CultureInfo
 			$dt->setTimezone($tz);
 		}catch(Exception $ex){ 
 			$this->TimeZone = "";
-			log_error($ex->getMessage(),$ex); 
+			WdfException::Log($ex);
 		}
 		return strtotime($dt->format('Y-m-d H:i:s'));
 	}

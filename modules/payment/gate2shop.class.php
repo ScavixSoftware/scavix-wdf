@@ -33,7 +33,7 @@ class Gate2Shop extends PaymentProvider
 		global $CONFIG;
 		parent::__construct();
 		if(!isset($CONFIG["payment"]) || !isset($CONFIG["payment"]["gate2shop"]))
-			throw new WdfException("Gate2Shop payment provider not configured");
+			WdfException::Raise("Gate2Shop payment provider not configured");
 		
 		$this->small_image = resFile("gate2shop.png");
 	}

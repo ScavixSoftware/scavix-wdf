@@ -68,7 +68,7 @@ function session_run()
 	{
 		if( ($CONFIG['session']['usephpsession'] && $CONFIG['session']['handler'] != "PhpSession") ||
 			(!$CONFIG['session']['usephpsession'] && $CONFIG['session']['handler'] == "PhpSession") )
-			throw new WdfException('Do not use $CONFIG[\'session\'][\'usephpsession\'] anymore! See session_init() for details.');
+			WdfException::Raise('Do not use $CONFIG[\'session\'][\'usephpsession\'] anymore! See session_init() for details.');
 	}
 	$GLOBALS['fw_session_handler'] = new $CONFIG['session']['handler']();
 
@@ -209,7 +209,7 @@ function session_memcache_host()
 {
 	$u = parse_url(session_save_path());
 	if( !isset($u['host']) )
-		throw new Exception("Invalid memcache server or not using memcache");
+		WdfException::Raise("Invalid memcache server or not using memcache");
 	return $u['host'];
 }
 

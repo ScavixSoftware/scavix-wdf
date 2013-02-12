@@ -80,7 +80,7 @@ class DateTimeEx extends DateTime
 			case self::SECONDS:
 				return $factor * ($diff->days*24*60*60 + $diff->s);
 		}
-		throw new Exception("Getting the age is not possible in unit '$unit'");
+		WdfException::Raise("Getting the age is not possible in unit '$unit'");
 	}
 	
 	public function youngerThan($value,$interval)

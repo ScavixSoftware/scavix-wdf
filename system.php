@@ -255,7 +255,7 @@ function system_instanciate_controller($controller_id)
 		}
 	}
 	else if( !($res instanceof ICallable) )
-		throw new Exception("ACCESS DENIED: $controller_id is no ICallable");
+		WdfException::Raise("ACCESS DENIED: $controller_id is no ICallable");
 	
 	return $res;
 }
@@ -301,7 +301,7 @@ function system_execute()
 		elseif( $content instanceof Renderable )
 			$response = AjaxResponse::Renderable($content)->Render();
 		else
-			throw new WdfException("Unknown AJAX return value");
+			WdfException::Raise("Unknown AJAX return value");
 	}
 	elseif( $content instanceof AjaxResponse ) // is system_is_ajax_call() failed to detect AJAX but response in fact IS for AJAX
 		die("__SESSION_TIMEOUT__");
@@ -369,8 +369,8 @@ function system_invoke_request($target_class,$target_event,$pre_execute_hook_typ
 function system_die($reason,$additional_message='')
 {
 	if( $reason instanceof Exception )
-	{		
-		$stacktrace = $reason->getTrace();
+	{
+		$stacktrace = ($reason instanceof WdfException)?$reason->getTraceEx():$reason->getTrace();
 		$reason = logging_render_var($reason);
 	}
 
@@ -501,7 +501,7 @@ function is_valid_hook_type($type)
 		)
 		return true;
 
-	throw new WdfException("Invalid hook type ($type)!");
+	WdfException::Raise("Invalid hook type ($type)!");
 }
 
 /**
@@ -625,7 +625,7 @@ function system_spl_autoload($class_name)
             require_once($file);
     } 
     catch(Exception $ex)
-    { error_log("system_spl_autoload: ".$ex->getMessage()); };
+    { WdfException::Log("system_spl_autoload",$ex); };
 }
 spl_autoload_register("system_spl_autoload",true,true);
 
@@ -723,7 +723,7 @@ function __search_file_for_class($class_name,$extension="class.php",$classpath_l
 	foreach( $CONFIG['class_path']['order'] as $cp_part )
 	{
 		if( !isset($CONFIG['class_path'][$cp_part]))
-			throw new WdfException("Invalid ClassPath! No entry for '$cp_part'.");
+			WdfException::Raise("Invalid ClassPath! No entry for '$cp_part'.");
 
 		if( $classpath_limit && $cp_part != $classpath_limit )
 			continue;

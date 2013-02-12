@@ -45,7 +45,7 @@ class SqLite implements IDatabaseDriver
 			case 'bool':
 				return $colAttr->Name.' INTEGER(1)';
 		}
-		throw new DatabaseException("Unknown columne type {$colAttr->Type}");
+		WdfDbException::Raise("Unknown columne type {$colAttr->Type}");
 	}
 
 	function initDriver($datasource,$pdo)
@@ -97,10 +97,7 @@ class SqLite implements IDatabaseDriver
 		$tableSql = $tableSql['sql'];
 
 		if( !$tableSql )
-		{
-			log_fatal("PDO error info: ",$this->_pdo->errorInfo());
-			throw new Exception("Table `$tablename` not found!");
-		}
+			WdfDbException::Raise("Table `$tablename` not found!","PDO error info: ",$this->_pdo->errorInfo());
 
 		$res = new TableSchema($this->_ds, $tablename);
 		$sql = 'PRAGMA table_info("'.$tablename.'")';
@@ -140,7 +137,7 @@ class SqLite implements IDatabaseDriver
 		$stmt->setFetchMode(PDO::FETCH_NUM);
 		$stmt->bindValue(1,$tablename);
 		if( !$stmt->execute() )
-			throw new DatabaseException($stmt->errorInfo());
+			WdfDbException::Raise($stmt->errorInfo());
 		$row = $stmt->fetch();
 		return is_array($row) && count($row)>0;
 	}
@@ -155,12 +152,12 @@ class SqLite implements IDatabaseDriver
 		$sql = 'CREATE TABLE "'.$objSchema->Table.'" ('."\n".implode(",\n",$sql)."\n".')';
 		$stmt = $this->_pdo->prepare($sql);//,array(PDO::ATTR_CURSOR=>PDO::CURSOR_SCROLL));
 		if( !$stmt->execute() )
-			throw new DatabaseException($stmt->errorInfo());
+			WdfDbException::Raise($stmt->errorInfo());
 	}
 
 	function getSaveStatement($model,&$args)
 	{
-		throw new Exception("TODO");
+		ToDoException::Raise("implement SqLite->getSaveStatement()");
 	}
 	
 	function getDeleteStatement($model,&$args){}

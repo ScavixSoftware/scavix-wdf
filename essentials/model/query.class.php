@@ -93,7 +93,7 @@ class Query
 				$this->_statement->bindValue($i+1,$v);
 		}
 		if( !$this->_statement->execute() )
-			throw new Exception($this->_statement->ErrorOutput());
+			WdfDbException::Raise($this->_statement->ErrorOutput(),"\nSQL: $sql","\nArguments:",$this->_values);
 		
 		$res = $this->_statement->fetchAll(PDO::FETCH_CLASS,get_class($this->_object),$ctor_args);
 		return $res;

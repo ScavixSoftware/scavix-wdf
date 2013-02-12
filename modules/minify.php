@@ -72,7 +72,7 @@ function minify_forbidden($classname)
 	}
 	catch(Exception $ex)
 	{
-		log_debug("minify_forbidden($classname)",$ex);
+		WdfException::Log("minify_forbidden($classname)",$ex);
 		return false;
 	}
 }
@@ -122,7 +122,7 @@ function minify_js($paths,$target_file)
 				$code .= jsmin::minify($js)."\n";
 			} catch(Exception $ex)
 			{
-				log_error("EXCEPTION occured in jsmin::minify ($js)", $ex);
+				WdfException::Log("EXCEPTION occured in jsmin::minify ($js)",$ex);
 				$code .= $js."\n";	
 			}
 		}

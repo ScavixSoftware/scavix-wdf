@@ -230,7 +230,7 @@ class Control extends Renderable
 					return;
 				}
 			}
-			throw new Exception("'$varname' is not an allowed attriute for a control of type '{$this->Tag}'");
+			WdfException::Raise("'$varname' is not an allowed attriute for a control of type '{$this->Tag}'");
 		}
 		$this->_attributes[$varname] = $value;
 
@@ -249,7 +249,7 @@ class Control extends Renderable
 			if( system_method_exists($ex,$name) )
 				return system_call_user_func_array_byref($ex, $name, $arguments);
 		}
-		throw new WdfException("Call to undefined method '$name' on object of type '".get_class($this)."'");
+		WdfException::Raise("Call to undefined method '$name' on object of type '".get_class($this)."'");
     }
 
 	/**
@@ -628,7 +628,7 @@ class Control extends Renderable
 		elseif( $target instanceof HtmlPage )
 			$target->addContent($this);
 		else
-			throw new Exception("Target must be of type Control or HtmlPage");
+			WdfException::Raise("Target must be of type Control or HtmlPage");
 		return $this;
 	}
 }

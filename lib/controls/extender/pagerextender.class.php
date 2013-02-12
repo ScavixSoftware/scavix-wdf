@@ -53,7 +53,7 @@ class PagerExtender extends ControlExtender
 			return "<span class='current'>$label</span>";
 
 		if( !isset($this->ExtendedControl->id) || $this->ExtendedControl->id == "" )
-			throw new WdfException("Object needs to be stored to use pager functionality!");
+			WdfException::Raise("Object needs to be stored to use pager functionality!");
 
 		$id = $this->ExtendedControl->id;
 		$res = new Anchor("javascript: void(0);",$label);

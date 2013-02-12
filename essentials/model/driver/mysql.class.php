@@ -51,10 +51,8 @@ class MySql implements IDatabaseDriver
 		$tableSql = $this->_pdo->query($sql);
 		
 		if( !$tableSql )
-		{
-			log_fatal("PDO error info: ",$this->_pdo->errorInfo());
-			throw new Exception("Table `$tablename` not found!");
-		}
+			WdfDbException::Raise("Table `$tablename` not found!","PDO error info: ",$this->_pdo->errorInfo());
+		
 		$tableSql = $tableSql->fetch();
 		$tableSql = $tableSql[1];
 
@@ -102,7 +100,7 @@ class MySql implements IDatabaseDriver
 		$stmt->setFetchMode(PDO::FETCH_NUM);
 		$stmt->bindValue(1,$tablename);
 		if( !$stmt->execute() )
-			throw new Exception($stmt->errorInfo());
+			WdfDbException::Raise($stmt->errorInfo());
 		$row = $stmt->fetch();
 		return count($row)>0;
 	}

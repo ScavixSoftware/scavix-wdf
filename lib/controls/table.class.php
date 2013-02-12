@@ -319,7 +319,7 @@ class Table extends uiControl
 	function AddDataToRow($model)
 	{
 		if( !$this->current_row )
-			throw new Exception("No row added");
+			WdfException::Raise("No row added yet");
 		$this->current_row->id = $this->current_row->_storage_id;
 		$this->_rowModels[$this->current_row->id] = $model;
 		return $this;

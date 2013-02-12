@@ -41,7 +41,7 @@ function geoip_init()
 	}
 
 	if( !system_is_module_loaded('curlwrapper') )
-		throw new WdfException("Missing module: curlwrapper!");
+		WdfException::Raise("Missing module: curlwrapper!");
 		
 	if( !isset($GLOBALS['current_ip_addr']) )
 		$GLOBALS['current_ip_addr'] = get_ip_address();
@@ -180,7 +180,7 @@ function get_timezone_by_ip($ip = false)
 	try
 	{
 		$xml = sendHTTPRequest($url, false, 60 * 60, $f, false, 2);
-	}catch(Exception $ex){ log_error("Unable to get Timezone for ".$ip." ($url)"); return false; }
+	}catch(Exception $ex){ WdfException::Log("Unable to get Timezone for ".$ip." ($url)",$ex); return false; }
 	if( preg_match_all('/<TimezoneName>([^<]*)<\/TimezoneName>/', $xml, $zone, PREG_SET_ORDER) )
 	{
 		$zone = $zone[0];
@@ -208,7 +208,7 @@ function get_timezone_by_ip($ip = false)
 	try
 	{
 		$xml = sendHTTPRequest($url, false, 60 * 60, $f, false, 2);
-	}catch(Exception $ex){ log_error("Unable to get Timezone for ".$ip." ($url) ".$ex->getMessage()); return false; }
+	}catch(Exception $ex){ WdfException::Log("Unable to get Timezone for ".$ip." ($url) ".$ex->getMessage(),$ex); return false; }
 	if( preg_match_all('/<timezoneId>([^<]*)<\/timezoneId>/', $xml, $zone, PREG_SET_ORDER) )
 	{
 		$zone = $zone[0];
@@ -223,7 +223,7 @@ function get_timezone_by_ip($ip = false)
 	try
 	{
 		$xml = sendHTTPRequest($url, false, 60 * 60, $f, false, 2);
-	}catch(Exception $ex){ log_error("Unable to get Timezone for ".$ip." ($url)"); return false; }
+	}catch(Exception $ex){ WdfException::Log("Unable to get Timezone for ".$ip." ($url)",$ex); return false; }
 	if( preg_match_all('/<offset>([^<]*)<\/offset>/', $xml, $zone, PREG_SET_ORDER) )
 	{
 		$zone = $zone[0];

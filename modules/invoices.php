@@ -35,16 +35,16 @@ function invoices_init()
 	zend_load("pdf/pdfdocument.class.php");
 	
 	if(!isset($GLOBALS['VAT_COUNTRIES']))
-		throw new WdfException("VAT_COUNTRIES not defined (invoices_init)");
+		WdfException::Raise("VAT_COUNTRIES not defined (invoices_init)");
 }
 
 function invoices_check_requirements()
 {
 	global $CONFIG;
 	if( !isset($CONFIG['invoices']['logofile']) )
-		throw new WdfException("\$CONFIG['invoices']['logofile'] not defined");	
+		WdfException::Raise("\$CONFIG['invoices']['logofile'] not defined");	
 	if(!file_exists($CONFIG['invoices']['logofile']))
-		throw new WdfException("invoice logo (".$CONFIG['invoices']['logofile'].") not found");	
+		WdfException::Raise("invoice logo (".$CONFIG['invoices']['logofile'].") not found");	
 }
 
 function invoiceStandardLogo()
@@ -264,7 +264,7 @@ function check_vat_number($vat_number)
 			elseif( $res != "valid" )
 				log_debug("VAT syntax ok, but CACHE says not",$vat_number,$country_code,$vat);
 			return $res == "valid";
-		}catch(Exception $ex){}
+		}catch(Exception $ex){ WdfException::Log($ex); }
 		return true; // ignore service exceptions
 	}
 	return false;

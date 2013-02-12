@@ -41,7 +41,7 @@ function model_init()
 	$GLOBALS['MODEL_REGISTER'] = array();
 
 	if( !is_array($CONFIG['model']) )
-		throw new WdfException("Please configure at least one DB in CONFIG['model']");
+		WdfDbException::Raise("Please configure at least one DB in CONFIG['model']");
 
 	foreach( $CONFIG['model'] as $name=>$mod )
 	{
@@ -60,7 +60,7 @@ function model_init()
 			);
 		}
 		else
-			throw new WdfException("Unable to initialize database '$name'! Missing CONFIG information.");
+			WdfDbException::Raise("Unable to initialize database '$name'! Missing CONFIG information.");
 	}
 }
 
@@ -113,7 +113,7 @@ function &model_datasource($name)
 		list($dstype,$constr,$autoct,$debug,$usememcache) = $MODEL_DATABASES[$name];
 		$model_db = new $dstype($name,$constr);
 		if( !$model_db )
-			throw new WdfException("Unable to connect to database '$name'.");
+			WdfDbException::Raise("Unable to connect to database '$name'.");
 
 		if( $usememcache && session_use_memcache() )
 		{

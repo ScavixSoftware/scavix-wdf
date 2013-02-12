@@ -180,14 +180,14 @@ class Serializer
 						$this->Stack[$id]->__wakeup();
 					
 				}catch(Exception $ex){
-					log_error("Unserialise Exception in line '$line' ($id,$len,$type,$datasource): ".$ex->getMessage());
+					WdfException::Log("Unserialise Exception in line '$line' ($id,$len,$type,$datasource)",$ex);
 					return null;
 				}
 				return $this->Stack[$id];
 				
 			case 'r':
 				if( !isset($this->Stack[intval($line)]) )
-					throw new WdfException("Trying to reference unknown object.");
+					WdfException::Raise("Trying to reference unknown object.");
 				if( $this->Stack[intval($line)] instanceof System_DataSource )
 					return model_datasource($this->Stack[intval($line)]->_storage_id);
 				return $this->Stack[intval($line)];
@@ -200,7 +200,7 @@ class Serializer
 			case 'b':
 				return $line==1;
 			default:
-				throw new WdfException("Unserialize found unknown datatype '$type'. Line was $orig_line");
+				WdfException::Raise("Unserialize found unknown datatype '$type'. Line was $orig_line");
 		}
 	}
 }

@@ -22,10 +22,10 @@
  * @copyright 2007-2012 PamConsult GmbH
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
-// ToDo: Try to touch files so that byte-cache (eAccelerator) is tricked out
-// ToDo: Try to read files contents if byte-cache (eAccelerator) stripped comments out
 
+/**
+ * Wraps ReflectionMethod class and overrides invokeArgs method to allow control extender pattern to work
+ */
 class System_ReflectionMethod extends ReflectionMethod
 {
 	public function invokeArgs($object, array $argsarray)
@@ -43,7 +43,7 @@ class System_ReflectionMethod extends ReflectionMethod
 				}catch(Exception $e){ log_debug("Checking other extenders"); }
 			}
 		}
-		throw new Exception("Error calling ".$this->class."->".$this->name);
+		WdfException::Raise("Error invoking ".$this->class."->".$this->name);
 	}
 }
 ?>

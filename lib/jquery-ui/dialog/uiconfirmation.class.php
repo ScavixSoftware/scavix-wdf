@@ -55,7 +55,7 @@ class uiConfirmation extends uiDialog
 				$this->AddCloseButton(tds('BTN_NO','No'));
 				break;
 			default:
-				throw new Exception("Wrong button_mode: $button_mode");
+				WdfException::Raise("Wrong button_mode: $button_mode");
 		}
 		$this->Mode = $button_mode;
 		$this->content($text);

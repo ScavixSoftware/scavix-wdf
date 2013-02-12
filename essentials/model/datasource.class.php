@@ -61,9 +61,11 @@ class DataSource extends System_DataSource
 		$this->_username = $username;
 		$this->_password = $password;
 		
-        $this->_pdo = new PdoLayer($dsn,$username,$password);
+        try{ 
+			$this->_pdo = new PdoLayer($dsn,$username,$password); 
+		}catch(Exception $ex){ WdfDbException::Raise("Error connecting database",$dsn,$ex); }
 		if( !$this->_pdo )
-			throw new WdfException("Something went horribly wrong with the PdoLayer");
+			WdfDbException::Raise("Something went horribly wrong with the PdoLayer");
 		$this->_pdo->setAttribute( PDO::ATTR_STATEMENT_CLASS, array( "ResultSet", array($this) ) );
 
 		$driver = $this->_pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
@@ -79,7 +81,7 @@ class DataSource extends System_DataSource
                 require_once(__DIR__.'/driver/mysql.class.php');
                 $this->Driver = new MySql(); 
                 break;
-			default: throw new Exception("Unknown DB driver: $driver");
+			default: WdfDbException::Raise("Unknown DB driver: $driver");
 		}
 		$this->Driver->initDriver($this,$this->_pdo);
     }
@@ -174,7 +176,7 @@ class DataSource extends System_DataSource
 	{
 		$stmt = $this->_pdo->prepare($sql);
 		if( !$stmt )
-			throw new Exception("Invalid SQL: $sql");
+			WdfDbException::Raise("Invalid SQL: $sql");
 		return $stmt;
 	}
 
@@ -188,13 +190,13 @@ class DataSource extends System_DataSource
 			$ret = $this->_pdo->query($sql);
 			$error = $this->_pdo->errorInfo();
 			if( ($error[0] != "") && ($error[0] != "00000") )
-				throw new Exception("SQL Error: ".$this->ErrorMsg ()."\n$sql");
+				WdfDbException::Raise("SQL Error: ".$this->ErrorMsg(),"\nSQL: $sql");
 			return $ret;
 		}
 		
 		$stmt = $this->Prepare($sql);
 		if( !$stmt->execute($parameter) )
-			throw new Exception("SQL Error: ".$stmt->ErrorOutput()."\n$sql\n".my_var_export($parameter));
+			WdfDbException::Raise("SQL Error: ".$stmt->ErrorOutput(),"\nSQL: $sql","\nArguments:",$parameter);
 		$this->_last_affected_rows_count = $stmt->rowCount();
 		return $stmt;
 	}

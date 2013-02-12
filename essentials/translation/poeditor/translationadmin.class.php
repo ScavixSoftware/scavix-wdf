@@ -34,9 +34,9 @@ class TranslationAdmin extends SysAdmin
     {
         parent::__initialize($title, $body_class);
         if( !isset($GLOBALS['CONFIG']['translation']['sync']['poeditor_api_key']) || !$GLOBALS['CONFIG']['translation']['sync']['poeditor_api_key'] )
-            throw new WdfException("POEditor API key missing!");
+            WdfException::Raise("POEditor API key missing!");
         if( !isset($GLOBALS['CONFIG']['translation']['sync']['poeditor_project_id']) || !$GLOBALS['CONFIG']['translation']['sync']['poeditor_project_id'] )
-            throw new WdfException("POEditor ProjectID missing!");
+            WdfException::Raise("POEditor ProjectID missing!");
     }
     
     private function request($data=array())

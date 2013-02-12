@@ -22,10 +22,10 @@
  * @copyright 2007-2012 PamConsult GmbH
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
-// ToDo: Try to touch files so that byte-cache (eAccelerator) is tricked out
-// ToDo: Try to read files contents if byte-cache (eAccelerator) stripped comments out
 
+/**
+ * Wraps ReflectionClass and provides additional functionality regarding Attributes and DocComments
+ */
 class System_Reflector extends ReflectionClass
 {
 	var $_attribute_cache = array();

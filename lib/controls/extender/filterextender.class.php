@@ -40,7 +40,7 @@ class FilterExtender extends ControlExtender
 		$this->NoFilterText = $nofiltertext;
 
 		if( !$fieldsToFilter || !is_array($fieldsToFilter) || in_array("*",$fieldsToFilter) )
-			throw new WdfException("FilterExtender needs valid fieldnames to know where to filter");
+			WdfException::Raise("FilterExtender needs valid fieldnames to know where to filter");
 		$this->FieldsToFilter = $fieldsToFilter;
 
 		$oi = resFile('overlay.png');
