@@ -84,12 +84,10 @@ abstract class Renderable
 		if( is_object($template) )
 		{
 			$classname = strtolower(get_class($template));
-//			log_debug("$classname OBJECT",gettype($template));
 			
 			// first collect statics from the class definitions
 			$static = ResourceAttribute::ResolveAll( ResourceAttribute::Collect($classname) );
 			$res = array_merge($res,$static);
-//			log_debug("$classname STATIC NEW",$static);
 			
 			if( $template instanceof Renderable )
 			{
@@ -103,7 +101,6 @@ abstract class Renderable
 							$sub = array_merge($sub,$this->__collectResourcesInternal($var));
 					}
 					$res = array_merge($res,$sub);
-//					log_debug("$classname CONTENT $varname",$sub);
 				}
 				
 				// finally include the 'self' stuff (<classname>.js,...)
@@ -119,7 +116,6 @@ abstract class Renderable
 				}
 				while($classname != "");// && $classname != "template" && $classname != "control" && $classname != "controlextender"); // todo: check if this abort condition is correct
 				$res = array_merge($res,array_reverse($parents));
-//				log_debug(strtolower(get_class($template))." PARENTS",$parents);
 			}
 		}
 		elseif( is_array($template) )

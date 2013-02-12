@@ -300,6 +300,11 @@ class Control extends Renderable
 		$this->_extenders_rendered = false;
 	}
 	
+	/**
+	 * Static creator method that is cabable of creating derivered classes too:
+	 * Control::Make('div')->content('Doh!');
+	 * TextInput::Make()->css('width','300px');
+	 */
 	public static function Make($tag=false)
     {
 		$className = get_called_class();
@@ -326,14 +331,15 @@ class Control extends Renderable
 	}
 
 	/**
-	 * Adds a CSS property to the control
+	 * Adds a CSS property to the control.
+	 * If value is an integer (or numeric string like '12') 'px' will be added.
 	 * @param string $name Name of the CSS property (like width, background-image,...)
 	 * @param string $value Value of the CSS property
 	 */
 	function css($name,$value)
 	{
 		$name = strtolower($name);
-		$this->_css[$name] = $value;
+		$this->_css[$name] = is_numeric($value)?$value.'px':$value;
 		return $this;
 	}
 

@@ -24,7 +24,7 @@
  */
  
 define('FRAMEWORK_LOADED','uSI7hcKMQgPaPKAQDXg5');
-require_once(__DIR__.'/system_exceptions.php');
+require_once(__DIR__.'/system_objects.php');
 require_once(__DIR__.'/system_functions.php');
 
 // Config handling

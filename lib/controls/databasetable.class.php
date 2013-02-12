@@ -55,22 +55,14 @@ class DatabaseTable extends Table
 	function __initialize($datasource,$datatype=false)
 	{
 		parent::__initialize();
-		//$this->id = $id;
 		$this->DataType = $datatype;
 		$this->DataSource = $datasource;
-		
 		store_object($this);
 	}
 	
 	private function ExecuteSql($sql,$prms=array())
 	{
-		global $ADODB_COUNTRECS;
-
-//		log_debug($sql);
 		$sql = $this->DataSource->PrepareWhere($sql);
-//		log_debug($sql);
-		$savec = $ADODB_COUNTRECS;
-		$ADODB_COUNTRECS = true;
 
 		if( $this->ExecuteSqlHandler )
 			call_user_func($this->ExecuteSqlHandler,$this,$sql,$prms);
@@ -87,10 +79,7 @@ class DatabaseTable extends Table
 			}
 		}
 		if( $this->DataSource->DB->ErrorMsg() )
-		{
 			log_error(get_class($this).": ".$this->DataSource->DB->ErrorMsg());
-		}
-		$ADODB_COUNTRECS = $savec;
 	}
 
 	function Clear()
@@ -150,13 +139,9 @@ class DatabaseTable extends Table
 			$sql = str_replace("@limit@",$this->Limit,$sql);
 
 			$this->Sql = $sql;
-			//log_debug($this->Sql);
 		}
 
 		$this->Clear();
-
-//		log_debug("sql is here");
-//		log_debug($this->Sql);
 		$this->ExecuteSql($this->Sql);
 	}
 
@@ -221,12 +206,7 @@ class DatabaseTable extends Table
 				$c3 = count(explode(">",$v));
 				$c4 = count(explode("<",$v));
 				if( count($tags)!=$c || ($c1 & 1)==0 || ($c2 & 1)==0 || ($c3 & 1)==0 || ($c4 & 1)==0 )
-				{
-//					log_debug($this->DataType."->".$k." = INVALID XML ".count($tags)."?=$c|$c1|$c2");
 					$row[$k] = htmlspecialchars($v);
-				}
-//				else
-//					log_debug($this->DataType."->".$k." = OK ($v)");
 			}
 		}
 		return $row;
@@ -234,11 +214,8 @@ class DatabaseTable extends Table
 
 	function WdfRender()
     {
-//		log_debug("{$this->id} start");
         $this->GetData();
-//		log_debug("{$this->id} got data");
         $this->PreRenderExtender();
-//		log_debug("prerender done");
 		
         if( !$this->ResultSet || $this->ResultSet->EOF )
 		{
@@ -273,7 +250,6 @@ class DatabaseTable extends Table
                     $this->AddRow($row);
                 $this->ResultSet->MoveNext();
             }
-//			log_debug("{$this->id} added rows");
         }
 		return parent::WdfRender();
     }
@@ -377,7 +353,6 @@ class DatabaseTable extends Table
 
 		foreach( array_merge($head_rows,$this->_export_get_data($ci)) as $data_row )
 		{
-//			log_debug($data_row);
 			$i = 0;
 			foreach( $data_row as $val )
 			{

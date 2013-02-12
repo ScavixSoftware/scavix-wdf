@@ -26,6 +26,13 @@
 if( !defined('FRAMEWORK_LOADED') || FRAMEWORK_LOADED != 'uSI7hcKMQgPaPKAQDXg5' ) die('');
 
 /**
+ * We use this to test access to controllers.
+ * All controllers must implement this interface
+ */
+interface ICallable {}
+
+
+/**
  * Transparently wraps Exceptions thus providing a way to catch them easily while still having the original
  * Exception information.
  * Using static WdfException::Raise() method you can pass in multiple arguments. WDF will try to detect
@@ -93,6 +100,12 @@ class WdfException extends Exception
 	public function getTraceEx(){ return $this->ex()->getTrace(); }
 }
 
+/**
+ * Thrown when something still needs inverstigation
+ */
 class ToDoException extends WdfException {}
 
+/**
+ * Thrown from all database related system parts
+ */
 class WdfDbException extends WdfException {}
