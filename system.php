@@ -53,6 +53,11 @@ function system_config($filename,$reset_to_defaults=true)
 function system_config_default($reset = true)
 {
 	global $CONFIG;
+	
+	# see http://www.php.net/manual/de/session.configuration.php
+	ini_set('session.hash_function',1);
+	ini_set('session.hash_bits_per_character',5);
+	
 
 	if( $reset )
 		$CONFIG = array();

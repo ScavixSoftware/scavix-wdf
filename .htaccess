@@ -1,6 +1,9 @@
-# see http://www.php.net/manual/de/session.configuration.php
-php_value session.hash_function 1
-php_value session.hash_bits_per_character 5
+#
+# This htaccess comes into play if you have the WDF accessible from the Internal directly
+# We recommend to do so with an own (sub-)domain and not to put it's folder into your
+# application folder. Note that the WDF_FEATURES_* env vars are not set here, as WDF
+# will only be accessible for resource delivery, not for direct access to any PHP logic!
+#
 
 RewriteEngine On
 
@@ -16,14 +19,11 @@ RewriteRule (.*)nc([0-9]+)/(.*) $1$3?_nc=$2 [L,QSA]
 </Files>
 
 # deny access to some folders via http/s
-RewriteCond %{REQUEST_URI} !/modules/charting/charts
-RewriteCond %{REQUEST_URI} !/modules/charting/
 RewriteCond %{REQUEST_URI} /base/ [OR]
-RewriteCond %{REQUEST_URI} /modules/ [OR]
+RewriteCond %{REQUEST_URI} /essentials/ [OR]
 RewriteCond %{REQUEST_URI} /lib/ [OR]
-RewriteCond %{REQUEST_URI} /nbproject/ [OR]
+RewriteCond %{REQUEST_URI} /modules/ [OR]
 RewriteCond %{REQUEST_URI} /reflection/ [OR]
-RewriteCond %{REQUEST_URI} /logs/
 RewriteRule .* - [F]
 
 ############# performance optimization #####################
