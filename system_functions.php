@@ -603,3 +603,9 @@ function system_glob($pattern, $flags = 0)
         return array();
     return $ret;
 }
+
+/**
+ * Funtions to quickly test specific WDF_FEATURES
+ */
+function can_rewrite(){ return array_val_is($_SERVER,'WDF_FEATURES_REWRITE','on'); }
+function can_nocache(){ return array_val_is($_SERVER,'WDF_FEATURES_NOCACHE','on'); }

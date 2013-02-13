@@ -210,21 +210,35 @@ function system_init($application_name, $skip_header = false, $logging_category=
 	execute_hooks(HOOK_POST_INIT);
 }
 
+/**
+ * Parses the request and returns a controller/event pair (if present).
+ * 
+ * Note that your .htaccess files must contain these lines:
+ * SetEnv WDF_FEATURES_REWRITE on
+ * RewriteCond %{REQUEST_FILENAME} !-f
+ * RewriteCond %{REQUEST_FILENAME} !-d
+ * RewriteCond %{REQUEST_URI} !index.php
+ * RewriteRule (.*) index.php?wdf_route=$1 [L,QSA]
+ */
 function system_parse_request_path()
 {
-	// parse the request for controller and event	
-	$path = explode("index.php",$_SERVER['PHP_SELF'].$_SERVER['REDIRECT_QUERY_STRING']);
-	$path = explode("/",trim($path[1],"/"));
-	if( count($path)>0 )
+	if( isset($_REQUEST['wdf_route']) )
 	{
-		if( class_exists($path[0]) || in_object_storage($path[0]) )
+		$path = explode("/",$_REQUEST['wdf_route']);
+		unset($_REQUEST['wdf_route']);
+		unset($_GET['wdf_route']);
+
+		if( count($path)>0 )
 		{
-			$controller = $path[0];
-			if( count($path)>1 )
+			if( class_exists($path[0]) || in_object_storage($path[0]) )
 			{
-				$event = $path[1];
-				if( count($path)>2 )
-					$GLOBALS['routing_args'] = array_slice($path,2);
+				$controller = $path[0];
+				if( count($path)>1 )
+				{
+					$event = $path[1];
+					if( count($path)>2 )
+						$GLOBALS['routing_args'] = array_slice($path,2);
+				}
 			}
 		}
 	}
@@ -349,7 +363,6 @@ function system_invoke_request($target_class,$target_event,$pre_execute_hook_typ
 		$argscheck[$prm->Name] = $prm->UpdateArgs($req_data,$args);
 		if( $argscheck[$prm->Name] !== true )
 		{
-//			log_debug("system.php -> argscheck for [$prm->Name] failed!");
 			$failedargs[$prm->Name] = "ARGUMENT FAILED";
 			$args[$prm->Name] = "ARGUMENT FAILED";
 		}
@@ -811,34 +824,32 @@ function buildQuery($controller,$event="",$data="", $url_root=false)
         return $controller;
 
 	if($controller != "")
-		$res = "$controller/";
+		$route = "$controller/";
 	else
-		$res = "";
+		$route = "";
 	if( $event != "" )
 	{
-		$res .= $event;
+		$route .= $event;
 		if( '#' != substr($event, 0, 1) )
-				$res .= '/';			
+				$route .= '/';			
 	}
-	$p = "?";
 	
 	if( is_array($data) )
+		$data = http_build_query($data);
+	
+	if( !can_rewrite() )
 	{
-		if( isset($data['page']) ) unset($data['page']);
-		if( isset($data['event']) ) unset($data['event']);
-		$res .= $p.http_build_query($data);
+		$data = http_build_query(array('wdf_route'=>$route)).($data?"&$data":"");
+		$route = "";
 	}
-	else if( $data != "" )
-	{
-		$res .= "$p$data";
-		$p = "&";
-	}
-	if(isDev() && isset($_REQUEST["XDEBUG_PROFILE"]))
-        $res .= $p."XDEBUG_PROFILE";
+	
+	if( isDev() && isset($_REQUEST["XDEBUG_PROFILE"]) )
+        $data .= ($data?"&":"")."XDEBUG_PROFILE";
 
 	if( !$url_root )
 		$url_root = $CONFIG['system']['url_root'];
-	return $url_root.$res;
+	//log_debug($url_root,$route,($data?"?$data":""));
+	return $url_root.$route.($data?"?$data":"");
 }
 
 /**

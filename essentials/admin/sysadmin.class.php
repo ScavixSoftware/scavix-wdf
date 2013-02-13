@@ -261,8 +261,8 @@ class SysAdmin extends HtmlPage
 		$tb->value = $search;
 		
 		$q = buildQuery('SysAdmin','PhpInfo');
-		$sel->onchange = "location.href='$q?extension='+$(this).val()";
-		$tb->onkeydown = "if( event.which==13 ) location.href='$q?search='+$(this).val()";
+		$sel->onchange = "wdf.redirect({extension:$(this).val()})";
+		$tb->onkeydown = "if( event.which==13 ) wdf.redirect({search:$(this).val()})";
 		
 		$get_version = function($ext)
 		{
@@ -339,5 +339,20 @@ class SysAdmin extends HtmlPage
 		$this->addContent( new Control('div') )
 			->script("$('#{self}').click(function(){ $('#{$tab->id}').overlay('remove');});")
 			->content('lorem lorem lorem lorem lorem lorem lorem lorem lorem ');
+			
+		$this->addContent( new Control('div') )
+			->script("$('#{self}').click( function(){ wdf.post('sysaDmin/teStconfirm'); } );")
+			->content('confirm');
+	}
+	
+	/**
+	 * 
+	 */
+	function testconfirm()
+	{
+		log_debug("testconfirm()",$_REQUEST);
+		if( AjaxAction::IsConfirmed('CONFIRMATION') )
+			return AjaxResponse::Error('Jop!');
+		return AjaxAction::Confirm('CONFIRMATION', 'sysadmin', 'testconfirm');
 	}
 }
