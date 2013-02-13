@@ -265,8 +265,8 @@ function system_ensure_path_ending(&$path, $make_realpath=false)
 {
 	if( $make_realpath )
 		$path = realpath($path);
-    if( !ends_with($path, DIRECTORY_SEPARATOR) )
-        $path .= DIRECTORY_SEPARATOR;
+    if( !ends_with($path, '/') )
+        $path .= '/';
 }
 
 /**
