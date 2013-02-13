@@ -50,7 +50,7 @@ class ImageScroller extends Control
 			$img->alt = $title;
 		if( $clicktarget )
 		{
-			$img->onclick = "document.location.href='$clicktarget';";
+			$img->onclick = "wdf.redirect('$clicktarget');";
 			$img->css("cursor", 'pointer');
 		}
 		$this->content("<li>".$img->WdfRender()."</li>");

@@ -77,7 +77,7 @@ class RequestParamAttribute extends System_Attribute
 
 		if( isset($GLOBALS['routing_args']) && count($GLOBALS['routing_args'])>0 && !isset($data[$name]) )
 			$data[$name] = array_shift($GLOBALS['routing_args']);
-		
+
 		if( !isset($data[$name]) )
 		{
 			if( !is_null($this->Default) )

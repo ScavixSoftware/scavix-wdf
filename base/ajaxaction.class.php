@@ -49,6 +49,8 @@ class AjaxAction
 	 */
 	public static function Url($controller,$event='')
 	{
+		if( $controller instanceof HtmlPage )
+			$controller = log_return("Using classname instead of id to reference controller:",get_class($controller));
 		return ($controller instanceof Renderable)?"{$controller->_storage_id}/$event":"$controller/$event/";
 	}
 	
