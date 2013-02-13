@@ -172,7 +172,7 @@ class Logger
 		if( isset($this->keep_for_days) && $this->keep_for_days>0 )
 		{
 			$max_age = time()-(86400*$this->keep_for_days);
-			foreach( glob( str_replace(".$ext","_*.gz",$this->filename) ) as $f )
+			foreach( system_glob( str_replace(".$ext","_*.gz",$this->filename) ) as $f )
 				if( @filemtime($f) < $max_age )
 					@unlink($f);
 		}

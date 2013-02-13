@@ -76,7 +76,7 @@ function webservice_generate_classes($wsdl_path,$soap_class_name,$classes_path =
 			}
 		}
 
-		foreach( glob($classes_path."*.class.php") as $class )
+		foreach( system_glob($classes_path."*.class.php") as $class )
 		{
 			require_once($class);
 		}

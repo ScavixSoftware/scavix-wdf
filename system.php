@@ -167,7 +167,7 @@ function system_init($application_name, $skip_header = false, $logging_category=
 	system_load_module('essentials/admin.php');
 	system_load_module('essentials/localization.php');
 	system_load_module('essentials/translation.php');
-	foreach( glob($thispath.'/essentials/*.php') as $essential ) // load all other essentials
+	foreach( system_glob($thispath.'/essentials/*.php') as $essential ) // load all other essentials
 		system_load_module($essential);
 	
 	if( $logging_category )
@@ -213,7 +213,7 @@ function system_init($application_name, $skip_header = false, $logging_category=
 function system_parse_request_path()
 {
 	// parse the request for controller and event	
-	$path = explode("index.php",$_SERVER['PHP_SELF']);
+	$path = explode("index.php",$_SERVER['PHP_SELF'].$_SERVER['REDIRECT_QUERY_STRING']);
 	$path = explode("/",trim($path[1],"/"));
 	if( count($path)>0 )
 	{
