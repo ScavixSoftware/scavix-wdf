@@ -327,17 +327,17 @@ class SysAdmin extends HtmlPage
 //			->AddAddress("Rotdornweg 13a, 29389 Bad Bodenteich");
 //		$this->addContent($map);
 		
-		$this->addContent( Table::Make() )
+		$tab = $this->addContent( Table::Make() )
 			->SetCaption('Muhaha')
 			->SetHeader('H1','H2','H3')
 			->SetFooter('hmmmm')
 			->AddNewRow('eins','zwei','drei')
 			->AddNewRow('zwei','drei','eins')
 			->AddNewRow('drei','eins','zwei')
-			->script("$('#{self}').click(function(){ wdf.debug('click'); $(this).grayOut();});");
+			->script("$('#{self}').click(function(){ $(this).overlay();});");
 		
 		$this->addContent( new Control('div') )
-			->script("$('#{self}').click(function(){ wdf.debug('click'); $(this).grayOut();});")
+			->script("$('#{self}').click(function(){ $('#{$tab->id}').overlay('remove');});")
 			->content('lorem lorem lorem lorem lorem lorem lorem lorem lorem ');
 	}
 }

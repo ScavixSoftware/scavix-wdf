@@ -265,24 +265,34 @@ $.ajaxSetup({cache:false});
 		return attr;
 	};
 	
-	$.fn.grayOut = function()
+	$.fn.overlay = function(method)
 	{
 		return this.each(function()
 		{
-			var elem = $(this), 
-				overlay = $('<div class="wdf_overlay"/>')
-					.appendTo(elem).show()
-					.width( elem.width() )
-					.height( elem.height() + $('.caption',elem).height() )
-					.css('position','absolute')
-					.position({my:'left top',at:'left top',of:elem}),
-				anim = $('<div class="wdf_overlay_anim"/>')
-					.appendTo(elem).show()
-					.width( overlay.width() )
-					.height( overlay.height() )
-					.css('position','absolute')
-					.position({my:'left top',at:'left top',of:elem})
-					.click( function(){ return false;} );
+			if( method == 'remove' )
+			{
+				$('.wdf_overlay, .wdf_overlay_anim',this).remove();
+				return;
+			}
+			var elem = $(this), overlay = $('<div class="wdf_overlay"/>')
+				.appendTo(elem).show()
+				.sizeFrom(elem,0,$('.caption',elem).height())
+				.css('position','absolute')
+				.position({my:'left top',at:'left top',of:elem});
+			$('<div class="wdf_overlay_anim"/>')
+				.appendTo(elem).show()
+				.sizeFrom(overlay)
+				.css('position','absolute')
+				.position({my:'left top',at:'left top',of:elem})
+				.click( function(){ return false;} );
+		});
+	};
+	
+	$.fn.sizeFrom = function(elem,add_width,add_height)
+	{
+		return this.each(function()
+		{
+			$(this).width( elem.width() + (add_width||0) ).height( elem.height() + (add_height||0) )
 		});
 	};
 
