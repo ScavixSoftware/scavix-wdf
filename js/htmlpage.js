@@ -249,12 +249,42 @@ $.ajaxSetup({cache:false});
 			}
 		}
 	};
+	
+	if( typeof win.Debug != "function" )
+	{
+		win.Debug = function()
+		{
+			wdf.debug("Deprecated debug function called! Use wdf.debug() instead.");
+		};
+	}
+	
+	$.fn.enumAttr = function(attr_name)
+	{
+		var attr = []
+		this.each( function(){ if( $(this).attr(attr_name) ) attr.push($(this).attr(attr_name)); } );
+		return attr;
+	};
+	
+	$.fn.grayOut = function()
+	{
+		return this.each(function()
+		{
+			var elem = $(this), 
+				overlay = $('<div class="wdf_overlay"/>')
+					.appendTo(elem).show()
+					.width( elem.width() )
+					.height( elem.height() + $('.caption',elem).height() )
+					.css('position','absolute')
+					.position({my:'left top',at:'left top',of:elem}),
+				anim = $('<div class="wdf_overlay_anim"/>')
+					.appendTo(elem).show()
+					.width( overlay.width() )
+					.height( overlay.height() )
+					.css('position','absolute')
+					.position({my:'left top',at:'left top',of:elem})
+					.click( function(){ return false;} );
+		});
+	};
+
 })(window,jQuery);
 
-if(typeof Debug != "function")
-{
-	window.Debug = function()
-	{
-		wdf.debug("Deprecated debug function called! Use wdf.debug() instead.");
-	}
-}

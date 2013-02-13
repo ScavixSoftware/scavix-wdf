@@ -22,12 +22,5 @@ function controlHandler(el)
 			}
 		});
 	}
-	
-	$j.fn.enumAttr = function(attr_name)
-	{
-		var attr = []
-		this.each( function(){ if( $(this).attr(attr_name) ) attr.push($(this).attr(attr_name)); } );
-		return attr;
-	}
 
 })(jQuery);

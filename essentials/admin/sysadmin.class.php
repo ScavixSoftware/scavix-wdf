@@ -310,21 +310,34 @@ class SysAdmin extends HtmlPage
 	 */
 	function Testing()
 	{
-		GoogleVisualization::$DefaultDatasource = model_datasource('system');
-		$chart = gvTable::Make("Unknown strings")
-			->setDbQuery('wdf_unknown_strings', "select term, hits")
-			->opt('width',500)
-			->opt('height',400)
-			->opt('pageSize',3)
-			->opt('page','enable');
-		$this->addContent($chart);
+//		GoogleVisualization::$DefaultDatasource = model_datasource('system');
+//		$chart = gvTable::Make("Unknown strings")
+//			->setDbQuery('wdf_unknown_strings', "select term, hits")
+//			->opt('width',500)
+//			->opt('height',400)
+//			->opt('pageSize',3)
+//			->opt('page','enable');
+//		$this->addContent($chart);
+//		
+//		$map = gMap::Make()
+//			->css('width','500px')
+//			->css('height','400px')
+//			->AddMarker(-34.397, 150.644)
+//			->AddMarkerTitled(-14.397, 150.644, 'Huhuhu')
+//			->AddAddress("Rotdornweg 13a, 29389 Bad Bodenteich");
+//		$this->addContent($map);
 		
-		$map = gMap::Make()
-			->css('width','500px')
-			->css('height','400px')
-			->AddMarker(-34.397, 150.644)
-			->AddMarkerTitled(-14.397, 150.644, 'Huhuhu')
-			->AddAddress("Rotdornweg 13a, 29389 Bad Bodenteich");
-		$this->addContent($map);
+		$this->addContent( Table::Make() )
+			->SetCaption('Muhaha')
+			->SetHeader('H1','H2','H3')
+			->SetFooter('hmmmm')
+			->AddNewRow('eins','zwei','drei')
+			->AddNewRow('zwei','drei','eins')
+			->AddNewRow('drei','eins','zwei')
+			->script("$('#{self}').click(function(){ wdf.debug('click'); $(this).grayOut();});");
+		
+		$this->addContent( new Control('div') )
+			->script("$('#{self}').click(function(){ wdf.debug('click'); $(this).grayOut();});")
+			->content('lorem lorem lorem lorem lorem lorem lorem lorem lorem ');
 	}
 }
