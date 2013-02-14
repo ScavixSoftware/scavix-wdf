@@ -229,7 +229,7 @@ function system_parse_request_path()
 {
 	if( isset($_REQUEST['wdf_route']) )
 	{
-		$path = explode("/",$_REQUEST['wdf_route']);
+		$path = explode("/",$_REQUEST['wdf_route'],3);
 		unset($_REQUEST['wdf_route']);
 		unset($_GET['wdf_route']);
 
@@ -259,6 +259,12 @@ function system_parse_request_path()
 	return array($controller,$event);
 }
 
+/**
+ * Instanciates the previously chosen controller
+ * 
+ * @param mixed $controller_id Whatever system_parse_request_path() returned
+ * @return ICallable Fresh Instance of whatever is needed
+ */
 function system_instanciate_controller($controller_id)
 {
 	if( in_object_storage($controller_id) )
@@ -1015,6 +1021,15 @@ function system_find(&$content,$classname,&$result = array(),$recursion=0, $stac
 	return false;
 }
 
+/**
+ * Returns a value from the wdf cache.
+ * 
+ * @param string $key Identifies what you want
+ * @param mixed $default The default value you want if key is not present in the cache
+ * @param bool $use_global_cache If true checks the global cache too (see globalcache module)
+ * @param bool $use_session_cache If true checks the SESSION cache (that one is before the global cache)
+ * @return mixed The value if found, else the default value
+ */
 function cache_get($key,$default=false,$use_global_cache=true,$use_session_cache=true)
 {
 	if( $use_session_cache && isset($_SESSION["system_internal_cache"][$key]) )
@@ -1049,6 +1064,11 @@ function cache_set($key,$value,$ttl=false,$use_global_cache=true,$use_session_ca
 		$_SESSION["system_internal_cache"][$key] = session_serialize($value);
 }
 
+/**
+ * Removes an entry from the cache
+ * 
+ * @param string $key The key identifiying the entry
+ */
 function cache_del($key)
 {
 	if( isset($_SESSION["system_internal_cache"][$key]) )
@@ -1057,6 +1077,12 @@ function cache_del($key)
 		globalcache_delete($key);
 }
 
+/**
+ * Clears the cache
+ * 
+ * @param bool $global_cache If true clears the global cache (see globalcache module)
+ * @param bool $session_cache If true clears the SESSION cache
+ */
 function cache_clear($global_cache=true, $session_cache=true)
 {
 	if( $session_cache )
@@ -1065,6 +1091,13 @@ function cache_clear($global_cache=true, $session_cache=true)
 		globalcache_clear();
 }
 
+/**
+ * Returns a list of all keys in the cache
+ * 
+ * @param bool $global_cache If true checks the global cache (see globalcache module)
+ * @param bool $session_cache If true checks the SESSION cache
+ * @return array All defined keys
+ */
 function cache_list_keys($global_cache=true, $session_cache=true)
 {
 	$res = $session_cache?array_keys($_SESSION["system_internal_cache"]):array();
@@ -1076,6 +1109,12 @@ function cache_list_keys($global_cache=true, $session_cache=true)
 	return array_unique($res);
 }
 
+/**
+ * Returns the current chosen controller
+ * 
+ * @param bool $as_string If true will return the classname (or id if it is from object store)
+ * @return mixed Depending on $as_string: Classname/Id or controller object
+ */
 function current_controller($as_string=true)
 {
 	if( !isset($GLOBALS['current_controller']) )
@@ -1085,6 +1124,11 @@ function current_controller($as_string=true)
 	return $GLOBALS['current_controller'];
 }
 
+/**
+ * Returns the current chosen event
+ * 
+ * @return string The current event
+ */
 function current_event()
 {
 	return isset($GLOBALS['current_event'])?strtolower($GLOBALS['current_event']):'';
@@ -1158,91 +1202,6 @@ function system_to_json($value)
 	return $res;
 }
 
-$time_start = microtime(true);
-$debug_track_events = array();
-function system_track_event($evtname)
-{
-	global $debug_track_events;
-	$debug_track_events[$evtname] = microtime(true);
-}
-
-function system_print_tracking_times($printit = true)
-{
-	global $time_start, $debug_track_events;
-	$time_end = microtime(true);
-
-	$ret = "url: ".$_SERVER["REQUEST_URI"]."\r\n";
-	$ret .= "Script start: "._format_timestamp($time_start)."\r\n";
-	$prev = $time_start;
-	foreach($debug_track_events as $evt => $time)
-	{
-		$ret .= "	$evt: ".sprintf('%01.4f Seconds', $time - $prev)."\r\n";
-		$prev = $time;
-	}
-	$ret .= "Script end: "._format_timestamp($time_end)." (".sprintf('%01.4f Seconds', $time_end - $prev).")\r\n";
-	$ret .= "Overall: ".sprintf('%01.4f Seconds', $time_end - $time_start)."\r\n";
-	
-	if($printit)
-		echo $ret;
-	return $ret;
-}
-
-function _format_timestamp($microtime)
-{
-	$timestamp = floor($microtime);
-    $milliseconds = substr(round(($microtime - $timestamp) * 1000000), 2);
-	return date('Y-m-d H:i:s.').$milliseconds;
-//	return date('i:s.').$milliseconds;
-}
-
-function tail_file($file, $num_to_get=10)
-{
-	$fp = fopen($file, 'r');
-	$position = filesize($file);
-	$chunklen = 4096;
-	if( $position-$chunklen <= 0 )
-		fseek($fp,0);
-	else
-		fseek($fp, $position-$chunklen);
-	$data="";$ret="";$lc=0;
-	while($chunklen > 0)
-	{
-		$data = fread($fp, $chunklen);
-		$dl=strlen($data);
-		for($i=$dl-1;$i>=0;$i--)
-		{
-			if($data[$i]=="\n")
-			{
-				if($lc==0 && $ret!="")$lc++;
-				$lc++;
-				if($lc>$num_to_get)return $ret;
-			}
-			$ret=$data[$i].$ret;
-		}
-		if($position-$chunklen <= 0 )
-		{
-			fseek($fp,0);
-			$chunklen = $chunklen - abs($position-$chunklen);
-		}
-		else
-			fseek($fp, $position-$chunklen);
-		$position = $position - $chunklen;
-	}
-	fclose($fp);
-	return $ret;
-}
-
-function array_move_to_top(&$array,$value)
-{
-	$index = array_search($value,$array);
-	if( $index === false )
-		return;
-
-	for($i=$index; $i>0; $i--)
-		$array[$i] = $array[$i-1];
-	$array[0] = $value;
-}
-
 /**
  * call_user_func_array does not allow byref arguments since 5.3 anymore
  * so we wrap this in our own funtion. this is even faster then call_user_func_array
@@ -1284,6 +1243,15 @@ function system_call_user_func_array_byref(&$object, $funcname, &$args)
 	}
 }
 
+/**
+ * Checks if a method exists in a class.
+ * 
+ * This performs cached searches, so it is faster than native method_exists function when called
+ * multiple times.
+ * @param mixed $object_or_classname Object or classname to check
+ * @param string $method_name Name of method to check for
+ * @return bool true or false
+ */
 function system_method_exists($object_or_classname,$method_name)
 {
 	$key = (is_string($object_or_classname)?$object_or_classname:get_class($object_or_classname)).'.'.$method_name;
@@ -1308,6 +1276,14 @@ function shuffle_assoc(&$array)
 	$array = $new;
 }
 
+/**
+ * Renders a complete object tree.
+ * 
+ * This means that the tree is checked for Renderable objects, arrays and so on
+ * and all the needed actions are triggered recursively.
+ * @param array $array_of_objects Array of objects
+ * @return mixed An array containing the rendered strings
+ */
 function system_render_object_tree($array_of_objects)
 {
 	$res = array();

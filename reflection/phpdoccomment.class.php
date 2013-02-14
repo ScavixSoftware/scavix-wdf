@@ -39,7 +39,8 @@ class PhpDocComment
 	{
 		$res = new PhpDocComment();
 		
-		preg_match('/^\s*\/\*\*(.*)\*\/\s*$/s',$comment,$m); 
+		if( !preg_match('/^\s*\/\*\*(.*)\*\/\s*$/s',$comment,$m) )
+			return false;
 		$comment = trim($m[1]);
 		$comment = preg_replace('/\s*\*\s*/',"\n",$comment);
 		$comment = preg_replace('/\s*\*[\x20\t]*(.*)(\n*)/',"$1$2",$comment);
@@ -146,5 +147,11 @@ class PhpDocComment
 		if( count($tag) == 0 )
 			return false;
 		return $tag[0]->desc;
+	}
+	
+	function RenderAsMD()
+	{
+		$lines = explode("\n",$this->LongDesc?$this->LongDesc:$this->ShortDesc);
+		return implode("\n\n",$lines);
 	}
 }

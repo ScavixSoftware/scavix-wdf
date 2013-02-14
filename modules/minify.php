@@ -251,13 +251,13 @@ function minify_collect_files($paths,$kind)
 	foreach( $paths as $path )
 	{
 		if( !ends_with($path, "/") ) $path .= "/";
-		foreach( minify_list_files($path) as $f )
+		foreach( system_glob_rec($path,'*.class.php') as $f )
 			minify_collect_from_file($kind,$f);
 		
 		$done_templates = array();
 		foreach( array_reverse(cfg_get('system','tpl_ext')) as $tpl_ext )
 		{
-			$files = minify_list_files($path,"*.$tpl_ext");
+			$files = system_glob_rec($path,"*.$tpl_ext");
 			foreach( $files as $f )
 			{
 				$skip = false;
@@ -387,12 +387,4 @@ function minify_collect_from_file($kind,$f,$debug_path='')
 				break;
 		}
 	}
-}
-
-function minify_list_files($path='',$pattern='*.class.php')
-{
-	$paths = system_glob($path.'*', GLOB_MARK|GLOB_ONLYDIR|GLOB_NOSORT);
-	$files = system_glob($path.$pattern);
-	foreach($paths as $path) { $files = array_merge($files,minify_list_files($path,$pattern)); }
-	return $files;
 }

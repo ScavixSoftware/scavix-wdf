@@ -48,17 +48,64 @@ define("ENVIRONMENT_SANDBOX",'sandbox');
 define("ENVIRONMENT_LIVE",'live');
 if( !isset($_ENV['CURRENT_ENVIRONMENT']) )
     $_ENV['CURRENT_ENVIRONMENT'] = ENVIRONMENT_LIVE;
+
+/**
+ * Sets the environment to ENVIRONMENT_DEV, ENVIRONMENT_BETA, ENVIRONMENT_SANDBOX or ENVIRONMENT_LIVE
+ * @param string $value Allowed values: ENVIRONMENT_DEV, ENVIRONMENT_BETA, ENVIRONMENT_SANDBOX or ENVIRONMENT_LIVE
+ */
 function setEnvironment($value){ $_ENV['CURRENT_ENVIRONMENT'] = $value; }
+
+/**
+ * Returns the currently set environment
+ * @return string ENVIRONMENT_DEV, ENVIRONMENT_BETA, ENVIRONMENT_SANDBOX or ENVIRONMENT_LIVE
+ */
 function getEnvironment(){ return $_ENV['CURRENT_ENVIRONMENT']; }
+
+/**
+ * Shortcut for setEnvironment(ENVIRONMENT_DEV);
+ */
 function switchToDev(){ $_ENV['CURRENT_ENVIRONMENT'] = ENVIRONMENT_DEV; }
+/**
+ * Shortcut for setEnvironment(ENVIRONMENT_BETA);
+ */
 function switchToBeta(){ $_ENV['CURRENT_ENVIRONMENT'] = ENVIRONMENT_BETA; }
+/**
+ * Shortcut for setEnvironment(ENVIRONMENT_SANDBOX);
+ */
 function switchToSandbox(){ $_ENV['CURRENT_ENVIRONMENT'] = ENVIRONMENT_SANDBOX; }
+/**
+ * Shortcut for setEnvironment(ENVIRONMENT_LIVE);
+ */
 function switchToLive(){ $_ENV['CURRENT_ENVIRONMENT'] = ENVIRONMENT_LIVE; }
+/**
+ * Checks if current environment is ENVIRONMENT_DEV
+ * @return bool true or false
+ */
 function isDev(){ return $_ENV['CURRENT_ENVIRONMENT'] == ENVIRONMENT_DEV; }
+/**
+ * Checks if current environment is ENVIRONMENT_BETA
+ * @return bool true or false
+ */
 function isBeta(){ return $_ENV['CURRENT_ENVIRONMENT'] == ENVIRONMENT_BETA; }
+/**
+ * Checks if current environment is ENVIRONMENT_SANDBOX
+ * @return bool true or false
+ */
 function isSandbox(){ return $_ENV['CURRENT_ENVIRONMENT'] == ENVIRONMENT_SANDBOX; }
+/**
+ * Checks if current environment is ENVIRONMENT_LIVE
+ * @return bool true or false
+ */
 function isLive(){ return $_ENV['CURRENT_ENVIRONMENT'] == ENVIRONMENT_LIVE; }
+/**
+ * Checks if current environment is not ENVIRONMENT_LIVE
+ * @return bool true or false
+ */
 function isNotLive(){ return $_ENV['CURRENT_ENVIRONMENT'] != ENVIRONMENT_LIVE; }
+/**
+ * Checks if current environment is ENVIRONMENT_DEV or ENVIRONMENT_BETA
+ * @return bool true or false
+ */
 function isDevOrBeta(){ return $_ENV['CURRENT_ENVIRONMENT'] == ENVIRONMENT_DEV || $_ENV['CURRENT_ENVIRONMENT'] == ENVIRONMENT_BETA; }
 
 /**
@@ -560,6 +607,13 @@ function get_ip_address()
 	return $DETECTED_CLIENT_IP;
 }
 
+/**
+ * Add a path to the classpath for autoloading classes
+ * 
+ * @param string $path folder name
+ * @param bool $recursive add subfolders too?
+ * @param string $part INTERNAL, let default to false
+ */
 function classpath_add($path, $recursive=true, $part=false)
 {
 	global $CONFIG;
@@ -605,7 +659,31 @@ function system_glob($pattern, $flags = 0)
 }
 
 /**
- * Funtions to quickly test specific WDF_FEATURES
+ * Lists all files of a directory recursively.
+ * 
+ * Note that default pattern in *.* thus only listing files with a dot in the name.
+ * If you change that to '*' everything will be returned.
+ * We use *.* a common filter for all files (yes, we know that this is wrong).
+ * @param string $directory Directory name
+ * @param string $pattern Filename pattern
+ * @return array Listing of all files
+ */
+function system_glob_rec($directory='',$pattern='*.*')
+{
+	system_ensure_path_ending($directory);
+	$paths = system_glob($directory.'*', GLOB_MARK|GLOB_ONLYDIR|GLOB_NOSORT);
+	$files = system_glob($directory.$pattern);
+	foreach($paths as $path) { $files = array_merge($files,system_glob_rec($path,$pattern)); }
+	return $files;
+}
+
+/**
+ * Checks if WDF_FEATURES_REWRITE is on
+ * @return bool true or false
  */
 function can_rewrite(){ return array_val_is($_SERVER,'WDF_FEATURES_REWRITE','on'); }
+/**
+ * Checks if WDF_FEATURES_NOCACHE is on
+ * @return bool true or false
+ */
 function can_nocache(){ return array_val_is($_SERVER,'WDF_FEATURES_NOCACHE','on'); }
