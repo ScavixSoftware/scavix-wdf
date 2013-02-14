@@ -128,6 +128,8 @@ class WdfResource implements ICallable
 	{
 		$res = explode("?",$res);
 		$res = realpath(__DIR__."/../js/".$res[0]);
+		
+		header('Content-Type: text/javascript');
 		readfile($res);
 		die();
 	}
@@ -139,6 +141,8 @@ class WdfResource implements ICallable
 	{
 		$res = explode("?",$res);
 		$res = realpath(__DIR__."/../skin/".$res[0]);
+		
+		header('Content-Type: text/css');
 		readfile($res);
 		die();
 	}
