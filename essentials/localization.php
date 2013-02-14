@@ -306,9 +306,12 @@ class Localization
 
 	public static function format_currency($amount, $cultureCode = false, $use_code=false)
 	{
+        global $CONFIG;
 		if( $cultureCode !== false && !is_string($cultureCode) )
 			WdfException::Raise("Who calls this function with a wrong param? Provide string please!");
 		$ci = self::getCultureInfo($cultureCode);
+        if($ci == false)
+            $ci = self::getCultureInfo($CONFIG['localization']['default_culture']);
 		return $ci->FormatCurrency($amount,$use_code);
 	}
 
