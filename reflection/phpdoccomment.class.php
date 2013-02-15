@@ -168,7 +168,8 @@ class PhpDocComment
 	
 	function RenderAsMD()
 	{
-		$desc = $this->LongDesc?$this->LongDesc:$this->ShortDesc;
+		$desc = $this->ShortDesc?$this->ShortDesc:'';
+		$desc .= $this->LongDesc?"\n{$this->LongDesc}":'';
 		$desc = str_replace(array('<code>','</code>'),array('```','```'),$desc);
 		$desc = preg_replace('/<code ([^>]*)>/','```$1', $desc);
 		return $desc;

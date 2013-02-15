@@ -35,7 +35,7 @@ interface ICallable {}
 /**
  * Transparently wraps Exceptions thus providing a way to catch them easily while still having the original
  * Exception information.
- * Using static WdfException::Raise() method you can pass in multiple arguments. WDF will try to detect
+ * Using static <WdfException::Raise>() method you can pass in multiple arguments. WDF will try to detect
  * if there's an exception object given and use it (the first one detected) as inner exception object.
  * <code php>
  * WdfException::Raise('My simple test');

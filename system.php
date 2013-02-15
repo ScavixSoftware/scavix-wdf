@@ -37,8 +37,12 @@ elseif( !defined("NO_CONFIG_NEEDED") )
 	system_die("No valid configuration found!");
 
 /**
- * Loads a consig file. Should not be used if a config file is present ind root path.
- * @param string $filename
+ * Loads a config file. 
+ * 
+ * Should not be used if a config file is present in root path.
+ * @param string $filename Full path to the config file
+ * @param bool $reset_to_defaults If true resets the complete config to the one to read
+ * @return void
  */
 function system_config($filename,$reset_to_defaults=true)
 {
@@ -49,6 +53,10 @@ function system_config($filename,$reset_to_defaults=true)
 
 /**
  * Resets the global $CONFIG variable to defauls values.
+ * 
+ * Just sets some useful default values. This is also a good reference of the basic system variables.
+ * @param bool $reset If true resets the config completely to default, extends/overwrites only if false
+ * @return void
  */
 function system_config_default($reset = true)
 {
@@ -116,7 +124,11 @@ function system_config_default($reset = true)
 
 /**
  * Loads a module.
+ * 
+ * Use this to manually load a module. You can also add it to the config so that
+ * system_init() loads it automatically.
  * @param string $path_to_module Complete path to module file
+ * @return void
  */
 function system_load_module($path_to_module)
 {
@@ -140,7 +152,10 @@ function system_load_module($path_to_module)
 
 /**
  * Checks if a module is already loaded.
- * @param <type> $mod The name of the module (not the path!)
+ * 
+ * Looks into `$GLOBALS["loaded_modules"]` if there's a key named `$mod`.
+ * @param string $mod The name of the module (not the path!)
+ * @return bool true or false
  */
 function system_is_module_loaded($mod)
 {
@@ -148,9 +163,15 @@ function system_is_module_loaded($mod)
 }
 
 /**
- * Initializes the framework.
- * @param string $application_name Optional application name to be stored in config.
- * @param bool $skip_header Optional. If true, does not send headers.
+ * Initializes the Scavix WDF.
+ * 
+ * This is one of two essential functions you must know about.
+ * Initializes the complete WDF, loads all essentials and defined modules and initializes them,
+ * prepares the session and writes out some headers (from config too).
+ * @param string $application_name Application name. This will become your session cookie name!
+ * @param bool $skip_header Optional. If true, will not send headers.
+ * @param bool $logging_category An initial category for logging. Very optional!
+ * @return void
  */
 function system_init($application_name, $skip_header = false, $logging_category=false)
 {
@@ -226,6 +247,7 @@ function system_init($application_name, $skip_header = false, $logging_category=
  * RewriteCond %{REQUEST_URI} !index.php
  * RewriteRule (.*) index.php?wdf_route=$1 [L,QSA]
  * </code>
+ * @return void
  */
 function system_parse_request_path()
 {
@@ -264,6 +286,8 @@ function system_parse_request_path()
 /**
  * Instanciates the previously chosen controller
  * 
+ * Checks what is requested: and object from the object-store, a controller via classname and loads/instaciates it.
+ * Will also die in AJAX requests when something weird is called or throw an exception if in normal mode.
  * @param mixed $controller_id Whatever system_parse_request_path() returned
  * @return ICallable Fresh Instance of whatever is needed
  */
@@ -290,6 +314,11 @@ function system_instanciate_controller($controller_id)
 
 /**
  * Executes the current request.
+ * 
+ * This is the second of two essential functions.
+ * It runs the actual execution. If fact it is the only place where you will
+ * find an `echo` in the WDF code.
+ * @return void
  */
 function system_execute()
 {
@@ -355,12 +384,13 @@ function system_execute()
 
 /**
  * Executes the given request.
+ * 
  * Will parse the target class/method for required parameters
  * and prepare the data given in the $_REQUEST variable to match them.
  * @param string $target_class Name of the class
  * @param string $target_event Name of the method
  * @param int $pre_execute_hook_type Type of Hook to be executed pre call
- * @return mixed The result of the target-method
+ * @return mixed The result of the target-methods
  */
 function system_invoke_request($target_class,$target_event,$pre_execute_hook_type)
 {
@@ -390,8 +420,14 @@ function system_invoke_request($target_class,$target_event,$pre_execute_hook_typ
 
 /**
  * Terminats the current run.
- * Will be called from exception and error handlers.
- * @param string $reason
+ * 
+ * Will be called from exception and error handlers. You may, call this directly, but we
+ * recommend to throw an exception instead. See the WdfException class and it's Raise() method
+ * for more about this.
+ * Note: This function will call `die()`!
+ * @param string $reason The reason as human readable and hopefully understandable text
+ * @param string $additional_message More details to be logged
+ * @return void
  */
 function system_die($reason,$additional_message='')
 {
@@ -437,8 +473,11 @@ function system_die($reason,$additional_message='')
 
 /**
  * Registers a function to be executed on a system hook.
- * @param int $type See lines 10-22
+ * 
+ * Note that this registers a function! If you want an objects method to be executed, see `register_hook()`.
+ * @param int $type Valid hook type (see the HOOK_* constants)
  * @param string $handler_method name of function to call
+ * @return void
  */
 function register_hook_function($type,$handler_method)
 {
@@ -448,9 +487,12 @@ function register_hook_function($type,$handler_method)
 
 /**
  * Registers a method to be executed on a system hook.
- * @param int $type See lines 10-22
- * @param object $handler_object The object containig the handler method
+ * 
+ * Note that this registers an objects method! If you want function to be executed, see `register_hook_function()`.
+ * @param int $type Valid hook type (see the HOOK_* constants)
+ * @param object $handler_obj The object containig the handler method
  * @param string $handler_method name of method to call
+ * @return void
  */
 function register_hook($type,&$handler_obj,$handler_method)
 {
@@ -465,8 +507,12 @@ function register_hook($type,&$handler_obj,$handler_method)
 
 /**
  * Executes a system hook (calls all registered handlers).
- * @param int $type See lines 10-22
+ * 
+ * This is very internal, but no magic: just loops all registered handlers and calls them.
+ * Arguments given vary from hook_type to hook_type.
+ * @param int $type Valid hook type (see the HOOK_* constants)
  * @param array $arguments to be passed to the handler functions/methods
+ * @return void
  */
 function execute_hooks($type,$arguments = array())
 {
@@ -515,7 +561,9 @@ function execute_hooks($type,$arguments = array())
 
 /**
  * Checks if a given int is a valid hook type.
- * @param int $type
+ * 
+ * Checks a given integer if it represents a valid hook_type.
+ * @param int $type Value to be checked against valid hook type (see the HOOK_* constants)
  * @return bool true if valid
  */
 function is_valid_hook_type($type)
@@ -533,8 +581,14 @@ function is_valid_hook_type($type)
 
 /**
  * Returns the string representation of an int hook type.
+ * 
+ * In fact just returns the constant name as a string, so
+ * <code php>
+ * echo (hook_type_to_string(HOOK_POST_INIT) == 'HOOK_POST_INIT')?'true':'false';
+ * // output: true
+ * </code>
  * @param int $type
- * @return Type as string
+ * @return string Type as string
  */
 function hook_type_to_string($type)
 {
@@ -557,6 +611,9 @@ function hook_type_to_string($type)
 
 /**
  * Checks if the hook of the given type is already fired
+ * 
+ * Sometimes you'll need to know the step of the current execution. You may use this function
+ * to check which hooks have already been fired.
  * @param int $type Hook Type
  * @return bool true|false 
  */
@@ -569,6 +626,8 @@ function hook_already_fired($type)
 
 /**
  * Checks if there is a handler bound to a HOOK
+ * 
+ * Checks if there's at least one handler registered for the hook
  * @param int $type Hook Type
  * @return bool true|false
  */
@@ -579,7 +638,11 @@ function hook_bound($type)
 
 /**
  * Returns a string representation of the given stacktrace
+ * 
+ * This is kind of internal, but may be of use. We shift the stacktrace a bit to have more information
+ * in each line that belong together. 
  * @param array $stacktrace Use debug_backtrace() to get this
+ * @param string $crlf Char to be used for line-endings (kind of deprecated)
  * @return string The stacktrace-string
  */
 function system_stacktrace_to_string($stacktrace,$crlf="\n")
@@ -633,13 +696,15 @@ function __priorize_classpath($key_to_priorize)
 function __set_classpath_order($class_path_order)
 {
 	global $CONFIG;
-
 	$CONFIG['class_path']['order'] = $class_path_order;
 }
 
 /**
  * Called whenever a class shall be instanciated but there's no definition found
+ * 
  * See http://www.php.net/manual/de/function.spl-autoload-register.php
+ * @param string $class_name Name of the class to load
+ * @return void
  */
 function system_spl_autoload($class_name)
 {
@@ -793,37 +858,14 @@ function __search_file_for_class($class_name,$extension="class.php",$classpath_l
 }
 
 /**
- * Returns all property names of the given object
- * @param object $obj Object to check
- * @return array An array of property names
- */
-function system_get_dynamic_props($obj)
-{
-	$fields = system_get_fields(get_class($obj));
-	$vars = array_keys(get_object_vars($obj));
-	return array_diff($fields,$vars);
-}
-
-/**
- * Returns an array containig all field-names of the given
- * class. Will return fields of all subclasses too.
- * @param string $classname Name of the class to check
- * @return array All field names
- */
-function system_get_fields($classname)
-{
-	$res = array_keys(get_class_vars($classname));
-	$parent = get_parent_class($classname);
-	if( $parent != "" )
-		$res = array_merge($res,system_get_fields($parent));
-	return $res;
-}
-
-/**
- * Builds a request
+ * Builds a request.
+ * 
+ * This is quite basic and used very often. It will return an URL to the given controller.
+ * It checks if the routing features are enabled and ensures the the URLs are working!
  * @param string $controller The page to be loaded
  * @param string $event The event to be executed
  * @param array|string $data Optional data to be passed
+ * @param string $url_root Optional root, will use system-wide detected/set one if not given
  * @return string A complete Request (for use as HREF)
  */
 function buildQuery($controller,$event="",$data="", $url_root=false)
@@ -867,6 +909,8 @@ function buildQuery($controller,$event="",$data="", $url_root=false)
 
 /**
  * Builds a query for the current page.
+ * 
+ * Calls buildQuery internally to build an URL to the current route.
  * @param string|array $data Additional data
  * @return string A complete Request (for use as HREF)
  */
@@ -877,10 +921,15 @@ function samePage($data="")
 
 /**
  * Executed a header redirect to another page.
- * Will terminate the current processing silently!
+ * 
+ * Calls buildQuery internally to build an URL to the current route, but will also work
+ * if `$controller` already is an URL.
+ * Note: Will terminate the current processing silently and sent a "Location" header!
  * @param string $controller The page to be called
  * @param string $event The event to be executed
  * @param array|string $data Optional data to be passed
+ * @param string $url_root Optional root, will use system-wide detected/set one if not given
+ * @return void
  */
 function redirect($controller,$event="",$data="",$url_root=false)
 {
@@ -899,9 +948,11 @@ function redirect($controller,$event="",$data="",$url_root=false)
 }
 
 /**
- * generates random string in the given length. can be used as password, sessionid or ticket
- * @param <int> $len the length of the return string. default = 8
- * @return <string> the generated string sequence
+ * Generates random string in the given length.
+ * 
+ * Can be used as password, sessionid, ticket....
+ * @param int $len The length of the return string
+ * @return string The generated string sequence
  */
 function generatePW($len = 8)
 {
@@ -917,8 +968,11 @@ function generatePW($len = 8)
 }
 
 /**
- * Appends a version parameter to a link. This is useful to
- * avoid browser-side CSS and JS caching.
+ * Appends a version parameter to a link. 
+ * 
+ * This is useful to avoid browser-side CSS and JS caching.
+ * @param string $href The URL
+ * @return string A new URL appended the nocache string
  */
 function appendVersion($href)
 {
@@ -932,6 +986,8 @@ function appendVersion($href)
 
 /**
  * Checks a string and returns true if it is UTF-8 encoded
+ * 
+ * This performs some dirty checks and tries to detect if the given string is UTF8 encoded
  * @param string $string String to check
  * @return bool True if UTF-8
  */
@@ -950,6 +1006,7 @@ function detectUTF8($string)
 
 /**
  * Returns an array containing the parameters of the referrer string.
+ * 
  * If $part is given (and set in data) will only return this value.
  * @param string $part Name of URL parameter to get
  * @return string|array Value of URL parameter $part if given, else array of all URL parameters
@@ -973,8 +1030,10 @@ function referrer($part='')
 
 /**
  * Checks wether the calling IP address matches the given host od IP.
+ * 
+ * May be useful to detect known IP addresses/hosts easily
  * @param string $host_or_ip Hostname or IP to be checked
- * @return bool true|false
+ * @return bool true or false
  */
 function is_host($host_or_ip)
 {
@@ -988,10 +1047,16 @@ function is_host($host_or_ip)
 
 /**
  * Finds all objects of a given classname in the given content.
+ * 
+ * Used to query a complete object tree for specific classes.
+ * Currently only used in uiDatabaseTable, so may be removed if we find a better way.
  * @todo: this one with all it's recursions kills performance massively!
- * @param array Content to search in
- * @param string Classname to find
- * @param array Found objects
+ * @param array $content Content to search in
+ * @param string $classname Classname to find
+ * @param array $result Found objects
+ * @param int $recursion INTERNAL
+ * @param array $stack INTERNAL
+ * @return bool true if something is found
  */
 function system_find(&$content,$classname,&$result = array(),$recursion=0, $stack=array())
 {
@@ -1026,6 +1091,10 @@ function system_find(&$content,$classname,&$result = array(),$recursion=0, $stac
 /**
  * Returns a value from the wdf cache.
  * 
+ * There are multiple caches: SESSION and global.
+ * Global cache required additional globalcache module to be loaded.
+ * Will only consult globalcache if `$use_global_cache` is true and `$use_session_cache` is false or 
+ * the object is not found in the SESSION cache
  * @param string $key Identifies what you want
  * @param mixed $default The default value you want if key is not present in the cache
  * @param bool $use_global_cache If true checks the global cache too (see globalcache module)
@@ -1049,9 +1118,14 @@ function cache_get($key,$default=false,$use_global_cache=true,$use_session_cache
 
 /**
  * Stores a string value into the internal cache.
+ * 
+ * Noting to say. Just stores where you want.
  * @param string $key a key for the value
  * @param string $value the value to store
  * @param int $ttl Time to life in seconds. -1 if it shall live forever
+ * @param bool $use_global_cache If true stores in the global cache (see globalcache module)
+ * @param bool $use_session_cache If true stores in the SESSION cache
+ * @return void
  */
 function cache_set($key,$value,$ttl=false,$use_global_cache=true,$use_session_cache=true)
 {
@@ -1069,7 +1143,9 @@ function cache_set($key,$value,$ttl=false,$use_global_cache=true,$use_session_ca
 /**
  * Removes an entry from the cache
  * 
+ * Will simply do nothing if there's nothing stored for the key.
  * @param string $key The key identifiying the entry
+ * @return void
  */
 function cache_del($key)
 {
@@ -1082,8 +1158,11 @@ function cache_del($key)
 /**
  * Clears the cache
  * 
+ * Note that calling this will NOT clear the complete `$_SESSION` variale, but only
+ * `$_SESSION["system_internal_cache"]`.
  * @param bool $global_cache If true clears the global cache (see globalcache module)
  * @param bool $session_cache If true clears the SESSION cache
+ * @return void
  */
 function cache_clear($global_cache=true, $session_cache=true)
 {
@@ -1096,6 +1175,8 @@ function cache_clear($global_cache=true, $session_cache=true)
 /**
  * Returns a list of all keys in the cache
  * 
+ * Note that the returned array contains all key that are in one of the requested stores.
+ * Means that there may be keys that are only in SESSION, but not in globalcache.
  * @param bool $global_cache If true checks the global cache (see globalcache module)
  * @param bool $session_cache If true checks the SESSION cache
  * @return array All defined keys
@@ -1114,6 +1195,8 @@ function cache_list_keys($global_cache=true, $session_cache=true)
 /**
  * Returns the current chosen controller
  * 
+ * Note that if you request a controller object (`$as_string==false`) that may still be a string, if it has not been
+ * instaciated yet!
  * @param bool $as_string If true will return the classname (or id if it is from object store)
  * @return mixed Depending on $as_string: Classname/Id or controller object
  */
@@ -1129,6 +1212,7 @@ function current_controller($as_string=true)
 /**
  * Returns the current chosen event
  * 
+ * This can return an empty string if there's no current event or if that has not yet been parsed or if it simply IS an empty string.
  * @return string The current event
  */
 function current_event()
@@ -1138,6 +1222,7 @@ function current_event()
 
 /**
  * Returns the value of a given class constant.
+ * 
  * Will check against name match and will use endswith to try to find
  * names without prefix.
  * Check is case insensitive!
@@ -1157,9 +1242,11 @@ function constant_from_name($class_name_or_object,$constant_name)
 
 /**
  * Returns the name of a given class constant.
+ * 
  * Will check all constant values and return the first match.
  * @param string $class_name name of the class containing the constant
  * @param mixed $constant_value value of the constant to get
+ * @param string $prefix Checked constants need to start with this prefix (useful if there are different constants with the same value)
  * @return string name of the found constant or NULL
  */
 function name_from_constant($class_name,$constant_value,$prefix=false)
@@ -1173,16 +1260,23 @@ function name_from_constant($class_name,$constant_value,$prefix=false)
 
 /**
  * Wrapper for json_encode that ensures JS functions are not quoted.
+ * 
  * Will detect code that starts with '[jscode]' or 'function('
  * Example:
+ * <code php>
  * array(
  *		'test1'=>"function(){alert('1');}",   // <- works
  *		'test2'=>"[jscode]SomeFunctionName",  // <- SomeFunctionName must be defined in code
  *		'test3'=>"[jscode]alert('1')"         // <- wont work because it is a call!
  * )
+ * <code>
  * will generate
+ * <code javascript>
  * {"test1":function(){alert('1');}, "test2":SomeFunctionName, "test3": alert('1')} // <- syntax error due to test3
+ * <code>
  * Note: Make sure your 'embedded' JS code does NOT end with a semicolon (;)!
+ * @param mixed $value Value to be encoded as JSON
+ * @return string JSON encoded value
  */
 function system_to_json($value)
 {
@@ -1205,8 +1299,14 @@ function system_to_json($value)
 }
 
 /**
- * call_user_func_array does not allow byref arguments since 5.3 anymore
- * so we wrap this in our own funtion. this is even faster then call_user_func_array
+ * Calls an objects method with given arguments
+ * 
+ * `call_user_func_array` does not allow byref arguments since 5.3 anymore
+ * so we wrap this in our own funtion. This is even faster then `call_user_func_array`.
+ * @param object $object Object to call methos in
+ * @param string $funcname Name of method to call
+ * @param array $args Arguments to pass to the method
+ * @return mixed The result of the called method
  */
 function system_call_user_func_array_byref(&$object, $funcname, &$args)
 {
@@ -1267,7 +1367,10 @@ function system_method_exists($object_or_classname,$method_name)
 
 /**
  * Shuffle an array and preserve key=>value binding
+ * 
  * http://www.php.net/manual/en/function.shuffle.php#94697
+ * @param array $array Array to be shuffled
+ * @return void
  */
 function shuffle_assoc(&$array)
 {

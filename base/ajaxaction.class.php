@@ -76,7 +76,7 @@ class AjaxAction
 	 * 
 	 * This will return a standard confirmation dialog that will perform the specified action
 	 * when OK is clicked. Will also set a session variable so that the OK action PHP side code
-	 * can simply test with AjaxAction::IsConfirmed($text_base) if the confirmation was really shown and accepted by the user.
+	 * can simply test with <AjaxAction::IsConfirmed>($text_base) if the confirmation was really shown and accepted by the user.
 	 * @param string $text_base Text constants basename (like CONFIRMATION). Confirmation will need TITLE_$text_base and TXT_$text_base
 	 * @param Renderable|string $controller Controller for OK action
 	 * @param string $event Method for OK action
@@ -98,7 +98,7 @@ class AjaxAction
 	
 	/**
 	 * Checks if the user has seen and accepted a confirmation.
-	 * @see AjaxAction::Confirm
+	 * See <AjaxAction::Confirm>
 	 * @param string $text_base Text base the user confirmed
 	 * @return boolean True if user clicked OK
 	 */
