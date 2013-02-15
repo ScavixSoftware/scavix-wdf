@@ -37,10 +37,11 @@ interface ICallable {}
  * Exception information.
  * Using static WdfException::Raise() method you can pass in multiple arguments. WDF will try to detect
  * if there's an exception object given and use it (the first one detected) as inner exception object.
- * 
+ * <code php>
  * WdfException::Raise('My simple test');
  * WdfException::Raise('My simple test2',$obj_to_debug_1,'and',$obj_to_debug_2);
  * try{ $i=42/0; }catch(Exception $ex){ WdfException::Raise('That was stupid!',$ex); }
+ * <code>
  */
 class WdfException extends Exception
 {
@@ -52,7 +53,10 @@ class WdfException extends Exception
 	
 	/**
 	 * Use this to throw exceptions the easy way.
-	 * Can be used from derivered classes too like this: ToDoException::Raise('implement myclass->mymethod()');
+	 * Can be used from derivered classes too like this:
+	 * <code php>
+	 * ToDoException::Raise('implement myclass->mymethod()');
+	 * </code>
 	 */
 	public static function Raise()
 	{
@@ -78,10 +82,11 @@ class WdfException extends Exception
 	 * Use this to easily log an exception the nice way.
 	 * Ensures that all your exceptions are logged the same way, so they are easily readable.
 	 * sample: 
+	 * <code php>
 	 * try{
 	 *  some code
 	 * }catch(Exception $ex){ WdfException::Log("Weird:",$ex); }
-	 * 
+	 * </code>
 	 * Note that Raise method will log automatically, so this is mainly useful when silently catching exceptions.
 	 */
 	public static function Log()
@@ -101,7 +106,7 @@ class WdfException extends Exception
 }
 
 /**
- * Thrown when something still needs inverstigation
+ * Thrown when something still needs investigation
  */
 class ToDoException extends WdfException {}
 

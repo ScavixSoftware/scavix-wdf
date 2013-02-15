@@ -41,13 +41,21 @@ class PhpDocComment
 		
 		if( !preg_match('/^\s*\/\*\*(.*)\*\/\s*$/s',$comment,$m) )
 			return false;
-		$comment = trim($m[1]);
-		$comment = preg_replace('/\s*\*\s*/',"\n",$comment);
-		$comment = preg_replace('/\s*\*[\x20\t]*(.*)(\n*)/',"$1$2",$comment);
-		$comment = trim($comment);
 		
+		$comment = explode("\n",$m[1]);
+		foreach( $comment as $i=>$l )
+			$comment[$i] = trim(ltrim($l,"\t *"));
+		$comment = implode("\n",$comment);
+		
+//		$comment = trim($m[1]);
+//		$comment = preg_replace('/\s+\*\s+/',"\n",$comment);
+//		$comment = preg_replace('/\s*\*[\x20\t]*(.*)(\n*)/',"$1$2",$comment);
+		$comment = trim($comment);
+//		log_debug($comment);
 		$m = explode("\n@",$comment,2);
+//		log_debug($m);
 		$m = explode("\n\n",$m[0],2);
+//		log_debug($m);
 		
 		$isMatch = preg_match('/^@attribute/',trim($m[0]));
 		
@@ -131,14 +139,23 @@ class PhpDocComment
 		return $this->_tagbuf[$name];
 	}
 	
-	function getParam()
+	function getParams()
 	{
 		return $this->getTag('param',array('type','var','desc'));
 	}
 	
+	function getParam($name)
+	{
+		foreach( $this->getParams() as $p )
+			if( $p->var == $name )
+				return $p;
+		return false;
+	}
+	
 	function getReturn()
 	{
-		return $this->getTag('return',array('type','desc'));
+		$res = $this->getTag('return',array('type','desc'));
+		return ($res && isset($res[0]))?$res[0]:false;
 	}
 	
 	function getDeprecated()
@@ -151,7 +168,9 @@ class PhpDocComment
 	
 	function RenderAsMD()
 	{
-		$lines = explode("\n",$this->LongDesc?$this->LongDesc:$this->ShortDesc);
-		return implode("\n\n",$lines);
+		$desc = $this->LongDesc?$this->LongDesc:$this->ShortDesc;
+		$desc = str_replace(array('<code>','</code>'),array('```','```'),$desc);
+		$desc = preg_replace('/<code ([^>]*)>/','```$1', $desc);
+		return $desc;
 	}
 }

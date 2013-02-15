@@ -633,22 +633,15 @@ function classpath_add($path, $recursive=true, $part=false)
 }
 
 /**
+ * Find pathnames matching a pattern.
+ * 
  * glob() cant be used directly in foreach when open_basedir is set
  * see: https://bugs.php.net/bug.php?id=47358
- * Find pathnames matching a pattern
+ * 
  * @link http://php.net/manual/en/function.glob.php
- * @param string $pattern <p>
- * The pattern. No tilde expansion or parameter substitution is done.
- * </p>
- * @param int $flags [optional] <p>
- * Valid flags:
- * <b>GLOB_MARK</b> - Adds a slash to each directory returned
- * @return array an array containing the matched files/directories, an empty array
- * if no file matched or <b>FALSE</b> on error.
- * </p>
- * <p>
- * On some systems it is impossible to distinguish between empty match and an
- * error. 
+ * @param string $pattern The pattern. No tilde expansion or parameter substitution is done.
+ * @param int $flags Valid flags: see http://php.net/manual/en/function.glob.php
+ * @return array An array containing the matched files/directories, an empty array if no file matched
  */
 function system_glob($pattern, $flags = 0)
 {

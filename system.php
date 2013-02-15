@@ -219,11 +219,13 @@ function system_init($application_name, $skip_header = false, $logging_category=
  * Parses the request and returns a controller/event pair (if present).
  * 
  * Note that your .htaccess files must contain these lines:
+ * <code>
  * SetEnv WDF_FEATURES_REWRITE on
  * RewriteCond %{REQUEST_FILENAME} !-f
  * RewriteCond %{REQUEST_FILENAME} !-d
  * RewriteCond %{REQUEST_URI} !index.php
  * RewriteRule (.*) index.php?wdf_route=$1 [L,QSA]
+ * </code>
  */
 function system_parse_request_path()
 {
@@ -1061,7 +1063,7 @@ function cache_set($key,$value,$ttl=false,$use_global_cache=true,$use_session_ca
 		globalcache_set($key, $value, $ttl);
 
 	if( $use_session_cache )
-		$_SESSION["system_internal_cache"][$key] = session_serialize($value);
+		$_SESSION["system_internal_cache"][$key] = session_serialize($value);	
 }
 
 /**
