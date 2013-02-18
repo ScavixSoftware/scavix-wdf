@@ -23,6 +23,11 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
+/**
+ * Initializes the minify module.
+ * 
+ * Note that this module can be used best from SysAdmin!
+ */
 function minify_init()
 {
 	global $CONFIG;
@@ -33,15 +38,17 @@ function minify_init()
 	cfg_check('minify','base_name','Minify module needs a base_name');
 	cfg_check('minify','url','Minify module needs an url');
 	
-//	$target_base_name = cfg_get('minify','target_path');
-//	system_ensure_path_ending($target_base_name,true);
-//	$target_base_name .= cfg_get('minify','base_name');
-//	$base_uri = cfg_get('minify','url');
-//	use_minified_file($target_base_name, 'js', $base_uri);
-//	use_minified_file($target_base_name, 'css', $base_uri);
 	register_hook_function(HOOK_PRE_RENDER, 'minify_pre_render_handler');
 }
 
+/**
+ * Handler for HOOK_PRE_RENDER
+ * 
+ * Checks if there are minified files present as sets up WDF to use them.
+ * Do not call this directly!
+ * @param mixed $args Do not call!
+ * @return void
+ */
 function minify_pre_render_handler($args)
 {
 	if( count($args)>0 )
@@ -58,6 +65,13 @@ function minify_pre_render_handler($args)
 	use_minified_file($target_base_name, 'css', $base_uri);
 }
 
+/**
+ * Checks if minifying a classes resources is explicitely forbidden
+ * 
+ * Uses NoMinify attribute to check that
+ * @param string $classname Classname to check for
+ * @return bool true or false
+ */
 function minify_forbidden($classname)
 {
 	if( is_string($classname) && strpos($classname, '.') !== false )
@@ -77,6 +91,15 @@ function minify_forbidden($classname)
 	}
 }
 
+/**
+ * Performs minifying.
+ * 
+ * This is best called from SysAdmin.
+ * @param array $paths Array fo paths to scan for content
+ * @param string $target_base_name Base name for the minify files
+ * @param string $nc_argument NoCache argument to add to the filename
+ * @return void
+ */
 function minify_all($paths,$target_base_name,$nc_argument)
 {
 	$target_base_name .= (isSSL()?".1":".0");
@@ -88,6 +111,9 @@ function minify_all($paths,$target_base_name,$nc_argument)
 	minify_css($paths,$target_base_name.".$v.css",$v);
 }
 
+/**
+ * @internal Used from <minify_pre_render_handler>().
+ */
 function use_minified_file($target_base_name,$kind,$base_uri)
 {
 	global $CONFIG;
@@ -100,6 +126,9 @@ function use_minified_file($target_base_name,$kind,$base_uri)
 	unset($CONFIG["use_compiled_$kind"]);
 }
 
+/**
+ * @internal Performs JavaScript minifying
+ */
 function minify_js($paths,$target_file)
 {
 	require_once(dirname(__FILE__)."/minify/jsmin.php");
@@ -132,6 +161,9 @@ function minify_js($paths,$target_file)
 	file_put_contents($target_file, $code);
 }
 
+/**
+ * @internal Performs CSS minifying
+ */
 function minify_css($paths,$target_file,$nc_argument=false)
 {
 	require_once(dirname(__FILE__)."/minify/cssmin.php");
@@ -225,6 +257,9 @@ function minify_css($paths,$target_file,$nc_argument=false)
 	file_put_contents($target_file, $code);
 }
 
+/**
+ * @internal Translates an URL in a CSS file into something absolute
+ */
 function minify_css_translate_url($match)
 {
 	global $current_url;
@@ -242,6 +277,9 @@ function minify_css_translate_url($match)
 	return "url($url)";
 }
 
+/**
+ * @internal Collects files for minifying
+ */
 function minify_collect_files($paths,$kind)
 {
 	global $dependency_info, $res_file_storage;
@@ -282,6 +320,9 @@ function minify_collect_files($paths,$kind)
 	return array_unique($res);
 }
 
+/**
+ * @internal Resolves dependencies
+ */
 function minify_resolve_dependencies($classname,&$dependency_info,&$res_file_storage,$tree=array())
 {
 	$res = array();
@@ -304,6 +345,9 @@ function minify_resolve_dependencies($classname,&$dependency_info,&$res_file_sto
 	return $res;
 }
 
+/**
+ * @internal Collects dependencies from a file
+ */
 function minify_collect_from_file($kind,$f,$debug_path='')
 {
 	global $dependency_info, $res_file_storage;

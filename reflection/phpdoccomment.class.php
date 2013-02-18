@@ -33,6 +33,7 @@ class PhpDocComment
 	var $ShortDesc = "";
 	var $LongDesc = "";
 	var $LongDescSkipped = false;
+	var $IsInternal = false;
 	var $Tags = array();
 	var $Attributes = array();
 	
@@ -93,6 +94,16 @@ class PhpDocComment
 		
 		if( !$res->LongDesc && !$res->LongDescSkipped && $res->ShortDesc && ends_with($res->ShortDesc, '.') )
 			$res->LongDescSkipped = true;
+		
+		$t = $res->getTag('internal',array('desc'));
+		$res->IsInternal = $t && isset($t[0]);
+		if( $res->IsInternal )
+		{
+			if( !$res->ShortDesc )
+			$res->ShortDesc = $t[0]->desc;
+			if( !$res->LongDesc )
+				$res->LongDescSkipped = true;
+		}
 		
 		return $res;
 	}
@@ -197,6 +208,8 @@ class PhpDocComment
 	{
 		$desc = $this->ShortDesc?$this->ShortDesc:'';
 		$desc .= $this->LongDesc?"\n{$this->LongDesc}":'';
+		if( $this->IsInternal )
+			$desc = "**INTERNAL** $desc";
 		$desc = str_replace(array('<at>','<code>','</code>'),array('@','```','```'),$desc);
 		$desc = preg_replace('/<code ([^>]*)>/','```$1', $desc);
 		return $desc;
