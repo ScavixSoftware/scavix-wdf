@@ -24,7 +24,7 @@
  */
 
 /**
- * This represents a label element
+ * This represents a label element.
  */
 class Label extends Control
 {

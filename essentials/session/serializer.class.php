@@ -72,8 +72,7 @@ class Serializer
 		}
 		elseif( is_object($data) )
 		{
-			//if( $level == 0 && $data instanceof System_DataSource )
-			if( $data instanceof System_DataSource )
+			if( $data instanceof DataSource )
 				return "m:".$data->_storage_id."\n";
 			if( $data instanceof ADORecordSet_mysql || $data instanceof PDOStatement || $data instanceof Closure )
 				return "n:\n";
@@ -209,7 +208,7 @@ class Serializer
 			case 'r':
 				if( !isset($this->Stack[intval($line)]) )
 					WdfException::Raise("Trying to reference unknown object.");
-				if( $this->Stack[intval($line)] instanceof System_DataSource )
+				if( $this->Stack[intval($line)] instanceof DataSource )
 					return model_datasource($this->Stack[intval($line)]->_storage_id);
 				return $this->Stack[intval($line)];
 			case 'm':

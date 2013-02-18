@@ -24,6 +24,10 @@
  */
 
 /**
+ * WDF sysadmin page
+ * 
+ * This is a tweak mechanism that allows you to manage your application.
+ * For example you can create strings, manage the cache and check the PHP configuration.
  * @attribute[NoMinify]
  */
 class SysAdmin extends HtmlPage
@@ -66,6 +70,9 @@ class SysAdmin extends HtmlPage
         }
     }
 	
+	/**
+	 * SysAdmin index page.
+	 */
 	function Index()
 	{
 		$this->addContent("<h1>Welcome,</h1>");
@@ -73,6 +80,8 @@ class SysAdmin extends HtmlPage
 	}
 	
     /**
+	 * SysAdmin login page.
+	 * 
      * @attribute[RequestParam('username','string',false)]
      * @attribute[RequestParam('password','string',false)]
      */
@@ -82,7 +91,7 @@ class SysAdmin extends HtmlPage
         
         if( $username===false || $password===false )
         {
-            $this->AddContent(new SysAdminLogin());
+            $this->AddContent(Template::Make('sysadminlogin'));
             return;
         }
         
@@ -95,6 +104,7 @@ class SysAdmin extends HtmlPage
 	}
     
     /**
+	 * SysAdmin logout event.
      */
     function Logout()
     {
@@ -104,6 +114,8 @@ class SysAdmin extends HtmlPage
     }
 	
 	/**
+	 * SysAdmin cache manager.
+	 * 
 	 * @attribute[RequestParam('search','string',false)]
 	 * @attribute[RequestParam('show_info','bool',false)]
 	 * @attribute[RequestParam('kind','string','Search key')]
@@ -193,6 +205,7 @@ class SysAdmin extends HtmlPage
     }
 	
 	/**
+	 * SysAdmin cache manager: delete event.
 	 * @attribute[RequestParam('key','string',false)]
      */
     function CacheDel($key)
@@ -202,6 +215,8 @@ class SysAdmin extends HtmlPage
 	}
 	
 	/**
+	 * SysAdmin cache manager: delete many event.
+	 * 
 	 * @attribute[RequestParam('keys','array',array())]
      */
 	function CacheDelMany($keys)
@@ -212,6 +227,7 @@ class SysAdmin extends HtmlPage
 	}
 	
 	/**
+	 * SysAdmin cache manager: clear event.
      */
 	function CacheClear()
 	{
@@ -220,6 +236,8 @@ class SysAdmin extends HtmlPage
 	}
 	
 	/**
+	 * SysAdmin phpinfo.
+	 * 
 	 * @attribute[RequestParam('extension','string',false)]
 	 * @attribute[RequestParam('search','string',false)]
 	 */
@@ -307,6 +325,9 @@ class SysAdmin extends HtmlPage
 	}
 	
 	/**
+	 * This is just an entry point for testing.
+	 * 
+	 * Ignore!
 	 */
 	function Testing()
 	{
@@ -346,7 +367,9 @@ class SysAdmin extends HtmlPage
 	}
 	
 	/**
+	 * This is just an entry point for testing.
 	 * 
+	 * Ignore!
 	 */
 	function testconfirm()
 	{

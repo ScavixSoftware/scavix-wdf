@@ -32,6 +32,7 @@ class PhpDocComment
 {
 	var $ShortDesc = "";
 	var $LongDesc = "";
+	var $LongDescSkipped = false;
 	var $Tags = array();
 	var $Attributes = array();
 	
@@ -54,16 +55,9 @@ class PhpDocComment
 			$comment[$i] = trim(ltrim($l,"\t *"));
 		$comment = implode("\n",$comment);
 		
-//		$comment = trim($m[1]);
-//		$comment = preg_replace('/\s+\*\s+/',"\n",$comment);
-//		$comment = preg_replace('/\s*\*[\x20\t]*(.*)(\n*)/',"$1$2",$comment);
 		$comment = trim($comment);
-//		log_debug($comment);
-		$m = explode("\n@",$comment,2);
-//		log_debug($m);
+		$m = explode("@",$comment,2);
 		$m = explode("\n\n",$m[0],2);
-//		log_debug($m);
-		
 		$isMatch = preg_match('/^@attribute/',trim($m[0]));
 		
 		if ($isMatch !== false && $isMatch == 0)
@@ -73,7 +67,11 @@ class PhpDocComment
 		{
 			$isMatch = preg_match('/^@attribute/',trim($m[1]));
 			if ($isMatch !== false && $isMatch == 0)
+			{
 				$res->LongDesc = trim($m[1]);
+				if( !$res->LongDesc )
+					$res->LongDescSkipped = true;
+			}
 		}
 		
 		preg_match_all('/^@([^\s]+)\s([^@]*)/ms',$comment,$m,PREG_SET_ORDER);
@@ -92,6 +90,9 @@ class PhpDocComment
 				'data' => $p[1]
 			);
 		}
+		
+		if( !$res->LongDesc && !$res->LongDescSkipped && $res->ShortDesc && ends_with($res->ShortDesc, '.') )
+			$res->LongDescSkipped = true;
 		
 		return $res;
 	}

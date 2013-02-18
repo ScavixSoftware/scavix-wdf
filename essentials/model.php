@@ -31,7 +31,6 @@ function model_init()
 	$CONFIG['class_path']['model'][]   = dirname(__FILE__).'/model/driver/';
     
     // trick out the autoloader as it consults the cache which needs a model thus circular...
-    require_once(__DIR__.'/model/system_datasource.class.php');
     require_once(__DIR__.'/model/pdolayer.class.php');
     require_once(__DIR__.'/model/resultset.class.php');
     require_once(__DIR__.'/model/driver/idatabasedriver.class.php');
@@ -52,7 +51,7 @@ function model_init()
 		{
 			model_init_db(
 				$name,
-				isset($mod['datasource_type'])?$mod['datasource_type']:"System_DataSource",
+				isset($mod['datasource_type'])?$mod['datasource_type']:"DataSource",
 				$mod['connection_string'],
 				isset($mod['auto_create_tables'])?$mod['auto_create_tables']:false,
 				(isset($mod['debug'])?$mod['debug']:false),
@@ -68,8 +67,6 @@ function model_init_db($name,$dstype,$constr,$autoct=false,$debug=false,$usememc
 {
 	global $MODEL_DATABASES;
 	
-	if( $dstype == "System_DataSource" ) $dstype = "DataSource";
-
 	$MODEL_DATABASES[$name] = array($dstype,$constr,$autoct,$debug,$usememcache);
 }
 

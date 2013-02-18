@@ -54,5 +54,3 @@ class ColumnSchema
 		return $this->Key == "PRIMARY";
 	}
 }
-
-?>

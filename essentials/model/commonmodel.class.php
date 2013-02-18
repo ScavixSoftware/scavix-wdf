@@ -30,7 +30,7 @@
  * Or perhaps there are some cross-tables that is not needed for, but you need to query them.
  * So this is for you:
  * <code php>
- * Model::Query('my_db_table')->all();
+ * $dataSource->Query('my_db_table')->all();
  * </code>
  * Will create a CommonModel and let you perform all chaining methods on it as if it was a real typed model.
  */

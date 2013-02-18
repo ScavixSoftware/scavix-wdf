@@ -24,6 +24,9 @@
  */
 
 /**
+ * Base class for all jQueryUI controls
+ * 
+ * This ensures that all resources are loaded. Also provides some basic methods for Icon handling.
  * @attribute[Resource('jquery-ui/jquery-ui.js')] 
  * @attribute[Resource('jquery-ui/jquery-ui.css')] 
  */
@@ -115,6 +118,14 @@ class uiControl extends Control
 		'grip-diagonal-se'
 	);
 
+	/**
+	 * Ensures that an icon is valid
+	 * 
+	 * Checks agains the valid jQuery UI icons and return is, if present.
+	 * Else throws an Exception.
+	 * @param string $icon_to_test Name of the icon like 'circle-plus'
+	 * @return string The icon string as given in like 'circle-plus'
+	 */
 	static function Icon($icon_to_test)
 	{
 		if(in_array($icon_to_test, self::$_icons) )

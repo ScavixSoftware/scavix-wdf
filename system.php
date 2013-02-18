@@ -94,7 +94,7 @@ function system_config_default($reset = true)
 	$CONFIG['requestparam']['tagstostrip'] = array('script');
 
 	$CONFIG['model']['internal']['auto_create_tables'] = true;
-	$CONFIG['model']['internal']['datasource_type']    = 'System_DataSource';	
+	$CONFIG['model']['internal']['datasource_type']    = 'DataSource';	
 	$CONFIG['model']['internal']['debug']			   = false;
 
 	$CONFIG['system']['application_name'] = 'wdf_application';
