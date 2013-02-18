@@ -22,13 +22,27 @@
  * @copyright 2007-2012 PamConsult GmbH
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
+
+/**
+ * Serializer/Unserializer
+ * 
+ * We have our very own that support some specialities like database reconnection, datetime formats, reflection,...
+ * As we implemented our own object storage and serialize it in one run, we can be sure that
+ * the referential integrity will be given.
+ */
 class Serializer
 {
 	var $Stack;
 	var $Lines;
 //	var $PassedLines;
 
+	/**
+	 * Serializes a value
+	 * 
+	 * Can be anything from complex object to bool value
+	 * @param mixed $data Value to serialize
+	 * @return string Serialized data string
+	 */
 	function Serialize(&$data)
 	{
 		$this->Stack = array();
@@ -114,6 +128,13 @@ class Serializer
 		}
 	}
 
+	/**
+	 * Restores something from a serialized data string
+	 * 
+	 * Note that of course all types used in that string must be known to the unserializing application!
+	 * @param string $data Serialized data
+	 * @return mixed Whatever was serialized
+	 */
 	function Unserialize($data)
 	{
 //		log_debug("Unserialize(...)",$data);
@@ -204,5 +225,3 @@ class Serializer
 		}
 	}
 }
-
-?>

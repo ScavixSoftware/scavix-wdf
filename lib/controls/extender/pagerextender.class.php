@@ -107,7 +107,7 @@ class PagerExtender extends ControlExtender
 	function PreRender()
 	{
 		if( isset($this->ExtendedControl->ResultSet) )
-			$this->Total = $this->ExtendedControl->ResultSet->MaxRecordCount();
+			$this->Total = $this->ExtendedControl->ResultSet->GetPagingInfo('total_rows');
 		$this->Render();
 	}
 

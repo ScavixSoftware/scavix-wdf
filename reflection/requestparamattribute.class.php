@@ -55,11 +55,26 @@ class RequestParamAttribute extends System_Attribute
 		}
 	}
 
+	/**
+	 * Checks if the argument is optional
+	 * 
+	 * This is done by checking if there's a default value specified.
+	 * @return bool true or false
+	 */
 	function IsOptional()
 	{
 		return isset($this->Default);
 	}
 
+	/**
+	 * Checks a given array for data for this and updates another array accordingly
+	 * 
+	 * This is kind of internal, so will not be documented further. Only that it ensures typed data in the $args argument
+	 * from the $data argument. We will most likely clean this procedure up in the future.
+	 * @param array $data Combined request data
+	 * @param array $args resulting typed values
+	 * @return boolean|string true if everything went fine, an error string if not
+	 */
 	function UpdateArgs($data, &$args)
 	{		
 		global $CONFIG;

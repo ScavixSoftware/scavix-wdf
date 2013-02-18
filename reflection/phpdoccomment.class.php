@@ -26,7 +26,7 @@
 /**
  * Represents a PHP DocComment as described in http://en.wikipedia.org/wiki/PHPDoc
  * 
- * Use PhpDocComment::Parse to create an instance.
+ * Use <PhpDocComment::Parse> to create an instance.
  */
 class PhpDocComment
 {
@@ -35,6 +35,13 @@ class PhpDocComment
 	var $Tags = array();
 	var $Attributes = array();
 	
+	/**
+	 * Creates a PhpDocComment instance from a string
+	 * 
+	 * See <System_Reflector::getCommentObject> for how to use this best.
+	 * @param string $comment Valid DocComment string
+	 * @return boolean|PhpDocComment False on error, else a PhpDocComment object
+	 */
 	static function Parse($comment)
 	{
 		$res = new PhpDocComment();
@@ -89,23 +96,6 @@ class PhpDocComment
 		return $res;
 	}
 	
-	static function RenderHtml($string)
-	{
-		// todo: process inline tags like @see and @link
-		//       and everything else from http://en.wikipedia.org/wiki/PHPDoc#Tags
-		return nl2br($string);
-	}
-	
-	function ShortDescAsHtml()
-	{
-		return self::RenderHtml($this->ShortDesc);
-	}
-	
-	function LongDescAsHtml()
-	{
-		return self::RenderHtml($this->LongDesc);
-	}
-	
 	private function getTag($name,$properties)
 	{
 		if( !isset($this->_tagbuf) )
@@ -139,11 +129,26 @@ class PhpDocComment
 		return $this->_tagbuf[$name];
 	}
 	
+	/**
+	 * Lists all param docs
+	 * 
+	 * Every method parameter should have an <at>param block in the DocComment.
+	 * This returns all of them
+	 * @return array All param block
+	 */
 	function getParams()
 	{
 		return $this->getTag('param',array('type','var','desc'));
 	}
 	
+	/**
+	 * Returns docs for a specified parameter
+	 * 
+	 * Every method parameter should have an <at>param block in the DocComment.
+	 * This method returns it
+	 * @param string $name Parameter name
+	 * @return mixed The parameter description or false on error
+	 */
 	function getParam($name)
 	{
 		foreach( $this->getParams() as $p )
@@ -152,12 +157,26 @@ class PhpDocComment
 		return false;
 	}
 	
+	/**
+	 * Gets the return documentation
+	 * 
+	 * Every method should have a <at>return block in the DocComment.
+	 * This method returns it
+	 * @return mixed The return doc or false on error
+	 */
 	function getReturn()
 	{
 		$res = $this->getTag('return',array('type','desc'));
 		return ($res && isset($res[0]))?$res[0]:false;
 	}
 	
+	/**
+	 * Gets the deprecated note if present
+	 * 
+	 * Every DocComment may contain a <at>deprecated part.
+	 * This method returns it
+	 * @return mixed The deprecated note if present or false
+	 */
 	function getDeprecated()
 	{
 		$tag = $this->getTag('deprecated',array('desc'));
@@ -166,11 +185,18 @@ class PhpDocComment
 		return $tag[0]->desc;
 	}
 	
+	/**
+	 * Returns the description ready for use in markdown syntax
+	 * 
+	 * Markdown is our favorite for automated documentation creation as GitHub supports it directly for their Wiki.
+	 * This method makes some preparations for the doccomment to be complatible with MD.
+	 * @return string MD prepared string
+	 */
 	function RenderAsMD()
 	{
 		$desc = $this->ShortDesc?$this->ShortDesc:'';
 		$desc .= $this->LongDesc?"\n{$this->LongDesc}":'';
-		$desc = str_replace(array('<code>','</code>'),array('```','```'),$desc);
+		$desc = str_replace(array('<at>','<code>','</code>'),array('@','```','```'),$desc);
 		$desc = preg_replace('/<code ([^>]*)>/','```$1', $desc);
 		return $desc;
 	}

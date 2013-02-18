@@ -24,11 +24,25 @@
  */
  
 /**
+ * Just the original slightly extended
+ * 
+ * We need some more functionalities, so extending PDO and using this when connecting to DB in <DataSource>.
  */
 class PdoLayer extends PDO
 {
     var $Driver = false;
     
+	/**
+	 * Overrides parent to perform preparations
+	 * 
+	 * For historical reasons we had some weird argument placeholders in various SQL queries.
+	 * This is central point to replace them. Additionally polls drivers PreprocessSql method before
+	 * passing flow to parents method.
+	 * See http://www.php.net/manual/en/pdo.prepare.php
+	 * @param string $statement This must be a valid SQL statement for the target database server
+	 * @param array $driver_options This array holds one or more key=>value pairs to set attribute values for the PDOStatement object that this method returns
+	 * @return mixed PDOStatement (in our case ResultSet) or false
+	 */
 	function prepare($statement, $driver_options = null)
 	{
 		// remove the counter from ?0, ?,... so that they are simply ?,?,...

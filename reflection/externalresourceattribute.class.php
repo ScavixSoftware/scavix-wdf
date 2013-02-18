@@ -25,9 +25,17 @@
 
 /**
  * Specifies an external resource like JS APIs from google or stuff
+ * 
+ * See <ResourceAttribute> class for more details as this works the same way.
  */
 class ExternalResourceAttribute extends ResourceAttribute
 {
+	/**
+	 * Returns the path to the resource
+	 * 
+	 * This is just the absolute URL to the specified resource
+	 * @return string Resource URL
+	 */
 	function Resolve()
 	{
 		return $this->Path;

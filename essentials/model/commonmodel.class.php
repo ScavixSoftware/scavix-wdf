@@ -22,11 +22,28 @@
  * @copyright 2007-2012 PamConsult GmbH
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
+
+/**
+ * Wrapper for anonymous chained database queries
+ * 
+ * Sometimes you will be too lazy to create a model class for each of your database tables.
+ * Or perhaps there are some cross-tables that is not needed for, but you need to query them.
+ * So this is for you:
+ * <code php>
+ * Model::Query('my_db_table')->all();
+ * </code>
+ * Will create a CommonModel and let you perform all chaining methods on it as if it was a real typed model.
+ */
 class CommonModel extends Model
 {
 	protected $_tableName = false;
 	
+	/**
+	 * Returns the table name
+	 * 
+	 * In CommonModel this is what you wanted to query.
+	 * @return string Table name
+	 */
 	function GetTableName()
 	{
 		return $this->_tableName;

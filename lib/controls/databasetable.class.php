@@ -233,9 +233,9 @@ class DatabaseTable extends Table
 		}
         else
         {
-            while( !$this->ResultSet->EOF )
+			$this->ResultSet->FetchMode = PDO::FETCH_ASSOC;
+            foreach( $this->ResultSet as $row )
             {
-                $row = $this->ResultSet->GetRowAssoc(false);//fields;
 				$row = $this->_preProcessData($row);
 
                 if( !$this->header )
@@ -248,7 +248,6 @@ class DatabaseTable extends Table
                     $this->OnAddRow[0]->{$this->OnAddRow[1]}($this, $row);
                 else
                     $this->AddRow($row);
-                $this->ResultSet->MoveNext();
             }
         }
 		return parent::WdfRender();
@@ -314,9 +313,9 @@ class DatabaseTable extends Table
 		log_debug("EXPORT collecting");
 		
 		$res = array();
-		while( !$copy->ResultSet->EOF )
+		$copy->ResultSet->FetchMode = PDO::FETCH_ASSOC;
+		foreach( $copy->ResultSet as $row )
 		{
-			$row = $copy->ResultSet->GetRowAssoc(false);
 			$row = $copy->_preProcessData($row);
 			
 			if( !isset($format_buffer) )
@@ -333,7 +332,6 @@ class DatabaseTable extends Table
 				$row[$k] = $cellformat->FormatContent($row[$k],$copy->Culture);
 			
 			$res[] = $row;
-			$copy->ResultSet->MoveNext();
 		}
 		log_debug("EXPORT data complete");
 		return $res;

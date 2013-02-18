@@ -106,14 +106,12 @@ function createShopInvoice($invoicenr, $user, $shop)
 							 FROM va_orders_items
 							 WHERE order_id = ?0
 							 ORDER BY order_item_id", array($rs->fields['order_id']));
-	while (!$rsi->EOF)
+	foreach( $rsi as $row)
 	{
-		$itemname = str_replace('?', '', $rsi->fields['item_name']);
+		$itemname = str_replace('?', '', $row['item_name']);
 		$itemname = invoicePdfPreFormatText($itemname,$pdf->Language->Code,$user);
-		$price = $rs->fields['currency_rate'] * $rsi->fields['price'];				
-		$pdf->AddItem($itemname, $rsi->fields['quantity'], $price);
-		
-		$rsi->MoveNext();
+		$price = $rs->fields['currency_rate'] * $row['price'];				
+		$pdf->AddItem($itemname, $row['quantity'], $price);
 	}
 	
 	$pdf->RenderInvoice();

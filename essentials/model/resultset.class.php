@@ -24,6 +24,10 @@
  */
  
 /**
+ * Wraps PDOStatement class
+ * 
+ * We really need more functionality than provided by default, so extending it by overriding
+ * and then setting the new `PDO::ATTR_STATEMENT_CLASS` to 'ResultSet' in <DataSource> constructor.
  */
 class ResultSet extends PDOStatement
 {
@@ -40,16 +44,31 @@ class ResultSet extends PDOStatement
 	/*--- Compatibility to old model ---*/
 	private $_current = false;
 	
+	public $FetchMode = false;
+	
 	protected function __construct($datasource)
 	{
 		$this->_ds = $datasource;
 	}
 	
+	/**
+	 * Returns the last statement and the error info
+	 * 
+	 * Will combine that into a string for easy output
+	 * @return string SQL[newline]ErrorInfo
+	 */
 	public function ErrorOutput()
 	{
 		return $this->_sql_used."\n".my_var_export($this->errorInfo());
 	}
 	
+	/**
+	 * Logs this statement
+	 * 
+	 * Sometimes you will need to debug specific statements. This method will create a logentry with the SQL query, the arguments used
+	 * and try to combine it for easy copy+paste from log to your sql tool (for retry).
+	 * @return void
+	 */
 	public function LogDebug()
 	{
 		$tmp = $this->_sql_used;
@@ -59,11 +78,19 @@ class ResultSet extends PDOStatement
 		log_debug("SQL: ".$this->_sql_used."\nARGS: ",$this->_arguments_used,"\nMerged: ",$tmp);
 	}
 	
+	/**
+	 * Gets the query used
+	 * @return string SQL query
+	 */
 	public function GetSql()
 	{
 		return $this->_sql_used;
 	}
 
+	/**
+	 * Gets the arguments
+	 * @return array SQL arguments
+	 */
 	public function GetArgs()
 	{
 		return $this->_arguments_used;
@@ -83,6 +110,12 @@ class ResultSet extends PDOStatement
 		}
 	}
 	
+	/**
+	 * Savely serializes this object
+	 * 
+	 * This is mainly needed for query caching
+	 * @return string serialized data string
+	 */
 	function serialize()
 	{
 		$buf = array(
@@ -98,6 +131,13 @@ class ResultSet extends PDOStatement
 		return serialize($buf);
 	}
 	
+	/**
+	 * Creates a ResultSet from a serialized data string
+	 * 
+	 * This is mainly needed for query caching
+	 * @param string $data serialized data string
+	 * @return ResultSet Restored ResultSet object
+	 */
 	static function &unserialize($data)
 	{
 		$buf = unserialize($data);
@@ -115,6 +155,17 @@ class ResultSet extends PDOStatement
 		return $res;
 	}
 	
+	/**
+	 * Overrides parent to capture arguments
+	 * 
+	 * We want to know which arguments are used, so we need to capture theme here
+	 * before passing control to parents method.
+	 * See http://www.php.net/manual/en/pdostatement.bindvalue.php
+	 * @param string $parameter Parameter identifier. For a prepared statement using named placeholders, this will be a parameter name of the form :name. For a prepared statement using question mark placeholders, this will be the 1-indexed position of the parameter
+	 * @param mixed $value The value to bind to the parameter. 
+	 * @param int $data_type Explicit data type for the parameter using the PDO::PARAM_* constants
+	 * @return bool true or false
+	 */
 	function bindValue($parameter, $value, $data_type = null)
 	{
 		if( !$this->_arguments_used )
@@ -127,6 +178,15 @@ class ResultSet extends PDOStatement
 			return parent::bindValue($parameter, $value, $data_type);
 	}
 	
+	/**
+	 * Overrides parent to capture query and arguments
+	 * 
+	 * We want to know which query and arguments are used, so we need to capture theme here
+	 * before passing control to parents method.
+	 * See http://www.php.net/manual/en/pdostatement.execute.php
+	 * @param array $input_parameters An array of values with as many elements as there are bound parameters in the SQL statement being executed
+	 * @return bool true or false
+	 */
 	function execute($input_parameters = null)
 	{
 		if( !is_null($input_parameters) && !is_array($input_parameters) )
@@ -150,6 +210,15 @@ class ResultSet extends PDOStatement
 			return parent::execute($input_parameters);
 	}
 	
+	/**
+	 * Overrides parent for buffering
+	 * 
+	 * See http://www.php.net/manual/en/pdostatement.fetch.php
+	 * @param int $fetch_style See php.net docs
+	 * @param int $cursor_orientation See php.net docs
+	 * @param int $cursor_offset See php.net docs
+	 * @return mixed See php.net docs
+	 */
 	function fetch($fetch_style = null, $cursor_orientation = null, $cursor_offset = null)
 	{
 		$this->_data_fetched = true;
@@ -165,6 +234,9 @@ class ResultSet extends PDOStatement
 			return false;
 		}
 		
+		if( $fetch_style == null && $this->FetchMode )
+			$fetch_style = $this->FetchMode;			
+		
 		$this->_current = parent::fetch($fetch_style, $cursor_orientation, $cursor_offset);
 		if( $this->_current !== false )
 		{
@@ -174,6 +246,15 @@ class ResultSet extends PDOStatement
 		return $this->_current;
 	}
 	
+	/**
+	 * Overrides parent for buffering
+	 * 
+	 * See http://www.php.net/manual/en/pdostatement.fetchall.php
+	 * @param int $fetch_style See php.net docs
+	 * @param int $column_index See php.net docs
+	 * @param mixed $ctor_args See php.net docs
+	 * @return mixed See php.net docs
+	 */
 	function fetchAll($fetch_style = null, $column_index = null, $ctor_args = null)
 	{
 		$this->_data_fetched = true;
@@ -224,6 +305,13 @@ class ResultSet extends PDOStatement
 		return $this->_rowbuffer;
 	}
 	
+	/**
+	 * Returns a scalar value
+	 * 
+	 * Will return the first result rows $column.
+	 * @param int $column Column index
+	 * @return mixed The value or false on error
+	 */
 	function fetchScalar($column=0)
 	{
 		$row = $this->fetch();
@@ -234,105 +322,31 @@ class ResultSet extends PDOStatement
 		return $row[$column];
 	}
 	
-	function GetPagingInfo()
+	/**
+	 * Returns information about paging
+	 * 
+	 * Result will be an array with these keys: 'rows_per_page', 'current_page', 'total_pages', 'total_rows', 'offset'
+	 * @param mixed $key If given returns one of the keys value only
+	 * @return array Paging info
+	 */
+	function GetPagingInfo($key=false)
 	{
 		if( !$this->_paging_info )
 			$this->_paging_info = $this->_ds->Driver->getPagingInfo($this->queryString,$this->_arguments_used);
 		return $this->_paging_info;
 	}
 	
-	/*--- Compatibility to old model ---*/
-	
-	function Close()
-	{
-		$this->_index = -1;
-		$this->_current = false;
-		return $this->closeCursor();
-	}
-	
-	function MoveFirst()
-	{
-		if( $this->_index < 0 )
-			return $this->fetch();
-		if( $this->_index < 1 )
-			return $this->_current;
-		$this->_index = 0;
-		$this->_current = $this->_rowbuffer[0];
-		return $this->_current;
-	}
-	
-	function MoveNext()
-	{
-//		if( $this->_loaded_from_cache )
-//		{
-//			if( $this->_index < (count($this->_rowbuffer)-1) )
-//			{
-//				$this->_index++;
-//				$this->_current = $this->_rowbuffer[$this->_index];
-//				return $this->_current !== false;
-//			}
-//		}
-		$this->fetch();
-		return $this->_current !== false;
-	}
-	
-	function GetArray($nRows=-1)
-	{
-		$res = array();
-		while( $nRows != count($res) && !$this->EOF )
-		{
-			$res[] = $this->fields;
-			$this->MoveNext();
-		}
-		return $res;
-	}
-	
-	function GetRowAssoc($upper=1)
-	{
-		$res = array();
-		foreach( $this->fields as $k=>$v )
-			if( !is_integer($k) )
-				$res[$k] = $v;
-		
-		switch($upper)
-		{
-			case 0: return array_change_key_case($res,CASE_LOWER);
-			case 1: return array_change_key_case($res,CASE_UPPER);
-		}
-		return $res;
-	}
-	
-	function GetRows($nRows = -1) 
-	{
-		$arr = $this->GetArray($nRows);
-		return $arr;
-	}
-	
-	function MaxRecordCount()
-	{
-		if( !$this->GetPagingInfo() )
-			return false;
-		return $this->_paging_info['total_rows'];
-	}
-	
-	function AbsolutePage($page=-1)
-	{
-		// this should in fact be getter and setter but we ignore it as it is just used as getter
-		if( !$this->GetPagingInfo() )
-			return false;
-		return $this->_paging_info['current_page'];
-	}
-	
-	function LastPageNo($page = false)
-	{
-		// this should in fact be getter and setter but we ignore it as it is just used as getter
-		if( !$this->GetPagingInfo() )
-			return false;
-		return $this->_paging_info['total_pages'];
-	}
-	
-	/*--- Some shortcut methods ---*/
-	
+	/**
+	 * Returns all values for a specified column
+	 * 
+	 * Will build an array with all values for the specified column in this result sets rows.
+	 * <code php>
+	 * $ids = $dataSource->ExecuteSql("SELECT * FROM my_table WHERE id<1000")->Enumerate("id");
+	 * </code>
+	 * @param string $column_name Column to enumerate values for
+	 * @param bool $distinct True to array_unique, false to keep duplicates
+	 * @return type
+	 */
 	function Enumerate($column_name, $distinct=true)
 	{
 		if( !$this->_data_fetched )
