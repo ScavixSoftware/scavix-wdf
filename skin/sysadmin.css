@@ -3,8 +3,33 @@ body.sysadmin
     font-family: Verdana,Arial,serif;
     font-size: 12px;
     font-weight: normal;
-	padding: 0;
-	margin: 30px 0 0 30px;
+	padding: 0px;
+	margin: 0px;
+}
+
+body.sysadmin .content
+{
+    margin: 20px;
+    min-height: 600px;
+}
+
+body.sysadmin .footer
+{
+    margin-top: 50px;
+    text-align: center;
+}
+
+body.sysadmin .footer a,
+body.sysadmin .footer a:visited
+{
+    color: #8f8f8f;
+}
+
+body.sysadmin .clearer
+{
+	clear: both;
+	line-height: 0px;
+	font-size: 0px;
 }
 
 /* tables */
@@ -66,8 +91,10 @@ body.sysadmin form.login table
 /* navigation */
 body.sysadmin div.navigation
 {
-	background-color: white;
-    border-left: 1px dotted gray;
+	background-color: #d9d9d9;
+    border-bottom: 1px dotted #5d5d5d;
+    
+/*    border-left: 1px dotted gray;
     border-bottom: 1px dotted gray;
     display: block;
     margin: 0;
@@ -76,7 +103,7 @@ body.sysadmin div.navigation
 	position: fixed;
 	right: 0;
 	top: 0;
-	z-index: 99999;
+	z-index: 99999;*/
 }
 
 body.sysadmin div.navigation a,
@@ -85,20 +112,41 @@ body.sysadmin div.navigation a:visited
 {
     text-decoration: none;
     text-align: center;
-    width: 100%;
 	white-space: nowrap;
 	overflow: hidden;
     border: 1px solid gray;
     padding: 5px;
     display: inline-block;
-    margin-right: 2px;
+    margin: 4px;
     color: black;
+    background-color: #d2d2d2;
 }
 
-body.sysadmin div.navigation a:hover,
+body.sysadmin div.navigation a:hover
+{
+    background-color: orange;
+}
+
 body.sysadmin div.navigation a.current
 {
     background-color: orange;
+    font-weight: bold;
+}
+
+body.sysadmin div.navigation a.logout,
+body.sysadmin div.navigation a:visited.logout
+{
+    text-decoration: underline;
+    text-align: center;
+	white-space: nowrap;
+	overflow: hidden;
+    border: 0px;
+    padding: 5px;
+    display: inline-block;
+    margin: 4px;
+    color: black;
+    background-color: transparent;
+    float: right;
 }
 
 /* new string editor */
@@ -146,4 +194,10 @@ body.sysadmin .phpinfo .tbody .tr:nth-child(even)
 body.sysadmin .phpinfo .tbody .tr .td:nth-child(3)
 {
 	color: gray;
+}
+
+body.sysadmin a,
+body.sysadmin a:visited
+{
+    color: #484848;
 }
