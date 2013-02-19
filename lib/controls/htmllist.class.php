@@ -23,7 +23,11 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
-
+/**
+ * Represents an (un-)ordered list in HTML (ul/ol)
+ * 
+ * Usefule if you want to bind AJAX to navigation which is often created as list.
+ */
 class HtmlList extends Control
 {
 	var $items = array();
@@ -41,6 +45,13 @@ class HtmlList extends Control
 		store_object($this);
 	}
 	
+	/**
+	 * Adds an item to the list.
+	 * 
+	 * @param mixed $content Content to be added
+	 * @param string $id Optional id for the created item
+	 * @return ListItem Created item or null if `is_empty($content)`
+	 */
 	function &AddItem($content,$id = "")
 	{
 		if(empty($content))

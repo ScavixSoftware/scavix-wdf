@@ -23,6 +23,10 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * Wraps an HTML &ltform&gt; element.
+ * 
+ */
 class Form extends Control
 {
     function __initialize()
@@ -31,6 +35,16 @@ class Form extends Control
 		$this->method = 'post';
 	}
 	
+	/**
+	 * Creates and adds an input control
+	 * 
+	 * $type may be one of: 'text' 'password' 'hidden' 'file' 'checkbox'
+	 * returns objects of type <TextInput> <PasswordInput> <HiddenInput> <FileInput> <CheckBox>
+	 * @param string $type See above for valid values
+	 * @param string $name name for the element created
+	 * @param string $value Value to be assigned (may be any valuetype)
+	 * @return Control The created control
+	 */
 	function AddInput($type,$name,$value='')
 	{
 		switch($type)
@@ -57,11 +71,29 @@ class Form extends Control
 		return $inp;
 	}
 	
+	/**
+	 * @shortcut <Form::AddInput>('text',$name,$value)
+	 */
 	function AddText($name, $value){ return $this->AddInput('text', $name, $value); }
+	
+	/**
+	 * @shortcut <Form::AddInput>('password',$name,$value)
+	 */
 	function AddPassword($name, $value){ return $this->AddInput('password', $name, $value); }
+	
+	/**
+	 * @shortcut <Form::AddInput>('hidden',$name,$value)
+	 */
 	function AddHidden($name, $value){ return $this->AddInput('hidden', $name, $value); }
+	
+	/**
+	 * @shortcut <Form::AddInput>('file',$name,$value)
+	 */
 	function AddFile($name){ return $this->AddInput('file', $name); }
 	
+	/**
+	 * @shortcut <Form::AddInput>('checkbox',$name,$value)
+	 */
 	function AddCheckbox($name,$label=false)
 	{
 		$res = $this->AddInput('checkbox', $name);
@@ -70,8 +102,22 @@ class Form extends Control
 		return $res;
 	}
     
+	/**
+	 * Creates and adds a <SubmitButton>.
+	 * 
+	 * @param string $label Label of the button
+	 * @return SubmitButton The created button
+	 */
     function AddSubmit($label){ return $this->content( new SubmitButton($label) ); }
 	
+	/**
+	 * Creates a standard AJAX submit action
+	 * 
+	 * Will create everything needed to post this form via AJAX to a PHP-side handler.
+	 * @param object $controller Handler object
+	 * @param string $event Handler method name
+	 * @return Form `$this`
+	 */
 	function AjaxSubmitTo($controller,$event)
 	{
 		$s = AjaxAction::Post($controller,$event,"$(this).serializeArray()");

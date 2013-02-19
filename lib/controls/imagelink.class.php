@@ -23,6 +23,9 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * &lt;a&gt; element containing an &lt;img&gt;
+ */
 class ImageLink extends Control
 {
 	function __initialize($src, $title, $link="", $margin="")
@@ -37,6 +40,10 @@ class ImageLink extends Control
 		$this->CloseTagNeeded();
 	}
 
+	/**
+	 * Sets the images 'style' attribute
+	 * @deprecated This is so old-school that it will be removed
+	 */
 	function SetImgStyle($style)
 	{
 		$this->InnerImage->style = $style;

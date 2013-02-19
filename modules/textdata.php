@@ -27,6 +27,7 @@
  * Initializes the textdata module
  * 
  * This module provides functions for text-file processing
+ * @return void
  */
 function textdata_init()
 {

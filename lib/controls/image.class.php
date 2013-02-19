@@ -23,6 +23,10 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * &lt;img&gt; element.
+ * 
+ */
 class Image extends Control
 {
 	function __initialize($src=null, $title="", $border="0", $style="", $id=false)

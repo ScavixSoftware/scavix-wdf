@@ -32,8 +32,6 @@ class PhpDocComment
 {
 	var $ShortDesc = "";
 	var $LongDesc = "";
-	var $LongDescSkipped = false;
-	var $IsInternal = false;
 	var $Tags = array();
 	var $Attributes = array();
 	
@@ -68,11 +66,7 @@ class PhpDocComment
 		{
 			$isMatch = preg_match('/^@attribute/',trim($m[1]));
 			if ($isMatch !== false && $isMatch == 0)
-			{
 				$res->LongDesc = trim($m[1]);
-				if( !$res->LongDesc )
-					$res->LongDescSkipped = true;
-			}
 		}
 		
 		preg_match_all('/^@([^\s]+)\s([^@]*)/ms',$comment,$m,PREG_SET_ORDER);
@@ -92,19 +86,8 @@ class PhpDocComment
 			);
 		}
 		
-		if( !$res->LongDesc && !$res->LongDescSkipped && $res->ShortDesc && ends_with($res->ShortDesc, '.') )
-			$res->LongDescSkipped = true;
-		
-		$t = $res->getTag('internal',array('desc'));
-		$res->IsInternal = $t && isset($t[0]);
-		if( $res->IsInternal )
-		{
-			if( !$res->ShortDesc )
-			$res->ShortDesc = $t[0]->desc;
-			if( !$res->LongDesc )
-				$res->LongDescSkipped = true;
-		}
-		
+		if( !$res->LongDesc && $res->ShortDesc && ends_with($res->ShortDesc, '.') )
+			$res->LongDesc = '';
 		return $res;
 	}
 	
@@ -139,6 +122,52 @@ class PhpDocComment
 			}
 		}
 		return $this->_tagbuf[$name];
+	}
+	
+	/**
+	 * Check if theres at least one of the given annotations present
+	 * 
+	 * Will use all given arguments as input
+	 * <code php>
+	 * $dc->hasOne('internal','deprecated','override');
+	 * </code>
+	 * @return bool true or false
+	 */
+	function hasOne()
+	{
+		foreach( func_get_args() as $name )
+			if( $this->has($name) )
+				return true;
+		return false;
+	}
+	
+	/**
+	 * Checks if there's a specific annotation present.
+	 * 
+	 * @param string $name Name of annotation to check
+	 * @return bool true or false
+	 */
+	function has($name)
+	{
+		foreach( $this->Tags as $t )
+			if( $t['tag'] == $name )
+				return true;
+		return false;
+	}
+	
+	/**
+	 * Returns a specific annotation
+	 * 
+	 * If scheme is `<at>mySomething This is my comment` you can call it like `get('mySomething');`
+	 * @param string $name Name of the annotation
+	 * @return mixed The description (may be empty) or false
+	 */
+	function get($name)
+	{
+		$tag = $this->getTag($name,array('desc'));
+		if( count($tag) == 0 )
+			return false;
+		return $tag[0]->desc;
 	}
 	
 	/**
@@ -191,10 +220,7 @@ class PhpDocComment
 	 */
 	function getDeprecated()
 	{
-		$tag = $this->getTag('deprecated',array('desc'));
-		if( count($tag) == 0 )
-			return false;
-		return $tag[0]->desc;
+		return $this->get('deprecated');
 	}
 	
 	/**
@@ -206,12 +232,46 @@ class PhpDocComment
 	 */
 	function RenderAsMD()
 	{
-		$desc = $this->ShortDesc?$this->ShortDesc:'';
-		$desc .= $this->LongDesc?"\n{$this->LongDesc}":'';
-		if( $this->IsInternal )
-			$desc = "**INTERNAL** $desc";
-		$desc = str_replace(array('<at>','<code>','</code>'),array('@','```','```'),$desc);
+		$desc  = $this->ShortDesc?$this->ShortDesc:'';
+		$desc .= $this->LongDesc?"\t\n".str_replace("\n","\t\n",$this->LongDesc):'';
+		
+		$internal = $this->get('internal');
+		if( $internal !== false )
+			$desc = "**INTERNAL** $internal\t\n$desc";
+
+		$deprecated = $this->getDeprecated();
+		if( $deprecated  !== false )
+			$desc = "**DEPRECATED** $deprecated\t\n$desc";
+
+		$override = $this->get('override');
+		if( $override !== false )
+			$desc = "**OVERRIDE** $override\t\n$desc";
+
+		$shortcut = $this->get('shortcut');
+		if( $shortcut !== false )
+			$desc = "**SHORTCUT** $shortcut\t\n$desc";
+		
+		if( !$this->entities )
+		{
+			$this->entities = array();
+			$this->mdEscapeEntity($this->entities,'ul');
+			$this->mdEscapeEntity($this->entities,'ol');
+			$this->mdEscapeEntity($this->entities,'li');
+			$this->mdEscapeEntity($this->entities,'input');
+			$this->mdEscapeEntity($this->entities,'img');
+		}
+		
+		$desc = str_replace(array('<at>','<b>','</b>','<code>','</code>','<br/>'),array('@','**','**','```','```',"\t\n"),$desc);
+		$desc = str_replace(array_keys($this->entities),array_values($this->entities),$desc);
 		$desc = preg_replace('/<code ([^>]*)>/','```$1', $desc);
 		return $desc;
+	}
+	
+	var $entities = false;
+	private function mdEscapeEntity(&$data,$what)
+	{
+		$data["<$what>"] = htmlspecialchars("<$what>");
+		$data["<$what/>"] = htmlspecialchars("<$what/>");
+		$data["</$what>"] = htmlspecialchars("</$what>");
 	}
 }

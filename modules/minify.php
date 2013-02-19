@@ -27,6 +27,7 @@
  * Initializes the minify module.
  * 
  * Note that this module can be used best from SysAdmin!
+ * @return void
  */
 function minify_init()
 {

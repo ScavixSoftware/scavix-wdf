@@ -31,24 +31,10 @@ define('globalcache_CACHE_APC',4);
 define('globalcache_CACHE_DB',5);
 
 /**
- * functions to handle a global cache, which is independant from session
- * implementation based on memcachd, eaccelerator or Zend_Cache
+ * Initializes the globalcache module.
+ * 
+ * @return void
  */
-class globalcache
-{
-	const CACHE_OFF = 0;
-	const CACHE_EACCELERATOR = 1;
-	const CACHE_MEMCACHE = 2;
-	const CACHE_ZEND = 3;
-	const CACHE_APC = 4;
-
-	static function cleanupkey($key)
-	{
-		// Zend only allows A-Za-z0-9 characters:
-		return preg_replace("/[^A-Za-z0-9]/", "", $key);
-	}
-}
-
 function globalcache_init()
 {
 	global $CONFIG;
@@ -64,6 +50,21 @@ function globalcache_init()
     register_hook_function(HOOK_POST_INIT,'globalcache_initialize');
 }
 
+/**
+ * Cleans up a key
+ * 
+ * Zend only allows A-Za-z0-9 characters, so everything else will be stripped out
+ * @param string $key The key to be cleaned up
+ * @return string Valid key
+ */
+function globalcache_cleanupkey($key)
+{
+	return preg_replace("/[^A-Za-z0-9]/", "", $key);
+}
+
+/**
+ * @internal Delayed init method
+ */
 function globalcache_initialize()
 {
     global $CONFIG, $LOCALHOST;
@@ -156,10 +157,12 @@ function globalcache_initialize()
 }
 
 /**
- * save a value/object in the global cache
- * @param <string> $key the key of the value
- * @param <mixed> $value the object/string to save
- * @param <int> $ttl time to live (in seconds) of the caching
+ * Save a value/object in the global cache.
+ * 
+ * @param string $key the key of the value
+ * @param mixed $value the object/string to save
+ * @param int $ttl time to live (in seconds) of the caching
+ * @return bool true if ok, false on error
  */
 function globalcache_set($key, $value, $ttl = false)
 {
@@ -182,7 +185,7 @@ function globalcache_set($key, $value, $ttl = false)
 
 			case globalcache_CACHE_ZEND:
 //				log_error("setting $key = $value");
-				return $GLOBALS["zend_cache_object"]->save($value, globalcache::cleanupkey($GLOBALS["globalcache_key_prefix"].$key), array(), $ttl);
+				return $GLOBALS["zend_cache_object"]->save($value, globalcache_cleanupkey($GLOBALS["globalcache_key_prefix"].$key), array(), $ttl);
 				break;
 
 			case globalcache_CACHE_EACCELERATOR:
@@ -240,10 +243,11 @@ function globalcache_set($key, $value, $ttl = false)
 }
 
 /**
- * get a value/object from the global cache
- * @param <string> $key the key of the value
- * @param <mixed> $default a default return value if the key can not be found in the cache
- * @return <type>
+ * Get a value/object from the global cache.
+ * 
+ * @param string $key the key of the value
+ * @param mixed $default a default return value if the key can not be found in the cache
+ * @return mixed The object from the cache or `$default`
  */
 function globalcache_get($key, $default = false)
 {
@@ -264,7 +268,7 @@ function globalcache_get($key, $default = false)
 				break;
 
 			case globalcache_CACHE_ZEND:
-				$ret = $GLOBALS["zend_cache_object"]->load(globalcache::cleanupkey($GLOBALS["globalcache_key_prefix"].$key));
+				$ret = $GLOBALS["zend_cache_object"]->load(globalcache_cleanupkey($GLOBALS["globalcache_key_prefix"].$key));
 				return ($ret === false)?$default:$ret;
 				break;
 
@@ -300,7 +304,9 @@ function globalcache_get($key, $default = false)
 }
 
 /**
- * empty the whole cache
+ * Empty the whole cache.
+ * 
+ * @return bool true if ok, false on error
  */
 function globalcache_clear()
 {
@@ -339,10 +345,12 @@ function globalcache_clear()
 }
 
 /**
- * delete a value from the global cache
- * @param <string> $key the key of the value
- * @param <mixed> $value the object/string to save
- * @param <int> $ttl time to live (in seconds) of the caching
+ * Delete a value from the global cache.
+ * 
+ * @param string $key the key of the value
+ * @param mixed $value the object/string to save
+ * @param int $ttl time to live (in seconds) of the caching
+ * @return bool true if ok, false on error
  */
 function globalcache_delete($key)
 {
@@ -361,7 +369,7 @@ function globalcache_delete($key)
 			break;
 
 		case globalcache_CACHE_ZEND:
-			return $GLOBALS["zend_cache_object"]->remove(globalcache::cleanupkey($GLOBALS["globalcache_key_prefix"].$key));
+			return $GLOBALS["zend_cache_object"]->remove(globalcache_cleanupkey($GLOBALS["globalcache_key_prefix"].$key));
 			break;
 
 		case globalcache_CACHE_EACCELERATOR:
@@ -381,6 +389,12 @@ function globalcache_delete($key)
 	return false;
 }
 
+/**
+ * Returns information about the cache usage.
+ * 
+ * Note: this currently returns various different information and format thus needs to be streamlined.
+ * @return mixed Cache information
+ */
 function globalcache_info()
 {
     if( !hook_already_fired(HOOK_POST_INIT) )
@@ -452,6 +466,11 @@ function globalcache_info()
 	return $ret;
 }
 
+/**
+ * Gets a list of all keys in the cache.
+ * 
+ * @return array list of all keys
+ */
 function globalcache_list_keys()
 {
     if( !hook_already_fired(HOOK_POST_INIT) )

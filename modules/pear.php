@@ -25,6 +25,7 @@
 
 /**
  * Initializes the pear module.
+ * @return void
  */
 function pear_init()
 {

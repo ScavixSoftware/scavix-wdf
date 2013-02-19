@@ -23,6 +23,11 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * Initializes the mail module.
+ * 
+ * @return void
+ */
 function mail_init()
 {
 	global $CONFIG;

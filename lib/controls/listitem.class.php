@@ -23,6 +23,9 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * &lt;li&gt; element
+ */
 class ListItem extends Control
 {
 	function __initialize($content,$id = "")
