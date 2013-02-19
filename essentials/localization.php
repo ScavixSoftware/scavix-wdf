@@ -225,8 +225,11 @@ class Localization
 		$ci = internal_getCultureInfo($code);
 		if( !$ci )
 		{
+            if(isset($CONFIG['localization']['default_culture']))
+                $ci = internal_getCultureInfo($CONFIG['localization']['default_culture']);
+            
 //			log_error("NO CI $code");
-			return false;
+			return $ci;
 		}
 		$arBufferedCultures["C".$code] = clone $ci;
 		return $ci;
