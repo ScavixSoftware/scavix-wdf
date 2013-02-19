@@ -347,7 +347,7 @@ function system_execute()
 	}
 	
 	execute_hooks(HOOK_POST_EXECUTE);
-	set_time_limit(ini_get('max_execution_time'));
+	@set_time_limit(ini_get('max_execution_time'));
 	if( !isset($content) || !$content )
 		$content = $current_controller;
 
