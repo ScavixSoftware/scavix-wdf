@@ -169,6 +169,7 @@ class TranslationAdmin extends SysAdmin
             $res = $this->request(array('action'=>'update_language','language'=>$CONFIG['localization']['default_language'],'data'=>$data));
 			if( !$res )
 				return AjaxResponse::Error("Could not set initial term content: ".$this->Lasterror,true);
+            cache_del('lang_'.$term);
         }
         
         return $this->DeleteString($term);
