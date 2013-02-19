@@ -60,8 +60,10 @@ class uiAccordion extends uiControl
 	}
 
 	/**
-	 * Adds a Section to the accordion, also returns the div for the new section
-	 * @param <type> $section_title name of the section
+	 * Adds a Section to the accordion
+	 * 
+	 * Also returns the div for the new section
+	 * @param string $section_title name of the section
 	 * @return Control the content container for the created
 	 */
 	public function &AddSection($section_title)

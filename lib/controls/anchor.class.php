@@ -24,7 +24,9 @@
  */
  
 /**
- * HTML anchor element.
+ * HTML anchor element
+ * 
+ * Wraped as control to allow to inherit from this class and add code for AJAX handling in that derivered classes.
  */
 class Anchor extends Control
 {
@@ -47,6 +49,12 @@ class Anchor extends Control
 		$this->CloseTagNeeded();
 	}
 	
+	/**
+	 * Overrides <Control::WdfRender>
+	 * 
+	 * Ensures that there's a valid href attribute, if not adds "javascript:{}" to it.
+	 * @return string `parent::WdfRender()`
+	 */
 	public function WdfRender()
 	{
         if($this->href == "")

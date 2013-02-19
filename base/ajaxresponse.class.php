@@ -23,16 +23,26 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * Helper class to easily create standard AJAX responses.
+ */
 class AjaxResponse
 {
 	var $_data = false;
 	var $_text = false;
 	
+	/**
+	 * This is a valid Noop return
+	 */
 	public static function None()
 	{
 		return new AjaxResponse();
 	}
 	
+	/**
+	 * Return just script code to be executed clientside immetiately
+	 * If $abort_handling is true the clietside success/error handling will not be polled
+	 */
 	public static function Js($script=false,$abort_handling=false)
 	{
 		$data = new stdClass();
@@ -42,6 +52,9 @@ class AjaxResponse
 		return AjaxResponse::Json($data);
 	}
 	
+	/**
+	 * Return data JSON formatted ($data can be anything!)
+	 */
 	public static function Json($data=null)
 	{
 		$res = new AjaxResponse();
@@ -50,6 +63,9 @@ class AjaxResponse
 		return $res;
 	}
 	
+	/**
+	 * Return a plain text. Did never use this, but there may be a use case.
+	 */
 	public static function Text($text=false)
 	{
 		$res = new AjaxResponse();
@@ -58,6 +74,9 @@ class AjaxResponse
 		return $res;
 	}
 	
+	/**
+	 * Return a Controller (with full init-code)
+	 */
 	public static function Renderable(Renderable $content)
 	{
 		$wrapped = new stdClass();
@@ -68,7 +87,7 @@ class AjaxResponse
 		
 		foreach( $content->__collectResources() as $r )
 		{
-			if( ends_with($r, '.css') )
+			if( starts_with(pathinfo($r,PATHINFO_EXTENSION), 'css') )
 				$wrapped->dep_css[] = $r;
 			else
 				$wrapped->dep_js[] = $r;
@@ -76,6 +95,10 @@ class AjaxResponse
 		return AjaxResponse::Json($wrapped);
 	}
 	
+	/**
+	 * Return an error.
+	 * If $abort_handling is true the clietside error handling will not be polled
+	 */
 	public static function Error($message,$abort_handling=false)
 	{
 		$data = new stdClass();
@@ -84,12 +107,19 @@ class AjaxResponse
 		return AjaxResponse::Json($data);
 	}
 	
+	/**
+	 * Let the client redirect.
+	 */
 	public static function Redirect($controller,$event='',$data='')
 	{
 		$q = buildQuery($controller,$event,$data);
 		return AjaxResponse::Js("wdf.redirect('$q');");
 	}
 	
+	/**
+	 * INTERNAL!
+	 * Renders the response for output.
+	 */
 	function Render()
 	{
 		if( $this->_data )

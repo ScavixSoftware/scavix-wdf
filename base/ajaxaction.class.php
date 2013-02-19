@@ -22,7 +22,10 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
+
+/**
+ * Helper class to build common JavaScript codes for usage in AJAX aware controls.
+ */
 class AjaxAction
 {
 	private static function _data($data)
@@ -38,11 +41,27 @@ class AjaxAction
 		return '';
 	}
 	
+	/**
+	 * Creates a valid URL to a controler('s method)
+	 * @param Renderable|string $controller Controller object, Classname or _storage_id of the controller
+	 * @param string $event Optional method to be called
+	 * @return string A valid URL for use in JavaScript wdf object
+	 */
 	public static function Url($controller,$event='')
 	{
+		if( $controller instanceof HtmlPage )
+			$controller = log_return("Using classname instead of id to reference controller:",get_class($controller));
 		return ($controller instanceof Renderable)?"{$controller->_storage_id}/$event":"$controller/$event/";
 	}
 	
+	/**
+	 * Creates a wdf.post call
+	 * @param Renderable|string $controller Controller to call
+	 * @param string $event Method to call
+	 * @param string|array $data Data to be posted
+	 * @param string $callback JS callback method
+	 * @return string Valid JS code performing wdf.post
+	 */
 	public static function Post($controller,$event='',$data='',$callback='')
 	{
 		$q = self::Url($controller,$event);
@@ -52,6 +71,18 @@ class AjaxAction
 		return "wdf.post('$q'$data$callback);";
 	}
 	
+	/**
+	 * High level confirm procedure.
+	 * 
+	 * This will return a standard confirmation dialog that will perform the specified action
+	 * when OK is clicked. Will also set a session variable so that the OK action PHP side code
+	 * can simply test with <AjaxAction::IsConfirmed>($text_base) if the confirmation was really shown and accepted by the user.
+	 * @param string $text_base Text constants basename (like CONFIRMATION). Confirmation will need TITLE_$text_base and TXT_$text_base
+	 * @param Renderable|string $controller Controller for OK action
+	 * @param string $event Method for OK action
+	 * @param string|array $data Data for OK action
+	 * @return uiConfirmation Dialog ready to be shown to the user
+	 */
 	public static function Confirm($text_base,$controller,$event='',$data='')
 	{
 		$dlg = new uiConfirmation($text_base);
@@ -65,6 +96,12 @@ class AjaxAction
 		return $dlg;
 	}
 	
+	/**
+	 * Checks if the user has seen and accepted a confirmation.
+	 * See <AjaxAction::Confirm>
+	 * @param string $text_base Text base the user confirmed
+	 * @return boolean True if user clicked OK
+	 */
 	public static function IsConfirmed($text_base)
 	{
 		if( isset($_SESSION['ajax_confirm'][$text_base]) && $_SESSION['ajax_confirm'][$text_base] == Args::request('confirmed',false) )

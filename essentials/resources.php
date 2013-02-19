@@ -34,7 +34,9 @@ function resources_init()
 		$CONFIG['resources'] = array();
 	
 	if( !isset($CONFIG['resources_system_url_root']) || !$CONFIG['resources_system_url_root'] )
-		$CONFIG['resources_system_url_root'] = $CONFIG['system']['url_root'].'WdfResource/';
+		$CONFIG['resources_system_url_root'] = can_rewrite()
+			?$CONFIG['system']['url_root'].'WdfResource/'
+			:$CONFIG['system']['url_root'].'?wdf_route=WdfResource/';
 
 	
 	foreach( $CONFIG['resources'] as $i=>$conf )
@@ -90,7 +92,9 @@ function resourceExists($filename, $return_url = false, $as_local_path = false)
 			return $conf['path'].'/'.$filename;
 			
 		$nc = $conf['append_nc']?$cnc:'';
-		$res = $conf['url'].$nc.$filename;
+		$res = can_nocache()
+			?$conf['url'].$nc.$filename
+			:$conf['url'].$filename."?_nc=".substr($nc,2,-1);
 		cache_set($key, $res);
 		return $return_url?$res:true;
 	}
@@ -117,10 +121,28 @@ function resFile($filename, $as_local_path = false)
  */
 class WdfResource implements ICallable
 {
-	function __construct()
+	/**
+	 * @attribute[RequestParam('res','string')]
+	 */
+	function js($res)
 	{
-		$res = explode("WdfResource",$_SERVER['PHP_SELF']);
-		$res = realpath(__DIR__.'/../'.$res[1]);
+		$res = explode("?",$res);
+		$res = realpath(__DIR__."/../js/".$res[0]);
+		
+		header('Content-Type: text/javascript');
+		readfile($res);
+		die();
+	}
+	
+	/**
+	 * @attribute[RequestParam('res','string')]
+	 */
+	function skin($res)
+	{
+		$res = explode("?",$res);
+		$res = realpath(__DIR__."/../skin/".$res[0]);
+		
+		header('Content-Type: text/css');
 		readfile($res);
 		die();
 	}

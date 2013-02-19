@@ -24,12 +24,18 @@
  */
 
 /**
+ * WDF sysadmin page
+ * 
+ * This is a tweak mechanism that allows you to manage your application.
+ * For example you can create strings, manage the cache and check the PHP configuration.
  * @attribute[NoMinify]
  */
 class SysAdmin extends HtmlPage
 {
 	var $PrefedinedCacheSearches = array('autoload_template','autoload_class',
 		'lang_','method_','ref_attr_','resource_','filemtime_','doccomment_','DB_Cache_');
+    
+    protected $_contentdiv = false;
 	
 	function __initialize($title = "", $body_class = false)
     {
@@ -58,21 +64,40 @@ class SysAdmin extends HtmlPage
 			
 			foreach( $CONFIG['system']['admin']['actions'] as $label=>$def )
 				$nav->content( new Anchor(buildQuery($def[0],$def[1]),$label) );
-            $nav->content( new Anchor(buildQuery('SysAdmin','Cache'),'Cache') );
-            $nav->content( new Anchor(buildQuery('SysAdmin','PhpInfo'),'PHP info') );
-            $nav->content( new Anchor(buildQuery('SysAdmin','Testing'),'Testing') );
-            $nav->content( new Anchor(buildQuery('SysAdmin','Logout'),'Logout') );
-            $nav->content( new Anchor(buildQuery('',''),'Back to app') );
+            $nav->content( new Anchor(buildQuery('SysAdmin','Cache'),'Cache') )
+                ->content( new Anchor(buildQuery('SysAdmin','PhpInfo'),'PHP info') )
+                ->content( new Anchor(buildQuery('SysAdmin','Testing'),'Testing') )
+                ->content( new Anchor(buildQuery('',''),'Back to app') )
+                ->content( new Anchor(buildQuery('SysAdmin','Logout'),'Logout', 'logout') );
         }
+        
+        $this->_contentdiv = $this->addContent(new Control('div'))
+                ->addClass('content');
+        
+        $this->addContent(new Control('br'))
+                ->addClass('clearer');
+        $copylink = new Anchor('http://www.scavix.com', '&copy; 2012-'.date('Y').' Scavix&reg; Software Ltd. &amp; Co. KG');
+        $copylink->target = '_blank';
+        $this->addContent(new Control('div'))
+                ->addClass('footer')
+                ->content($copylink);
+        
+        if( (current_event() == strtolower($CONFIG['system']['default_event'])) && !system_method_exists($this, current_event()) )
+            redirect('SysAdmin', 'Index');
     }
 	
+	/**
+	 * SysAdmin index page.
+	 */
 	function Index()
 	{
-		$this->addContent("<h1>Welcome,</h1>");
-		$this->addContent("<p>please select an action on the top-right.</p>");
+		$this->_contentdiv->content("<h1>Welcome,</h1>");
+		$this->_contentdiv->content("<p>please select an action from the top menu.</p>");
 	}
 	
     /**
+	 * SysAdmin login page.
+	 * 
      * @attribute[RequestParam('username','string',false)]
      * @attribute[RequestParam('password','string',false)]
      */
@@ -82,7 +107,8 @@ class SysAdmin extends HtmlPage
         
         if( $username===false || $password===false )
         {
-            $this->AddContent(new SysAdminLogin());
+            $this->AddContent("<br/><br/>");
+            $this->AddContent(Template::Make('sysadminlogin'));
             return;
         }
         
@@ -95,6 +121,7 @@ class SysAdmin extends HtmlPage
 	}
     
     /**
+	 * SysAdmin logout event.
      */
     function Logout()
     {
@@ -104,15 +131,17 @@ class SysAdmin extends HtmlPage
     }
 	
 	/**
+	 * SysAdmin cache manager.
+	 * 
 	 * @attribute[RequestParam('search','string',false)]
 	 * @attribute[RequestParam('show_info','bool',false)]
 	 * @attribute[RequestParam('kind','string','Search key')]
      */
     function Cache($search,$show_info,$kind)
     {
-		$this->addContent("<h1>Cache contents</h1>");
+		$this->_contentdiv->content("<h1>Cache contents</h1>");
 		
-		$form = $this->addContent( new Form() );
+		$form = $this->_contentdiv->content( new Form() );
 		$form->AddText('search',$search);
 		$form->AddSubmit('Search key')->name = 'kind';
 		$form->AddSubmit('Search content')->name = 'kind';
@@ -160,8 +189,8 @@ class SysAdmin extends HtmlPage
 				$_SESSION['admin_handler_last_cache_searches'] = array_unique($_SESSION['admin_handler_last_cache_searches']);
 			}
 			
-			$this->addContent("<br/>");
-			$tabform = $this->addContent( new Form() );
+			$this->_contentdiv->content("<br/>");
+			$tabform = $this->_contentdiv->content( new Form() );
 			$tabform->action = buildQuery('SysAdmin','CacheDelMany');
 			$tab = $tabform->content(new Table())->addClass('bordered');
 			$tab->SetHeader('','key','action');
@@ -193,6 +222,7 @@ class SysAdmin extends HtmlPage
     }
 	
 	/**
+	 * SysAdmin cache manager: delete event.
 	 * @attribute[RequestParam('key','string',false)]
      */
     function CacheDel($key)
@@ -202,6 +232,8 @@ class SysAdmin extends HtmlPage
 	}
 	
 	/**
+	 * SysAdmin cache manager: delete many event.
+	 * 
 	 * @attribute[RequestParam('keys','array',array())]
      */
 	function CacheDelMany($keys)
@@ -212,6 +244,7 @@ class SysAdmin extends HtmlPage
 	}
 	
 	/**
+	 * SysAdmin cache manager: clear event.
      */
 	function CacheClear()
 	{
@@ -220,6 +253,8 @@ class SysAdmin extends HtmlPage
 	}
 	
 	/**
+	 * SysAdmin phpinfo.
+	 * 
 	 * @attribute[RequestParam('extension','string',false)]
 	 * @attribute[RequestParam('search','string',false)]
 	 */
@@ -238,7 +273,7 @@ class SysAdmin extends HtmlPage
 		}
 		ksort($data);
 		
-		$tab = $this->addContent( Table::Make() );
+		$tab = $this->_contentdiv->content( Table::Make() );
 		$tab->addClass('phpinfo')
 			->SetCaption("Basic information")
 			->AddNewRow("PHP version",phpversion())
@@ -253,7 +288,7 @@ class SysAdmin extends HtmlPage
 			->AddNewRow("Stream filters",implode(', ',stream_get_filters()))
 			;
 		
-		$ext_nav = $this->addContent(new Control('div'))->css('margin-bottom','25px');
+		$ext_nav = $this->_contentdiv->content(new Control('div'))->css('margin-bottom','25px');
 		$ext_nav->content("Select extension: ");
 		$sel = $ext_nav->content(new Select());
 		$ext_nav->content("&nbsp;&nbsp;&nbsp;Or search: ");
@@ -261,8 +296,8 @@ class SysAdmin extends HtmlPage
 		$tb->value = $search;
 		
 		$q = buildQuery('SysAdmin','PhpInfo');
-		$sel->onchange = "location.href='$q?extension='+$(this).val()";
-		$tb->onkeydown = "if( event.which==13 ) location.href='$q?search='+$(this).val()";
+		$sel->onchange = "wdf.redirect({extension:$(this).val()})";
+		$tb->onkeydown = "if( event.which==13 ) wdf.redirect({search:$(this).val()})";
 		
 		$get_version = function($ext)
 		{
@@ -293,7 +328,7 @@ class SysAdmin extends HtmlPage
 					
 					if( !$tab )
 					{
-						$tab = $this->content( new Table() )
+						$tab = $this->_contentdiv->content( new Table() )
 							->addClass('phpinfo')
 							->SetCaption($k.$get_version($k))
 							->SetHeader('Name','Local','Master');
@@ -307,24 +342,57 @@ class SysAdmin extends HtmlPage
 	}
 	
 	/**
+	 * This is just an entry point for testing.
+	 * 
+	 * Ignore!
 	 */
 	function Testing()
 	{
-		GoogleVisualization::$DefaultDatasource = model_datasource('system');
-		$chart = gvTable::Make("Unknown strings")
-			->setDbQuery('wdf_unknown_strings', "select term, hits")
-			->opt('width',500)
-			->opt('height',400)
-			->opt('pageSize',3)
-			->opt('page','enable');
-		$this->addContent($chart);
+//		GoogleVisualization::$DefaultDatasource = model_datasource('system');
+//		$chart = gvTable::Make("Unknown strings")
+//			->setDbQuery('wdf_unknown_strings', "select term, hits")
+//			->opt('width',500)
+//			->opt('height',400)
+//			->opt('pageSize',3)
+//			->opt('page','enable');
+//		$this->_contentdiv->content($chart);
+//		
+//		$map = gMap::Make()
+//			->css('width','500px')
+//			->css('height','400px')
+//			->AddMarker(-34.397, 150.644)
+//			->AddMarkerTitled(-14.397, 150.644, 'Huhuhu')
+//			->AddAddress("Rotdornweg 13a, 29389 Bad Bodenteich");
+//		$this->_contentdiv->content($map);
 		
-		$map = gMap::Make()
-			->css('width','500px')
-			->css('height','400px')
-			->AddMarker(-34.397, 150.644)
-			->AddMarkerTitled(-14.397, 150.644, 'Huhuhu')
-			->AddAddress("Rotdornweg 13a, 29389 Bad Bodenteich");
-		$this->addContent($map);
+		$tab = $this->_contentdiv->content( Table::Make() )
+			->SetCaption('Muhaha')
+			->SetHeader('H1','H2','H3')
+			->SetFooter('hmmmm')
+			->AddNewRow('eins','zwei','drei')
+			->AddNewRow('zwei','drei','eins')
+			->AddNewRow('drei','eins','zwei')
+			->script("$('#{self}').click(function(){ $(this).overlay();});");
+		
+		$this->_contentdiv->content( new Control('div') )
+			->script("$('#{self}').click(function(){ $('#{$tab->id}').overlay('remove');});")
+			->content('lorem lorem lorem lorem lorem lorem lorem lorem lorem ');
+			
+		$this->_contentdiv->content( new Control('div') )
+			->script("$('#{self}').click( function(){ wdf.post('sysaDmin/teStconfirm'); } );")
+			->content('confirm');
+	}
+	
+	/**
+	 * This is just an entry point for testing.
+	 * 
+	 * Ignore!
+	 */
+	function testconfirm()
+	{
+		log_debug("testconfirm()",$_REQUEST);
+		if( AjaxAction::IsConfirmed('CONFIRMATION') )
+			return AjaxResponse::Error('Jop!');
+		return AjaxAction::Confirm('CONFIRMATION', 'sysadmin', 'testconfirm');
 	}
 }

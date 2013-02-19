@@ -22,22 +22,17 @@
  * @copyright 2007-2012 PamConsult GmbH
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
-/*
-    Document   : label.class.php
-    Created on : Feb 24, 2009, 12:04:31 PM
-    Author     : Florian A. Talg
-    Description:
-	
-*/
+
+/**
+ * This represents a label element.
+ */
 class Label extends Control
 {
     function __initialize($name,$required=false,$for = "")
 	{
 		parent::__initialize("label");
 		$this->content($name.($required?"<font color=red>*</font>":""));
-		$this->AssignProperty("for", $for);
-		$this->CloseTagNeeded();
+		$this->for = ($for instanceof Control)?$for->id:$for;
 	}
 }
 ?>

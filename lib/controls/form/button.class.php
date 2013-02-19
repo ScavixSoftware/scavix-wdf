@@ -32,7 +32,7 @@ class Button extends Control
 		$this->value = $label;
 
 		if( $controller != "" && strpos($controller,"$") === false && strpos($controller,"?") === false )
-			$query = "document.location.href='".buildQuery($controller,$event,$data)."'";
+			$query = "wdf.redirect('".buildQuery($controller,$event,$data)."')";
 		else
 			$query = $controller;
 

@@ -88,15 +88,16 @@ class TranslationAdmin extends SysAdmin
     /**
      * @attribute[RequestParam('languages','array',false)]
      */
-    function Fetch($languages)
+    function Fetch($languages = false)
     {
         global $CONFIG;
-        $this->addContent("<h1>Fetch strings</h1>");
+        
+        $this->_contentdiv->content("<h1>Fetch strings</h1>");
         $response = $this->request(array('action'=>'list_languages'));
         
         if( !$languages )
         {
-            $div = $this->addContent(new Form());
+            $div = $this->_contentdiv->content(new Form());
             foreach( $response->list as $lang )
             {
                 $cb = $div->content( new CheckBox('languages[]') );
@@ -129,19 +130,19 @@ class TranslationAdmin extends SysAdmin
                 $CONFIG['translation']['data_path'].$lang.'.inc.php', 
                 "<?\n$info;\n$strings;\n"
             );
-            $this->addContent("<div>Created translation file for $lang</div>");
+            $this->_contentdiv->content("<div>Created translation file for $lang</div>");
         }
 		
 		$ds = model_datasource($GLOBALS['CONFIG']['translation']['sync']['datasource']);
 		$ds->ExecuteSql("TRUNCATE TABLE wdf_unknown_strings");
-		$this->addContent("<div>Cleared the unknown strings table</div>");
+		$this->_contentdiv->content("<div>Cleared the unknown strings table</div>");
 		
 		foreach( cache_list_keys() as $key )
 		{
 			if( starts_with($key, 'lang_') )
 				cache_del($key);
 		}
-		$this->addContent("<div>Cleared the string cache</div>");
+		$this->_contentdiv->content("<div>Cleared the string cache</div>");
     }
     
     /**
@@ -177,14 +178,14 @@ class TranslationAdmin extends SysAdmin
      */
     function NewStrings()
     {
-        $this->addContent("<h1>New strings</h1>");
+        $this->_contentdiv->content("<h1>New strings</h1>");
         $ds = model_datasource($GLOBALS['CONFIG']['translation']['sync']['datasource']);
 		foreach( $ds->Query('wdf_unknown_strings')->all() as $row )
         {
 			$ns = Template::Make('translationnewstring');
 			foreach( $row->GetColumnNames() as $col )
 				$ns->set($col,$row->$col);
-            $this->addContent($ns);
+            $this->_contentdiv->content($ns);
         }
     }
     

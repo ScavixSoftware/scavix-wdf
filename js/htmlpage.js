@@ -11,6 +11,27 @@ $.ajaxSetup({cache:false});
 		ajaxError: $.Callbacks('unique'),  // fires with args (XmlHttpRequest object, TextStatus, ResponseText)
 		exception: $.Callbacks('unique'),  // fires with string arg containing the message
 		
+		arg: function (name)
+		{
+			return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
+		},
+		
+		validateHref: function(href)
+		{
+			if( this.settings.rewrite || typeof href != 'string' || href.match(/\?wdf_route/) )
+				return href;
+			
+			href = href.substr(this.settings.site_root.length);
+			var parts = href.split("/");
+			var url_path = this.settings.site_root + '?wdf_route='+encodeURIComponent((parts[0]||'')+"/"+(parts[1]||'')+"/");
+			if( parts.length > 2 )
+			{
+				parts.shift(); parts.shift();
+				url_path += "&"+parts.join("/");
+			}
+			return url_path;
+		},
+		
 		setCallbackDefault: function(name, func)
 		{
 			wdf[name].empty().add( func );
@@ -21,9 +42,17 @@ $.ajaxSetup({cache:false});
 		init: function(settings)
 		{
 			// prepare settings object
-			var tmp_href = location.href.substr(settings.site_root.length).split("/");
-			settings.controller = tmp_href[0] || '';
-			settings.method = tmp_href[1] || '';
+			settings.route = location.href.substr(settings.site_root.length);
+			settings.rewrite = !settings.route.match(/^\?wdf_route/);
+			settings.route = settings.rewrite
+				?settings.route.split("/")
+				:this.arg('wdf_route').split("/");
+			settings.controller = settings.route[0] || '';
+			settings.method = settings.route[1] || '';
+			settings.route = settings.rewrite
+				?settings.controller+"/"+settings.method+"/"
+				:'?wdf_route='+encodeURIComponent(this.arg('wdf_route'));
+			settings.url_path = settings.site_root + settings.route;
 			settings.focus_first_input = (settings.focus_first_input === undefined)?true:settings.focus_first_input;
 			
 			// Init
@@ -42,6 +71,7 @@ $.ajaxSetup({cache:false});
 						url += controller;
 					else
 						url += $(controller).attr('id')
+					url = wdf.validateHref(url);
 					return $[method](url, data, callback);
 				};
 			};
@@ -88,11 +118,21 @@ $.ajaxSetup({cache:false});
 
 		reloadWithoutArgs: function()
 		{
-			wdf.redirect(location.href.split('?').shift());
+			this.redirect(this.settings.url_path);
 		},
 		
-		redirect: function(href)
+		redirect: function(href,data)
 		{
+			if( typeof href == 'object' )
+			{
+				data = href;
+				href = this.settings.url_path;
+			}
+			href = this.validateHref(href);
+			
+			if( typeof data == 'object' )
+				href += (this.settings.rewrite?"?":"&")+$.param(data);
+			
 			if( location.href == href )
 				location.reload();
 			else
@@ -101,7 +141,7 @@ $.ajaxSetup({cache:false});
 		
 		initAjax: function()
 		{
-			wdf.original_ajax = $.ajax;
+			this.original_ajax = $.ajax;
 			$.extend({
 				ajax: function( s )
 				{
@@ -249,12 +289,52 @@ $.ajaxSetup({cache:false});
 			}
 		}
 	};
+	
+	if( typeof win.Debug != "function" )
+	{
+		win.Debug = function()
+		{
+			wdf.debug("Deprecated debug function called! Use wdf.debug() instead.");
+		};
+	}
+	
+	$.fn.enumAttr = function(attr_name)
+	{
+		var attr = []
+		this.each( function(){ if( $(this).attr(attr_name) ) attr.push($(this).attr(attr_name)); } );
+		return attr;
+	};
+	
+	$.fn.overlay = function(method)
+	{
+		return this.each(function()
+		{
+			if( method == 'remove' )
+			{
+				$('.wdf_overlay, .wdf_overlay_anim',this).remove();
+				return;
+			}
+			var elem = $(this), overlay = $('<div class="wdf_overlay"/>')
+				.appendTo(elem).show()
+				.sizeFrom(elem,0,$('.caption',elem).height())
+				.css('position','absolute')
+				.position({my:'left top',at:'left top',of:elem});
+			$('<div class="wdf_overlay_anim"/>')
+				.appendTo(elem).show()
+				.sizeFrom(overlay)
+				.css('position','absolute')
+				.position({my:'left top',at:'left top',of:elem})
+				.click( function(){ return false;} );
+		});
+	};
+	
+	$.fn.sizeFrom = function(elem,add_width,add_height)
+	{
+		return this.each(function()
+		{
+			$(this).width( elem.width() + (add_width||0) ).height( elem.height() + (add_height||0) )
+		});
+	};
+
 })(window,jQuery);
 
-if(typeof Debug != "function")
-{
-	window.Debug = function()
-	{
-		wdf.debug("Deprecated debug function called! Use wdf.debug() instead.");
-	}
-}

@@ -22,7 +22,10 @@
  * @copyright 2007-2012 PamConsult GmbH
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
+
+/**
+ * Initializes the pear module.
+ */
 function pear_init()
 {
 	global $CONFIG;
@@ -45,8 +48,14 @@ function pear_init()
 			require_once($pear);
 }
 
+/**
+ * Loads a pear module.
+ * 
+ * Sample: `pear_load('HTTP/Request.php')`
+ * @param string $module Path to module relative to the pear subdir
+ * @return void
+ */
 function pear_load($module)
 {
 	require_once($module);
 }
-?>

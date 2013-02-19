@@ -493,20 +493,9 @@ class Control extends Renderable
 		else
 			$res = "{$content}";
 			
-		if( system_is_ajax_call() )
-			$res .= $this->PackInlineScript();
+		if( system_is_ajax_call() && count($this->_script)>0 )
+			$res .= "<script> ".implode("\n",$this->_script)."</script>";
 		return $res;
-	}
-
-	protected function PackInlineScript()
-	{
-		// when no script to execute, do not add the .ready code snippet
-		if(count($this->_script) ==  0)
-			return "";
-		if(system_is_ajax_call())
-			return "<script> ".implode("\n",$this->_script)."</script>";
-		else
-			return "<script>wdf.ready.add( function() { ".implode("\n",$this->_script)." });</script>";
 	}
 
 	/**
@@ -538,40 +527,10 @@ class Control extends Renderable
 	}
 
 	/**
-	 * Binds a JavaScript event to a PHP method.
-	 * The bound method should return a JsResponse object!
-	 * @param string $jsevent The JS event (like change, keypress,...)
-	 * @param object $handler The object that will handle the event.
-	 * @param string $method The name of the objects method that will handle the event.
+	 * Adds a value to the 'class' attribute.
+	 * Note: you may pass multiple classes at once in a tring space separated: 'cls1 cls2'
+	 * @return Control $this
 	 */
-	function BindMethod($jsevent,&$handler,$method)
-	{
-		$this->_script = array_reverse($this->_script);
-		$this->script("$('#{$this->id}').control('bindMethod','$jsevent','{$handler->_storage_id}','$method','{$this->_storage_id}');");
-		$this->_script = array_reverse($this->_script);
-	}
-
-	/**
-	 * Binds a JavaScript event to a PHP method.
-	 * @param string $jsevent The JS event (like change, keypress,...)
-	 * @param object $handler The object that will handle the event.
-	 * @param string $method The name of the objects method that will handle the event.
-	 */
-	function BindProperty($attribute,&$object,$property)
-	{
-		$this->script("$('#{$this->id}').control('bindProperty','$attribute','{$object->_storage_id}','$property','{$this->_storage_id}');");
-	}
-
-	/**
-	 * @attribute[RequestParam('property','string')]
-	 * @attribute[RequestParam('value','string')]
-	 */
-	function AssignProperty($property,$value)
-	{
-		$this->$property = $value;
-		return AjaxResponse::None();
-	}
-
 	function addClass($class)
 	{
 		$c = explode(" ",$this->class);
@@ -582,6 +541,10 @@ class Control extends Renderable
 		return $this;
 	}
 
+	/**
+	 * Removes a value from the 'class' attribute
+	 * @return Control $this
+	 */
 	function removeClass($class)
 	{
 		$this->class = str_replace($class,"",$this->class);
@@ -589,6 +552,11 @@ class Control extends Renderable
 		return $this;
 	}
 	
+	/**
+	 * Set a valud to a data-$name attribute.
+	 * Those can be accessed in JS easily using jQuery.data method
+	 * @return Control $this
+	 */
 	function setData($name,$value)
 	{
 		if( is_array($value) || is_object($value) )
@@ -598,6 +566,10 @@ class Control extends Renderable
 		return $this;
 	}
 	
+	/**
+	 * Removes a data-$name attribute
+	 * @return Control $this
+	 */
 	function removeData($name)
 	{
 		if( isset($this->_data_attributes[$name]) )
@@ -605,12 +577,20 @@ class Control extends Renderable
 		return $this;
 	}
 	
+	/**
+	 * Append contents (see content method)
+	 * @return Control $this
+	 */
 	function append($content)
 	{
 		$this->content($content);
 		return $this;
 	}
 	
+	/**
+	 * Prepends something to the contents of this control
+	 * @return Control $this
+	 */
 	function prepend($content)
 	{
 		$buf = $this->_content;
@@ -620,13 +600,21 @@ class Control extends Renderable
 		return $this;
 	}
 	
-	function wrap($tagname='')
+	/**
+	 * Wraps this control into another one.
+	 * @return Control The (new) wrapping control
+	 */
+	function wrap($tag_or_obj='')
 	{
-		$res = new Control($tagname);
+		$res = ($tag_or_obj instanceof Control)?$tag_or_obj:new Control($tag_or_obj);
 		$res->content($this);
 		return $res;
 	}
 	
+	/**
+	 * Append this control to another control
+	 * @return Control $this
+	 */
 	function appendTo($target)
 	{
 		if( $target instanceof Control )

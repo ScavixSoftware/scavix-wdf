@@ -25,10 +25,10 @@
  
 /**
  * Provides access to a database.
+ * 
  * Use this to execute SQL statements directly when you need to do so.
- * Currently only tested in combination with BoaModel and BoaSchema classes.
  */
-class DataSource extends System_DataSource
+class DataSource 
 {
     private $_dsn;
 	private $_username;
@@ -156,22 +156,47 @@ class DataSource extends System_DataSource
 		return $this->_dsn == $ds->_dsn && $this->_username == $ds->_username && $this->_password == $ds->_password;
 	}
 	
+	/**
+	 * Returns the DSN
+	 * 
+	 * @return string The Dsn
+	 */
 	function GetDsn()
 	{
 		return $this->_dsn;
 	}
 	
+	/**
+	 * Escapes an argument
+	 * 
+	 * The result will not contain escaping chars, but only perform an 'inner escaping'.
+	 * This is basically `substr($this->Quote,1,-1)`
+	 * @param string $value Argument to be escaped
+	 * @return string escaped argument
+	 */
 	function EscapeArgument($value)
 	{
 		$res = $this->_pdo->quote($value);
 		return substr($res, 1, count($res)-2);
 	}
 	
+	/**
+	 * Quotes an argument
+	 * 
+	 * @param string $value The argument to quote
+	 * @return string The quoted argument
+	 */
 	function QuoteArgument($value)
 	{
 		return $this->_pdo->quote($value);
 	}
 
+	/**
+	 * Prepares a statement
+	 * 
+	 * @param string $sql SQL statement
+	 * @return ResultSet Prepared statement
+	 */
 	function Prepare($sql)
 	{
 		$stmt = $this->_pdo->prepare($sql);

@@ -24,14 +24,24 @@
  */
 
 /**
- * Commonly used form elements (country select, etc.)
+ * Initializes the textdata module
+ * 
+ * This module provides functions for text-file processing
  */
 function textdata_init()
 {
 }
 
 /**
- * @see http://www.php.net/manual/de/function.str-getcsv.php#95132
+ * Parses CSV data into an array.
+ * 
+ * See http://www.php.net/manual/de/function.str-getcsv.php#95132
+ * @param string $csv CSV data as string
+ * @param string $delimiter CSV delimiter used
+ * @param string $enclosure CSV enclosure string
+ * @param string $escape CSV escape string
+ * @param string $terminator CSV line terminator
+ * @return array An array with one entry per line, each beeing an array of fields
  */
 function csv_to_array($csv, $delimiter = ',', $enclosure = '"', $escape = '\\', $terminator = "\n")
 {
@@ -53,7 +63,15 @@ function csv_to_array($csv, $delimiter = ',', $enclosure = '"', $escape = '\\', 
 }
 
 /**
+ * Extracts the header from a CSV data string
  * 
+ * This is usually the first line which contains the field names.
+ * @param string $csv CSV data as string
+ * @param string $delimiter CSV delimiter used
+ * @param string $enclosure CSV enclosure string
+ * @param string $escape CSV escape string
+ * @param string $terminator CSV line terminator
+ * @return array An array with one entry per field
  */
 function csv_header($csv, $delimiter = ',', $enclosure = '"', $escape = '\\', $terminator = "\n")
 {
@@ -62,7 +80,12 @@ function csv_header($csv, $delimiter = ',', $enclosure = '"', $escape = '\\', $t
 }
 
 /**
+ * Tries to detect the CSV field delimiter
  * 
+ * This may be one of: ';'  ','  '|'  '\t'
+ * @param string $csv CSV data as string
+ * @param string $terminator CSV line terminator
+ * @return string The delimiter that seems to match best
  */
 function csv_detect_delimiter($csv,$terminator = "\n")
 {
@@ -75,6 +98,12 @@ function csv_detect_delimiter($csv,$terminator = "\n")
     return array_shift($counts);	
 }
 
+/**
+ * Check if a file contains valid LDIF data.
+ * 
+ * @param string $file File path
+ * @return bool true or false
+ */
 function ldif_valid($file)
 {
 	require_once(dirname(__FILE__).'/textdata/ldif2array.class.php');
@@ -85,6 +114,26 @@ function ldif_valid($file)
 	return false;
 }
 
+/**
+ * Reads LDIF data from a file into an array.
+ * 
+ * Sample:
+ * <code php>
+ * $data_untouched = ldif_to_array($ldif_file);
+ * 
+ * $fieldmaps = array( 
+ *     'mozillaAbPersonAlpha' => array(
+ *         'cn'=>'name',
+ *         'mail'=>'email',
+ *         'homePhone'=>'phone_private'
+ * ));
+ * $data_mapped = ldif_to_array($ldif_file,$fieldmaps);
+ * </code>
+ * @param string $file File path
+ * @param array $fieldmaps Defines a mapping from LDIF data to own data structures
+ * @param bool $add_groups If true adds group information to resulting data
+ * @return array Array of datasets
+ */
 function ldif_to_array($file, $fieldmaps = false, $add_groups = true)
 {
 	require_once(dirname(__FILE__).'/textdata/ldif2array.class.php');
@@ -136,6 +185,12 @@ function ldif_to_array($file, $fieldmaps = false, $add_groups = true)
 	return $res;
 }
 
+/**
+ * Checks if a file contains valid VCARD data.
+ * 
+ * @param string $file File path
+ * @return bool true or false
+ */
 function vcard_valid($file)
 {
 	require_once(dirname(__FILE__).'/textdata/vcard_convert.php');
@@ -144,6 +199,23 @@ function vcard_valid($file)
 	return isset($conv->cards) && (count($conv->cards) > 0);
 }
 
+/**
+ * Reads VCARD data from a file into an array
+ * 
+ * <code php>
+ * $data_untouched = vcard_to_array($vcard_file);
+ * 
+ * $fieldmap = array(
+ *     'displayname'=>'name',
+ *     'organization'=>'orga',
+ *     'email'=>'login'
+ * );
+ * $data_mapped = vcard_to_array($vcard_file,$fieldmap); 
+ * </code>
+ * @param string $file File path
+ * @param array $fieldmap Defines a mapping from VCARD data to own data structures
+ * @return array Array of datasets
+ */
 function vcard_to_array($file, $fieldmap=false)
 {
 	require_once(dirname(__FILE__).'/textdata/vcard_convert.php');

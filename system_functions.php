@@ -48,30 +48,108 @@ define("ENVIRONMENT_SANDBOX",'sandbox');
 define("ENVIRONMENT_LIVE",'live');
 if( !isset($_ENV['CURRENT_ENVIRONMENT']) )
     $_ENV['CURRENT_ENVIRONMENT'] = ENVIRONMENT_LIVE;
+
+/**
+ * Sets the environment
+ * 
+ * Possible values are ENVIRONMENT_DEV, ENVIRONMENT_BETA, ENVIRONMENT_SANDBOX or ENVIRONMENT_LIVE
+ * @param string $value The new value
+ * @return void
+ */
 function setEnvironment($value){ $_ENV['CURRENT_ENVIRONMENT'] = $value; }
+
+/**
+ * Returns the currently set environment
+ * 
+ * Possible values are ENVIRONMENT_DEV, ENVIRONMENT_BETA, ENVIRONMENT_SANDBOX or ENVIRONMENT_LIVE
+ * @return string The current environment
+ */
 function getEnvironment(){ return $_ENV['CURRENT_ENVIRONMENT']; }
+
+/**
+ * Shortcut for <setEnvironment>(ENVIRONMENT_DEV);
+ * 
+ * see there for more details
+ * @return void
+ */
 function switchToDev(){ $_ENV['CURRENT_ENVIRONMENT'] = ENVIRONMENT_DEV; }
+/**
+ * Shortcut for <setEnvironment>(ENVIRONMENT_BETA);
+ * 
+ * see there for more details
+ * @return void
+ */
 function switchToBeta(){ $_ENV['CURRENT_ENVIRONMENT'] = ENVIRONMENT_BETA; }
+/**
+ * Shortcut for setEnvironment(ENVIRONMENT_SANDBOX);
+ * 
+ * see there for more details
+ * @return void
+ */
 function switchToSandbox(){ $_ENV['CURRENT_ENVIRONMENT'] = ENVIRONMENT_SANDBOX; }
+/**
+ * Shortcut for setEnvironment(ENVIRONMENT_LIVE);
+ * 
+ * see there for more details
+ * @return void
+ */
 function switchToLive(){ $_ENV['CURRENT_ENVIRONMENT'] = ENVIRONMENT_LIVE; }
+/**
+ * Checks current environment
+ * 
+ * Checks if current environment is ENVIRONMENT_DEV
+ * @return bool true or false
+ */
 function isDev(){ return $_ENV['CURRENT_ENVIRONMENT'] == ENVIRONMENT_DEV; }
+/**
+ * Checks current environment
+ * 
+ * Checks if current environment is ENVIRONMENT_BETA
+ * @return bool true or false
+ */
 function isBeta(){ return $_ENV['CURRENT_ENVIRONMENT'] == ENVIRONMENT_BETA; }
+/**
+ * Checks current environment
+ * 
+ * Checks if current environment is ENVIRONMENT_SANDBOX
+ * @return bool true or false
+ */
 function isSandbox(){ return $_ENV['CURRENT_ENVIRONMENT'] == ENVIRONMENT_SANDBOX; }
+/**
+ * Checks current environment
+ * 
+ * Checks if current environment is ENVIRONMENT_LIVE
+ * @return bool true or false
+ */
 function isLive(){ return $_ENV['CURRENT_ENVIRONMENT'] == ENVIRONMENT_LIVE; }
+/**
+ * Checks current environment
+ * 
+ * Checks if current environment is not ENVIRONMENT_LIVE
+ * @return bool true or false
+ */
 function isNotLive(){ return $_ENV['CURRENT_ENVIRONMENT'] != ENVIRONMENT_LIVE; }
+/**
+ * Checks current environment
+ * 
+ * Checks if current environment is ENVIRONMENT_DEV or ENVIRONMENT_BETA
+ * @return bool true or false
+ */
 function isDevOrBeta(){ return $_ENV['CURRENT_ENVIRONMENT'] == ENVIRONMENT_DEV || $_ENV['CURRENT_ENVIRONMENT'] == ENVIRONMENT_BETA; }
 
 /**
  * Sets a config value.
  * 
  * uses given arguments for key path like this:
+ * <code php>
  * cfg_set('system','use_cfg','really',true);
- * will set
+ * // will set
  * $CONFIG['system']['use_cfg']['really'] = true;
- * 
+ * </code>
  * measured performance agains direct assignment: it is about 5 times
  * slower on a Windows7 x64 system with 8GB RAM.
  * But for 1000 calls it just needs 5ms, so just leave me alone with that.
+ * @return void
  */
 function cfg_set()
 {
@@ -90,8 +168,10 @@ function cfg_set()
 }
 
 /**
- * sets a config value only if it has not been set.
- * see cfg_set() for usage and performance thoughts
+ * Sets a config value only if it has not been set
+ * 
+ * See cfg_set() for usage and performance thoughts
+ * @return void
  */
 function cfg_setd()
 {
@@ -110,8 +190,10 @@ function cfg_setd()
 }
 
 /**
- * adds an entry to a config value array.
- * see cfg_set() for usage and performance thoughts
+ * Adds an entry to a config value array
+ * 
+ * See cfg_set() for usage and performance thoughts
+ * @return void
  */
 function cfg_add()
 {
@@ -130,8 +212,10 @@ function cfg_add()
 }
 
 /**
- * gets a config value.
- * see cfg_set() for usage and performance thoughts
+ * Gets a config value.
+ * 
+ * See cfg_set() for usage and performance thoughts
+ * @return mixed Config value
  */
 function cfg_get()
 {
@@ -150,8 +234,10 @@ function cfg_get()
 }
 
 /**
- * gets a config value and uses the last argument given as default if it is not set.
- * see cfg_set() for usage and performance thoughts
+ * Gets a config value and uses the last argument given as default if it is not set.
+ * 
+ * See cfg_set() for usage and performance thoughts
+ * @return mixed Config value
  */
 function cfg_getd()
 {
@@ -170,8 +256,10 @@ function cfg_getd()
 }
 
 /**
- * deletes a config value
- * see cfg_set() for usage and performance thoughts
+ * Deletes a config value
+ * 
+ * See cfg_set() for usage and performance thoughts
+ * @return void
  */
 function cfg_del()
 {
@@ -190,9 +278,11 @@ function cfg_del()
 }
 
 /**
- * checks if a config is set and throws an ex2ception if not.
- * last argument will be used as exception message.
- * see cfg_set() for usage and performance thoughts
+ * Checks if a config is set and throws an exception if not.
+ * 
+ * Last argument will be used as exception message.
+ * See cfg_set() for usage and performance thoughts
+ * @return void
  */
 function cfg_check()
 {
@@ -212,6 +302,16 @@ function cfg_check()
 
 /**
  * Sets the application version.
+ * 
+ * Use this when you update your app to a new version. It will create a new
+ * nocache argument too so that all dependent files will be reloaded by your clients.
+ * Will also affect minify module!
+ * @param int $major Major version
+ * @param int $minor Minor version
+ * @param int $build Build number
+ * @param string $codename Codename (like 'alpha' or 'woohoo-wdf')
+ * @param string $nc_salt Optional string to salt the nocache argument
+ * @return void
  */
 function setAppVersion($major,$minor,$build,$codename="",$nc_salt=false)
 {
@@ -226,8 +326,11 @@ function setAppVersion($major,$minor,$build,$codename="",$nc_salt=false)
 }
 
 /**
- * gets the application version.
- * if key is given, returns that part only.
+ * Gets the application version.
+ * 
+ * If key is given, returns that part only.
+ * @param string $key 'major','minor','build' or 'codename'
+ * @return mixed Version array or the requested part of it
  */
 function getAppVersion($key=false)
 {
@@ -240,7 +343,10 @@ function getAppVersion($key=false)
 }
 
 /**
+ * Check if SSL is in use
+ * 
  * Returns true when the current request is SSL secured, else false
+ * @return bool true or false
  */
 function isSSL()
 {
@@ -248,8 +354,11 @@ function isSSL()
 }
 
 /**
- * Returns http, https, http:// or https:// 
- * by checking the current request and depending on the append_slashes argument
+ * Returns current URL scheme
+ * 
+ * That is one of http, https, http:// or https:// 
+ * @param bool $append_slashes If true appends '//' to the result
+ * @return string The current scheme
  */
 function urlScheme($append_slashes=false)
 {
@@ -260,20 +369,28 @@ function urlScheme($append_slashes=false)
 
 /**
  * Ensures that the given path ends with a directory separator
+ * 
+ * As Windows works fine with '/' and all others use '/' we just use that instead
+ * of `DIRECTORY_SEPARATOR`. That one actually makes problems in some cases.
+ * @param string $path Path to be checked
+ * @param bool $make_realpath If true calls realpath() on the `$path`
+ * @return void
  */
 function system_ensure_path_ending(&$path, $make_realpath=false)
 {
 	if( $make_realpath )
 		$path = realpath($path);
-    if( !ends_with($path, DIRECTORY_SEPARATOR) )
-        $path .= DIRECTORY_SEPARATOR;
+    if( !ends_with($path, '/') )
+        $path .= '/';
 }
 
 /**
  * Checks if a string starts with another one.
+ * 
+ * Shortcut for the lazy ones: `return strpos($string,$start) === 0`
  * @param string $string String to check
  * @param string $start The start to be checked
- * @return bool true|false
+ * @return bool true or false
  */
 function starts_with($string,$start)
 {
@@ -282,9 +399,11 @@ function starts_with($string,$start)
 
 /**
  * Checks if a string ends with another one.
+ * 
+ * Shortcut for the lazy ones: `return substr($string,strlen($string)-strlen($end)) == $end`
  * @param string $string String to check
  * @param string $end The end to be checked
- * @return bool true|false
+ * @return bool true or false
  */
 function ends_with($string,$end)
 {
@@ -293,9 +412,10 @@ function ends_with($string,$end)
 
 /**
  * Tests if the first given argument is one of the others.
+ * 
  * This is a shortcut for in_array.
- * Use like this:
- * is_in('nice','Hello','nice','World')
+ * Use like this: `is_in('nice','Hello','nice','World')`
+ * @return bool true or false
  */
 function is_in()
 {
@@ -306,12 +426,12 @@ function is_in()
 
 /**
  * Returns array value at key if it exists, else default is returned.
- * This is shortcut for
- * $val = (array_key_exists($key,$array) && $array[$key])?$array[$key]:$default;
+ * 
+ * This is shortcut for `$val = (array_key_exists($key,$array) && $array[$key])?$array[$key]:$default;`
  * @param array $array The source array
  * @param mixed $key The key to be checked
  * @param mixed $default Default value to return if array does not contain key
- * @return mixed
+ * @return mixed Result or `$default`
  */
 function array_val($array,$key,$default=null)
 {
@@ -322,13 +442,16 @@ function array_val($array,$key,$default=null)
 
 /**
  * Checks if an array contains key and if the value is needle
+ * 
  * This is shortcut for
+ * <code php>
  * if( array_key_exists($key,$array) && $array[$key]==$needle  ) 
  *     ...;
+ * </code>
  * @param array $array The source array
  * @param mixed $key The key to be checked
  * @param mixed $needle The value to check against
- * @return bool
+ * @return bool true or false
  */
 function array_val_is($array,$key,$needle)
 {
@@ -339,6 +462,10 @@ function array_val_is($array,$key,$needle)
 
 /**
  * Tests if 'we are' currently handling an ajax request
+ * 
+ * This is done by checking the `$_SERVER` variable and the request_id.
+ * We set the request_id in plain requests in the SESSION and add it to AJAX requests so we can compare those two here.
+ * @return bool true or false
  */
 function system_is_ajax_call()
 {
@@ -354,7 +481,8 @@ function system_is_ajax_call()
 
 /**
  * Strips given tags from string
- * @see http://www.php.net/manual/en/function.strip-tags.php#93567
+ * 
+ * See http://www.php.net/manual/en/function.strip-tags.php#93567
  * @param string $str String to strip
  * @param array $tags Tags to be stripped
  * @return string cleaned up string
@@ -386,14 +514,15 @@ function strip_only(&$str, $tags)
 }
 
 /**
- * Returns the ordinal number for a char.
+ * Returns the ordinal number for a char
+ * 
  * Code 'stolen' from php.net ;)
  * The following uniord function is simpler and more efficient than any of the ones suggested without
  * depending on mbstring or iconv.
  * It's also more validating (code points above U+10FFFF are invalid; sequences starting with 0xC0 and 0xC1 are
  * invalid overlong encodings of characters below U+0080),
  * though not entirely validating, so it still assumes proper input.
- * @see http://de3.php.net/manual/en/function.ord.php#77905
+ * See http://de3.php.net/manual/en/function.ord.php#77905
  * @param char $c Character to get ORD of
  * @return int The ORD code
  */
@@ -419,9 +548,13 @@ function uniord($c)
 }
 
 /**
- * Here's a PHP function which does just that when given a UTF-8 encoded string. It's probably not the best way to do it, but it works:
- * @see http://www.iamcal.com/understanding-bidirectional-text/
+ * Here's a PHP function which does just that when given a UTF-8 encoded string.
+ * 
+ * It's probably not the best way to do it, but it works:
+ * See http://www.iamcal.com/understanding-bidirectional-text/
  * Uncommented PDF correction because it's too weak and kills some currency symbols in CurrencyFormat::Format
+ * @param string $data String to be cleaned up
+ * @return string Cleaned up string
  */
 function unicode_cleanup_rtl($data)
 {
@@ -478,7 +611,11 @@ function unicode_cleanup_rtl($data)
 }
 
 /**
- * @see http://stackoverflow.com/a/3742879
+ * Cleans an UTF8 string
+ * 
+ * See http://stackoverflow.com/a/3742879
+ * @param string $str String to clean
+ * @return string The clean string
  */
 function utf8_clean($str)
 {
@@ -487,6 +624,9 @@ function utf8_clean($str)
 
 /**
  * Return the client's IP address
+ * 
+ * Quite some logic to get that behind load-balancers and some proxies, but
+ * works fine now ;)
  * @return string IP address
  */
 function get_ip_address()
@@ -560,6 +700,15 @@ function get_ip_address()
 	return $DETECTED_CLIENT_IP;
 }
 
+/**
+ * Add a path to the classpath for autoloading classes
+ * 
+ * You can add complete trees with this when letting $recursive be true.
+ * @param string $path folder name
+ * @param bool $recursive add subfolders too?
+ * @param string $part INTERNAL, let default to false
+ * @return void
+ */
 function classpath_add($path, $recursive=true, $part=false)
 {
 	global $CONFIG;
@@ -579,22 +728,15 @@ function classpath_add($path, $recursive=true, $part=false)
 }
 
 /**
+ * Find pathnames matching a pattern.
+ * 
  * glob() cant be used directly in foreach when open_basedir is set
  * see: https://bugs.php.net/bug.php?id=47358
- * Find pathnames matching a pattern
+ * 
  * @link http://php.net/manual/en/function.glob.php
- * @param string $pattern <p>
- * The pattern. No tilde expansion or parameter substitution is done.
- * </p>
- * @param int $flags [optional] <p>
- * Valid flags:
- * <b>GLOB_MARK</b> - Adds a slash to each directory returned
- * @return array an array containing the matched files/directories, an empty array
- * if no file matched or <b>FALSE</b> on error.
- * </p>
- * <p>
- * On some systems it is impossible to distinguish between empty match and an
- * error. 
+ * @param string $pattern The pattern. No tilde expansion or parameter substitution is done.
+ * @param int $flags Valid flags: see http://php.net/manual/en/function.glob.php
+ * @return array An array containing the matched files/directories, an empty array if no file matched
  */
 function system_glob($pattern, $flags = 0)
 {
@@ -603,3 +745,39 @@ function system_glob($pattern, $flags = 0)
         return array();
     return $ret;
 }
+
+/**
+ * Lists all files of a directory recursively.
+ * 
+ * Note that default pattern in *.* thus only listing files with a dot in the name.
+ * If you change that to '*' everything will be returned.
+ * We use *.* a common filter for all files (yes, we know that this is wrong).
+ * @param string $directory Directory name
+ * @param string $pattern Filename pattern
+ * @return array Listing of all files
+ */
+function system_glob_rec($directory='',$pattern='*.*')
+{
+	system_ensure_path_ending($directory);
+	$paths = system_glob($directory.'*', GLOB_MARK|GLOB_ONLYDIR|GLOB_NOSORT);
+	$files = system_glob($directory.$pattern);
+	foreach($paths as $path) { $files = array_merge($files,system_glob_rec($path,$pattern)); }
+	return $files;
+}
+
+/**
+ * Checks if WDF_FEATURES_REWRITE is on
+ * 
+ * You can set it in .htaccess with `SetEnv WDF_FEATURES_REWRITE on`
+ * Note that this check is case sensitive, so 'on' really means 'on' and not 'On' or '1'!
+ * @return bool true or false
+ */
+function can_rewrite(){ return array_val_is($_SERVER,'WDF_FEATURES_REWRITE','on'); }
+/**
+ * Checks if WDF_FEATURES_NOCACHE is on
+ * 
+ * You can set it in .htaccess with `SetEnv WDF_FEATURES_NOCACHE on`
+ * Note that this check is case sensitive, so 'on' really means 'on' and not 'On' or '1'!
+ * @return bool true or false
+ */
+function can_nocache(){ return array_val_is($_SERVER,'WDF_FEATURES_NOCACHE','on'); }
