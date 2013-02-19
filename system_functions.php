@@ -388,12 +388,23 @@ function system_ensure_path_ending(&$path, $make_realpath=false)
  * Checks if a string starts with another one.
  * 
  * Shortcut for the lazy ones: `return strpos($string,$start) === 0`
+ * You may also call this function with more parameters. In that case will check if
+ * $string starts with any of the given strings: `$hit = starts_with('hello world','wow','rl','hello');`
  * @param string $string String to check
  * @param string $start The start to be checked
  * @return bool true or false
  */
 function starts_with($string,$start)
 {
+	if( func_num_args() > 2 )
+	{
+		$args = func_get_args();
+		array_shift($args);
+		foreach( $args as $start )
+			if( strpos($string,$start) === 0 )
+				return true;
+		return false;
+	}
 	return strpos($string,$start) === 0;
 }
 
@@ -401,12 +412,23 @@ function starts_with($string,$start)
  * Checks if a string ends with another one.
  * 
  * Shortcut for the lazy ones: `return substr($string,strlen($string)-strlen($end)) == $end`
+ * You may also call this function with more parameters. In that case will check if
+ * $string ends with any of the given strings: `$hit = ends_with('hello world','wow','rl','ld');`
  * @param string $string String to check
  * @param string $end The end to be checked
  * @return bool true or false
  */
 function ends_with($string,$end)
 {
+	if( func_num_args() > 2 )
+	{
+		$args = func_get_args();
+		array_shift($args);
+		foreach( $args as $end )
+			if( substr($string,strlen($string)-strlen($end)) == $end )
+				return true;
+		return false;
+	}
 	return substr($string,strlen($string)-strlen($end)) == $end;
 }
 
