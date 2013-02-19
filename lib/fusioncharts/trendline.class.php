@@ -56,5 +56,3 @@ class Trendline
 		return $ret;
 	}
 }
-
-?>

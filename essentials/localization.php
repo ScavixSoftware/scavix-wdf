@@ -763,5 +763,3 @@ class Localization
 		return false;
 	}
 }
-
-?>

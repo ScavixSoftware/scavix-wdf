@@ -42,4 +42,3 @@ class uiMessageBox extends uiDialog
 		$this->AddCloseButton(tds('BTN_OK','Ok'));
 	}
 }
-?>

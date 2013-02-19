@@ -23,8 +23,15 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ *  This is a &lt;input type='submit'/&gt;.
+ * 
+ */
 class SubmitButton extends Control
 {
+	/**
+	 * @param string $label A text as label
+	 */
 	function __initialize( $label )
 	{
 		parent::__initialize("input");
@@ -32,5 +39,3 @@ class SubmitButton extends Control
 		$this->value = $label;
 	}
 }
-
-?>

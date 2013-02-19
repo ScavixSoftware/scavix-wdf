@@ -52,4 +52,3 @@ class CheckBox extends Control
 		return $this->Label;
 	}
 }
-?>

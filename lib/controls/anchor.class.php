@@ -32,9 +32,12 @@ class Anchor extends Control
 {
 	/**
 	 * Create a new HTML anchor element.
-	 * @param string $href The href attribute. Defaults to "".
-	 * @param string $label The anchor text. Defaults to "".
-	 * @param string $class The CSS class. Defaults to "".
+	 * 
+	 * @param string $href The href attribute
+	 * @param string $label The anchor text
+	 * @param string $class The CSS class
+	 * @param string $target The target attribute
+	 * @return void
 	 */
 	function __initialize($href="", $label="", $class="",$target="")
 	{
@@ -50,10 +53,7 @@ class Anchor extends Control
 	}
 	
 	/**
-	 * Overrides <Control::WdfRender>
-	 * 
-	 * Ensures that there's a valid href attribute, if not adds "javascript:{}" to it.
-	 * @return string `parent::WdfRender()`
+	 * @override Ensures that there's a valid href attribute, if not adds "javascript:{}" to it.
 	 */
 	public function WdfRender()
 	{
@@ -63,5 +63,3 @@ class Anchor extends Control
         return parent::WdfRender();
 	}	
 }
-
-?>

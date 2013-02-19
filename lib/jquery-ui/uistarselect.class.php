@@ -120,4 +120,3 @@ class uiStarSelect extends uiControl
 			$this->_options['captionTitle'] = $caption_title;
 	}
 }
-?>

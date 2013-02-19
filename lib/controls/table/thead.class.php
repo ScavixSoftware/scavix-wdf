@@ -30,5 +30,3 @@ class THead extends TBody
 		parent::__initialize($options,"thead");
 	}
 }
-
-?>

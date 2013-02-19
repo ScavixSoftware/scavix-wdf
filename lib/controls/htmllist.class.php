@@ -32,6 +32,10 @@ class HtmlList extends Control
 {
 	var $items = array();
 	
+	/**
+	 * @param string $id Id to be set
+	 * @param string $listType Type of list (ol|ul)
+	 */
 	function __initialize($id = "",$listType = "ul")
 	{
 		if($listType != "ul" || $listType != "ol")
@@ -66,4 +70,3 @@ class HtmlList extends Control
 	
 	
 }
-?>

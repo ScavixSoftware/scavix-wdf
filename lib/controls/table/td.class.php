@@ -49,5 +49,3 @@ class Td extends Control
 		$this->content($content,true);
 	}
 }
-
-?>

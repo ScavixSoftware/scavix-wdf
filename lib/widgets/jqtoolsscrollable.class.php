@@ -78,4 +78,3 @@ class jqToolsScrollable extends Template
 			$this->_options['easing'] = 'jqtoolseasing';
 	}
 }
-?>

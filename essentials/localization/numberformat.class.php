@@ -66,5 +66,3 @@ class NumberFormat
 		return floatval($number);
 	}
 }
-
-?>

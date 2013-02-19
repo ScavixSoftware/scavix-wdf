@@ -415,4 +415,3 @@ class System_Reflector extends ReflectionClass
 		return false;
 	}
 }
-?>

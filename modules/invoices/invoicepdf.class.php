@@ -325,5 +325,3 @@ class InvoicePdf extends PdfDocument
 		);
 	}
 }
-
-?>

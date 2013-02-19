@@ -484,5 +484,3 @@ class FusionChart extends Control
 	 	return $label;
 	}
 }
-
-?>

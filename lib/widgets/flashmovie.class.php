@@ -38,5 +38,3 @@ class FlashMovie extends Template
 		$this->set("autoplay",$autoplay);
 	}
 }
-
-?>

@@ -71,6 +71,9 @@ class ImageFlow extends Control
 		$this->script("$('#{$this->id}').show();");
 	}
 
+	/**
+	 * @override Creates JS init code
+	 */
 	public function WdfRender()
 	{
 		if( !isset($this->_options['startID']) )
@@ -182,5 +185,3 @@ class ImageFlow extends Control
 		}
 	}
 }
-
-?>

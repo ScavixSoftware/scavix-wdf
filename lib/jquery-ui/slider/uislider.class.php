@@ -65,5 +65,3 @@ class uiSlider extends uiControl
 		return parent::WdfRender();
 	}
 }
-
-?>

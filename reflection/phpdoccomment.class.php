@@ -91,6 +91,20 @@ class PhpDocComment
 		return $res;
 	}
 	
+	/**
+	 * Ensures that there's a short description set.
+	 * 
+	 * @param string $default_description Text to set if there's no ShortDesc yet
+	 * @return void
+	 */
+	function EnsureDescription($default_description)
+	{
+		if( !$this->ShortDesc )
+			$this->ShortDesc = $default_description;
+		if( $this->LongDesc === false )
+			$this->LongDesc = "";
+	}
+	
 	private function getTag($name,$properties)
 	{
 		if( !isset($this->_tagbuf) )

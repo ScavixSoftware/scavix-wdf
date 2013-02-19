@@ -358,5 +358,3 @@ class ResultSet extends PDOStatement
 		return $res;
 	}
 }
-
-?>

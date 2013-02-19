@@ -1141,5 +1141,3 @@ class MC_Google_Visualization {
         return $query;
     }
 }
-
-?>

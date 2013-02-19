@@ -28,6 +28,10 @@
  */
 class ImageButton extends Control
 {
+	/**
+	 * @param string $label A label text
+	 * @param string $src Source for the image
+	 */
     function __initialize($label,$src)
 	{
 		parent::__initialize("button");
@@ -36,4 +40,3 @@ class ImageButton extends Control
 		$this->CloseTagNeeded();
 	}
 }
-?>

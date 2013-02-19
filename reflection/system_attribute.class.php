@@ -47,5 +47,3 @@ class System_Attribute
 	var $Field = null;
 	function __construct() {}
 }
-
-?>

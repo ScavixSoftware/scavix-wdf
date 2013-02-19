@@ -28,6 +28,10 @@
  */
 class ListItem extends Control
 {
+	/**
+	 * @param mixed $content Some content to add
+	 * @param string $id an optional id
+	 */
 	function __initialize($content,$id = "")
 	{
 		parent::__initialize("li");
@@ -37,4 +41,3 @@ class ListItem extends Control
 		$this->content($content);
 	}
 }
-?>

@@ -42,4 +42,3 @@ class uiTableLayoutDialog extends uiDialog
 			$this->_table->NewRow()->NewCell($label)->colspan = "2";
 	}
 }
-?>

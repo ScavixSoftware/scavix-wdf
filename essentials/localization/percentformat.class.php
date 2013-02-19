@@ -53,5 +53,3 @@ class PercentFormat
 		return str_replace("%v", $val, $this->NegativeFormat);
 	}
 }
-
-?>

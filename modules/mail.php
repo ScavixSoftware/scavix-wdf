@@ -186,5 +186,3 @@ function mail_validate($email,$check_dns_too=true)
 	}
 	return false;
 }
-
-?>

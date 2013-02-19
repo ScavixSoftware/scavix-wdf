@@ -47,4 +47,3 @@ class uiNavigationItem extends Control
 		$this->_content[0]->rel = "default";
 	}
 }
-?>

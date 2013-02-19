@@ -85,5 +85,3 @@ class CurrencyFormat
 		return floatval($number);
 	}
 }
-
-?>

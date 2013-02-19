@@ -129,11 +129,4 @@ class SelectQuery extends Query
 		$this->_currentTree = $this->_join[count($this->_join)-1];
 		$this->_knownmodels[] = $model;
 	}
-
-//	function having($property,$value)
-//	{
-//		$this->_having[] = new Condition("LIKE",$property,"?");
-//		$this->_values[] = $value;
-//	}
 }
-?>

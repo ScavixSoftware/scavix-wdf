@@ -119,5 +119,3 @@ class PagerExtender extends ControlExtender
 		$this->CurrentPage = $number;
 	}
 }
-
-?>

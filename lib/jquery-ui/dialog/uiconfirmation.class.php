@@ -74,4 +74,3 @@ class uiConfirmation extends uiDialog
 		}
 	}
 }
-?>

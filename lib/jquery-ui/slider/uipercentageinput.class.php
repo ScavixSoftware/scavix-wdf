@@ -92,5 +92,3 @@ class uiPercentageInput extends uiControl
 		$this->content("<br style='clear:both; line-height:0'/>");
 	}
 }
-
-?>

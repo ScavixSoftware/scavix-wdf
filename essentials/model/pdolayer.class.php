@@ -54,5 +54,3 @@ class PdoLayer extends PDO
 		return parent::prepare($statement, $driver_options);
 	}
 }
-
-?>

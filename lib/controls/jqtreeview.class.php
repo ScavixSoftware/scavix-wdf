@@ -90,5 +90,3 @@ class jqTreeNode extends Control
 		return $res;
 	}
 }
-
-?>

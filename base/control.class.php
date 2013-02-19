@@ -301,9 +301,14 @@ class Control extends Renderable
 	}
 	
 	/**
-	 * Static creator method that is cabable of creating derivered classes too:
+	 * Static creator method
+	 * 
+	 * This is cabable of creating derivered classes too:
+	 * <code php>
 	 * Control::Make('div')->content('Doh!');
 	 * TextInput::Make()->css('width','300px');
+	 * </code>
+	 * @return object The created control
 	 */
 	public static function Make($tag=false)
     {
@@ -626,4 +631,3 @@ class Control extends Renderable
 		return $this;
 	}
 }
-?>

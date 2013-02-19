@@ -59,5 +59,3 @@ class ColGroup extends Control
 		return $this->_content[$index];
 	}
 }
-
-?>

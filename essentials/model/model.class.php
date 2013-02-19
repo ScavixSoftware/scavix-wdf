@@ -799,5 +799,3 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $q->__execute($sql, $prms);
 	}
 }
-
-?>

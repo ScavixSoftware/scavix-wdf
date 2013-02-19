@@ -153,4 +153,3 @@ class SuperfishMenuItem extends Control
 		return parent::WdfRender();
 	}
 }
-?>

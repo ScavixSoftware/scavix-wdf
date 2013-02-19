@@ -97,5 +97,3 @@ class Tr extends Control
 		return parent::WdfRender();
 	}
 }
-
-?>

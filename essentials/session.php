@@ -231,5 +231,3 @@ function session_unserialize($value)
 	$res = $s->Unserialize($value);
 	return $res;
 }
-
-?>

@@ -131,5 +131,3 @@ class AjaxResponse
 		return system_is_module_loaded("translation")?__translate($res):$res;
 	}
 }
-
-?>

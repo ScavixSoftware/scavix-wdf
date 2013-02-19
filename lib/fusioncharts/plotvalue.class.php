@@ -68,5 +68,3 @@ class PlotValue
 		return strcasecmp($this->Label,$val->Label);
 	}
 }
-
-?>

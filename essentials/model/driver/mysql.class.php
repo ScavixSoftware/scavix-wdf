@@ -248,4 +248,3 @@ class MySql implements IDatabaseDriver
         return str_ireplace("INSERT OR IGNORE", "INSERT IGNORE", $sql);
     }
 }
-?>

@@ -104,4 +104,3 @@ class uiDialog extends uiControl
 		return $this;
 	}
 }
-?>

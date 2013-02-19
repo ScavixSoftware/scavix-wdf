@@ -56,5 +56,3 @@ class ImageScroller extends Control
 		$this->content("<li>".$img->WdfRender()."</li>");
 	}
 }
-
-?>

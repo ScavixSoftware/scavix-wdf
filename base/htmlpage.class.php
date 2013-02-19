@@ -229,4 +229,3 @@ class HtmlPage extends Template implements ICallable
 		$this->addMeta('msapplication-task',"name=$name; action-uri=$url; icon-uri=$icon_url; window-type=$window_type");
 	}
 }
-?>

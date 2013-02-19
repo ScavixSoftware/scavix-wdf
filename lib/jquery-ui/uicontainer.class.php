@@ -76,5 +76,3 @@ class uiContainer extends uiControl
 		$this->_script[0] = "$('#".$this->id."').container(".system_to_json($this->_options).");";
 	}
 }
-
-?>

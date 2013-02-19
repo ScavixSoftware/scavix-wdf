@@ -105,4 +105,3 @@ class uiButtonSet extends uiControl
 		}
 	}
 }
-?>

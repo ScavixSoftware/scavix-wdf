@@ -179,5 +179,3 @@ class PhpSession extends SessionBase
 		return $GLOBALS['object_storage'][$id];
 	}
 }
-
-?>

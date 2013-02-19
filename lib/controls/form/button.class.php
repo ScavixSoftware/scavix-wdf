@@ -40,5 +40,3 @@ class Button extends Control
 			$this->onclick = $query;
 	}
 }
-
-?>

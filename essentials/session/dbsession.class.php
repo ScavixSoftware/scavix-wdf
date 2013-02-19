@@ -215,5 +215,3 @@ class DbSession extends SessionBase
 		return $GLOBALS['object_storage'][strtolower($id)];
 	}
 }
-
-?>

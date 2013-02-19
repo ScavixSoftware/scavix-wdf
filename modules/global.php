@@ -58,5 +58,3 @@ function formatFloat($number, $digits = 2, $keeptrailzeros = false)
 
     return $ret;
 }
-
-?>

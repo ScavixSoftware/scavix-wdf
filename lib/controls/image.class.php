@@ -29,6 +29,13 @@
  */
 class Image extends Control
 {
+	/**
+	 * @param string $src value for the src attribute
+	 * @param string $title value for the title attribute
+	 * @param string $border value for the border attribute
+	 * @param string $style value for the style attribute
+	 * @param string $id optional value for the id attribute
+	 */
 	function __initialize($src=null, $title="", $border="0", $style="", $id=false)
 	{
 		parent::__initialize("img");
@@ -55,5 +62,3 @@ class Image extends Control
 		}
 	}
 }
-
-?>

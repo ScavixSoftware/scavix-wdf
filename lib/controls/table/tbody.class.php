@@ -182,5 +182,3 @@ class TBody extends Control
         return parent::WdfRender();
     }
 }
-
-?>

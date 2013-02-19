@@ -241,5 +241,3 @@ abstract class SessionBase
 		return $obj->_storage_id;
 	}
 }
-
-?>

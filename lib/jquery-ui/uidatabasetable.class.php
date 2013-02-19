@@ -53,4 +53,3 @@ class uiDatabaseTable extends DatabaseTable
 		return parent::WdfRender();
 	}
 }
-?>

@@ -28,6 +28,12 @@
  */
 class ImageLink extends Control
 {
+	/**
+	 * @param string $src value for the src attribute
+	 * @param string $title value for the title attribute
+	 * @param string $link value for the href attribute
+	 * @param string $margin Value for the margin (css)
+	 */
 	function __initialize($src, $title, $link="", $margin="")
 	{
 		parent::__initialize('a');
@@ -49,4 +55,3 @@ class ImageLink extends Control
 		$this->InnerImage->style = $style;
 	}
 }
-?>

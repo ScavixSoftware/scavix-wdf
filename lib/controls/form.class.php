@@ -53,7 +53,7 @@ class Form extends Control
 				$inp = new TextInput($value, $name);
 				break;
 			case "password":
-				$inp = new PasswordInput($value, $name);
+				$inp = new PasswordInput($name);
 				break;
 			case "hidden":
 				$inp = new HiddenInput($value, $name);
@@ -125,4 +125,3 @@ class Form extends Control
 		return $this;
 	}
 }
-?>

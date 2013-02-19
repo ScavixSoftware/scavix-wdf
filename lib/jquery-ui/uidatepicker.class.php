@@ -114,5 +114,3 @@ class uiDatePicker extends uiControl
 		$this->Options[$name] = $value;
 	}
 }
-
-?>

@@ -30,5 +30,3 @@ class TFoot extends TBody
 		parent::__initialize($options,"tfoot");
 	}
 }
-
-?>

@@ -433,5 +433,3 @@ class DateTimeFormat
 		return $res;
 	}
 }
-
-?>

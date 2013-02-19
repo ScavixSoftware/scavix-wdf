@@ -181,5 +181,3 @@ class Plot
 		return $plotxml;
 	}
 }
-
-?>

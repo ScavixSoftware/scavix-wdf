@@ -437,5 +437,3 @@ class DataSource
 		return $this->_pdo->lastInsertId($table);
 	}
 }
-
-?>

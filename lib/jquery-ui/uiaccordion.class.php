@@ -99,4 +99,3 @@ class uiAccordion extends uiControl
 		$this->_options = array_merge($this->_options,$options);
 	}
 }
-?>

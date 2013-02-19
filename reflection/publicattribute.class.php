@@ -32,5 +32,3 @@
 class PublicAttribute extends System_Attribute
 {
 }
-
-?>

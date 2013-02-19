@@ -131,5 +131,3 @@ function model_build_connection_string($type,$server,$username,$password,$databa
 {
 	return sprintf("%s://%s:%s@%s/%s",$type,$username,$password,$server,$database);
 }
-
-?>

@@ -57,4 +57,3 @@ class System_ReflectionMethod extends ReflectionMethod
 		WdfException::Raise("Error invoking ".$this->class."->".$this->name);
 	}
 }
-?>

@@ -39,4 +39,3 @@ class FileInput extends Control
 		$this->class = "fileinput";
 	}
 }
-?>

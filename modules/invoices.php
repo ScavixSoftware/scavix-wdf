@@ -267,5 +267,3 @@ function check_vat_number($vat_number)
 	}
 	return false;
 }
-
-?>

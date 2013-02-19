@@ -189,5 +189,3 @@ class RequestParamAttribute extends System_Attribute
 		return true;
 	}
 }
-
-?>

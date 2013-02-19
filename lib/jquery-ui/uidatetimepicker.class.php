@@ -35,5 +35,3 @@ class uiDateTimePicker extends uiDatePicker
 		$this->init_code = "datetimepicker";
 	}
 }
-
-?>

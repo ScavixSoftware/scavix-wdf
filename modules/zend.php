@@ -65,5 +65,3 @@ function zend_font_path()
 {
 	return dirname(__FILE__)."/zend/fonts/";
 }
-
-?>

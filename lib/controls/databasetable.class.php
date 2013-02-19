@@ -56,6 +56,10 @@ class DatabaseTable extends Table
 
 	var $ParsingBehaviour = self::PB_HTMLSPECIALCHARS;
 
+	/**
+	 * @param DataSource $datasource DataSource to use
+	 * @param string $datatype Datatype to be rendered
+	 */
 	function __initialize($datasource,$datatype=false)
 	{
 		parent::__initialize();
@@ -502,5 +506,3 @@ class DatabaseTable extends Table
 		return $this;
 	}
 }
-
-?>
