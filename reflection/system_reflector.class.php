@@ -210,7 +210,8 @@ class System_Reflector extends ReflectionClass
 
 			if( !__search_file_for_class($name."Attribute") )
 			{
-				log_trace("Invalid Attribute: $m ({$name}Attribute) found in Comment '$comment'");
+				if( $name!='NoMinify' )
+					log_trace("Invalid Attribute: $m ({$name}Attribute) found in Comment '$comment'");
 				continue;
 			}
 
