@@ -356,10 +356,6 @@ class SysAdmin extends HtmlPage
 	 */
 	function Testing()
 	{
-		$f = new ImageScroller('is1');
-		$f->AddImage("http://vsvr-www.local/sample/documentor/qrcode.png");
-		$f->AddImage("http://vsvr-www.local/sample/documentor/qrcode logo 2.jpg");
-		$f->AddImage("http://vsvr-www.local/sample/documentor/qrcode logo.jpg");
-		$this->content($f);
+		
 	}
 }
