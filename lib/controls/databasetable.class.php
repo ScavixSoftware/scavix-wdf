@@ -279,7 +279,7 @@ class DatabaseTable extends Table
         $this->GetData();
         $this->PreRenderExtender();
 		
-        if( !$this->ResultSet || $this->ResultSet->EOF )
+        if( !$this->ResultSet || $this->ResultSet->Count()==0 )
 		{
 			if( !$this->noDataAsRow )
 	           return $this->contentNoData;

@@ -29,7 +29,7 @@
  * We really need more functionality than provided by default, so extending it by overriding
  * and then setting the new `PDO::ATTR_STATEMENT_CLASS` to 'ResultSet' in <DataSource> constructor.
  */
-class ResultSet extends PDOStatement
+class ResultSet extends PDOStatement implements ArrayAccess
 {
 	private $_ds = null;
 	private $_sql_used = null;
@@ -102,11 +102,9 @@ class ResultSet extends PDOStatement
 		switch( $name )
 		{
 			case "EOF": 
-				if( !$this->_current ) $this->_current = $this->fetch();
-				return $this->_current === false;
+				WdfDbException::Raise("'EOF' is deprecated. You may ResultSet::Count()==0 instead");
 			case "fields": 
-				if( !$this->_current ) $this->_current = $this->fetch();
-				return $this->_current;
+				WdfDbException::Raise("'fields' is deprecated. Please use direct array access intead: \$resultSet['my_column']");
 		}
 	}
 	
@@ -235,7 +233,7 @@ class ResultSet extends PDOStatement
 		}
 		
 		if( $fetch_style == null && $this->FetchMode )
-			$fetch_style = $this->FetchMode;			
+			$fetch_style = $this->FetchMode;
 		
 		$this->_current = parent::fetch($fetch_style, $cursor_orientation, $cursor_offset);
 		if( $this->_current !== false )
@@ -261,6 +259,9 @@ class ResultSet extends PDOStatement
 		
 		if( $this->_loaded_from_cache )
 			return $this->_rowbuffer;
+		
+		if( $fetch_style == null && $this->FetchMode )
+			$fetch_style = $this->FetchMode;
 
 		// we need to set the default datasource as it is not passed thru ctor in all cases
 		// so we just remember the default here and set it to this ones if they differ
@@ -358,5 +359,39 @@ class ResultSet extends PDOStatement
 			if( !$distinct || !in_array($row[$column_name], $res) )
 				$res[] = $row[$column_name];
 		return $res;
+	}
+	
+	/**
+	 * Returns the number of affected rows.
+	 * 
+	 * @return int Number of affected rows
+	 */
+	function Count()
+	{
+		return $this->rowCount();
+	}
+
+	public function offsetExists($offset)
+	{
+		if( !$this->_current ) $this->_current = $this->fetch();
+		return isset($this->_current[$offset]);
+	}
+
+	public function offsetGet($offset)
+	{
+		if( !$this->_current ) $this->_current = $this->fetch();
+		return isset($this->_current[$offset]) ? $this->_current[$offset] : null;
+	}
+
+	public function offsetSet($offset, $value)
+	{
+		if( !$this->_current ) $this->_current = $this->fetch();
+		$this->_current[$offset] = $value;
+	}
+
+	public function offsetUnset($offset)
+	{
+		if( !$this->_current ) $this->_current = $this->fetch();
+		unset($this->_current[$offset]);
 	}
 }

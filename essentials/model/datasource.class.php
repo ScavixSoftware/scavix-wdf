@@ -299,13 +299,7 @@ class DataSource
 		// Dont think that using wrong values for performance reasons is best practice!
 		$sql = $this->Driver->Now($seconds_to_add);
 		$rs = $this->CacheExecuteSql("SELECT $sql as dt",array(),1);
-		return $rs->fields['dt'];
-		
-		
-		// For performance reason we use system time here, not the DB servers time.
-		// This is in fact wrong as for example MySQL *may* use other time settings than the system.
-		$res = time() + $seconds_to_add;
-		return date("Y-m-d H:i:s", $res);
+		return $rs['dt'];
 	}
 	
 	function TableForType($type)

@@ -70,47 +70,47 @@ function createShopInvoice($invoicenr, $user, $shop)
 			WHERE o.invoice_number=?0 AND o.user_id=?1
 			ORDER BY i.order_item_id";
 	$rs = $shop->ExecuteSql($sql, array($invoicenr,$shop_user_id));
-	if( $rs->EOF )
+	if( $rs->Count() == 0 )
 		return("not found!");
 
 	$vat_country_code = $shop->ExecuteScalar("SELECT country_code
 							 FROM va_countries
-							 WHERE country_id = ?0", array($rs->fields['country_id']));
+							 WHERE country_id = ?0", array($rs['country_id']));
 	
 	$vat_number = $shop->ExecuteScalar("SELECT property_value
 							 FROM va_orders_properties
-							 WHERE order_id = ?0 AND property_name like '%VAT%'", array($rs->fields['order_id']));
+							 WHERE order_id = ?0 AND property_name like '%VAT%'", array($rs['order_id']));
 	$pdf = new InvoicePdf();
 	$pdf->Logo = invoiceStandardLogo();
 	$pdf->InvoiceNumber = $invoicenr;
-	$pdf->Firstname = $rs->fields['first_name'];
-	$pdf->Lastname = trim($rs->fields['last_name'].$rs->fields['name']);
-	$pdf->Companyname = $rs->fields['company_name'];
-	$pdf->Zip = $rs->fields['zip'];
-	$pdf->City = $rs->fields['city'];
+	$pdf->Firstname = $rs['first_name'];
+	$pdf->Lastname = trim($rs['last_name'].$rs['name']);
+	$pdf->Companyname = $rs['company_name'];
+	$pdf->Zip = $rs['zip'];
+	$pdf->City = $rs['city'];
 	$pdf->Country = getString("TXT_COUNTRY_".$vat_country_code);
-	$pdf->Address1 = $rs->fields['address1'];
-	$pdf->Address2 = $rs->fields['address2'];
-	$pdf->VatPercent = $rs->fields['tax_percent'];
+	$pdf->Address1 = $rs['address1'];
+	$pdf->Address2 = $rs['address2'];
+	$pdf->VatPercent = $rs['tax_percent'];
 	$pdf->VatNumber = $vat_number;
 	$pdf->VatCountryCode = $vat_country_code;
-	$pdf->OrderDate = $rs->fields['order_placed_date'];
+	$pdf->OrderDate = $rs['order_placed_date'];
 	
-	if($rs->fields['payment_processor'] != "")
-		$pdf->PaidHintProcessor = $rs->fields['payment_processor'];
+	if($rs['payment_processor'] != "")
+		$pdf->PaidHintProcessor = $rs['payment_processor'];
 		
-	$pdf->CI = Localization::get_currency_culture($rs->fields['currency_code']);
+	$pdf->CI = Localization::get_currency_culture($rs['currency_code']);
 	$pdf->Language = $user->getCulture()->ResolveToLanguage();
 	
 	$rsi = $shop->ExecuteSql("SELECT item_code, item_name, price, tax_percent, quantity
 							 FROM va_orders_items
 							 WHERE order_id = ?0
-							 ORDER BY order_item_id", array($rs->fields['order_id']));
+							 ORDER BY order_item_id", array($rs['order_id']));
 	foreach( $rsi as $row)
 	{
 		$itemname = str_replace('?', '', $row['item_name']);
 		$itemname = invoicePdfPreFormatText($itemname,$pdf->Language->Code,$user);
-		$price = $rs->fields['currency_rate'] * $row['price'];				
+		$price = $rs['currency_rate'] * $row['price'];				
 		$pdf->AddItem($itemname, $row['quantity'], $price);
 	}
 	

@@ -180,7 +180,7 @@ class DbSession extends SessionBase
 			"SELECT COUNT(*) as cnt FROM ".$CONFIG['session']['table']."
 			WHERE id=?0 AND storage_id=?1 LIMIT 1",array(session_id(),$id)
 		);
-		return $rs->fields['cnt'] > 0;
+		return $rs['cnt'] > 0;
 	}
 
 	/**
@@ -201,13 +201,13 @@ class DbSession extends SessionBase
 			"SELECT content FROM ".$CONFIG['session']['table']."
 			WHERE id=?0 AND storage_id=?1 LIMIT 1",array(session_id(),$id)
 		);
-		if( $rs->EOF )
+		if( $rs->Count() == 0 )
 		{
 			log_trace("Trying to restore unknown object '$id'");
 			$null = null;
 			return $null;
 		}
-		$data = $rs->fields['content'];
+		$data = $rs['content'];
 
 		$serializer = new Serializer();
 		$res = $serializer->Unserialize($data);

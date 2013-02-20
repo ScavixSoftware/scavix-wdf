@@ -742,7 +742,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		if( $q->rowCount() > 0 )
 		{
 			foreach( $this->GetColumnNames() as $col )
-				$this->$col = $q->fields[$col];
+				$this->$col = $q[$col];
 			$this->_query = false;
 			$this->_results = false;
 			$this->_index = 0;
