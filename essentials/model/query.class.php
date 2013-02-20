@@ -64,11 +64,11 @@ class Query
 		return $this->_statement->GetArgs();
 	}
 	
-	public function GetPagingInfo()
+	public function GetPagingInfo($key=false)
 	{
 		if( !$this->_statement )
 			return "";
-		return $this->_statement->GetPagingInfo();
+		return $this->_statement->GetPagingInfo($key);
 	}
 
 	function __execute($injected_sql=false, $injected_arguments=array(), $ctor_args=null)

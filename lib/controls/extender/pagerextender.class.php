@@ -66,8 +66,9 @@ class PagerExtender extends ControlExtender
 		$ui = $this->Container;
 		$ui->_content = array();
 
+		log_debug($this);
 		$pages = ceil($this->Total / $this->ItemsPerPage);
-//		log_debug("$pages = ceil($this->Total / $this->ItemsPerPage);");
+
 		if( $pages < 2 )
 		{
 //			log_debug("PagerExtender: No pages to render");
