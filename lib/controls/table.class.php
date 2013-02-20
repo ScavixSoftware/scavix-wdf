@@ -251,6 +251,7 @@ class Table extends uiControl
 	{
 		$cg = $this->ColGroup();
 		$head = $this->Header();
+		$foot = $this->Footer();
 		foreach( func_get_args() as $i=>$a )
 		{
 			switch( strtolower($a) )
@@ -259,16 +260,19 @@ class Table extends uiControl
 				case 'left':
 					$cg->SetCol($i,false,'left');
 					$head->GetCell($i)->align = 'left';
+					$foot->GetCell($i)->align = 'left';
 					break;
 				case 'r':
 				case 'right':
 					$cg->SetCol($i,false,'right');
 					$head->GetCell($i)->align = 'right';
+                    $foot->GetCell($i)->align = 'right';
 					break;
 				case 'c':
 				case 'center':
 					$cg->SetCol($i,false,'center');
 					$head->GetCell($i)->align = 'center';
+                    $foot->GetCell($i)->align = 'center';
 					break;
 			}
 		}

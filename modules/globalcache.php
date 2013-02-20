@@ -365,7 +365,7 @@ function globalcache_delete($key)
 			break;
 
 		case globalcache_CACHE_APC:
-			return apc_delete($GLOBALS["globalcache_key_prefix"].$key);
+			return apc_fetch($GLOBALS["globalcache_key_prefix"].$key);
 			break;
 
 		case globalcache_CACHE_ZEND:
@@ -487,6 +487,16 @@ function globalcache_list_keys()
 				return $rs->Enumerate('full_key');
 			}catch(Exception $ex){}
 			return array(); 
+            
+        case globalcache_CACHE_APC:
+            $ret = array();
+            $cacheinfo = apc_cache_info('user');
+            $keyprefixlen = strlen($GLOBALS["globalcache_key_prefix"]);
+            foreach($cacheinfo['cache_list'] as $cacheentry)
+                $ret[] = substr($cacheentry['info'], $keyprefixlen);
+            return $ret;
+            break;
+            
 		default:
 			WdfException::Raise("globalcache_list_keys not implemented for handler {$CONFIG['globalcache']['CACHE']}");
 			break;
