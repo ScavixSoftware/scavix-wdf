@@ -23,11 +23,22 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
-class jqTreeView extends Control
+/**
+ * A TreeView control.
+ * 
+ * Nodes are represented by <uiTreeNode> objects
+ * @attribute[Resource('jquery-ui/ui.treeview.js')]
+ * @attribute[Resource('jquery-ui/ui.treeview.js')]
+ */
+class uiTreeView extends uiControl
 {
 	var $Url = false;
 	var $NodeSelected = false;
 
+	/**
+	 * @param string $url Optional URL to load data from
+	 * @param string $nodeSelected JS callback function to call when a node has been selected
+	 */
     function __initialize($url=false,$nodeSelected=false)
 	{
 		parent::__initialize("");
@@ -35,6 +46,9 @@ class jqTreeView extends Control
 		$this->NodeSelected = $nodeSelected;
 	}
 
+	/**
+	 * @override Prepares JS options and init code
+	 */
 	function  PreRender($args=array())
 	{
 		if( $this->Url || $this->NodeSelected )
@@ -48,21 +62,35 @@ class jqTreeView extends Control
 		}
 		else
 			$this->script("$('#".$this->id."').treeview({});");
-//		log_debug($args);
-//		log_debug($this->_script);
 		return parent::PreRender($args);
 	}
 
+	/**
+	 * Adds a root node to the tree
+	 * 
+	 * Returns the node object so you may chain adding subnodes:
+	 * <code php>
+	 * $sub = uiTreeView::Make()->AddRootNode("Root1")->AddNode("Subnode 1");
+	 * $sub->AddNode("Subnode 2);
+	 * </code>
+	 * @param type $text
+	 * @param type $class
+	 * @return uiTreeNode
+	 */
 	function &AddRootNode($text,$class="folder")
 	{
 		$this->Tag = "ul";
-		$res = new jqTreeNode($text);
+		$res = new uiTreeNode($text);
 		$this->content($res);
 		return $res;
 	}
 }
 
-class jqTreeNode extends Control
+/**
+ * Represents a tree node in a <uiTreeView>.
+ * 
+ */
+class uiTreeNode extends Control
 {
 	var $tree = false;
 	var $text = false;
@@ -70,6 +98,10 @@ class jqTreeNode extends Control
 	var $expanded = "closed";
 	var $children = false;
 
+	/**
+	 * No need to call this manually, use <uiTreeView::AddRootNode>() instead.
+	 * @param string $text Node label text
+	 */
 	function __initialize($text)
 	{
 		parent::__initialize("li");
@@ -77,6 +109,17 @@ class jqTreeNode extends Control
 		$this->content($text);
 	}
 
+	/**
+	 * Adds a subnode.
+	 * 
+	 * This creates a new <uiTreeNode> object and returns it for method chaining:
+	 * <code php>
+	 * $sub = uiTreeView::Make()->AddRootNode("Root1")->AddNode("Subnode 1");
+	 * $sub->AddNode("Subnode 2);
+	 * </code>
+	 * @param string $text Subnode label text
+	 * @return uiTreeNode The created node
+	 */
 	function &AddNode($text)
 	{
 		if( !$this->tree )
@@ -85,7 +128,7 @@ class jqTreeNode extends Control
 			$this->content( $this->tree );
 		}
 
-		$res = new jqTreeNode($text);
+		$res = new uiTreeNode($text);
 		$this->tree->content($res);
 		return $res;
 	}

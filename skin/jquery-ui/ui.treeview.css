@@ -21,12 +21,12 @@
 	text-decoration: underline;
 }
 
-.ui-treeview-selected {
+.ui-treeview-selected > .icon {
 	font-weight: bold;
 }
 .ui-treeview-loading > .hit
 {
-	background: url(images/ajax-loader.gif) -1px -1px no-repeat !important;
+	background: url(../loading.gif) -1px -1px no-repeat !important;
 }
 
 /* fix for IE6 */

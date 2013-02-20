@@ -93,7 +93,7 @@ $.widget( "ui.treeview",
 				tree._initSubtree($(this));
 			});
 
-		this.element.find('li').live('click.treeview',function(event)
+		this.element.find('li').on('click.treeview',function(event)
 		{
 			var node = $(this);
 			var selected = tree.element.find('.ui-treeview-selected').removeClass('ui-treeview-selected');
