@@ -66,7 +66,7 @@ class DataSource
 		}catch(Exception $ex){ WdfDbException::Raise("Error connecting database",$dsn,$ex); }
 		if( !$this->_pdo )
 			WdfDbException::Raise("Something went horribly wrong with the PdoLayer");
-		$this->_pdo->setAttribute( PDO::ATTR_STATEMENT_CLASS, array( "ResultSet", array($this) ) );
+		$this->_pdo->setAttribute( PDO::ATTR_STATEMENT_CLASS, array( "WdfPdoStatement", array($this,$this->_pdo) ) );
 
 		$driver = $this->_pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
 		switch( $driver )
@@ -202,7 +202,7 @@ class DataSource
 		$stmt = $this->_pdo->prepare($sql);
 		if( !$stmt )
 			WdfDbException::Raise("Invalid SQL: $sql");
-		return $stmt;
+		return new ResultSet($this,$stmt);
 	}
 
 	function ExecuteSql($sql,$parameter=array())
@@ -213,7 +213,7 @@ class DataSource
 		$stmt = $this->Prepare($sql);
 		if( !$stmt->execute($parameter) )
 			WdfDbException::Raise("SQL Error: ".$stmt->ErrorOutput(),"\nSQL: $sql","\nArguments:",$parameter);
-		$this->_last_affected_rows_count = $stmt->rowCount();
+		$this->_last_affected_rows_count = $stmt->Count();
 		return $stmt;
 	}
 	
@@ -319,7 +319,7 @@ class DataSource
 	{
 		$stmt = $this->Prepare($sql);
 		$stmt->execute($prms);
-		$this->_last_affected_rows_count = $stmt->rowCount();
+		$this->_last_affected_rows_count = $stmt->Count();
 		return $stmt->fetchColumn();
 	}
 	
@@ -362,7 +362,7 @@ class DataSource
 		$stmt = $this->Driver->getPagedStatement($sql,$page,$items_per_page);
 		if( !$stmt->execute($parameter) )
 			log_error("SQL Error: $sql",$parameter);
-		$this->_last_affected_rows_count = $stmt->rowCount();
+		$this->_last_affected_rows_count = $stmt->Count();
 		return $stmt;
 	}
 	

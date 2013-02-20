@@ -24,14 +24,17 @@
  */
  
 /**
- * Wraps PDOStatement class
+ * This is our own Statement class
  * 
- * We really need more functionality than provided by default, so extending it by overriding
- * and then setting the new `PDO::ATTR_STATEMENT_CLASS` to 'ResultSet' in <DataSource> constructor.
+ * There are some difficulties with PHPs PDOStatement class as it will not allow us to override all methods (Traversable hides Iterator).
+ * So we cannot simply inherit from there, but must wrap it.
+ * @internal 
  */
-class ResultSet extends PDOStatement implements ArrayAccess
+class ResultSet implements Iterator, ArrayAccess
 {
+	private $_stmt = null;
 	private $_ds = null;
+	private $_pdo = null;
 	private $_sql_used = null;
 	private $_arguments_used = null;
 	private $_paging_info = null;
@@ -40,15 +43,19 @@ class ResultSet extends PDOStatement implements ArrayAccess
 	private $_rowbuffer = array();
 	private $_loaded_from_cache = false;
 	private $_data_fetched = false;
+	private $_rowCount = false;
 	
 	/*--- Compatibility to old model ---*/
 	private $_current = false;
 	
-	public $FetchMode = false;
+	public $FetchMode = PDO::FETCH_ASSOC;
 	
-	protected function __construct($datasource)
+	function __construct(DataSource $ds, WdfPdoStatement $statement)
 	{
-		$this->_ds = $datasource;
+		$this->_ds = $ds;
+		$this->_stmt = $statement;
+		if( $statement )
+			$this->_pdo = $statement->_pdo;
 	}
 	
 	/**
@@ -59,7 +66,7 @@ class ResultSet extends PDOStatement implements ArrayAccess
 	 */
 	public function ErrorOutput()
 	{
-		return $this->_sql_used."\n".my_var_export($this->errorInfo());
+		return $this->_sql_used."\n".my_var_export($this->_stmt->errorInfo());
 	}
 	
 	/**
@@ -96,18 +103,6 @@ class ResultSet extends PDOStatement implements ArrayAccess
 		return $this->_arguments_used;
 	}
 
-	public function __get($name)
-	{
-		/*--- Compatibility to old model ---*/
-		switch( $name )
-		{
-			case "EOF": 
-				WdfDbException::Raise("'EOF' is deprecated. You may ResultSet::Count()==0 instead");
-			case "fields": 
-				WdfDbException::Raise("'fields' is deprecated. Please use direct array access intead: \$resultSet['my_column']");
-		}
-	}
-	
 	/**
 	 * Savely serializes this object
 	 * 
@@ -118,12 +113,13 @@ class ResultSet extends PDOStatement implements ArrayAccess
 	{
 		$buf = array(
 			'ds' => $this->_ds->_storage_id,
-			'sql' => $this->queryString,
+			'sql' => $this->_stmt->queryString,
 			'args' => $this->_arguments_used,
 			'paging_info' => $this->_paging_info,
 			'field_types' => $this->_field_types,
 			'index' => $this->_index,
 			'rows' => $this->_rowbuffer,
+			'rowCount' => $this->_rowCount,
 			'df' => $this->_data_fetched,
 		);		
 		return serialize($buf);
@@ -139,13 +135,14 @@ class ResultSet extends PDOStatement implements ArrayAccess
 	static function &unserialize($data)
 	{
 		$buf = unserialize($data);
-		$res = new ResultSet(model_datasource($buf['ds']));
+		$res = new ResultSet(model_datasource($buf['ds']),null);
 		$res->_sql_used = $buf['sql'];
 		$res->_arguments_used = $buf['args'];
 		$res->_paging_info = $buf['paging_info'];
 		$res->_field_types = $buf['field_types'];
 		$res->_index = $buf['index'];
 		$res->_rowbuffer = $buf['rows'];
+		$res->_rowCount = isset($buf['rowCount'])?$buf['rowCount']:false;
 		$res->_loaded_from_cache = true;
 		$res->_data_fetched = isset($buf['df'])?$buf['df']:false;
 		if( isset($res->_rowbuffer[$res->_index]) )
@@ -171,9 +168,9 @@ class ResultSet extends PDOStatement implements ArrayAccess
 		$this->_arguments_used[$parameter] = $value;
 		
 		if( is_null($data_type) )
-			return parent::bindValue($parameter, $value);
+			return $this->_stmt->bindValue($parameter, $value);
 		else
-			return parent::bindValue($parameter, $value, $data_type);
+			return $this->_stmt->bindValue($parameter, $value, $data_type);
 	}
 	
 	/**
@@ -190,7 +187,7 @@ class ResultSet extends PDOStatement implements ArrayAccess
 		if( !is_null($input_parameters) && !is_array($input_parameters) )
 			$input_parameters = array($input_parameters);
 		
-		$this->_sql_used = $this->queryString;
+		$this->_sql_used = $this->_stmt->queryString;
 		if( !is_null($input_parameters) )
 		{
 			if( is_null($this->_arguments_used) )
@@ -203,9 +200,9 @@ class ResultSet extends PDOStatement implements ArrayAccess
 			$this->_ds->LastStatement = $this;
 		
 		if( is_null($input_parameters) )
-			return parent::execute();
+			return $this->_stmt->execute();
 		else
-			return parent::execute($input_parameters);
+			return $this->_stmt->execute($input_parameters);
 	}
 	
 	/**
@@ -235,7 +232,7 @@ class ResultSet extends PDOStatement implements ArrayAccess
 		if( $fetch_style == null && $this->FetchMode )
 			$fetch_style = $this->FetchMode;
 		
-		$this->_current = parent::fetch($fetch_style, $cursor_orientation, $cursor_offset);
+		$this->_current = $this->_stmt->fetch($fetch_style, $cursor_orientation, $cursor_offset);
 		if( $this->_current !== false )
 		{
 			$this->_index = count($this->_rowbuffer);
@@ -275,13 +272,13 @@ class ResultSet extends PDOStatement implements ArrayAccess
 		if( is_null($ctor_args) )
 			if( is_null($column_index) )
 				if( is_null($fetch_style) )
-					$this->_rowbuffer = parent::fetchAll();
+					$this->_rowbuffer = $this->_stmt->fetchAll();
 				else
-					$this->_rowbuffer = parent::fetchAll($fetch_style);
+					$this->_rowbuffer = $this->_stmt->fetchAll($fetch_style);
 			else
-				$this->_rowbuffer = parent::fetchAll($fetch_style,$column_index);
+				$this->_rowbuffer = $this->_stmt->fetchAll($fetch_style,$column_index);
 		else
-			$this->_rowbuffer = parent::fetchAll($fetch_style, $column_index, $ctor_args);
+			$this->_rowbuffer = $this->_stmt->fetchAll($fetch_style, $column_index, $ctor_args);
 		
 		if( count($this->_rowbuffer) > 0 )
 		{
@@ -294,7 +291,6 @@ class ResultSet extends PDOStatement implements ArrayAccess
 		{
 			$cnt = count($this->_rowbuffer);
 			for( $i=0; $i<$cnt; $i++ )
-			//foreach( $this->_rowbuffer as &$r)
 			{
 				$this->_rowbuffer[$i]->__initialize($this->_ds);
 				$this->_rowbuffer[$i]->__init_db_values();
@@ -333,7 +329,7 @@ class ResultSet extends PDOStatement implements ArrayAccess
 	function GetPagingInfo($key=false)
 	{
 		if( !$this->_paging_info )
-			$this->_paging_info = $this->_ds->Driver->getPagingInfo($this->queryString,$this->_arguments_used);
+			$this->_paging_info = $this->_ds->Driver->getPagingInfo($this->_stmt->queryString,$this->_arguments_used);
 		if( $key && isset($this->_paging_info[$key]) )
 			return $this->_paging_info[$key];
 		return $this->_paging_info;
@@ -370,6 +366,27 @@ class ResultSet extends PDOStatement implements ArrayAccess
 	{
 		return $this->rowCount();
 	}
+	
+	/**
+	 * @override Make sure that SqLite returns something on SELECT statements too
+	 */
+	function rowCount()
+	{
+		if( $this->_rowCount === false )
+		{
+			if( $this->_ds->Driver instanceof MySql )
+				$this->_rowCount = $this->_stmt->rowCount();
+			elseif( !starts_with(trim(strtolower($this->_sql_used)),'select') )
+				$this->_rowCount = $this->_stmt->rowCount();
+			else
+			{
+				$stmt = $this->_pdo->prepare("SELECT count(*) FROM( {$this->_sql_used} ) as x");
+				$stmt->execute($this->_arguments_used);
+				$this->_rowCount = $stmt->fetchColumn();
+			}
+		}
+		return $this->_rowCount;
+	}
 
 	public function offsetExists($offset)
 	{
@@ -393,5 +410,42 @@ class ResultSet extends PDOStatement implements ArrayAccess
 	{
 		if( !$this->_current ) $this->_current = $this->fetch();
 		unset($this->_current[$offset]);
+	}
+
+	public function current() {
+		if( !$this->_current ) $this->_current = $this->fetch();
+		return $this->_current;
+	}
+
+	public function key() {
+		return $this->_index;
+	}
+
+	public function next() {
+		$this->_current = $this->fetch();
+	}
+
+	public function rewind() {
+		$this->_index = 0;
+	}
+
+	public function valid() {
+		if( !$this->_current ) $this->_current = $this->fetch();
+		return $this->_current !== false;
+	}
+}
+
+/**
+ * @internal Extends PDOStatement so that we can easily capture calling <DataSource>
+ */
+class WdfPdoStatement extends PDOStatement
+{
+	var $_ds = null;
+	var $_pdo = null;
+	
+	protected function __construct($datasource,$pdo)
+	{
+		$this->_ds = $datasource;
+		$this->_pdo = $pdo;
 	}
 }

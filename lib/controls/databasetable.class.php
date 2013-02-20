@@ -36,7 +36,7 @@ class DatabaseTable extends Table
 
 	var $DataSource = false;
 	var $ResultSet = false;
-	var $DataType = false;
+	var $DataTable = false;
 	var $Sql = false;
 	var $CacheExecute = false;
 
@@ -59,12 +59,20 @@ class DatabaseTable extends Table
 	/**
 	 * @param DataSource $datasource DataSource to use
 	 * @param string $datatype Datatype to be rendered
+	 * @param string $datatable Data tyble to be rendered
 	 */
-	function __initialize($datasource,$datatype=false)
+	function __initialize($datasource,$datatype=false,$datatable=false)
 	{
 		parent::__initialize();
-		$this->DataType = $datatype;
 		$this->DataSource = $datasource;
+		
+		if( $datatype )
+			$this->DataTable = $this->DataSource->TableForType($datatype);
+		elseif( $datatable )
+			$this->DataTable = $datatable;
+		else
+			WdfDbException::Raise("You must specify datatype or datatable");
+		
 		store_object($this);
 	}
 	
@@ -77,17 +85,17 @@ class DatabaseTable extends Table
 		else
 		{
 			if( isset($this->ItemsPerPage) )
-				$this->ResultSet = $this->DataSource->DB->PageExecute($sql,$this->ItemsPerPage,$this->CurrentPage,$prms);
+				$this->ResultSet = $this->DataSource->PageExecute($sql,$this->ItemsPerPage,$this->CurrentPage,$prms);
 			else
 			{
 				if( $this->CacheExecute )
 					$this->ResultSet = $this->DataSource->CacheExecuteSql($sql,$prms);
 				else
-					$this->ResultSet = $this->DataSource->DB->Execute($sql,$prms);
+					$this->ResultSet = $this->DataSource->ExecuteSql($sql,$prms);
 			}
 		}
-		if( $this->DataSource->DB->ErrorMsg() )
-			log_error(get_class($this).": ".$this->DataSource->DB->ErrorMsg());
+		if( $this->DataSource->ErrorMsg() )
+			log_error(get_class($this).": ".$this->DataSource->ErrorMsg());
 	}
 
 	/**
@@ -142,10 +150,9 @@ class DatabaseTable extends Table
 			if( $this->OrderBy && !preg_match('/^\s+ORDER\sBY\s+/',$this->OrderBy) ) $this->OrderBy = " ORDER BY ".$this->OrderBy;
 			if( $this->Limit && !preg_match('/^\s+LIMIT\s+/',$this->Limit) ) $this->Limit = " LIMIT ".$this->Limit;
 
-			$table = $this->DataSource->TableForType($this->DataType);
 			$sql = "SELECT @fields@ FROM @table@@where@@groupby@@having@@orderby@@limit@";
 			$sql = str_replace("@fields@",$this->Columns,$sql);
-			$sql = str_replace("@table@","`".$table."`",$sql);
+			$sql = str_replace("@table@","`".$this->DataTable."`",$sql);
 			$sql = str_replace("@where@",$this->Where,$sql);
 			$sql = str_replace("@groupby@",$this->GroupBy,$sql);
 			$sql = str_replace("@having@",$this->Having,$sql);
@@ -295,7 +302,6 @@ class DatabaseTable extends Table
 		}
         else
         {
-			$this->ResultSet->FetchMode = PDO::FETCH_ASSOC;
             foreach( $this->ResultSet as $row )
             {
 				$row = $this->_preProcessData($row);
