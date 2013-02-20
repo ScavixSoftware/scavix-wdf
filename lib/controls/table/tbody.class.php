@@ -23,6 +23,10 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * This is tbody in div annotation.
+ * 
+ */
 class TBody extends Control
 {
 	private $table = false;
@@ -34,6 +38,16 @@ class TBody extends Control
 
 	var $RowOptions = array();
 
+	/**
+	 * Constructs a new <TBody>.
+	 * 
+	 * Possible options: 
+	 * - 'collapsible' := true|false
+	 * - 'visible' := true|false
+	 * @param array $options Options
+	 * @param string $class Classname
+	 * @param Table $parent_table The parent table this belongs to
+	 */
 	function __initialize($options,$class="tbody",&$parent_table=false)
 	{
 		parent::__initialize("div");
@@ -42,6 +56,12 @@ class TBody extends Control
 		$this->table = $parent_table;
 	}
 
+	/**
+	 * Creates a header.
+	 * 
+	 * We treat tbody headers as the first row in the tbody element.
+	 * @return Tr The created header
+	 */
     function &Header()
     {
         if( !$this->header )
@@ -49,6 +69,13 @@ class TBody extends Control
         return $this->header;
     }
 
+	/**
+	 * Creates a new row.
+	 * 
+	 * @param array $data If given creates new cells in the row (see <Tr::NewCell>)
+	 * @param array $options See <Tr> for options
+	 * @return type
+	 */
     function &NewRow($data=false,$options = false)
     {
 		$this->current_row = new Tr($options?$options:$this->RowOptions);
@@ -69,6 +96,9 @@ class TBody extends Control
 		return $this->current_row;
     }
 
+	/**
+	 * @shortcut To create a new cell in the current row (<Tr::NewCell>)
+	 */
     function &NewCell($content=false)
     {
         if( !$this->current_row )
@@ -77,6 +107,9 @@ class TBody extends Control
         return $this->current_cell;
     }
 
+	/**
+	 * @shortcut To get a cell from the current row (<Tr::GetCell>)
+	 */
 	function &GetCell($index)
 	{
 		$null = null;
@@ -85,11 +118,22 @@ class TBody extends Control
 		return $this->current_row->GetCell($index);
 	}
 	
+	/**
+	 * Returns all rows.
+	 * 
+	 * @return array List of <Tr> objects
+	 */
 	function Rows()
 	{
 		return $this->_content;
 	}
 	
+	/**
+	 * Returns the maximum cell count.
+	 * 
+	 * Loops thru all rows and finds the maximum count of cells in a row.
+	 * @return int Maximum cell count
+	 */
 	function GetMaxCellCount()
 	{
 		$max = 0;
@@ -98,6 +142,13 @@ class TBody extends Control
 		return $max;
 	}
 	
+	/**
+	 * Returns all cells contents as array.
+	 * 
+	 * Note that this will return a two-dimensional array as it
+	 * loops thru all rows and for each thru all it's cells.
+	 * @return array Contents of all cells
+	 */
 	function GetCellContentArray()
 	{
 		$res = array();
@@ -111,6 +162,9 @@ class TBody extends Control
 		return $res;
 	}
 
+	/**
+	 * @override Prepares the tbody according to the given options
+	 */
     function WdfRender()
     {
         if( $this->options )
@@ -165,19 +219,6 @@ class TBody extends Control
 
         if( $this->header )
             $this->_content = array_merge(array($this->header),$this->_content);
-
-//		$odd = isset($this->RowOptions['oddclass'])?$this->RowOptions['oddclass']:false;
-//		$even = isset($this->RowOptions['evenclass'])?$this->RowOptions['evenclass']:false;
-//		if( $odd && $even )
-//		{
-//			foreach( $this->_content as &$tr )
-//			{
-//				if( isset($tr->_css['display']) && $tr->_css['display'] != "none" )
-//					continue;
-//				$tr->class = $GLOBALS['TR_CURRENTLY_ODD']?$odd:$even;
-//				$GLOBALS['TR_CURRENTLY_ODD'] = !$GLOBALS['TR_CURRENTLY_ODD'];
-//			}
-//		}
 
         return parent::WdfRender();
     }
