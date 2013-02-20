@@ -209,15 +209,6 @@ class DataSource
 	{
 		if( !is_array($parameter) )
 			$parameter = array($parameter);
-
-		if( count($parameter)==0 )
-		{
-			$ret = $this->_pdo->query($sql);
-			$error = $this->_pdo->errorInfo();
-			if( ($error[0] != "") && ($error[0] != "00000") )
-				WdfDbException::Raise("SQL Error: ".$this->ErrorMsg(),"\nSQL: $sql");
-			return $ret;
-		}
 		
 		$stmt = $this->Prepare($sql);
 		if( !$stmt->execute($parameter) )
