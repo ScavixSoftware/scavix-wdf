@@ -333,6 +333,8 @@ class ResultSet extends PDOStatement
 	{
 		if( !$this->_paging_info )
 			$this->_paging_info = $this->_ds->Driver->getPagingInfo($this->queryString,$this->_arguments_used);
+		if( $key && isset($this->_paging_info[$key]) )
+			return $this->_paging_info[$key];
 		return $this->_paging_info;
 	}
 	

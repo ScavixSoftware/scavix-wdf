@@ -272,10 +272,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $default;
 	}
 	
-	public function GetPagingInfo()
+	public function GetPagingInfo($key=false)
 	{
 		$this->__ensureResults();
-		return $this->_query->GetPagingInfo();
+		return $this->_query->GetPagingInfo($key);
 	}
 	
 	public function FieldValues()
