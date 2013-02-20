@@ -183,7 +183,6 @@ class HtmlPage extends Template implements ICallable
 		$this->css[$src] = $css;
 	}
 
-	function addContent($content) { return $this->content($content); }
 	function content($content)
 	{
 		$this->add2var("content",$content);

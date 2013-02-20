@@ -622,10 +622,8 @@ class Control extends Renderable
 	 */
 	function appendTo($target)
 	{
-		if( $target instanceof Control )
+		if( ($target instanceof Control) || ($target instanceof HtmlPage) )
 			$target->content($this);
-		elseif( $target instanceof HtmlPage )
-			$target->addContent($this);
 		else
 			WdfException::Raise("Target must be of type Control or HtmlPage");
 		return $this;
