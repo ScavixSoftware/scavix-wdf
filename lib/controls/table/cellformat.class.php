@@ -23,6 +23,23 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * Handles cell formatting in a <Table>.
+ * 
+ * Never instanciate this class yourself, this will be done by <Table::SetFormat> or <Table::SetColFormat>.
+ * Valid formats are:
+ * - duration
+ * - fixed, pre, preformatted
+ * - date
+ * - time
+ * - datetime
+ * - curreny
+ * - int, integer
+ * - percent
+ * - float, double, f2, d2
+ * In fact you may also use `array('float',4)` if you want a float with four decimal places but this array syntax only applies to float/double.
+ * How the values are actually formatted depends on the <CultureInfo> you chose.
+ */
 class CellFormat
 {
     var $format = false;
@@ -51,6 +68,11 @@ class CellFormat
 		}
 	}
 	
+	/**
+	 * Gets the format.
+	 * 
+	 * @return string The format
+	 */
 	function GetFormat()
 	{
 		if( is_array($this->format) )
@@ -60,6 +82,9 @@ class CellFormat
 		return $format;
 	}
 
+	/**
+	 * @internal Performs formatting of a table cell (<Td>)
+	 */
 	function Format(&$cell,$culture=false)
 	{
 		$full_content = $cell->GetContent();
@@ -79,6 +104,13 @@ class CellFormat
 		}
 	}
 	
+	/**
+	 * Formats a given string.
+	 * 
+	 * @param string $full_content The string to format
+	 * @param CultureInfo $culture <CultureInfo> object or false if not present
+	 * @return string The formatted string
+	 */
 	function FormatContent($full_content,$culture=false)
 	{
 		$this->content = $content = trim(strip_tags($full_content));
@@ -153,7 +185,7 @@ class CellFormat
 		return $content;
 	}
 
-	function GetConditonalCss()
+	private function GetConditonalCss()
 	{
 		$content = $this->content;
 		foreach( $this->conditional_css as $cond=>$css )

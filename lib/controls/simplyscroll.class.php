@@ -35,6 +35,9 @@ class SimplyScroll extends Control
 {
 	var $Options = array();
 
+	/**
+	 * @param type $options SimplyScroll options (see http://logicbox.net/jquery/simplyscroll)
+	 */
 	function __initialize($options=array())
 	{
 		parent::__initialize("ul");
