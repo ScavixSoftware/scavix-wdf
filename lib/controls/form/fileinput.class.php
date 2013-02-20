@@ -23,19 +23,18 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
-class FileInput extends Control
+/**
+ * This is an &lt;input type=file/&gt;.
+ * 
+ */
+class FileInput extends Input
 {
-    function __initialize($cid="")
+	/**
+	 * @param string $name The name
+	 */
+    function __initialize($name=false)
 	{
-		parent::__initialize("input");
-
-		if( $cid != "" )
-		{
-			$this->id = $cid;
-			$this->name = $this->id;
-		}
-
-		$this->type = "file";
-		$this->class = "fileinput";
+		parent::__initialize();
+		$this->setType("file")->setName($name);
 	}
 }

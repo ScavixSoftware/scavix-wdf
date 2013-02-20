@@ -27,18 +27,15 @@
  *  This is a &lt;input type='radio'/&gt;.
  * 
  */
-class RadioButton extends Control
+class RadioButton extends Input
 {
 	/**
+	 * @param string $value A value
 	 * @param string $name The name
-	 * @param string $val A value
 	 */
-    function __initialize($name,$val = "")
+    function __initialize($value = false,$name=false)
 	{
-		parent::__initialize("input");
-		$this->type = "radio";
-		$this->name = $name;
-		if($val != "")
-			$this->value = $val;
+		parent::__initialize();
+		$this->setType('radio')->setName($name)->setValue($value);
 	}
 }
