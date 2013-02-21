@@ -32,4 +32,5 @@
  */
 class uiTemplate extends Template
 {
+
 }

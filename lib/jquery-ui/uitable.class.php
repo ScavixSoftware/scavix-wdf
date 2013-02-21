@@ -24,11 +24,16 @@
  */
 
 /**
+ * Wrapper class to ensure jQueryUI is loaded.
+ * 
  * @attribute[Resource('jquery-ui/jquery-ui.js')] 
  * @attribute[Resource('jquery-ui/jquery-ui.css')] 
  */
 class uiTable extends Table
 {	
+	/**
+	 * @override Adds some classes to the output
+	 */
 	function WdfRender()
 	{
 		$this->_ensureCaptionObject();

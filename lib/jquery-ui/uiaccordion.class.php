@@ -26,7 +26,7 @@
 /**
  * Wrapper around jQueryUI Accordion
  * 
- * See http://jqueryui.com/demos/accordion/
+ * See http://jqueryui.com/accordion/
  */
 class uiAccordion extends uiControl
 {
@@ -79,9 +79,11 @@ class uiAccordion extends uiControl
 		}
 	}
 	/**
-	 * Adds Content to the specific section
+	 * Adds Content to the specific section.
+	 * 
 	 * @param string $section the section name
 	 * @param mixed $content the content which will be appended
+	 * @return void
 	 */
 	public function AddContentToSection($section,$content)
 	{
@@ -89,8 +91,10 @@ class uiAccordion extends uiControl
 	}
 
 	/**
-	 * Adds options to the accordion
-	 * @param array $options
+	 * Adds options to the accordion.
+	 * 
+	 * @param array $options See http://api.jqueryui.com/accordion/
+	 * @return void
 	 */
 	public function AddOptions($options = array())
 	{

@@ -73,9 +73,9 @@ class uiTreeView extends uiControl
 	 * $sub = uiTreeView::Make()->AddRootNode("Root1")->AddNode("Subnode 1");
 	 * $sub->AddNode("Subnode 2);
 	 * </code>
-	 * @param type $text
-	 * @param type $class
-	 * @return uiTreeNode
+	 * @param type $text Label of the node
+	 * @param type $class Optional css class
+	 * @return uiTreeNode The new node
 	 */
 	function &AddRootNode($text,$class="folder")
 	{

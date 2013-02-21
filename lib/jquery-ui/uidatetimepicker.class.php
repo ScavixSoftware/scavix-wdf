@@ -24,11 +24,18 @@
  */
 
 /**
+ * A jQueryUI date and time picker control.
+ * 
+ * See http://trentrichardson.com/examples/timepicker/
  * @attribute[Resource('jquery-ui/ui.datetimepicker.js')]
  * @attribute[Resource('jquery-ui/ui.datetimepicker.css')]
  */
 class uiDateTimePicker extends uiDatePicker
 {
+	/**
+	 * @param string $value Current value
+	 * @param bool $inline If true will be displayed inline
+	 */
 	function __initialize($value = false, $inline = false)
 	{		
 		parent::__initialize($value,$inline);

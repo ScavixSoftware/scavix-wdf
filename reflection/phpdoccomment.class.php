@@ -30,7 +30,6 @@
  */
 class PhpDocComment
 {
-	var $debug=false;
 	var $ShortDesc = "";
 	var $LongDesc = "";
 	var $Tags = array();

@@ -24,10 +24,19 @@
  */
 
 /**
+ * This is an inline message.
+ * 
+ * Will use the jQueryUI standard theming.
  * @attribute[Resource('jquery-ui/ui.message.css')]
  */
 class uiMessage extends uiTemplate
 {
+	/**
+	 * Creates a new uiMessage as hint.
+	 * 
+	 * @param string $message Hint text
+	 * @return uiMessage A new uiMessage 
+	 */
 	static function Hint($message)
 	{
 		if( function_exists('translation_string_exists') && translation_string_exists($message) )
@@ -38,6 +47,12 @@ class uiMessage extends uiTemplate
 		return $res;
 	}
 	
+	/**
+	 * Creates a new uiMessage as error.
+	 * 
+	 * @param string $message Error text
+	 * @return uiMessage A new uiMessage 
+	 */
 	static function Error($message)
 	{
 		$res = uiMessage::Hint($message);

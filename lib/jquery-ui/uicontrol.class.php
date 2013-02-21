@@ -123,6 +123,7 @@ class uiControl extends Control
 	 * 
 	 * Checks agains the valid jQuery UI icons and return is, if present.
 	 * Else throws an Exception.
+	 * Have a look at the theme roller for valid icons: http://jqueryui.com/themeroller/
 	 * @param string $icon_to_test Name of the icon like 'circle-plus'
 	 * @return string The icon string as given in like 'circle-plus'
 	 */
@@ -136,7 +137,7 @@ class uiControl extends Control
 	/**
 	 * Add draggable init code to the uiControl.
 	 * 
-	 * See http://api.jqueryui.com/draggable/
+	 * @param array $options See http://api.jqueryui.com/draggable/
 	 * @return uiControl $this
 	 */
 	public function Draggable($options=array())
@@ -148,7 +149,7 @@ class uiControl extends Control
 	/**
 	 * Add droppable init code to the uiControl.
 	 * 
-	 * See http://api.jqueryui.com/droppable/
+	 * @param array $options See http://api.jqueryui.com/droppable/
 	 * @return uiControl $this
 	 */
 	public function Droppable($options=array())
@@ -160,7 +161,7 @@ class uiControl extends Control
 	/**
 	 * Add resizable init code to the uiControl.
 	 * 
-	 * See http://api.jqueryui.com/resizable/
+	 * @param array $options See http://api.jqueryui.com/resizable/
 	 * @return uiControl $this
 	 */
 	public function Resizable($options=array())

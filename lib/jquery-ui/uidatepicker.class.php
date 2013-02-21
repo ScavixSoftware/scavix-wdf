@@ -27,9 +27,14 @@ default_string('BTN_DP_PREV', 'Prev');
 default_string('TXT_DP_CLOSE', 'Close');
 default_string('TXT_DP_CURRENT', 'Today');
 
+/**
+ * Wraps a jQueryUI DatePicker
+ * 
+ * See http://jqueryui.com/datepicker/
+ */
 class uiDatePicker extends uiControl
 {
-	// all possible settings at http://jqueryui.com/demos/datepicker/#option
+	// all possible settings at http://api.jqueryui.com/datepicker/
 	protected $Options = array(
 		'nextText' => 'BTN_DP_NEXT',
 		'prevText' => 'BTN_DP_PREV',
@@ -41,6 +46,10 @@ class uiDatePicker extends uiControl
 	protected $CultureInfo = false;
 	protected $init_code = "datepicker";
 
+	/**
+	 * @param mixed $value The default value
+	 * @param bool $inline If true will be displayed inline
+	 */
 	function __initialize($value = false, $inline = false)
 	{		
 		parent::__initialize($inline?"div":"input");
@@ -54,6 +63,9 @@ class uiDatePicker extends uiControl
 		}
 	}
 
+	/**
+	 * @override Some initializations
+	 */
 	function PreRender($args = array())
 	{
 		if( !$this->CultureInfo )
@@ -72,6 +84,12 @@ class uiDatePicker extends uiControl
 		parent::PreRender($args);
 	}
 
+	/**
+	 * Sets the culture.
+	 * 
+	 * @param CultureInfo $cultureInfo The (new) culture
+	 * @return uiDatePicker `$this`
+	 */
 	function SetCulture($cultureInfo)
 	{
 		while( $cultureInfo->IsNeutral() )
@@ -103,12 +121,19 @@ class uiDatePicker extends uiControl
 
 		$this->Options['monthNames'] = $cultureInfo->DateTimeFormat->MonthNames;
 		$this->Options['monthNamesShort'] = $cultureInfo->DateTimeFormat->ShortMonthNames;
-//log_debug("Using format {$cultureInfo->DateTimeFormat->ShortDatePattern} -> $format");
 		$this->Options['dateFormat'] = $format;
 		
 		return $this;
 	}
 	
+	/**
+	 * Sets an option.
+	 * 
+	 * See http://api.jqueryui.com/datepicker/
+	 * @param string $name Option name
+	 * @param mixed $value Option value
+	 * @return void
+	 */
 	function SetOption($name,$value)
 	{
 		$this->Options[$name] = $value;
