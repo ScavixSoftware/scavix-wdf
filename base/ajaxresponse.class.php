@@ -117,8 +117,7 @@ class AjaxResponse
 	}
 	
 	/**
-	 * INTERNAL!
-	 * Renders the response for output.
+	 * @internal Renders the response for output.
 	 */
 	function Render()
 	{

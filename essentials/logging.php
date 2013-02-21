@@ -35,8 +35,8 @@ $GLOBALS['LOGGING_ERROR_NAMES'] = array(
  * functionality by default.
  * You may configure multiple loggers of different classes, default is 'Logger'.
  * Specify configuration in CONFIG variable as follows:
- * $CONFIG['system']['logging'][<alias>] = array(<key> => <value>);
- * <alias> is a meanful name for the logger (in fact it can be used to log to only 
+ * $CONFIG['system']['logging'][&lt;alias&gt;] = array(&lt;key&gt; => &lt;value&gt;);
+ * &lt;alias&gt; is a meanful name for the logger (in fact it can be used to log to only 
  * one logger instead of logging to all).
  * Rest is an array of key-value pairs.
  * Following keys are supported:
@@ -152,7 +152,7 @@ function global_exception_handler($ex)
  * Samples:
  * 'error{REMOTE_ADDR}.log' will become 'error_192.168.1.123.log'
  * 'error{REMOTE_ADDR}{username}.log' will become 'error_192.168.1.123.log' until you call
- * logging_extend_logger(<alias>,'username','daniels') and the be 'error_192.168.1.123_daniels.log'.
+ * logging_extend_logger(&lt;alias&gt;,'username','daniels') and the be 'error_192.168.1.123_daniels.log'.
  * 
  * Note that setting extensions is only supported on a per logger basis, so you'll need
  * a valid alias as set in initial configuration.

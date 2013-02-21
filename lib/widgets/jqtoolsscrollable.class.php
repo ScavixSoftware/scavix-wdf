@@ -60,7 +60,7 @@ class jqToolsScrollable extends Template
 	/**
 	 * Add one portion of items to be scrolled
 	 *
-	 * @param <array> $items array of items to be displayed e.g. images
+	 * @param array $items array of items to be displayed e.g. images
 	 */
 	function &AddItemGroup($items)
 	{
@@ -70,7 +70,7 @@ class jqToolsScrollable extends Template
 	/**
 	 * Add a custom easing function
 	 *
-	 * @param <string> $easingname name of the js easing-function
+	 * @param string $easingname name of the js easing-function
 	 */
 	function AddCustomEasing($easingname=false)
 	{

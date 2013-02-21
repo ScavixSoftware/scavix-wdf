@@ -299,15 +299,15 @@ function getString($constant, $arreplace = null, $unbuffered = false, $encoding 
 }
 
 /**
- * returns a localized string from the current user's language. replaces all placeholders in string from arreplace
- * i.e. TXT_TEST => "this is a {tt}" with arreplace = aray("{tt}" => "test") => returns "this is a test"
- * buffers all strings of the user in _SESSION on first access of this function
- * @global <type> $CONFIG
- * @param <string> $constant text constant. i.e. TXT_...
- * @param <array> $arreplace
- * @param <bool> $unbuffered reload from session instead of from cache buffer of current script
- * @param <string> $encoding E.g. cp1252. Default "null" => UTF-8 will be returned
- * @return <string>
+ * Returns a localized string from the current user's language. 
+ * 
+ * Replaces all placeholders in string from arreplace i.e. TXT_TEST => "this is a {tt}" with arreplace = aray("{tt}" => "test") => returns "this is a test"
+ * Buffers all strings on first access of this function.
+ * @param string $constant Text constant. i.e. TXT_...
+ * @param array $arreplace Replacement array
+ * @param bool $unbuffered Reload from session instead of from cache buffer of current script
+ * @param string $encoding E.g. cp1252. Default "null" => UTF-8 will be returned
+ * @return string Translated string
  */
 function getStringOrig($constant, $arreplace = null, $unbuffered = false, $encoding = null)
 {

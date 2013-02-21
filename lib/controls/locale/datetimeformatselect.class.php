@@ -102,7 +102,7 @@ class DateTimeFormatSelect extends Select
 				$res[] = "<option value='".json_encode(array($d,$t))."'>$sv</option>";
 			}
 		}
-		return implode("\n",$res);
+		return AjaxResponse::Text(implode("\n",$res));
 	}
 }
 

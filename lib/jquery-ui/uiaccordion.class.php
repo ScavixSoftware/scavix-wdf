@@ -77,8 +77,8 @@ class uiAccordion extends uiControl
 	}
 	/**
 	 * Adds Content to the specific section
-	 * @param <type> $section the section name
-	 * @param <type> $content the content which will be appended
+	 * @param string $section the section name
+	 * @param mixed $content the content which will be appended
 	 */
 	public function AddContentToSection($section,$content)
 	{
@@ -92,7 +92,7 @@ class uiAccordion extends uiControl
 
 	/**
 	 * Adds options to the accordion
-	 * @param <type> $options
+	 * @param array $options
 	 */
 	public function AddOptions($options = array())
 	{

@@ -587,8 +587,8 @@ function is_valid_hook_type($type)
  * echo (hook_type_to_string(HOOK_POST_INIT) == 'HOOK_POST_INIT')?'true':'false';
  * // output: true
  * </code>
- * @param int $type
- * @return string Type as string
+ * @param int $type Hook type
+ * @return string Type as string or 'HOOK_UNDEFINED' if $type is not a valid hook type
  */
 function hook_type_to_string($type)
 {

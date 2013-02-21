@@ -258,9 +258,9 @@ class System_Reflector extends ReflectionClass
 	/**
 	 * Returns class attributes.
 	 * 
-	 * Class attributes are DocComment parts following the syntax <at>attribute[<Attribute>].
+	 * Class attributes are DocComment parts following the syntax <at>attribute[&lt;Attribute&gt;].
 	 * <at> := The <at> sign.
-	 * <Attribute> :=	Construction string of the attribute. May miss the part 'Attribute' at the end
+	 * &lt;Attribute&gt; :=	Construction string of the attribute. May miss the part 'Attribute' at the end
 	 *					and empty brackets.
 	 * Exapmples:
 	 * <code>

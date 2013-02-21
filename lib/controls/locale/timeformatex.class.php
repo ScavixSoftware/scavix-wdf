@@ -24,8 +24,9 @@
  */
  
 /**
- * Time format selector.
+ * This is a checkbox allowing to choose if timezone information shall be added to date/time formats.
  * 
+ * Showns an inline sample of how this will look like
  * @attribute[Resource('locale_settings.js')]
  */
 class TimeFormatEx extends Control
@@ -33,6 +34,13 @@ class TimeFormatEx extends Control
 	var $culture_code;
 	var $timezone;
 	
+	/**
+	 * @param string $culture_code Code of current <CultureInfo>
+	 * @param mixed $date_format Chosen date format
+	 * @param mixed $time_format Chosen time format
+	 * @param string $timezone Currently chosen timezone
+	 * @param bool $append_timezone If true timezome will be appended
+	 */
 	function __initialize($culture_code, $date_format, $time_format, $timezone=false, $append_timezone=false)
 	{
 		parent::__initialize();
@@ -76,6 +84,8 @@ class TimeFormatEx extends Control
 	}
 	
 	/**
+	 * @internal Will create a new sample based on changed settings.
+	 * 
 	 * @attribute[RequestParam('append_timezone','bool')]
 	 * @attribute[RequestParam('timezone','string')]
 	 * @attribute[RequestParam('dtf','string')]
@@ -89,7 +99,7 @@ class TimeFormatEx extends Control
 		if( $append_timezone ) $txt .= " $timezone";
 		$sample = new Control('span');
 		$sample->append("($txt)")->css('color','gray');
-		return $sample;
+		return AjaxResponse::Renderable($sample);
 	}
 }
 

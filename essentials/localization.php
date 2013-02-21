@@ -44,8 +44,8 @@ function localization_init()
 /**
  * Returns whether given value is a valid float value or not
  *
- * @param <string> $value floatnumber to be checked
- * @return <boolen> true if valid
+ * @param string $value floatnumber to be checked
+ * @return bool true if valid
  */
 function localized_to_float_number($value)
 {
@@ -252,7 +252,8 @@ class Localization
 	}
 
 	/**
-	 * Returns a list of all defined Timezones
+	 * Returns a list of all defined Timezones.
+	 * 
 	 * @return array All Timezone IDs
 	 */
 	public static function getAllTimeZones()
@@ -261,9 +262,7 @@ class Localization
 	}
 
 	/**
-	 * Returns the default Culture code by looking into stored
-	 * user-object, COOKIES, REQUEST, SERVER and user_ip.
-	 * INTERNAL USE ONLY!
+	 * @internal Returns the default Culture code by looking into stored user-object, COOKIES, REQUEST, SERVER and user_ip.
 	 */
 	public static function localization_default_culture($prefergeoip = true)
 	{
@@ -272,7 +271,8 @@ class Localization
 	}
 
 	/**
-	 * Returns the currently selected currency
+	 * Returns the currently selected currency.
+	 * 
 	 * @param string $cultureCode The culture code for which we need the currency. defaults to current culture
 	 * @param bool $use_code true: return currency ISO code, false: return currency symbol
 	 * @return string Currency code|symbol

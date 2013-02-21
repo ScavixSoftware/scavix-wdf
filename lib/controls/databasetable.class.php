@@ -279,7 +279,7 @@ class DatabaseTable extends Table
 	}
 
 	/**
-	 * @override Calls <GetData>() and loops thru the <ResultSet> creating the table content before calling parent
+	 * @override Calls <DatabaseTable::GetData>() and loops thru the <ResultSet> creating the table content before calling parent
 	 */
 	function WdfRender()
     {
@@ -333,7 +333,7 @@ class DatabaseTable extends Table
 	);
 	
 	/**
-	 * @internal Currently untested, so marked `internal`
+	 * @internal Currently untested, so marked <b>internal</b>
 	 * @attribute[RequestParam('format','string')]
 	 */
 	function Export($format)

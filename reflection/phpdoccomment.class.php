@@ -271,7 +271,6 @@ class PhpDocComment
 			$this->mdEscapeEntity($this->entities,'ul');
 			$this->mdEscapeEntity($this->entities,'ol');
 			$this->mdEscapeEntity($this->entities,'li');
-			$this->mdEscapeEntity($this->entities,'input');
 			$this->mdEscapeEntity($this->entities,'img');
 		}
 		

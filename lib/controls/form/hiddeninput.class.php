@@ -27,7 +27,7 @@
  * This is a &lt;input type='hidden'/&gt;.
  * 
  */
-class HiddenInput extends input
+class HiddenInput extends Input
 {
 	/**
 	 * @param string $value The value

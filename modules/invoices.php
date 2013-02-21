@@ -149,9 +149,9 @@ function invoicePdfGetWidth($text, $font, $fsize)
 /**
  * Returns a given text in english, german, japanese or unaltered format
  *
- * @param <string> $text to be formatted
- * @param <string> $lang 'en', 'de', 'ja'
- * @return <string> the preformatted text
+ * @param string $text to be formatted
+ * @param string $lang 'en', 'de', 'ja'
+ * @return string the preformatted text
  */
 
 function invoicePdfPreFormatText($text, $lang, $user)
