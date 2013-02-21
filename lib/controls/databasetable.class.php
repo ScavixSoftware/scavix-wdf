@@ -70,8 +70,6 @@ class DatabaseTable extends Table
 			$this->DataTable = $this->DataSource->TableForType($datatype);
 		elseif( $datatable )
 			$this->DataTable = $datatable;
-		else
-			WdfDbException::Raise("You must specify datatype or datatable");
 		
 		store_object($this);
 	}
