@@ -57,7 +57,6 @@ class GoogleControl extends Control
 	
 	function AddLoaderCode($args)
 	{
-		log_debug(self::$_apis);
 		$loader = array();
 		foreach( self::$_apis as $api=>$definition )
 		{

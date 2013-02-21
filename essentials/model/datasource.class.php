@@ -320,7 +320,8 @@ class DataSource
 		$stmt = $this->Prepare($sql);
 		$stmt->execute($prms);
 		$this->_last_affected_rows_count = $stmt->Count();
-		return $stmt->fetchColumn();
+        $stmt->FetchMode = PDO::FETCH_NUM;
+		return $stmt->fetchScalar();
 	}
 	
 	function CacheExecuteScalar($sql,$prms=array(),$lifetime=300)

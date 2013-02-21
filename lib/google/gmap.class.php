@@ -40,15 +40,15 @@ class gMap extends GoogleControl
 		parent::__initialize('div');
 		$this->gmOptions = array_merge($this->gmOptions,$options);
 		$this->gmOptions['sensor'] = ($this->gmOptions['sensor'])?'true':'false';
-		log_debug($this->gmOptions,$options);
 		$this->_loadApi('maps','3',array('other_params'=>http_build_query($this->gmOptions)));
 	}
 	
 	function PreRender($args = array())
 	{
 		$id = $this->id;
-		$opts = "{center: new google.maps.LatLng(-34.397, 150.644),zoom: 13,mapTypeId: google.maps.MapTypeId.ROADMAP}";
-		$init = array("wdf.gmap.init('$id',$opts);");
+        $this->_basicOptions['center'] = '[jscode]'.$this->_basicOptions['center'];
+        $this->_basicOptions['mapTypeId'] = '[jscode]'.$this->_basicOptions['mapTypeId'];
+		$init = array("wdf.gmap.init('$id',".system_to_json($this->_basicOptions).");");
 		
 		foreach( $this->_markers as $m )
 		{
@@ -59,6 +59,7 @@ class gMap extends GoogleControl
 		{
 			$init[] = "wdf.gmap.addAddress('$id',".json_encode($a).")";
 		}
+    	$init[] = "wdf.gmap.showAllMarkers('$id')";
 			
 		$this->_addLoadCallback('maps', $init);
 		return parent::PreRender($args);
@@ -100,4 +101,37 @@ class gMap extends GoogleControl
 		$this->_basicOptions['zoom'] = $zoomlevel;
 		return $this;
 	}
+    
+    /**
+     * Finds a geolocation from a search string
+     * @param striog $search
+     */
+    static public function FindGeoLocation($search)
+    {
+        $ret = new stdClass();
+        $geourl = "http://maps.google.com/maps/api/geocode/xml?address=".urlencode($search)."&sensor=false";
+        $xmlsrc = utf8_encode(file_get_contents($geourl));
+        try {
+            $xml = simplexml_load_string($xmlsrc);
+        }
+        catch(Exception $e){
+            log_error($geourl."\r\n".$xmlsrc);
+            return false;
+        }
+
+        if( strtoupper($xml->status) == 'OK' )
+        {
+            $ret->formatted_address =  (string) $xml->result->formatted_address;
+            $ret->latitude =  (string) $xml->result->geometry->location->lat;
+            $ret->longitude = (string) $xml->result->geometry->location->lng;
+            return $ret;
+        }
+        else if( strtoupper($xml->status) == 'ZERO_RESULTS')
+            return false;
+        else
+        {
+            log_error($geourl, $xml);
+            return false;
+        }
+    }
 }
