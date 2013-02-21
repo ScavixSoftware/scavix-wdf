@@ -23,6 +23,9 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * @deprecated You will need to buy a license frm them, s please use <GoogleVisualization> instead
+ */
 class Plot
 {
 	var $Title = "noname";

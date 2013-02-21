@@ -24,7 +24,8 @@
  */
  
 /**
- * @attribute[Resource('FusionCharts.js')]
+ * @deprecated You will need to buy a license frm them, s please use <GoogleVisualization> instead
+*  @attribute[Resource('FusionCharts.js')]
  */
 class FusionChart extends Control
 {
