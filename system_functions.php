@@ -803,3 +803,21 @@ function can_rewrite(){ return array_val_is($_SERVER,'WDF_FEATURES_REWRITE','on'
  * @return bool true or false
  */
 function can_nocache(){ return array_val_is($_SERVER,'WDF_FEATURES_NOCACHE','on'); }
+
+/**
+ * Natural sorts an array by it's keys.
+ * 
+ * This is a slightly modified version of one found in the PHP documentation.
+ * See http://www.php.net/manual/en/function.ksort.php#54319
+ * @param array $array Array to be sorted
+ * @return void
+ */
+function natksort(&$array)
+{
+	$new_array = array();
+	$keys = array_keys($array);
+	natcasesort($keys);
+	foreach ($keys as $k)
+		$new_array[$k] = $array[$k];
+	$array = $new_array;
+}
