@@ -31,12 +31,14 @@ class TextArea extends Control
 {
 	/**
 	 * @param string $value The text
+	 * @param string $name The name
 	 * @param string $cid 
 	 */
-    function __initialize($value="")
+    function __initialize($value='',$name=false)
 	{
 		parent::__initialize("textarea");
+		if( $name )
+			$this->name = $name;
 		$this->content($value);
-		$this->class = "textarea";
 	}
 }

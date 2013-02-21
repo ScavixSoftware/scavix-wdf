@@ -24,11 +24,18 @@
  */
  
 /**
+ * Selector for currencies.
+ * 
  * @attribute[Resource('locale_settings.js')]
  */
 class CurrencySelect extends Select
 {
 	var $current_currency_code = false;
+	
+	/**
+	 * @param string $current_currency_code Currently selected currency
+	 * @param array $supported_currencies Array of supported currencies or false
+	 */
 	function __initialize($current_currency_code=false, $supported_currencies = false)
 	{
 		parent::__initialize();

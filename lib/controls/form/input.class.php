@@ -24,17 +24,53 @@
  */
  
 /**
- * This is a &lt;input type='password'/&gt;.
+ * This is a basic &lt;input/&gt;.
  * 
+ * Used as base class for all kind of inputs.
  */
-class PasswordInput extends Input
+class Input extends Control
 {
-	/**
-	 * @param string $name a name for it
-	 */
-    function __initialize($name=false)
+	function __initialize()
 	{
-		parent::__initialize();
-		$this->setType("password")->setName($name);
+		parent::__initialize("input");
+	}
+	
+	/**
+	 * Sets the type attribute.
+	 * 
+	 * @param string $type The type
+	 * @return Input `$this`
+	 */
+	function setType($type)
+	{
+		if( $type )
+			$this->type = $type;
+		return $this;
+	}
+	
+	/**
+	 * Sets the name attribute.
+	 * 
+	 * @param string $name The type
+	 * @return Input `$this`
+	 */
+	function setName($name)
+	{
+		if( $name )
+			$this->name = $name;
+		return $this;
+	}
+	
+	/**
+	 * Sets the value attribute.
+	 * 
+	 * @param string $value The value
+	 * @return Input `$this`
+	 */
+	function setValue($value)
+	{
+		if( $value )
+			$this->value = $value;
+		return $this;
 	}
 }

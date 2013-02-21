@@ -27,15 +27,14 @@
  *  This is a &lt;input type='submit'/&gt;.
  * 
  */
-class SubmitButton extends Control
+class SubmitButton extends Input
 {
 	/**
 	 * @param string $label A text as label
 	 */
-	function __initialize( $label )
+	function __initialize( $label=false )
 	{
 		parent::__initialize("input");
-		$this->type = "submit";
-		$this->value = $label;
+		$this->setType("submit")->setValue($label);
 	}
 }

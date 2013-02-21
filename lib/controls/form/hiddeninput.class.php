@@ -27,19 +27,15 @@
  * This is a &lt;input type='hidden'/&gt;.
  * 
  */
-class HiddenInput extends Control
+class HiddenInput extends input
 {
 	/**
 	 * @param string $value The value
 	 * @param string $name The name
 	 */
-    function __initialize($value="",$name=false)
+    function __initialize($value=false,$name=false)
 	{
-		parent::__initialize("input");
-		$this->type = "hidden";
-		$this->value = $value;
-		
-		if( $name )
-			$this->name = $name;
+		parent::__initialize();
+		$this->setType("hidden")->setValue($value)->setName($name);
 	}
 }

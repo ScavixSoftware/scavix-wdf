@@ -25,6 +25,10 @@
  
 $GLOBALS['TR_CURRENTLY_ODD'] = false;
 
+/**
+ * A table row written as div.
+ * 
+ */
 class Tr extends Control
 {
 //    var $row_groups = array();
@@ -32,6 +36,9 @@ class Tr extends Control
     var $current_cell = false;
 	var $model = false;
 
+	/**
+	 * @param array $options Currently none
+	 */
 	function __initialize($options=false)
 	{
 		parent::__initialize("div");
@@ -53,11 +60,23 @@ class Tr extends Control
 		}
 	}
 
+	/**
+	 * Gets the current cell.
+	 * 
+	 * @return Td The current cell of false if none
+	 */
 	function &CurrentCell()
 	{
 		return $this->current_cell;
 	}
 
+	/**
+	 * Creates a new cell.
+	 * 
+	 * @param mixed $content Contents for it
+	 * @param array $options See <Td::__initialize> for options
+	 * @return Td The created cell
+	 */
     function &NewCell($content=false,$options=false)
     {
         $cell = new Td($options);
@@ -68,21 +87,40 @@ class Tr extends Control
         return $this->current_cell;
     }
 
+	/**
+	 * Get the cell at index.
+	 * 
+	 * @param int $index Zero based index
+	 * @return Td The cell
+	 */
 	function &GetCell($index)
 	{
 		return $this->_content[$index];
 	}
 	
+	/**
+	 * Returns all cells.
+	 * 
+	 * @return array List of <Td> objects
+	 */
 	function Cells()
 	{
 		return $this->_content;
 	}
 	
+	/**
+	 * Gets the cell count.
+	 * 
+	 * @return int Count of cells
+	 */
 	function CountCells()
 	{
 		return count($this->_content);
 	}
 
+	/**
+	 * @override Just prepares some options
+	 */
 	function WdfRender()
 	{
 		if( isset($this->options['oddclass']) && isset($this->options['evenclass']) )

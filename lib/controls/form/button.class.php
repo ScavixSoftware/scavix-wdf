@@ -23,13 +23,26 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
-class Button extends Control
+/**
+ * This is an &lt;input type=button/&gt;.
+ * 
+ */
+class Button extends Input
 {
+	/**
+	 * Creates a Button.
+	 * 
+	 * Note that you can safely ignore all but the $label argument if your new button
+	 * shall not redirect elsewhere on click.
+	 * @param string $label Label text
+	 * @param string $controller Controller for click redirect
+	 * @param string $event Event for click redirect
+	 * @param mixed $data Data for click redirect
+	 */
 	function __initialize( $label, $controller="", $event="", $data="")
 	{
-		parent::__initialize("input");
-		$this->type = "button";
-		$this->value = $label;
+		parent::__initialize();
+		$this->setType("button")->setValue($label);
 
 		if( $controller != "" && strpos($controller,"$") === false && strpos($controller,"?") === false )
 			$query = "wdf.redirect('".buildQuery($controller,$event,$data)."')";

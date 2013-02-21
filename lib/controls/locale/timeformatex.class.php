@@ -24,6 +24,8 @@
  */
  
 /**
+ * Time format selector.
+ * 
  * @attribute[Resource('locale_settings.js')]
  */
 class TimeFormatEx extends Control
