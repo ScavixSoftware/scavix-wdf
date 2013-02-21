@@ -40,13 +40,10 @@ class ContextMenu extends Control
         'itemStyle'=>"margin: '0px', color: '#000', display: 'block', cursor: 'default', padding: '3px', border: '1px solid #fff', backgroundColor: 'transparent'",
         'itemHoverStyle'=>"border: '1px solid #0a246a', backgroundColor: '#b6bdd2'"
     );
-    function __initialize( $cid="",$class="contextMenu")
+	
+    function __initialize()
 	{
 		parent::__initialize("div");
-		$this->id = $cid;
-        $this->class = $class;
-
-		store_object($this);
 	}
 
 	/**
