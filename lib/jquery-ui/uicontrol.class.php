@@ -132,4 +132,40 @@ class uiControl extends Control
 			return $icon_to_test;
 		WdfException::Raise("Invalid Icon '$icon_to_test'");
 	}
+	
+	/**
+	 * Add draggable init code to the uiControl.
+	 * 
+	 * See http://api.jqueryui.com/draggable/
+	 * @return uiControl $this
+	 */
+	public function Draggable($options=array())
+	{
+		$this->script("$('#".$this->id."').draggable(".system_to_json($options).")");
+		return $this;
+	}
+	
+	/**
+	 * Add droppable init code to the uiControl.
+	 * 
+	 * See http://api.jqueryui.com/droppable/
+	 * @return uiControl $this
+	 */
+	public function Droppable($options=array())
+	{
+		$this->script("$('#".$this->id."').droppable(".system_to_json($options).")");
+		return $this;
+	}
+	
+	/**
+	 * Add resizable init code to the uiControl.
+	 * 
+	 * See http://api.jqueryui.com/resizable/
+	 * @return uiControl $this
+	 */
+	public function Resizable($options=array())
+	{
+		$this->script("$('#".$this->id."').resizable(".system_to_json($options).")");
+		return $this;
+	}
 }

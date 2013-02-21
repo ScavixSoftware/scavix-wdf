@@ -23,30 +23,33 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
-//for more information about the accordion visit: http://jqueryui.com/demos/accordion/
+/**
+ * Wrapper around jQueryUI Accordion
+ * 
+ * See http://jqueryui.com/demos/accordion/
+ */
 class uiAccordion extends uiControl
 {
 	var $_sections = array();
-	var $_options;
+	var $_options = array
+	(
+		"animate" => false,
+		"collapsible" => true,
+		"heightStyleType" => 'content'
+	);
 	
-    function __initialize($options = array(),$css_propertys = array())
+	/**
+	 * @param array $options See http://api.jqueryui.com/accordion/
+	 */
+    function __initialize($options = array())
 	{
 		parent::__initialize("div");
-		$this->_options  = array(
-				"animate"=>false,
-				"collapsible"=>true,
-				"heightStyleType"=>'content'
-			);
-
-		if(!is_array($options))
-			$this->_options = array($options);
-
-		$this->_options = array_merge($options,$this->_options);
-		
-		foreach($css_propertys as $name=>$val)
-		{ $this->css($name,$val); }
+		$this->_options = array_merge($this->_options,force_array($options));
 	}
 
+	/**
+	 * @override Prepares the control
+	 */
 	function PreRender($args = array())
 	{
 		foreach($this->_sections as $section=>$section_content)
@@ -83,11 +86,6 @@ class uiAccordion extends uiControl
 	public function AddContentToSection($section,$content)
 	{
 		$this->_sections[$section]->content($content);
-	}
-
-	public function MakeDraggable()
-	{
-		$this->script("$('#".$this->id."').draggable()");
 	}
 
 	/**
