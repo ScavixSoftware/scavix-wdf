@@ -177,8 +177,7 @@ class MySql implements IDatabaseDriver
 			else
 				$sql  = "INSERT INTO `".$model->GetTableName()."`(".implode(",",$all).")VALUES(".implode(',',$vals).")";
 		}
-		$stmt = $this->_pdo->prepare($sql);//,array(PDO::ATTR_CURSOR=>PDO::CURSOR_SCROLL));
-		return $stmt;
+		return new ResultSet($this->_ds, $this->_pdo->prepare($sql));
 	}
 	
 	function getDeleteStatement($model,&$args)
@@ -197,8 +196,7 @@ class MySql implements IDatabaseDriver
 			return false;
 		
 		$sql = "DELETE FROM `".$model->GetTableName()."` WHERE ".implode(" AND ",$cols)." LIMIT 1";
-		$stmt = $this->_pdo->prepare($sql);//,array(PDO::ATTR_CURSOR=>PDO::CURSOR_SCROLL));
-		return $stmt;
+		return new ResultSet($this->_ds, $this->_pdo->prepare($sql));
 	}
 	
 	function getPagedStatement($sql,$page,$items_per_page)
@@ -206,7 +204,7 @@ class MySql implements IDatabaseDriver
 		$offset = ($page-1)*$items_per_page;
 		$sql = preg_replace('/LIMIT\s+[\d\s,]+/', '', $sql);
 		$sql .= " LIMIT $offset,$items_per_page";
-		return $this->_pdo->prepare($sql);
+		return new ResultSet($this->_ds, $this->_pdo->prepare($sql));
 	}
 	
 	function getPagingInfo($sql,$input_arguments=null)
