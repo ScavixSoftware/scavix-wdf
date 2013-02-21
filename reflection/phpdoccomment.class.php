@@ -30,6 +30,7 @@
  */
 class PhpDocComment
 {
+	var $debug=false;
 	var $ShortDesc = "";
 	var $LongDesc = "";
 	var $Tags = array();
@@ -112,27 +113,24 @@ class PhpDocComment
 		
 		if( !isset($this->_tagbuf[$name]) )
 		{
-			$pat = "/";
-			for($i=0;$i<count($properties)-1;$i++)
-				$pat .= '([^\s]+)\s+';
-			$pat .= '(.*)/s';
-			
 			$this->_tagbuf[$name] = array();
 			foreach( $this->Tags as $t )
 			{
 				if( $t['tag'] != $name )
 					continue;
 
-				preg_match($pat,$t['data'],$m);
-				$p = new stdClass();
-				for($i=0;$i<count($properties);$i++)
+				if( preg_match_all('/([^\s]+)/',$t['data'],$matches) )
 				{
-					$v = "";
-					if (array_key_exists($i+1,$m))
-						$v = $m[$i+1];
-					$p->{$properties[$i]} = $v;
+					$props = array();
+					for($i=0;$i<count($properties)-1;$i++)
+						$props[] = array_shift($matches[1]);
+					$props[] = implode(" ",$matches[1]);
+
+					$p = new stdClass();
+					foreach( $properties as $i=>$n )
+						$p->$n = $props[$i];
+					$this->_tagbuf[$name][] = $p;
 				}
-				$this->_tagbuf[$name][] = $p;
 			}
 		}
 		return $this->_tagbuf[$name];
