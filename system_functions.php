@@ -821,3 +821,18 @@ function natksort(&$array)
 		$new_array[$k] = $array[$k];
 	$array = $new_array;
 }
+
+/**
+ * Wraps something into an array if needed.
+ * 
+ * If fact does this: `return is_array($data)?$data:array($data);`
+ * Note that for `is_null($data)` force_array will return an empty `array()`
+ * @param mixed $data Anything you want to be an array if it is not aready
+ * @return array The resulting array
+ */
+function force_array($data)
+{
+	if( is_null($data) )
+		return array();
+	return is_array($data)?$data:array($data);
+}
