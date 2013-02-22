@@ -40,12 +40,9 @@
 
 <script>
 	$(function() {
-		$("#<?=$id?>").tabs({
-			<?=$options?>
-		});
-		
+		$("#<?=$id?>").tabs(<?='{'.$options.'}'?>);
 		<?if($sortable):?>
-			$("#<?=$id?>").find(".ui-tabs-nav").sortable({axis:'x'});
+		$("#<?=$id?>").find(".ui-tabs-nav").sortable({axis:'x'});
 		<?endif;?>
 	});
 </script>
