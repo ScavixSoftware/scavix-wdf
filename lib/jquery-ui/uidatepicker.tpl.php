@@ -28,6 +28,6 @@
 </div>
 <script>
 	$(function(){
-		$("#<?=$id?>").<?=$init_code?>({ <?=$options?> });
+		$("#<?=$id?>").<?=$init_code?>(<?='{'.$options.'}'?>);
 	});
 </script>
