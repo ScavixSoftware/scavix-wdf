@@ -86,17 +86,6 @@ class Template extends Renderable
 			$this->set('id',$this->_storage_id);
 		}
 	}
-
-	function __getpropertynames($inherited=true)
-	{
-		$res = System_Reflector::GetPropertyNames($inherited);
-		return array_merge(array('_data','file','_translate','_storage_id'),$res);
-	}
-
-	function __getminimalpropertynames()
-	{
-		return array('_data','file','_translate','_storage_id');
-	}
 	
 	/**
 	 * Will be executed on HOOK_PRE_RENDER.

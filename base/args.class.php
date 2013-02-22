@@ -340,7 +340,8 @@ class Args
 	
 	/**
 	* Strips given tags from array (GET, POST, REQUEST)
-	* @see http://www.php.net/manual/en/function.strip-tags.php#93567
+	 * 
+	* See http://www.php.net/manual/en/function.strip-tags.php#93567
 	* @param array $param Parameter array to strip
 	*/
    private static function array_strip_tags(&$params)

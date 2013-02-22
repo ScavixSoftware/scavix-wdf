@@ -1,7 +1,13 @@
 
-.pager {}
+.table .pager
+{
+	position: absolute;
+}
 
-.pager a, .pager a:link, .pager a:visited, .pager a:active
+.table .pager a, 
+.table .pager a:link, 
+.table .pager a:visited, 
+.table .pager a:active
 {
 	text-decoration: none;
 	border: 1px solid transparent;
@@ -12,12 +18,12 @@
 	margin-right :2px;
 }
 
-.pager a:hover
+.table .pager a:hover
 {
 	border: 1px solid black;
 }
 
-.pager .current
+.table .pager .current
 {
 	color: black;
 	font-weight: bold;

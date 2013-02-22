@@ -163,7 +163,7 @@ class TBody extends Control
 	}
 
 	/**
-	 * @override Prepares the tbody according to the given options
+	 * @override
 	 */
     function WdfRender()
     {

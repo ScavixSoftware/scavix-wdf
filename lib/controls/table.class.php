@@ -113,11 +113,12 @@ class Table extends Control
 	 * Gets the table footer.
 	 * 
 	 * Creates one if needed.
+	 * @param bool $clear If true deleted previously set footer
 	 * @return TFoot The tables footer
 	 */
-    function &Footer()
+    function &Footer($clear=false)
     {
-        if( !$this->footer )
+        if( $clear || !$this->footer )
             $this->footer = new TFoot();
         return $this->footer;
     }
@@ -191,7 +192,7 @@ class Table extends Control
     }
 
 	/**
-	 * @override Prepares some JS logic
+	 * @override
 	 */
 	function PreRender($args=array())
 	{
@@ -217,7 +218,7 @@ class Table extends Control
 	}
 	
 	/**
-	 * @override Prepares the complete table including column formatting
+	 * @override 
 	 */
 	function WdfRender()
     {

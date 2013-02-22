@@ -78,7 +78,7 @@ class SuperfishMenu extends Control
 	}
 	
 	/**
-	 * @override Some preparations
+	 * @override
 	 */
 	function WdfRender()
 	{
@@ -224,7 +224,7 @@ class SuperfishMenuItem extends Control
 	}
 	
 	/**
-	 * @override Some preparations
+	 * @override
 	 */
 	function WdfRender()
 	{

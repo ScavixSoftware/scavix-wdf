@@ -271,11 +271,11 @@ class System_Reflector extends ReflectionClass
 	 * <at>attribute[Right('false')]
 	 * <at>attribute[RightAttribute('true || false')]
 	 * </code>
-	 * @param string|string[] $filter	Return only Attributes tha match the given filter.
+	 * @param string|array $filter	Return only Attributes tha match the given filter.
 	 *									May be string for a single attribute or array of string for
 	 *									multiple attributes.
 	 * @param bool $allowAttrInheritance If true, filter not only matches directly, but also all classes derivered from a valid filter
-	 * @return object[] An array of objects derivered from <System_Attribute>.
+	 * @return array An array of objects derivered from <System_Attribute>.
 	 */
 	public function GetClassAttributes($filter=array(), $allowAttrInheritance=true)
 	{
@@ -298,11 +298,9 @@ class System_Reflector extends ReflectionClass
 	 * 
 	 * For a detailed description see <System_Reflector::GetClassAttributes>
 	 * @param string $method_name The name of the method.
-	 * @param string|string[] $filter	Return only Attributes tha match the given filter.
-	 *									May be string for a single attribute or array of string for
-	 *									multiple attributes.
+	 * @param string|array $filter	Return only Attributes tha match the given filter. May be string for a single attribute or array of string for multiple attributes.
 	 * @param bool $allowAttrInheritance If true, filter not only matches directly, but also all classes derivered from a valid filter
-	 * @return object[] An array of objects derivered from System_Attribute.
+	 * @return array An array of objects derivered from <System_Attribute>.
 	 */
 	public function GetMethodAttributes($method_name, $filter=array(), $allowAttrInheritance=true)
 	{

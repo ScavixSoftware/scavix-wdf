@@ -64,7 +64,7 @@ class uiDatePicker extends uiControl
 	}
 
 	/**
-	 * @override Some initializations
+	 * @override
 	 */
 	function PreRender($args = array())
 	{

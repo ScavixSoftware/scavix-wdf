@@ -194,7 +194,8 @@ class Control extends Renderable
 
 	/**
 	 * Magic method __get.
-	 * @link http://ch2.php.net/manual/en/language.oop5.overloading.php#language.oop5.overloading.members Member overloading
+	 * 
+	 * See [Member overloading](http://ch2.php.net/manual/en/language.oop5.overloading.php#language.oop5.overloading.members)
 	 */
 	function __get($name)
 	{
@@ -216,7 +217,8 @@ class Control extends Renderable
 
 	/**
 	 * Magic method __set.
-	 * @link http://ch2.php.net/manual/en/language.oop5.overloading.php#language.oop5.overloading.members Member overloading
+	 * 
+	 * See [Member overloading](http://ch2.php.net/manual/en/language.oop5.overloading.php#language.oop5.overloading.members)
 	 */
 	function __set($varname,$value)
 	{
@@ -239,8 +241,9 @@ class Control extends Renderable
 	}
 	
 	/**
-	 * Magic method __set.
-	 * @link http://ch2.php.net/manual/en/language.oop5.overloading.php#language.oop5.overloading.methods Method overloading
+	 * Magic method __call.
+	 * 
+	 * See [Member overloading](http://ch2.php.net/manual/en/language.oop5.overloading.php#language.oop5.overloading.members)
 	 */
 	public function __call($name, $arguments)
 	{
@@ -254,7 +257,8 @@ class Control extends Renderable
 
 	/**
 	 * Magic method __isset.
-	 * @link http://ch2.php.net/manual/en/language.oop5.overloading.php#language.oop5.overloading.members Member overloading
+	 * 
+	 * See [Member overloading](http://ch2.php.net/manual/en/language.oop5.overloading.php#language.oop5.overloading.members)
 	 */
 	public function __isset($name)
 	{
@@ -293,7 +297,8 @@ class Control extends Renderable
 
 	/**
 	 * Magic method __wakeup.
-	 * @link http://ch2.php.net/manual/en/language.oop5.magic.php#language.oop5.magic.sleep __sleep and __wakeup
+	 * 
+	 * See [Member overloading](http://ch2.php.net/manual/en/language.oop5.overloading.php#language.oop5.overloading.members)
 	 */
 	function __wakeup()
 	{
@@ -364,6 +369,12 @@ class Control extends Renderable
 			$this->_content[] = $content;
 		return $this->_content[count($this->_content)-1];
 	}
+	
+	function clearContent()
+	{
+		$this->_content = array();
+		return $this;
+	}
 
 	/**
 	 * Checks whether this control needs a closing tag (in HTML code)
@@ -410,7 +421,7 @@ class Control extends Renderable
 		if( $this->_skipRendering )
 			return;
 
-		if( count($args) > 0 )
+		if( count($args) > 0 && count($this->_script) > 0 )
 		{
 			$controller = $args[0];
 			if( $controller instanceof HtmlPage )
@@ -505,9 +516,11 @@ class Control extends Renderable
 
 	/**
 	 * Extends this control with additional functionality.
-	 * @param string|ControlExtender $extender The type of or an extender object itself
+	 * 
 	 * Note: When $extender is a string containing the Extenders datatype, you will have
 	 * to pass additional parameters that the extender class constructor requires!
+	 * @param mixed $extender The type of or an <ControlExtender> object itself
+	 * @return void
 	 */
 	function Extend($extender)
 	{

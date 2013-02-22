@@ -32,7 +32,7 @@
 class uiDatabaseTable extends DatabaseTable
 {
 	/**
-	 * @override Adds some classes to the output
+	 * @override
 	 */
 	function WdfRender()
 	{

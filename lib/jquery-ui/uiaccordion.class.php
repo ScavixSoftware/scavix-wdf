@@ -48,7 +48,7 @@ class uiAccordion extends uiControl
 	}
 
 	/**
-	 * @override Prepares the control
+	 * @override
 	 */
 	function PreRender($args = array())
 	{

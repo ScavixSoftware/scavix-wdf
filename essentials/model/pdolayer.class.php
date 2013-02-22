@@ -38,7 +38,7 @@ class PdoLayer extends PDO
 	 * For historical reasons we had some weird argument placeholders in various SQL queries.
 	 * This is central point to replace them. Additionally polls drivers PreprocessSql method before
 	 * passing flow to parents method.
-	 * See http://www.php.net/manual/en/pdo.prepare.php
+	 * See <PDO::prepare>
 	 * @param string $statement This must be a valid SQL statement for the target database server
 	 * @param array $driver_options This array holds one or more key=>value pairs to set attribute values for the PDOStatement object that this method returns
 	 * @return mixed PDOStatement (in our case ResultSet) or false

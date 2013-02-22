@@ -83,7 +83,7 @@ function logging_init()
 /**
  * global error handler
  * 
- * see http://php.net/set_error_handler
+ * see <set_error_handler>
  */
 function global_error_handler($errno, $errstr, $errfile, $errline)
 {
@@ -118,7 +118,7 @@ function global_error_handler($errno, $errstr, $errfile, $errline)
 /**
  * global exception handler
  * 
- * see http://php.net/set_exception_handler
+ * see <set_exception_handler>
  */
 function global_exception_handler($ex)
 {

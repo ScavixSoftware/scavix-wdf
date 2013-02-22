@@ -32,7 +32,7 @@
 class uiTable extends Table
 {	
 	/**
-	 * @override Adds some classes to the output
+	 * @override
 	 */
 	function WdfRender()
 	{

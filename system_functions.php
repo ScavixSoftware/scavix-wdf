@@ -435,8 +435,8 @@ function ends_with($string,$end)
 /**
  * Tests if the first given argument is one of the others.
  * 
- * This is a shortcut for in_array.
  * Use like this: `is_in('nice','Hello','nice','World')`
+ * This is a shortcut for `in_array('nice',array('Hello','nice','World'))`.
  * @return bool true or false
  */
 function is_in()
@@ -444,6 +444,22 @@ function is_in()
 	$args = func_get_args();
 	$needle = array_shift($args);
 	return in_array($needle,$args);
+}
+
+/**
+ * Tests if the first given argument is an array and contains one of the others
+ * 
+ * Use like this: `contains(array('Hello','nice','World'),'some','other','nice','words')`
+ * @return bool true or false
+ */
+function contains()
+{
+	$args = func_get_args();
+	$array = array_shift($args);
+	foreach( $args as $a )
+		if( in_array($a,$array) )
+			return true;
+	return false;
 }
 
 /**
@@ -752,12 +768,10 @@ function classpath_add($path, $recursive=true, $part=false)
 /**
  * Find pathnames matching a pattern.
  * 
- * glob() cant be used directly in foreach when open_basedir is set
- * see: https://bugs.php.net/bug.php?id=47358
- * 
- * @link http://php.net/manual/en/function.glob.php
+ * glob() cant be used directly in foreach when open_basedir is set.
+ * See https://bugs.php.net/bug.php?id=47358 and <glob>
  * @param string $pattern The pattern. No tilde expansion or parameter substitution is done.
- * @param int $flags Valid flags: see http://php.net/manual/en/function.glob.php
+ * @param int $flags Valid flags: see <glob>
  * @return array An array containing the matched files/directories, an empty array if no file matched
  */
 function system_glob($pattern, $flags = 0)

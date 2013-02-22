@@ -42,8 +42,9 @@ class AjaxAction
 	}
 	
 	/**
-	 * Creates a valid URL to a controler('s method)
-	 * @param Renderable|string $controller Controller object, Classname or _storage_id of the controller
+	 * Creates a valid URL to a controler('s method).
+	 * 
+	 * @param mixed $controller Controller object, Classname or _storage_id of the controller
 	 * @param string $event Optional method to be called
 	 * @return string A valid URL for use in JavaScript wdf object
 	 */
@@ -56,7 +57,7 @@ class AjaxAction
 	
 	/**
 	 * Creates a wdf.post call
-	 * @param Renderable|string $controller Controller to call
+	 * @param mixed $controller Controller to call
 	 * @param string $event Method to call
 	 * @param string|array $data Data to be posted
 	 * @param string $callback JS callback method
@@ -78,7 +79,7 @@ class AjaxAction
 	 * when OK is clicked. Will also set a session variable so that the OK action PHP side code
 	 * can simply test with <AjaxAction::IsConfirmed>($text_base) if the confirmation was really shown and accepted by the user.
 	 * @param string $text_base Text constants basename (like CONFIRMATION). Confirmation will need TITLE_$text_base and TXT_$text_base
-	 * @param Renderable|string $controller Controller for OK action
+	 * @param mixed $controller Controller for OK action
 	 * @param string $event Method for OK action
 	 * @param string|array $data Data for OK action
 	 * @return uiConfirmation Dialog ready to be shown to the user

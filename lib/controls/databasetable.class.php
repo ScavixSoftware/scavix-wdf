@@ -97,7 +97,7 @@ class DatabaseTable extends Table
 	}
 
 	/**
-	 * @override This will force the table to reload it's contents from the database
+	 * @override
 	 */
 	function Clear()
 	{
@@ -275,14 +275,13 @@ class DatabaseTable extends Table
 		}
 		return $row;
 	}
-
+	
 	/**
-	 * @override Calls <DatabaseTable::GetData>() and loops thru the <ResultSet> creating the table content before calling parent
+	 * @override Calls <DatabaseTable::GetData>() and loops thru the <ResultSet> creating the table content before calling <OVERRIDE::DatabaseTable::PreRender>
 	 */
-	function WdfRender()
-    {
-        $this->GetData();
-        $this->PreRenderExtender();
+	function PreRender($args = array())
+	{
+		$this->GetData();
 		
         if( !$this->ResultSet || $this->ResultSet->Count()==0 )
 		{
@@ -315,10 +314,15 @@ class DatabaseTable extends Table
                 else
                     $this->AddRow($row);
             }
+			if( $this->ItemsPerPage )
+			{
+				$pager = $this->RenderPager();
+				$this->content($pager);
+			}
         }
-		return parent::WdfRender();
-    }
-	
+		parent::PreRender($args);
+	}
+
 	const EXPORT_FORMAT_XLS  = 'xls';
 	const EXPORT_FORMAT_XLSX = 'xlsx';
 	const EXPORT_FORMAT_CSV  = 'csv';
@@ -494,19 +498,66 @@ class DatabaseTable extends Table
 		die($csv);
 	}
 	
+	var $ItemsPerPage = false;
+	var $CurrentPage = false;
+	var $MaxPagesToShow = false;
 	/**
 	 * Adds a Pager to the table
 	 * 
-	 * In fact this is the only pager WDF currently offers.
-	 * @param int $itemsperpage Items per page to be displayed
+	 * Will be displayed in the tables footer.
+	 * @param int $items_per_page Items per page to be displayed
+	 * @param int $current_page One (1) based index of current page
+	 * @param int $max_pages_to_show Maximum links to pages to be shown
 	 * @return DatabaseTable `$this`
 	 */
-	function AddStandardPager($itemsperpage = 15)
+	function AddStandardPager($items_per_page = 15, $current_page=1, $max_pages_to_show=10)
 	{
-		$cell = $this->Footer()->NewCell();
-		$cell->colspan = "3";
-		$pe = new PagerExtender($this,$cell,$itemsperpage);
-		$this->Extend($pe);
+		$this->ItemsPerPage = $items_per_page;
+		$this->CurrentPage = $current_page;
+		$this->MaxPagesToShow = $max_pages_to_show;
 		return $this;
+	}
+	
+	/**
+	 * @attribute[RequestParam('number','int')]
+	 */
+	function GotoPage($number)
+	{
+		$this->CurrentPage = $number;
+	}
+	
+	protected function RenderPager()
+	{
+		$pages = $this->ResultSet->GetpagingInfo('total_pages');
+		if( $pages < 2 )
+			return;
+		
+		$ui = new Control('div');
+		$ui->addClass("pager");
+
+		if( $this->CurrentPage > 1 )
+		{
+			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage(1)","|&lt;") );
+			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage(".($this->CurrentPage-1).")","&lt;") );
+		}
+
+		$start = 1;
+		while( $pages > $this->MaxPagesToShow && $this->CurrentPage > $start + $this->MaxPagesToShow / 2 )
+			$start++;
+
+		for( $i=$start; $i<=$pages && $i<($start+$this->MaxPagesToShow); $i++ )
+		{
+			if( $i == $this->CurrentPage )
+				$ui->content("<span class='current'>$i</span>");
+			else
+				$ui->content(new Anchor("javascript: $('#$this->id').gotoPage($i)",$i));
+		}
+
+		if( $this->CurrentPage < $pages )
+		{
+			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage(".($this->CurrentPage+1).")","&gt;") );
+			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage($pages)","&gt;|") );
+		}
+		return $ui;
 	}
 }

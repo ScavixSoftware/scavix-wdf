@@ -28,7 +28,6 @@
  * 
  * There are some difficulties with PHPs PDOStatement class as it will not allow us to override all methods (Traversable hides Iterator).
  * So we cannot simply inherit from there, but must wrap it.
- * @internal 
  */
 class ResultSet implements Iterator, ArrayAccess
 {
@@ -50,12 +49,14 @@ class ResultSet implements Iterator, ArrayAccess
 	
 	public $FetchMode = PDO::FETCH_ASSOC;
 	
-	function __construct(DataSource $ds, WdfPdoStatement $statement)
+	function __construct(DataSource $ds=null, WdfPdoStatement $statement=null)
 	{
 		$this->_ds = $ds;
-		$this->_stmt = $statement;
 		if( $statement )
+		{
+			$this->_stmt = $statement;
 			$this->_pdo = $statement->_pdo;
+		}
 	}
 	
 	/**
@@ -155,7 +156,7 @@ class ResultSet implements Iterator, ArrayAccess
 	 * 
 	 * We want to know which arguments are used, so we need to capture theme here
 	 * before passing control to parents method.
-	 * See http://www.php.net/manual/en/pdostatement.bindvalue.php
+	 * See <PDOStatement::bindvalue>
 	 * @param string $parameter Parameter identifier. For a prepared statement using named placeholders, this will be a parameter name of the form :name. For a prepared statement using question mark placeholders, this will be the 1-indexed position of the parameter
 	 * @param mixed $value The value to bind to the parameter. 
 	 * @param int $data_type Explicit data type for the parameter using the PDO::PARAM_* constants
@@ -178,7 +179,7 @@ class ResultSet implements Iterator, ArrayAccess
 	 * 
 	 * We want to know which query and arguments are used, so we need to capture theme here
 	 * before passing control to parents method.
-	 * See http://www.php.net/manual/en/pdostatement.execute.php
+	 * See <PDOStatement::execute>
 	 * @param array $input_parameters An array of values with as many elements as there are bound parameters in the SQL statement being executed
 	 * @return bool true or false
 	 */
@@ -208,7 +209,7 @@ class ResultSet implements Iterator, ArrayAccess
 	/**
 	 * Overrides parent for buffering
 	 * 
-	 * See http://www.php.net/manual/en/pdostatement.fetch.php
+	 * See <PDOStatement::fetch>
 	 * @param int $fetch_style See php.net docs
 	 * @param int $cursor_orientation See php.net docs
 	 * @param int $cursor_offset See php.net docs
@@ -244,7 +245,7 @@ class ResultSet implements Iterator, ArrayAccess
 	/**
 	 * Overrides parent for buffering
 	 * 
-	 * See http://www.php.net/manual/en/pdostatement.fetchall.php
+	 * See <PDOStatement::fetchall>
 	 * @param int $fetch_style See php.net docs
 	 * @param int $column_index See php.net docs
 	 * @param mixed $ctor_args See php.net docs
@@ -388,47 +389,74 @@ class ResultSet implements Iterator, ArrayAccess
 		return $this->_rowCount;
 	}
 
+	/**
+	 * @implements <ArrayAccess::offsetExists>
+	 */
 	public function offsetExists($offset)
 	{
 		if( !$this->_current ) $this->_current = $this->fetch();
 		return isset($this->_current[$offset]);
 	}
 
+	/**
+	 * @implements <ArrayAccess::offsetGet>
+	 */
 	public function offsetGet($offset)
 	{
 		if( !$this->_current ) $this->_current = $this->fetch();
 		return isset($this->_current[$offset]) ? $this->_current[$offset] : null;
 	}
 
+	/**
+	 * @implements <ArrayAccess::offsetSet>
+	 */
 	public function offsetSet($offset, $value)
 	{
 		if( !$this->_current ) $this->_current = $this->fetch();
 		$this->_current[$offset] = $value;
 	}
 
+	/**
+	 * @implements <ArrayAccess::offsetUnset>
+	 */
 	public function offsetUnset($offset)
 	{
 		if( !$this->_current ) $this->_current = $this->fetch();
 		unset($this->_current[$offset]);
 	}
 
+	/**
+	 * @implements <Iterator::current>
+	 */
 	public function current() {
 		if( !$this->_current ) $this->_current = $this->fetch();
 		return $this->_current;
 	}
 
+	/**
+	 * @implements <Iterator::key>
+	 */
 	public function key() {
 		return $this->_index;
 	}
 
+	/**
+	 * @implements <Iterator::next>
+	 */
 	public function next() {
 		$this->_current = $this->fetch();
 	}
 
+	/**
+	 * @implements <Iterator::rewind>
+	 */
 	public function rewind() {
 		$this->_index = 0;
 	}
 
+	/**
+	 * @implements <Iterator::valid>
+	 */
 	public function valid() {
 		if( !$this->_current ) $this->_current = $this->fetch();
 		return $this->_current !== false;

@@ -65,7 +65,7 @@ class uiStarSelect extends uiControl
 	}
 
 	/**
-	 * @override Some initializations
+	 * @override
 	 */
 	public function WdfRender()
 	{

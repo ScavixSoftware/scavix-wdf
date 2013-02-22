@@ -119,7 +119,7 @@ class Tr extends Control
 	}
 
 	/**
-	 * @override Just prepares some options
+	 * @override
 	 */
 	function WdfRender()
 	{

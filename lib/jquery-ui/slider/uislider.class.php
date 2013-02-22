@@ -23,6 +23,11 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
+/**
+ * Wrapper around jQueryUI Slider
+ * 
+ * See http://jqueryui.com/slider/
+ */
 class uiSlider extends uiControl
 {
 	var $min = 1;
@@ -32,12 +37,14 @@ class uiSlider extends uiControl
 	var $onslide = false;
 	var $values = false;
 
-	function __initialize($id)
+	function __initialize()
 	{
 		parent::__initialize("div");
-		$this->id = $id;		
 	}
 
+	/**
+	 * @override
+	 */
 	function WdfRender()
 	{
 		$opts = array();

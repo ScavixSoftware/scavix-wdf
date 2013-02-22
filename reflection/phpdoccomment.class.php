@@ -69,12 +69,14 @@ class PhpDocComment
 				$res->LongDesc = trim($m[1]);
 		}
 		
-		preg_match_all('/^@([^\s]+)\s([^@]*)/ms',$comment,$m,PREG_SET_ORDER);
+		preg_match_all('/^@([^\s]+)([^@]*)/ms',$comment,$m,PREG_SET_ORDER);
 		foreach( $m as $p )
 		{
+			if( starts_with($p[1],'attribute[') )
+				continue;
 			$res->Tags[] = array(
 				'tag' => $p[1],
-				'data' => $p[2]
+				'data' => trim($p[2])
 			);
 		}
 		
@@ -105,6 +107,23 @@ class PhpDocComment
 			$this->LongDesc = "";
 	}
 	
+	/**
+	 * Ensures that there's a description set for the given tag.
+	 * 
+	 * Note that this will set the $default_description for all tags that match $tag, so do not use with 'param' and 
+	 * others that may appear multiple times.
+	 * @param string $tag Tag name like 'internal', 'override'
+	 * @param string $default_description Text to set if there's none yet
+	 * @return void
+	 */
+	function EnsureTagDescription($tag, $default_description)
+	{
+		foreach( $this->Tags as $i=>$t )
+			if( $t['tag'] == $tag && !$t['data'] )
+				$this->Tags[$i]['data'] = $default_description;
+		$this->_tagbuf = array();
+	}
+	
 	private function getTag($name,$properties)
 	{
 		if( !isset($this->_tagbuf) )
@@ -118,18 +137,23 @@ class PhpDocComment
 				if( $t['tag'] != $name )
 					continue;
 
+				$p = new stdClass();
 				if( preg_match_all('/([^\s]+)/',$t['data'],$matches) )
 				{
 					$props = array();
 					for($i=0;$i<count($properties)-1;$i++)
 						$props[] = array_shift($matches[1]);
 					$props[] = implode(" ",$matches[1]);
-
-					$p = new stdClass();
+					
 					foreach( $properties as $i=>$n )
 						$p->$n = $props[$i];
-					$this->_tagbuf[$name][] = $p;
 				}
+				else
+				{
+					foreach( $properties as $i=>$n )
+						$p->$n = '';
+				}
+				$this->_tagbuf[$name][] = $p;
 			}
 		}
 		return $this->_tagbuf[$name];
@@ -190,7 +214,14 @@ class PhpDocComment
 	 */
 	function getParams()
 	{
-		return $this->getTag('param',array('type','var','desc'));
+		$res = $this->getTag('param',array('type','var','desc'));
+		foreach( $res as $param )
+		{
+			$param->typeArray = explode('|', $param->type);
+			sort($param->typeArray);
+			$param->type = implode("|", $param->typeArray);
+		}
+		return $res;
 	}
 	
 	/**
@@ -261,6 +292,10 @@ class PhpDocComment
 		$shortcut = $this->get('shortcut');
 		if( $shortcut !== false )
 			$desc = "**SHORTCUT** $shortcut\t\n$desc";
+
+		$implements = $this->get('implements');
+		if( $implements !== false )
+			$desc = "**IMPLEMENTS** $implements\t\n$desc";
 		
 		if( !$this->entities )
 		{

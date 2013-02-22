@@ -47,7 +47,7 @@ class uiTreeView extends uiControl
 	}
 
 	/**
-	 * @override Prepares JS options and init code
+	 * @override
 	 */
 	function  PreRender($args=array())
 	{

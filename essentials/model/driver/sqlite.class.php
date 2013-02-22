@@ -153,10 +153,41 @@ class SqLite implements IDatabaseDriver
 	{ ToDoException::Raise("implement SqLite->getDeleteStatement()"); }
 	
 	function getPagedStatement($sql,$page,$items_per_page)
-	{ ToDoException::Raise("implement SqLite->getPagedStatement()"); }
+	{
+		$offset = ($page-1)*$items_per_page;
+		$sql = preg_replace('/LIMIT\s+[\d\s,]+/', '', $sql);
+		$sql .= " LIMIT $offset,$items_per_page";
+		return new ResultSet($this->_ds, $this->_pdo->prepare($sql));
+	}
 	
 	function getPagingInfo($sql,$input_arguments=null)
-	{ ToDoException::Raise("implement SqLite->getPagingInfo()"); }
+	{ 
+		if( !preg_match('/LIMIT\s+([\d\s,]+)/', $sql, $amounts) )
+			return false;
+		
+		$amounts = explode(",",$amounts[1]);
+		if( count($amounts) > 1 )
+			list($offset,$length) = $amounts;
+		else
+			list($offset,$length) = array(0,$amounts[0]);
+		$offset = intval($offset);
+		$length = intval($length);
+		
+		$sql = preg_replace('/LIMIT\s+[\d\s,]+/', '', $sql);
+		$sql = "SELECT count(*) FROM ($sql) AS x";
+		$stmt = $this->_pdo->prepare($sql);
+		$stmt->execute(array_values($input_arguments));
+		$total = intval($stmt->fetchColumn());
+		
+		return array
+		(
+			'rows_per_page'=> $length,
+			'current_page' => floor($offset / $length) + 1,
+			'total_pages'  => ceil($total / $length),
+			'total_rows'   => $total,
+			'offset'       => $offset,
+		);
+	}
 	
 	function Now($seconds_to_add=0)
 	{

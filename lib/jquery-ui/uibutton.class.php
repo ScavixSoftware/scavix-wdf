@@ -61,7 +61,7 @@ class uiButton extends uiControl
 	}
 
 	/**
-	 * @override Prepares options and stuff
+	 * @override
 	 */
 	function PreRender($args=array())
 	{
