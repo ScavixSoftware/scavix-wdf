@@ -82,7 +82,7 @@ class DatabaseTable extends Table
 			call_user_func($this->ExecuteSqlHandler,$this,$sql,$prms);
 		else
 		{
-			if( isset($this->ItemsPerPage) )
+			if( $this->ItemsPerPage )
 				$this->ResultSet = $this->DataSource->PageExecute($sql,$this->ItemsPerPage,$this->CurrentPage,$prms);
 			else
 			{
