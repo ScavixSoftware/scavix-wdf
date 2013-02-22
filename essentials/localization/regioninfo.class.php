@@ -81,5 +81,3 @@ class RegionInfo
 		return false;
 	}
 }
-
-?>

@@ -67,7 +67,7 @@ class PagerExtender extends ControlExtender
 		$ui->_content = array();
 
 		$pages = ceil($this->Total / $this->ItemsPerPage);
-//		log_debug("$pages = ceil($this->Total / $this->ItemsPerPage);");
+
 		if( $pages < 2 )
 		{
 //			log_debug("PagerExtender: No pages to render");
@@ -107,7 +107,7 @@ class PagerExtender extends ControlExtender
 	function PreRender()
 	{
 		if( isset($this->ExtendedControl->ResultSet) )
-			$this->Total = $this->ExtendedControl->ResultSet->MaxRecordCount();
+			$this->Total = $this->ExtendedControl->ResultSet->GetPagingInfo('total_rows');
 		$this->Render();
 	}
 
@@ -119,5 +119,3 @@ class PagerExtender extends ControlExtender
 		$this->CurrentPage = $number;
 	}
 }
-
-?>

@@ -210,5 +210,3 @@ class PdfDocument extends Zend_Pdf
 		}
 	}
 }
-
-?>

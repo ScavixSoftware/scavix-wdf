@@ -24,6 +24,10 @@
  */
 default_string("TXT_NO_DATA_FOUND","no data found");
 
+/**
+ * Allows to easily integrate database tables into UI.
+ * 
+ */
 class DatabaseTable extends Table
 {
 	const PB_NOPROCESSING = 0x00;
@@ -32,7 +36,7 @@ class DatabaseTable extends Table
 
 	var $DataSource = false;
 	var $ResultSet = false;
-	var $DataType = false;
+	var $DataTable = false;
 	var $Sql = false;
 	var $CacheExecute = false;
 
@@ -52,11 +56,21 @@ class DatabaseTable extends Table
 
 	var $ParsingBehaviour = self::PB_HTMLSPECIALCHARS;
 
-	function __initialize($datasource,$datatype=false)
+	/**
+	 * @param DataSource $datasource DataSource to use
+	 * @param string $datatype Datatype to be rendered
+	 * @param string $datatable Data tyble to be rendered
+	 */
+	function __initialize($datasource,$datatype=false,$datatable=false)
 	{
 		parent::__initialize();
-		$this->DataType = $datatype;
 		$this->DataSource = $datasource;
+		
+		if( $datatype )
+			$this->DataTable = $this->DataSource->TableForType($datatype);
+		elseif( $datatable )
+			$this->DataTable = $datatable;
+		
 		store_object($this);
 	}
 	
@@ -69,25 +83,31 @@ class DatabaseTable extends Table
 		else
 		{
 			if( isset($this->ItemsPerPage) )
-				$this->ResultSet = $this->DataSource->DB->PageExecute($sql,$this->ItemsPerPage,$this->CurrentPage,$prms);
+				$this->ResultSet = $this->DataSource->PageExecute($sql,$this->ItemsPerPage,$this->CurrentPage,$prms);
 			else
 			{
 				if( $this->CacheExecute )
 					$this->ResultSet = $this->DataSource->CacheExecuteSql($sql,$prms);
 				else
-					$this->ResultSet = $this->DataSource->DB->Execute($sql,$prms);
+					$this->ResultSet = $this->DataSource->ExecuteSql($sql,$prms);
 			}
 		}
-		if( $this->DataSource->DB->ErrorMsg() )
-			log_error(get_class($this).": ".$this->DataSource->DB->ErrorMsg());
+		if( $this->DataSource->ErrorMsg() )
+			log_error(get_class($this).": ".$this->DataSource->ErrorMsg());
 	}
 
+	/**
+	 * @override This will force the table to reload it's contents from the database
+	 */
 	function Clear()
 	{
 		$this->ResultSet = false;
 		parent::Clear();
 	}
 
+	/**
+	 * @internal Builds the SQL query and executed it
+	 */
 	final function GetData()
 	{
 		if( !$this->Sql )
@@ -128,10 +148,9 @@ class DatabaseTable extends Table
 			if( $this->OrderBy && !preg_match('/^\s+ORDER\sBY\s+/',$this->OrderBy) ) $this->OrderBy = " ORDER BY ".$this->OrderBy;
 			if( $this->Limit && !preg_match('/^\s+LIMIT\s+/',$this->Limit) ) $this->Limit = " LIMIT ".$this->Limit;
 
-			$table = $this->DataSource->TableForType($this->DataType);
 			$sql = "SELECT @fields@ FROM @table@@where@@groupby@@having@@orderby@@limit@";
 			$sql = str_replace("@fields@",$this->Columns,$sql);
-			$sql = str_replace("@table@","`".$table."`",$sql);
+			$sql = str_replace("@table@","`".$this->DataTable."`",$sql);
 			$sql = str_replace("@where@",$this->Where,$sql);
 			$sql = str_replace("@groupby@",$this->GroupBy,$sql);
 			$sql = str_replace("@having@",$this->Having,$sql);
@@ -145,16 +164,43 @@ class DatabaseTable extends Table
 		$this->ExecuteSql($this->Sql);
 	}
 
+	/**
+	 * Allows to override the default execute method
+	 * 
+	 * This will allow you to integrate your own execution handler
+	 * @param object $handler Object containing the handler method
+	 * @param string $function Name of handler method
+	 * @return void
+	 */
 	function OverrideExecuteSql(&$handler,$function)
 	{
 		$this->ExecuteSqlHandler = array($handler,$function);
 	}
+	
+	/**
+	 * Allows to assign your own handler to the AddHeader function
+	 * 
+	 * Sometimes you do not want to inherit from this, but create a table and assign the handlers
+	 * to another object.
+	 * @param object $handler Object containing the handler method
+	 * @param string $function Name of the handler method
+	 * @return DatabaseTable `$this`
+	 */
 	function AssignOnAddHeader(&$handler,$function)
 	{
 		$res = $this->OnAddHeader;
 		$this->OnAddHeader = array($handler,$function);
 		return $this;
 	}
+	/**
+	 * Allows to assign your own handler to the AddRow function
+	 * 
+	 * Sometimes you do not want to inherit from this, but create a table and assign the handlers
+	 * to another object.
+	 * @param object $handler Object containing the handler method
+	 * @param string $function Name of the handler method
+	 * @return DatabaseTable `$this`
+	 */
 	function AssignOnAddRow(&$handler,$function)
 	{
 		$res = $this->OnAddRow;
@@ -169,7 +215,25 @@ class DatabaseTable extends Table
 	protected function GetOrderBy(){return "";}
 	protected function GetLimit(){return "";}
 	
+	/**
+	 * Default AddRow method
+	 * 
+	 * This will be called for each row to add (from the execution routines).
+	 * If you override this in derivered classes you can easily react on that.
+	 * Uses <Table::NewRow>() internally
+	 * @param array $data Row as assaciative array
+	 * @return void
+	 */
 	function AddRow(&$data) { $this->NewRow($data); }
+	
+	/**
+	 * Default AddHeader method
+	 * 
+	 * Creates a table header with the given keys as text.
+	 * Uses <Table::Header>() internally
+	 * @param array $keys Array of columns this <DatabaseTable> contains
+	 * @return void
+	 */
 	function AddHeader($keys)
 	{
 		$head = array_combine($keys,$keys);
@@ -212,12 +276,15 @@ class DatabaseTable extends Table
 		return $row;
 	}
 
+	/**
+	 * @override Calls <DatabaseTable::GetData>() and loops thru the <ResultSet> creating the table content before calling parent
+	 */
 	function WdfRender()
     {
         $this->GetData();
         $this->PreRenderExtender();
 		
-        if( !$this->ResultSet || $this->ResultSet->EOF )
+        if( !$this->ResultSet || $this->ResultSet->Count()==0 )
 		{
 			if( !$this->noDataAsRow )
 	           return $this->contentNoData;
@@ -233,9 +300,8 @@ class DatabaseTable extends Table
 		}
         else
         {
-            while( !$this->ResultSet->EOF )
+            foreach( $this->ResultSet as $row )
             {
-                $row = $this->ResultSet->GetRowAssoc(false);//fields;
 				$row = $this->_preProcessData($row);
 
                 if( !$this->header )
@@ -248,7 +314,6 @@ class DatabaseTable extends Table
                     $this->OnAddRow[0]->{$this->OnAddRow[1]}($this, $row);
                 else
                     $this->AddRow($row);
-                $this->ResultSet->MoveNext();
             }
         }
 		return parent::WdfRender();
@@ -266,6 +331,7 @@ class DatabaseTable extends Table
 	);
 	
 	/**
+	 * @internal Currently untested, so marked <b>internal</b>
 	 * @attribute[RequestParam('format','string')]
 	 */
 	function Export($format)
@@ -314,9 +380,9 @@ class DatabaseTable extends Table
 		log_debug("EXPORT collecting");
 		
 		$res = array();
-		while( !$copy->ResultSet->EOF )
+		$copy->ResultSet->FetchMode = PDO::FETCH_ASSOC;
+		foreach( $copy->ResultSet as $row )
 		{
-			$row = $copy->ResultSet->GetRowAssoc(false);
 			$row = $copy->_preProcessData($row);
 			
 			if( !isset($format_buffer) )
@@ -333,7 +399,6 @@ class DatabaseTable extends Table
 				$row[$k] = $cellformat->FormatContent($row[$k],$copy->Culture);
 			
 			$res[] = $row;
-			$copy->ResultSet->MoveNext();
 		}
 		log_debug("EXPORT data complete");
 		return $res;
@@ -429,6 +494,13 @@ class DatabaseTable extends Table
 		die($csv);
 	}
 	
+	/**
+	 * Adds a Pager to the table
+	 * 
+	 * In fact this is the only pager WDF currently offers.
+	 * @param int $itemsperpage Items per page to be displayed
+	 * @return DatabaseTable `$this`
+	 */
 	function AddStandardPager($itemsperpage = 15)
 	{
 		$cell = $this->Footer()->NewCell();
@@ -438,5 +510,3 @@ class DatabaseTable extends Table
 		return $this;
 	}
 }
-
-?>

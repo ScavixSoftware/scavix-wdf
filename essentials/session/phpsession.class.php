@@ -25,10 +25,17 @@
  
 /**
  * PHP session handling.
+ * 
  * This is the default behaviour.
  */
 class PhpSession extends SessionBase
 {
+	/**
+	 * Implements parents abstract
+	 * 
+	 * See <SessionBase::Sanitize>
+	 * @return void
+	 */
 	function Sanitize()
 	{
 		global $CONFIG;
@@ -53,6 +60,12 @@ class PhpSession extends SessionBase
 		}
 	}
 
+	/**
+	 * Implements parents abstract
+	 * 
+	 * See <SessionBase::KillAll>
+	 * @return void
+	 */
 	function KillAll()
 	{
 		global $CONFIG;
@@ -61,12 +74,28 @@ class PhpSession extends SessionBase
 		session_start();
 	}
 
+	/**
+	 * Implements parents abstract
+	 * 
+	 * See <SessionBase::KeepAlive>
+	 * @param string $request_key Key in the $_REQUEST variable where the request_id is stored
+	 * @return void
+	 */
 	function KeepAlive($request_key='PING')
 	{
 		global $CONFIG;
 		$_SESSION[$CONFIG['session']['prefix']."session_lastaccess"] = time();
 	}
 
+	/**
+	 * Implements parents abstract
+	 * 
+	 * See <SessionBase::Store>
+	 * @param object $obj Object to be stored
+	 * @param string $id Id to store $obj to
+	 * @param bool $autoload If true, will be restored on session initialization automatically
+	 * @return void
+	 */
 	function Store(&$obj,$id="",$autoload=false)
 	{
 		global $CONFIG;
@@ -85,6 +114,13 @@ class PhpSession extends SessionBase
 		$GLOBALS['object_storage'][$id] = $obj;
 	}
 
+	/**
+	 * Implements parents abstract
+	 * 
+	 * See <SessionBase::Delete>
+	 * @param string $id Id of object to be deleted
+	 * @return void
+	 */
 	function Delete($id)
 	{
 		global $CONFIG;
@@ -96,6 +132,13 @@ class PhpSession extends SessionBase
 		unset($GLOBALS['object_storage'][$id]);
 	}
 
+	/**
+	 * Implements parents abstract
+	 * 
+	 * See <SessionBase::Exists>
+	 * @param string $id Id of object to be checked
+	 * @return bool true or false
+	 */
 	function Exists($id)
 	{
 		global $CONFIG;
@@ -108,6 +151,13 @@ class PhpSession extends SessionBase
 		return isset($_SESSION[$CONFIG['session']['prefix']."session"][$id]);
 	}
 
+	/**
+	 * Implements parents abstract
+	 * 
+	 * See <SessionBase::Restore>
+	 * @param string $id Id of object to be restored
+	 * @return mixed Object from store or null
+	 */
 	function &Restore($id)
 	{
 		global $CONFIG;
@@ -128,11 +178,4 @@ class PhpSession extends SessionBase
 		$GLOBALS['object_storage'][$id] = $res;
 		return $GLOBALS['object_storage'][$id];
 	}
-
-	function CleanUp()
-	{
-		
-	}
 }
-
-?>

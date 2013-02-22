@@ -24,14 +24,23 @@
  */
 
 /**
+ * Wrapper class to ensure jQueryUI is loaded.
+ * 
  * @attribute[Resource('jquery-ui/jquery-ui.js')] 
  * @attribute[Resource('jquery-ui/jquery-ui.css')] 
  */
 class uiTable extends Table
-{
-	function __initialize()
+{	
+	/**
+	 * @override Adds some classes to the output
+	 */
+	function WdfRender()
 	{
-		parent::__initialize();
-		$this->RenderMode = self::RENDER_MODE_JQUERYUI;
+		$this->_ensureCaptionObject();
+		$this->addClass('ui-widget ui-widget-content ui-corner-all');
+		if( $this->header ) $this->header->addClass('ui-widget-header');
+		if( $this->Caption ) $this->Caption->addClass('ui-widget-header');
+		if( $this->footer ) $this->footer->addClass('ui-widget-content');
+		return parent::WdfRender();
 	}
 }

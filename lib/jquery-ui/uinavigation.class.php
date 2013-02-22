@@ -45,4 +45,3 @@ class uiNavigation extends uiControl
 		return $item;
 	}
 }
-?>

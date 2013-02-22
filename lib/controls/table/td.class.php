@@ -23,6 +23,10 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * Just a table cell (td).
+ * 
+ */
 class Td extends Control
 {
     var $options = false;
@@ -30,13 +34,22 @@ class Td extends Control
 	
 	var $colspan = "";
 
-	function __initialize($options)
+	/**
+	 * @param array $options No valid options defined yet
+	 */
+	function __initialize($options=false)
 	{
 		parent::__initialize("div");
 		$this->class = "td";
         $this->options = $options;
 	}
 
+	/**
+	 * Returns this cells contents.
+	 * 
+	 * Note: This will return the unformatted content and ignore an eventually active <CellFormat>.
+	 * @return string Contents
+	 */
 	function GetContent()
 	{
 		$tmp = clone $this;
@@ -44,10 +57,14 @@ class Td extends Control
 		return $tmp->WdfRender();
 	}
 
+	/**
+	 * Set new content.
+	 * 
+	 * @param mixed $content The new content
+	 * @return void
+	 */
 	function SetContent($content)
 	{
 		$this->content($content,true);
 	}
 }
-
-?>

@@ -77,9 +77,9 @@ class uiButtonSet extends uiControl
 
 	/**
 	 *
-	 * @param <type> $button_id the target button id
-	 * @param <type> $event a jQuery event e.g click
-	 * @param <type> $function
+	 * @param string $button_id the target button id
+	 * @param string $event a jQuery event e.g click
+	 * @param string $function JS code
 	 * 
 	 */
 	function AddEventToButton($button_id,$event,$function)
@@ -105,4 +105,3 @@ class uiButtonSet extends uiControl
 		}
 	}
 }
-?>

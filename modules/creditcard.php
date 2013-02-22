@@ -238,5 +238,3 @@ function creditcard_check ($cardnumber, $cardname, &$errornumber, &$errortext) {
   // The credit card is in the required format.
   return true;
 }
-/*============================================================================*/
-?>

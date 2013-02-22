@@ -94,7 +94,7 @@ function system_config_default($reset = true)
 	$CONFIG['requestparam']['tagstostrip'] = array('script');
 
 	$CONFIG['model']['internal']['auto_create_tables'] = true;
-	$CONFIG['model']['internal']['datasource_type']    = 'System_DataSource';	
+	$CONFIG['model']['internal']['datasource_type']    = 'DataSource';	
 	$CONFIG['model']['internal']['debug']			   = false;
 
 	$CONFIG['system']['application_name'] = 'wdf_application';
@@ -347,7 +347,7 @@ function system_execute()
 	}
 	
 	execute_hooks(HOOK_POST_EXECUTE);
-	set_time_limit(ini_get('max_execution_time'));
+	@set_time_limit(ini_get('max_execution_time'));
 	if( !isset($content) || !$content )
 		$content = $current_controller;
 
@@ -587,8 +587,8 @@ function is_valid_hook_type($type)
  * echo (hook_type_to_string(HOOK_POST_INIT) == 'HOOK_POST_INIT')?'true':'false';
  * // output: true
  * </code>
- * @param int $type
- * @return string Type as string
+ * @param int $type Hook type
+ * @return string Type as string or 'HOOK_UNDEFINED' if $type is not a valid hook type
  */
 function hook_type_to_string($type)
 {

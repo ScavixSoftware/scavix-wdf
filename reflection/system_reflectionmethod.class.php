@@ -25,9 +25,20 @@
 
 /**
  * Wraps ReflectionMethod class and overrides invokeArgs method to allow control extender pattern to work
+ * 
+ * As we are currently investigating the need for that pattern this may be removed in future versions.
  */
 class System_ReflectionMethod extends ReflectionMethod
 {
+	/**
+	 * Overrides default invokeArgs method
+	 * 
+	 * See http://www.php.net/manual/en/reflectionmethod.invokeargs.php
+	 * Will additionally check all defined extenders and call the method there if present.
+	 * @param object $object The object to invoke the method on. In case of static methods, you can pass null to this parameter
+	 * @param array $argsarray The parameters to be passed to the function, as an array
+	 * @return mixed Returns the method result. 
+	 */
 	public function invokeArgs($object, array $argsarray)
 	{
 		try{
@@ -46,4 +57,3 @@ class System_ReflectionMethod extends ReflectionMethod
 		WdfException::Raise("Error invoking ".$this->class."->".$this->name);
 	}
 }
-?>

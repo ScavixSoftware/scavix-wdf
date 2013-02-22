@@ -64,5 +64,3 @@ class uiAutocomplete extends uiControl
 		return $this;
 	}
 }
-
-?>

@@ -236,7 +236,7 @@ class DateTimeFormat
 	 * - DF_LONGDATE DF_SHORTTIME
 	 * - DF_SHORTDATE DF_LONGTIME
 	 * - DF_LONGDATE DF_LONGTIME
-	 * @return <type>
+	 * @return array
 	 */
 	public function KnownDateTimePatterns()
 	{
@@ -433,5 +433,3 @@ class DateTimeFormat
 		return $res;
 	}
 }
-
-?>

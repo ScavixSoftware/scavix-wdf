@@ -28,6 +28,9 @@ default_string('TXT_AVERAGE', 'Average');
 default_string('TXT_GOOD', 'Good');
 default_string('TXT_PERFECT', 'Perfect');
 /**
+ * Wraps a jQueryUI 'Star-Rating' control.
+ * 
+ * See http://plugins.jquery.com/project/Star_Rating_widget
  * @attribute[Resource('jquery-ui/ui.stars.js')]
  * @attribute[Resource('jquery-ui/ui.stars.css')]
  */
@@ -45,10 +48,12 @@ class uiStarSelect extends uiControl
 		5=>"TXT_PERFECT"
 	);
 
-    function __initialize( $cid="", $options=array() )
+	/**
+	 * @param array $options See http://plugins.jquery.com/project/Star_Rating_widget
+	 */
+    function __initialize( $options=array() )
 	{
 		parent::__initialize("div");
-		$this->id = $cid;
 		
 		$this->_options = $options;
 		$this->_options['inputType'] = 'select';
@@ -59,6 +64,9 @@ class uiStarSelect extends uiControl
 		store_object($this);
 	}
 
+	/**
+	 * @override Some initializations
+	 */
 	public function WdfRender()
 	{
 		if( isset($this->_options['captionEl']) )
@@ -104,14 +112,25 @@ class uiStarSelect extends uiControl
 		return $Select;
 	}
 
+	/**
+	 * Sets the value.
+	 * 
+	 * @param mixed $value The new value
+	 * @return void
+	 */
 	public function SetValue($value=false)
 	{
 		if( !$value )
-			return false;
-			
+			return;
 		$this->_value = $value;
 	}
 
+	/**
+	 * Sets the caption.
+	 * 
+	 * @param string $caption_title The label
+	 * @return void
+	 */
 	public function SetCaption($caption_title=null)
 	{
 		$this->_options['captionEl'] = "stars-cap".$this->id;
@@ -120,4 +139,3 @@ class uiStarSelect extends uiControl
 			$this->_options['captionTitle'] = $caption_title;
 	}
 }
-?>

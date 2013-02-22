@@ -24,18 +24,11 @@
  */
 
 /**
+ * Marks a class/method as public
+ * 
  * Not sure if this is deprecated, but of course still usable to mark classes/methods as public.
  * Note: currently not used in WDF itself.
  */
 class PublicAttribute extends System_Attribute
 {
-	function __construct()
-	{}
-
-	function Granted()
-	{
-		return true;
-	}
 }
-
-?>

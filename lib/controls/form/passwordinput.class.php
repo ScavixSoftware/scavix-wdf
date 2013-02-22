@@ -23,17 +23,18 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
-class PasswordInput extends Control
+/**
+ * This is a &lt;input type='password'/&gt;.
+ * 
+ */
+class PasswordInput extends Input
 {
-    function __initialize($value="",$name=false)
+	/**
+	 * @param string $name a name for it
+	 */
+    function __initialize($name=false)
 	{
-		parent::__initialize("input");
-		$this->type = "password";
-		$this->value = $value;
-		$this->class = "pwdinput";
-		
-		if( $name )
-			$this->name = $name;
+		parent::__initialize();
+		$this->setType("password")->setName($name);
 	}
 }
-?>

@@ -142,5 +142,3 @@ class DateTimeEx extends DateTime
 		return $this < self::Now();
 	}
 }
-
-?>

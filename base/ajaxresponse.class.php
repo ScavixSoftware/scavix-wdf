@@ -117,19 +117,16 @@ class AjaxResponse
 	}
 	
 	/**
-	 * INTERNAL!
-	 * Renders the response for output.
+	 * @internal Renders the response for output.
 	 */
 	function Render()
 	{
 		if( $this->_data )
 			$res = system_to_json($this->_data);
 		elseif( $this->_text )
-			$res = $this->_text;
+			$res = json_encode($this->_text);
 		else
 			return '""'; // return an empty string JSON encoded to not kill the app JS side
 		return system_is_module_loaded("translation")?__translate($res):$res;
 	}
 }
-
-?>

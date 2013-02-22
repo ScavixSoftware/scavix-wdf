@@ -91,5 +91,3 @@ class uiTimeInput extends uiControl
 		$this->content("<br style='clear:both; line-height:0'/>");
 	}
 }
-
-?>

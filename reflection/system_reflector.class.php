@@ -25,6 +25,9 @@
 
 /**
  * Wraps ReflectionClass and provides additional functionality regarding Attributes and DocComments
+ * 
+ * This is central class as it ensures correct DocComment parsing even if a bytecode cache (like APC) is active and removing them.
+ * There's also intensive caching active to improve speed.
  */
 class System_Reflector extends ReflectionClass
 {
@@ -40,6 +43,13 @@ class System_Reflector extends ReflectionClass
 		parent::__construct($classname);
 	}
 
+	/**
+	 * Create a System_Reflector instance
+	 * 
+	 * Return a reflector for the given classname or object.
+	 * @param string|object $classname Classname or object to be reflected
+	 * @return System_Reflector A new instance of type System_Reflector
+	 */
 	public static function &GetInstance($classname)
 	{
 		if( is_object($classname) )
@@ -200,7 +210,8 @@ class System_Reflector extends ReflectionClass
 
 			if( !__search_file_for_class($name."Attribute") )
 			{
-				log_trace("Invalid Attribute: $m ({$name}Attribute) found in Comment '$comment'");
+				if( $name!='NoMinify' )
+					log_trace("Invalid Attribute: $m ({$name}Attribute) found in Comment '$comment'");
 				continue;
 			}
 
@@ -229,6 +240,16 @@ class System_Reflector extends ReflectionClass
 		return $res;
 	}
 
+	/**
+	 * Creates a new object of the reflected type
+	 * 
+	 * Will call the constructor for the reflected type like this:
+	 * <code php>
+	 * return $this->newInstanceArgs($args);
+	 * </code>
+	 * @param array $args Constructor arguments
+	 * @return object The new instance
+	 */
 	public function CreateObject($args)
 	{
 		return $this->newInstanceArgs($args);
@@ -236,27 +257,27 @@ class System_Reflector extends ReflectionClass
 
 	/**
 	 * Returns class attributes.
-	 * Class attributes are DocComment parts following the syntax <at>attribute[<Attribute>].
+	 * 
+	 * Class attributes are DocComment parts following the syntax <at>attribute[&lt;Attribute&gt;].
 	 * <at> := The <at> sign.
-	 * <Attribute> :=	Construction string of the attribute. May miss the part 'Attribute' at the end
+	 * &lt;Attribute&gt; :=	Construction string of the attribute. May miss the part 'Attribute' at the end
 	 *					and empty brackets.
 	 * Exapmples:
+	 * <code>
 	 * <at>attribute[Right]
 	 * <at>attribute[RightAttribute]
 	 * <at>attribute[Right()]
 	 * <at>attribute[RightAttribute()]
 	 * <at>attribute[Right('false')]
 	 * <at>attribute[RightAttribute('true || false')]
-	 *
+	 * </code>
 	 * @param string|string[] $filter	Return only Attributes tha match the given filter.
 	 *									May be string for a single attribute or array of string for
 	 *									multiple attributes.
-	 * @param string[] $container_path	When no attributes are defined in the class, follow up this
-	 *									path of classnames and check one after the other until
-	 *									matching attributes are found. Will be processes bottom up!
-	 * @return object[] An array of objects derivered from System_Attribute.
+	 * @param bool $allowAttrInheritance If true, filter not only matches directly, but also all classes derivered from a valid filter
+	 * @return object[] An array of objects derivered from <System_Attribute>.
 	 */
-	public function GetClassAttributes($filter=array(), $container_path = array(), $allowAttrInheritance=true)
+	public function GetClassAttributes($filter=array(), $allowAttrInheritance=true)
 	{
 		if( !is_array($filter) )
 			$filter = array($filter);
@@ -268,33 +289,19 @@ class System_Reflector extends ReflectionClass
 		$comment = $this->_getComment();
 		$res = $this->_getAttributes($comment,$filter,$this->Instance,false,false,$allowAttrInheritance);
 		$this->_setCached($this->_attribute_cache,"",$filter,$res);
-
-		$i = count($container_path)-1;
-		while( count($res) == 0 && $i > -1 )
-		{
-			if( isset($container_path[$i]) && $container_path[$i] != "" )
-			{
-				$ref = System_Reflector::GetInstance($container_path[$i]);
-				$res = $ref->GetClassAttributes($filter);
-			}
-			else
-			{
-				log_debug( "INVALID CP ENTRY: ".$this->getName()."->GetClassAttributes('".implode("|",$filter)."','".implode("->",$container_path)."')");
-				log_debug( $container_path );
-			}
-			$i--;
-		}
-
+		
 		return $res;
 	}
 
 	/**
 	 * Returns method attributes.
-	 * For a detailed description see GetClassAttributes
+	 * 
+	 * For a detailed description see <System_Reflector::GetClassAttributes>
 	 * @param string $method_name The name of the method.
 	 * @param string|string[] $filter	Return only Attributes tha match the given filter.
 	 *									May be string for a single attribute or array of string for
 	 *									multiple attributes.
+	 * @param bool $allowAttrInheritance If true, filter not only matches directly, but also all classes derivered from a valid filter
 	 * @return object[] An array of objects derivered from System_Attribute.
 	 */
 	public function GetMethodAttributes($method_name, $filter=array(), $allowAttrInheritance=true)
@@ -336,6 +343,13 @@ class System_Reflector extends ReflectionClass
 		return $res;
 	}
 
+	/**
+	 * Returns a list of property names
+	 * 
+	 * May also step down inheritance graph and include properties from there
+	 * @param bool $include_derivered If true steps down inheritance graph
+	 * @return array An array of property names
+	 */
 	public function GetPropertyNames($include_derivered = true)
 	{
 		$properties = parent::getProperties(ReflectionProperty::IS_PUBLIC);
@@ -348,59 +362,39 @@ class System_Reflector extends ReflectionClass
 		return $res;
 	}
 	
+	/**
+	 * Returns the DocComment for a method
+	 * 
+	 * Perhaps use <System_Reflector::getCommentObject>() instead as that one returns a <PhpDocComment> object.
+	 * @param string $method_name Name of method
+	 * @return string The DocComment
+	 */
 	public function getCommentString($method_name=false)
 	{
 		return $this->_getComment($method_name);
 	}
 	
+	/**
+	 * Returns the DocComment for a method(or the class) as object
+	 * 
+	 * This is the modern version of <System_Reflector::getCommentString>().
+	 * @param string $method_name Name of method or false if you want the class comment
+	 * @return PhpDocComment The DocComment wrapped as PhpDocComment
+	 */
 	public function getCommentObject($method_name=false)
 	{
-		$comment = $this->getCommentString($method_name);
+		$comment = $this->_getComment($method_name);
 		return PhpDocComment::Parse($comment);
 	}
-
-	public function getDescription($method_name=false, $asHtml=false)
-	{
-		$comment = $this->_getComment($method_name);
-		if( preg_match_all('/[\/\*\s]+(.*)/', $comment, $matches, PREG_SET_ORDER) )
-		{
-			$lines = array();
-			foreach( $matches as $m )
-				$lines[] = $m[1];
-
-			if( $asHtml )
-				return implode("<br/>",$lines);
-			return implode("\n",$lines);
-		}
-		return $comment;
-	}
-
-	public function getDescriptionOnly($comment, $asHtml=false)
-	{
-		$comment = str_replace("<br/>","\n",$comment);
-		$lines = explode("\n",$comment);
-		$res = array();
-		foreach( $lines as $l )
-			if( !starts_with($l, "@") )
-				$res[] = $l;
-		if( $asHtml )
-			return implode("<br/>",$res);
-		return implode("\n",$res);
-	}
-
-	public function getParamDescription($comment, $name)
-	{
-		if( preg_match_all('/@(para[^\s]+)\s+([^\s]+)\s+([^\s]+)\s+(.*)/', $comment, $matches, PREG_SET_ORDER) )
-		{
-			foreach( $matches as $m )
-			{
-				if( $m[1] == "param" && ends_with($m[3],'$'.$name) )
-					return $m[4];
-			}
-		}
-		return '';
-	}
 	
+	/**
+	 * Overrides Reflection::getMethod to enable <System_ReflectionMethod> handling.
+	 * 
+	 * As <System_ReflectionMethod> is only used to enable Extender pattern and we are thinking about removing that: 
+	 * This may also be removed in future versions!
+	 * @param string $name Name of the method to get
+	 * @return System_ReflectionMethod|boolean A System_ReflectionMethod instance or false on error
+	 */
 	public function getMethod($name)
 	{
 		try
@@ -422,4 +416,3 @@ class System_Reflector extends ReflectionClass
 		return false;
 	}
 }
-?>

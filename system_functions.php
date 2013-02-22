@@ -388,12 +388,23 @@ function system_ensure_path_ending(&$path, $make_realpath=false)
  * Checks if a string starts with another one.
  * 
  * Shortcut for the lazy ones: `return strpos($string,$start) === 0`
+ * You may also call this function with more parameters. In that case will check if
+ * $string starts with any of the given strings: `$hit = starts_with('hello world','wow','rl','hello');`
  * @param string $string String to check
  * @param string $start The start to be checked
  * @return bool true or false
  */
 function starts_with($string,$start)
 {
+	if( func_num_args() > 2 )
+	{
+		$args = func_get_args();
+		array_shift($args);
+		foreach( $args as $start )
+			if( strpos($string,$start) === 0 )
+				return true;
+		return false;
+	}
 	return strpos($string,$start) === 0;
 }
 
@@ -401,12 +412,23 @@ function starts_with($string,$start)
  * Checks if a string ends with another one.
  * 
  * Shortcut for the lazy ones: `return substr($string,strlen($string)-strlen($end)) == $end`
+ * You may also call this function with more parameters. In that case will check if
+ * $string ends with any of the given strings: `$hit = ends_with('hello world','wow','rl','ld');`
  * @param string $string String to check
  * @param string $end The end to be checked
  * @return bool true or false
  */
 function ends_with($string,$end)
 {
+	if( func_num_args() > 2 )
+	{
+		$args = func_get_args();
+		array_shift($args);
+		foreach( $args as $end )
+			if( substr($string,strlen($string)-strlen($end)) == $end )
+				return true;
+		return false;
+	}
 	return substr($string,strlen($string)-strlen($end)) == $end;
 }
 
@@ -781,3 +803,36 @@ function can_rewrite(){ return array_val_is($_SERVER,'WDF_FEATURES_REWRITE','on'
  * @return bool true or false
  */
 function can_nocache(){ return array_val_is($_SERVER,'WDF_FEATURES_NOCACHE','on'); }
+
+/**
+ * Natural sorts an array by it's keys.
+ * 
+ * This is a slightly modified version of one found in the PHP documentation.
+ * See http://www.php.net/manual/en/function.ksort.php#54319
+ * @param array $array Array to be sorted
+ * @return void
+ */
+function natksort(&$array)
+{
+	$new_array = array();
+	$keys = array_keys($array);
+	natcasesort($keys);
+	foreach ($keys as $k)
+		$new_array[$k] = $array[$k];
+	$array = $new_array;
+}
+
+/**
+ * Wraps something into an array if needed.
+ * 
+ * If fact does this: `return is_array($data)?$data:array($data);`
+ * Note that for `is_null($data)` force_array will return an empty `array()`
+ * @param mixed $data Anything you want to be an array if it is not aready
+ * @return array The resulting array
+ */
+function force_array($data)
+{
+	if( is_null($data) )
+		return array();
+	return is_array($data)?$data:array($data);
+}

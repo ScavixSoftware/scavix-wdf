@@ -272,10 +272,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $default;
 	}
 	
-	public function GetPagingInfo()
+	public function GetPagingInfo($key=false)
 	{
 		$this->__ensureResults();
-		return $this->_query->GetPagingInfo();
+		return $this->_query->GetPagingInfo($key);
 	}
 	
 	public function FieldValues()
@@ -742,7 +742,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		if( $q->rowCount() > 0 )
 		{
 			foreach( $this->GetColumnNames() as $col )
-				$this->$col = $q->fields[$col];
+				$this->$col = $q[$col];
 			$this->_query = false;
 			$this->_results = false;
 			$this->_index = 0;
@@ -799,5 +799,3 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $q->__execute($sql, $prms);
 	}
 }
-
-?>

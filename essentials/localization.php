@@ -44,8 +44,8 @@ function localization_init()
 /**
  * Returns whether given value is a valid float value or not
  *
- * @param <string> $value floatnumber to be checked
- * @return <boolen> true if valid
+ * @param string $value floatnumber to be checked
+ * @return bool true if valid
  */
 function localized_to_float_number($value)
 {
@@ -225,8 +225,11 @@ class Localization
 		$ci = internal_getCultureInfo($code);
 		if( !$ci )
 		{
+            if(isset($CONFIG['localization']['default_culture']))
+                $ci = internal_getCultureInfo($CONFIG['localization']['default_culture']);
+            
 //			log_error("NO CI $code");
-			return false;
+			return $ci;
 		}
 		$arBufferedCultures["C".$code] = clone $ci;
 		return $ci;
@@ -249,7 +252,8 @@ class Localization
 	}
 
 	/**
-	 * Returns a list of all defined Timezones
+	 * Returns a list of all defined Timezones.
+	 * 
 	 * @return array All Timezone IDs
 	 */
 	public static function getAllTimeZones()
@@ -258,9 +262,7 @@ class Localization
 	}
 
 	/**
-	 * Returns the default Culture code by looking into stored
-	 * user-object, COOKIES, REQUEST, SERVER and user_ip.
-	 * INTERNAL USE ONLY!
+	 * @internal Returns the default Culture code by looking into stored user-object, COOKIES, REQUEST, SERVER and user_ip.
 	 */
 	public static function localization_default_culture($prefergeoip = true)
 	{
@@ -269,7 +271,8 @@ class Localization
 	}
 
 	/**
-	 * Returns the currently selected currency
+	 * Returns the currently selected currency.
+	 * 
 	 * @param string $cultureCode The culture code for which we need the currency. defaults to current culture
 	 * @param bool $use_code true: return currency ISO code, false: return currency symbol
 	 * @return string Currency code|symbol
@@ -306,9 +309,12 @@ class Localization
 
 	public static function format_currency($amount, $cultureCode = false, $use_code=false)
 	{
+        global $CONFIG;
 		if( $cultureCode !== false && !is_string($cultureCode) )
 			WdfException::Raise("Who calls this function with a wrong param? Provide string please!");
 		$ci = self::getCultureInfo($cultureCode);
+        if($ci == false)
+            $ci = self::getCultureInfo($CONFIG['localization']['default_culture']);
 		return $ci->FormatCurrency($amount,$use_code);
 	}
 
@@ -763,5 +769,3 @@ class Localization
 		return false;
 	}
 }
-
-?>

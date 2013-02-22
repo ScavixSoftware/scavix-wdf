@@ -25,8 +25,9 @@
 
 /**
  * Base class for SessionHandlers.
- * Implements some basic functionalities and defines some more as
- * abstract which must be implemented by extending classes
+ * 
+ * Implements basic functionalities and defines some more as
+ * abstract which must be implemented by inherited classes.
  */
 abstract class SessionBase
 {
@@ -39,7 +40,11 @@ abstract class SessionBase
 	abstract function &Restore($id);
 
 	/**
-	 * @see http://www.php-security.org/2010/05/09/mops-submission-04-generating-unpredictable-session-ids-and-hashes/index.html#more-204
+	 * Generates a secure session id
+	 * 
+	 * See http://www.php-security.org/2010/05/09/mops-submission-04-generating-unpredictable-session-ids-and-hashes/index.html#more-204
+	 * @param int $maxLength Maximum length of resulting id
+	 * @return string Session id
 	 */
 	function GenerateSessionId($maxLength = 32)
 	{
@@ -101,7 +106,6 @@ abstract class SessionBase
 					$regen_needed = true;
 				}
 				$sid = preg_replace("/[^0-9a-zA-Z]/", "", $_REQUEST[$CONFIG['session']['session_name']]);
-				$this->CleanUp();
 				if($sid != "")
 				{
 					session_id($sid);
@@ -138,6 +142,13 @@ abstract class SessionBase
 		}
 	}
 
+	/**
+	 * Regenerates the session id
+	 * 
+	 * See http://www.php.net/manual/en/function.session-regenerate-id.php
+	 * @param bool $destroy_old_session Whether to delete the old associated session file or not
+	 * @return bool true or false
+	 */
 	function RegenerateId($destroy_old_session = false)
 	{
 		$ret = @session_regenerate_id($destroy_old_session);
@@ -145,6 +156,16 @@ abstract class SessionBase
 		return $ret;
 	}
 
+	/**
+	 * Ensures object validity
+	 * 
+	 * Calls <store_object> for every <Renderable> object in the object store to ensure that the stored 
+	 * objects really match the serialized ones. This is needed because fields/properties can change after
+	 * the initial save and our caching will hide that from system.
+	 * 
+	 * No need to call this manually, WDF will do!
+	 * @return void
+	 */
 	function Update()
 	{
 		global $CONFIG;
@@ -163,6 +184,13 @@ abstract class SessionBase
 		}
 	}
 
+	/**
+	 * Returns a (new) request id
+	 * 
+	 * WDF creates a new ID for every request and passed it to every subsequent AJAX call.
+	 * This method does the real magic and creates a new request id or returns the current.
+	 * @return string A new request id or the current one
+	 */
 	function RequestId()
 	{
 		if( !isset($GLOBALS['session_request_id']) )
@@ -174,6 +202,15 @@ abstract class SessionBase
 		return $GLOBALS['session_request_id'];
 	}
 
+	/**
+	 * Creates a object id
+	 * 
+	 * WDF will create IDs for <Renderable> objects automatically and ensures uniqueness for
+	 * the whole session. This method creates such an id based on the given objects classname.
+	 * It will store it to `$obj->_storage_id` and return it.
+	 * @param object $obj Object which needs an id
+	 * @return string The generated object id
+	 */
 	function CreateId(&$obj)
 	{
 		global $CONFIG;
@@ -203,11 +240,4 @@ abstract class SessionBase
 
 		return $obj->_storage_id;
 	}
-
-	function CleanUp()
-	{
-
-	}
 }
-
-?>

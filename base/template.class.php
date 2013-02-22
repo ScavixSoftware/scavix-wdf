@@ -245,5 +245,3 @@ class Template extends Renderable
 		return $contents;
 	}
 }
-
-?>

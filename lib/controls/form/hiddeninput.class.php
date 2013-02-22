@@ -23,16 +23,19 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
-class HiddenInput extends Control
+/**
+ * This is a &lt;input type='hidden'/&gt;.
+ * 
+ */
+class HiddenInput extends Input
 {
-    function __initialize($value="",$name=false)
+	/**
+	 * @param string $value The value
+	 * @param string $name The name
+	 */
+    function __initialize($value=false,$name=false)
 	{
-		parent::__initialize("input");
-		$this->type = "hidden";
-		$this->value = $value;
-		
-		if( $name )
-			$this->name = $name;
+		parent::__initialize();
+		$this->setType("hidden")->setValue($value)->setName($name);
 	}
 }
-?>

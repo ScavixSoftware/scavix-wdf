@@ -24,6 +24,8 @@
  */
  
 /**
+ * Wraps a context menu.
+ * 
  * @attribute[Resource('jquery/jquery.contextmenu.r2.js')]
  */
 class ContextMenu extends Control
@@ -38,15 +40,15 @@ class ContextMenu extends Control
         'itemStyle'=>"margin: '0px', color: '#000', display: 'block', cursor: 'default', padding: '3px', border: '1px solid #fff', backgroundColor: 'transparent'",
         'itemHoverStyle'=>"border: '1px solid #0a246a', backgroundColor: '#b6bdd2'"
     );
-    function __initialize( $cid="",$class="contextMenu")
+	
+    function __initialize()
 	{
 		parent::__initialize("div");
-		$this->id = $cid;
-        $this->class = $class;
-
-		store_object($this);
 	}
 
+	/**
+	 * @override Prepares JS init code
+	 */
 	public function WdfRender()
 	{
         $script = "";
@@ -76,13 +78,15 @@ class ContextMenu extends Control
 	}
 
     /**
-     * Add menuitem to contextmenu $img and title are optional to be able to choose
-     * which one is needed. $id is needed to bind functions to menuitems via AddBinding
-     *
-     * @param <string> $id
-     * @param <string> $bindingfunction
-     * @param <string> $title
-     * @param <string> $img
+     * Add menuitem to contextmenu 
+	 * 
+	 * $img and title are optional to be able to choose which one is needed. 
+	 * $id is needed to bind functions to menuitems via AddBinding
+     * @param string $id Elements id
+     * @param string $bindingfunction JS function to bind to click
+     * @param string $title Item title
+     * @param string $img Item icon#
+	 * @return void
      */
     public function AddMenuItem($id,$bindingfunction="",$title="",$img="")
 	{
@@ -91,11 +95,13 @@ class ContextMenu extends Control
 	}
 
     /**
+	 * Specifies a context menu trigger
+	 * 
      * Define one or more jquery-selectors for elements which are uses
      * as triggers for the contextmenu if no trigger is defined the
      * document-selector will be used
-     * 
-     * @param <strings> $triggerid
+     * @param string $triggerselector Valid jQuery selector
+	 * @return void
      */
     public function AddTrigger($triggerselector)
     {
@@ -105,37 +111,36 @@ class ContextMenu extends Control
     /**
      * To change on of the following defaults
      *
-     *  menuStyle
+     *  <b>menuStyle</b>
      *      An object containing styleName:value pairs for styling the containing <ul> menu.
-     *  itemStyle
+     *  <b>itemStyle</b>
      *      An object containing styleName:value pairs for styling the <li> elements.
-     *  itemHoverStyle
+     *  <b>itemHoverStyle</b>
      *      An object containing styleName:value pairs for styling the hover behaviour of <li> elements.
-     *  shadow
+     *  <b>shadow</b>
      *      Boolean: display a basic drop shadow on the menu.
      *      Defaults to true
-     *  eventPosX
+     *  <b>eventPosX</b>
      *      Allows you to define which click event is used to determine where to place the menu. There are
      *      possibly times (particularly in IE6) where you will need to set this to "clientX".
      *      Defaults to: 'pageX'
-     *  eventPosY
+     *  <b>eventPosY</b>
      *      Allows you to define which click event is used to determine where to place the menu. There are
      *      possibly times (particularly in IE6) where you will need to set this to "clientY".
      *      Defaults to: 'pageY'
-     *  onContextMenu(event)
+     *  <b>onContextMenu(event)</b>
      *      A custom event function which runs before the context menu is displayed. If the function returns
      *      false the menu is not displayed. This allows you to attach the context menu to a large block
      *      element (or the entire document) and then filter on right click whether or not the context menu
      *      should be shown.
-     *  onShowMenu(event, menu)
+     *  <b>onShowMenu(event, menu)</b>
      *      A custom event function which runs before the menu is displayed. It is passed a reference to
      *      the menu element and allows you to manipulate the output before the menu is shown. This allows
      *      you to hide/show options or anything else you can think of before showing the context menu to
      *      the user. This function must return the menu.
-     *
-     *
-     * @param <string> $defaultname
-     * @param <string> $value
+     * @param string $defaultname Key to be set
+     * @param string $value The new value
+	 * @return void
      */
     public function AddDefault($defaultname,$value)
     {
@@ -143,7 +148,10 @@ class ContextMenu extends Control
     }
 
     /**
-     * If called the left-click is also bound. It onle works if the menu has one or more triggers
+     * If called the left-click is also bound.
+	 * 
+	 * It only works if the menu has one or more triggers
+	 * @return void
      */
     public function BindLeftClick()
     {
@@ -185,4 +193,3 @@ class ContextMenu extends Control
         return $defaults;
     }
 }
-?>

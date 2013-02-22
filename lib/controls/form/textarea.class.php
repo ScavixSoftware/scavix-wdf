@@ -22,22 +22,23 @@
  * @copyright 2007-2012 PamConsult GmbH
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
+
+/**
+ *  This is a &lt;textarea&gt;.
+ * 
+ */
 class TextArea extends Control
 {
-    function __initialize($value="", $cid="")
+	/**
+	 * @param string $value The text
+	 * @param string $name The name
+	 * @param string $cid 
+	 */
+    function __initialize($value='',$name=false)
 	{
 		parent::__initialize("textarea");
-
-		if( $cid != "" )
-		{
-			$this->id = $cid;
-			$this->name = $this->id;
-		}
-		
+		if( $name )
+			$this->name = $name;
 		$this->content($value);
-		$this->class = "textarea";
-		$this->CloseTagNeeded();
 	}
 }
-?>

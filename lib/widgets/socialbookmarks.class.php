@@ -116,5 +116,3 @@ class SocialBookmarks extends Template
 		return $res;
 	}
 }
-
-?>

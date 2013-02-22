@@ -23,14 +23,13 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
-/*
-	geoip-module
-    Created on : Jun 14, 2009, 1:17:55 PM
-    Description:
-				Modul to localize ip-adresses which uses the free version
-				of GeoIP from maxmind (http://www.maxmind.com/app/geolitecity).
-				In the majority of cases maxmind publishes updates for the GeoLiteCity.dat
-				on the first day each month.
+/**
+ * Modul to localize ip-adresses
+ * 
+ * Uses the free version of GeoIP from maxmind (http://www.maxmind.com/app/geolitecity).
+ * In the majority of cases maxmind publishes updates for the GeoLiteCity.dat
+ * on the first day each month.
+ * @return void
 */
 function geoip_init()
 {

@@ -24,12 +24,20 @@
  */
  
 /**
+ * Selector for datetime formats.
+ * 
  * @attribute[Resource('locale_settings.js')]
  */
 class DateTimeFormatSelect extends Select
 {
 	var $culture_code;
 	
+	/**
+	 * @param string $culture_code Culture code (see <CultureInfo>)
+	 * @param mixed $selected_date_format The currently selected date format or false
+	 * @param mixed $selected_time_format The currently selected time format or false
+	 * @param string $timezone Timezone identifier or false
+	 */
 	function __initialize($culture_code, $selected_date_format=false, $selected_time_format=false, $timezone=false)
 	{
 		parent::__initialize();
@@ -67,7 +75,12 @@ class DateTimeFormatSelect extends Select
 	}
 	
 	/**
+	 * Returns a list of option elements.
+	 * 
+	 * Called via AJAX to dynamically update the control.
 	 * @attribute[RequestParam('culture_code','string')]
+	 * @param string $culture_code Selected culture code
+	 * @return <AjaxResponse::Text> Html string with options
 	 */
 	public function ListOptions($culture_code)
 	{
@@ -89,16 +102,7 @@ class DateTimeFormatSelect extends Select
 				$res[] = "<option value='".json_encode(array($d,$t))."'>$sv</option>";
 			}
 		}
-		return implode("\n",$res);
-	}
-	
-	function GetSampleOfCurrent()
-	{
-		$value = time();
-		$ci = Localization::getCultureInfo($this->culture_code);
-		$dtf = $ci->DateTimeFormat;
-		list($d,$t) = json_decode($this->_current);
-		return $dtf->Format($value, $d)." ".$dtf->Format($value, $t);
+		return AjaxResponse::Text(implode("\n",$res));
 	}
 }
 

@@ -23,30 +23,33 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
-//for more information about the accordion visit: http://jqueryui.com/demos/accordion/
+/**
+ * Wrapper around jQueryUI Accordion
+ * 
+ * See http://jqueryui.com/accordion/
+ */
 class uiAccordion extends uiControl
 {
 	var $_sections = array();
-	var $_options;
+	var $_options = array
+	(
+		"animate" => false,
+		"collapsible" => true,
+		"heightStyleType" => 'content'
+	);
 	
-    function __initialize($options = array(),$css_propertys = array())
+	/**
+	 * @param array $options See http://api.jqueryui.com/accordion/
+	 */
+    function __initialize($options = array())
 	{
 		parent::__initialize("div");
-		$this->_options  = array(
-				"animate"=>false,
-				"collapsible"=>true,
-				"heightStyleType"=>'content'
-			);
-
-		if(!is_array($options))
-			$this->_options = array($options);
-
-		$this->_options = array_merge($options,$this->_options);
-		
-		foreach($css_propertys as $name=>$val)
-		{ $this->css($name,$val); }
+		$this->_options = array_merge($this->_options,force_array($options));
 	}
 
+	/**
+	 * @override Prepares the control
+	 */
 	function PreRender($args = array())
 	{
 		foreach($this->_sections as $section=>$section_content)
@@ -60,8 +63,10 @@ class uiAccordion extends uiControl
 	}
 
 	/**
-	 * Adds a Section to the accordion, also returns the div for the new section
-	 * @param <type> $section_title name of the section
+	 * Adds a Section to the accordion
+	 * 
+	 * Also returns the div for the new section
+	 * @param string $section_title name of the section
 	 * @return Control the content container for the created
 	 */
 	public function &AddSection($section_title)
@@ -74,27 +79,25 @@ class uiAccordion extends uiControl
 		}
 	}
 	/**
-	 * Adds Content to the specific section
-	 * @param <type> $section the section name
-	 * @param <type> $content the content which will be appended
+	 * Adds Content to the specific section.
+	 * 
+	 * @param string $section the section name
+	 * @param mixed $content the content which will be appended
+	 * @return void
 	 */
 	public function AddContentToSection($section,$content)
 	{
 		$this->_sections[$section]->content($content);
 	}
 
-	public function MakeDraggable()
-	{
-		$this->script("$('#".$this->id."').draggable()");
-	}
-
 	/**
-	 * Adds options to the accordion
-	 * @param <type> $options
+	 * Adds options to the accordion.
+	 * 
+	 * @param array $options See http://api.jqueryui.com/accordion/
+	 * @return void
 	 */
 	public function AddOptions($options = array())
 	{
 		$this->_options = array_merge($this->_options,$options);
 	}
 }
-?>

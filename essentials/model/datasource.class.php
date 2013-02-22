@@ -25,10 +25,10 @@
  
 /**
  * Provides access to a database.
+ * 
  * Use this to execute SQL statements directly when you need to do so.
- * Currently only tested in combination with BoaModel and BoaSchema classes.
  */
-class DataSource extends System_DataSource
+class DataSource 
 {
     private $_dsn;
 	private $_username;
@@ -66,7 +66,7 @@ class DataSource extends System_DataSource
 		}catch(Exception $ex){ WdfDbException::Raise("Error connecting database",$dsn,$ex); }
 		if( !$this->_pdo )
 			WdfDbException::Raise("Something went horribly wrong with the PdoLayer");
-		$this->_pdo->setAttribute( PDO::ATTR_STATEMENT_CLASS, array( "ResultSet", array($this) ) );
+		$this->_pdo->setAttribute( PDO::ATTR_STATEMENT_CLASS, array( "WdfPdoStatement", array($this,$this->_pdo) ) );
 
 		$driver = $this->_pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
 		switch( $driver )
@@ -156,48 +156,64 @@ class DataSource extends System_DataSource
 		return $this->_dsn == $ds->_dsn && $this->_username == $ds->_username && $this->_password == $ds->_password;
 	}
 	
+	/**
+	 * Returns the DSN
+	 * 
+	 * @return string The Dsn
+	 */
 	function GetDsn()
 	{
 		return $this->_dsn;
 	}
 	
+	/**
+	 * Escapes an argument
+	 * 
+	 * The result will not contain escaping chars, but only perform an 'inner escaping'.
+	 * This is basically `substr($this->Quote,1,-1)`
+	 * @param string $value Argument to be escaped
+	 * @return string escaped argument
+	 */
 	function EscapeArgument($value)
 	{
 		$res = $this->_pdo->quote($value);
 		return substr($res, 1, count($res)-2);
 	}
 	
+	/**
+	 * Quotes an argument
+	 * 
+	 * @param string $value The argument to quote
+	 * @return string The quoted argument
+	 */
 	function QuoteArgument($value)
 	{
 		return $this->_pdo->quote($value);
 	}
 
+	/**
+	 * Prepares a statement
+	 * 
+	 * @param string $sql SQL statement
+	 * @return ResultSet Prepared statement
+	 */
 	function Prepare($sql)
 	{
 		$stmt = $this->_pdo->prepare($sql);
 		if( !$stmt )
 			WdfDbException::Raise("Invalid SQL: $sql");
-		return $stmt;
+		return new ResultSet($this,$stmt);
 	}
 
 	function ExecuteSql($sql,$parameter=array())
 	{
 		if( !is_array($parameter) )
 			$parameter = array($parameter);
-
-		if( count($parameter)==0 )
-		{
-			$ret = $this->_pdo->query($sql);
-			$error = $this->_pdo->errorInfo();
-			if( ($error[0] != "") && ($error[0] != "00000") )
-				WdfDbException::Raise("SQL Error: ".$this->ErrorMsg(),"\nSQL: $sql");
-			return $ret;
-		}
 		
 		$stmt = $this->Prepare($sql);
 		if( !$stmt->execute($parameter) )
 			WdfDbException::Raise("SQL Error: ".$stmt->ErrorOutput(),"\nSQL: $sql","\nArguments:",$parameter);
-		$this->_last_affected_rows_count = $stmt->rowCount();
+		$this->_last_affected_rows_count = $stmt->Count();
 		return $stmt;
 	}
 	
@@ -283,13 +299,7 @@ class DataSource extends System_DataSource
 		// Dont think that using wrong values for performance reasons is best practice!
 		$sql = $this->Driver->Now($seconds_to_add);
 		$rs = $this->CacheExecuteSql("SELECT $sql as dt",array(),1);
-		return $rs->fields['dt'];
-		
-		
-		// For performance reason we use system time here, not the DB servers time.
-		// This is in fact wrong as for example MySQL *may* use other time settings than the system.
-		$res = time() + $seconds_to_add;
-		return date("Y-m-d H:i:s", $res);
+		return $rs['dt'];
 	}
 	
 	function TableForType($type)
@@ -309,8 +319,9 @@ class DataSource extends System_DataSource
 	{
 		$stmt = $this->Prepare($sql);
 		$stmt->execute($prms);
-		$this->_last_affected_rows_count = $stmt->rowCount();
-		return $stmt->fetchColumn();
+		$this->_last_affected_rows_count = $stmt->Count();
+        $stmt->FetchMode = PDO::FETCH_NUM;
+		return $stmt->fetchScalar();
 	}
 	
 	function CacheExecuteScalar($sql,$prms=array(),$lifetime=300)
@@ -352,7 +363,7 @@ class DataSource extends System_DataSource
 		$stmt = $this->Driver->getPagedStatement($sql,$page,$items_per_page);
 		if( !$stmt->execute($parameter) )
 			log_error("SQL Error: $sql",$parameter);
-		$this->_last_affected_rows_count = $stmt->rowCount();
+		$this->_last_affected_rows_count = $stmt->Count();
 		return $stmt;
 	}
 	
@@ -412,5 +423,3 @@ class DataSource extends System_DataSource
 		return $this->_pdo->lastInsertId($table);
 	}
 }
-
-?>

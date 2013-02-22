@@ -23,18 +23,22 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
-class TextInput extends Control
+/**
+ *  This is a &lt;input type='text'/&gt;.
+ * 
+ */
+class TextInput extends Input
 {
-    function __initialize($value="",$name=false,$class=false)
+	/**
+	 * @param string $value A value
+	 * @param string $name An optional name
+	 * @param string $class An optional CSS class
+	 */
+    function __initialize($value=false,$name=false,$class=false)
 	{
-		parent::__initialize("input");
-		$this->type = "text";
-		$this->value = $value;
-
-		if( $name )
-			$this->name = $name;
+		parent::__initialize();
+		$this->setType("text")->setValue($value)->setName($name);
 		if( $class )
 			$this->class = $class;
 	}
 }
-?>

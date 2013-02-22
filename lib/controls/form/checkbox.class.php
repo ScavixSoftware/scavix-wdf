@@ -23,33 +23,34 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
-/*
-    Document   : checkbox.class.php
-    Created on : Feb 24, 2009, 11:55:13 AM
-    Author     : Florian A. Talg
-    Description:
-	
-*/
-class CheckBox extends Control
+/**
+ * Represents a checkbox.
+ * 
+ */
+class CheckBox extends Input
 {
 	var $Label = false;
 	
-    function __initialize($name=false,$cid=false)
+	/**
+	 * @param string $name The name
+	 */
+    function __initialize($name=false)
 	{
-		parent::__initialize("input");
-		$this->type = "checkbox";
-		$this->class = "checkbox";
-		$this->value = 1;
-		if( $name )
-			$this->name = $name;
-		if( $cid )
-			$this->id = $cid;
+		parent::__initialize();
+		$this->setType("checkbox")->setName($name)->setValue(1);
 	}
 	
+	/**
+	 * Creates a label element for this checkbox.
+	 * 
+	 * Note that this only ensures that the label is correctly assigne to this checkbox.
+	 * It will not add it somewhere!
+	 * @param string $text Text for the label
+	 * @return Label The created label element
+	 */
 	function CreateLabel($text)
 	{
 		$this->Label = new Label($text,false,$this->id);
 		return $this->Label;
 	}
 }
-?>

@@ -23,22 +23,36 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
+/**
+ * Wrapper around jQueryUI Butto
+ * 
+ * See http://jqueryui.com/button/
+ */
 class uiButton extends uiControl
 {
 	private $_icon;
-	function __initialize($text,$icon=false,$css = array())
+	
+	/**
+	 * @param string $text Label
+	 * @param string $icon Valid <uiControl::Icon>
+	 */
+	function __initialize($text,$icon=false)
 	{
 		parent::__initialize("button");
 		if( $icon )
 			$this->_icon = self::Icon($icon);
 		
-		foreach($css as $property=>$value)
-			$this->css($property,$value);
-		
 		$this->type = "button";
 		$this->content($text);
 	}
 	
+	/**
+	 * Overrides <Control::Make> with own logic.
+	 * 
+	 * @param string $label Label
+	 * @param string $onclick OnClick JS code
+	 * @return uiButton The new button
+	 */
 	static function Make($label,$onclick=false)
 	{
 		$res = new uiButton($label);
@@ -46,6 +60,9 @@ class uiButton extends uiControl
 		return $res;
 	}
 
+	/**
+	 * @override Prepares options and stuff
+	 */
 	function PreRender($args=array())
 	{
 		if( count($args) > 0 )

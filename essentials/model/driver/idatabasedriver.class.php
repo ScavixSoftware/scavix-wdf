@@ -44,4 +44,3 @@ interface IDatabaseDriver
     
     function PreprocessSql($sql);
 }
-?>

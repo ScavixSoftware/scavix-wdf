@@ -24,28 +24,42 @@
  */
  
 /**
- * @attribute[Resource('simplyscroll.js')]
- * @attribute[Resource('simplyscroll.css')]
+ * Wraps a simplyscroll object
+ * 
+ * See:
+ * http://logicbox.net/jquery/simplyscroll
+ * http://logicbox.net/blog/simplyscroll-jquery-plugin
+ * http://plugins.jquery.com/project/simplyScroll
  */
-class ImageScroller extends Control
+class SimplyScroll extends Control
 {
 	var $Options = array();
 
-	function __initialize($id,$options=array())
+	/**
+	 * @param type $options SimplyScroll options (see http://logicbox.net/jquery/simplyscroll)
+	 */
+	function __initialize($options=array())
 	{
 		parent::__initialize("ul");
-		$this->id = $id;
 		if( !isset($options['autoMode']) ) $options['autoMode'] = 'loop';
 
 		$this->Options = $options;
 		$options = system_to_json($this->Options);
-		$code = "$('#$id').simplyScroll($options);";
+		$code = "$('#{self}').simplyScroll($options);";
 		$this->script($code);
 	}
 
-	function AddImage($filename,$clicktarget=false,$title=false)
+	/**
+	 * Adds an image to the scroller.
+	 * 
+	 * @param string $src Image src
+	 * @param string $clicktarget Controller (or id) to redirect to when image is clicked
+	 * @param string $title Image alt text
+	 * @return SimplyScroll `$this`
+	 */
+	function AddImage($src,$clicktarget=false,$title=false)
 	{
-		$img = new Image($filename);
+		$img = new Image($src);
 		if( $title )
 			$img->alt = $title;
 		if( $clicktarget )
@@ -54,7 +68,6 @@ class ImageScroller extends Control
 			$img->css("cursor", 'pointer');
 		}
 		$this->content("<li>".$img->WdfRender()."</li>");
+		return $this;
 	}
 }
-
-?>

@@ -104,7 +104,7 @@ $GLOBALS['html_attributes'] = array(
 	'pre' => array('width'),
 	'q' => array('cite'),
 	'script' => array('charset','defer','event','language','for','src','type'),
-	'select' => array('disabled','multiple','name','onblur','onchange','onfocus','size','tabindex'),
+	'select' => array('disabled','multiple','name','onblur','onchange','onfocus','size','tabindex','title'),
 	'style' => array('media','title','type'),
 	'table' => array('align','border','bgcolor','cellpadding','cellspacing','frame','rules','summary','width'),
 	'tbody' => array('align','char','charoff','valign'),
@@ -301,9 +301,14 @@ class Control extends Renderable
 	}
 	
 	/**
-	 * Static creator method that is cabable of creating derivered classes too:
+	 * Static creator method
+	 * 
+	 * This is cabable of creating derivered classes too:
+	 * <code php>
 	 * Control::Make('div')->content('Doh!');
 	 * TextInput::Make()->css('width','300px');
+	 * </code>
+	 * @return object The created control
 	 */
 	public static function Make($tag=false)
     {
@@ -617,13 +622,10 @@ class Control extends Renderable
 	 */
 	function appendTo($target)
 	{
-		if( $target instanceof Control )
+		if( ($target instanceof Control) || ($target instanceof HtmlPage) )
 			$target->content($this);
-		elseif( $target instanceof HtmlPage )
-			$target->addContent($this);
 		else
 			WdfException::Raise("Target must be of type Control or HtmlPage");
 		return $this;
 	}
 }
-?>

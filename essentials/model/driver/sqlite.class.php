@@ -169,4 +169,3 @@ class SqLite implements IDatabaseDriver
         return $sql;
     }
 }
-?>

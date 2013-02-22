@@ -24,7 +24,9 @@
  */
 
 /**
- * see http://www.filamentgroup.com/lab/jquery_ui_selectmenu_an_aria_accessible_plugin_for_styling_a_html_select/
+ * This is a custom select.
+ * 
+ * See http://www.filamentgroup.com/lab/jquery_ui_selectmenu_an_aria_accessible_plugin_for_styling_a_html_select/
  * this component is only very few tested
  * known issue: weird effects in uiDialog
  * 
@@ -35,6 +37,9 @@ class uiSelectMenu extends uiControl
 {
 	var $_icons = array();
 
+	/**
+	 * @param array $options See http://www.filamentgroup.com/lab/jquery_ui_selectmenu_an_aria_accessible_plugin_for_styling_a_html_select/
+	 */
     function __initialize($options = array())
 	{
 		parent::__initialize("select");
@@ -48,6 +53,14 @@ class uiSelectMenu extends uiControl
 		return $key;
 	}
 
+	/**
+	 * Adds an option to the selectmenu.
+	 * 
+	 * @param string $name The label
+	 * @param mixed $value The value
+	 * @param string $icon An image as icon
+	 * @return void
+	 */
 	public function AddOption($name,$value,$icon=false)
 	{
 		$opt = new Control("option");
@@ -58,6 +71,12 @@ class uiSelectMenu extends uiControl
 		$this->content($opt);
 	}
 
+	/**
+	 * Defines the selected option.
+	 * 
+	 * @param mixed $value The selected value
+	 * @return void
+	 */
 	public function SetSelected($value)
 	{
 		foreach( $this->_content as &$opt )
@@ -68,4 +87,3 @@ class uiSelectMenu extends uiControl
 			}
 	}
 }
-?>

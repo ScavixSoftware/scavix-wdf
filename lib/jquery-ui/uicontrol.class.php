@@ -24,6 +24,9 @@
  */
 
 /**
+ * Base class for all jQueryUI controls
+ * 
+ * This ensures that all resources are loaded. Also provides some basic methods for Icon handling.
  * @attribute[Resource('jquery-ui/jquery-ui.js')] 
  * @attribute[Resource('jquery-ui/jquery-ui.css')] 
  */
@@ -115,10 +118,55 @@ class uiControl extends Control
 		'grip-diagonal-se'
 	);
 
+	/**
+	 * Ensures that an icon is valid
+	 * 
+	 * Checks agains the valid jQuery UI icons and return is, if present.
+	 * Else throws an Exception.
+	 * Have a look at the theme roller for valid icons: http://jqueryui.com/themeroller/
+	 * @param string $icon_to_test Name of the icon like 'circle-plus'
+	 * @return string The icon string as given in like 'circle-plus'
+	 */
 	static function Icon($icon_to_test)
 	{
 		if(in_array($icon_to_test, self::$_icons) )
 			return $icon_to_test;
 		WdfException::Raise("Invalid Icon '$icon_to_test'");
+	}
+	
+	/**
+	 * Add draggable init code to the uiControl.
+	 * 
+	 * @param array $options See http://api.jqueryui.com/draggable/
+	 * @return uiControl $this
+	 */
+	public function Draggable($options=array())
+	{
+		$this->script("$('#".$this->id."').draggable(".system_to_json($options).")");
+		return $this;
+	}
+	
+	/**
+	 * Add droppable init code to the uiControl.
+	 * 
+	 * @param array $options See http://api.jqueryui.com/droppable/
+	 * @return uiControl $this
+	 */
+	public function Droppable($options=array())
+	{
+		$this->script("$('#".$this->id."').droppable(".system_to_json($options).")");
+		return $this;
+	}
+	
+	/**
+	 * Add resizable init code to the uiControl.
+	 * 
+	 * @param array $options See http://api.jqueryui.com/resizable/
+	 * @return uiControl $this
+	 */
+	public function Resizable($options=array())
+	{
+		$this->script("$('#".$this->id."').resizable(".system_to_json($options).")");
+		return $this;
 	}
 }

@@ -22,7 +22,12 @@
  * @copyright 2007-2012 PamConsult GmbH
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
+
+/**
+ * Initializes the zend module
+ * 
+ * This module provides access to the Zend framework from within the WDF.
+ */
 function zend_init()
 {
 	global $CONFIG;
@@ -40,15 +45,23 @@ function zend_init()
 	}
 }
 
+/**
+ * Loads a Zend module.
+ * 
+ * @param string $module Module name (like Zend_Http_Client_Adapter_Curl)
+ */
 function zend_load($module)
 {
 	$module = str_replace("_","/", str_replace(".php.php",".php","$module.php") );
 	require_once($module);
 }
 
+/**
+ * Returns the Zend font path.
+ * 
+ * @return string Absolute path in the filesysten to the fonts
+ */
 function zend_font_path()
 {
 	return dirname(__FILE__)."/zend/fonts/";
 }
-
-?>

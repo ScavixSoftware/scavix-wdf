@@ -23,15 +23,19 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
-class RadioButton extends Control
+/**
+ *  This is a &lt;input type='radio'/&gt;.
+ * 
+ */
+class RadioButton extends Input
 {
-    function __initialize($name,$val = "")
+	/**
+	 * @param string $value A value
+	 * @param string $name The name
+	 */
+    function __initialize($value = false,$name=false)
 	{
-		parent::__initialize("input");
-		$this->type = "radio";
-		$this->name = $name;
-		if($val != "")
-			$this->value = $val;
+		parent::__initialize();
+		$this->setType('radio')->setName($name)->setValue($value);
 	}
 }
-?>

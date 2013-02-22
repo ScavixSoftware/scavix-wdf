@@ -24,10 +24,17 @@
  */
  
 /**
+ * This is our own Statement class
+ * 
+ * There are some difficulties with PHPs PDOStatement class as it will not allow us to override all methods (Traversable hides Iterator).
+ * So we cannot simply inherit from there, but must wrap it.
+ * @internal 
  */
-class ResultSet extends PDOStatement
+class ResultSet implements Iterator, ArrayAccess
 {
+	private $_stmt = null;
 	private $_ds = null;
+	private $_pdo = null;
 	private $_sql_used = null;
 	private $_arguments_used = null;
 	private $_paging_info = null;
@@ -36,20 +43,39 @@ class ResultSet extends PDOStatement
 	private $_rowbuffer = array();
 	private $_loaded_from_cache = false;
 	private $_data_fetched = false;
+	private $_rowCount = false;
 	
 	/*--- Compatibility to old model ---*/
 	private $_current = false;
 	
-	protected function __construct($datasource)
+	public $FetchMode = PDO::FETCH_ASSOC;
+	
+	function __construct(DataSource $ds, WdfPdoStatement $statement)
 	{
-		$this->_ds = $datasource;
+		$this->_ds = $ds;
+		$this->_stmt = $statement;
+		if( $statement )
+			$this->_pdo = $statement->_pdo;
 	}
 	
+	/**
+	 * Returns the last statement and the error info
+	 * 
+	 * Will combine that into a string for easy output
+	 * @return string SQL[newline]ErrorInfo
+	 */
 	public function ErrorOutput()
 	{
-		return $this->_sql_used."\n".my_var_export($this->errorInfo());
+		return $this->_sql_used."\n".my_var_export($this->_stmt->errorInfo());
 	}
 	
+	/**
+	 * Logs this statement
+	 * 
+	 * Sometimes you will need to debug specific statements. This method will create a logentry with the SQL query, the arguments used
+	 * and try to combine it for easy copy+paste from log to your sql tool (for retry).
+	 * @return void
+	 */
 	public function LogDebug()
 	{
 		$tmp = $this->_sql_used;
@@ -59,55 +85,64 @@ class ResultSet extends PDOStatement
 		log_debug("SQL: ".$this->_sql_used."\nARGS: ",$this->_arguments_used,"\nMerged: ",$tmp);
 	}
 	
+	/**
+	 * Gets the query used
+	 * @return string SQL query
+	 */
 	public function GetSql()
 	{
 		return $this->_sql_used;
 	}
 
+	/**
+	 * Gets the arguments
+	 * @return array SQL arguments
+	 */
 	public function GetArgs()
 	{
 		return $this->_arguments_used;
 	}
 
-	public function __get($name)
-	{
-		/*--- Compatibility to old model ---*/
-		switch( $name )
-		{
-			case "EOF": 
-				if( !$this->_current ) $this->_current = $this->fetch();
-				return $this->_current === false;
-			case "fields": 
-				if( !$this->_current ) $this->_current = $this->fetch();
-				return $this->_current;
-		}
-	}
-	
+	/**
+	 * Savely serializes this object
+	 * 
+	 * This is mainly needed for query caching
+	 * @return string serialized data string
+	 */
 	function serialize()
 	{
 		$buf = array(
 			'ds' => $this->_ds->_storage_id,
-			'sql' => $this->queryString,
+			'sql' => $this->_stmt->queryString,
 			'args' => $this->_arguments_used,
 			'paging_info' => $this->_paging_info,
 			'field_types' => $this->_field_types,
 			'index' => $this->_index,
 			'rows' => $this->_rowbuffer,
+			'rowCount' => $this->_rowCount,
 			'df' => $this->_data_fetched,
 		);		
 		return serialize($buf);
 	}
 	
+	/**
+	 * Creates a ResultSet from a serialized data string
+	 * 
+	 * This is mainly needed for query caching
+	 * @param string $data serialized data string
+	 * @return ResultSet Restored ResultSet object
+	 */
 	static function &unserialize($data)
 	{
 		$buf = unserialize($data);
-		$res = new ResultSet(model_datasource($buf['ds']));
+		$res = new ResultSet(model_datasource($buf['ds']),null);
 		$res->_sql_used = $buf['sql'];
 		$res->_arguments_used = $buf['args'];
 		$res->_paging_info = $buf['paging_info'];
 		$res->_field_types = $buf['field_types'];
 		$res->_index = $buf['index'];
 		$res->_rowbuffer = $buf['rows'];
+		$res->_rowCount = isset($buf['rowCount'])?$buf['rowCount']:false;
 		$res->_loaded_from_cache = true;
 		$res->_data_fetched = isset($buf['df'])?$buf['df']:false;
 		if( isset($res->_rowbuffer[$res->_index]) )
@@ -115,6 +150,17 @@ class ResultSet extends PDOStatement
 		return $res;
 	}
 	
+	/**
+	 * Overrides parent to capture arguments
+	 * 
+	 * We want to know which arguments are used, so we need to capture theme here
+	 * before passing control to parents method.
+	 * See http://www.php.net/manual/en/pdostatement.bindvalue.php
+	 * @param string $parameter Parameter identifier. For a prepared statement using named placeholders, this will be a parameter name of the form :name. For a prepared statement using question mark placeholders, this will be the 1-indexed position of the parameter
+	 * @param mixed $value The value to bind to the parameter. 
+	 * @param int $data_type Explicit data type for the parameter using the PDO::PARAM_* constants
+	 * @return bool true or false
+	 */
 	function bindValue($parameter, $value, $data_type = null)
 	{
 		if( !$this->_arguments_used )
@@ -122,17 +168,26 @@ class ResultSet extends PDOStatement
 		$this->_arguments_used[$parameter] = $value;
 		
 		if( is_null($data_type) )
-			return parent::bindValue($parameter, $value);
+			return $this->_stmt->bindValue($parameter, $value);
 		else
-			return parent::bindValue($parameter, $value, $data_type);
+			return $this->_stmt->bindValue($parameter, $value, $data_type);
 	}
 	
+	/**
+	 * Overrides parent to capture query and arguments
+	 * 
+	 * We want to know which query and arguments are used, so we need to capture theme here
+	 * before passing control to parents method.
+	 * See http://www.php.net/manual/en/pdostatement.execute.php
+	 * @param array $input_parameters An array of values with as many elements as there are bound parameters in the SQL statement being executed
+	 * @return bool true or false
+	 */
 	function execute($input_parameters = null)
 	{
 		if( !is_null($input_parameters) && !is_array($input_parameters) )
 			$input_parameters = array($input_parameters);
 		
-		$this->_sql_used = $this->queryString;
+		$this->_sql_used = $this->_stmt->queryString;
 		if( !is_null($input_parameters) )
 		{
 			if( is_null($this->_arguments_used) )
@@ -145,11 +200,20 @@ class ResultSet extends PDOStatement
 			$this->_ds->LastStatement = $this;
 		
 		if( is_null($input_parameters) )
-			return parent::execute();
+			return $this->_stmt->execute();
 		else
-			return parent::execute($input_parameters);
+			return $this->_stmt->execute($input_parameters);
 	}
 	
+	/**
+	 * Overrides parent for buffering
+	 * 
+	 * See http://www.php.net/manual/en/pdostatement.fetch.php
+	 * @param int $fetch_style See php.net docs
+	 * @param int $cursor_orientation See php.net docs
+	 * @param int $cursor_offset See php.net docs
+	 * @return mixed See php.net docs
+	 */
 	function fetch($fetch_style = null, $cursor_orientation = null, $cursor_offset = null)
 	{
 		$this->_data_fetched = true;
@@ -165,7 +229,10 @@ class ResultSet extends PDOStatement
 			return false;
 		}
 		
-		$this->_current = parent::fetch($fetch_style, $cursor_orientation, $cursor_offset);
+		if( $fetch_style == null && $this->FetchMode )
+			$fetch_style = $this->FetchMode;
+		
+		$this->_current = $this->_stmt->fetch($fetch_style, $cursor_orientation, $cursor_offset);
 		if( $this->_current !== false )
 		{
 			$this->_index = count($this->_rowbuffer);
@@ -174,12 +241,24 @@ class ResultSet extends PDOStatement
 		return $this->_current;
 	}
 	
+	/**
+	 * Overrides parent for buffering
+	 * 
+	 * See http://www.php.net/manual/en/pdostatement.fetchall.php
+	 * @param int $fetch_style See php.net docs
+	 * @param int $column_index See php.net docs
+	 * @param mixed $ctor_args See php.net docs
+	 * @return mixed See php.net docs
+	 */
 	function fetchAll($fetch_style = null, $column_index = null, $ctor_args = null)
 	{
 		$this->_data_fetched = true;
 		
 		if( $this->_loaded_from_cache )
 			return $this->_rowbuffer;
+		
+		if( $fetch_style == null && $this->FetchMode )
+			$fetch_style = $this->FetchMode;
 
 		// we need to set the default datasource as it is not passed thru ctor in all cases
 		// so we just remember the default here and set it to this ones if they differ
@@ -193,13 +272,13 @@ class ResultSet extends PDOStatement
 		if( is_null($ctor_args) )
 			if( is_null($column_index) )
 				if( is_null($fetch_style) )
-					$this->_rowbuffer = parent::fetchAll();
+					$this->_rowbuffer = $this->_stmt->fetchAll();
 				else
-					$this->_rowbuffer = parent::fetchAll($fetch_style);
+					$this->_rowbuffer = $this->_stmt->fetchAll($fetch_style);
 			else
-				$this->_rowbuffer = parent::fetchAll($fetch_style,$column_index);
+				$this->_rowbuffer = $this->_stmt->fetchAll($fetch_style,$column_index);
 		else
-			$this->_rowbuffer = parent::fetchAll($fetch_style, $column_index, $ctor_args);
+			$this->_rowbuffer = $this->_stmt->fetchAll($fetch_style, $column_index, $ctor_args);
 		
 		if( count($this->_rowbuffer) > 0 )
 		{
@@ -212,7 +291,6 @@ class ResultSet extends PDOStatement
 		{
 			$cnt = count($this->_rowbuffer);
 			for( $i=0; $i<$cnt; $i++ )
-			//foreach( $this->_rowbuffer as &$r)
 			{
 				$this->_rowbuffer[$i]->__initialize($this->_ds);
 				$this->_rowbuffer[$i]->__init_db_values();
@@ -224,6 +302,13 @@ class ResultSet extends PDOStatement
 		return $this->_rowbuffer;
 	}
 	
+	/**
+	 * Returns a scalar value
+	 * 
+	 * Will return the first result rows $column.
+	 * @param int $column Column index
+	 * @return mixed The value or false on error
+	 */
 	function fetchScalar($column=0)
 	{
 		$row = $this->fetch();
@@ -234,105 +319,33 @@ class ResultSet extends PDOStatement
 		return $row[$column];
 	}
 	
-	function GetPagingInfo()
+	/**
+	 * Returns information about paging
+	 * 
+	 * Result will be an array with these keys: 'rows_per_page', 'current_page', 'total_pages', 'total_rows', 'offset'
+	 * @param mixed $key If given returns one of the keys value only
+	 * @return array Paging info
+	 */
+	function GetPagingInfo($key=false)
 	{
 		if( !$this->_paging_info )
-			$this->_paging_info = $this->_ds->Driver->getPagingInfo($this->queryString,$this->_arguments_used);
+			$this->_paging_info = $this->_ds->Driver->getPagingInfo($this->_stmt->queryString,$this->_arguments_used);
+		if( $key && isset($this->_paging_info[$key]) )
+			return $this->_paging_info[$key];
 		return $this->_paging_info;
 	}
 	
-	/*--- Compatibility to old model ---*/
-	
-	function Close()
-	{
-		$this->_index = -1;
-		$this->_current = false;
-		return $this->closeCursor();
-	}
-	
-	function MoveFirst()
-	{
-		if( $this->_index < 0 )
-			return $this->fetch();
-		if( $this->_index < 1 )
-			return $this->_current;
-		$this->_index = 0;
-		$this->_current = $this->_rowbuffer[0];
-		return $this->_current;
-	}
-	
-	function MoveNext()
-	{
-//		if( $this->_loaded_from_cache )
-//		{
-//			if( $this->_index < (count($this->_rowbuffer)-1) )
-//			{
-//				$this->_index++;
-//				$this->_current = $this->_rowbuffer[$this->_index];
-//				return $this->_current !== false;
-//			}
-//		}
-		$this->fetch();
-		return $this->_current !== false;
-	}
-	
-	function GetArray($nRows=-1)
-	{
-		$res = array();
-		while( $nRows != count($res) && !$this->EOF )
-		{
-			$res[] = $this->fields;
-			$this->MoveNext();
-		}
-		return $res;
-	}
-	
-	function GetRowAssoc($upper=1)
-	{
-		$res = array();
-		foreach( $this->fields as $k=>$v )
-			if( !is_integer($k) )
-				$res[$k] = $v;
-		
-		switch($upper)
-		{
-			case 0: return array_change_key_case($res,CASE_LOWER);
-			case 1: return array_change_key_case($res,CASE_UPPER);
-		}
-		return $res;
-	}
-	
-	function GetRows($nRows = -1) 
-	{
-		$arr = $this->GetArray($nRows);
-		return $arr;
-	}
-	
-	function MaxRecordCount()
-	{
-		if( !$this->GetPagingInfo() )
-			return false;
-		return $this->_paging_info['total_rows'];
-	}
-	
-	function AbsolutePage($page=-1)
-	{
-		// this should in fact be getter and setter but we ignore it as it is just used as getter
-		if( !$this->GetPagingInfo() )
-			return false;
-		return $this->_paging_info['current_page'];
-	}
-	
-	function LastPageNo($page = false)
-	{
-		// this should in fact be getter and setter but we ignore it as it is just used as getter
-		if( !$this->GetPagingInfo() )
-			return false;
-		return $this->_paging_info['total_pages'];
-	}
-	
-	/*--- Some shortcut methods ---*/
-	
+	/**
+	 * Returns all values for a specified column
+	 * 
+	 * Will build an array with all values for the specified column in this result sets rows.
+	 * <code php>
+	 * $ids = $dataSource->ExecuteSql("SELECT * FROM my_table WHERE id<1000")->Enumerate("id");
+	 * </code>
+	 * @param string $column_name Column to enumerate values for
+	 * @param bool $distinct True to array_unique, false to keep duplicates
+	 * @return type
+	 */
 	function Enumerate($column_name, $distinct=true)
 	{
 		if( !$this->_data_fetched )
@@ -343,6 +356,96 @@ class ResultSet extends PDOStatement
 				$res[] = $row[$column_name];
 		return $res;
 	}
+	
+	/**
+	 * Returns the number of affected rows.
+	 * 
+	 * @return int Number of affected rows
+	 */
+	function Count()
+	{
+		return $this->rowCount();
+	}
+	
+	/**
+	 * @override Make sure that SqLite returns something on SELECT statements too
+	 */
+	function rowCount()
+	{
+		if( $this->_rowCount === false )
+		{
+			if( $this->_ds->Driver instanceof MySql )
+				$this->_rowCount = $this->_stmt->rowCount();
+			elseif( !starts_with(trim(strtolower($this->_sql_used)),'select') )
+				$this->_rowCount = $this->_stmt->rowCount();
+			else
+			{
+				$stmt = $this->_pdo->prepare("SELECT count(*) FROM( {$this->_sql_used} ) as x");
+				$stmt->execute($this->_arguments_used);
+				$this->_rowCount = $stmt->fetchColumn();
+			}
+		}
+		return $this->_rowCount;
+	}
+
+	public function offsetExists($offset)
+	{
+		if( !$this->_current ) $this->_current = $this->fetch();
+		return isset($this->_current[$offset]);
+	}
+
+	public function offsetGet($offset)
+	{
+		if( !$this->_current ) $this->_current = $this->fetch();
+		return isset($this->_current[$offset]) ? $this->_current[$offset] : null;
+	}
+
+	public function offsetSet($offset, $value)
+	{
+		if( !$this->_current ) $this->_current = $this->fetch();
+		$this->_current[$offset] = $value;
+	}
+
+	public function offsetUnset($offset)
+	{
+		if( !$this->_current ) $this->_current = $this->fetch();
+		unset($this->_current[$offset]);
+	}
+
+	public function current() {
+		if( !$this->_current ) $this->_current = $this->fetch();
+		return $this->_current;
+	}
+
+	public function key() {
+		return $this->_index;
+	}
+
+	public function next() {
+		$this->_current = $this->fetch();
+	}
+
+	public function rewind() {
+		$this->_index = 0;
+	}
+
+	public function valid() {
+		if( !$this->_current ) $this->_current = $this->fetch();
+		return $this->_current !== false;
+	}
 }
 
-?>
+/**
+ * @internal Extends PDOStatement so that we can easily capture calling <DataSource>
+ */
+class WdfPdoStatement extends PDOStatement
+{
+	var $_ds = null;
+	var $_pdo = null;
+	
+	protected function __construct($datasource,$pdo)
+	{
+		$this->_ds = $datasource;
+		$this->_pdo = $pdo;
+	}
+}

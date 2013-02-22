@@ -24,10 +24,16 @@
  */
  
 /**
+ * Region selector.
+ * 
  * @attribute[Resource('locale_settings.js')]
  */
 class RegionSelect extends Select
 {
+	/**
+	 * @param mixed $current_language_code Currently selected language
+	 * @param type $current_region_code Currently selected region
+	 */
 	function __initialize($current_language_code=false, $current_region_code=false)
 	{
 		parent::__initialize();
@@ -69,6 +75,9 @@ class RegionSelect extends Select
 		}
 	}
 	
+	/**
+	 * @internal Compares country names
+	 */
 	public static function compareCountryNames($a, $b)
     {
 		$chars = array('Ä'=>'A', 'Ö'=>'O', 'Ü'=>'U', 'ä'=>'a', 'ö'=>'o', 'ü'=>'u', 'ß'=>'ss');
@@ -78,7 +87,12 @@ class RegionSelect extends Select
     }
 	
 	/**
+	 * Returns a list of option elements.
+	 * 
+	 * Called via AJAX to dynamically update the control.
 	 * @attribute[RequestParam('language','string')]
+	 * @param string $language Language code
+	 * @return <AjaxResponse::Text> Html string with options
 	 */
 	public function ListOptions($language)
 	{

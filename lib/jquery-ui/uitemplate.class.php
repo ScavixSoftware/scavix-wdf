@@ -24,10 +24,13 @@
  */
 
 /**
+ * Base class for all jQueryUI controls
+ * 
+ * This ensures that all resources are loaded.
  * @attribute[Resource('jquery-ui/jquery-ui.js')] 
  * @attribute[Resource('jquery-ui/jquery-ui.css')] 
  */
 class uiTemplate extends Template
 {
+
 }
-?>

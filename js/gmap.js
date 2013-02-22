@@ -60,13 +60,11 @@
 			if( options )
 				for(var p in options)
 					if(p == "onclick")
-						google.maps.event.addListener(marker, 'click', function() { eval(options[p]); } );
+						google.maps.event.addListener(marker, 'click', function() { eval(options["onclick"]); } );
 			
 			if( !this.markers[id] )
 				this.markers[id] = [];
 			this.markers[id].push(marker);
-			
-			this.showAllMarkers(id);
 		},
 		
 		showAllMarkers: function(id)
@@ -79,8 +77,8 @@
 			}
 			else if( this.markers[id] && this.markers[id].length > 1 )
 			{
-				bounds = new google.maps.LatLngBounds(this.markers[id][0].position,this.markers[id][1].position);
-				for(var i=2; i<this.markers[id].length; i++)
+				bounds = new google.maps.LatLngBounds();
+				for(var i=0; i<this.markers[id].length; i++)
 					bounds.extend(this.markers[id][i].position);
 				this.maps[id].setCenter(bounds.getCenter());
 				this.maps[id].fitBounds(bounds);

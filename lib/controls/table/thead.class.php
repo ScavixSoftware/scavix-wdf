@@ -23,12 +23,17 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * A thead element in div annotation.
+ * 
+ */
 class THead extends TBody
 {
+	/**
+	 * @param array $options See <TBody::__initialize>
+	 */
 	function __initialize($options=false)
 	{
 		parent::__initialize($options,"thead");
 	}
 }
-
-?>

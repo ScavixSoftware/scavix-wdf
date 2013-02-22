@@ -36,7 +36,7 @@
  *	$map->AddRange('FF0000');
  *	$map->AddCountry("DE",100);
  *	$map->AddCountry("AT",50);
- *	$this->addContent($map);
+ *	$this->content($map);
  *
  * The colorrange is between FFFFFF (=> 0%) and FF0000 (=> 100%)
  * In AddCountry() you give the countrycode and a total percent value
@@ -67,7 +67,7 @@
  *	$map->GetLegend(1,"Frankreich");
  *	$map->GetLegend(3,"Deutschland");
  *	$map->GetLegend(5,"Spanien");
- *	$this->addContent($map);
+ *	$this->content($map);
  *
  * As you can see here are 7 different color ranges. By adding white [FFFFFF] between the other colors you will 
  * get a colorrange which starts with white. If you leave white between other colors you will get colers between e.g.
@@ -305,4 +305,3 @@ class GoogleChartMap extends Template
 		return $color_shades;
 	}
 }
-?>

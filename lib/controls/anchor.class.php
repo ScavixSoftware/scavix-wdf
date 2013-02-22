@@ -24,15 +24,20 @@
  */
  
 /**
- * HTML anchor element.
+ * HTML anchor element
+ * 
+ * Wraped as control to allow to inherit from this class and add code for AJAX handling in that derivered classes.
  */
 class Anchor extends Control
 {
 	/**
 	 * Create a new HTML anchor element.
-	 * @param string $href The href attribute. Defaults to "".
-	 * @param string $label The anchor text. Defaults to "".
-	 * @param string $class The CSS class. Defaults to "".
+	 * 
+	 * @param string $href The href attribute
+	 * @param string $label The anchor text
+	 * @param string $class The CSS class
+	 * @param string $target The target attribute
+	 * @return void
 	 */
 	function __initialize($href="", $label="", $class="",$target="")
 	{
@@ -47,6 +52,9 @@ class Anchor extends Control
 		$this->CloseTagNeeded();
 	}
 	
+	/**
+	 * @override Ensures that there's a valid href attribute, if not adds "javascript:{}" to it.
+	 */
 	public function WdfRender()
 	{
         if($this->href == "")
@@ -55,5 +63,3 @@ class Anchor extends Control
         return parent::WdfRender();
 	}	
 }
-
-?>

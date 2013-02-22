@@ -24,10 +24,16 @@
  */
  
 /**
+ * Selector for currency formats.
+ * 
  * @attribute[Resource('locale_settings.js')]
  */
 class CurrencyFormatSelect extends Select
 {
+	/**
+	 * @param string $currency_code A valid currency code
+	 * @param mixed $selected_format The currently selected format
+	 */
 	function __initialize($currency_code, $selected_format=false)
 	{
 		parent::__initialize();
@@ -43,7 +49,12 @@ class CurrencyFormatSelect extends Select
 	}
 	
 	/**
+	 * Returns a list of option elements.
+	 * 
+	 * Called via AJAX to dynamically update the control.
 	 * @attribute[RequestParam('currency','string')]
+	 * @param string $currency Valid currency string
+	 * @return <AjaxResponse::Text> Html string with options
 	 */
 	public function ListOptions($currency)
 	{
@@ -51,7 +62,7 @@ class CurrencyFormatSelect extends Select
 		$res = array();
 		foreach($samples as $code=>$item)
 			$res[] = "<option value='$code'>$item</option>";
-		return implode("\n",$res);
+		return AjaxResponse::Text(implode("\n",$res));
 	}
 }
 

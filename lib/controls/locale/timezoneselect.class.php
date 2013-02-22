@@ -24,10 +24,15 @@
  */
  
 /**
+ * Timezone selector.
+ * 
  * @attribute[Resource('locale_settings.js')]
  */
 class TimezoneSelect extends Select
 {
+	/**
+	 * @param string $current_timezone Currently selected timezone
+	 */
 	function __initialize($current_timezone=false)
 	{
 		parent::__initialize();

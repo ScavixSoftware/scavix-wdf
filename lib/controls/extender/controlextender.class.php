@@ -47,5 +47,3 @@ abstract class ControlExtender extends Renderable
 	function WdfRender(){ return ""; }
 	function __getContentVars(){ return array(); }
 }
-
-?>

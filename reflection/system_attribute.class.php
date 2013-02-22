@@ -36,7 +36,7 @@
  * <at>attribute[MyFirstAttribute()]
  * <at>attribute[MyFirst]
  * 
- * Some more samples can be found at System_Reflector::GetClassAttributes
+ * Some more samples can be found at <System_Reflector::GetClassAttributes>
  */
 class System_Attribute
 {
@@ -47,5 +47,3 @@ class System_Attribute
 	var $Field = null;
 	function __construct() {}
 }
-
-?>

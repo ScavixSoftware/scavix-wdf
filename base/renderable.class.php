@@ -129,5 +129,3 @@ abstract class Renderable
 		return array_unique($res);
 	}
 }
-
-?>

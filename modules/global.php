@@ -26,11 +26,12 @@
 define("MSECPERDAY", 24 * 60 * 60);
 
 /**
- * Parse a number that the user entered to a valid us format
+ * Parse a number that the user entered to a valid us format.
+ * 
  * i.e. 1.000,99 -> 1000.99
  * @todo: different locales
- * @param <any> $number
- * @return <float> 
+ * @param mixed $number
+ * @return float
  */
 function parseUserinputNumber($number)
 {
@@ -45,10 +46,10 @@ function parseUserinputNumber($number)
 /**
  * Format a number to display it to the user
  * @todo: different locales
- * @param <any> $number
- * @param <int> $digits the digits after the seperator
- * @param <bool> $keeptrailzeros keep the trailing 0
- * @return <string>*
+ * @param mixed $number
+ * @param int $digits the digits after the seperator
+ * @param bool $keeptrailzeros keep the trailing 0
+ * @return string
  */
 function formatFloat($number, $digits = 2, $keeptrailzeros = false)
 {
@@ -58,5 +59,3 @@ function formatFloat($number, $digits = 2, $keeptrailzeros = false)
 
     return $ret;
 }
-
-?>

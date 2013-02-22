@@ -42,4 +42,3 @@ class GoogleAnalytics extends Template
 		$this->add2var('tracker',$selector);
 	}
 }
-?>

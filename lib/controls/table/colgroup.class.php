@@ -23,6 +23,10 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * Represents a colgroup element but in div annotation.
+ * 
+ */
 class ColGroup extends Control
 {
     var $current_col = false;
@@ -33,6 +37,13 @@ class ColGroup extends Control
 		$this->class = "colgroup";
 	}
 
+	/**
+	 * Adds a col element.
+	 * 
+	 * @param mixed $width Columns width
+	 * @param string $align Alignment
+	 * @return Control The created col element
+	 */
     function &NewCol($width=false,$align=false)
     {
         $this->current_col = new Control("div");
@@ -46,6 +57,14 @@ class ColGroup extends Control
         return $this->current_col;
     }
 	
+	/**
+	 * Sets properties of a specified col element.
+	 * 
+	 * @param int $index Zero based index of col element
+	 * @param mixed $width Columns width
+	 * @param string $align Alignment
+	 * @return Control The changed col element
+	 */
 	function SetCol($index,$width=false,$align=false)
 	{
 		while( count($this->_content) <= $index )
@@ -59,5 +78,3 @@ class ColGroup extends Control
 		return $this->_content[$index];
 	}
 }
-
-?>

@@ -26,7 +26,7 @@
 /**
  * Represents a PHP DocComment as described in http://en.wikipedia.org/wiki/PHPDoc
  * 
- * Use PhpDocComment::Parse to create an instance.
+ * Use <PhpDocComment::Parse> to create an instance.
  */
 class PhpDocComment
 {
@@ -35,6 +35,13 @@ class PhpDocComment
 	var $Tags = array();
 	var $Attributes = array();
 	
+	/**
+	 * Creates a PhpDocComment instance from a string
+	 * 
+	 * See <System_Reflector::getCommentObject> for how to use this best.
+	 * @param string $comment Valid DocComment string
+	 * @return boolean|PhpDocComment False on error, else a PhpDocComment object
+	 */
 	static function Parse($comment)
 	{
 		$res = new PhpDocComment();
@@ -47,16 +54,9 @@ class PhpDocComment
 			$comment[$i] = trim(ltrim($l,"\t *"));
 		$comment = implode("\n",$comment);
 		
-//		$comment = trim($m[1]);
-//		$comment = preg_replace('/\s+\*\s+/',"\n",$comment);
-//		$comment = preg_replace('/\s*\*[\x20\t]*(.*)(\n*)/',"$1$2",$comment);
 		$comment = trim($comment);
-//		log_debug($comment);
-		$m = explode("\n@",$comment,2);
-//		log_debug($m);
+		$m = explode("@",$comment,2);
 		$m = explode("\n\n",$m[0],2);
-//		log_debug($m);
-		
 		$isMatch = preg_match('/^@attribute/',trim($m[0]));
 		
 		if ($isMatch !== false && $isMatch == 0)
@@ -86,24 +86,23 @@ class PhpDocComment
 			);
 		}
 		
+		if( !$res->LongDesc && $res->ShortDesc && ends_with($res->ShortDesc, '.') )
+			$res->LongDesc = '';
 		return $res;
 	}
 	
-	static function RenderHtml($string)
+	/**
+	 * Ensures that there's a short description set.
+	 * 
+	 * @param string $default_description Text to set if there's no ShortDesc yet
+	 * @return void
+	 */
+	function EnsureDescription($default_description)
 	{
-		// todo: process inline tags like @see and @link
-		//       and everything else from http://en.wikipedia.org/wiki/PHPDoc#Tags
-		return nl2br($string);
-	}
-	
-	function ShortDescAsHtml()
-	{
-		return self::RenderHtml($this->ShortDesc);
-	}
-	
-	function LongDescAsHtml()
-	{
-		return self::RenderHtml($this->LongDesc);
+		if( !$this->ShortDesc )
+			$this->ShortDesc = $default_description;
+		if( $this->LongDesc === false )
+			$this->LongDesc = "";
 	}
 	
 	private function getTag($name,$properties)
@@ -113,37 +112,95 @@ class PhpDocComment
 		
 		if( !isset($this->_tagbuf[$name]) )
 		{
-			$pat = "/";
-			for($i=0;$i<count($properties)-1;$i++)
-				$pat .= '([^\s]+)\s+';
-			$pat .= '(.*)/s';
-			
 			$this->_tagbuf[$name] = array();
 			foreach( $this->Tags as $t )
 			{
 				if( $t['tag'] != $name )
 					continue;
 
-				preg_match($pat,$t['data'],$m);
-				$p = new stdClass();
-				for($i=0;$i<count($properties);$i++)
+				if( preg_match_all('/([^\s]+)/',$t['data'],$matches) )
 				{
-					$v = "";
-					if (array_key_exists($i+1,$m))
-						$v = $m[$i+1];
-					$p->{$properties[$i]} = $v;
+					$props = array();
+					for($i=0;$i<count($properties)-1;$i++)
+						$props[] = array_shift($matches[1]);
+					$props[] = implode(" ",$matches[1]);
+
+					$p = new stdClass();
+					foreach( $properties as $i=>$n )
+						$p->$n = $props[$i];
+					$this->_tagbuf[$name][] = $p;
 				}
-				$this->_tagbuf[$name][] = $p;
 			}
 		}
 		return $this->_tagbuf[$name];
 	}
 	
+	/**
+	 * Check if theres at least one of the given annotations present
+	 * 
+	 * Will use all given arguments as input
+	 * <code php>
+	 * $dc->hasOne('internal','deprecated','override');
+	 * </code>
+	 * @return bool true or false
+	 */
+	function hasOne()
+	{
+		foreach( func_get_args() as $name )
+			if( $this->has($name) )
+				return true;
+		return false;
+	}
+	
+	/**
+	 * Checks if there's a specific annotation present.
+	 * 
+	 * @param string $name Name of annotation to check
+	 * @return bool true or false
+	 */
+	function has($name)
+	{
+		foreach( $this->Tags as $t )
+			if( $t['tag'] == $name )
+				return true;
+		return false;
+	}
+	
+	/**
+	 * Returns a specific annotation
+	 * 
+	 * If scheme is `<at>mySomething This is my comment` you can call it like `get('mySomething');`
+	 * @param string $name Name of the annotation
+	 * @return mixed The description (may be empty) or false
+	 */
+	function get($name)
+	{
+		$tag = $this->getTag($name,array('desc'));
+		if( count($tag) == 0 )
+			return false;
+		return $tag[0]->desc;
+	}
+	
+	/**
+	 * Lists all param docs
+	 * 
+	 * Every method parameter should have an <at>param block in the DocComment.
+	 * This returns all of them
+	 * @return array All param block
+	 */
 	function getParams()
 	{
 		return $this->getTag('param',array('type','var','desc'));
 	}
 	
+	/**
+	 * Returns docs for a specified parameter
+	 * 
+	 * Every method parameter should have an <at>param block in the DocComment.
+	 * This method returns it
+	 * @param string $name Parameter name
+	 * @return mixed The parameter description or false on error
+	 */
 	function getParam($name)
 	{
 		foreach( $this->getParams() as $p )
@@ -152,26 +209,79 @@ class PhpDocComment
 		return false;
 	}
 	
+	/**
+	 * Gets the return documentation
+	 * 
+	 * Every method should have a <at>return block in the DocComment.
+	 * This method returns it
+	 * @return mixed The return doc or false on error
+	 */
 	function getReturn()
 	{
 		$res = $this->getTag('return',array('type','desc'));
 		return ($res && isset($res[0]))?$res[0]:false;
 	}
 	
+	/**
+	 * Gets the deprecated note if present
+	 * 
+	 * Every DocComment may contain a <at>deprecated part.
+	 * This method returns it
+	 * @return mixed The deprecated note if present or false
+	 */
 	function getDeprecated()
 	{
-		$tag = $this->getTag('deprecated',array('desc'));
-		if( count($tag) == 0 )
-			return false;
-		return $tag[0]->desc;
+		return $this->get('deprecated');
 	}
 	
+	/**
+	 * Returns the description ready for use in markdown syntax
+	 * 
+	 * Markdown is our favorite for automated documentation creation as GitHub supports it directly for their Wiki.
+	 * This method makes some preparations for the doccomment to be complatible with MD.
+	 * @return string MD prepared string
+	 */
 	function RenderAsMD()
 	{
-		$desc = $this->ShortDesc?$this->ShortDesc:'';
-		$desc .= $this->LongDesc?"\n{$this->LongDesc}":'';
-		$desc = str_replace(array('<code>','</code>'),array('```','```'),$desc);
+		$desc  = $this->ShortDesc?$this->ShortDesc:'';
+		$desc .= $this->LongDesc?"\t\n".str_replace("\n","\t\n",$this->LongDesc):'';
+		
+		$internal = $this->get('internal');
+		if( $internal !== false )
+			$desc = "**INTERNAL** $internal\t\n$desc";
+
+		$deprecated = $this->getDeprecated();
+		if( $deprecated  !== false )
+			$desc = "**DEPRECATED** $deprecated\t\n$desc";
+
+		$override = $this->get('override');
+		if( $override !== false )
+			$desc = "**OVERRIDE** $override\t\n$desc";
+
+		$shortcut = $this->get('shortcut');
+		if( $shortcut !== false )
+			$desc = "**SHORTCUT** $shortcut\t\n$desc";
+		
+		if( !$this->entities )
+		{
+			$this->entities = array();
+			$this->mdEscapeEntity($this->entities,'ul');
+			$this->mdEscapeEntity($this->entities,'ol');
+			$this->mdEscapeEntity($this->entities,'li');
+			$this->mdEscapeEntity($this->entities,'img');
+		}
+		
+		$desc = str_replace(array('<at>','<b>','</b>','<code>','</code>','<br/>'),array('@','**','**','```','```',"\t\n"),$desc);
+		$desc = str_replace(array_keys($this->entities),array_values($this->entities),$desc);
 		$desc = preg_replace('/<code ([^>]*)>/','```$1', $desc);
 		return $desc;
+	}
+	
+	var $entities = false;
+	private function mdEscapeEntity(&$data,$what)
+	{
+		$data["<$what>"] = htmlspecialchars("<$what>");
+		$data["<$what/>"] = htmlspecialchars("<$what/>");
+		$data["</$what>"] = htmlspecialchars("</$what>");
 	}
 }

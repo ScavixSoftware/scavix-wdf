@@ -23,32 +23,47 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * Represents a select element.
+ * 
+ */
 class Select extends Control
 {
 	var $_first_option_value = false;
 	var $_options = array();
 	var $_current = false;
 
-    function __initialize($cid=false, $name=false)
+	/**
+	 * @param string $name The name
+	 */
+    function __initialize($name=false)
 	{
 		parent::__initialize("select");
-        if( $cid )
-            $this->id = $cid;
-
         if( $name )
             $this->name = $name;
-        
-		$this->class = "select";
-
-		store_object($this);
 	}
 	
+	/**
+	 * Sets the current value.
+	 * 
+	 * @param mixed $value The current value
+	 * @return Select `$this`
+	 */
 	function SetCurrentValue($value)
 	{
 		$this->_current = $value;
 		return $this;
 	}
 
+	/**
+	 * Creates an option element.
+	 * 
+	 * @param mixed $value The value
+	 * @param mixed $label An optional label
+	 * @param bool $selected True if selected (hint: use <Select::SetCurrentValue> instead of evaluating selected state for each option)
+	 * @param string $htmlextra This is so dirty that i'd say: deprecated
+	 * @return Select `$this`
+	 */
 	function AddOption($value, $label = "", $selected = false, $htmlextra = "")
 	{
 		$label = $label==""?$value:$label;
@@ -61,12 +76,21 @@ class Select extends Control
 		$selected = $selected?" selected='selected'":"";
 		$opt = "<option value='$value'$selected".($htmlextra != "" ? " ".$htmlextra : "").">".htmlspecialchars($label)."</option>\r\n";
 		$this->content($opt);
+		return $this;
 	}
 
+	/**
+	 * Creates an optgroup element.
+	 * 
+	 * @param string $label The label text
+	 * @param bool $disabled True if disabled
+	 * @return Select `$this`
+	 */
 	function AddGroup($label = "", $disabled = false)
 	{
 		$opt = "<optgroup label=\"".str_replace("\"", "&quot;", $label)."\"".($disabled ? "disabled=\"disabled\"" : "")."></optgroup>\r\n";
 		$this->content($opt);
+		return $this;
 	}
 }
 

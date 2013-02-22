@@ -23,12 +23,17 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * A tfoot element in div annotation.
+ * 
+ */
 class TFoot extends TBody
 {
+	/**
+	 * @param array $options See <TBody::__initialize>
+	 */
 	function __initialize($options=false)
 	{
 		parent::__initialize($options,"tfoot");
 	}
 }
-
-?>

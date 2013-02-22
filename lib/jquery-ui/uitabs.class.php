@@ -119,4 +119,3 @@ class uiTabs extends uiTemplate
 		return rtrim($options,',');
 	}
 }
-?>

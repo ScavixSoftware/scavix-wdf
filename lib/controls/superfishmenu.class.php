@@ -23,6 +23,11 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * Wraps a superfish menu control
+ * 
+ * See http://users.tpg.com.au/j_birch/plugins/superfish/
+ */
 class SuperfishMenu extends Control
 {
     function __initialize()
@@ -32,6 +37,16 @@ class SuperfishMenu extends Control
 		$this->script('$("#'.$this->id.'").superfish();');
 	}
 	
+	/**
+	 * Adds an item
+	 * 
+	 * New item will be top-level navigation item
+	 * @param string $label Item label
+	 * @param mixed $controller Controller object or id
+	 * @param string $event Handler method
+	 * @param mixed $data Array or urlencoded string containing additional data to be passed
+	 * @return SuperfishMenuItem The created item
+	 */
 	function AddItem($label,$controller,$event="",$data=array())
 	{
 		$item = new SuperfishMenuItem($label,$controller,$event,$data);
@@ -39,16 +54,32 @@ class SuperfishMenu extends Control
 		return $item;
 	}
 	
+	/**
+	 * Gets all top-level items.
+	 * 
+	 * @return array List of <SuperfishMenuItem> objects
+	 */
 	function GetItems()
 	{
 		return $this->_content;
 	}
 	
+	/**
+	 * Adds a new item to an external URL
+	 * 
+	 * Use this if you want something outide your app to be referenced.
+	 * @param string $label Item label
+	 * @param string $href URL to be redirected to
+	 * @return SuperfishMenuItem The created item
+	 */
 	function AddExternalItem($label,$href)
 	{
 		return $this->AddItem($label,$href,'$is_link$');
 	}
 	
+	/**
+	 * @override Some preparations
+	 */
 	function WdfRender()
 	{
 		if( count($this->_content) > 0 )
@@ -56,6 +87,12 @@ class SuperfishMenu extends Control
 		return parent::WdfRender();
 	}
 	
+	/**
+	 * Tries to figure out the item that must have the focus
+	 * 
+	 * Will then set it active and return
+	 * @return void
+	 */
 	function DetectSelected()
 	{
 		$controller = strtolower(current_controller());
@@ -91,6 +128,11 @@ class SuperfishMenu extends Control
 	}
 }
 
+/**
+ * Represents a menu item in a <SuperfishMenu>.
+ * 
+ * May also be a subitem to another <SuperfishMenuItem>
+ */
 class SuperfishMenuItem extends Control
 {
 	var $is_parent = true;
@@ -99,6 +141,12 @@ class SuperfishMenuItem extends Control
 	var $event = false;
 	var $data = false;
 	
+	/**
+	 * @param string $label Item label
+	 * @param mixed $controller Controller object or id
+	 * @param string $event Handler method
+	 * @param mixed $data Array or urlencoded string containing additional data to be passed
+	 */
 	function __initialize($label,$controller,$event="",$data=array())
 	{
 		parent::__initialize("li");
@@ -113,6 +161,15 @@ class SuperfishMenuItem extends Control
 		$this->data = md5(my_var_export($data));
 	}
 	
+	/**
+	 * Adds a subitem.
+	 * 
+	 * @param string $label Item label
+	 * @param mixed $controller Controller object or id
+	 * @param string $event Handler method
+	 * @param mixed $data Array or urlencoded string containing additional data to be passed
+	 * @return SuperfishMenuItem The created item
+	 */
 	function AddItem($label,$controller,$event="",$data=array())
 	{
 		if( !$this->sub )
@@ -126,11 +183,24 @@ class SuperfishMenuItem extends Control
 		return $item;
 	}
 	
+	/**
+	 * Adds a subitem to an external URL
+	 * 
+	 * Use this if you want something outide your app to be referenced.
+	 * @param string $label Item label
+	 * @param string $href URL to be redirected to
+	 * @return SuperfishMenuItem The created item
+	 */
 	function AddExternalItem($label,$href)
 	{
 		return $this->AddItem($label,$href,'$is_link$');
 	}
 	
+	/**
+	 * Gets all subitems.
+	 * 
+	 * @return array List of <SuperfishMenuItem> objects
+	 */
 	function GetItems()
 	{
 		if( $this->sub )
@@ -138,6 +208,13 @@ class SuperfishMenuItem extends Control
 		return array();
 	}
 	
+	/**
+	 * Sets this item selected
+	 * 
+	 * This means that it will be shown as the current one.
+	 * Note that there may be two selected items: one top-level, and one of it's subitems
+	 * @return void
+	 */
 	function SetSelected()
 	{
 		if( $this->is_parent )
@@ -146,6 +223,9 @@ class SuperfishMenuItem extends Control
 			$this->addClass('current_page_item');
 	}
 	
+	/**
+	 * @override Some preparations
+	 */
 	function WdfRender()
 	{
 		if( $this->sub )
@@ -153,4 +233,3 @@ class SuperfishMenuItem extends Control
 		return parent::WdfRender();
 	}
 }
-?>

@@ -24,8 +24,17 @@
  */
 default_string('TITLE_WARNING', 'Warning');
 
+/**
+ * Displays a uiDialog with an OK button.
+ * 
+ */
 class uiMessageBox extends uiDialog
 {
+	/**
+	 * @param string $message_text Message text
+	 * @param string $type Defines the css class, so you may use this to style different kinds of messages
+	 * @param string $title A title
+	 */
     function __initialize($message_text,$type='hint',$title='TITLE_WARNING')
 	{
 		$options = array(
@@ -42,4 +51,3 @@ class uiMessageBox extends uiDialog
 		$this->AddCloseButton(tds('BTN_OK','Ok'));
 	}
 }
-?>

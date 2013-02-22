@@ -25,7 +25,9 @@
  
 /**
  * A DB Session handler.
+ * 
  * THIS WHOLE CLASS IS UNTESTED!!!
+ * Still just prototype from the times when session handling was initially implemented
  */
 class DbSession extends SessionBase
 {
@@ -37,6 +39,12 @@ class DbSession extends SessionBase
 		$this->ds = model_datasource($CONFIG['session']['datasource']);
 	}
 
+	/**
+	 * Implements parents abstract
+	 * 
+	 * See <SessionBase::Sanitize>
+	 * @return void
+	 */
 	function Sanitize()
 	{
 		global $CONFIG;
@@ -49,13 +57,16 @@ class DbSession extends SessionBase
 			"SELECT storage_id FROM ".$CONFIG['session']['table']."
 			WHERE id=?0 AND auto_load>0",session_id()
 		);
-		while( !$rs->EOF )
-		{
-			restore_object($rs->fields['storage_id']);
-			$rs->MoveNext();
-		}
+		foreach( $rs as $row )
+			restore_object($row['storage_id']);
 	}
 
+	/**
+	 * Implements parents abstract
+	 * 
+	 * See <SessionBase::KillAll>
+	 * @return void
+	 */
 	function KillAll()
 	{
 		global $CONFIG;
@@ -68,6 +79,13 @@ class DbSession extends SessionBase
 		session_start();
 	}
 
+	/**
+	 * Implements parents abstract
+	 * 
+	 * See <SessionBase::KeepAlive>
+	 * @param string $request_key Key in the $_REQUEST variable where the request_id is stored
+	 * @return void
+	 */
 	function KeepAlive($request_key='PING')
 	{
 		global $CONFIG;
@@ -81,6 +99,15 @@ class DbSession extends SessionBase
 		$GLOBALS['session_request_id'] = $rid;
 	}
 
+	/**
+	 * Implements parents abstract
+	 * 
+	 * See <SessionBase::Store>
+	 * @param object $obj Object to be stored
+	 * @param string $id Id to store $obj to
+	 * @param bool $autoload If true, will be restored on session initialization automatically
+	 * @return void
+	 */
 	function Store(&$obj,$id="",$autoload=false)
 	{
 		global $CONFIG;
@@ -113,6 +140,13 @@ class DbSession extends SessionBase
 		$GLOBALS['object_storage'][strtolower($id)] = $obj;
 	}
 
+	/**
+	 * Implements parents abstract
+	 * 
+	 * See <SessionBase::Delete>
+	 * @param string $id Id of object to be deleted
+	 * @return void
+	 */
 	function Delete($id)
 	{
 		global $CONFIG;
@@ -126,6 +160,13 @@ class DbSession extends SessionBase
 		unset($GLOBALS['object_storage'][strtolower($id)]);
 	}
 
+	/**
+	 * Implements parents abstract
+	 * 
+	 * See <SessionBase::Exists>
+	 * @param string $id Id of object to be checked
+	 * @return bool true or false
+	 */
 	function Exists($id)
 	{
 		global $CONFIG;
@@ -139,9 +180,16 @@ class DbSession extends SessionBase
 			"SELECT COUNT(*) as cnt FROM ".$CONFIG['session']['table']."
 			WHERE id=?0 AND storage_id=?1 LIMIT 1",array(session_id(),$id)
 		);
-		return $rs->fields['cnt'] > 0;
+		return $rs['cnt'] > 0;
 	}
 
+	/**
+	 * Implements parents abstract
+	 * 
+	 * See <SessionBase::Restore>
+	 * @param string $id Id of object to be restored
+	 * @return mixed Object from store or null
+	 */
 	function &Restore($id)
 	{
 		global $CONFIG;
@@ -153,13 +201,13 @@ class DbSession extends SessionBase
 			"SELECT content FROM ".$CONFIG['session']['table']."
 			WHERE id=?0 AND storage_id=?1 LIMIT 1",array(session_id(),$id)
 		);
-		if( $rs->EOF )
+		if( $rs->Count() == 0 )
 		{
 			log_trace("Trying to restore unknown object '$id'");
 			$null = null;
 			return $null;
 		}
-		$data = $rs->fields['content'];
+		$data = $rs['content'];
 
 		$serializer = new Serializer();
 		$res = $serializer->Unserialize($data);
@@ -167,5 +215,3 @@ class DbSession extends SessionBase
 		return $GLOBALS['object_storage'][strtolower($id)];
 	}
 }
-
-?>

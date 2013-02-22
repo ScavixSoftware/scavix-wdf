@@ -22,16 +22,16 @@
  * @copyright 2007-2012 PamConsult GmbH
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
-/*
-    Document   : imagebutton.class.php
-    Created on : Jun 30, 2009, 5:35:40 PM
-    Author     : Florian A. Talg
-    Description:
-	
-*/
+
+/**
+ * &lt;button&gt; element containing an &lt;img&gt; element
+ */
 class ImageButton extends Control
 {
+	/**
+	 * @param string $label A label text
+	 * @param string $src Source for the image
+	 */
     function __initialize($label,$src)
 	{
 		parent::__initialize("button");
@@ -40,4 +40,3 @@ class ImageButton extends Control
 		$this->CloseTagNeeded();
 	}
 }
-?>

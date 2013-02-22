@@ -23,7 +23,11 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
-class Table extends uiControl
+/**
+ * An HTML table in DIV notation.
+ * 
+ */
+class Table extends Control
 {
     var $header = false;
     var $footer = false;
@@ -39,10 +43,6 @@ class Table extends uiControl
 	var $ColFormats = array();
 	var $Culture = false;
 	
-	const RENDER_MODE_NORMAL = 0;
-	const RENDER_MODE_JQUERYUI = 1;
-	var $RenderMode = 0;
-	
 	function __initialize()
 	{
 		parent::__initialize("div");
@@ -50,6 +50,15 @@ class Table extends uiControl
 		$this->script("$('#{self}').table();");
 	}
 	
+	/**
+	 * Sets the format for a specific column.
+	 * 
+	 * @param int $index Zero based column index
+	 * @param string $format See <CellFormat> for explanation
+	 * @param bool $blank_if_false If shall be empty if content is false (that may be 0 or '' too)
+	 * @param type $conditional_css See <CellFormat> for explanation
+	 * @return Table `$this`
+	 */
 	function SetColFormat($index,$format,$blank_if_false=false,$conditional_css=array())
 	{
 		$this->ColFormats[$index] = new CellFormat($format, $blank_if_false, $conditional_css);
@@ -60,6 +69,12 @@ class Table extends uiControl
 		return $this;
 	}
 	
+	/**
+	 * Gets the <CellFormat> for a column.
+	 * 
+	 * @param int $index Zero based column index
+	 * @return CellFormat The <CellFormat> object
+	 */
 	function GetColFormat($index)
 	{
 		if( !isset($this->ColFormats[$index]) )
@@ -67,14 +82,26 @@ class Table extends uiControl
 		return $this->ColFormats[$index];
 	}
 
+	/**
+	 * Clears the complete table.
+	 * 
+	 * @return Table `$this`
+	 */
 	function Clear()
 	{
 		$this->current_row_group = false;
 		$this->current_row = false;
 		$this->current_cell = false;
 		$this->_content = array();
+		return $this;
 	}
 
+	/**
+	 * Gets the table header.
+	 * 
+	 * Creates one if needed.
+	 * @return THead The tables header
+	 */
     function &Header()
     {
         if( !$this->header )
@@ -82,6 +109,12 @@ class Table extends uiControl
         return $this->header;
     }
 
+	/**
+	 * Gets the table footer.
+	 * 
+	 * Creates one if needed.
+	 * @return TFoot The tables footer
+	 */
     function &Footer()
     {
         if( !$this->footer )
@@ -89,6 +122,12 @@ class Table extends uiControl
         return $this->footer;
     }
 
+	/**
+	 * Gets the <ColGroup> definition
+	 * 
+	 * Creates one if needed.
+	 * @return ColGroup The tables <ColGroup> object
+	 */
 	function &ColGroup()
 	{
         if( !$this->colgroup )
@@ -96,6 +135,13 @@ class Table extends uiControl
         return $this->colgroup;
 	}
 
+	/**
+	 * Creates a new row group and sets it the current
+	 * 
+	 * Newly created rows will then be added to this group.
+	 * @param array $options See <TBody> for options
+	 * @return TBody The row group
+	 */
     function &NewRowGroup($options=false)
     {
 		if( !$options )
@@ -107,6 +153,14 @@ class Table extends uiControl
         return $this->current_row_group;
     }
 
+	/**
+	 * Creates a new row.
+	 * 
+	 * Will be added to the current row group (which wis created if none yet).
+	 * @param array $data Data to be added to the row automatically
+	 * @param array $options Rows options, see <TBody::NewRow>
+	 * @return Tr The new <Tr> object
+	 */
     function &NewRow($data=false,$options=false)
     {
         if( !$this->current_row_group )
@@ -120,6 +174,13 @@ class Table extends uiControl
         return $this->current_row;
     }
 
+	/**
+	 * Creates a new cell
+	 * 
+	 * New row will be created if there's not one already.
+	 * @param mixed $content Content to be added to the cell automatically
+	 * @return Td The new <Td> object
+	 */
     function &NewCell($content=false)
     {
         if( !$this->current_cell )
@@ -129,6 +190,9 @@ class Table extends uiControl
         return $this->current_cell;
     }
 
+	/**
+	 * @override Prepares some JS logic
+	 */
 	function PreRender($args=array())
 	{
 		if( isset($this->RowOptions['hoverclass']) && $this->RowOptions['hoverclass'] )
@@ -141,6 +205,20 @@ class Table extends uiControl
 		parent::PreRender($args);
 	}
 	
+	protected function _ensureCaptionObject()
+	{
+		if( $this->Caption && !($this->Caption instanceof Control) )
+        {
+			$tmp = new Control("div");
+			$tmp->content($this->Caption);
+			$tmp->class = 'caption';
+			$this->Caption = $tmp;
+		}
+	}
+	
+	/**
+	 * @override Prepares the complete table including column formatting
+	 */
 	function WdfRender()
     {
         if( $this->footer )
@@ -153,23 +231,9 @@ class Table extends uiControl
 
         if( $this->Caption )
         {
-            if( !($this->Caption instanceof Control) )
-            {
-                $tmp = new Control("div");
-                $tmp->content($this->Caption);
-				$tmp->class = 'caption';
-				$this->Caption = $tmp;
-            }
+			$this->_ensureCaptionObject();
             $this->_content = array_merge(array($this->Caption),$this->_content);
         }
-
-		if( $this->RenderMode == self::RENDER_MODE_JQUERYUI )
-		{
-			$this->addClass('ui-widget ui-widget-content ui-corner-all');
-			if( $this->header ) $this->header->addClass('ui-widget-header');
-			if( $this->Caption ) $this->Caption->addClass('ui-widget-header');
-			if( $this->footer ) $this->footer->addClass('ui-widget-content');
-		}
 		
         foreach( $this->_content as &$c )
         {
@@ -197,7 +261,10 @@ class Table extends uiControl
 /* --------------- High level methods returning $this for easy usage --------------------- */
 	
 	/**
-	 * Just sets the caption
+	 * Just sets the caption.
+	 * 
+	 * @param string $cap Caption text
+	 * @return Table `$this`
 	 */
 	function SetCaption($cap)
 	{
@@ -206,7 +273,9 @@ class Table extends uiControl
 	}
 	
 	/**
-	 * Takes all arguments given and uses each as row-title
+	 * Takes all arguments given and uses each as row-title.
+	 * 
+	 * @return Table `$this`
 	 */
 	function SetHeader()
 	{
@@ -215,7 +284,9 @@ class Table extends uiControl
 	}
 	
 	/**
-	 * Takes all arguments given and uses each as row-title
+	 * Takes all arguments given and uses each as row-title.
+	 * 
+	 * @return Table `$this`
 	 */
 	function SetFooter()
 	{
@@ -224,7 +295,10 @@ class Table extends uiControl
 	}
 	
 	/**
-	 * Same as NewRowGroup($options) but returns $this to allow method chaining
+	 * Same as NewRowGroup($options) but returns $this to allow method chaining.
+	 * 
+	 * @param array $options See <TBody> for options
+	 * @return Table `$this`
 	 */
 	function AddNewRowGroup($options=false)
 	{
@@ -233,7 +307,9 @@ class Table extends uiControl
 	}
 	
 	/**
-	 * Adds a new row, takes all arguments given and uses each as new data-cell
+	 * Adds a new row, takes all arguments given and uses each as new data-cell.
+	 * 
+	 * @return Table `$this`
 	 */
 	function AddNewRow()
 	{
@@ -242,15 +318,18 @@ class Table extends uiControl
 	}
 	
 	/**
-	 * Takes one argument for each (previously set) column.
+	 * Takes one argument for each (previously set) column
+	 * 
 	 * possible values: l, r, c (or: left, right, center) as strings
 	 * sample $tab->SetAlignment('l','l','c','r') when there are 4+ columns
 	 * to skip a column just pass an empty string: $tab->SetAlignment('l','','','r')
+	 * @return Table `$this`
 	 */
 	function SetAlignment()
 	{
 		$cg = $this->ColGroup();
 		$head = $this->Header();
+		$foot = $this->Footer();
 		foreach( func_get_args() as $i=>$a )
 		{
 			switch( strtolower($a) )
@@ -259,16 +338,19 @@ class Table extends uiControl
 				case 'left':
 					$cg->SetCol($i,false,'left');
 					$head->GetCell($i)->align = 'left';
+					$foot->GetCell($i)->align = 'left';
 					break;
 				case 'r':
 				case 'right':
 					$cg->SetCol($i,false,'right');
 					$head->GetCell($i)->align = 'right';
+                    $foot->GetCell($i)->align = 'right';
 					break;
 				case 'c':
 				case 'center':
 					$cg->SetCol($i,false,'center');
 					$head->GetCell($i)->align = 'center';
+                    $foot->GetCell($i)->align = 'center';
 					break;
 			}
 		}
@@ -276,10 +358,12 @@ class Table extends uiControl
 	}
 	
 	/**
-	 * Takes one argument for each (previously set) column.
+	 * Takes one argument for each (previously set) column
+	 * 
 	 * possible values: see CellFormat class
 	 * sample $tab->SetFormat('int','f2') when there are 2+ columns
 	 * to skip a column just pass an empty string: $tab->SetFormat('int','','','f2')
+	 * @return Table `$this`
 	 */
 	function SetFormat()
 	{
@@ -294,20 +378,14 @@ class Table extends uiControl
 	
 	/**
 	 * Just sets the culture.
+	 * 
+	 * This will be used when value are formatted using a <CellFormat> specified via <Table::SetColFormat> or <Table::SetFormat>
+	 * @param CultureInfo $ci <CultureInfo> object speficying the culture
+	 * @return Table `$this`
 	 */
 	function SetCulture($ci)
 	{
 		$this->Culture = $ci;
-		return $this;
-	}
-	
-	/**
-	 * Just sets the rendering mode. 
-	 * Possible values are Table::RENDER_MODE_NORMAL and Table::RENDER_MODE_JQUERYUI
-	 */
-	function SetRenderMode($mode)
-	{
-		$this->RenderMode = $mode;
 		return $this;
 	}
 	
@@ -316,6 +394,13 @@ class Table extends uiControl
 	var $_actionHandler = array();
 	var $_sortHandler = false;
 	
+	/**
+	 * Adds a data object to the current row.
+	 * 
+	 * This will be stored for AJAX acceess
+	 * @param mixed $model Data object
+	 * @return Table `$this`
+	 */
 	function AddDataToRow($model)
 	{
 		if( !$this->current_row )
@@ -325,11 +410,29 @@ class Table extends uiControl
 		return $this;
 	}
 	
+	/**
+	 * Gets the model for a specific row id.
+	 * 
+	 * Note that $row_id is the id of the <Tr> object, not the index in the row listing!
+	 * @param string $row_id Id of the <Tr> object
+	 * @return mixed The data object
+	 */
 	function GetRowModel($row_id)
 	{
 		return $this->_rowModels[$row_id];
 	}
-		
+	
+	/**
+	 * Adds an action to the current row.
+	 * 
+	 * This is in fact a little icon displayed on hovering the row. Clicking on it
+	 * will trigger an AJAX action.
+	 * @param string $icon Valid <uiControl::Icon>
+	 * @param string $label Action label (alt and tootltip text)
+	 * @param object $handler Object handling the action
+	 * @param string $method Objects method that handles the action
+	 * @return Table `$this`
+	 */
 	function AddRowAction($icon,$label,$handler=false,$method=false)
 	{
 		if( !$this->_actions )
@@ -354,6 +457,7 @@ class Table extends uiControl
 	}
 	
 	/**
+	 * @internal Handles row action clicks and calls the defined handlers (<Table::AddRowAction>)
 	 * @attribute[RequestParam('action','string')]
 	 * @attribute[RequestParam('row','string')]
 	 */
@@ -368,6 +472,14 @@ class Table extends uiControl
 		return AjaxResponse::None();
 	}
 	
+	/**
+	 * Sets a sort handler for this table
+	 * 
+	 * Note: this does not mean that the data can be sorted for display, but that the user may rearrange the rows via mouse drag and drop!
+	 * @param object $handler Object handling the drop
+	 * @param string $method Method to be called
+	 * @return Table `$this`
+	 */
 	function Sortable($handler,$method)
 	{
 		$this->_sortHandler = array($handler,$method);
@@ -379,6 +491,7 @@ class Table extends uiControl
 	}
 	
 	/**
+	 * @internal Handles the sort-drop event and calls the hanlder (<Table::Sortable>)
 	 * @attribute[RequestParam('rows','array',array())]
 	 */
 	function OnReordered($rows)

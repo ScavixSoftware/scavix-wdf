@@ -24,10 +24,15 @@
  */
 
 /**
- * This represents a label element
+ * This represents a label element.
  */
 class Label extends Control
 {
+	/**
+	 * @param string $name The actual text
+	 * @param bool $required This is deprecated
+	 * @param mixed $for Can be <Control> or string holding an id
+	 */
     function __initialize($name,$required=false,$for = "")
 	{
 		parent::__initialize("label");
@@ -35,4 +40,3 @@ class Label extends Control
 		$this->for = ($for instanceof Control)?$for->id:$for;
 	}
 }
-?>

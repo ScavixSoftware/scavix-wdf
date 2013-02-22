@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * PamConsult Web Development Framework
  *
@@ -23,55 +23,54 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
-class System_Model extends Model
+/**
+ * This is a basic &lt;input/&gt;.
+ * 
+ * Used as base class for all kind of inputs.
+ */
+class Input extends Control
 {
-	var $DataSource;
-	var $_table;
-	var $foreignName;
-	
-	function GetTableName()
+	function __initialize()
 	{
-		global $CONFIG;
-		return $CONFIG['model'][strtolower(get_class($this))];
-	}
-	
-	function __initialize($datasource=null)
-	{
-		parent::__initialize($datasource);
-		$this->DataSource = $this->_ds;
-    }
-	
-	protected function __ensureTableSchema()
-	{
-		parent::__ensureTableSchema();
-		if( !$this->DataSource )
-			$this->DataSource = $this->_ds;
-		$this->foreignName = $this->_table = $this->_tableSchema->Name;
-		return $this->_tableSchema;
-	}
-	
-	public function GetColumns()
-	{
-		return $this->GetColumnNames();
+		parent::__initialize("input");
 	}
 	
 	/**
-	 * Not fully compatible to old layer, as we'll skip $plain_array=false support
+	 * Sets the type attribute.
+	 * 
+	 * @param string $type The type
+	 * @return Input `$this`
 	 */
-	function SetValues($data_array, $plain_array = false)
+	function setType($type)
 	{
-		if( !$plain_array )
-		{
-			log_error("plain_array support not implemented");
-			return;
-		}
-		
-		foreach( $data_array as $key=>$val )
-		{
-			if( $this->HasColumn($key) )
-				$this->$key = $val;
-		}
+		if( $type )
+			$this->type = $type;
+		return $this;
+	}
+	
+	/**
+	 * Sets the name attribute.
+	 * 
+	 * @param string $name The type
+	 * @return Input `$this`
+	 */
+	function setName($name)
+	{
+		if( $name )
+			$this->name = $name;
+		return $this;
+	}
+	
+	/**
+	 * Sets the value attribute.
+	 * 
+	 * @param string $value The value
+	 * @return Input `$this`
+	 */
+	function setValue($value)
+	{
+		if( $value )
+			$this->value = $value;
+		return $this;
 	}
 }
-
-?>

@@ -281,5 +281,3 @@ function browserDetails()
 
     return $bd;
 }
-
-?>
