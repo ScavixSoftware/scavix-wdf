@@ -55,7 +55,6 @@ function globalcache_init()
 	if( !isset($CONFIG['globalcache']['CACHE']) || !$CONFIG['globalcache']['CACHE'] )
 		$CONFIG['globalcache']['CACHE'] = (function_exists('apc_store') ? globalcache_CACHE_APC : globalcache_CACHE_ZEND);
 
-		
 	if(isset($CONFIG['globalcache']['key_prefix']))
 		$GLOBALS['globalcache_key_prefix'] = "K".md5($_SERVER['SERVER_NAME']."-".$CONFIG['globalcache']['key_prefix']."-".getAppVersion('nc'));
 	else
@@ -83,6 +82,10 @@ function globalcache_initialize()
 		case globalcache_CACHE_MEMCACHE:
 			$GLOBALS["memcache_object"] = new Memcache();
 		//	$GLOBALS["memcache_object"]->addServer($CONFIG['memcache']['server'], 11211);
+            if(!isset($CONFIG['globalcache']['port']))
+                $CONFIG['globalcache']['port'] = ini_get('memcache.default_port');
+            if(!isset($CONFIG['globalcache']['server']))
+                $CONFIG['globalcache']['server'] = 'localhost';
 			$try = 1;
 			$tries = 5;
 			while($try++ <= $tries)
