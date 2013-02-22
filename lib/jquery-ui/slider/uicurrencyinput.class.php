@@ -41,7 +41,8 @@ class uiCurrencyInput extends uiControl
 		$this->onmouseover = "$(this).css({border:''});";
 		$this->onmouseout = "$(this).css({border:'1px solid transparent'});";
 
-		$euro = new uiSlider("{$id}_euro");
+		$euro = new uiSlider();
+		$euro->id = "{$id}_euro";
 		$euro->range = 'min';
 		$euro->min = 0;
 		$euro->max = 100;
@@ -52,7 +53,8 @@ class uiCurrencyInput extends uiControl
 		$euro->onmouseover = "$('#{$id}_euro_value').css({color:'red'});";
 		$euro->onmouseout = "$('#{$id}_euro_value').css({color:'black'});";
 
-		$cent = new uiSlider("{$id}_cent");
+		$cent = new uiSlider();
+		$cent->id = "{$id}_cent";
 		$cent->range = 'min';
 		$cent->min = 0;
 		$cent->max = 99;

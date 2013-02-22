@@ -41,7 +41,8 @@ class uiPercentageInput extends uiControl
 		$this->onmouseover = "$(this).css({border:''});";
 		$this->onmouseout = "$(this).css({border:'1px solid transparent'});";
 
-		$integer_place = new uiSlider("{$id}_integer_place");
+		$integer_place = new uiSlider();
+		$integer_place->id = "{$id}_integer_place";
 		$integer_place->range = 'min';
 		$integer_place->min = 0;
 		$integer_place->max = 100;
@@ -52,7 +53,8 @@ class uiPercentageInput extends uiControl
 		$integer_place->onmouseover = "$('#{$id}_integer_place_value').css({color:'red'});";
 		$integer_place->onmouseout = "$('#{$id}_integer_place_value').css({color:'black'});";
 
-		$decimal_place = new uiSlider("{$id}_decimal_place");
+		$decimal_place = new uiSlider();
+		$decimal_place->id = "{$id}_decimal_place";
 		$decimal_place->range = 'min';
 		$decimal_place->min = 0;
 		$decimal_place->max = 99;

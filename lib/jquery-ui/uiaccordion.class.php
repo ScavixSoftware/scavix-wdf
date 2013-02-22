@@ -31,12 +31,6 @@
 class uiAccordion extends uiControl
 {
 	var $_sections = array();
-	var $_options = array
-	(
-		"animate" => false,
-		"collapsible" => true,
-		"heightStyleType" => 'content'
-	);
 	
 	/**
 	 * @param array $options See http://api.jqueryui.com/accordion/
@@ -44,7 +38,12 @@ class uiAccordion extends uiControl
     function __initialize($options = array())
 	{
 		parent::__initialize("div");
-		$this->_options = array_merge($this->_options,force_array($options));
+		$this->Options = array_merge(array
+			(
+				"animate" => false,
+				"collapsible" => true,
+				"heightStyleType" => 'content'
+			),force_array($options));
 	}
 
 	/**
@@ -58,7 +57,7 @@ class uiAccordion extends uiControl
 			$this->content($section_content);
 		}
 		
-		$this->script("$('#".$this->id."').accordion(".system_to_json($this->_options).")");
+		$this->script("$('#".$this->id."').accordion(".system_to_json($this->Options).")");
 		parent::PreRender($args);
 	}
 
@@ -88,16 +87,5 @@ class uiAccordion extends uiControl
 	public function AddContentToSection($section,$content)
 	{
 		$this->_sections[$section]->content($content);
-	}
-
-	/**
-	 * Adds options to the accordion.
-	 * 
-	 * @param array $options See http://api.jqueryui.com/accordion/
-	 * @return void
-	 */
-	public function AddOptions($options = array())
-	{
-		$this->_options = array_merge($this->_options,$options);
 	}
 }

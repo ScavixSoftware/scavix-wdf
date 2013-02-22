@@ -117,7 +117,8 @@ class uiControl extends Control
 		'gripsmall-diagonal-se',
 		'grip-diagonal-se'
 	);
-
+	protected $Options = array();
+	
 	/**
 	 * Ensures that an icon is valid
 	 * 
@@ -132,6 +133,22 @@ class uiControl extends Control
 		if(in_array($icon_to_test, self::$_icons) )
 			return $icon_to_test;
 		WdfException::Raise("Invalid Icon '$icon_to_test'");
+	}
+	
+	/**
+	 * Sets or gets an option
+	 * 
+	 * if you specify a $value will set it and retunr `$this`. else will return the option value
+	 * @param string $name option name
+	 * @param mixed $value option value or null
+	 * @return mixed If setting an option returns `$this`, else returns the option value
+	 */
+	function opt($name,$value=null)
+	{
+		if( $value === null )
+			return $this->Options[$name];
+		$this->Options[$name] = $value;
+		return $this;
 	}
 	
 	/**

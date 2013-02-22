@@ -23,12 +23,19 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
+/**
+ * Wraps a jQueryUI Autocomplete
+ * 
+ * See http://jqueryui.com/autocomplete/
+ */
 class uiAutocomplete extends uiControl
 {
 	protected $hidden;
 	protected $ui;
-	protected $Options;
 
+	/**
+	 * @param array $options See http://api.jqueryui.com/autocomplete/
+	 */
 	function __initialize($options=array())
 	{		
 		parent::__initialize("");
@@ -45,22 +52,25 @@ class uiAutocomplete extends uiControl
 		$this->Options = $options;
 	}
 	
+	/**
+	 * Sets an on change handler.
+	 * 
+	 * @param string $function JS Handler function
+	 * @return uiAutocomplete `$this`
+	 */
 	function setOnChange($function)
 	{
 		$this->hidden->onchange = $function;
 		return $this;
 	}
 
+	/**
+	 * @override
+	 */
 	function PreRender($args = array())
 	{
 		$this->content(array($this->hidden,$this->ui), true);
 		$this->script("$('#{$this->ui->id}').autocomplete(".system_to_json($this->Options).");");
 		parent::PreRender($args);
-	}
-	
-	function opt($name,$value)
-	{
-		$this->Options[$name] = $value;
-		return $this;
 	}
 }

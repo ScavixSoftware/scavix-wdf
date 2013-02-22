@@ -32,5 +32,5 @@
  */
 class uiTemplate extends Template
 {
-
+	protected $Options = array();
 }

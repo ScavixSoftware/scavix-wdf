@@ -37,7 +37,6 @@ default_string('TXT_PERFECT', 'Perfect');
 class uiStarSelect extends uiControl
 {
 	private $_value = 3;
-	private $_options;
 	public $_content;
 
 	var $_scale = array(
@@ -55,11 +54,11 @@ class uiStarSelect extends uiControl
 	{
 		parent::__initialize("div");
 		
-		$this->_options = $options;
-		$this->_options['inputType'] = 'select';
+		$this->Options = force_array($options);
+		$this->Options['inputType'] = 'select';
 
-		if( isset($this->_options['disabled']) )
-			$this->_options['disabled'] = true;
+		if( isset($this->Options['disabled']) )
+			$this->Options['disabled'] = true;
 
 		store_object($this);
 	}
@@ -69,20 +68,20 @@ class uiStarSelect extends uiControl
 	 */
 	public function WdfRender()
 	{
-		if( isset($this->_options['captionEl']) )
+		if( isset($this->Options['captionEl']) )
 		{
-			$title = isset($this->_options['captionTitle'])?$this->_options['captionTitle'].": ":getString("TXT_RATING").": ";
+			$title = isset($this->Options['captionTitle'])?$this->Options['captionTitle'].": ":getString("TXT_RATING").": ";
 			$labTitle = new Label($title);
 			$labTitle->class = "userrating";
 
-			$caption_element = "<span id='".$this->_options['captionEl']."'></span>";
-			$caption = ", captionEl: $('#".$this->_options['captionEl']."')}";
+			$caption_element = "<span id='".$this->Options['captionEl']."'></span>";
+			$caption = ", captionEl: $('#".$this->Options['captionEl']."')}";
 			
-			unset($this->_options['captionEl']);
-			unset($this->_options['captionTitle']);
+			unset($this->Options['captionEl']);
+			unset($this->Options['captionTitle']);
 
-			$this->_options = system_to_json($this->_options);
-			$this->_options = str_replace("}",$caption,$this->_options);
+			$this->Options = system_to_json($this->Options);
+			$this->Options = str_replace("}",$caption,$this->Options);
 
 			$this->_content[] = $labTitle;
 			$this->_content[] = $this->CreateSelect($this->id."_select");
@@ -90,11 +89,11 @@ class uiStarSelect extends uiControl
 		}
 		else
 		{
-			$this->_options = system_to_json($this->_options);
+			$this->Options = system_to_json($this->Options);
 			$this->_content[] = $this->CreateSelect($this->id."_select");
 		}
 		
-		$script = "$('#{$this->id}').stars($this->_options);";
+		$script = "$('#{$this->id}').stars($this->Options);";
 		$this->script($script);
 //		log_debug($generate_script_code?"doing: $script":"");
 
@@ -133,9 +132,9 @@ class uiStarSelect extends uiControl
 	 */
 	public function SetCaption($caption_title=null)
 	{
-		$this->_options['captionEl'] = "stars-cap".$this->id;
+		$this->Options['captionEl'] = "stars-cap".$this->id;
 
 		if( !is_null($caption_title) )
-			$this->_options['captionTitle'] = $caption_title;
+			$this->Options['captionTitle'] = $caption_title;
 	}
 }

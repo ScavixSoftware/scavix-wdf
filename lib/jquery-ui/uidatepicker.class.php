@@ -34,15 +34,6 @@ default_string('TXT_DP_CURRENT', 'Today');
  */
 class uiDatePicker extends uiControl
 {
-	// all possible settings at http://api.jqueryui.com/datepicker/
-	protected $Options = array(
-		'nextText' => 'BTN_DP_NEXT',
-		'prevText' => 'BTN_DP_PREV',
-		'buttonText' => '...',
-		'closeText' => 'TXT_DP_CLOSE',
-		'currentText' => 'TXT_DP_CURRENT',
-	);
-
 	protected $CultureInfo = false;
 	protected $init_code = "datepicker";
 
@@ -53,7 +44,13 @@ class uiDatePicker extends uiControl
 	function __initialize($value = false, $inline = false)
 	{		
 		parent::__initialize($inline?"div":"input");
-
+		$this->Options = array(
+			'nextText' => 'BTN_DP_NEXT',
+			'prevText' => 'BTN_DP_PREV',
+			'buttonText' => '...',
+			'closeText' => 'TXT_DP_CLOSE',
+			'currentText' => 'TXT_DP_CURRENT',
+		);
 		if( $value )
 		{
 			if( !$inline )

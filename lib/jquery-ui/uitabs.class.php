@@ -27,7 +27,6 @@ class uiTabs extends uiTemplate
 {
 	protected $_tabContent = array();
 	protected $_tabIds = array();
-	protected $_options = array();
 
 	private $_sortable = false;
 
@@ -41,7 +40,7 @@ class uiTabs extends uiTemplate
 		if( $width )
 			$this->set('width',$width."px");
 
-		$this->_options = $options;
+		$this->Options = $options;
 		$this->set('id',$id);
 	}
 
@@ -71,7 +70,7 @@ class uiTabs extends uiTemplate
 
 	function SelectTab($tabid)
 	{
-		$this->_options['selected'] = $tabid;
+		$this->Options['selected'] = $tabid;
 	}
 
 	function SetTabsSortable($sortable=true)
@@ -82,39 +81,39 @@ class uiTabs extends uiTemplate
 	private function PrepareOptions()
 	{
 		$options = "";
-		if( isset($this->_options['selected']) && is_int($this->_options['selected']) )
-			$options .= "selected: ".$this->_options['selected'].",";
-		else if(isset($this->_options['selected']) && array_key_exists($this->_options['selected'], $this->_tabIds) )
+		if( isset($this->Options['selected']) && is_int($this->Options['selected']) )
+			$options .= "selected: ".$this->Options['selected'].",";
+		else if(isset($this->Options['selected']) && array_key_exists($this->Options['selected'], $this->_tabIds) )
 		{
 			$array = array_flip(array_keys($this->_tabIds));
-			$options .= "selected: ".$array[$this->_options['selected']].",";
+			$options .= "selected: ".$array[$this->Options['selected']].",";
 		}		
-		if( isset($this->_options['ajaxOptions']) )
-			$options .= "ajaxOptions: {".$this->_options['ajaxOptions']."},";
-		if( isset($this->_options['cache']) )
-			$options .= "cache: '".$this->_options['cache']."',";
-		if( isset($this->_options['collapsible']) )
-			$options .= "collapsible: '".$this->_options['collapsible']."',";
-		if( isset($this->_options['cookie']) )
-			$options .= "cookie: ".$this->_options['cookie'].",";
-		if( isset($this->_options['deselectable']) )
-			$options .= "deselectable: '".$this->_options['deselectable']."',";
-		if( isset($this->_options['disabled']) )
-			$options .= "disabled: ".$this->_options['disabled'].",";
-		if( isset($this->_options['event']) )
-			$options .= "event: '".$this->_options['event']."',";
-		if( isset($this->_options['fx']) )
-			$options .= "fx: ".$this->_options['fx'].",";
-		if( isset($this->_options['idPrefix']) )
-			$options .= "idPrefix: '".$this->_options['idPrefix']."',";
-		if( isset($this->_options['panelTemplate']) )
-			$options .= "panelTemplate: '".$this->_options['panelTemplate']."',";
-		if( isset($this->_options['select']) )
-		    $options .= "select: ".$this->_options['select'].',';
-		if( isset($this->_options['spinner']) )
-			$options .= "spinner: '".$this->_options['spinner']."',";
-		if( isset($this->_options['tabTemplate']) )
-			$options .= "tabTemplate: '".$this->_options['tabTemplate']."',";
+		if( isset($this->Options['ajaxOptions']) )
+			$options .= "ajaxOptions: {".$this->Options['ajaxOptions']."},";
+		if( isset($this->Options['cache']) )
+			$options .= "cache: '".$this->Options['cache']."',";
+		if( isset($this->Options['collapsible']) )
+			$options .= "collapsible: '".$this->Options['collapsible']."',";
+		if( isset($this->Options['cookie']) )
+			$options .= "cookie: ".$this->Options['cookie'].",";
+		if( isset($this->Options['deselectable']) )
+			$options .= "deselectable: '".$this->Options['deselectable']."',";
+		if( isset($this->Options['disabled']) )
+			$options .= "disabled: ".$this->Options['disabled'].",";
+		if( isset($this->Options['event']) )
+			$options .= "event: '".$this->Options['event']."',";
+		if( isset($this->Options['fx']) )
+			$options .= "fx: ".$this->Options['fx'].",";
+		if( isset($this->Options['idPrefix']) )
+			$options .= "idPrefix: '".$this->Options['idPrefix']."',";
+		if( isset($this->Options['panelTemplate']) )
+			$options .= "panelTemplate: '".$this->Options['panelTemplate']."',";
+		if( isset($this->Options['select']) )
+		    $options .= "select: ".$this->Options['select'].',';
+		if( isset($this->Options['spinner']) )
+			$options .= "spinner: '".$this->Options['spinner']."',";
+		if( isset($this->Options['tabTemplate']) )
+			$options .= "tabTemplate: '".$this->Options['tabTemplate']."',";
 
 		return rtrim($options,',');
 	}

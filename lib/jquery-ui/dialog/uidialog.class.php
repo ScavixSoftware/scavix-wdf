@@ -26,7 +26,6 @@ default_string('TITLE_DIALOG', 'Dialog');
 
 class uiDialog extends uiControl
 {
-	protected $Options = array();
 	protected $Buttons = array();
 	protected $CloseButton = null;
 	var $CloseButtonAction = null;

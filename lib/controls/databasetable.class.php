@@ -520,6 +520,7 @@ class DatabaseTable extends Table
 	}
 	
 	/**
+	 * @internal Will be polled via AJAX to change the page if you defined a pager using <DatabaseTable::AddPager>
 	 * @attribute[RequestParam('number','int')]
 	 */
 	function GotoPage($number)

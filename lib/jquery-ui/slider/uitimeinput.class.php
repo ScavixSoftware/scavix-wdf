@@ -41,7 +41,8 @@ class uiTimeInput extends uiControl
 		$this->onmouseover = "$(this).css({border:''});";
 		$this->onmouseout = "$(this).css({border:'1px solid transparent'});";
 
-		$minutes = new uiSlider("{$id}_euro");
+		$minutes = new uiSlider();
+		$minutes->id = "{$id}_euro";
 		$minutes->range = 'min';
 		$minutes->min = 0;
 		$minutes->max = 120;
@@ -52,7 +53,8 @@ class uiTimeInput extends uiControl
 		$minutes->onmouseover = "$('#{$id}_euro_value').css({color:'red'});";
 		$minutes->onmouseout = "$('#{$id}_euro_value').css({color:'black'});";
 
-		$seconds = new uiSlider("{$id}_cent");
+		$seconds = new uiSlider();
+		$seconds->id = "{$id}_cent";
 		$seconds->range = 'min';
 		$seconds->min = 0;
 		$seconds->max = 59;
@@ -80,7 +82,6 @@ class uiTimeInput extends uiControl
 		$secval->css("float","left");
 		$secval->content($s<9?"0$s":$s);
 
-		//$value->content("<div style='float:left'>€</div>");
 		$value->content($minuteval);
 		$value->content("<div style='float:left'>:</div>");
 		$value->content($secval);
