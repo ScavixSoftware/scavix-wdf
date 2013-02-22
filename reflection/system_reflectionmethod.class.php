@@ -24,16 +24,15 @@
  */
 
 /**
- * Wraps ReflectionMethod class and overrides invokeArgs method to allow control extender pattern to work
+ * Wraps ReflectionMethod class and overrides invokeArgs method to allow control extender pattern to work.
  * 
- * As we are currently investigating the need for that pattern this may be removed in future versions.
  */
 class System_ReflectionMethod extends ReflectionMethod
 {
 	/**
 	 * Overrides default invokeArgs method
 	 * 
-	 * See http://www.php.net/manual/en/reflectionmethod.invokeargs.php
+	 * See <ReflectionMethod::invokeArgs>
 	 * Will additionally check all defined extenders and call the method there if present.
 	 * @param object $object The object to invoke the method on. In case of static methods, you can pass null to this parameter
 	 * @param array $argsarray The parameters to be passed to the function, as an array
@@ -45,7 +44,7 @@ class System_ReflectionMethod extends ReflectionMethod
 			return parent::invokeArgs($object, $argsarray);
 		}catch(Exception $e){ log_debug("Checking for extender invokation"); }
 		
-		if( !is_null($object) && ($object instanceof Control || $object instanceof Api) )
+		if( !is_null($object) && $object instanceof Control )
 		{
 			foreach( $object->_extender as &$ex )
 			{

@@ -149,7 +149,6 @@ class Control extends Renderable
 	var $_data_attributes = array();
 	
 	var $_extender = array();
-	var $_extenders_rendered = false;
 
 	var $_skipRendering = false;
 	
@@ -294,16 +293,6 @@ class Control extends Renderable
 		}
 		return false;
     }
-
-	/**
-	 * Magic method __wakeup.
-	 * 
-	 * See [Member overloading](http://ch2.php.net/manual/en/language.oop5.overloading.php#language.oop5.overloading.members)
-	 */
-	function __wakeup()
-	{
-		$this->_extenders_rendered = false;
-	}
 	
 	/**
 	 * Static creator method
@@ -413,7 +402,8 @@ class Control extends Renderable
 
 	/**
 	 * Will be executed on HOOK_PRE_RENDER.
-	 * Prepares the control and all it's extenders for output.
+	 * 
+	 * Adds this controls init code to rendering <HtmlPage> if root is of that type.
 	 * @internal
 	 */
 	function PreRender($args=array())
@@ -427,20 +417,6 @@ class Control extends Renderable
 			if( $controller instanceof HtmlPage )
 				$controller->addDocReady(implode("\n",$this->_script)."\n");
 		}
-	}
-
-	/**
-	 * Renders all the Extenders of this control.
-	 * @internal
-	 */
-	function PreRenderExtender()
-	{
-		if( $this->_extenders_rendered )
-			return;
-
-		$this->_extenders_rendered = true;
-		foreach( $this->_extender as &$ex )
-			$ex->PreRender();
 	}
 
 	function addDocReady($js_code)
@@ -471,9 +447,6 @@ class Control extends Renderable
 	 */
 	function WdfRender()
 	{
-		//log_debug("rendering ".$this->Tag);
-		$this->PreRenderExtender();
-
 		$attr = array();
 		foreach( $this->_attributes as $name=>$value )
 		{
@@ -517,27 +490,11 @@ class Control extends Renderable
 	/**
 	 * Extends this control with additional functionality.
 	 * 
-	 * Note: When $extender is a string containing the Extenders datatype, you will have
-	 * to pass additional parameters that the extender class constructor requires!
-	 * @param mixed $extender The type of or an <ControlExtender> object itself
+	 * @param object $extender Object that shall extend this
 	 * @return void
 	 */
 	function Extend($extender)
 	{
-		if( is_string($extender) )
-		{
-			if( preg_match('/.*Extender$/',$extender) == 0 )
-				$extender .= "Extender";
-
-			if( array_key_exists($extender,$this->_extender) )
-				return;
-
-			$args = func_get_args();
-			$args[0] = $this;
-			$ref = System_Reflector::GetInstance($extender);
-			$extender = $ref->CreateObject($args);
-		}
-
 		$key = get_class($extender);
 		if( array_key_exists($key,$this->_extender) )
 			return;

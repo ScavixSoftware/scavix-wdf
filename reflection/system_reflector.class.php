@@ -313,8 +313,7 @@ class System_Reflector extends ReflectionClass
 		}
 		if( !$this->hasMethod($method_name) )
 		{
-			if( $this->Instance && 
-				($this->Instance instanceof Control || $this->Instance instanceof Api) )
+			if( $this->Instance && $this->Instance instanceof Control )
 			{
 				foreach( $this->Instance->_extender as &$ex )
 				{
@@ -386,12 +385,10 @@ class System_Reflector extends ReflectionClass
 	}
 	
 	/**
-	 * Overrides Reflection::getMethod to enable <System_ReflectionMethod> handling.
+	 * Overrides <ReflectionClass::getMethod> to enable <System_ReflectionMethod> handling.
 	 * 
-	 * As <System_ReflectionMethod> is only used to enable Extender pattern and we are thinking about removing that: 
-	 * This may also be removed in future versions!
 	 * @param string $name Name of the method to get
-	 * @return System_ReflectionMethod|boolean A System_ReflectionMethod instance or false on error
+	 * @return System_ReflectionMethod A System_ReflectionMethod instance or false on error
 	 */
 	public function getMethod($name)
 	{
@@ -401,7 +398,7 @@ class System_Reflector extends ReflectionClass
 			return $res;
 		}catch(Exception $e){ log_debug("Checking for extender method"); }
 		
-		if( $this->Instance && ($this->Instance instanceof Control || $this->Instance instanceof Api) )
+		if( $this->Instance && $this->Instance instanceof Control )
 		{
 			foreach( $this->Instance->_extender as &$ex )
 			{

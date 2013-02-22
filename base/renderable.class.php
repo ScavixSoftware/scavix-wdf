@@ -114,7 +114,7 @@ abstract class Renderable
 						$parents[] = resFile("$classname.js");
 					$classname = strtolower(get_parent_class($classname));
 				}
-				while($classname != "");// && $classname != "template" && $classname != "control" && $classname != "controlextender"); // todo: check if this abort condition is correct
+				while($classname != "");
 				$res = array_merge($res,array_reverse($parents));
 			}
 		}

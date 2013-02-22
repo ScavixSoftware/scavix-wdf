@@ -75,7 +75,6 @@ function system_config_default($reset = true)
 	$CONFIG['class_path']['content'][] = __DIR__.'/lib/';
 	$CONFIG['class_path']['content'][] = __DIR__.'/lib/controls/';
 	$CONFIG['class_path']['content'][] = __DIR__.'/lib/controls/';
-	$CONFIG['class_path']['content'][] = __DIR__.'/lib/controls/extender/';
 	$CONFIG['class_path']['content'][] = __DIR__.'/lib/controls/form/';
 	$CONFIG['class_path']['content'][] = __DIR__.'/lib/controls/table/';
 	$CONFIG['class_path']['content'][] = __DIR__.'/lib/controls/locale/';

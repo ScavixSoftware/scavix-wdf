@@ -50,6 +50,10 @@ class DatabaseTable extends Table
 	var $OnAddHeader = false;
 	var $OnAddRow = false;
 	var $ExecuteSqlHandler = false;
+
+	var $ItemsPerPage = false;
+	var $CurrentPage = false;
+	var $MaxPagesToShow = false;
 	
 	public $noDataAsRow = false;
 	public $contentNoData = "TXT_NO_DATA_FOUND";
@@ -376,7 +380,7 @@ class DatabaseTable extends Table
 	private function _export_get_data(CultureInfo $ci=null)
 	{
 		$copy = clone $this;
-		$copy->_extender = array();
+		$copy->ItemsPerPage = false; 
 		if( $ci )
 			$copy->Culture = $ci;
 		log_debug("EXPORT querying ",$copy->Sql);
@@ -498,9 +502,6 @@ class DatabaseTable extends Table
 		die($csv);
 	}
 	
-	var $ItemsPerPage = false;
-	var $CurrentPage = false;
-	var $MaxPagesToShow = false;
 	/**
 	 * Adds a Pager to the table
 	 * 
@@ -510,7 +511,7 @@ class DatabaseTable extends Table
 	 * @param int $max_pages_to_show Maximum links to pages to be shown
 	 * @return DatabaseTable `$this`
 	 */
-	function AddStandardPager($items_per_page = 15, $current_page=1, $max_pages_to_show=10)
+	function AddPager($items_per_page = 15, $current_page=1, $max_pages_to_show=10)
 	{
 		$this->ItemsPerPage = $items_per_page;
 		$this->CurrentPage = $current_page;
