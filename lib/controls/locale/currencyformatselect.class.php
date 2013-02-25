@@ -43,7 +43,7 @@ class CurrencyFormatSelect extends Select
 		
 		if( $selected_format )
 			$this->SetCurrentValue( $selected_format );
-		$samples = Localization::get_currency_samples($currency_code,1234.56,true);
+		$samples = $this->getCurrencySamples($currency_code,1234.56,true);
 		foreach($samples as $code => $label)
 			$this->AddOption($code, $label);
 	}
@@ -58,11 +58,29 @@ class CurrencyFormatSelect extends Select
 	 */
 	public function ListOptions($currency)
 	{
-		$samples = Localization::get_currency_samples($currency,1234.56,true);
+		$samples = $this->getCurrencySamples($currency,1234.56,true);
 		$res = array();
 		foreach($samples as $code=>$item)
 			$res[] = "<option value='$code'>$item</option>";
 		return AjaxResponse::Text(implode("\n",$res));
+	}
+	
+	private function getCurrencySamples($currency_code, $sample_value, $unique_values = false)
+	{
+		$cultures = internal_getCulturesByCurrency($currency_code);
+
+		$res = array();
+		foreach( $cultures as $culture_code )
+		{
+			$ci = self::getCultureInfo($culture_code);
+			if( !$ci )
+				continue;
+
+			$res[$culture_code] = $ci->FormatCurrency($sample_value);
+		}
+		if( $unique_values )
+			return array_unique($res);
+		return $res;
 	}
 }
 

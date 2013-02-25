@@ -67,12 +67,22 @@ function localized_to_float_number($value)
 
 $GLOBALS['arBufferedCultures'] = array();
 
+/**
+ * Helper class to wrap some tool functions.
+ * 
+ */
 class Localization
 {
 	const USE_DEFAULT = 0x00;
 	const USE_IP = 0x01;
 	const USE_BROWSER = 0x02;
 
+	/**
+	 * Gets a <CultureInfo> object representing a language.
+	 * 
+	 * @param string $language_code Lanugage code (DE, EN, ...)
+	 * @return CultureInfo The object or false on error
+	 */
 	public static function getLanguageCulture($language_code)
 	{
 		$ci = internal_getLanguage($language_code);
@@ -85,6 +95,11 @@ class Localization
 		return $ci?$ci:false;
 	}
 
+	/**
+	 * Tries to match the remote IP to a culture.
+	 * 
+	 * @return CultureInfo The detected culture or false
+	 */
 	public static function getIPCulture()
 	{
 		if( function_exists('get_countrycode_by_ip') )
@@ -106,6 +121,11 @@ class Localization
 		return false;
 	}
 
+	/**
+	 * Detects the browsers culture settings.
+	 * 
+	 * @return CultureInfo The detected culture
+	 */
 	public static function getBrowserCulture()
 	{
 		if( Args::sanitized('culture', false, 'CG') )
@@ -175,6 +195,12 @@ class Localization
 		return false;
 	}
 
+	/**
+	 * Tries to detect the culture for the remote user.
+	 * 
+	 * @param array $detectionOrder Array specifying the detection order like this: array(Localization::USE_BROWSER,Localization::USE_IP)
+	 * @return CultureInfo The detected culture or $CONFIG['localization']['default_culture']
+	 */
 	public static function detectCulture($detectionOrder = false)
 	{
 		global $CONFIG;
@@ -207,6 +233,15 @@ class Localization
 		return $ci;
 	}
 
+	/**
+	 * Ensures a culture to a given code.
+	 * 
+	 * Calls <Localization::getCultureInfo> and if that fails <Localization::detectCulture> to ensure
+	 * there's a return value.
+	 * @param string $code Culture code
+	 * @param array $detectionOrder See <Localization::detectCulture>
+	 * @return CultureInfo The best match culture for $code
+	 */
 	public static function ensureCulture($code,$detectionOrder = false)
 	{
 		$ci = self::getCultureInfo($code);
@@ -216,9 +251,10 @@ class Localization
 	}
 
 	/**
-	 * Retuns a CultureInfo object
+	 * Retuns a CultureInfo object.
+	 * 
 	 * @param string $code Country code, Language code or culture code
-	 * @return CultureInfo CultureInfo object representing the culture
+	 * @return CultureInfo CultureInfo object representing the culture or false on error
 	 */
 	public static function getCultureInfo($code)
 	{
@@ -241,7 +277,10 @@ class Localization
 	}
 
 	/**
-	 * Returns the timezone by IP or the $CONFIG['localization']['default_timezone'] setting
+	 * Returns the timezone by IP.
+	 * 
+	 * Will fall back to the $CONFIG['localization']['default_timezone'] setting
+	 * @param string $ip IP to get the timezone for
 	 * @return string Timezone ID
 	 */
 	public static function getTimeZone($ip = false)
@@ -259,6 +298,7 @@ class Localization
 	/**
 	 * Returns a list of all defined Timezones.
 	 * 
+	 * Wraps <DateTimeZone::listIdentifiers>
 	 * @return array All Timezone IDs
 	 */
 	public static function getAllTimeZones()
@@ -267,12 +307,14 @@ class Localization
 	}
 
 	/**
-	 * @internal Returns the default Culture code by looking into stored user-object, COOKIES, REQUEST, SERVER and user_ip.
+	 * Returns the default Culture 
+	 * 
+	 * That is set in `$CONFIG['localization']['default_culture']`
+	 * @return string Default culture code
 	 */
-	public static function localization_default_culture($prefergeoip = true)
+	public static function localization_default_culture()
 	{
-		global $CONFIG;
-		return $CONFIG['localization']['default_culture'];
+		return $GLOBALS['CONFIG']['localization']['default_culture'];
 	}
 
 	/**
@@ -304,41 +346,12 @@ class Localization
 		return $ci->CurrencyFormat->Symbol;
 	}
 
-	public static function format_number($number, $cultureCode = false, $decimals = false)
-	{
-		if( $cultureCode !== false && !is_string($cultureCode) )
-			WdfException::Raise("Who calls this function with a wrong param? Provide string please!");
-		$ci = self::getCultureInfo($cultureCode);
-		return $ci->FormatNumber($number, $decimals);
-	}
-
-	public static function format_currency($amount, $cultureCode = false, $use_code=false)
-	{
-        global $CONFIG;
-		if( $cultureCode !== false && !is_string($cultureCode) )
-			WdfException::Raise("Who calls this function with a wrong param? Provide string please!");
-		$ci = self::getCultureInfo($cultureCode);
-        if($ci == false)
-            $ci = self::getCultureInfo($CONFIG['localization']['default_culture']);
-		return $ci->FormatCurrency($amount,$use_code);
-	}
-
-	public static function format_date($date, $cultureCode = false)
-	{
-		if( $cultureCode !== false && !is_string($cultureCode) )
-			WdfException::Raise("Who calls this function with a wrong param? Provide string please!");
-		$ci = self::getCultureInfo($cultureCode);
-		return $ci->FormatDate($date);
-	}
-
-	public static function format_date_time($date, $cultureCode = false)
-	{
-		if( $cultureCode !== false && !is_string($cultureCode) )
-			WdfException::Raise("Who calls this function with a wrong param? Provide string please!");
-		$ci = self::getCultureInfo($cultureCode);
-		return $ci->FormatDate($date)." ".$ci->FormatDate($date, DateTimeFormat::DF_SHORTTIME);
-	}
-
+	/**
+	 * Returns a list of all languages.
+	 * 
+	 * Note that this method returns the english names of the languages (German, French, ...).
+	 * @return array Associative array of lang_code=>lang_name pairs
+	 */
 	public static function get_language_names()
 	{
 		$res = array();
@@ -352,6 +365,12 @@ class Localization
 		return $res;
 	}
 	
+	/**
+	 * Gets the default culture for a country.
+	 * 
+	 * @param string $country_code Country code
+	 * @return CultureInfo The default culture or false on error
+	 */
 	public static function get_country_culture($country_code)
 	{
 		$region = internal_getRegion($country_code);
@@ -360,6 +379,12 @@ class Localization
 		return $region->DefaultCulture();
 	}
 
+	/**
+	 * Gets a list of country names.
+	 * 
+	 * @param mixed $culture_filter <CultureInfo> or code specifying a culture that must be present in a country
+	 * @return array Associative array of countrycode=>countryname pairs
+	 */
 	public static function get_country_names($culture_filter=false)
 	{
 		$regions = internal_getAllRegionCodes();
@@ -380,64 +405,34 @@ class Localization
 		return $res;
 	}
 
+	/**
+	 * Returns a list of all supported currency codes.
+	 * 
+	 * @return array List of currency codes
+	 */
 	public static function get_currency_codes()
 	{
 		return internal_getAllCurrencyCodes();
 	}
 
-	public static function get_currency_names()
-	{
-		return internal_getAllCurrencyCodes();
-	}
-
-	public static function get_currency_samples($currency_code, $sample_value, $unique_values = false)
-	{
-		$cultures = internal_getCulturesByCurrency($currency_code);
-
-		$res = array();
-		foreach( $cultures as $culture_code )
-		{
-			$ci = self::getCultureInfo($culture_code);
-			if( !$ci )
-				continue;
-
-			$res[$culture_code] = $ci->FormatCurrency($sample_value);
-		}
-		if( $unique_values )
-			return array_unique($res);
-		return $res;
-	}
-
+	/**
+	 * Gets a <CultureInfo> from a currency code.
+	 * 
+	 * @param string $currency_code Valid currency code(see <get_currency_codes>)
+	 * @return CultureInfo The detected culture or false on error
+	 */
 	public static function get_currency_culture($currency_code)
 	{
 		$cultures = internal_getCulturesByCurrency($currency_code);
 		return self::getCultureInfo($cultures[0]);
 	}
 
-	public static function get_datetime_samples($culture_code,$sample_value,$timezone=false)
-	{
-		$res = array();
-		$ci = self::getCultureInfo($culture_code);
-		if( $timezone )
-		{
-			$ci->TimeZone = $timezone;
-			$sample_value = $ci->GetTimezoneDate($sample_value);
-		}
-//		log_debug($ci);
-		$res[DateTimeFormat::DF_FULL] = $ci->FormatDate($sample_value,DateTimeFormat::DF_SHORTDATE)." ".$ci->FormatDate($sample_value,DateTimeFormat::DF_SHORTTIME);
-	//	$res[DateTimeFormat::DF_FULL.'|'.DateTimeFormat::DF_LONGTIME]  = $ci->FormatDate($sample_value,DateTimeFormat::DF_FULL)." ".$ci->FormatDate($sample_value,DateTimeFormat::DF_LONGTIME);
-		$res[DateTimeFormat::DF_YEARMONTH] = $ci->FormatDate($sample_value,DateTimeFormat::DF_YEARMONTH)." ".$ci->FormatDate($sample_value,DateTimeFormat::DF_SHORTTIME);
-	//	$res[DateTimeFormat::DF_YEARMONTH.'|'.DateTimeFormat::DF_LONGTIME]  = $ci->FormatDate($sample_value,DateTimeFormat::DF_YEARMONTH)." ".$ci->FormatDate($sample_value,DateTimeFormat::DF_LONGTIME);
-		$res[DateTimeFormat::DF_MONTHDAY] = $ci->FormatDate($sample_value,DateTimeFormat::DF_MONTHDAY)." ".$ci->FormatDate($sample_value,DateTimeFormat::DF_SHORTTIME);
-	//	$res[DateTimeFormat::DF_MONTHDAY.'|'.DateTimeFormat::DF_LONGTIME]  = $ci->FormatDate($sample_value,DateTimeFormat::DF_MONTHDAY)." ".$ci->FormatDate($sample_value,DateTimeFormat::DF_LONGTIME);
-		$res[DateTimeFormat::DF_LONGDATE] = $ci->FormatDate($sample_value,DateTimeFormat::DF_LONGDATE)." ".$ci->FormatDate($sample_value,DateTimeFormat::DF_SHORTTIME);
-	//	$res[DateTimeFormat::DF_LONGDATE.'|'.DateTimeFormat::DF_LONGTIME]  = $ci->FormatDate($sample_value,DateTimeFormat::DF_LONGDATE)." ".$ci->FormatDate($sample_value,DateTimeFormat::DF_LONGTIME);
-	//	$res[DateTimeFormat::DF_SHORTDATE.'|'.DateTimeFormat::DF_SHORTTIME] = $ci->FormatDate($sample_value,DateTimeFormat::DF_SHORTDATE)." ".$ci->FormatDate($sample_value,DateTimeFormat::DF_SHORTTIME);
-	//	$res[DateTimeFormat::DF_SHORTDATE.'|'.DateTimeFormat::DF_LONGTIME]  = $ci->FormatDate($sample_value,DateTimeFormat::DF_SHORTDATE)." ".$ci->FormatDate($sample_value,DateTimeFormat::DF_LONGTIME);
-
-		return $res;
-	}
-
+	/**
+	 * Returns all defined regions.
+	 * 
+	 * @param bool $only_codes If true only the codes are returned
+	 * @return array Array of depending on $only_codes only that or complete <RegionInfo> objects
+	 */
 	public static function get_all_regions($only_codes=false)
 	{
 		if( $only_codes )
@@ -450,8 +445,10 @@ class Localization
 	}
 
 	/**
-	 * Returns an array of states for a country (USA only ATM)
+	 * Returns an array of states for a country (USA only ATM).
+	 * 
 	 * @param type $country_code The country code to list states of
+	 * @return array Associative array of code=>name pairs
 	 */
 	public static function get_country_states($country_code)
 	{
@@ -520,252 +517,62 @@ class Localization
 	}
 	
 	/**
-	 * Returns the A2 ISO3166 country code from a given A3 ISO3166 country code
+	 * Returns the A2 ISO3166 country code from a given A3 ISO3166 country code.
+	 * 
 	 * @param type $country_code The country code as A3
+	 * @return string The A2 ISO3166 or false on error
 	 */
 	public static function get_countrycodeA2ISOfromA3($country_code)
 	{
 		$ret = array(
-			"ALA" => "AX",
-			"AFG" => "AF",
-			"ALB" => "AL",
-			"DZA" => "DZ",
-			"ASM" => "AS",
-			"AND" => "AD",
-			"AGO" => "AO",
-			"AIA" => "AI",
-			"ATA" => "AQ",
-			"ATG" => "AG",
-			"ARG" => "AR",
-			"ARM" => "AM",  
-			"ABW" => "AW",
-			"AUS" => "AU",
-			"AUT" => "AT",
-			"AZE" => "AZ",  
-			"BHS" => "BS",
-			"BHR" => "BH",
-			"BGD" => "BD",
-			"BRB" => "BB",
-			"BLR" => "BY",  
-			"BEL" => "BE",
-			"BLZ" => "BZ",
-			"BEN" => "BJ",
-			"BMU" => "BM",
-			"BTN" => "BT",
-			"BOL" => "BO",
-			"BIH" => "BA",
-			"BWA" => "BW",
-			"BVT" => "BV",
-			"BRA" => "BR",
-			"IOT" => "IO",
-			"BRN" => "BN",
-			"BGR" => "BG",
-			"BFA" => "BF",
-			"BDI" => "BI",
-			"KHM" => "KH",
-			"CMR" => "CM",
-			"CAN" => "CA",
-			"CPV" => "CV",
-			"CYM" => "KY",
-			"CAF" => "CF",
-			"TCD" => "TD",
-			"CHL" => "CL",
-			"CHN" => "CN",
-			"CXR" => "CX",
-			"CCK" => "CC",
-			"COL" => "CO",
-			"COM" => "KM",
-			"COD" => "CD",
-			"COG" => "CG",
-			"COK" => "CK",
-			"CRI" => "CR",
-			"CIV" => "CI",
-			"HRV" => "HR",      
-			"CUB" => "CU",
-			"CYP" => "CY",
-			"CZE" => "CZ",  
-			"DNK" => "DK",
-			"DJI" => "DJ",
-			"DMA" => "DM",
-			"DOM" => "DO",
-			"ECU" => "EC",
-			"EGY" => "EG",
-			"SLV" => "SV",
-			"GNQ" => "GQ",
-			"ERI" => "ER",
-			"EST" => "EE",  
-			"ETH" => "ET",
-			"FLK" => "FK",
-			"FRO" => "FO",
-			"FJI" => "FJ",
-			"FIN" => "FI",
-			"FRA" => "FR",
-			"GUF" => "GF",
-			"PYF" => "PF",
-			"ATF" => "TF",
-			"GAB" => "GA",
-			"GMB" => "GM",
-			"GEO" => "GE",  
-			"DEU" => "DE",
-			"GHA" => "GH",
-			"GIB" => "GI",
-			"GRC" => "GR",
-			"GRL" => "GL",
-			"GRD" => "GD",
-			"GLP" => "GP",
-			"GUM" => "GU",
-			"GTM" => "GT",
-			"GIN" => "GN",
-			"GNB" => "GW",
-			"GUY" => "GY",
-			"HTI" => "HT",
-			"HMD" => "HM",
-			"HND" => "HN",
-			"HKG" => "HK",
-			"HUN" => "HU",
-			"ISL" => "IS",
-			"IND" => "IN",
-			"IDN" => "ID",
-			"IRN" => "IR",
-			"IRQ" => "IQ",
-			"IRL" => "IE",
-			"ISR" => "IL",
-			"ITA" => "IT",
-			"JAM" => "JM",
-			"JPN" => "JP",
-			"JOR" => "JO",
-			"KAZ" => "KZ",  
-			"KEN" => "KE",
-			"KIR" => "KI",
-			"PRK" => "KP",
-			"KOR" => "KR",
-			"KWT" => "KW",
-			"KGZ" => "KG",  
-			"LAO" => "LA",
-			"LVA" => "LV",  
-			"LBN" => "LB",
-			"LSO" => "LS",
-			"LBR" => "LR",
-			"LBY" => "LY",
-			"LIE" => "LI",
-			"LTU" => "LT",  
-			"LUX" => "LU",
-			"MAC" => "MO",
-			"MKD" => "MK", 
-			"MDG" => "MG",
-			"MWI" => "MW",
-			"MYS" => "MY",
-			"MDV" => "MV",
-			"MLI" => "ML",
-			"MLT" => "MT",
-			"MHL" => "MH",
-			"MTQ" => "MQ",
-			"MRT" => "MR",
-			"MUS" => "MU",
-			"MYT" => "YT",  
-			"MEX" => "MX",
-			"FSM" => "FM",
-			"MDA" => "MD",  
-			"MCO" => "MC",
-			"MNG" => "MN",
-			"MSR" => "MS",
-			"MAR" => "MA",
-			"MOZ" => "MZ",
-			"MMR" => "MM",
-			"NAM" => "NA",
-			"NRU" => "NR",
-			"NPL" => "NP",
-			"NLD" => "NL",
-			"ANT" => "AN",
-			"NCL" => "NC",
-			"NZL" => "NZ",
-			"NIC" => "NI",
-			"NER" => "NE",
-			"NGA" => "NG",
-			"NIU" => "NU",
-			"NFK" => "NF",
-			"MNP" => "MP",
-			"NOR" => "NO",
-			"OMN" => "OM",
-			"PAK" => "PK",
-			"PLW" => "PW",
-			"PSE" => "PS",
-			"PAN" => "PA",
-			"PNG" => "PG",
-			"PRY" => "PY",
-			"PER" => "PE",
-			"PHL" => "PH",
-			"PCN" => "PN",
-			"POL" => "PL",
-			"PRT" => "PT",
-			"PRI" => "PR",
-			"QAT" => "QA",
-			"REU" => "RE",
-			"ROU" => "RO",
-			"RUS" => "RU",
-			"RWA" => "RW",
-			"SHN" => "SH",
-			"KNA" => "KN",
-			"LCA" => "LC",
-			"SPM" => "PM",
-			"VCT" => "VC",
-			"WSM" => "WS",
-			"SMR" => "SM",
-			"STP" => "ST",
-			"SAU" => "SA",
-			"SEN" => "SN",
-			"SCG" => "CS",
-			"SYC" => "SC",
-			"SLE" => "SL",
-			"SGP" => "SG",
-			"SVK" => "SK",  
-			"SVN" => "SI",  
-			"SLB" => "SB",
-			"SOM" => "SO",
-			"ZAF" => "ZA",
-			"SGS" => "GS",
-			"ESP" => "ES",
-			"LKA" => "LK",
-			"SDN" => "SD",
-			"SUR" => "SR",
-			"SJM" => "SJ",
-			"SWZ" => "SZ",
-			"SWE" => "SE",
-			"CHE" => "CH",
-			"SYR" => "SY",
-			"TWN" => "TW",
-			"TJK" => "TJ",  
-			"TZA" => "TZ",
-			"THA" => "TH",
-			"TLS" => "TL",
-			"TGO" => "TG",
-			"TKL" => "TK",
-			"TON" => "TO",
-			"TTO" => "TT",
-			"TUN" => "TN",
-			"TUR" => "TR",
-			"TKM" => "TM",  
-			"TCA" => "TC",
-			"TUV" => "TV",
-			"UGA" => "UG",
-			"UKR" => "UA",
-			"ARE" => "AE",
-			"GBR" => "GB",
-			"USA" => "US",
-			"UMI" => "UM",
-			"URY" => "UY",
-			"UZB" => "UZ",  
-			"VUT" => "VU",
-			"VAT" => "VA",
-			"VEN" => "VE",
-			"VNM" => "VN",
-			"VGB" => "VG",
-			"VIR" => "VI",
-			"WLF" => "WF",
-			"ESH" => "EH",
-			"YEM" => "YE",
-			"ZMB" => "ZM",
-			"ZWE" => "ZW"
+			"ALA" => "AX", "AFG" => "AF", "ALB" => "AL", "DZA" => "DZ", "ASM" => "AS",
+			"AND" => "AD", "AGO" => "AO", "AIA" => "AI", "ATA" => "AQ", "ATG" => "AG",
+			"ARG" => "AR", "ARM" => "AM", "ABW" => "AW", "AUS" => "AU", "AUT" => "AT",
+			"AZE" => "AZ", "BHS" => "BS", "BHR" => "BH", "BGD" => "BD", "BRB" => "BB",
+			"BLR" => "BY", "BEL" => "BE", "BLZ" => "BZ", "BEN" => "BJ", "BMU" => "BM",
+			"BTN" => "BT", "BOL" => "BO", "BIH" => "BA", "BWA" => "BW", "BVT" => "BV",
+			"BRA" => "BR", "IOT" => "IO", "BRN" => "BN", "BGR" => "BG", "BFA" => "BF",
+			"BDI" => "BI", "KHM" => "KH", "CMR" => "CM", "CAN" => "CA", "CPV" => "CV",
+			"CYM" => "KY", "CAF" => "CF", "TCD" => "TD", "CHL" => "CL", "CHN" => "CN",
+			"CXR" => "CX", "CCK" => "CC", "COL" => "CO", "COM" => "KM", "COD" => "CD",
+			"COG" => "CG", "COK" => "CK", "CRI" => "CR", "CIV" => "CI", "HRV" => "HR",      
+			"CUB" => "CU", "CYP" => "CY", "CZE" => "CZ", "DNK" => "DK", "DJI" => "DJ",
+			"DMA" => "DM", "DOM" => "DO", "ECU" => "EC", "EGY" => "EG", "SLV" => "SV",
+			"GNQ" => "GQ", "ERI" => "ER", "EST" => "EE", "ETH" => "ET", "FLK" => "FK",
+			"FRO" => "FO", "FJI" => "FJ", "FIN" => "FI", "FRA" => "FR", "GUF" => "GF",
+			"PYF" => "PF", "ATF" => "TF", "GAB" => "GA", "GMB" => "GM", "GEO" => "GE",  
+			"DEU" => "DE", "GHA" => "GH", "GIB" => "GI", "GRC" => "GR", "GRL" => "GL",
+			"GRD" => "GD", "GLP" => "GP", "GUM" => "GU", "GTM" => "GT", "GIN" => "GN",
+			"GNB" => "GW", "GUY" => "GY", "HTI" => "HT", "HMD" => "HM", "HND" => "HN",
+			"HKG" => "HK", "HUN" => "HU", "ISL" => "IS", "IND" => "IN", "IDN" => "ID",
+			"IRN" => "IR", "IRQ" => "IQ", "IRL" => "IE", "ISR" => "IL", "ITA" => "IT",
+			"JAM" => "JM", "JPN" => "JP", "JOR" => "JO", "KAZ" => "KZ", "KEN" => "KE",
+			"KIR" => "KI", "PRK" => "KP", "KOR" => "KR", "KWT" => "KW", "KGZ" => "KG",  
+			"LAO" => "LA", "LVA" => "LV", "LBN" => "LB", "LSO" => "LS", "LBR" => "LR",
+			"LBY" => "LY", "LIE" => "LI", "LTU" => "LT", "LUX" => "LU", "MAC" => "MO",
+			"MKD" => "MK", "MDG" => "MG", "MWI" => "MW", "MYS" => "MY", "MDV" => "MV",
+			"MLI" => "ML", "MLT" => "MT", "MHL" => "MH", "MTQ" => "MQ", "MRT" => "MR",
+			"MUS" => "MU", "MYT" => "YT", "MEX" => "MX", "FSM" => "FM", "MDA" => "MD",  
+			"MCO" => "MC", "MNG" => "MN", "MSR" => "MS", "MAR" => "MA", "MOZ" => "MZ",
+			"MMR" => "MM", "NAM" => "NA", "NRU" => "NR", "NPL" => "NP", "NLD" => "NL",
+			"ANT" => "AN", "NCL" => "NC", "NZL" => "NZ", "NIC" => "NI", "NER" => "NE",
+			"NGA" => "NG", "NIU" => "NU", "NFK" => "NF", "MNP" => "MP", "NOR" => "NO",
+			"OMN" => "OM", "PAK" => "PK", "PLW" => "PW", "PSE" => "PS", "PAN" => "PA",
+			"PNG" => "PG", "PRY" => "PY", "PER" => "PE", "PHL" => "PH", "PCN" => "PN",
+			"POL" => "PL", "PRT" => "PT", "PRI" => "PR", "QAT" => "QA", "REU" => "RE",
+			"ROU" => "RO", "RUS" => "RU", "RWA" => "RW", "SHN" => "SH", "KNA" => "KN",
+			"LCA" => "LC", "SPM" => "PM", "VCT" => "VC", "WSM" => "WS", "SMR" => "SM",
+			"STP" => "ST", "SAU" => "SA", "SEN" => "SN", "SCG" => "CS", "SYC" => "SC",
+			"SLE" => "SL", "SGP" => "SG", "SVK" => "SK", "SVN" => "SI", "SLB" => "SB",
+			"SOM" => "SO", "ZAF" => "ZA", "SGS" => "GS", "ESP" => "ES", "LKA" => "LK",
+			"SDN" => "SD", "SUR" => "SR", "SJM" => "SJ", "SWZ" => "SZ", "SWE" => "SE",
+			"CHE" => "CH", "SYR" => "SY", "TWN" => "TW", "TJK" => "TJ", "TZA" => "TZ",
+			"THA" => "TH", "TLS" => "TL", "TGO" => "TG", "TKL" => "TK", "TON" => "TO",
+			"TTO" => "TT", "TUN" => "TN", "TUR" => "TR", "TKM" => "TM", "TCA" => "TC",
+			"TUV" => "TV", "UGA" => "UG", "UKR" => "UA", "ARE" => "AE", "GBR" => "GB",
+			"USA" => "US", "UMI" => "UM", "URY" => "UY", "UZB" => "UZ", "VUT" => "VU",
+			"VAT" => "VA", "VEN" => "VE", "VNM" => "VN", "VGB" => "VG", "VIR" => "VI",
+			"WLF" => "WF", "ESH" => "EH", "YEM" => "YE", "ZMB" => "ZM", "ZWE" => "ZW"
 		);
 		
 		if(isset($ret[$country_code]))
