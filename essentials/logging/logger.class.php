@@ -89,6 +89,12 @@ class Logger
 		$this->rotate();
 	}
 	
+	/**
+	 * Instanciates and return a <Logger> from a given config.
+	 * 
+	 * @param array $config Logger configuration data
+	 * @return mixed The logger, may be of type <Logger> or whatever is specified in `$config['class']`
+	 */
 	public static function Get($config)
 	{
 		if( count(self::$FilenamePatterns) == 0 )
@@ -221,6 +227,14 @@ class Logger
 		return $entry;
     }
     
+	/**
+	 * Writes a log entry.
+	 * 
+	 * @param string $severity Severity
+	 * @param bool $log_trace If true appends a trace (see <debug_backtrace>).
+	 * @param_array mixed $a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10 Data to be logged
+	 * @return void
+	 */
     public function write($severity=false,$log_trace=false,$a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)
 	{
 		$content = $this->prepare($severity,$log_trace,$a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10);
@@ -236,18 +250,37 @@ class Logger
 //			log_error();		// mhmm, will end in endless recursive loop
 	}
 	
+	/**
+	 * Extends the log filename.
+	 * 
+	 * @param string $key Key to use
+	 * @param string $value Value to use
+	 * @return void
+	 */
 	function extend($key,$value)
 	{
 		$this->$key = $value;
 		unset($this->filename);
 	}
 
+	/**
+	 * Adds a category
+	 * 
+	 * @param string $name Category to add
+	 * @return void
+	 */
     function addCategory($name)
 	{
 		if( !in_array($name, $this->categories) )
 			$this->categories[] = $name;
 	}
 
+	/**
+	 * Removes a category
+	 * 
+	 * @param string $name Category to remove
+	 * @return void
+	 */
     function removeCategory($name)
 	{
 		foreach( $this->categories as $i=>$cat )
@@ -258,19 +291,51 @@ class Logger
             }
 	}
 
+	/**
+	 * @shortcut Logs to severity TRACE
+	 */
 	function trace($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null) 
 	{ $this->write("TRACE",true,$a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10); }
+	
+	/**
+	 * @shortcut Logs to severity DEBUG
+	 */
 	function debug($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null) 
 	{ $this->write("DEBUG",false,$a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10); }
+	
+	/**
+	 * @shortcut Logs to severity INFO
+	 */
 	function info($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null) 
 	{ $this->write( "INFO",false,$a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10); }
+	
+	/**
+	 * @shortcut Logs to severity WARN
+	 */
 	function warn($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null) 
 	{ $this->write( "WARN",false,$a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10); }
+	
+	/**
+	 * @shortcut Logs to severity ERROR
+	 */
 	function error($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null) 
 	{ $this->write("ERROR",true,$a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10); }
+	
+	/**
+	 * @shortcut Logs to severity FATAL
+	 */
 	function fatal($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null) 
 	{ $this->write("FATAL",true,$a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10); }
 	
+	/**
+	 * Writes a <LogReport> to the log.
+	 * 
+	 * See <LogReport> class and <log_start_report>/<log_report> for details.
+	 * @param LogReport $report The report
+	 * @param string $severity Severity to use
+	 * @param bool $log_trace Append a trace (see <debug_backtrace>)
+	 * @return void
+	 */
 	function report(LogReport $report, $severity="TRACE", $log_trace=true)
 	{
 		$content = $report->render();

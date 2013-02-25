@@ -23,6 +23,10 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * SqLite database driver.
+
+ */
 class SqLite implements IDatabaseDriver
 {
 	private $_ds;
@@ -48,12 +52,18 @@ class SqLite implements IDatabaseDriver
 		WdfDbException::Raise("Unknown columne type {$colAttr->Type}");
 	}
 
+	/**
+	 * @implements <IDatabaseDriver::initDriver>
+	 */
 	function initDriver($datasource,$pdo)
 	{
 		$this->_ds = $datasource;
 		$this->_pdo = $pdo;
 	}
 
+	/**
+	 * @implements <IDatabaseDriver::listTables>
+	 */
 	function listTables()
 	{
 		$sql = 'SELECT tbl_name FROM sqlite_master WHERE type="table" ORDER BY tbl_name';
@@ -63,6 +73,9 @@ class SqLite implements IDatabaseDriver
 		return $tables;
 	}
 
+	/**
+	 * @implements <IDatabaseDriver::getTableSchema>
+	 */
     function &getTableSchema($tablename)
 	{
 		if( strtolower($tablename) == 'sqlite_master' )
@@ -112,6 +125,9 @@ class SqLite implements IDatabaseDriver
 		return $res;
 	}
 
+	/**
+	 * @implements <IDatabaseDriver::listColumns>
+	 */
 	function listColumns($tablename)
 	{
 		$sql = 'PRAGMA table_info("'.$tablename.'")';
@@ -121,6 +137,9 @@ class SqLite implements IDatabaseDriver
 		return $cols;
 	}
 
+	/**
+	 * @implements <IDatabaseDriver::tableExists>
+	 */
 	function tableExists($tablename)
 	{
 		$sql = 'SELECT tbl_name FROM sqlite_master WHERE type="table" AND tbl_name=?';
@@ -133,6 +152,9 @@ class SqLite implements IDatabaseDriver
 		return is_array($row) && count($row)>0;
 	}
 
+	/**
+	 * @implements <IDatabaseDriver::createTable>
+	 */
 	function createTable($objSchema)
 	{
 		$sql = array();
@@ -146,12 +168,21 @@ class SqLite implements IDatabaseDriver
 			WdfDbException::Raise($stmt->errorInfo());
 	}
 
+	/**
+	 * @implements <IDatabaseDriver::getSaveStatement>
+	 */
 	function getSaveStatement($model,&$args)
 	{ ToDoException::Raise("implement SqLite->getSaveStatement()"); }
 	
+	/**
+	 * @implements <IDatabaseDriver::getDeleteStatement>
+	 */
 	function getDeleteStatement($model,&$args)
 	{ ToDoException::Raise("implement SqLite->getDeleteStatement()"); }
 	
+	/**
+	 * @implements <IDatabaseDriver::getPagedStatement>
+	 */
 	function getPagedStatement($sql,$page,$items_per_page)
 	{
 		$offset = ($page-1)*$items_per_page;
@@ -160,6 +191,9 @@ class SqLite implements IDatabaseDriver
 		return new ResultSet($this->_ds, $this->_pdo->prepare($sql));
 	}
 	
+	/**
+	 * @implements <IDatabaseDriver::getPagingInfo>
+	 */
 	function getPagingInfo($sql,$input_arguments=null)
 	{ 
 		if( !preg_match('/LIMIT\s+([\d\s,]+)/', $sql, $amounts) )
@@ -189,12 +223,18 @@ class SqLite implements IDatabaseDriver
 		);
 	}
 	
+	/**
+	 * @implements <IDatabaseDriver::Now>
+	 */
 	function Now($seconds_to_add=0)
 	{
 		$seconds_to_add = ($seconds_to_add>=0)?"+$seconds_to_add":"-$seconds_to_add";
 		return "(datetime('now','$seconds_to_add seconds','localtime'))";
 	}
     
+	/**
+	 * @implements <IDatabaseDriver::PreprocessSql>
+	 */
     function PreprocessSql($sql)
     {
         return $sql;

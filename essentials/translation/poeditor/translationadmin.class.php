@@ -24,6 +24,8 @@
  */
 
 /**
+ * <SysAdmin> handler for translations.
+ * 
  * @attribute[NoMinify]
  */
 class TranslationAdmin extends SysAdmin
@@ -86,6 +88,7 @@ class TranslationAdmin extends SysAdmin
     }
     
     /**
+	 * @internal Fetch action handler
      * @attribute[RequestParam('languages','array',false)]
      */
     function Fetch($languages = false)
@@ -146,6 +149,7 @@ class TranslationAdmin extends SysAdmin
     }
     
     /**
+	 * @internal Create new string handler
      * @attribute[RequestParam('term','string')]
      * @attribute[RequestParam('text','string','')]
      */
@@ -176,6 +180,7 @@ class TranslationAdmin extends SysAdmin
     }
 	
     /**
+	 * @internal New string page
      */
     function NewStrings()
     {
@@ -191,6 +196,7 @@ class TranslationAdmin extends SysAdmin
     }
     
     /**
+	 * @internal Delete a string
      * @attribute[RequestParam('term','string')]
      */
     function DeleteString($term)

@@ -30,11 +30,13 @@
  * Then add information and finally write it with log_report function.
  * 
  * Sample:
+ * <code php>
  * $r = log_start_report('test-report');
  * $r->add("some var",$v);
  * $r->add("$c);
  * if( $user ) $r->add("User",$user);
  * log_report($r);
+ * </code>
  */
 class LogReport
 {
@@ -48,6 +50,9 @@ class LogReport
 	
 	/**
 	 * Adds information to the report.
+	 * 
+	 * @param_array mixed $a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10 Data to be logged
+	 * @return void
 	 */
     public function add($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)
 	{
@@ -65,7 +70,8 @@ class LogReport
 	/**
 	 * Renders a report to a logfile.
 	 * 
-	 * Do not call directly but use a combination of log_start_report and log_report instead.
+	 * Do not call directly but use a combination of <log_start_report> and <log_report> instead.
+	 * @return void
 	 */
 	public function render()
 	{

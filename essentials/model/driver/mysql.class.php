@@ -23,10 +23,17 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * MySQL database driver.
+ * 
+ */
 class MySql implements IDatabaseDriver
 {
 	private $_pdo;
 
+	/**
+	 * @implements <IDatabaseDriver::initDriver>
+	 */
 	function initDriver($datasource,$pdo)
 	{
 		$this->_ds = $datasource;
@@ -36,6 +43,9 @@ class MySql implements IDatabaseDriver
         $this->_pdo->Driver = $this;
 	}
 
+	/**
+	 * @implements <IDatabaseDriver::listTables>
+	 */
 	function listTables()
 	{
 		$sql = 'SHOW TABLES';
@@ -45,6 +55,9 @@ class MySql implements IDatabaseDriver
 		return $tables;
 	}
 
+	/**
+	 * @implements <IDatabaseDriver::getTableSchema>
+	 */
     function &getTableSchema($tablename)
 	{
 		$sql = 'SHOW CREATE TABLE `'.$tablename.'`';
@@ -83,6 +96,9 @@ class MySql implements IDatabaseDriver
 		return $res;
 	}
 
+	/**
+	 * @implements <IDatabaseDriver::listColumns>
+	 */
 	function listColumns($tablename)
 	{
 		$sql = 'SHOW COLUMNS FROM `'.$tablename.'`';
@@ -92,6 +108,9 @@ class MySql implements IDatabaseDriver
 		return $cols;
 	}
 
+	/**
+	 * @implements <IDatabaseDriver::tableExists>
+	 */
 	function tableExists($tablename)
 	{
 		$sql = 'SHOW TABLES LIKE ?';
@@ -104,9 +123,15 @@ class MySql implements IDatabaseDriver
 		return count($row)>0;
 	}
 
+	/**
+	 * @implements <IDatabaseDriver::createTable>
+	 */
 	function createTable($objSchema)
 	{ ToDoException::Raise("implement MySql->createTable()"); }
 
+	/**
+	 * @implements <IDatabaseDriver::getSaveStatement>
+	 */
 	function getSaveStatement($model,&$args)
 	{
 		$cols = array();
@@ -180,6 +205,9 @@ class MySql implements IDatabaseDriver
 		return new ResultSet($this->_ds, $this->_pdo->prepare($sql));
 	}
 	
+	/**
+	 * @implements <IDatabaseDriver::getDeleteStatement>
+	 */
 	function getDeleteStatement($model,&$args)
 	{
 		$pks = $model->GetPrimaryColumns();
@@ -199,6 +227,9 @@ class MySql implements IDatabaseDriver
 		return new ResultSet($this->_ds, $this->_pdo->prepare($sql));
 	}
 	
+	/**
+	 * @implements <IDatabaseDriver::getPagedStatement>
+	 */
 	function getPagedStatement($sql,$page,$items_per_page)
 	{
 		$offset = ($page-1)*$items_per_page;
@@ -207,6 +238,9 @@ class MySql implements IDatabaseDriver
 		return new ResultSet($this->_ds, $this->_pdo->prepare($sql));
 	}
 	
+	/**
+	 * @implements <IDatabaseDriver::getPagingInfo>
+	 */
 	function getPagingInfo($sql,$input_arguments=null)
 	{
 		if( !preg_match('/LIMIT\s+([\d\s,]+)/', $sql, $amounts) )
@@ -236,11 +270,17 @@ class MySql implements IDatabaseDriver
 		);
 	}
 	
+	/**
+	 * @implements <IDatabaseDriver::Now>
+	 */
 	function Now($seconds_to_add=0)
 	{
 		return "(NOW() + INTERVAL $seconds_to_add SECOND)";
 	}
     
+	/**
+	 * @implements <IDatabaseDriver::PreprocessSql>
+	 */
     function PreprocessSql($sql)
     {
         return str_ireplace("INSERT OR IGNORE", "INSERT IGNORE", $sql);

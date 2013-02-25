@@ -97,7 +97,7 @@ class SysAdmin extends HtmlPage
 	}
 	
 	/**
-	 * SysAdmin index page.
+	 * @internal SysAdmin index page.
 	 */
 	function Index()
 	{
@@ -106,8 +106,7 @@ class SysAdmin extends HtmlPage
 	}
 	
     /**
-	 * SysAdmin login page.
-	 * 
+	 * @internal SysAdmin login page.
      * @attribute[RequestParam('username','string',false)]
      * @attribute[RequestParam('password','string',false)]
      */
@@ -131,7 +130,7 @@ class SysAdmin extends HtmlPage
 	}
     
     /**
-	 * SysAdmin logout event.
+	 * @internal SysAdmin logout event.
      */
     function Logout()
     {
@@ -141,8 +140,7 @@ class SysAdmin extends HtmlPage
     }
 	
 	/**
-	 * SysAdmin cache manager.
-	 * 
+	 * @internal SysAdmin cache manager.
 	 * @attribute[RequestParam('search','string',false)]
 	 * @attribute[RequestParam('show_info','bool',false)]
 	 * @attribute[RequestParam('kind','string','Search key')]
@@ -232,7 +230,7 @@ class SysAdmin extends HtmlPage
     }
 	
 	/**
-	 * SysAdmin cache manager: delete event.
+	 * @internal SysAdmin cache manager: delete event.
 	 * @attribute[RequestParam('key','string',false)]
      */
     function CacheDel($key)
@@ -242,8 +240,7 @@ class SysAdmin extends HtmlPage
 	}
 	
 	/**
-	 * SysAdmin cache manager: delete many event.
-	 * 
+	 * @internal SysAdmin cache manager: delete many event.
 	 * @attribute[RequestParam('keys','array',array())]
      */
 	function CacheDelMany($keys)
@@ -254,7 +251,7 @@ class SysAdmin extends HtmlPage
 	}
 	
 	/**
-	 * SysAdmin cache manager: clear event.
+	 * @internal SysAdmin cache manager: clear event.
      */
 	function CacheClear()
 	{
@@ -263,8 +260,7 @@ class SysAdmin extends HtmlPage
 	}
 	
 	/**
-	 * SysAdmin phpinfo.
-	 * 
+	 * @internal SysAdmin phpinfo.
 	 * @attribute[RequestParam('extension','string',false)]
 	 * @attribute[RequestParam('search','string',false)]
 	 */

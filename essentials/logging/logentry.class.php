@@ -23,6 +23,12 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * Represents a logfile entry.
+ * 
+ * We use this class to collect information before logging them.
+ * It allows to create murch more detailed logs as the PHP standart allows.
+ */
 class LogEntry
 {
     public $datetime;
@@ -83,6 +89,9 @@ class LogEntry
 		return implode("\n",$stack);
 	}
     
+	/**
+	 * @internal Creates a human readable representation of this <LogEntry>
+	 */
     public function toReadable()
     {
         $content = date("[Y-m-d H:i:s.m]",$this->datetime);
@@ -94,6 +103,9 @@ class LogEntry
         return $content;
     }
 	
+	/**
+	 * @internal Creates a machine readable representation of this <LogEntry>
+	 */
 	function serialize()
 	{
 		$res = new stdClass();
