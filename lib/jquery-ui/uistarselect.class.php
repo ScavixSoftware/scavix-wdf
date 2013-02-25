@@ -66,7 +66,7 @@ class uiStarSelect extends uiControl
 	/**
 	 * @override
 	 */
-	public function WdfRender()
+	public function PreRender($args = array())
 	{
 		if( isset($this->Options['captionEl']) )
 		{
@@ -95,9 +95,8 @@ class uiStarSelect extends uiControl
 		
 		$script = "$('#{$this->id}').stars($this->Options);";
 		$this->script($script);
-//		log_debug($generate_script_code?"doing: $script":"");
 
-		return parent::WdfRender();
+		parent::PreRender($args);
 	}
 
 	private function CreateSelect($sel_name)

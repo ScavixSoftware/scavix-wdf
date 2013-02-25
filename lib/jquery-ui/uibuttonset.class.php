@@ -23,17 +23,23 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
+/**
+ * Wraps a button set.
+ * 
+ * See http://jqueryui.com/button/#radio
+ */
 class uiButtonSet extends uiControl
 {
 	var $buttons = array();
-	var $sortable;
 
-	function __initialize($sortable = false)
+	function __initialize()
 	{
 		parent::__initialize("div");
-		$this->sortable = $sortable;
 	}
 
+	/**
+	 * @override
+	 */
 	function PreRender($args = array())
 	{
 		$btncnt = count($this->buttons);
@@ -54,20 +60,25 @@ class uiButtonSet extends uiControl
 				}
 			}
 			$this->script("$(function(){ $('#".$this->id."').buttonset(); });");
-			if($this->sortable)
-				$this->script("$(function(){ $('#".$this->id."').sortable(); })");
 		}
 		parent::PreRender($args);
 	}
 
-	function &AddButton($label,$click_event = false,$icon = false,$tab_id = "")
+	/**
+	 * Adds a button to the set.
+	 * 
+	 * @param string $label Button text
+	 * @param string $click_event Click action (JS)
+	 * @param string $icon A valid <uiControl::Icon>
+	 * @return RadioButton The created button
+	 */
+	function &AddButton($label,$click_event = false,$icon = false)
 	{
 		$ctn = count($this->buttons);
-		$btn = new RadioButton("radio",$tab_id);
+		$btn = new RadioButton(false,"radio");
 		$this->buttons[$ctn]["label"]  = new Label($label,false,$btn->id);
 		$this->buttons[$ctn]['button'] = $btn;
 		$this->buttons[$ctn]['events']['click'] = $click_event;
-//		$this->AddEventToButton('click', $click_event, $btn->id);
 		
 		if( $icon )
 			$this->buttons[$ctn]["icon"] = self::Icon($icon);
@@ -76,11 +87,12 @@ class uiButtonSet extends uiControl
 	}
 
 	/**
-	 *
+	 * Assigns an event to a button.
+	 * 
 	 * @param string $button_id the target button id
 	 * @param string $event a jQuery event e.g click
 	 * @param string $function JS code
-	 * 
+	 * @return uiButtonSet `$this`
 	 */
 	function AddEventToButton($button_id,$event,$function)
 	{
@@ -93,8 +105,16 @@ class uiButtonSet extends uiControl
 				break;
 			}
 		}
+		return $this;
 	}
 
+	/**
+	 * Change a buttons label.
+	 * 
+	 * @param string $button_id the target button id
+	 * @param string $label the new label
+	 * @return uiButtonSet `$this`
+	 */
 	function ChangeLabel($button_id,$label)
 	{
 		$btncnt = count($this->buttons);
@@ -103,5 +123,6 @@ class uiButtonSet extends uiControl
 			if($this->buttons[$i]['button']->id == $button_id)
 				$this->buttons[$i]['label'] = $label;
 		}
+		return $this;
 	}
 }

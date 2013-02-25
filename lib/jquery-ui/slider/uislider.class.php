@@ -45,7 +45,7 @@ class uiSlider extends uiControl
 	/**
 	 * @override
 	 */
-	function WdfRender()
+	function PreRender($args = array())
 	{
 		$opts = array();
 		if( $this->min !== false )
@@ -69,6 +69,6 @@ class uiSlider extends uiControl
 
 		$opts = system_to_json($opts);
 		$this->script("$('#{$this->id}').slider($opts);");
-		return parent::WdfRender();
+		parent::PreRender($args);
 	}
 }

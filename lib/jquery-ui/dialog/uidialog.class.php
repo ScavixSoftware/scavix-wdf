@@ -24,12 +24,21 @@
  */
 default_string('TITLE_DIALOG', 'Dialog');
 
+/**
+ * Wraps a jQueryUI Dialog
+ * 
+ * See http://jqueryui.com/dialog/
+ */
 class uiDialog extends uiControl
 {
 	protected $Buttons = array();
 	protected $CloseButton = null;
 	var $CloseButtonAction = null;
 
+	/**
+	 * @param string $title The dialogs title
+	 * @param array $options See http://api.jqueryui.com/dialog/
+	 */
 	function __initialize($title="TITLE_DIALOG", $options=array())
 	{
 		parent::__initialize("div");
@@ -49,12 +58,9 @@ class uiDialog extends uiControl
 		$this->CloseButtonAction = "function(){ $('#{$this->id}').dialog('close')$rem; }";
 	}
 
-	function SetOption($name,$value)
-	{
-		$this->Options[$name] = $value;
-		return $this;
-	}
-
+	/**
+	 * @override
+	 */
 	function PreRender($args=array())
 	{
 		if( count($args) > 0 )
@@ -80,8 +86,13 @@ class uiDialog extends uiControl
 		}
 		return parent::PreRender($args);
 	}
+	
 	/**
-	 * Look at system.php system_to_json($value) documentation
+	 * Adds a button to the dialog.
+	 * 
+	 * @param string $label Button text
+	 * @param string $action JS code for button click event
+	 * @return uiDialog `$this`
 	 */
 	function AddButton($label,$action)
 	{
@@ -90,11 +101,22 @@ class uiDialog extends uiControl
 		$this->Buttons[$label] = $action;
 		return $this;
 	}
+	
+	/**
+	 * @shortcut <uiDialog::AddButton>
+	 */
 	function SetButton($label,$action)
 	{
 		return $this->AddButton($label, $action);
 	}
 
+	/**
+	 * Adds a close button.
+	 * 
+	 * @param string $label Close button text
+	 * @param string $action Action to be performed on click, defaults to the standard close action
+	 * @return uiDialog `$this`
+	 */
 	function AddCloseButton($label, $action = false)
 	{
 		$this->CloseButton = $label;

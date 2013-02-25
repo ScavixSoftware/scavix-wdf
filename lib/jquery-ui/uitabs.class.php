@@ -23,10 +23,18 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
+/**
+ * Wraps jQueryUI Tabs
+ * 
+ * See http://jqueryui.com/tabs/
+ */
 class uiTabs extends uiControl
 {
 	var $list;
 
+	/**
+	 * @param array $options See http://api.jqueryui.com/tabs/
+	 */
     function __initialize($options=array())
 	{
 		parent::__initialize('div');
@@ -44,6 +52,13 @@ class uiTabs extends uiControl
 		return parent::PreRender($args);
 	}
 
+	/**
+	 * Adds a new tab to the tabcontrol.
+	 * 
+	 * @param string $label Tab-Button label
+	 * @param string $content Something to add as content
+	 * @return Control A div container for the tabs content
+	 */
 	function AddTab($label, $content="")
 	{
 		$container = $this->content(new Control('div'));
@@ -52,6 +67,20 @@ class uiTabs extends uiControl
 		return $container;
 	}
 
+	/**
+	 * Adds contents to a tab.
+	 * 
+	 * This is just a not so nice altervative to method chaining:
+	 * <code php>
+	 * $tabControl->AddTab('My first tab');
+	 * $tabControl->AddToTab(0,'my content');
+	 * // is equivalent to 
+	 * $tabControl->AddTab('My first tab')->content('my content');
+	 * </code>
+	 * @param Renderable $tab_or_index The tab itself or it's zero based index
+	 * @param mixed $content The conten to be added
+	 * @return uiTabs `$this`
+	 */
 	function AddToTab($tab_or_index,$content)
 	{
 		if( $tab_or_index instanceof Renderable )
@@ -68,6 +97,12 @@ class uiTabs extends uiControl
 		return $this;
 	}
 
+	/**
+	 * Sets the tab to be selected initially.
+	 * 
+	 * @param Renderable $tab_or_index The tab itself or it's zero based index
+	 * @return uiTabs `$this`
+	 */
 	function SetSelected($tab_or_index)
 	{
 		if( $tab_or_index instanceof Renderable )

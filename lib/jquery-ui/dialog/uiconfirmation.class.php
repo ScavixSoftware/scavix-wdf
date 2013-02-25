@@ -25,12 +25,27 @@
 default_string("TITLE_CONFIRMATION", "Confirm");
 default_string("TXT_CONFIRMATION", "Please confirm");
 
+/**
+ * Displays a confirmation dialog.
+ * 
+ * This is basically a normal modal <uiDialog> with a predefined set of buttons.
+ */
 class uiConfirmation extends uiDialog
 {
 	const OK_CANCEL = 1;
 	const YES_NO = 2;
 	var $Mode;
 	
+	/**
+	 * Creates a new uiConfirmation object.
+	 * 
+	 * The $text_base argument in fact defines two texts in one (and assumes you are using translations!):
+	 * It will be prefixed with 'TXT_' and 'TITLE_' and that two constants will be used.
+	 * Sample: 'CONFIRMATION' will become 'TXT_CONFIRMATION' and 'TITLE_CONFIRMATION'.
+	 * @param string $text_base base of confirmation text.
+	 * @param string $ok_callback JS code to be executed when the positive button is clicked (OK, YES)
+	 * @param int $button_mode uiConfirmation::OK_CANCEL or uiConfirmation::YES_NO
+	 */
 	function __initialize($text_base='CONFIRMATION',$ok_callback=false,$button_mode=self::OK_CANCEL)
 	{
 		$options = array(
@@ -61,6 +76,11 @@ class uiConfirmation extends uiDialog
 		$this->content($text);
 	}
 	
+	/**
+	 * Set the callback for the positive button.
+	 * 
+	 * @param string $action JS code to be executed when the positive button is clicked (OK, YES)
+	 */
 	function SetOkCallback($action)
 	{
 		switch( $this->Mode )
