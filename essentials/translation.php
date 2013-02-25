@@ -205,7 +205,7 @@ function __translate($text)
             }
         }
         else
-            log_debug("Unknown text constants: ".my_var_export(array_values($__unknown_constants)));
+            log_debug("Unknown text constants: ".render_var(array_values($__unknown_constants)));
     }
 
 	return $text;

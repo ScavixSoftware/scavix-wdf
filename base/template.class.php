@@ -25,8 +25,9 @@
  
 /**
  * Building blocks of web pages.
- * When adding new Templates, make sure that the folders are added to
- * $CONFIG['class_path']['content'][] in /index.php
+ * 
+ * Each template consist of a logic part and a layout part. The logic part is optional and can be handled
+ * by this (base) class (see <Template::Make>).
  */
 class Template extends Renderable
 {
@@ -35,6 +36,19 @@ class Template extends Renderable
 	
 	function __getContentVars(){ return array_merge(parent::__getContentVars(),array('_data')); }
 
+	/**
+	 * Creates a template with layout only.
+	 * 
+	 * Sometimes you just want to separate parts of your layout without giving them some special logic.
+	 * You may just store them as *.tpl.php files and create a template from them like this:
+	 * <code php>
+	 * // assuming template file is 'templates/my.tpl.php'
+	 * $tpl = Template::Make('my');
+	 * $tpl->set('myvar','I am just layout');
+	 * <code>
+	 * @param string $template_basename Name of the template
+	 * @return Template The created template
+	 */
 	static function Make($template_basename)
 	{
 		if( file_exists($template_basename) )
@@ -54,9 +68,10 @@ class Template extends Renderable
 		return $res;
 	}
 	
-    /**
-	 * Constructs a new object.
-	 * Will prevent constructor calls when objects are restored from session-storage.
+	/**
+	 * The one and only constructor for all subclasses.
+	 * 
+	 * These must not implement a constructor but the __initialize method.
 	 */
 	function __construct()
 	{
@@ -73,7 +88,8 @@ class Template extends Renderable
 	}
 
 	/**
-	 * 'real' constructor. See __construct.
+	 * Override this method instead of writing a constructor.
+	 * 
 	 * @param string $file Template file for this class. Usually '' (empty string)
 	 */
 	function __initialize($file = "")
@@ -89,6 +105,7 @@ class Template extends Renderable
 	
 	/**
 	 * Will be executed on HOOK_PRE_RENDER.
+	 * 
 	 * Prepares the template for output.
 	 * @internal
 	 */
@@ -105,9 +122,11 @@ class Template extends Renderable
 	}
 
 	/**
-	 * Set a variable for use in template file
+	 * Set a variable for use in template file.
+	 * 
 	 * @param string $name Var can be use in template under this name
 	 * @param mixed $value The value
+	 * @return Template `$this`
 	 */
 	public function set($name, $value)
 	{
@@ -117,6 +136,23 @@ class Template extends Renderable
 		return $this;
 	}
 	
+	/**
+	 * Adds a value to an already defined var.
+	 * 
+	 * If $name is not already an array it will be converted to one.
+	 * <code php>
+	 * $tpl->set('a','one');
+	 * $tpl->add2var('a','two');
+	 * // $a is now array('one','two')
+	 * $tpl->set('a','three');
+	 * // $a is now 'three'
+	 * $tpl->add2var('b','four');
+	 * // $b is now array('four')
+	 * </code>
+	 * @param string $name Variable name
+	 * @param mixed $value Value to add
+	 * @return Template `$this`
+	 */
 	public function add2var($name, $value)
 	{
 		if( !isset($this->_data[$name]) )
@@ -129,9 +165,11 @@ class Template extends Renderable
 	}
 
 	/**
-	 * Sets all template variables
+	 * Sets all template variables.
+	 * 
 	 * @param array $vars Key=>Value pairs of variables
 	 * @param bool $clear Overwrite the whole vars (defaults to false)
+	 * @return Template `$this`
 	 */
 	function set_vars($vars, $clear = false)
 	{
@@ -147,11 +185,22 @@ class Template extends Renderable
 		return $this;
 	}
 	
+	/**
+	 * Gets a variables value.
+	 * 
+	 * @param string $name Var name
+	 * @return mixed Value of var
+	 */
 	function get($name)
 	{
 		return isset($this->_data[$name])?$this->_data[$name]:null;
 	}
 	
+	/**
+	 * Gets all variables.
+	 * 
+	 * @return arary All variables
+	 */
 	function get_vars()
 	{
 		return $this->_data;
@@ -159,6 +208,9 @@ class Template extends Renderable
 	
 	/**
 	 * Adds JavaScript-Code to the template.
+	 * 
+	 * @param string $scriptCode JS code to be added
+	 * @return Template `$this`
 	 */
 	function script($scriptCode)
 	{
@@ -170,10 +222,7 @@ class Template extends Renderable
 	}
 
 	/**
-	 * Renders the Template.
-	 * Should be called from Base container objects like HtmlPage.
-	 * @param bool $encode Deprecated! Do not use!
-	 * @return string The rendered content
+	 * @override
 	 */
 	function WdfRenderAsRoot()
 	{
@@ -183,8 +232,7 @@ class Template extends Renderable
 	}
 
 	/**
-	 * Inner redering method.
-	 * @return string The rendered object
+	 * @override
 	 */
 	function WdfRender()
 	{

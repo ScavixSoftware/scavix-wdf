@@ -74,6 +74,15 @@ class PhpDocComment
 		{
 			if( starts_with($p[1],'attribute[') )
 				continue;
+			if( $p[1] == 'param_array' && preg_match('/([^\s]+)\s+([^\s]+)\s+(.*)/',$p[2],$ma) )
+			{
+				foreach( explode(",",$ma[2]) as $t )
+					$res->Tags[] = array(
+						'tag' => "param",
+						'data' => trim($ma[1]." ".$t." ".$ma[3])
+					);
+				continue;
+			}
 			$res->Tags[] = array(
 				'tag' => $p[1],
 				'data' => trim($p[2])

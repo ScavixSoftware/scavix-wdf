@@ -52,7 +52,7 @@ $(function(){
 	<?=implode("\n\t",$plaindocready)?>
 </script>
 </head>
-<body<? foreach($bodyEvents as $k=>$v) echo " $k='$v'";?><?=isset($isrtl)?"$isrtl":""?><?=isset($bodyClass)?" class='$bodyClass'":""?>>
+<body<?=isset($isrtl)?"$isrtl":""?><?=isset($bodyClass)?" class='$bodyClass'":""?>>
 <noscript>
 	<style type="text/css">
 		body>*:not(noscript) { display:none !important; }

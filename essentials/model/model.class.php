@@ -764,7 +764,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			return true; // nothing to save
 				
 		if( !$stmt->execute($args) )
-			WdfDbException::Raise(my_var_export($stmt->ErrorOutput()));
+			WdfDbException::Raise(render_var($stmt->ErrorOutput()));
 
 		$pkcols = $this->GetPrimaryColumns();
 		if( count($pkcols) == 1 )

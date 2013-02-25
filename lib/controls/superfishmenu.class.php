@@ -97,7 +97,7 @@ class SuperfishMenu extends Control
 	{
 		$controller = strtolower(current_controller());
 		$event = current_event(true);
-		$data = md5(my_var_export($_GET));
+		$data = md5(render_var($_GET));
 		
 		for( $level=1; $level<=6; $level++ )
 		{
@@ -158,7 +158,7 @@ class SuperfishMenuItem extends Control
 		
 		$this->controller = strtolower($controller);
 		if( $event ) $this->event = strtolower($event);
-		$this->data = md5(my_var_export($data));
+		$this->data = md5(render_var($data));
 	}
 	
 	/**

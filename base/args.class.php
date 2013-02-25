@@ -109,6 +109,7 @@ class Args
 	 * 
 	 * If true, Args class will ignore the case of the argument names. If false will respect case.
 	 * @param bool $ignore true|false
+	 * @return void
 	 */
 	public static function setIgnoreCase($ignore)
 	{
@@ -131,6 +132,7 @@ class Args
 	 * Note: GPC is default. This will use Cookie before Post before Get, so order is reversed!
 	 * 
 	 * @param string $order Order string (sample: GPCSEO)
+	 * @return void
 	 */
 	public static function setOrder($order)
 	{
@@ -146,6 +148,7 @@ class Args
 	 * and can pe parsed successfully to 1042.23 if you provide an en-US culture.
 	 * If not it will result in an invalid float value.
 	 * @param CultureInfo $cultureInfo Ci to set
+	 * @return void
 	 */
 	public static function setCultureInfo($cultureInfo)
 	{
@@ -271,7 +274,7 @@ class Args
 	}
 	
 	/**
-	 * Shortcut method to access ENV values.
+	 * @shortcut To access ENV values.
 	 */
 	public static function env($name=false,$default=null,$filter=null,$filter_options=null)
 	{
@@ -279,7 +282,7 @@ class Args
 	}
 	
 	/**
-	 * Shortcut method to access GET values.
+	 * @shortcut To access GET values.
 	 */
 	public static function get($name=false,$default=null,$filter=null,$filter_options=null)
 	{
@@ -287,7 +290,7 @@ class Args
 	}
 	
 	/**
-	 * Shortcut method to access POST values.
+	 * @shortcut To access POST values.
 	 */
 	public static function post($name=false,$default=null,$filter=null,$filter_options=null)
 	{
@@ -295,7 +298,7 @@ class Args
 	}
 	
 	/**
-	 * Shortcut method to access COOKIE values.
+	 * @shortcut To access COOKIE values.
 	 */
 	public static function cookie($name=false,$default=null,$filter=null,$filter_options=null)
 	{
@@ -303,7 +306,7 @@ class Args
 	}
 	
 	/**
-	 * Shortcut method to access SERVER values.
+	 * @shortcut To access SERVER values.
 	 */
 	public static function server($name=false,$default=null,$filter=null,$filter_options=null)
 	{
@@ -311,7 +314,7 @@ class Args
 	}
 	
 	/**
-	 * Shortcut method to access SESSION values.
+	 * @shortcut To access SESSION values.
 	 */
 	public static function session($name=false,$default=null,$filter=null,$filter_options=null)
 	{
@@ -319,7 +322,7 @@ class Args
 	}
 	
 	/**
-	 * Shortcut method to access values.
+	 * @shortcut To access REQUEST values.
 	 * 
 	 * Uses the default (or set via setOrder) superglobal query order.
 	 */
@@ -328,6 +331,11 @@ class Args
 		return self::sanitized($name,$default,null,$filter,$filter_options);
 	}
 	
+	/**
+	 * Strips given tags from request data.
+	 * 
+	 * @return void
+	 */
 	public static function strip_tags()
 	{
 		$tags = cfg_getd('requestparam','tagstostrip',false);
@@ -338,11 +346,9 @@ class Args
 		$_REQUEST = array_merge($_GET, $_POST, $_COOKIE);
 	}
 	
-	/**
-	* Strips given tags from array (GET, POST, REQUEST)
-	 * 
+   /**
+	* @private
 	* See http://www.php.net/manual/en/function.strip-tags.php#93567
-	* @param array $param Parameter array to strip
 	*/
    private static function array_strip_tags(&$params)
    {

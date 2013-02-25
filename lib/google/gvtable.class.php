@@ -23,8 +23,16 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
+/**
+ * A data table
+ * 
+ * See https://developers.google.com/chart/interactive/docs/gallery
+ */
 class gvTable extends GoogleVisualization
 {
+	/**
+	 * @override
+	 */
 	function __initialize($options=array(),$query=false,$ds=false)
 	{
 		parent::__initialize('Table',$options,$query,$ds);

@@ -138,7 +138,8 @@ $GLOBALS['html_skip_if_empty'] = array(
 $GLOBALS['html_skip_if_empty'] = array_combine($GLOBALS['html_skip_if_empty'], $GLOBALS['html_skip_if_empty']);
 
 /**
- * Base class for interactive webpage content like AJAX TextInputs
+ * Base class for interactive webpage content like AJAX TextInputs.
+ * 
  */
 class Control extends Renderable
 {
@@ -156,6 +157,7 @@ class Control extends Renderable
 
 	/**
 	 * The one and only constructor for all subclasses.
+	 * 
 	 * These must not implement a constructor but the __initialize method.
 	 */
 	function __construct()
@@ -180,20 +182,20 @@ class Control extends Renderable
 
 	/**
 	 * Override this method instead of writing a constructor.
+	 * 
 	 * @param string $tag The HTML Tag of this control. Default ""
 	 */
-	function __initialize($tag = "", $auto_lowercase = true)
+	function __initialize($tag = "")
 	{
-		$this->Tag = $auto_lowercase?strtolower($tag):$tag;
-        $class = $auto_lowercase?strtolower(get_class($this)):get_class($this);
+		$this->Tag = strtolower($tag);
+        $class = strtolower(get_class($this));
 
-        if( $class != $this->Tag && $class != "control" && !($this instanceof ApiContent) )
+        if( $class != $this->Tag && $class != "control" )
             $this->class = $class;
 	}
 
 	/**
-	 * Magic method __get.
-	 * 
+	 * @internal Magic method __get.
 	 * See [Member overloading](http://ch2.php.net/manual/en/language.oop5.overloading.php#language.oop5.overloading.members)
 	 */
 	function __get($name)
@@ -215,8 +217,7 @@ class Control extends Renderable
 	}
 
 	/**
-	 * Magic method __set.
-	 * 
+	 * @internal Magic method __set.
 	 * See [Member overloading](http://ch2.php.net/manual/en/language.oop5.overloading.php#language.oop5.overloading.members)
 	 */
 	function __set($varname,$value)
@@ -240,8 +241,7 @@ class Control extends Renderable
 	}
 	
 	/**
-	 * Magic method __call.
-	 * 
+	 * @internal Magic method __call.
 	 * See [Member overloading](http://ch2.php.net/manual/en/language.oop5.overloading.php#language.oop5.overloading.members)
 	 */
 	public function __call($name, $arguments)
@@ -255,8 +255,7 @@ class Control extends Renderable
     }
 
 	/**
-	 * Magic method __isset.
-	 * 
+	 * @internal Magic method __isset.
 	 * See [Member overloading](http://ch2.php.net/manual/en/language.oop5.overloading.php#language.oop5.overloading.members)
 	 */
 	public function __isset($name)
@@ -276,8 +275,7 @@ class Control extends Renderable
     }
 
 	/**
-	 * Checks if this class implements a method.
-	 * Needed because of the extender pattern.
+	 * @internal Checks if this class implements a method.
 	 * @param string $name name of the Method
 	 * @return bool true|false
 	 */
@@ -302,7 +300,8 @@ class Control extends Renderable
 	 * Control::Make('div')->content('Doh!');
 	 * TextInput::Make()->css('width','300px');
 	 * </code>
-	 * @return object The created control
+	 * @param string $tag HTML tag name (like div, span, a, img,...)
+	 * @return Control The created control
 	 */
 	public static function Make($tag=false)
     {
@@ -314,11 +313,12 @@ class Control extends Renderable
 
 	/**
 	 * Adds JavaScript-Code to the control.
+	 * 
 	 * Code will be echoed out with the control.
 	 * You may specify dependencies in the form of JS files that must be loaded to
 	 * make the control work.
 	 * @param string|array $scriptCode The JavaScript code
-	 * @return string The code with additional Script-Loading code
+	 * @return Control `$this`
 	 */
 	function script($scriptCode)
 	{
@@ -331,9 +331,11 @@ class Control extends Renderable
 
 	/**
 	 * Adds a CSS property to the control.
+	 * 
 	 * If value is an integer (or numeric string like '12') 'px' will be added.
 	 * @param string $name Name of the CSS property (like width, background-image,...)
 	 * @param string $value Value of the CSS property
+	 * @return Control `$this`
 	 */
 	function css($name,$value)
 	{
@@ -344,8 +346,15 @@ class Control extends Renderable
 
 	/**
 	 * Adds content to the Control.
+	 * 
+	 * Note that this will not return `$this` but the $content.
+	 * This allows for method chaining like this:
+	 * <code php>
+	 * $this->content( new Control('div') )->css('border','1px solid red')->addClass('mydiv')->content('DIVs content');
+	 * </code>
 	 * @param mixed $content The content to be added
 	 * @param bool $replace if true replaces the whole content.
+	 * @return mixed The content added
 	 */
 	function &content($content,$replace=false)
 	{
@@ -359,6 +368,11 @@ class Control extends Renderable
 		return $this->_content[count($this->_content)-1];
 	}
 	
+	/**
+	 * Clears all contents.
+	 * 
+	 * @return Control `$this`
+	 */
 	function clearContent()
 	{
 		$this->_content = array();
@@ -366,7 +380,8 @@ class Control extends Renderable
 	}
 
 	/**
-	 * Checks whether this control needs a closing tag (in HTML code)
+	 * Checks whether this control needs a closing tag (in HTML code).
+	 * 
 	 * @return bool true if needed
 	 */
 	protected function CloseTagNeeded()
@@ -375,7 +390,8 @@ class Control extends Renderable
 	}
 
 	/**
-	 * Checks if the given attribute is valid for a html element like this (depending on tag)
+	 * Checks if the given attribute is valid for a html element like this (depending on tag).
+	 * 
 	 * @param string $attr The attribute to check
 	 * @return bool true if valid
 	 */
@@ -419,15 +435,16 @@ class Control extends Renderable
 		}
 	}
 
+	/**
+	 * @shortcut <Control::script>
+	 */
 	function addDocReady($js_code)
 	{
 		$this->script($js_code);
 	}
 
 	/**
-	 * Renders this control.
-	 * This is the 'outer' rendering startpoint when only this control is rendered.
-	 * @internal
+	 * @override
 	 */
 	function WdfRenderAsRoot()
 	{
@@ -440,10 +457,7 @@ class Control extends Renderable
 	}
 
 	/**
-	 * Renders this control.
-	 * This is the 'inner' rendering startpoint, called when this control is rendered
-	 * as part of a parent container.
-	 * @internal
+	 * @override
 	 */
 	function WdfRender()
 	{
@@ -491,7 +505,7 @@ class Control extends Renderable
 	 * Extends this control with additional functionality.
 	 * 
 	 * @param object $extender Object that shall extend this
-	 * @return void
+	 * @return Control `$this`
 	 */
 	function Extend($extender)
 	{
@@ -499,12 +513,15 @@ class Control extends Renderable
 		if( array_key_exists($key,$this->_extender) )
 			return;
 		$this->_extender[$key] = $extender;
+		return $this;
 	}
 
 	/**
 	 * Adds a value to the 'class' attribute.
+	 * 
 	 * Note: you may pass multiple classes at once in a tring space separated: 'cls1 cls2'
-	 * @return Control $this
+	 * @param string $class CSS class(es)
+	 * @return Control `$this`
 	 */
 	function addClass($class)
 	{
@@ -517,8 +534,10 @@ class Control extends Renderable
 	}
 
 	/**
-	 * Removes a value from the 'class' attribute
-	 * @return Control $this
+	 * Removes a value from the 'class' attribute.
+	 * 
+	 * @param string $class CSS class
+	 * @return Control `$this`
 	 */
 	function removeClass($class)
 	{
@@ -529,8 +548,11 @@ class Control extends Renderable
 	
 	/**
 	 * Set a valud to a data-$name attribute.
+	 * 
 	 * Those can be accessed in JS easily using jQuery.data method
-	 * @return Control $this
+	 * @param string $name Data name
+	 * @param mixed $value Data value (<system_to_json> will be used for arrays and objects) 
+	 * @return Control `$this`
 	 */
 	function setData($name,$value)
 	{
@@ -542,8 +564,10 @@ class Control extends Renderable
 	}
 	
 	/**
-	 * Removes a data-$name attribute
-	 * @return Control $this
+	 * Removes a data-$name attribute.
+	 * 
+	 * @param string $name Data name
+	 * @return Control `$this`
 	 */
 	function removeData($name)
 	{
@@ -553,8 +577,7 @@ class Control extends Renderable
 	}
 	
 	/**
-	 * Append contents (see content method)
-	 * @return Control $this
+	 * @shortcut <Control::content>
 	 */
 	function append($content)
 	{
@@ -563,8 +586,10 @@ class Control extends Renderable
 	}
 	
 	/**
-	 * Prepends something to the contents of this control
-	 * @return Control $this
+	 * Prepends something to the contents of this control.
+	 * 
+	 * @param mixed $content Content to be prepended
+	 * @return Control `$this`
 	 */
 	function prepend($content)
 	{
@@ -577,6 +602,23 @@ class Control extends Renderable
 	
 	/**
 	 * Wraps this control into another one.
+	 * 
+	 * Not words, just samples:
+	 * <code php>
+	 * $wrapper = new Control('div');
+	 * $inner = new Control('span');
+	 * $inner->content('INNER');
+	 * $inner->wrap($wrapper)->content("I am below 'INNER'");
+	 * // or
+	 * $inner = new Control('span');
+	 * $inner->content('INNER');
+	 * $inner->wrap('div')->content("I am below 'INNER'");
+	 * // or
+	 * $inner = new Control('span');
+	 * $inner->content('INNER');
+	 * $inner->wrap(new Control('div'))->content("I am below 'INNER'");
+	 * </code>
+	 * @param mixed $tag_or_obj String or <Control>, see samples
 	 * @return Control The (new) wrapping control
 	 */
 	function wrap($tag_or_obj='')
@@ -587,8 +629,10 @@ class Control extends Renderable
 	}
 	
 	/**
-	 * Append this control to another control
-	 * @return Control $this
+	 * Append this control to another control.
+	 * 
+	 * @param mixed $target Object of type <Control> or <HtmlPage>
+	 * @return Control `$this`
 	 */
 	function appendTo($target)
 	{

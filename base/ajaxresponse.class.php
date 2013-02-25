@@ -32,7 +32,9 @@ class AjaxResponse
 	var $_text = false;
 	
 	/**
-	 * This is a valid Noop return
+	 * This is a valid Noop return.
+	 * 
+	 * @return AjaxResponse The created response
 	 */
 	public static function None()
 	{
@@ -40,8 +42,12 @@ class AjaxResponse
 	}
 	
 	/**
-	 * Return just script code to be executed clientside immetiately
-	 * If $abort_handling is true the clietside success/error handling will not be polled
+	 * Return just script code to be executed clientside immetiately.
+	 * 
+	 * If $abort_handling is true the clientside success/error handling will not be polled
+	 * @param mixed $script JS code as string or array
+	 * @param bool $abort_handling Abort clientside success/error handling
+	 * @return AjaxResponse The created response
 	 */
 	public static function Js($script=false,$abort_handling=false)
 	{
@@ -53,7 +59,10 @@ class AjaxResponse
 	}
 	
 	/**
-	 * Return data JSON formatted ($data can be anything!)
+	 * Return data JSON formatted ($data can be anything!).
+	 * 
+	 * @param mixed $data Data to be passed out
+	 * @return AjaxResponse The created response
 	 */
 	public static function Json($data=null)
 	{
@@ -64,7 +73,10 @@ class AjaxResponse
 	}
 	
 	/**
-	 * Return a plain text. Did never use this, but there may be a use case.
+	 * Return a plain text.
+	 * 
+	 * @param string $text Text to be passed out
+	 * @return AjaxResponse The created response
 	 */
 	public static function Text($text=false)
 	{
@@ -75,7 +87,10 @@ class AjaxResponse
 	}
 	
 	/**
-	 * Return a Controller (with full init-code)
+	 * Return a Controller (with full init-code).
+	 * 
+	 * @param Renderable $content Content to be passed out
+	 * @return AjaxResponse The created response
 	 */
 	public static function Renderable(Renderable $content)
 	{
@@ -97,7 +112,11 @@ class AjaxResponse
 	
 	/**
 	 * Return an error.
+	 * 
 	 * If $abort_handling is true the clietside error handling will not be polled
+	 * @param string $message The error message
+	 * @param bool $abort_handling Abort clientside success/error handling
+	 * @return AjaxResponse The created response
 	 */
 	public static function Error($message,$abort_handling=false)
 	{
@@ -109,6 +128,11 @@ class AjaxResponse
 	
 	/**
 	 * Let the client redirect.
+	 * 
+	 * @param mixed $controller The controller to be loaded (can be <Renderable> or string)
+	 * @param string $event The event to be executed
+	 * @param mixed $data Optional data to be passed (string or array)
+	 * @return AjaxResponse The created response
 	 */
 	public static function Redirect($controller,$event='',$data='')
 	{

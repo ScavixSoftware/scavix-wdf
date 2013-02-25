@@ -23,8 +23,16 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
+/**
+ * A column chart
+ * 
+ * See https://developers.google.com/chart/interactive/docs/gallery
+ */
 class gvColumnChart extends GoogleVisualization
 {
+	/**
+	 * @override
+	 */
 	function __initialize($options=array(),$query=false,$ds=false)
 	{
 		parent::__initialize('ColumnChart',$options,$query,$ds);

@@ -23,6 +23,11 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * Initializes the localization essential.
+ * 
+ * @return void
+ */
 function localization_init()
 {
 	global $CONFIG;

@@ -23,6 +23,11 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
+/**
+ * This is a google map.
+ * 
+ * See https://developers.google.com/maps/documentation/javascript/tutorial
+ */
 class gMap extends GoogleControl
 {
 	const ROADMAP = 'google.maps.MapTypeId.ROADMAP';
@@ -35,6 +40,9 @@ class gMap extends GoogleControl
 	private $_markers = array();
 	private $_addresses = array();
 	
+	/**
+	 * @param array $options See https://developers.google.com/maps/documentation/javascript/tutorial#MapOptions
+	 */
 	function __initialize($options=array())
 	{
 		parent::__initialize('div');
@@ -43,6 +51,9 @@ class gMap extends GoogleControl
 		$this->_loadApi('maps','3',array('other_params'=>http_build_query($this->gmOptions)));
 	}
 	
+	/**
+	 * @override
+	 */
 	function PreRender($args = array())
 	{
 		$id = $this->id;
@@ -65,12 +76,29 @@ class gMap extends GoogleControl
 		return parent::PreRender($args);
 	}
 	
+	/**
+	 * Adds a marker to the map.
+	 * 
+	 * @param float $lat Latitute
+	 * @param float $lng Longitude
+	 * @param array $options See https://developers.google.com/maps/documentation/javascript/reference#MarkerOptions
+	 * @return gMap `$this`
+	 */
 	function AddMarker($lat, $lng, $options = array())
 	{
 		$this->_markers[] = array($lat,$lng,$options);
 		return $this;
 	}
 	
+	/**
+	 * Shortcut for a named marker.
+	 * 
+	 * @param float $lat Latitude
+	 * @param float $lng Longitude
+	 * @param string $title Marker title
+	 * @param array $options See https://developers.google.com/maps/documentation/javascript/reference#MarkerOptions
+	 * @return gMap `$this`
+	 */
 	function AddMarkerTitled($lat, $lng, $title, $options = array())
 	{
 		$options['title'] = $title;
@@ -78,24 +106,50 @@ class gMap extends GoogleControl
 		return $this;
 	}
 
+	/**
+	 * Adds an address to the map.
+	 * 
+	 * Will use googles geolocation to resolve the address to a marker.
+	 * @param string $address The address as string
+	 * @return gMap `$this`
+	 */
 	function AddAddress($address)
 	{
 		$this->_addresses[] = $address;
 		return $this;
 	}
 	
+	/**
+	 * Sets the maps center point.
+	 * 
+	 * @param float $lat Latitude
+	 * @param float $lng Longitude
+	 * @return gMap `$this`
+	 */
 	function setCenterPoint($lat,$lng)
 	{
 		$this->_basicOptions['center'] = "new google.maps.LatLng($lat,$lng)";
 		return $this;
 	}
 	
+	/**
+	 * Sets the maps type.
+	 * 
+	 * @param string $type One of gMap::ROADMAP, gMap::SATELLITE, gMap::HYBRID, gMap::TERRAIN
+	 * @return gMap `$this`
+	 */
 	function setType($type)
 	{
 		$this->_basicOptions['mapTypeId'] = $type;
 		return $this;
 	}
 	
+	/**
+	 * Sets the maps zoom level.
+	 * 
+	 * @param int $zoomlevel The initial zoom level
+	 * @return gMap `$this`
+	 */
 	function setZoom($zoomlevel)
 	{
 		$this->_basicOptions['zoom'] = $zoomlevel;
@@ -103,8 +157,10 @@ class gMap extends GoogleControl
 	}
     
     /**
-     * Finds a geolocation from a search string
-     * @param striog $search
+     * Finds a geolocation from a search string.
+	 * 
+     * @param string $search Search string
+	 * @return mixed An object containing formatted_address, latitude and longitude or false on error
      */
     static public function FindGeoLocation($search)
     {

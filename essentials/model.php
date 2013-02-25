@@ -23,6 +23,11 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
+/**
+ * Initializes the model essential.
+ * 
+ * @return void
+ */
 function model_init()
 {
 	global $CONFIG;
@@ -63,6 +68,17 @@ function model_init()
 	}
 }
 
+/**
+ * Initializes a database connection.
+ * 
+ * @param string $name Alias name (like system, internal, data, mydb,...)
+ * @param string $dstype Datasource type, always 'DataSource'
+ * @param string $constr Connection string
+ * @param bool $autoct DEPRECATED
+ * @param bool $debug DEPRECATED
+ * @param bool $usememcache DEPRECATED
+ * @return void
+ */
 function model_init_db($name,$dstype,$constr,$autoct=false,$debug=false,$usememcache=true)
 {
 	global $MODEL_DATABASES;
@@ -70,6 +86,9 @@ function model_init_db($name,$dstype,$constr,$autoct=false,$debug=false,$usememc
 	$MODEL_DATABASES[$name] = array($dstype,$constr,$autoct,$debug,$usememcache);
 }
 
+/**
+ * @internal Stores all connections states
+ */
 function model_store()
 {
 	global $MODEL_DATABASES;
@@ -79,9 +98,10 @@ function model_store()
 }
 
 /**
- * Return a ADOConnection instance.
- * @param string $name The datasource name.
- * @return ADOConnection
+ * Get a database connection.
+ * 
+ * @param string $name The datasource alias.
+ * @return DataSource The database connection
  */
 function &model_datasource($name)
 {
@@ -112,9 +132,9 @@ function &model_datasource($name)
 		if( !$model_db )
 			WdfDbException::Raise("Unable to connect to database '$name'.");
 
-		if( $usememcache && session_use_memcache() )
+		if( $usememcache )
 		{
-			// todo: implement caching
+			// todo: cleanup $autoct,$debug,$usememcache
 		}
 		$MODEL_DATABASES[$name] = $model_db;
 	}
@@ -122,11 +142,27 @@ function &model_datasource($name)
 	return $MODEL_DATABASES[$name];
 }
 
+/**
+ * Get the name/alias of a given DataSource.
+ * 
+ * @param DataSource $ds The datasource
+ * @return string the name/alias
+ */
 function model_datasource_name(&$ds)
 {
 	return $ds->_storage_id;
 }
 
+/**
+ * Creates a valid connection string.
+ * 
+ * @param string $type Shouls be 'DataSource'
+ * @param string $server The Db server
+ * @param string $username The DB username
+ * @param string $password The DB password
+ * @param string $database The database name
+ * @return string A valid connection string
+ */
 function model_build_connection_string($type,$server,$username,$password,$database)
 {
 	return sprintf("%s://%s:%s@%s/%s",$type,$username,$password,$server,$database);

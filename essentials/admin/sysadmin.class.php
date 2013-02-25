@@ -208,7 +208,7 @@ class SysAdmin extends HtmlPage
 			foreach( cache_list_keys() as $key )
 			{
 				$found = ($kind=='Search content')
-					?stripos( my_var_export(cache_get($key,"")), $search) !== false
+					?stripos( render_var(cache_get($key,"")), $search) !== false
 					:stripos( $key, $search) !== false;
 				if( $found )
 				{

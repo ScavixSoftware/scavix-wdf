@@ -23,6 +23,11 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * Initializes the resources essential.
+ * 
+ * @return void
+ */
 function resources_init()
 {
 	global $CONFIG;
@@ -67,7 +72,12 @@ function resources_init()
 }
 
 /**
- * Checks if a resource exists and returns it if so
+ * Checks if a resource exists and returns it if so.
+ * 
+ * @param string $filename The resource name
+ * @param bool $return_url If true returns an URL, else returns true or false depending on if the resource exists
+ * @param bool $as_local_path If true returns not URL, but a filepath in local filesystem. Needs $return_url=true.
+ * @return string Depending on $return_url returns: (the resource URL or false on error) OR (true or false)
  */
 function resourceExists($filename, $return_url = false, $as_local_path = false)
 {
@@ -103,7 +113,11 @@ function resourceExists($filename, $return_url = false, $as_local_path = false)
 }
 
 /**
- * Returns aresource file, as local path or as URI
+ * Returns aresource file, as local path or as URI.
+ * 
+ * @param string $filename The resource filename (relative or name only)
+ * @param bool $as_local_path If true returns no URL, but a local path
+ * @return string An URL to the resource or the local file path. FALSE on error.
  */
 function resFile($filename, $as_local_path = false)
 {
@@ -122,6 +136,7 @@ function resFile($filename, $as_local_path = false)
 class WdfResource implements ICallable
 {
 	/**
+	 * @internal Returns a JS resource
 	 * @attribute[RequestParam('res','string')]
 	 */
 	function js($res)
@@ -135,6 +150,7 @@ class WdfResource implements ICallable
 	}
 	
 	/**
+	 * @internal Returns a CSS resource
 	 * @attribute[RequestParam('res','string')]
 	 */
 	function skin($res)

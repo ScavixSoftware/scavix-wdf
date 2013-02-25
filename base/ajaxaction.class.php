@@ -56,7 +56,8 @@ class AjaxAction
 	}
 	
 	/**
-	 * Creates a wdf.post call
+	 * Creates a wdf.post call.
+	 * 
 	 * @param mixed $controller Controller to call
 	 * @param string $event Method to call
 	 * @param string|array $data Data to be posted
@@ -99,6 +100,7 @@ class AjaxAction
 	
 	/**
 	 * Checks if the user has seen and accepted a confirmation.
+	 * 
 	 * See <AjaxAction::Confirm>
 	 * @param string $text_base Text base the user confirmed
 	 * @return boolean True if user clicked OK

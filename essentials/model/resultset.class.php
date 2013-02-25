@@ -67,7 +67,7 @@ class ResultSet implements Iterator, ArrayAccess
 	 */
 	public function ErrorOutput()
 	{
-		return $this->_sql_used."\n".my_var_export($this->_stmt->errorInfo());
+		return $this->_sql_used."\n".render_var($this->_stmt->errorInfo());
 	}
 	
 	/**

@@ -48,6 +48,7 @@ $GLOBALS['LOGGING_ERROR_NAMES'] = array(
  *   'min_severity' := minimum severity. see Logger class for constants, but define as string like so: "WARNING"
  *   'max_trace_depth' := maximum depth of stacktraces
  *   'class' := Class to be used as logger (when other that 'Logger', see TraceLogger as example)
+ * @return void
  */
 function logging_init()
 {
@@ -257,7 +258,7 @@ function log_warn($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null
 }
 
 /**
- * Logs to severity ERROR
+ * @shortcut Logs to severity ERROR
  */
 function log_error($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)
 {

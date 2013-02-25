@@ -523,7 +523,7 @@ function execute_hooks($type,$arguments = array())
 
 	is_valid_hook_type($type);
 
-	$loghooks = ( $CONFIG['system']['hook_logging']); // && function_exists('dump') );
+	$loghooks = ( $CONFIG['system']['hook_logging']);
 	
 	if( $loghooks )
 		log_debug("BEGIN ".hook_type_to_string($type));
@@ -861,7 +861,7 @@ function __search_file_for_class($class_name,$extension="class.php",$classpath_l
  * 
  * This is quite basic and used very often. It will return an URL to the given controller.
  * It checks if the routing features are enabled and ensures the the URLs are working!
- * @param string $controller The page to be loaded
+ * @param mixed $controller The page to be loaded (can be <Renderable> or string)
  * @param string $event The event to be executed
  * @param array|string $data Optional data to be passed
  * @param string $url_root Optional root, will use system-wide detected/set one if not given

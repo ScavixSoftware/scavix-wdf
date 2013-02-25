@@ -24,6 +24,9 @@
  */
 
 /**
+ * Base class for all google controls.
+ * 
+ * Ensures all libraries are loaded correctly and stuff.
  * @attribute[ExternalResource('//www.google.com/jsapi')]
  */
 class GoogleControl extends Control
@@ -31,11 +34,17 @@ class GoogleControl extends Control
 	protected static $_apis = array();
 	private static $_delayedHookAdded = false;
 	
+	/**
+	 * @param string $tag Allows to specify another tag for the wrapper control, default for google controls is &lt;span&gt;
+	 */
 	function __initialize($tag='span')
 	{
 		parent::__initialize($tag);
 	}
 	
+	/**
+	 * @override
+	 */
 	function PreRender($args = array())
 	{
 		// we register a new HOOK_PRE_RENDER handler here so that it will be executed when all others are
@@ -55,6 +64,9 @@ class GoogleControl extends Control
 		return parent::PreRender($args);
 	}
 	
+	/**
+	 * @internal PreRender HOOK handler
+	 */
 	function AddLoaderCode($args)
 	{
 		$loader = array();

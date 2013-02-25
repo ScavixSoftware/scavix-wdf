@@ -24,6 +24,8 @@
  */
 
 /**
+ * Base class for all HTML related stuff.
+ * 
  * @attribute[Resource('jquery.js')]
  */
 abstract class Renderable 
@@ -33,7 +35,20 @@ abstract class Renderable
 	var $_content = array();
 	var $_script = array();
 
+	/**
+	 * Renders this control as controller.
+	 * 
+	 * Extending classes must implement this (<Control>, <Template>).
+	 * @return string The rendered control
+	 */
 	abstract function WdfRenderAsRoot();
+	
+	/**
+	 * Renders this control.
+	 * 
+	 * Extending classes must implement this (<Control>, <Template>).
+	 * @return string The rendered control
+	 */
 	abstract function WdfRender();
 	
 	function __getContentVars(){ return array('_content'); }

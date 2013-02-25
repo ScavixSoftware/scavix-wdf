@@ -23,6 +23,10 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
+/**
+ * Base class for google visualization controls.
+ * 
+ */
 abstract class GoogleVisualization extends GoogleControl implements ICallable
 {
 	public static $DefaultDatasource = false;
@@ -34,6 +38,12 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	var $gvOptions;
 	var $gvQuery;
 	
+	/**
+	 * Static creator function.
+	 * 
+	 * @param string $title Title string
+	 * @return GoogleVisualization Created control
+	 */
 	static function Make($title=false)
 	{
 		$className = get_called_class();
@@ -43,6 +53,12 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		return $res;
 	}
 	
+	/**
+	 * @param string $type Type of google visualization
+	 * @param array $options Options. Depends on $type
+	 * @param string $query A valid google query string. See [queryobjects](https://developers.google.com/chart/interactive/docs/reference#queryobjects)
+	 * @param DataSource $ds DataSource to use, will fall back to GoogleVisualization::$DefaultDatasource or (if that is not set) to <model_datasource>('internal')
+	 */
 	function __initialize($type=false,$options=array(),$query=false,$ds=false)
 	{
 		parent::__initialize();
@@ -58,6 +74,9 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		store_object($this);
 	}
 	
+	/**
+	 * @override
+	 */
 	function PreRender($args = array())
 	{
 		$id = $this->id;
@@ -110,6 +129,11 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		return 'text';
 	}
 	
+	/**
+	 * @internal AJAX callback for google queries.
+	 * 
+	 * See https://developers.google.com/chart/interactive/docs/reference#queryobjects
+	 */
 	function Query()
 	{
 		log_debug("{$this->id}->Query()",$_REQUEST,$this);
@@ -123,6 +147,14 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		die("");
 	}
 	
+	/**
+	 * Sets an option.
+	 * 
+	 * Valid options vary for the different visualizations.
+	 * @param string $name Option name
+	 * @param mixed $value OPtion value
+	 * @return GoogleVisualization `$this`
+	 */
 	function opt($name,$value=null)
 	{
 		if( is_null($value) )
@@ -131,6 +163,14 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		return $this;
 	}
 	
+	/**
+	 * Sets up a google query from a database table.
+	 * 
+	 * See https://developers.google.com/chart/interactive/docs/reference#queryobjects
+	 * @param string $table_name Table name
+	 * @param mixed $query The goolge query
+	 * @return GoogleVisualization `$this`
+	 */
 	function setDbQuery($table_name,$query)
 	{
 		$this->EntityFromTable($table_name);
@@ -138,6 +178,14 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		return $this;
 	}
 	
+	/**
+	 * Creates a google query entity from a database table.
+	 * 
+	 * See https://developers.google.com/chart/interactive/docs/reference#queryobjects
+	 * @param string $table_name Table name
+	 * @param string $alias Alias name this can be referenced as
+	 * @return GoogleVisualization `$this`
+	 */
 	function EntityFromTable($table_name, $alias=false)
 	{
 		$schema = $this->_ds->Driver->getTableSchema($table_name);
@@ -153,5 +201,6 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 			);
 		
 		$this->_entities[$alias?$alias:$table_name] = $entity;
+		return $this;
 	}
 }

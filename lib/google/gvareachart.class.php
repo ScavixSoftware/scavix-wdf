@@ -23,8 +23,16 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
+/**
+ * An area chart.
+ * 
+ * See https://developers.google.com/chart/interactive/docs/gallery
+ */
 class gvAreaChart extends GoogleVisualization
 {
+	/**
+	 * @override
+	 */
 	function __initialize($options=array(),$query=false,$ds=false)
 	{
 		parent::__initialize('AreaChart',$options,$query,$ds);

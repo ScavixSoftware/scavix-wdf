@@ -23,8 +23,16 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
+/**
+ * A bar chart
+ * 
+ * See https://developers.google.com/chart/interactive/docs/gallery
+ */
 class gvBarChart extends GoogleVisualization
 {
+	/**
+	 * @override
+	 */
 	function __initialize($options=array(),$query=false,$ds=false)
 	{
 		parent::__initialize('BarChart',$options,$query,$ds);

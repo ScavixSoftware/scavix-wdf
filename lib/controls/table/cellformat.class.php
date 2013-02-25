@@ -209,7 +209,7 @@ class CellFormat
 					}
 					break;
 				case 'copy':
-//					log_debug("$cond => ".my_var_export($css));
+//					log_debug("$cond => ".render_var($css));
 					return $css->GetConditonalCss();
 					break;
 			}

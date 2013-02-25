@@ -413,7 +413,7 @@ class OAuthRequester extends OAuthRequestSigner
 		curl_setopt($ch, CURLOPT_HEADER, 		 true);
 		$txt = curl_exec($ch);
 //log_debug("CURL Url: $url");
-//log_debug("CURL Header: ".  my_var_export($header));
+//log_debug("CURL Header: ".  render_var($header));
 //log_debug("Body: $body");
 		if ($txt === false) {
 			$error = curl_error($ch);

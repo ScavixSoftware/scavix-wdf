@@ -308,7 +308,7 @@ class System_Reflector extends ReflectionClass
 		$res = $this->_getCached($this->_attribute_cache,$cache_key,$filter);
 		if( $res !== false )
 		{
-//			die("cached ".my_var_export($res));
+//			die("cached ".render_var($res));
 			return $res;
 		}
 		if( !$this->hasMethod($method_name) )

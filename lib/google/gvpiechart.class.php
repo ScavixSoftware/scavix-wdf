@@ -23,8 +23,16 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
+/**
+ * A pie chart
+ * 
+ * See https://developers.google.com/chart/interactive/docs/gallery
+ */
 class gvPieChart extends GoogleVisualization
 {
+	/**
+	 * @override
+	 */
 	function __initialize($options=array(),$query=false,$ds=false)
 	{
 		parent::__initialize('PieChart',$options,$query,$ds);

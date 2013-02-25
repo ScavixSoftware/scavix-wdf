@@ -23,6 +23,11 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
+/**
+ * Initializes the amin essential.
+ * 
+ * @return void
+ */
 function admin_init()
 {
 	global $CONFIG;
@@ -37,6 +42,14 @@ function admin_init()
 	}
 }
 
+/**
+ * Registers a handler for the <SysAdmin> controller.
+ * 
+ * @param string $label Label for the navigation entry
+ * @param string $controller Controller class
+ * @param string $method Method to be called
+ * @return void
+ */
 function admin_register_handler($label,$controller,$method)
 {
 	global $CONFIG;

@@ -25,6 +25,11 @@
 
 require_once(__DIR__.'/session/serializer.class.php');
 
+/**
+ * Initializes the session essential.
+ * 
+ * @return void
+ */
 function session_init()
 {
 	global $CONFIG;
@@ -57,8 +62,7 @@ function session_init()
 }
 
 /**
- * Starts the session handler.
- * Will automatically be called by system_init()
+ * @internal Starts the session handler.
  */
 function session_run()
 {
@@ -78,7 +82,8 @@ function session_run()
 }
 
 /**
- * Checks if the unserializer is doing something
+ * Checks if the unserializer is doing something.
+ * 
  * @return bool true if running, else false
  */
 function unserializer_active()
@@ -88,6 +93,7 @@ function unserializer_active()
 
 /**
  * Tests two objects for equality.
+ * 
  * Checks reference-equality or storage_id equality (if storage_id is set)
  * @param object $o1 First object to compare
  * @param object $o2 Second object to compare
@@ -118,48 +124,65 @@ function equals(&$o1, &$o2)
 	);
 }
 
-//--------------------------------------------------------------------------------------
-// All functions below this comment are shortcuts to the session handler object
-// to ensure backwards compatibility.
-// You may use the glogal $fw_session_handler to call these (or more) functions
-// directly.
-//--------------------------------------------------------------------------------------
-
+/**
+ * @shortcut <SessionBase::Sanitize>
+ */
 function session_sanitize()
 {
 	return $GLOBALS['fw_session_handler']->Sanitize();
 }
 
+/**
+ * @shortcut <SessionBase::KillAll>
+ */
 function session_kill_all()
 {
 	$GLOBALS['fw_session_handler']->KillAll();
 }
 
+/**
+ * @shortcut <SessionBase::KeepAlive>
+ */
 function session_keep_alive($request_key='PING')
 {
 	return $GLOBALS['fw_session_handler']->KeepAlive($request_key);
 }
 
+/**
+ * @shortcut <SessionBase::Update>
+ */
 function session_update()
 {
 	return $GLOBALS['fw_session_handler']->Update();
 }
 
+/**
+ * @shortcut <SessionBase::RequestId>
+ */
 function request_id()
 {
 	return $GLOBALS['fw_session_handler']->RequestId();
 }
 
+/**
+ * @shortcut <SessionBase::Store>
+ */
 function store_object(&$obj,$id="",$autoload=false)
 {
 	return $GLOBALS['fw_session_handler']->Store($obj,$id,$autoload);
 }
 
+/**
+ * @shortcut <SessionBase::Delete>
+ */
 function delete_object($id)
 {
 	return $GLOBALS['fw_session_handler']->Delete($id);
 }
 
+/**
+ * @shortcut <SessionBase::Exists>
+ */
 function in_object_storage($id)
 {
 	if( !isset($GLOBALS['fw_session_handler']) )
@@ -167,11 +190,17 @@ function in_object_storage($id)
 	return $GLOBALS['fw_session_handler']->Exists($id);
 }
 
+/**
+ * @shortcut <SessionBase::Restore>
+ */
 function &restore_object($id)
 {
 	return $GLOBALS['fw_session_handler']->Restore($id);
 }
 
+/**
+ * @shortcut <SessionBase::CreateId>
+ */
 function create_storage_id(&$obj)
 {
 	if( isset($GLOBALS['fw_session_handler']) && is_object($GLOBALS['fw_session_handler']) )
@@ -179,52 +208,34 @@ function create_storage_id(&$obj)
 	return false;
 }
 
+/**
+ * @shortcut <SessionBase::RegenerateId>
+ */
 function regenerate_session_id()
 {
 	return $GLOBALS['fw_session_handler']->RegenerateId();
 }
 
+/**
+ * @shortcut <SessionBase::GenerateSessionId>
+ */
 function generate_session_id()
 {
 	return $GLOBALS['fw_session_handler']->GenerateSessionId();
 }
 
-function session_get_handler()
-{
-//	log_error("session.save_handler = ".ini_get("session.save_handler"));
-	return ini_get("session.save_handler");
-}
-
-function session_get_path()
-{
-	return ini_get("session.save_path");
-}
-
-function session_use_memcache()
-{
-	return ((session_get_handler() == "memcache") || (session_get_handler() == "memcached"));
-}
-
-function session_memcache_host()
-{
-	$u = parse_url(session_save_path());
-	if( !isset($u['host']) )
-		WdfException::Raise("Invalid memcache server or not using memcache");
-	return $u['host'];
-}
-
-function session_memcache_port()
-{
-	$u = parse_url(session_save_path());
-	return isset($u['port'])?$u['port']:11211;
-}
-
+/**
+ * @shortcut <Serializer::Serialize>
+ */
 function session_serialize($value)
 {
 	$s = new Serializer();
 	return $s->Serialize($value);
 }
 
+/**
+ * @shortcut <Serializer::Unserialize>
+ */
 function session_unserialize($value)
 {
 	$s = new Serializer();
