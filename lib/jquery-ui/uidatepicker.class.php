@@ -122,17 +122,4 @@ class uiDatePicker extends uiControl
 		
 		return $this;
 	}
-	
-	/**
-	 * Sets an option.
-	 * 
-	 * See http://api.jqueryui.com/datepicker/
-	 * @param string $name Option name
-	 * @param mixed $value Option value
-	 * @return void
-	 */
-	function SetOption($name,$value)
-	{
-		$this->Options[$name] = $value;
-	}
 }

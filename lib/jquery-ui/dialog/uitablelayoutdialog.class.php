@@ -48,6 +48,7 @@ class uiTableLayoutDialog extends uiDialog
 	 * 
 	 * @param mixed $label Label for the first column
 	 * @param mixed $control Control for the second column
+	 * @return uiTableLayoutDialog `$this`
 	 */
 	function AddLine($label, $control=false)
 	{
@@ -55,5 +56,6 @@ class uiTableLayoutDialog extends uiDialog
 			$this->_table->NewRow(array($label,$control));
 		else
 			$this->_table->NewRow()->NewCell($label)->colspan = "2";
+		return $this;
 	}
 }

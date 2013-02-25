@@ -80,6 +80,7 @@ class uiConfirmation extends uiDialog
 	 * Set the callback for the positive button.
 	 * 
 	 * @param string $action JS code to be executed when the positive button is clicked (OK, YES)
+	 * @return uiConfirmation `$this`
 	 */
 	function SetOkCallback($action)
 	{
@@ -92,5 +93,6 @@ class uiConfirmation extends uiDialog
 				$this->SetButton(tds('BTN_YES','Yes'),$action);
 				break;
 		}
+		return $this;
 	}
 }

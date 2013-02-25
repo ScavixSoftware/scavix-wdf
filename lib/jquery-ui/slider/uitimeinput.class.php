@@ -23,9 +23,17 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
+/**
+ * Double slider input control allowing you to input time values.
+ * 
+ */
 class uiTimeInput extends uiControl
 {
-	function __initialize($id, $defvalue=0, $onchange = "")
+	/**
+	 * @param int $defvalue Initial value (seconds)
+	 * @param string $onchange onChange JS code
+	 */
+	function __initialize($defvalue=0, $onchange = "")
 	{
 		parent::__initialize("div");
 
@@ -33,9 +41,8 @@ class uiTimeInput extends uiControl
 
 		$m = floor($defvalue / 60);
 		$s = $defvalue % 60;
-		log_debug("TimeInput($id): $defvalue $m $s");
 
-		$this->id = $id;
+		$id = $this->id;
 		$this->class = "timeinput ui-widget-content ui-widget ui-corner-all";
 		$this->css("border","1px solid transparent");
 		$this->onmouseover = "$(this).css({border:''});";

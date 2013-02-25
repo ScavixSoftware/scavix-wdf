@@ -23,9 +23,18 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
+/**
+ * Double slider input control allowing you to input percent values.
+ * 
+ */
 class uiPercentageInput extends uiControl
 {
-	function __initialize($id, $defvalue=0, $onchange="",$decimal_point=',')
+	/**
+	 * @param float $defvalue Initial value
+	 * @param string $onchange onChange JS code
+	 * @param string $decimal_point Deciaml separator char
+	 */
+	function __initialize($defvalue=0, $onchange="",$decimal_point=',')
 	{
 		parent::__initialize("div");
 
@@ -33,9 +42,8 @@ class uiPercentageInput extends uiControl
 
 		$e = floor($defvalue);
 		$c = round(($defvalue-$e),2) * 100;
-		log_debug("PercentageInput($id): $defvalue $e $c");
 
-		$this->id = $id;
+		$id = $this->id;
 		$this->class = "currencyinput ui-widget-content ui-widget ui-corner-all";
 		$this->css("border","1px solid transparent");
 		$this->onmouseover = "$(this).css({border:''});";

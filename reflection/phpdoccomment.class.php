@@ -309,6 +309,7 @@ class PhpDocComment
 		$desc = str_replace(array('<at>','<b>','</b>','<code>','</code>','<br/>'),array('@','**','**','```','```',"\t\n"),$desc);
 		$desc = str_replace(array_keys($this->entities),array_values($this->entities),$desc);
 		$desc = preg_replace('/<code ([^>]*)>/','```$1', $desc);
+		$desc = str_replace("```\t","```",$desc); // tripple ` followed by tab will break the output!
 		return $desc;
 	}
 	

@@ -25,44 +25,46 @@
 default_string("TXT_UNKNOWN", 'Unknown');
 	
 /**
+ * This is a container for UI elements.
+ * 
+ * May be deprecated, we used it in the past for widget based UI designs. 
+ * It's kind of a dialog, but not exactly and contain clickable icons in the header.
  * @attribute[Resource('jquery-ui/ui.container.js')]
  * @attribute[Resource('jquery-ui/ui.container.css')]
  */
 class uiContainer extends uiControl
 {
-	private $_options = array();
-
+	/**
+	 * @param string $title Title for header section
+	 * @param options $options
+	 */
 	function __initialize($title="TXT_UNKNOWN",$options=array())
 	{
 		parent::__initialize("div");
-		$this->_options = $options;
+		$this->Options = $options;
 		$this->title = $title;
-		$this->_script[0] = "$('#".$this->id."').container(".system_to_json($options).");";
-	}
-
-	function SetOption($name, $value)
-	{
-		$this->_options[$name] = $value;
-		$this->_script[0] = "$('#".$this->id."').container(".system_to_json($this->_options).");";
 	}
 	
-	function SetOptions($options)
+	/**
+	 * @override
+	 */
+	function PreRender($args = array())
 	{
-		$this->_options = array_merge($this->_options,$options);
-		$this->_script[0] = "$('#".$this->id."').container(".system_to_json($this->_options).");";
+		$this->script("$('#{self}').container(".system_to_json($this->Options).");");
+		parent::PreRender($args);
 	}
 
-	function GetOption($name,$default)
-	{
-		if( isset($this->_options[$name]) )
-			return $this->_options[$name];
-		return $default;
-	}
-
+	/**
+	 * Adds a button to the header section.
+	 * 
+	 * @param string $icon A valid <uiControl::Icon>
+	 * @param string $function JS code to be executed on click
+	 * @return uiContainer `$this`
+	 */
 	function AddButton($icon,$function)
 	{
-		if( isset($this->_options['buttons']) )
-			$buttons = $this->_options['buttons'];
+		if( isset($this->Options['buttons']) )
+			$buttons = $this->Options['buttons'];
 		else
 			$buttons = array();
 
@@ -72,7 +74,7 @@ class uiContainer extends uiControl
 		else
 			$buttons[$icon] = "[jscode]".$function;
 
-		$this->_options['buttons'] = $buttons;
-		$this->_script[0] = "$('#".$this->id."').container(".system_to_json($this->_options).");";
+		$this->Options['buttons'] = $buttons;
+		return $this;
 	}
 }

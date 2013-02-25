@@ -23,9 +23,17 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
+/**
+ * Double slider input control allowing you to input currency values.
+ * 
+ */
 class uiCurrencyInput extends uiControl
 {
-	function __initialize($id, $defvalue=0, $onchange="")
+	/**
+	 * @param float $defvalue Initial value
+	 * @param string $onchange onChange JS code
+	 */
+	function __initialize($defvalue=0, $onchange="")
 	{
 		parent::__initialize("div");
 
@@ -35,7 +43,7 @@ class uiCurrencyInput extends uiControl
 		$c = round(($defvalue-$e),2) * 100;
 		log_debug("CurrencyInput($id): $defvalue $e $c");
 
-		$this->id = $id;
+		$id = $this->id;
 		$this->class = "currencyinput ui-widget-content ui-widget ui-corner-all";
 		$this->css("border","1px solid transparent");
 		$this->onmouseover = "$(this).css({border:''});";
