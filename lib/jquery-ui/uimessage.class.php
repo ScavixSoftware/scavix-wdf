@@ -29,8 +29,23 @@
  * Will use the jQueryUI standard theming.
  * @attribute[Resource('jquery-ui/ui.message.css')]
  */
-class uiMessage extends uiTemplate
+class uiMessage extends uiControl
 {
+	function __initialize($message,$type='highlight')
+	{
+		parent::__initialize('div');
+		$this->class = "ui-widget ui-message";
+		
+		if( function_exists('translation_string_exists') && translation_string_exists($message) )
+			$message = getString($message);
+		$icon = $type=='highlight'?'info':'alert';
+		
+		$sub = $this->content( new Control('div') );
+		$sub->class = "ui-state-$type ui-corner-all";
+		$sub->content("<span class='ui-icon ui-icon-close' onclick=\"$(this).parent().parent().slideUp('fast', function(){ $(this).remove(); })\"></span>");
+		$sub->content("<p><span class='ui-icon ui-icon-$icon'></span>$message</p>");
+	}
+	
 	/**
 	 * Creates a new uiMessage as hint.
 	 * 
@@ -39,12 +54,7 @@ class uiMessage extends uiTemplate
 	 */
 	static function Hint($message)
 	{
-		if( function_exists('translation_string_exists') && translation_string_exists($message) )
-			$message = getString($message);
-		
-		$res = new uiMessage();
-		$res->set('message',$message);
-		return $res;
+		return new uiMessage($message);
 	}
 	
 	/**
@@ -55,8 +65,6 @@ class uiMessage extends uiTemplate
 	 */
 	static function Error($message)
 	{
-		$res = uiMessage::Hint($message);
-		$res->set('type','error');
-		return $res;
+		return new uiMessage($message,'error');
 	}
 }

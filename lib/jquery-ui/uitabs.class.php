@@ -23,98 +23,64 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
-class uiTabs extends uiTemplate
+class uiTabs extends uiControl
 {
-	protected $_tabContent = array();
-	protected $_tabIds = array();
+	var $list;
 
-	private $_sortable = false;
-
-    function __initialize($id,$options=array(),$width=false)
+    function __initialize($options=array())
 	{
-		parent::__initialize();
-
-		if( !is_array($options) )
-			$options = array($options);
-
-		if( $width )
-			$this->set('width',$width."px");
-
-		$this->Options = $options;
-		$this->set('id',$id);
+		parent::__initialize('div');
+		$this->Options = force_array($options);
+		$this->list = $this->content(new Control('ul'));
 	}
 
-	public function WdfRender()
+	/**
+	 * @override
+	 */
+	public function PreRender($args = array())
 	{
-		$this->set('tab_content',$this->_tabContent);
-		$this->set('tab_ids',$this->_tabIds);
-		$this->set('options',$this->PrepareOptions());
-		$this->set('sortable',$this->_sortable);
-
-		return parent::WdfRender();
+		log_debug(__METHOD__);
+		$this->script("$('#{self}').tabs(".system_to_json($this->Options).")");
+		return parent::PreRender($args);
 	}
 
-	function AddTab($tabid,$content="",$label=false)
+	function AddTab($label, $content="")
 	{
-		if( !$label )
-			$label = $tabid;
-
-		$this->_tabIds[$tabid] = $label;
-		$this->_tabContent[$tabid] = array($content);
+		$container = $this->content(new Control('div'));
+		$container->content($content);
+		$this->list->content( new Control('li') )->content("<a href='#{$container->id}'>$label</a>");
+		return $container;
 	}
 
-	function AddToTab($tabid,$content)
+	function AddToTab($tab_or_index,$content)
 	{
-		$this->_tabContent[$tabid][] = $content;
-	}
-
-	function SelectTab($tabid)
-	{
-		$this->Options['selected'] = $tabid;
-	}
-
-	function SetTabsSortable($sortable=true)
-	{
-		$this->_sortable = $sortable;
-	}
-
-	private function PrepareOptions()
-	{
-		$options = "";
-		if( isset($this->Options['selected']) && is_int($this->Options['selected']) )
-			$options .= "selected: ".$this->Options['selected'].",";
-		else if(isset($this->Options['selected']) && array_key_exists($this->Options['selected'], $this->_tabIds) )
+		if( $tab_or_index instanceof Renderable )
 		{
-			$array = array_flip(array_keys($this->_tabIds));
-			$options .= "selected: ".$array[$this->Options['selected']].",";
-		}		
-		if( isset($this->Options['ajaxOptions']) )
-			$options .= "ajaxOptions: {".$this->Options['ajaxOptions']."},";
-		if( isset($this->Options['cache']) )
-			$options .= "cache: '".$this->Options['cache']."',";
-		if( isset($this->Options['collapsible']) )
-			$options .= "collapsible: '".$this->Options['collapsible']."',";
-		if( isset($this->Options['cookie']) )
-			$options .= "cookie: ".$this->Options['cookie'].",";
-		if( isset($this->Options['deselectable']) )
-			$options .= "deselectable: '".$this->Options['deselectable']."',";
-		if( isset($this->Options['disabled']) )
-			$options .= "disabled: ".$this->Options['disabled'].",";
-		if( isset($this->Options['event']) )
-			$options .= "event: '".$this->Options['event']."',";
-		if( isset($this->Options['fx']) )
-			$options .= "fx: ".$this->Options['fx'].",";
-		if( isset($this->Options['idPrefix']) )
-			$options .= "idPrefix: '".$this->Options['idPrefix']."',";
-		if( isset($this->Options['panelTemplate']) )
-			$options .= "panelTemplate: '".$this->Options['panelTemplate']."',";
-		if( isset($this->Options['select']) )
-		    $options .= "select: ".$this->Options['select'].',';
-		if( isset($this->Options['spinner']) )
-			$options .= "spinner: '".$this->Options['spinner']."',";
-		if( isset($this->Options['tabTemplate']) )
-			$options .= "tabTemplate: '".$this->Options['tabTemplate']."',";
+			foreach( $this->_content as $c )
+				if( $c == $tab_or_index )
+				{
+					$c->content($content);
+					break;
+				}
+		}
+		else
+			$this->_content[$tab_or_index+1]->content($content);
+		return $this;
+	}
 
-		return rtrim($options,',');
+	function SetSelected($tab_or_index)
+	{
+		if( $tab_or_index instanceof Renderable )
+		{
+			foreach( $this->_content as $c )
+				if( $c == $tab_or_index )
+				{
+					$this->Options['selected'] = $c->id;
+					break;
+				}
+		}
+		else
+			$this->Options['selected'] = $this->_content[$tab_or_index+1]->id;
+		return $this;
 	}
 }
