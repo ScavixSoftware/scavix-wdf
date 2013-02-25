@@ -29,7 +29,7 @@ $GLOBALS['LOGGING_ERROR_NAMES'] = array(
 	'RECOVERABLE_ERROR','DEPRECATED','USER_DEPRECATED','ALL');
 
 /**
- * Initializes the logging mechanism
+ * Initializes the logging mechanism.
  * 
  * Will use the ini_get('error_log') setting to ensure working logger
  * functionality by default.
@@ -81,9 +81,7 @@ function logging_init()
 }
 
 /**
- * global error handler
- * 
- * see <set_error_handler>
+ * @internal Global error handler. See <set_error_handler>
  */
 function global_error_handler($errno, $errstr, $errfile, $errline)
 {
@@ -116,9 +114,7 @@ function global_error_handler($errno, $errstr, $errfile, $errline)
 }
 
 /**
- * global exception handler
- * 
- * see <set_exception_handler>
+ * @internal Global exception handler. See <set_exception_handler>
  */
 function global_exception_handler($ex)
 {
@@ -156,6 +152,10 @@ function global_exception_handler($ex)
  * 
  * Note that setting extensions is only supported on a per logger basis, so you'll need
  * a valid alias as set in initial configuration.
+ * @param string $alias The loggers alias name
+ * @param string $key Key to use
+ * @param string $value Value to use
+ * @return void
  */
 function logging_extend_logger($alias,$key,$value)
 {
@@ -164,7 +164,10 @@ function logging_extend_logger($alias,$key,$value)
 }
 
 /**
- * Adds a category to all loggers
+ * Adds a category to all loggers.
+ * 
+ * @param string $name Category to add
+ * @return void
  */
 function logging_add_category($name)
 {
@@ -173,7 +176,10 @@ function logging_add_category($name)
 }
 
 /**
- * Removes a category from all loggers
+ * Removes a category from all loggers.
+ * 
+ * @param string $name Category to remove
+ * @return void
  */
 function logging_remove_category($name)
 {
@@ -183,6 +189,9 @@ function logging_remove_category($name)
 
 /**
  * Sets the minimum severity to log.
+ * 
+ * @param string $min_severity A valid severity string
+ * @return void
  */
 function logging_set_level($min_severity = "INFO")
 {
@@ -191,10 +200,15 @@ function logging_set_level($min_severity = "INFO")
 }
 
 /**
+ * Tries to set up a category for a logged in user.
+ * 
  * Checks the object store for an object with id $object_storage_id 
- * that contains a field $fieldname. Then adds contant of that field as category to all loggers.
+ * that contains a field $fieldname. Then adds content of that field as category to all loggers.
  * 
  * Note: This will NOT extend the logger with information as logging_extend_logger does!
+ * @param string $object_storage_id Storage ID of the object to check for
+ * @param string $fieldname Name of field/property to use as category ('name' will use $obj->name as category)
+ * @return void
  */
 function logging_set_user($object_storage_id='user',$fieldname='username')
 {
@@ -207,7 +221,7 @@ function logging_set_user($object_storage_id='user',$fieldname='username')
 }
 
 /**
- * Logs to severity TRACE
+ * @shortcut Logs to severity TRACE
  */
 function log_trace($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)
 {
@@ -216,7 +230,7 @@ function log_trace($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=nul
 }
 
 /**
- * Logs to severity DEBUG
+ * @shortcut Logs to severity DEBUG
  */
 function log_debug($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)
 {
@@ -225,7 +239,7 @@ function log_debug($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=nul
 }
 
 /**
- * Logs to severity INFO
+ * @shortcut Logs to severity INFO
  */
 function log_info($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)
 {
@@ -234,7 +248,7 @@ function log_info($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null
 }
 
 /**
- * Logs to severity WARN
+ * @shortcut Logs to severity WARN
  */
 function log_warn($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)
 {
@@ -252,7 +266,7 @@ function log_error($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=nul
 }
 
 /**
- * Logs to severity FATAL
+ * @shortcut Logs to severity FATAL
  */
 function log_fatal($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)
 {
@@ -262,8 +276,14 @@ function log_fatal($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=nul
 
 /**
  * Logs the $label and $value arguments and then returns the $value argument.
+ * 
  * Use case:
+ * <code php>
  * function x($a){ return log_return("this is a",$a); }
+ * </code>
+ * @param string $label Label to log
+ * @param mixed $value Value to log
+ * @return mixed $value
  */
 function log_return($label,$value)
 {
@@ -272,9 +292,15 @@ function log_return($label,$value)
 }
 
 /**
- * Calls log_debug if the condition is TRUE and then returns the condition
+ * Calls log_debug if the condition is TRUE and then returns the condition.
+ * 
  * Use case:
+ * <code php>
  * log_if( !isset($some_var), "Missing data");
+ * </code>
+ * @param bool $condition true or false
+ * @param_array mixed $a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10 Values to be logged
+ * @return void
  */
 function log_if($condition,$a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)
 {
@@ -284,12 +310,18 @@ function log_if($condition,$a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null
 }
 
 /**
- * Calls log_debug if the condition is FALSE and then returns the condition
+ * Calls log_debug if the condition is FALSE and then returns the condition.
+ * 
  * Use case:
+ * <code php>
  * if( log_if_not( isset($some_var), "Missing data") )
  * {
  *    do_something_with($some_var);
  * }
+ * </code>
+ * @param bool $condition true or false
+ * @param_array mixed $a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10 Values to be logged
+ * @return void
  */
 function log_if_not($condition,$a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)
 {
@@ -301,8 +333,10 @@ function log_if_not($condition,$a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=
 /**
  * Starts a report named $name
  * 
- * Returns an object of type LogReport, see doc there.
+ * Returns an object of type <LogReport>, see doc there.
  * Use log_report to finally write the report to logs.
+ * @param string $name Report name
+ * @return LogReport The new report
  */
 function log_start_report($name)
 {
@@ -313,7 +347,10 @@ function log_start_report($name)
 /**
  * Writes a log-report to the logs.
  * 
- * Use log_start_report to generate a report.
+ * Use <log_start_report> to generate a report.
+ * @param LogReport $report The report to log
+ * @param string $severity Severity to log to
+ * @return void
  */
 function log_report(LogReport $report, $severity="TRACE")
 {
@@ -324,7 +361,11 @@ function log_report(LogReport $report, $severity="TRACE")
 /**
  * Renders a variable into a string representation.
  * 
- * Feel free to use alias function render_var instead as it is shorter
+ * Feel free to use alias function <render_var> instead as it is shorter
+ * @param mixed $content Content to be rendered
+ * @param array $stack IGNORE (just to detect circular references)
+ * @param string $indent IGNORE (just to have nice readable output)
+ * @return string The content rendered as string
  */
 function logging_render_var($content,&$stack=array(),$indent="")
 {
@@ -378,55 +419,9 @@ function logging_render_var($content,&$stack=array(),$indent="")
 }
 
 /**
- * Alias function for logging_render_var
+ * @shortcut <logging_render_var>
  */
 function render_var($content)
 {
 	return logging_render_var($content);
-}
-
-/**
- * now the old error-module functions to have this compatible to old code.
- * note: will not add the following functions
- * - function number()
- * - function relative_path($path)
- * - function write_log_line($severity,$msg,$stacktrace="",$call_debugger = true)
- */
-
-function dump($val,$severity="DEBUG",$stacktrace = "")
-{
-	foreach( $GLOBALS['logging_logger'] as $l )
-		$l->write($severity,$stacktrace!="",$val);
-}
-
-function trace($val,$severity="TRACE")
-{
-	foreach( $GLOBALS['logging_logger'] as $l )
-		$l->write($severity,true,$val);
-}
-
-function error($val,$stacktrace = "")
-{
-	log_error($val);
-}
-
-function dumpif($condition,$val,$severity="DEBUG",$stacktrace = "")
-{
-	if( $condition )
-		dump($val,$severity,$stacktrace);
-}
-
-function my_var_export($subject, $ignored_bool=true)
-{
-	return logging_render_var($subject);
-}
-
-function u_print_r(&$subject, $ignore = array(), $depth = 1, $refChain = array())
-{
-	return logging_render_var($subject);
-}
-
-function set_db_log_category($category)
-{
-	logging_add_category($category);
 }
