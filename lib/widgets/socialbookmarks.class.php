@@ -23,6 +23,10 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * Links to some social networks for sharing the current uri.
+ * 
+ */
 class SocialBookmarks extends Template
 {
 	function __initialize()

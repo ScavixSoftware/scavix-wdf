@@ -22,7 +22,11 @@
  * @copyright 2007-2012 PamConsult GmbH
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
+
+/**
+ * Helper class to deal with datetime values.
+ * 
+ */
 class DateTimeFormat
 {
 	const DF_FULL		= 0x00;
@@ -73,6 +77,13 @@ class DateTimeFormat
 		$this->PM = $pm;
 	}
 
+	/**
+	 * Formats a detetime value to a string.
+	 * 
+	 * @param int $date Time value (see <time>)
+	 * @param int $format_id Format identifier (one of the DateTimeFormta::DT_* constants)
+	 * @return string Formatted string
+	 */
 	function Format($date, $format_id)
 	{
 		if( is_array($format_id) )
@@ -230,13 +241,14 @@ class DateTimeFormat
 
 	/**
 	 * Returns all known DateTime patterns.
-	 * This are the basci ones referred to by the DF_* constants plus the following
+	 * 
+	 * These are the basic ones referred to by the DF_* constants plus the following
 	 * combinations (separated by space):
 	 * - DF_SHORTDATE DF_SHORTTIME
 	 * - DF_LONGDATE DF_SHORTTIME
 	 * - DF_SHORTDATE DF_LONGTIME
 	 * - DF_LONGDATE DF_LONGTIME
-	 * @return array
+	 * @return array Array of format strings
 	 */
 	public function KnownDateTimePatterns()
 	{
@@ -261,8 +273,8 @@ class DateTimeFormat
 
 	/**
 	 * Converts a string to a unix timestamp.
-	 * Tries all KnownDateTimePatterns() and uses the best match.
 	 * 
+	 * Tries all KnownDateTimePatterns() and uses the best match.
 	 * Known Bugs:
 	 * - Culture cs-CZ Format dd MMMM
 	 * - Culture mt-MT Format dddd, d' ta\' 'MMMM yyyy
@@ -270,7 +282,7 @@ class DateTimeFormat
 	 * - Culture vi-VN Format dd MMMM
 	 *
 	 * @param string $str Input string in one of the KnownDateTimePatterns()
-	 * @return int|bool The timestamp or FALSE on error
+	 * @return int The timestamp or FALSE on error
 	 */
 	public function StringToTime($str)
 	{

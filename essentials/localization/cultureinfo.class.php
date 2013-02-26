@@ -23,6 +23,12 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * Represents culture information.
+ * 
+ * See http://msdn.microsoft.com/en-us/library/system.globalization.cultureinfo%28v=vs.71%29.aspx
+ * for some theory
+ */
 class CultureInfo
 {
 	var $Code;
@@ -103,6 +109,12 @@ class CultureInfo
 		return false;
 	}
 
+	/**
+	 * Gets the default region.
+	 * 
+	 * If set, will return the current Region.
+	 * @return RegionInfo The default region
+	 */
 	function DefaultRegion()
 	{
 		if( isset($this->Region) )
@@ -111,6 +123,12 @@ class CultureInfo
 		return $reg[0];
 	}
 
+	/**
+	 * Returns all regions.
+	 * 
+	 * @param bool $only_codes If true will only return their codes
+	 * @return mixed <RegionInfo> or string array for regions
+	 */
 	function GetRegions($only_codes=false)
 	{
 		$ci = $this->ResolveToLanguage();
@@ -123,6 +141,12 @@ class CultureInfo
 		return $res;
 	}
 	
+	/**
+	 * Returns a <CultureInfo> object for another region
+	 * 
+	 * @param mixed $region_code Region code or <RegionInfo> object
+	 * @return CultureInfo The resultung culture or false on error
+	 */
 	function OtherRegion($region_code)
 	{
         if( $region_code instanceof RegionInfo )
@@ -135,6 +159,11 @@ class CultureInfo
 		return false;
 	}
 
+	/**
+	 * Resolves to a region neutral culture
+	 * 
+	 * @return CultureInfo The culture representing the language
+	 */
 	function ResolveToLanguage()
 	{
 		$res = clone $this;
@@ -143,17 +172,36 @@ class CultureInfo
 		return $res;
 	}
     
+	/**
+	 * Ensures that the Region is set.
+	 * 
+	 * That may be the current one or the default one.
+	 * @return CultureInfo A culture with a region set
+	 */
     function EnsureRegion()
 	{
         $res = clone $this;
 		return $res->OtherRegion($res->DefaultRegion());
     }
     
+	/**
+	 * Checks if this object is region neutral.
+	 * 
+	 * That means it represents a language.
+	 * @return bool true or false
+	 */
 	function IsNeutral()
 	{
 		return !isset($this->Region);
 	}
 
+	/**
+	 * Checks if this is representation of a language.
+	 * 
+	 * Sample: 'en-US' is child of 'en'
+	 * @param mixed $parent Culture code or <CultureInfo> object
+	 * @return bool true or false
+	 */
 	function IsChildOf($parent)
 	{
 		if( $this->IsNeutral() )
@@ -162,8 +210,16 @@ class CultureInfo
 			$parent = $parent->Code;
 		if( isset($this->Parent->Code) )
 			return $this->Parent->Code == $parent;
+		return false;
 	}
 
+	/**
+	 * Checks if this represents the language of another culture.
+	 * 
+	 * Sample: 'en' is parent of 'en-US'
+	 * @param mixed $child Culture code or <CultureInfo> object
+	 * @return boolean true or false
+	 */
 	function IsParentOf($child)
 	{
 		if( is_string($child) )
@@ -174,12 +230,25 @@ class CultureInfo
 		return $child->IsChildOf($this);
 	}
 
+	/**
+	 * Sets the timezone.
+	 * 
+	 * @param string $timezone Timezone identifier
+	 * @param bool $alwaysConvertTimesToTimezone If true format methods will convert values to this timezone
+	 * @return void
+	 */
 	function SetTimezone($timezone, $alwaysConvertTimesToTimezone = false)
 	{
 		$this->TimeZone = $timezone;
 		$this->_alwaysConvertTimesToTimezone = $alwaysConvertTimesToTimezone;
 	}
 	
+	/**
+	 * Sets the currency
+	 * 
+	 * @param string $code Currency code
+	 * @return void
+	 */
 	function SetCurrency($code)
 	{
 		$ci = internal_getCulturesByCurrency($code);
@@ -188,6 +257,9 @@ class CultureInfo
 			$this->CurrencyFormat = $ci->CurrencyFormat;
 	}
 
+	/**
+	 * @shortcut <NumberFormat::Format>($number, $decimals, $use_plain)
+	 */
 	function FormatNumber($number, $decimals=false, $use_plain=false)
 	{
 		if( !$this->NumberFormat )
@@ -195,12 +267,18 @@ class CultureInfo
 		return $this->NumberFormat->Format($number, $decimals, $use_plain);
 	}
 
+	/**
+	 * @shortcut <NumberFormat::Format($number, 0)
+	 */
 	function FormatInt($number)
 	{
 		return $this->FormatNumber($number, 0);
 	}
 
-	function FormatCurrency($amount, $use_plain=false, $only_value=false, $escape_group_separator=true)
+	/**
+	 * @shortcut <CurrencyFormat::Format>($amount, $use_plain, $only_value, $escape_group_separator)
+	 */
+	function FormatCurrency($amount, $use_plain=false, $only_value=false)
 	{
 		if( !$this->CurrencyFormat )
 			return "No CurrencyFormat for {$this->Code}";
@@ -211,9 +289,12 @@ class CultureInfo
 			$amount = $conv($this,$amount);
 		}
 
-		return $this->CurrencyFormat->Format($amount, $use_plain, $only_value, $escape_group_separator);
+		return $this->CurrencyFormat->Format($amount, $use_plain, $only_value);
 	}
 
+	/**
+	 * @shortcut <DateTimeFormat::Format>
+	 */
 	function FormatDate($date, $format_id=false, $convert_to_timezone='default')
 	{
 		if( $convert_to_timezone==='default' ) $convert_to_timezone = $this->_alwaysConvertTimesToTimezone;
@@ -233,6 +314,9 @@ class CultureInfo
 		return $dtf->Format($date, $format_id);
 	}
 
+	/**
+	 * @shortcut <DateTimeFormat::Format>
+	 */
 	function FormatTime($date, $format_id=false, $convert_to_timezone='default')
 	{
 		if( $convert_to_timezone==='default' ) $convert_to_timezone = $this->_alwaysConvertTimesToTimezone;
@@ -255,6 +339,9 @@ class CultureInfo
 		return $res;
 	}
 
+	/**
+	 * @shortcut <DateTimeFormat::Format>
+	 */
 	function FormatDateTime($date, $use_long = false, $convert_to_timezone='default')
 	{
 		if( $use_long )
@@ -262,6 +349,12 @@ class CultureInfo
 		return $this->FormatDate($date,false,$convert_to_timezone)." ".$this->FormatTime($date,false,$convert_to_timezone);
 	}
 
+	/**
+	 * Converts a datetime value to this objects timezone
+	 * 
+	 * @param mixed $date Date as string, integer or <DateTime>
+	 * @return int Converted time
+	 */
 	function GetTimezoneDate($date)
 	{
 		$date = $this->_ensureTimeStamp($date);
@@ -280,7 +373,10 @@ class CultureInfo
 	}
 	
 	/**
-	 * Returns the given date/time in server's timezone
+	 * Returns the given date/time converted to server's timezone.
+	 * 
+	 * @param mixed $date Date as string, integer or <DateTime>
+	 * @return int Converted time
 	 */
 	function GetServerDate($date)
 	{

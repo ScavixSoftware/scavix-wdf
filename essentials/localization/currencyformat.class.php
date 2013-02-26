@@ -23,6 +23,10 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * Helper class for currency formatting.
+ * 
+ */
 class CurrencyFormat
 {
 	var $DecimalDigits;
@@ -48,10 +52,18 @@ class CurrencyFormat
 		$this->NativeName = $native;
 	}
 
-	function Format($amount, $use_plain=false, $only_value=false, $escape_group_separator=true)
+	/**
+	 * Formats a currency value to string.
+	 * 
+	 * @param float $amount Value to format
+	 * @param bool $use_plain If true will use curreny code instead of symbol
+	 * @param bool $only_value If true totally skips currency code or symbol
+	 * @return string Formatted currency string
+	 */
+	function Format($amount, $use_plain=false, $only_value=false)
 	{
 		$val = number_format(abs($amount),$this->DecimalDigits,$this->DecimalSeparator,$this->GroupSeparator);
-		if( strlen($this->GroupSeparator) > 0 && !$use_plain && $escape_group_separator )
+		if( strlen($this->GroupSeparator) > 0 && !$use_plain )
 		{
 			$ord = uniord($this->GroupSeparator);
 			$val = str_replace($this->GroupSeparator[0],"&#$ord;",$val);
@@ -68,6 +80,12 @@ class CurrencyFormat
 		return unicode_cleanup_rtl(str_replace("%v", $val, $tmp));
 	}
 
+	/**
+	 * Converts a string formatted as supposed in this currency back to float.
+	 * 
+	 * @param string $str String containing currency
+	 * @return float The value or false on error
+	 */
 	function StrToCurrencyValue($str)
 	{
 //		log_debug("StrToCurrencyValue($str)");

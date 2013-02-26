@@ -23,6 +23,11 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * This represents a region in a culture.
+ * 
+ * Let's say this is the 'US' in 'en-US'.
+ */
 class RegionInfo
 {
 	var $Code;
@@ -38,6 +43,11 @@ class RegionInfo
 		$this->KnownCultures = $cultures;
 	}
 
+	/**
+	 * Gets the default culture.
+	 * 
+	 * @return CultureInfo The default culture or false on error
+	 */
 	function DefaultCulture()
 	{
 		foreach( $this->KnownCultures as $kc )
@@ -48,6 +58,13 @@ class RegionInfo
 		return false;
 	}
 
+	/**
+	 * Ensures the given $culture to a culture valid for this region.
+	 * 
+	 * In other words: Checks all cultures that are valid for this region and returns the match.
+	 * @param mixed $culture <CultureInfo> or culture code
+	 * @return CultureInfo The found culture or false
+	 */
 	function GetCulture($culture)
 	{
 		if( $culture instanceof CultureInfo )
@@ -62,8 +79,16 @@ class RegionInfo
 			if( $ci->IsParentOf($culture) || $ci->IsChildOf($culture) )
 				return $ci;
 		}
+		return false;
 	}
 
+	/**
+	 * Checks if this region contains a culture.
+	 * 
+	 * Useful to check if a language is spoken in a region.
+	 * @param mixed $culture <CultureInfo> or culture code
+	 * @return bool true or false
+	 */
 	function ContainsCulture($culture)
 	{
 		if( $culture instanceof CultureInfo )

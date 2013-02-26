@@ -22,7 +22,11 @@
  * @copyright 2007-2012 PamConsult GmbH
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
+
+/**
+ * Helper class to deal with numbers.
+ * 
+ */
 class NumberFormat
 {
 	var $DecimalDigits;
@@ -38,6 +42,14 @@ class NumberFormat
 		$this->NegativeFormat = $neg;
 	}
 
+	/**
+	 * Formats a number to string.
+	 * 
+	 * @param float $number The value
+	 * @param int $decimals Number of decimals, defaults to this objects DecimalDigits property
+	 * @param bool $use_plain If true skips formatting
+	 * @return string The formatted string
+	 */
 	function Format($number, $decimals = false, $use_plain = false)
 	{
 		$number = doubleval($number);
@@ -54,6 +66,12 @@ class NumberFormat
 		return str_replace("%v", $val, $this->NegativeFormat);
 	}
 
+	/**
+	 * Converts a number matching this objects formatting back to a float.
+	 * 
+	 * @param string $str String containing the formattedc number
+	 * @return float The number or false on error
+	 */
 	function StrToNumber($str)
 	{
 		$number =  str_replace($this->GroupSeparator,"",$str);

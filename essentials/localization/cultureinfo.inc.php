@@ -23,6 +23,9 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * @internal 
+ */
 function internal_getCultureInfo($cultureCode)
 {
 	switch( strtolower( str_replace("_", "-", $cultureCode)) )
@@ -3134,6 +3137,9 @@ function internal_getCultureInfo($cultureCode)
 	return false;
 }
 
+/**
+ * @internal 
+ */
 function internal_getDateTimeFormat($cultureCode)
 {
 	switch( strtolower( str_replace("_", "-", $cultureCode)) )
@@ -3564,6 +3570,9 @@ function internal_getDateTimeFormat($cultureCode)
 	return internal_getDateTimeFormat('en-US');
 }
 
+/**
+ * @internal 
+ */
 function internal_getCultureCodeFromRegion($region)
 {
 	switch( strtoupper($region) )
@@ -3698,6 +3707,9 @@ function internal_getCultureCodeFromRegion($region)
 	}
 }
 
+/**
+ * @internal 
+ */
 function internal_getRegion($code)
 {
 	switch( strtolower($code) )
@@ -3833,6 +3845,9 @@ function internal_getRegion($code)
     return false;
 }
 
+/**
+ * @internal 
+ */
 function internal_getRegionsForLanguage($code)
 {
 	switch( strtolower($code) )
@@ -3910,6 +3925,9 @@ function internal_getRegionsForLanguage($code)
 
 }
 
+/**
+ * @internal 
+ */
 function internal_getLanguage($code)
 {
 	switch( strtolower($code) )
@@ -4057,6 +4075,9 @@ function internal_getLanguage($code)
 
 }
 
+/**
+ * @internal 
+ */
 function internal_getCulturesByCurrency($code)
 {
 	switch( strtolower($code) )
@@ -4168,21 +4189,33 @@ function internal_getCulturesByCurrency($code)
 	}
 }
 
+/**
+ * @internal 
+ */
 function internal_getAllCurrencyCodes()
 {
 	return array('AED','AFN','ALL','AMD','ARS','AUD','AZM','BAM','BDT','BGL','BHD','BND','BOB','BRL','BYB','BZD','CAD','CHF','CLP','CNY','COP','CRC','CSD','CZK','DKK','DOP','DZD','EEK','EGP','ETB','EUR','GBP','GEL','GTQ','HKD','HNL','HRK','HUF','IDR','ILS','INR','IQD','IRR','ISK','JMD','JOD','JPY','KES','KGS','KHR','KRW','KWD','KZT','LAK','LBP','LKR','LTL','LVL','LYD','MAD','MKD','MNT','MOP','MVR','MXN','MYR','NIO','NOK','NPR','NZD','OMR','PAB','PEN','PHP','PKR','PLN','PYG','QAR','ROL','RSD','RUB','RUR','RWF','SAR','SEK','SGD','SYP','THB','TJS','TMT','TND','TRY','TTD','TWD','UAH','USD','UYU','UZS','VEB','VND','XOF','YER','ZAR','ZWD');
 }
 
+/**
+ * @internal 
+ */
 function internal_getAllCultureCodes()
 {
 	return array('af-ZA','am-ET','ar-AE','ar-BH','ar-DZ','ar-EG','ar-IQ','ar-JO','ar-KW','ar-LB','ar-LY','ar-MA','arn-CL','ar-OM','ar-QA','ar-SA','ar-SY','ar-TN','ar-YE','as-IN','az-Cyrl-AZ','az-Latn-AZ','ba-RU','be-BY','bg-BG','bn-BD','bn-IN','bo-CN','br-FR','bs-Cyrl-BA','bs-Latn-BA','ca-ES','co-FR','cy-GB','da-DK','de-AT','de-CH','de-DE','de-LI','de-LU','dsb-DE','dv-MV','el-GR','en-029','en-AU','en-BZ','en-CA','en-GB','en-IE','en-IN','en-JM','en-MY','en-NZ','en-PH','en-SG','en-TT','en-US','en-ZA','en-ZW','es-AR','es-BO','es-CL','es-CO','es-CR','es-DO','es-EC','es-ES','es-GT','es-HN','es-MX','es-NI','es-PA','es-PE','es-PR','es-PY','es-SV','es-US','es-UY','es-VE','et-EE','eu-ES','fa-IR','fi-FI','fil-PH','fo-FO','fr-BE','fr-CA','fr-CH','fr-FR','fr-LU','fr-MC','fy-NL','ga-IE','gd-GB','gl-ES','gsw-FR','gu-IN','ha-Latn-NG','he-IL','hi-IN','hr-BA','hr-HR','hsb-DE','hu-HU','hy-AM','id-ID','ig-NG','ii-CN','is-IS','it-CH','it-IT','iu-Cans-CA','iu-Latn-CA','ja-JP','ka-GE','kk-KZ','kl-GL','km-KH','kn-IN','kok-IN','ko-KR','ky-KG','lb-LU','lo-LA','lt-LT','lv-LV','mi-NZ','mk-MK','ml-IN','mn-MN','mn-Mong-CN','moh-CA','mr-IN','ms-BN','ms-MY','mt-MT','nb-NO','ne-NP','nl-BE','nl-NL','nn-NO','nso-ZA','oc-FR','or-IN','pa-IN','pl-PL','prs-AF','ps-AF','pt-BR','pt-PT','qut-GT','quz-BO','quz-EC','quz-PE','rm-CH','ro-RO','ru-RU','rw-RW','sah-RU','sa-IN','se-FI','se-NO','se-SE','si-LK','sk-SK','sl-SI','sma-NO','sma-SE','smj-NO','smj-SE','smn-FI','sms-FI','sq-AL','sr-Cyrl-BA','sr-Cyrl-CS','sr-Cyrl-ME','sr-Cyrl-RS','sr-Latn-BA','sr-Latn-CS','sr-Latn-ME','sr-Latn-RS','sv-FI','sv-SE','sw-KE','syr-SY','ta-IN','te-IN','tg-Cyrl-TJ','th-TH','tk-TM','tn-ZA','tr-TR','tt-RU','tzm-Latn-DZ','ug-CN','uk-UA','ur-PK','uz-Cyrl-UZ','uz-Latn-UZ','vi-VN','wo-SN','xh-ZA','yo-NG','zh-CN','zh-HK','zh-MO','zh-SG','zh-TW','zu-ZA');
 }
 
+/**
+ * @internal 
+ */
 function internal_getAllRegionCodes()
 {
 	return array('029','AE','AF','AL','AM','AR','AT','AU','AZ','BA','BD','BE','BG','BH','BN','BO','BR','BY','BZ','CA','CH','CL','CN','CO','CR','CZ','DE','DK','DO','DZ','EC','EE','EG','ES','ET','FI','FO','FR','GB','GE','GL','GR','GT','HK','HN','HR','HU','IC','ID','IE','IL','IN','IQ','IR','IS','IT','JM','JO','JP','KE','KG','KH','KR','KW','KZ','LA','LB','LI','LK','LT','LU','LV','LY','MA','MC','ME','MK','MN','MO','MT','MV','MX','MY','NG','NI','NL','NO','NP','NZ','OM','PA','PE','PH','PK','PL','PR','PT','PY','QA','RO','RS','RU','RW','SA','SE','SG','SI','SK','SN','SV','SY','TH','TJ','TM','TN','TR','TT','TW','UA','US','UY','UZ','VE','VN','YE','ZA','ZW');
 }
 
+/**
+ * @internal 
+ */
 function internal_getAllLanguageCodes()
 {
 	return array('af','am-ET','ar','arn-CL','as-IN','az','ba-RU','be','bg','bn-BD','bn-IN','bo-CN','br-FR','bs-Cyrl-BA','bs-Latn-BA','ca','co-FR','cy-GB','da','de','dsb-DE','dv','el','en','es','et','eu','fa','fi','fil-PH','fo','fr','fy-NL','ga-IE','gd-GB','gl','gsw-FR','gu','ha-Latn-NG','he','hi','hr','hsb-DE','hu','hy','id','ig-NG','ii-CN','is','it','iu-Cans-CA','iu-Latn-CA','ja','ka','kk','kl-GL','km-KH','kn','ko','kok','ky','lb-LU','lo-LA','lt','lv','mi-NZ','mk','ml-IN','mn','mn-Mong-CN','moh-CA','mr','ms','mt-MT','ne-NP','nl','no','nso-ZA','oc-FR','or-IN','pa','pl','prs-AF','ps-AF','pt','qut-GT','quz-BO','quz-EC','quz-PE','rm-CH','ro','ru','rw-RW','sa','sah-RU','se-FI','se-NO','se-SE','si-LK','sk','sl','sma-NO','sma-SE','smj-NO','smj-SE','smn-FI','sms-FI','sq','sr','sr-Cyrl-BA','sr-Cyrl-ME','sr-Cyrl-RS','sr-Latn-BA','sr-Latn-ME','sr-Latn-RS','sv','sw','syr','ta','te','tg-Cyrl-TJ','th','tk-TM','tn-ZA','tr','tt','tzm-Latn-DZ','ug-CN','uk','ur','uz','vi','wo-SN','xh-ZA','yo-NG','zh-CHS','zh-CHT','zu-ZA');
