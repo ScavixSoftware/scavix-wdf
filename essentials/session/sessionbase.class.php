@@ -31,12 +31,60 @@
  */
 abstract class SessionBase
 {
+	/**
+	 * Implement to perform sanitations like checking if users IP has changed.
+	 * 
+	 * @return void
+	 */
 	abstract function Sanitize();
+	
+	/**
+	 * Clears the complete object store.
+	 * 
+	 * @return void
+	 */
 	abstract function KillAll();
+	
+	/**
+	 * Perform a session keep alive.
+	 * 
+	 * @param string $request_key Key in the REQUEST variable containing the request_id value
+	 * @return void
+	 */
 	abstract function KeepAlive($request_key='PING');
+	
+	/**
+	 * Store an object into the object store.
+	 * 
+	 * @param object $obj Object to be stored
+	 * @param string $id Key to store object under (use <create_storage_id> if not given)
+	 * @param bool $autoload DEPRECATED
+	 * @return void
+	 */
 	abstract function Store(&$obj,$id="",$autoload=false);
+	
+	/**
+	 * Removes an object from the object store.
+	 * 
+	 * @param string $id Key of the object to remove
+	 * @return void
+	 */
 	abstract function Delete($id);
+	
+	/**
+	 * Checks if an object exists in the object store.
+	 * 
+	 * @param string $id Key of the object to check for
+	 * @return bool true or false
+	 */
 	abstract function Exists($id);
+	
+	/**
+	 * Restores an object from the object store.
+	 * 
+	 * @param string $id Key of the object to restore
+	 * @return object The restored object
+	 */
 	abstract function &Restore($id);
 
 	/**

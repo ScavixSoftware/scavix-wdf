@@ -23,6 +23,11 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * Initializes the translation essential.
+ * 
+ * @return void
+ */
 function translation_init()
 {
 	global $CONFIG;
@@ -79,6 +84,9 @@ function translation_init()
 	admin_register_handler('Fetch strings','TranslationAdmin','Fetch');
 }
 
+/**
+ * @internal Includes the translation files
+ */
 function translation_do_includes()
 {
 	global $CONFIG;
@@ -107,11 +115,29 @@ function translation_do_includes()
 	$CONFIG['translation']['default_strings'] = array_diff_key($CONFIG['translation']['default_strings'],$GLOBALS['translation']['strings']);
 }
 
+/**
+ * Adds a custom translation function.
+ * 
+ * Use this to add your own placeholder replacer function. Should accept a single argument which contains
+ * the string and return the ready string.
+ * <code php>
+ * function my_trans($text)
+ * {
+ *     return str_replace('{username}',"It's Me, Mario!",$text);
+ * }
+ * translation_add_function('my_trans');
+ * </code>
+ * @param string $func Name of translation function
+ * @return void
+ */
 function translation_add_function($func)
 {
 	$GLOBALS['__translate_functions'][] = $func;
 }
 
+/**
+ * @internal <preg_replace_callback> handler
+ */
 function __translate_callback($matches)
 {
 	global $__unknown_constants;
@@ -222,6 +248,14 @@ function __noTranslate_callback($matches)
 	return $val."[NT]";
 }
 
+/**
+ * Ensures that a specific content remains untranslated.
+ * 
+ * This may be useful when automatic translation would match one of you texts.
+ * Also very good to prevent user-input from beeing translated!
+ * @param string $content Content to remain untranslated
+ * @return string Returns the string containing attributes to ensure it will not be translated (NT)
+ */
 function noTranslate($content)
 {
 	$res = preg_replace_callback(
@@ -233,7 +267,10 @@ function noTranslate($content)
 }
 
 /**
- * Return Iso2 Code of the detected language
+ * Detects the users supposed language.
+ * 
+ * Uses <Localization::detectCulture> to detect the users language.
+ * @return string ISO2 code of detected language
  */
 function detect_language()
 {
@@ -252,7 +289,9 @@ function detect_language()
 
 /**
  * Sets the language and return the current one.
- * If there was no current yet, detect_language() is called.
+ * 
+ * @param mixed $code_or_ci Culture code or <CultureInfo>
+ * @return string the previously set language
  */
 function translation_set_language($code_or_ci)
 {
@@ -267,7 +306,13 @@ function translation_set_language($code_or_ci)
 }
 
 /**
- * Like getString(), but for a specific language
+ * Like <getString>(), but for a specific language.
+ * 
+ * @param string $lang Language to get string for
+ * @param string $constant String to translate
+ * @param array $arreplace Array with replacement data
+ * @param bool $unbuffered If true skips buffering
+ * @return string The translated string
  */
 function getStringLang($lang,$constant,$arreplace = null, $unbuffered = false)
 {
@@ -281,13 +326,16 @@ function getStringLang($lang,$constant,$arreplace = null, $unbuffered = false)
 }
 
 /**
- * Shortcut function for getString()
+ * @shortcut for <getString>($constant, $arreplace, $unbuffered, $encoding)
  */
 function _text($constant, $arreplace = null, $unbuffered = false, $encoding = null)
 {
 	return getString($constant,$arreplace,$unbuffered,$encoding);
 }
 
+/**
+ * @shortcut for <getStringOrig>($constant, $arreplace, $unbuffered, $encoding)
+ */
 function getString($constant, $arreplace = null, $unbuffered = false, $encoding = null)
 {
 	if( !$arreplace )
@@ -369,12 +417,18 @@ function getStringOrig($constant, $arreplace = null, $unbuffered = false, $encod
 	return $res;
 }
 
+/**
+ * @shortcut for <getString> but ensuring that it is escaped for use in JS
+ */
 function getJsString($constant, $arreplace = null, $unbuffered = false, $encoding = null)
 {
 	$res = getString($constant, $arreplace, $unbuffered, $encoding);
 	return substr(json_encode($res),1,-1);
 }
 
+/**
+ * @internal Replaces variables in strings
+ */
 function ReplaceVariables($text, $arreplace = null)
 {
 	if(!is_null($arreplace))
@@ -385,7 +439,10 @@ function ReplaceVariables($text, $arreplace = null)
 }
 
 /**
- * Returns a list of all languages that have enough translated strings to be usable
+ * Returns a list of all languages that have enough translated strings to be usable.
+ * 
+ * @param int $min_percent_translated Specifies how many percent must be translated for a language to be 'available'
+ * @return array Array of language codes
  */
 function getAvailableLanguages( $min_percent_translated=false )
 {
@@ -415,7 +472,10 @@ function getAvailableLanguages( $min_percent_translated=false )
 }
 
 /**
- * Checks if there are translations for the given culture
+ * Checks if there are translations for the given culture.
+ * 
+ * @param string $cultureCode Culture code to check for
+ * @return bool true or false
  */
 function checkForExistingLanguage($cultureCode)
 {
@@ -450,6 +510,11 @@ function checkForExistingLanguage($cultureCode)
 	return false;
 }
 
+/**
+ * Returns a list of all known constants.
+ * 
+ * @return array List of all constants
+ */
 function translation_known_constants()
 {
 	global $CONFIG;
@@ -472,6 +537,9 @@ function translation_known_constants()
 	return $GLOBALS['translation']['known_constants'];
 }
 
+/**
+ * @internal Skips buffering for the current call
+ */
 function translation_skip_buffering()
 {
 	$GLOBALS['translation']['skip_buffering_once'] = true;
@@ -481,6 +549,8 @@ function translation_skip_buffering()
  * Checks if a string constant exists.
  * 
  * You can use this to test if a string is a translation constant too.
+ * @param string $constant Constant to check for existance
+ * @return bool true or false
  */
 function translation_string_exists($constant)
 {
@@ -489,7 +559,7 @@ function translation_string_exists($constant)
 }
 
 /**
- *  Ensures that a string will not be translated
+ * @internal Ensures that a string will not be translated
  */
 function translation_ensure_nt($text_potentially_named_like_a_constant)
 {
@@ -503,6 +573,9 @@ function translation_ensure_nt($text_potentially_named_like_a_constant)
  * 
  * This is used in WDF when components require user-interaction without forcing the implementor to
  * create 100ths of strings as the first he must do.
+ * @param string $constant Constant name
+ * @param string $text The defauilt text
+ * @return string The $constant value
  */
 function default_string($constant,$text)
 {
@@ -512,7 +585,6 @@ function default_string($constant,$text)
 }
 
 /**
- * Alias function for default_string() just to have it short when used inline like this:
- * $label = tds('TXT_LABEL','My first label');
+ * @shortcut for <default_string>($constant, $text)
  */
 function tds($constant,$text){ return default_string($constant, $text); }
