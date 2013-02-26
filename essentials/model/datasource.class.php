@@ -205,6 +205,13 @@ class DataSource
 		return new ResultSet($this,$stmt);
 	}
 
+	/**
+	 * Executes an SQL statement.
+	 * 
+	 * @param string $sql SQL statement
+	 * @param array $parameter Arguments
+	 * @return ResultSet The query result
+	 */
 	function ExecuteSql($sql,$parameter=array())
 	{
 		if( !is_array($parameter) )
@@ -217,12 +224,24 @@ class DataSource
 		return $stmt;
 	}
 	
+	/**
+	 * @deprecated No code in here, need to investigate if this is still needed
+	 */
 	function EmptySQLCache()
 	{
 		// todo: implement logic here and add caching capabilities to Cache* methods
 	}
 	
-	function CacheExecuteSql($sql,$prms=array(),$lifetime=300) // $lifetime in seconds
+	/**
+	 * Executes a statement and caches the result.
+	 * 
+	 * Of course returns the cached result if called again and cached result is still alive.
+	 * @param string $sql SQL statement
+	 * @param array $prms Arguments for the query
+	 * @param int $lifetime Lifetime in seconds
+	 * @return ResultSet The ResultSet
+	 */
+	function CacheExecuteSql($sql,$prms=array(),$lifetime=300)
 	{
 		if( !system_is_module_loaded('globalcache') )
 			return $this->ExecuteSql($sql, $prms);
@@ -244,6 +263,9 @@ class DataSource
 		return $res;
 	}
 	
+	/**
+	 * @shortcut to <DataSource::DLookUp> but uses cache
+	 */
 	function CacheDLookUp($field_name, $table_name = "", $where_condition = "", $parameter = array(),$lifetime=300)
 	{
 		if( !system_is_module_loaded('globalcache') )
@@ -259,20 +281,30 @@ class DataSource
 		return $res;
 	}
 	
+	/**
+	 * Entry point for anonymous queries.
+	 * 
+	 * If you dont want to write a <Model> class for a table you can use this method to create an anonymous query:
+	 * <code php>
+	 * $entries = $dataSource->Query('my_bog_entries')->youngerThan(1,'month');
+	 * </code>
+	 * @param string $tablename Name of table to query
+	 * @return CommonModel The query as CommonModel
+	 */
 	function Query($tablename)
 	{
 		return new CommonModel($this,$tablename);
 	}
 	
-	/*--- Compatibility to old model ---*/
-	function CreateInstance($type,$where=false,$prms=array())
-	{
-		$res = new $type($this);
-		if( $where )
-			$res->Load($where,$prms);
-		return $res;
-	}
-	
+	/**
+	 * Creates a typed <Model> from an array of data values.
+	 * 
+	 * Not nice, but fast.
+	 * @param string $type Type of <Model> class to create
+	 * @param array $fields Data for the new model, keys must be columns, values will be assigned
+	 * @param bool $as_new If true treats created Model as new instead of as if it was loaded from database.
+	 * @return <Model> The created model
+	 */
 	function ModelFromArray($type,$fields,$as_new=false)
 	{
 		$obj = new $type($this);
@@ -284,37 +316,49 @@ class DataSource
 		return $obj;
 	}
 	
+	/**
+	 * Checks if a table exists.
+	 * 
+	 * @param string $name Name of table to check
+	 * @return bool true or false
+	 */
 	function TableExists($name)
 	{
 		return $this->Driver->tableExists($name);
 	}
 	
+	/**
+	 * Return now how the database sees it.
+	 * 
+	 * @param int $seconds_to_add Offset to now in seconds, may be negative too.
+	 * @return string String representing now
+	 */
 	function Now($seconds_to_add=0)
 	{
-		// Reactivating DB querying because this is cause of MANY errors
-		// Sample from DEV system: 
-		// - SELECT NOW() -> 2012-01-25 09:42:59
-		// - time()       -> 2012-01-25 08:43:36
-		// So even our DEV system is more that half a minute off -> this is not acceptable!		
-		// Dont think that using wrong values for performance reasons is best practice!
 		$sql = $this->Driver->Now($seconds_to_add);
 		$rs = $this->CacheExecuteSql("SELECT $sql as dt",array(),1);
 		return $rs['dt'];
 	}
 	
+	/**
+	 * Returns the table where a <Model> is stored.
+	 * 
+	 * @param string $type Classname of <Model> to check
+	 * @return string Table name
+	 */
 	function TableForType($type)
 	{
 		$obj = new $type($this);
 		return $obj->GetTableName();
 	}
 	
-	function PrepareWhere($sql)
-	{
-		return $sql;
-		$stmt = $this->Prepare($sql);
-		return $stmt->GetSql();
-	}
-	
+	/**
+	 * Executes a query and returns the first column of the first row.
+	 * 
+	 * @param string $sql SQL statement
+	 * @param array $prms Arguments for $sql
+	 * @return mixed The first scalar
+	 */
 	function ExecuteScalar($sql,$prms=array())
 	{
 		$stmt = $this->Prepare($sql);
@@ -324,6 +368,14 @@ class DataSource
 		return $stmt->fetchScalar();
 	}
 	
+	/**
+	 * Same as ExecuteScalar, but uses the cache.
+	 * 
+	 * @param string $sql SQL statement
+	 * @param array $prms Arguments for $sql
+	 * @param int $lifetime Lifetime in seconds
+	 * @return mixed The first scalar
+	 */
 	function CacheExecuteScalar($sql,$prms=array(),$lifetime=300)
 	{
 		if( !system_is_module_loaded('globalcache') )
@@ -339,11 +391,17 @@ class DataSource
 		return $res;
 	}
 	
+	/**
+	 * @shortcut <DataSource::ExecuteScalar>
+	 */
 	function GetOne($sql,$prms=array())
 	{
 		return $this->ExecuteScalar($sql,$prms);
 	}
 	
+	/**
+	 * @shortcut for <DataSource::ExecuteScalar>
+	 */
 	function DLookUp($field_name, $table_name = "", $where_condition = "", $parameter = array())
 	{
 		$sql = "SELECT " . $field_name . " ". ($table_name ? "FROM " . $table_name : "") . ($where_condition ? " WHERE " . $where_condition : "")." LIMIT 1";
@@ -351,13 +409,16 @@ class DataSource
 		return $res===false?null:$res;
 	}
 	
-	function Select($type,$where="",$prms=false,$page=-1,$rows_per_page=-1)
-	{
-		// ignoring (also previously) ignored arguments $page and $rows_per_page
-		$dummy = new $type($this);
-		return $dummy->Find($where,$prms);
-	}
-	
+	/**
+	 * Executes a pages query.
+	 * 
+	 * This will add LIMIT stuff to the statement.
+	 * @param string $sql SQL statement
+	 * @param int $items_per_page Items per page
+	 * @param int $page Page number (1-based!)
+	 * @param array $parameter SQL arguments
+	 * @return ResultSet The query result
+	 */
 	function PageExecute($sql,$items_per_page,$page,$parameter=array())
 	{
 		$stmt = $this->Driver->getPagedStatement($sql,$page,$items_per_page);
@@ -367,16 +428,19 @@ class DataSource
 		return $stmt;
 	}
 	
+	/**
+	 * @shortcut <DataSource::ExecuteSql>
+	 */
 	function Execute($sql,$args=array())
 	{
 		return $this->ExecuteSql($sql,$args);
 	}
 	
-	function _Execute($sql,$args=array())
-	{
-		return $this->ExecuteSql($sql,$args);
-	}
-	
+	/**
+	 * Returns the last errormessage, if any.
+	 * 
+	 * @return string The last error or false
+	 */
 	function ErrorMsg()
 	{
 		$ei = $this->_pdo->errorInfo();
@@ -387,30 +451,61 @@ class DataSource
 		return $ei[2];
 	}
 	
+	/**
+	 * Gets the amount of rows affected by the last query.
+	 * 
+	 * @return int Number of affected rows
+	 */
 	function getAffectedRowsCount()
 	{
 		return $this->_last_affected_rows_count;
 	}
 	
+	/**
+	 * @shortcut <DataSource::getAffectedRowsCount>
+	 */
 	function Affected_Rows()
 	{
 		return $this->_last_affected_rows_count;
 	}
 	
+	/**
+	 * Returns the database host.
+	 * 
+	 * @return string The host or false (for example sqlite has no host)
+	 */
 	function Host()
 	{
 		if( !preg_match('/host=([^;]+);*/', $this->_dsn.";", $m) )
 			return false;
 		return trim($m[1]);
 	}
+	
+	/**
+	 * Returns the database username.
+	 * 
+	 * @return string The username
+	 */
 	function Username()
 	{
 		return $this->_username;
 	}
+	
+	/**
+	 * Returns the database password.
+	 * 
+	 * @return string The password
+	 */
 	function Password()
 	{
 		return $this->_password;
 	}
+	
+	/**
+	 * Returns the database name.
+	 * 
+	 * @return string The name
+	 */
 	function Database()
 	{
 		if( !preg_match('/dbname=([^;]+);*/', $this->_dsn, $m) )
@@ -418,6 +513,12 @@ class DataSource
 		return trim($m[1]);
 	}
 	
+	/**
+	 * Returns the id of the last inserted row.
+	 * 
+	 * @param string $table The table to get last insert id for
+	 * @return int The last insert id
+	 */
 	function LastInsertId($table=null)
 	{
 		return $this->_pdo->lastInsertId($table);
