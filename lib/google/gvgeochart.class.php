@@ -1,3 +1,4 @@
+<?
 /**
  * Scavix Web Development Framework
  *
@@ -21,41 +22,44 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-function uploadFile(fuid,target_url,preview_id)
+
+/**
+ * A geo chart.
+ * 
+ * See https://developers.google.com/chart/interactive/docs/gallery
+ */
+class gvGeoChart extends GoogleVisualization
+{
+	/**
+	 * @override
+	 */
+	function __initialize($options=array(),$query=false,$ds=false)
 	{
-		$.ajaxFileUpload
-		(
-			{
-				url:target_url,
-				secureuri:false,
-				fileElementId: fuid,
-				dataType: 'json',
-				success: function (data, status)
-				{
-					if(typeof(data.error) != 'undefined')
-					{
-						if(data.error != '')
-							wdf.debug(data.error);
-						else
-						{
-							data.url = data.url.replace(/&amp;/g, "&");
-							data.thumb = data.thumb.replace(/&amp;/g, "&");
-							$('#'+fuid).attr({value: data.url});
-							if( preview_id )
-								if( data.thumb == '' )
-									$('#'+preview_id).attr({src: data.url});
-								else
-									$('#'+preview_id).attr({src: data.thumb});
-						}
-					}
-				},
-				error: function (data, status, e)
-				{
-					wdf.debug(e);
-				}
-			}
-		)
-
-		return false;
-
+		parent::__initialize('GeoChart',$options,$query,$ds);
+		$this->_loadPackage('geochart');
 	}
+	
+	/**
+	 * @shortcut <GoogleVisualization::opt>('displayMode',$mode)
+	 */
+	function setDisplayMode($mode)
+	{
+		return $this->opt('displayMode',$mode);
+	}
+	
+	/**
+	 * @shortcut <GoogleVisualization::opt>('colorAxis',array('minValue'=>$min,'maxValue'=>$max,'colors'=>$colors))
+	 */
+	function setColorAxis($min,$max,$colors)
+	{
+		return $this->opt('colorAxis',array('minValue'=>$min,'maxValue'=>$max,'colors'=>$colors));
+	}
+	
+	/**
+	 * @shortcut <GoogleVisualization::opt>('region',$region)
+	 */
+	function setRegion($region)
+	{
+		return $this->opt('region',$region);
+	}
+}

@@ -25,6 +25,7 @@
  
 /**
  * This is base class for data objects.
+ * 
  * It provides all the stuff to handle DB access really simple following the
  * ActiveRecord paradigm.
  * Implements Iterator, Countable and ArrayAccess for ease of use in for and foreach loops.
@@ -59,23 +60,62 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	
 	var $_saved = false;
 
+	/**
+	 * @implements <Iterator::rewind>
+	 */
 	function rewind() { $this->_index = 0; }
+	
+	/**
+	 * @implements <Iterator::current>
+	 */
     function current() { $this->__ensureResults(); return isset($this->_results[$this->_index])?$this->_results[$this->_index]:null; }
+	
+	/**
+	 * @implements <Iterator::key>
+	 */
     function key() { return $this->_index; }
+	
+	/**
+	 * @implements <Iterator::next>
+	 */
     function next() { $this->_index++; }
+	
+	/**
+	 * @implements <Iterator::valid>
+	 */
     function valid() { $this->__ensureResults(); return isset($this->_results[$this->_index]); }
 
-	function count(){ $this->__ensureResults(); return count($this->_results); }
-
+	/**
+	 * @implements <ArrayAccess::offsetSet>
+	 */
 	public function offsetSet($offset, $value)
 	{ $this->__ensureResults(); $this->_results[$offset] = $value; }
+	
+	/**
+	 * @implements <ArrayAccess::offsetExists>
+	 */
     public function offsetExists($offset)
 	{ $this->__ensureResults(); return isset($this->_results[$offset]); }
+	
+	/**
+	 * @implements <ArrayAccess::offsetUnset>
+	 */
     public function offsetUnset($offset)
 	{ $this->__ensureResults(); unset($this->_results[$offset]); }
+	
+	/**
+	 * @implements <ArrayAccess::offsetGet>
+	 */
     public function offsetGet($offset)
 	{ $this->__ensureResults(); return isset($this->_results[$offset]) ? $this->_results[$offset] : null; }
 
+	/**
+	 * Returns the amount of results in the current query.
+	 * 
+	 * @return int Amount of results
+	 */
+	function count(){ $this->__ensureResults(); return count($this->_results); }
+	
 	function enumerate($property_or_fieldname, $distinct=true)
 	{
 		$res = array();
@@ -85,16 +125,29 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
 
+	/**
+	 * Returns true is this is a query, false if this represents a datatset
+	 * 
+	 * @return bool true or false
+	 */
 	public function IsQuery()
 	{
 		return $this->_query;
 	}
 	
+	/**
+	 * Returns true is this is a dataset, false if this represents a query
+	 * 
+	 * @return bool true or false
+	 */
 	public function IsRow()
 	{
 		return !$this->IsQuery();
 	}
 	
+	/**
+	 * @shortcut <ResultSet::LogDebug>
+	 */
 	public function LogDebug()
 	{
 		$this->__ensureResults();
@@ -259,6 +312,16 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		}
 	}
 	
+	/**
+	 * Returns a single value from the first result object in the query.
+	 * 
+	 * <code php>
+	 * $name = $ds->Query('sometable')->eq('id')->scalar('name');
+	 * </code>
+	 * @param string $property Property name
+	 * @param mixed $default Default if nothing was found
+	 * @return mixed The value of $default
+	 */
 	public function scalar($property,$default=null)
 	{
 		$res = clone $this;
@@ -272,12 +335,20 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $default;
 	}
 	
+	/**
+	 * @shortcut <ResultSet::GetPagingInfo>
+	 */
 	public function GetPagingInfo($key=false)
 	{
 		$this->__ensureResults();
 		return $this->_query->GetPagingInfo($key);
 	}
 	
+	/**
+	 * Returns all column values.
+	 * 
+	 * @return array plain array of values
+	 */
 	public function FieldValues()
 	{
 		$res = array();
@@ -287,7 +358,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	}
 	
 	/**
-	 * Wrapper around private method to allow overriding without breaking internal functionality
+	 * @internal Wrapper around private method to allow overriding without breaking internal functionality
 	 */
 	public function TypeOf($column_name)
 	{
@@ -295,13 +366,16 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	}
 	
 	/**
-	 * Wrapper around private method to allow overriding without breaking internal functionality
+	 * @internal Wrapper around private method to allow overriding without breaking internal functionality
 	 */
 	public function TypedValue($column_name)
 	{
 		return $this->__typedValue($column_name);
 	}
 
+	/**
+	 * @shortcut <Model::Make>($datasource)
+	 */
 	public static function &Select($datasource)
 	{
 		$className = get_called_class();
@@ -310,6 +384,15 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
 	
+	/**
+	 * Queries the database for <Model>s but using an SQL statement.
+	 * 
+	 * Use this if you do not like the QueryBuilder or if you have really complicated queries.
+	 * @param string $sql Statement
+	 * @param array $args Arguments
+	 * @param DataSource $datasource Use this datasource
+	 * @return <Model> The result set
+	 */
 	public static function &Query($sql,$args=array(),$datasource=null)
 	{
 		$className = get_called_class();

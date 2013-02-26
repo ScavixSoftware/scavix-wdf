@@ -80,8 +80,6 @@ class DatabaseTable extends Table
 	
 	private function ExecuteSql($sql,$prms=array())
 	{
-		$sql = $this->DataSource->PrepareWhere($sql);
-
 		if( $this->ExecuteSqlHandler )
 			call_user_func($this->ExecuteSqlHandler,$this,$sql,$prms);
 		else

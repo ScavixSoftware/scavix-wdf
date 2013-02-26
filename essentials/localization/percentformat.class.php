@@ -23,6 +23,10 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * Helper class to deal with percent values.
+ * 
+ */
 class PercentFormat
 {
 	var $DecimalDigits;
@@ -40,6 +44,12 @@ class PercentFormat
 		$this->NegativeFormat = $percneg;
 	}
 
+	/**
+	 * Formats a number to a percent string.
+	 * 
+	 * @param float $number The value to be formatted
+	 * @return string The formatted string
+	 */
 	function Format($number)
 	{
 		$val = number_format($number,$this->DecimalDigits,$this->DecimalSeparator,$this->GroupSeparator);

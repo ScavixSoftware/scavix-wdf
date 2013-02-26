@@ -31,6 +31,8 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 {
 	public static $DefaultDatasource = false;
 	
+	var $_data = array();
+	
 	var $_entities = array();
 	var $_ds;
 	
@@ -80,9 +82,17 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	function PreRender($args = array())
 	{
 		$id = $this->id;
-		$q = buildQuery($this->id,'Query');
 		$opts = json_encode($this->gvOptions);
-		$init = "var $id = new google.visualization.Query('$q');$id.setQuery('{$this->gvQuery}');$id.send(function(r){ if(r.isError()){ $('#$id').html(r.getDetailedMessage()); }else{ var c=new google.visualization.{$this->gvType}($('#$id').get(0));c.draw(r.getDataTable(),$opts);}});";
+		if( count($this->_data)>0 )
+		{
+			$d = system_to_json($this->_data);
+			$init = "var d=google.visualization.arrayToDataTable($d); var c=new google.visualization.{$this->gvType}($('#$id').get(0));c.draw(d,$opts);";
+		}
+		else
+		{
+			$q = buildQuery($this->id,'Query');
+			$init = "var $id = new google.visualization.Query('$q');$id.setQuery('{$this->gvQuery}');$id.send(function(r){ if(r.isError()){ $('#$id').html(r.getDetailedMessage()); }else{ var c=new google.visualization.{$this->gvType}($('#$id').get(0));c.draw(r.getDataTable(),$opts);}});";
+		}
 		$this->_addLoadCallback('visualization', $init);
 		
 		if( isset($this->gvOptions['width']) )
@@ -164,11 +174,21 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	}
 	
 	/**
+	 * @shortcut <GoogleVisualization::opt>('width',$width)-&gt;<GoogleVisualization::opt>('height',$height)
+	 */
+	function setSize($width,$height)
+	{
+		return $this->opt('width',intval($width))->opt('height',intval($height));
+	}
+	
+	/**
 	 * Sets up a google query from a database table.
 	 * 
 	 * See https://developers.google.com/chart/interactive/docs/reference#queryobjects
+	 * Calling this will set the <GoogleVisualization> in database mode thus clearing all inline data set with 
+	 * <GoogleVisualization::setDataHeader> and <GoogleVisualization::addDataRow>
 	 * @param string $table_name Table name
-	 * @param mixed $query The goolge query
+	 * @param mixed $query The [goolge query](https://google-developers.appspot.com/chart/interactive/docs/querylanguage)
 	 * @return GoogleVisualization `$this`
 	 */
 	function setDbQuery($table_name,$query)
@@ -201,6 +221,52 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 			);
 		
 		$this->_entities[$alias?$alias:$table_name] = $entity;
+		$this->_data = array();
+		return $this;
+	}
+	
+	/**
+	 * Sets the data header.
+	 * 
+	 * Calling this will set this into inline mdoe thus removing all database related settings (<GoogleVisualization::setDbQuery>).
+	 * @return GoogleVisualization `$this`
+	 */
+	function setDataHeader()
+	{
+		$this->_entities = array(); $this->gvQuery = false;
+		$this->_data = array(func_get_args());
+		return $this;
+	}
+	
+	/**
+	 * Adds a data row.
+	 * 
+	 * If you did not yet specify a header this row will be used as it.
+	 * Calling this will set this into inline mdoe thus removing all database related settings (<GoogleVisualization::setDbQuery>).
+	 * @return GoogleVisualization `$this`
+	 */
+	function addDataRow()
+	{
+		$this->_entities = array(); $this->gvQuery = false;
+		$this->_data[] = func_get_args();
+		return $this;
+	}
+	
+	/**
+	 * Sets all data rows.
+	 * 
+	 * If you did not yet specify a header first row will be used as it.
+	 * Calling this will set this into inline mdoe thus removing all database related settings (<GoogleVisualization::setDbQuery>).
+	 * @param array $rows Two-dimensional array containing all the rows data
+	 * @return GoogleVisualization `$this`
+	 */
+	function setDataRows($rows)
+	{
+		$this->_entities = array(); $this->gvQuery = false;
+		if( count($this->_data)>0 )
+			$this->_data = array_merge(array($this->_data[0]),$rows);
+		else
+			$this->_data = $rows;
 		return $this;
 	}
 }

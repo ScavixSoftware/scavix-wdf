@@ -26,7 +26,7 @@
 /**
  * Wraps a context menu.
  * 
- * @attribute[Resource('jquery/jquery.contextmenu.r2.js')]
+ * @attribute[Resource('jquery.contextmenu.r2.js')]
  */
 class ContextMenu extends Control
 {
