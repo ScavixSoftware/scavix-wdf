@@ -352,6 +352,13 @@ class SysAdmin extends HtmlPage
 	 */
 	function Testing()
 	{
-		
+		$this->content(gvGeoChart::Make())
+			->setSize(600,400)->setDisplayMode('markers')->setRegion(150)
+			->setColorAxis(0,200,array('red','yellow','green'))
+			->setDataHeader('Address','bla')
+			->addDataRow('Hinterm Eckerkamp13, 29394 Lüder',0)
+			->addDataRow('Am hornsgehege 6, Ebstorf',100)
+			->addDataRow('New York',200)
+			;
 	}
 }
