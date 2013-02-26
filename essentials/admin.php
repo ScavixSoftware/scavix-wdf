@@ -24,7 +24,7 @@
  */
 
 /**
- * Initializes the amin essential.
+ * Initializes the admin essential.
  * 
  * @return void
  */
