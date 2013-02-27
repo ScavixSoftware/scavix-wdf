@@ -22,13 +22,28 @@
  * @copyright 2007-2012 PamConsult GmbH
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
-function curlwrapper_init()
-{
 
+/**
+ * @shortcut <downloadData>($url,$postdata,$request_header,$cacheTTLsec,$request_timeout,$response_header,$cookie_file)
+ */
+function sendHTTPRequest($url, $postdata = false, $cacheTTLsec = false, &$response_header = false, $request_header = array(), $request_timeout = 120, $cookie_file=false)
+{
+	return downloadData($url,$postdata,$request_header,$cacheTTLsec,$request_timeout,$response_header,$cookie_file);
 }
 
-function sendHTTPRequest($url, $postdata = false, $cacheTTLsec = false, &$response_header = false, $request_header = array(), $request_timeout = 120, $cookie_file=false)
+/**
+ * Downloads remote contents into a string.
+ * 
+ * @param string $url URL to download
+ * @param array|string $postdata Data to POST, associative array or string from <http_build_query>
+ * @param array $request_header Headers to send along with the request (one entry per header)
+ * @param int $cacheTTLsec If set: time to life in cache
+ * @param int $request_timeout Timeout in seconds
+ * @param array $response_header <b>OUT</b> Will contain the reponse headers
+ * @param string $cookie_file Name of the cookie file to use
+ * @return string The downloaded data
+ */
+function downloadData($url, $postdata = false, $request_header = array(), $cacheTTLsec = false, $request_timeout = 120, &$response_header = false, $cookie_file=false)
 {
 	if( starts_with($url, '//') )
 		$url = urlScheme().':'.$url;
@@ -94,6 +109,7 @@ function sendHTTPRequest($url, $postdata = false, $cacheTTLsec = false, &$respon
 
 /**
  * Downloads a file via HTTP(s).
+ * 
  * $url may contain username:password for basic http auth, but this is the only supported
  * authentication method.
  * URL Examples:
@@ -113,8 +129,10 @@ function sendHTTPRequest($url, $postdata = false, $cacheTTLsec = false, &$respon
  *
  * @param string $url URL to file/script to download
  * @param array $postdata Optional data to post to the URI
- * @return array Array following the rules of the $_FILES superglobal (but without the first dimension) or FALSE if an error occured.
- *               Note that $_FILES may contain an error too!
+ * @param array $request_header Headers to send along with the request (one entry per header)
+ * @param bool $follow_location If true follows redirects
+ * @param string $cookie_file Name of the cookie file to use
+ * @return array Array following the rules of the $_FILES superglobal (but without the first dimension) or FALSE if an error occured. Note that $_FILES may contain an error too!
  */
 function downloadFile($url, $postdata = false, $request_header = array(), $follow_location=true, $cookie_file=false)
 {
@@ -178,6 +196,9 @@ function downloadFile($url, $postdata = false, $request_header = array(), $follo
 	return $result;
 }
 
+/**
+ * @internal Used to capture the downloaded files name
+ */
 function downloadFile_header($ch, $header)
 {
 	if( preg_match('/Content-Disposition:\s*(.*)/i', $header, $res) )

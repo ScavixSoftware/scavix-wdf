@@ -24,11 +24,10 @@
  */
  
 /**
- * Modul to localize ip-adresses
+ * Modul to localize ip-adresses.
  * 
- * Uses the free version of GeoIP from maxmind (http://www.maxmind.com/app/geolitecity).
- * In the majority of cases maxmind publishes updates for the GeoLiteCity.dat
- * on the first day each month.
+ * Uses the [free version of GeoIP](http://www.maxmind.com/app/geolitecity) from maxmind.
+ * In the majority of cases maxmind publishes updates for the GeoLiteCity.dat on the first day each month.
  * @return void
 */
 function geoip_init()
@@ -175,10 +174,9 @@ function get_timezone_by_ip($ip = false)
 			
 	// new url with api key:
 	$url = "http://api.ipinfodb.com/v2/ip_query.php?key=6a6ef9d4d82491036a4f3dbd465d52d2e2d5253d1285a3dda02b65752b5474f8&ip=".$GLOBALS['current_ip_addr']."&timezone=true";
-	$f = false;
 	try
 	{
-		$xml = sendHTTPRequest($url, false, 60 * 60, $f, false, 2);
+		$xml = downloadData($url, false, false, 60 * 60, 2);
 	}catch(Exception $ex){ WdfException::Log("Unable to get Timezone for ".$ip." ($url)",$ex); return false; }
 	if( preg_match_all('/<TimezoneName>([^<]*)<\/TimezoneName>/', $xml, $zone, PREG_SET_ORDER) )
 	{
@@ -203,10 +201,9 @@ function get_timezone_by_ip($ip = false)
 //	ws.geonames.org had only timeouts on 2/10/2010...
 //	$url = "http://ws.geonames.org/timezone?lat=".$coords['latitude'].'&lng='.$coords['longitude'];
 	$url = "http://api.geonames.org/timezone?lat=".$coords['latitude'].'&lng='.$coords['longitude']."&username=scendix";
-	$f = false;
 	try
 	{
-		$xml = sendHTTPRequest($url, false, 60 * 60, $f, false, 2);
+		$xml = downloadData($url, false, false, 60 * 60, 2);
 	}catch(Exception $ex){ WdfException::Log("Unable to get Timezone for ".$ip." ($url) ".$ex->getMessage(),$ex); return false; }
 	if( preg_match_all('/<timezoneId>([^<]*)<\/timezoneId>/', $xml, $zone, PREG_SET_ORDER) )
 	{
@@ -218,10 +215,9 @@ function get_timezone_by_ip($ip = false)
 
 	// ALTERNATIVE 2:
 	$url = "http://www.earthtools.org/timezone/".$coords['latitude'].'/'.$coords['longitude'];
-	$f = false;
 	try
 	{
-		$xml = sendHTTPRequest($url, false, 60 * 60, $f, false, 2);
+		$xml = downloadData($url, false, false, 60 * 60, 2);
 	}catch(Exception $ex){ WdfException::Log("Unable to get Timezone for ".$ip." ($url)",$ex); return false; }
 	if( preg_match_all('/<offset>([^<]*)<\/offset>/', $xml, $zone, PREG_SET_ORDER) )
 	{
