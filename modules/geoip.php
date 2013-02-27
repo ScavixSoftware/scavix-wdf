@@ -45,6 +45,12 @@ function geoip_init()
 		$GLOBALS['current_ip_addr'] = get_ip_address();
 }
 
+/**
+ * Resolves an IP address to a location.
+ * 
+ * @param string $ip_address IP address to check (defaults to <get_ip_address>)
+ * @return stdClass Object containing location information
+ */
 function get_geo_location_by_ip($ip_address=null)
 {
 	if( is_null($ip_address) ) 
@@ -64,6 +70,12 @@ function get_geo_location_by_ip($ip_address=null)
 	return (object) $location;
 }
 
+/**
+ * Returns the region name for the current IP address
+ * 
+ * See <get_ip_address>
+ * @return string Location name or empty string if unknown
+ */
 function get_geo_region()
 {
 	include(dirname(__FILE__)."/geoip/geoipregionvars.php");
@@ -80,6 +92,12 @@ function get_geo_region()
 	return $GEOIP_REGION_NAME[$location->country_code][$location->region];
 }
 
+/**
+ * Resolves an IP address to geo coordinates.
+ * 
+ * @param string $ip IP address to resolve (defaults to <get_ip_address>)
+ * @return array Associative array with keys 'latitude' and 'longitude'
+ */
 function get_coordinates_by_ip($ip = false)
 {
 	// ip could be something like "1.1 ironportweb01.gouda.lok:80 (IronPort-WSA/7.1.1-038)" from proxies
@@ -110,6 +128,12 @@ function get_coordinates_by_ip($ip = false)
 	return $coordinates;
 }
 
+/**
+ * Resolves an IP address to a country code
+ * 
+ * @param string $ipaddr IP address to resolve (defaults to <get_ip_address>)
+ * @return array Country code or empty string if not found
+ */
 function get_countrycode_by_ip($ipaddr = false)
 {
 	if($ipaddr === false)
@@ -142,6 +166,12 @@ function get_countrycode_by_ip($ipaddr = false)
 	return $country_code;
 }
 
+/**
+ * Returns the country name from the current IP
+ * 
+ * See <get_ip_address>
+ * @return string Country name or empty string if unknown
+ */
 function get_countryname_by_ip()
 {
 //	// maxmind installed as server module?
@@ -159,6 +189,12 @@ function get_countryname_by_ip()
 	return $country_name;
 }
 
+/**
+ * Returns the timezone for an IP address.
+ * 
+ * @param string $ip IP address to check (defaults to <get_ip_address>)
+ * @return string Timezone identifier or false on error
+ */
 function get_timezone_by_ip($ip = false)
 {
 	if($ip === false)
@@ -232,4 +268,3 @@ function get_timezone_by_ip($ip = false)
 	// disaster-fallback: use our timezone:
 	return "Etc/GMT+2";
 }
-

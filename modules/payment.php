@@ -23,6 +23,11 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * Initializes the payment module.
+ * 
+ * @return void
+ */
 function payment_init()
 {
 	global $CONFIG;
@@ -37,6 +42,10 @@ function payment_init()
 	);
 }
 
+/**
+ * Payment providers must extend this class.
+ * 
+ */
 abstract class PaymentProvider
 {
 	public $title = "";
@@ -50,6 +59,13 @@ abstract class PaymentProvider
 	const PROCESSOR_GATE2SHOP	= 2; //"gate2shop";
 	const PROCESSOR_TESTING		= 3; //"test";
 	
+	/**
+	 * Sets data for the PaymentProvider.
+	 * 
+	 * @param string $name Argument name
+	 * @param mixed $value Argument value
+	 * @return PaymentProvider `$this`
+	 */
 	public function SetVar($name,$value)
 	{
 		$this->data[$name] = $value;
@@ -121,10 +137,17 @@ abstract class PaymentProvider
 		return $form;
 	}
 	
+	/**
+	 * Starts the checkout process
+	 * 
+	 * @param IShopOrder $order The order to start checkout for
+	 * @return Form Must return a <Form> control 
+	 */
 	abstract public function StartCheckout(IShopOrder $order);
 	
 	/**
-	 * Correct the status from the arguments passed by the PP
+	 * Correct the status from the arguments passed by the PP.
+	 * 
 	 * @param string $status status passed by PP
 	 * @param array $ipndata data from the PP
 	 * @return string the status 
@@ -133,8 +156,12 @@ abstract class PaymentProvider
 	{
 		return $status;
 	}
-	/*
-	 * Process the user returning from the PP
+	
+	/**
+	 * Process the user returning from the PP.
+	 * 
+	 * @param mixed $ipndata Data returned from PP
+	 * @return bool currently always true
 	 */
 	public function HandleReturnFromPP($ipndata) 
 	{
@@ -142,19 +169,61 @@ abstract class PaymentProvider
 	}
 }
 
+/**
+ * Order <Model>s must implement this interface.
+ */
 interface IShopOrder
 {
+	/**
+	 * Gets the invoice ID.
+	 * @return mixed Invoice identifier
+	 */
 	function GetInvoiceId();
+	
+	/**
+	 * Gets the currency code.
+	 * @return string A valid currency code
+	 */
 	function GetCurrency();
+	
+	/**
+	 * Sets the currency
+	 * @param string $currency_code A valid currency code
+	 * @return void
+	 */
 	function SetCurrency($currency_code);
+	
+	/**
+	 * Gets the order culture code.
+	 * 
+	 * See <CultureInfo>
+	 * @return string Valid culture code
+	 */
 	function GetLocale();
+	
+	/**
+	 * Returns all items.
+	 * 
+	 * @return array A list of <IShopOrderItem> objects
+	 */
 	function ListItems();
-	function GetAddress();		// must return a ShopOrderAddress object
+	
+	/**
+	 * Gets the orders address.
+	 * @return ShopOrderAddress The order address
+	 */
+	function GetAddress();
+	
 	function GetTotalPrice($price = false);
 	function GetTotalVat();
 	function GetVatPercent();
 }
 
+/**
+ * Prototype of an Address Model.
+ * 
+ * Your own address <Model> must inherit from this.
+ */
 class ShopOrderAddress
 {
 	public $Firstname;
@@ -172,17 +241,54 @@ class ShopOrderAddress
 	public $Phone3;
 }
 
+/**
+ * Order items <Model>s must implement this.
+ */
 interface IShopOrderItem
 {
-	function GetName();				// items name
-//	function GetSerial();			// itemcode/serial
-	function GetAmount($currency);	// price per item in the requested currency
-	function GetShipping();			// shipping cost per item
-	function GetHandling();			// handling cost per item
-	function GetDiscount();			// discount for this item
-	function GetQuantity();			// number of pieces
+	/**
+	 * Gets the items name.
+	 * @return string The item name
+	 */
+	function GetName();
+	
+	/**
+	 * Gets the price per item converted into the requested currency.
+	 * @param string $currency Currency code
+	 * @return float The price per item converted into $currency
+	 */
+	function GetAmount($currency);
+	
+	/**
+	 * Gets the shipping cost.
+	 * @return float Cost for shipping
+	 */
+	function GetShipping();
+	
+	/**
+	 * Gets the handling cost.
+	 * @return float Cost for handling
+	 */
+	function GetHandling();
+	
+	/**
+	 * Gets the discount.
+	 * @return float The discount
+	 */
+	function GetDiscount();
+	
+	/**
+	 * Gets the quantity.
+	 * @return float The quantity
+	 */
+	function GetQuantity();
 }
 
+/**
+ * Returns a list of payment providers.
+ * 
+ * @return array List of <PaymentProvider> objects
+ */
 function payment_list_providers()
 {
 	$res = array();

@@ -46,7 +46,7 @@ class TranslationAdmin extends SysAdmin
         $data['api_token'] = $GLOBALS['CONFIG']['translation']['sync']['poeditor_api_key'];
         $data['id'] = $GLOBALS['CONFIG']['translation']['sync']['poeditor_project_id'];
         //log_debug($data);
-        $res = sendHTTPRequest('http://poeditor.com/api/',$data);
+        $res = downloadData('http://poeditor.com/api/',$data);
         $res = json_decode($res);
         if( !$res )
         {

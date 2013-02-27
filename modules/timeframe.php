@@ -24,12 +24,10 @@
  */
  
 /**
- * TimeFrame class
- *
- * @version $Id$
- * @copyright 2008
+ * Initializes the timeframe module.
+ * 
+ * @return void
  */
-
 function timeframe_init()
 {
 	global $CONFIG;
@@ -47,12 +45,18 @@ function timeframe_init()
 	$GLOBALS['timeframe']['data_object'] = false;
 }
 
+/**
+ * @deprecated Should become useless once <TimeFrame> is rewritten
+ */
 interface ITimeframeDataobject
 {
 	function GetTimeframe();
 	function SetTimeframe($frame);
 }
 
+/**
+ * @deprecated This is really oldschool calculating. Better reimplement using the <DateTimeEx> features. Also need to get rid of the <ITimeframeDataobject> binding to the UI.
+ */
 class TimeFrame
 {
 	private static function _getTimeFrameSetting()

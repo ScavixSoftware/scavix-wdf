@@ -23,13 +23,13 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
-function oauth_php_init()
-{
-}
-
+/**
+ * Loads an OAuth class.
+ * 
+ * @param string $classname Class to load
+ * @return void
+ */
 function oauth_load($classname)
 {
 	require_once(dirname(__FILE__)."/oauth_php/$classname.php");
 }
-
-?>

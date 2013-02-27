@@ -42,6 +42,16 @@ function mail_init()
 //		$CONFIG['mail']['dev_whitelist'] = array("");
 }
 
+/**
+ * Prepares an email.
+ * 
+ * @param string $recipient The mail recipient
+ * @param string $subject The subject
+ * @param string $message The message (may be HTML formatted)
+ * @param string $plainmessage Optional plain message (may differ from $message)
+ * @param array $attachments Array of filenames to attach
+ * @return PHPMailer A PHPMailer object ready to be sent.
+ */
 function mail_prepare($recipient,$subject,$message,$plainmessage="",$attachments=array())
 {
 	global $CONFIG;
@@ -139,6 +149,16 @@ function mail_prepare($recipient,$subject,$message,$plainmessage="",$attachments
 	return $mail;
 }
 
+/**
+ * Sends an email.
+ * 
+ * @param mixed $recipient Email recipient as string. If $recipient is <PHPMailer> will ignore all other arguments and use this.
+ * @param string $subject The subject
+ * @param string $message The message (may be HTML formatted)
+ * @param string $plainmessage Optional plain message (may differ from $message)
+ * @param array $attachments Array of filenames to attach
+ * @return boolean true on success or string on error
+ */
 function mail_send($recipient,$subject="",$message="",$plainmessage="",$attachments=array())
 {
 	if( is_object($recipient) && $recipient instanceof PHPMailer )
@@ -160,11 +180,24 @@ function mail_send($recipient,$subject="",$message="",$plainmessage="",$attachme
 	return true;
 }
 
+/**
+ * Checks if a string is a syntactically correct email address.
+ * 
+ * @param string $string String to check
+ * @return bool true or false
+ */
 function is_mail($string)
 {
 	return preg_match('%^(.+)@(.{2,})\.(.{2,4})$%i', $string);
 }
 
+/**
+ * Checks for valid email address.
+ * 
+ * @param string $email Value to check
+ * @param bool $check_dns_too If true will check the domain part for valid DNS records too
+ * @return boolean true or false
+ */
 function mail_validate($email,$check_dns_too=true)
 {
 //	log_debug("mail_validate($email)");

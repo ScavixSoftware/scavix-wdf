@@ -27,6 +27,7 @@
  * Initializes the zend module
  * 
  * This module provides access to the Zend framework from within the WDF.
+ * @return void
  */
 function zend_init()
 {
@@ -49,6 +50,7 @@ function zend_init()
  * Loads a Zend module.
  * 
  * @param string $module Module name (like Zend_Http_Client_Adapter_Curl)
+ * @return void
  */
 function zend_load($module)
 {

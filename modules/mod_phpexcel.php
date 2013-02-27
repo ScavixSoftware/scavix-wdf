@@ -23,6 +23,11 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * Initializes the PHPExcel module.
+ * 
+ * @return void
+ */
 function mod_phpexcel_init()
 {
 	define('PHPEXCEL_ROOT', dirname(__FILE__) . '/phpexcel/');

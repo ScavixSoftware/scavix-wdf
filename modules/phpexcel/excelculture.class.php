@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Overrides some methods for Excel compatibility.
+ * 
+ */
 class ExcelCulture extends CultureInfo
 {
 	private static $FORMAT_MAP = array();

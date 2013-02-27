@@ -23,6 +23,11 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * initializes the invoices module.
+ * 
+ * @return void
+ */
 function invoices_init()
 {
 	global $CONFIG;
@@ -38,6 +43,9 @@ function invoices_init()
 		WdfException::Raise("VAT_COUNTRIES not defined (invoices_init)");
 }
 
+/**
+ * @internal Checks if all invoices requirements are loaded/configured
+ */
 function invoices_check_requirements()
 {
 	global $CONFIG;
@@ -47,148 +55,25 @@ function invoices_check_requirements()
 		WdfException::Raise("invoice logo (".$CONFIG['invoices']['logofile'].") not found");	
 }
 
+/**
+ * Returns the standard logo.
+ * 
+ * This is defined in `cfg_get('invoices','logofile')`
+ * @return string The path to the standard logo
+ */
 function invoiceStandardLogo()
 {
 	invoices_check_requirements();
 	return $GLOBALS['CONFIG']['invoices']['logofile'];
 }
 
-function createShopInvoice($invoicenr, $user, $shop)
-{
-	invoices_check_requirements();	
-	$shop_user_id = $user->GetProfileValue('Shop','shop_user_id',0);
-	$ds = model_datasource('system');
-
-	$sql = "SELECT o.user_id, o.name, o.first_name, o.last_name,
-				 o.address1, o.address2, o.city, o.zip,
-				 o.country_id, o.tax_percent, o.tax_total, o.order_total, o.total_quantity,
-				 o.order_id, o.invoice_number, o.order_placed_date, o.currency_code,
-				 o.currency_rate, o.company_name, ps.payment_name as payment_processor, o.order_status
-			FROM va_orders o
-			LEFT JOIN va_orders_items i ON i.order_id=o.order_id
-			INNER JOIN va_payment_systems ps ON ps.payment_id=o.payment_id
-			WHERE o.invoice_number=?0 AND o.user_id=?1
-			ORDER BY i.order_item_id";
-	$rs = $shop->ExecuteSql($sql, array($invoicenr,$shop_user_id));
-	if( $rs->Count() == 0 )
-		return("not found!");
-
-	$vat_country_code = $shop->ExecuteScalar("SELECT country_code
-							 FROM va_countries
-							 WHERE country_id = ?0", array($rs['country_id']));
-	
-	$vat_number = $shop->ExecuteScalar("SELECT property_value
-							 FROM va_orders_properties
-							 WHERE order_id = ?0 AND property_name like '%VAT%'", array($rs['order_id']));
-	$pdf = new InvoicePdf();
-	$pdf->Logo = invoiceStandardLogo();
-	$pdf->InvoiceNumber = $invoicenr;
-	$pdf->Firstname = $rs['first_name'];
-	$pdf->Lastname = trim($rs['last_name'].$rs['name']);
-	$pdf->Companyname = $rs['company_name'];
-	$pdf->Zip = $rs['zip'];
-	$pdf->City = $rs['city'];
-	$pdf->Country = getString("TXT_COUNTRY_".$vat_country_code);
-	$pdf->Address1 = $rs['address1'];
-	$pdf->Address2 = $rs['address2'];
-	$pdf->VatPercent = $rs['tax_percent'];
-	$pdf->VatNumber = $vat_number;
-	$pdf->VatCountryCode = $vat_country_code;
-	$pdf->OrderDate = $rs['order_placed_date'];
-	
-	if($rs['payment_processor'] != "")
-		$pdf->PaidHintProcessor = $rs['payment_processor'];
-		
-	$pdf->CI = Localization::get_currency_culture($rs['currency_code']);
-	$pdf->Language = $user->getCulture()->ResolveToLanguage();
-	
-	$rsi = $shop->ExecuteSql("SELECT item_code, item_name, price, tax_percent, quantity
-							 FROM va_orders_items
-							 WHERE order_id = ?0
-							 ORDER BY order_item_id", array($rs['order_id']));
-	foreach( $rsi as $row)
-	{
-		$itemname = str_replace('?', '', $row['item_name']);
-		$itemname = invoicePdfPreFormatText($itemname,$pdf->Language->Code,$user);
-		$price = $rs['currency_rate'] * $row['price'];				
-		$pdf->AddItem($itemname, $row['quantity'], $price);
-	}
-	
-	$pdf->RenderInvoice();
-	return writePdfToFile($pdf,sys_get_temp_dir()."/Invoice_$invoicenr.pdf");
-}
-
+/**
+ * @deprecated Use <PdfDocument::RenderToFile> instead
+ */
 function writePdfToFile(PdfDocument $pdf_doc, $filename)
 {
 	$pdf_doc->RenderToFile($filename);
 	return $filename;
-}
-
-/**
- * Returns the width of the text
- *
- * @param string $text The textstring.
- * @param string $font The font of the text.
- * @param integer $fsize The size of the selected font.
- * @return integer Number of PDF units wide the text should be.
- */
-
-function invoicePdfGetWidth($text, $font, $fsize)
-{
-	//make into a character array
-	$charArray=array();
-	$text = iconv('UTF-8', 'UTF-16BE//IGNORE', $text);
-	for ($x=0;$x<strlen($text);$x++) {
-		$charArray[]= (ord($text[$x++]) << 8) | ord($text[$x]);;
-	}
-	$lengths=$font->widthsForGlyphs($charArray);
-	$fontGlyphWidth=array_sum($lengths);
-	return 	$fontGlyphWidth/$font->getUnitsPerEm()*$fsize;
-}
-
-/**
- * Returns a given text in english, german, japanese or unaltered format
- *
- * @param string $text to be formatted
- * @param string $lang 'en', 'de', 'ja'
- * @return string the preformatted text
- */
-
-function invoicePdfPreFormatText($text, $lang, $user)
-{
-	// new shop mechanism?
-	if(strpos($text, "[en]") === false)
-	{
-		$ret = $user->getString($text);
-		if($ret == $text.'?')
-			$ret = $text;
-		return $ret;
-	}
-
-	$start = strpos($text, "[$lang]")+4;
-	$end = strpos($text, "[/$lang]");
-	$length = $end - $start;
-	if($length > 0)
-		$result = substr($text, $start, $length);
-	else
-	{
-		// try en as default
-		$lang = "en";
-		$start = strpos($text, "[$lang]")+4;
-		$end = strpos($text, "[/$lang]");
-		$length = $end - $start;
-		if($length > 0)
-			$result = substr($text, $start, $length);
-		else
-			$result = $text;
-	}
-
-//		log_debug("$text -> $result");
-	return $result;
-}
-
-function invoicePdfExecute()
-{
 }
 
 /**

@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Extends <Zend_Pdf> with some useful/essential methods.
+ * 
+ */
 class PdfDocument extends Zend_Pdf
 {
 	const AL_LEFT = 0;
@@ -25,7 +29,13 @@ class PdfDocument extends Zend_Pdf
 		parent::__construct();
 		$this->Font = Zend_Pdf_Font::fontWithPath(zend_font_path().'ARIALUNI.TTF');
 	}
-		
+	
+	/**
+	 * Renders the document to a PDF file.
+	 * 
+	 * @param string $filename Filename to store in
+	 * @return void
+	 */
 	public function RenderToFile($filename)
 	{
 		$temp_file = tempnam(sys_get_temp_dir(),"zend_generated_pdf_doc_").".pdf";
@@ -50,10 +60,14 @@ class PdfDocument extends Zend_Pdf
 		@unlink($temp_file);
 		if( isset($marksfile) )
 			@unlink($marksfile);
-		
-		return true;
 	}
 	
+	/**
+	 * Gets the current active page.
+	 * 
+	 * Creates one if needed.
+	 * @return Zend_Pdf_Page The current page
+	 */
 	public function GetCurrentPage()
 	{
 		if( !$this->currentPage )
@@ -110,6 +124,16 @@ class PdfDocument extends Zend_Pdf
 		return $this->LineHeight;
 	}
 	
+	/**
+	 * Draws text on the curren page.
+	 * 
+	 * @param int $x X coordinate
+	 * @param int $y Y coordinate
+	 * @param int $font_size Font size
+	 * @param string $text The text to be drawn
+	 * @param int $alignment PdfDocument::AL_LEFT, PdfDocument::AL_CENTER or PdfDocument::AL_RIGHT
+	 * @return int Returns the height of the drawn text (to easily change the $y coordinate for the next call)
+	 */
 	public function drawText($x, $y, $font_size, $text, $alignment = self::AL_LEFT)
     {
 		if( !$this->currentPage )
@@ -169,6 +193,16 @@ class PdfDocument extends Zend_Pdf
 		return $this->LineHeight;
     }
 	
+	/**
+	 * Draws a line on the current page.
+	 * 
+	 * @param int $x1 X coordinate of the start point
+	 * @param int $y1 Y coordinate of the start point
+	 * @param int $x2 X coordinate of the end point
+	 * @param int $y2 Y coordinate of the end point
+	 * @param string $color Valid HTML color value, see <Zend_Pdf_Color_Html>
+	 * @return PdfDocument `$this`
+	 */
 	public function drawLine($x1, $y1, $x2, $y2, $color='black')
     {
 		if( !$this->currentPage )
@@ -176,8 +210,19 @@ class PdfDocument extends Zend_Pdf
 		if( $color )
 			$this->currentPage->setLineColor(Zend_Pdf_Color_Html::color($color));
 		$this->currentPage->drawLine($x1, $y1, $x2, $y2);
+		return $this;
 	}
 	
+	/**
+	 * Drwas an image to the current page.
+	 * 
+	 * @param mixed $image Local path to image as string or <Zend_Pdf_Image>
+	 * @param int $x1 X coordinate of the top left corner
+	 * @param int $y1 Y coordinate of the top left corner
+	 * @param int $x2 X coordinate of the bottom right corner
+	 * @param int $y2 Y coordinate of the bottom right corner
+	 * @return PdfDocument `$this`
+	 */
 	public function drawImage($image, $x1, $y1, $x2, $y2)
 	{
 		if( is_string($image) )
@@ -185,8 +230,20 @@ class PdfDocument extends Zend_Pdf
 		if( !$this->currentPage )
 			$this->currentPage = $this->createNewPage();
 		$this->currentPage->drawImage($image, $x1, $y1, $x2, $y2);
+		return $this;
 	}
 	
+	/**
+	 * Drwas a rectangle to the current page.
+	 * 
+	 * @param int $x1 X coordinate of the top left corner
+	 * @param int $y1 Y coordinate of the top left corner
+	 * @param int $x2 X coordinate of the bottom right corner
+	 * @param int $y2 Y coordinate of the bottom right corner
+	 * @param string $line_color Valid HTML color value for the border, see <Zend_Pdf_Color_Html>
+	 * @param string $fill_color Valid HTML color value to fill the rectangle, see <Zend_Pdf_Color_Html>
+	 * @return PdfDocument `$this`
+	 */
 	public function drawRectangle($x1, $y1, $x2, $y2, $line_color='black', $fill_color='')
 	{
 		if( !$this->currentPage )
@@ -208,5 +265,6 @@ class PdfDocument extends Zend_Pdf
 			$this->currentPage->setFillColor(Zend_Pdf_Color_Html::color($fill_color));
 			$this->currentPage->drawRectangle($x1, $y1, $x2, $y2, Zend_Pdf_Page::SHAPE_DRAW_FILL);
 		}
+		return $this;
 	}
 }

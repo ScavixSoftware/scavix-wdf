@@ -23,6 +23,10 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * This is a PDF document with some invoice specific features.
+ * 
+ */
 class InvoicePdf extends PdfDocument
 {
 	var $CI = false;
@@ -84,8 +88,9 @@ class InvoicePdf extends PdfDocument
 	}
 	
 	/**
-	 * Prepare the variables for an invoice and generate the PDF then
-	 * @return boolean generation successful 
+	 * Prepare the variables for an invoice and generate the PDF then.
+	 * 
+	 * @return void
 	 */
 	public function RenderInvoice()
 	{
@@ -103,12 +108,13 @@ class InvoicePdf extends PdfDocument
 		if( $this->InvoiceNumber )
 			$this->Title = getStringLang($this->Language->Code, $this->Texts["INVOICE_NR"], array("{NR}"=>$this->InvoiceNumber));
 		
-		return $this->RenderPDF($add_taxes, $rev_charge_hint);
+		$this->RenderPDF($add_taxes, $rev_charge_hint);
 	}
 	
 	/**
-	 * Prepare the variables for a credit note and generate the PDF then
-	 * @return boolean generation successful 
+	 * Prepare the variables for a credit note and generate the PDF then.
+	 * 
+	 * @return void
 	 */
 	public function RenderCreditnote()
 	{
@@ -125,14 +131,16 @@ class InvoicePdf extends PdfDocument
 		$rev_charge_hint = $this->VatCountryCode && in_array(strtoupper($this->VatCountryCode), $revchargecountries);
 		$add_taxes = (strtoupper($this->VatCountryCode) == "DE");
 		
-		return $this->RenderPDF($add_taxes, $rev_charge_hint);
+		$this->RenderPDF($add_taxes, $rev_charge_hint);
 	}
 	
 	/**
-	 * Render the pdf. Does not write the file! Call writePdfToFile afterwards to write the pdf file
+	 * Renders the PDF.
+	 * 
+	 * Does not write the file! Call <writePdfToFile> afterwards to write the pdf file
 	 * @param boolean $add_taxes Add VAT taxes
 	 * @param boolean $rev_charge_hint Add the EU reverse charge hint
-	 * @return boolean rendered the PDF successfully
+	 * @return void
 	 */
 	private function RenderPDF($add_taxes, $rev_charge_hint)
 	{
@@ -248,8 +256,6 @@ class InvoicePdf extends PdfDocument
 		
 		// finally add the footer
 		$this->addFooter();
-		
-		return true;
 	}
 	
 	private function drawTableHeader(&$top)
@@ -316,6 +322,14 @@ class InvoicePdf extends PdfDocument
 		return $this->drawText($x,$y,$font_size,$text,$alignment);
 	}
 	
+	/**
+	 * Adds an item to the invoice.
+	 * 
+	 * @param string $name Item name
+	 * @param float $amount Item amount
+	 * @param float $price_single Price per item
+	 * @return InvoicePdf `$this`
+	 */
 	function AddItem($name,$amount,$price_single)
 	{
 		$this->Items[] = array(
@@ -323,5 +337,6 @@ class InvoicePdf extends PdfDocument
 			'amount' => $amount,
 			'price' => $price_single,
 		);
+		return $this;
 	}
 }
