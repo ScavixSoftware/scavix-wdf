@@ -1140,7 +1140,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * Selects Models from the database with a partial SQL statement.
 	 * 
 	 * @param string $where WHERE-part of the SQL statement.
-	 * @param array $arguments Arguments used in $where
+	 * @param array $prms Arguments used in $where
 	 * @return array Array of <Model> datasets
 	 */
 	public function Find($where="",$prms=array())

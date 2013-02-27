@@ -75,6 +75,8 @@ interface IDatabaseDriver
 	 * Create a table from an objects schema.
 	 * 
 	 * We are not sure if we will ever implement this side as we prefer to create our tables in the database.
+	 * @param TableSchema $objSchema Tableschema as specified by the Model
+	 * @return void
 	 */
 	function createTable($objSchema);
 
