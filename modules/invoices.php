@@ -68,7 +68,7 @@ function invoiceStandardLogo()
 }
 
 /**
- * @deprecated Use <PdfDocument::RenderToFile> instead
+ * @shortcut <PdfDocument::RenderToFile>($filename)
  */
 function writePdfToFile(PdfDocument $pdf_doc, $filename)
 {

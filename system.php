@@ -641,10 +641,9 @@ function hook_bound($type)
  * This is kind of internal, but may be of use. We shift the stacktrace a bit to have more information
  * in each line that belong together. 
  * @param array $stacktrace Use debug_backtrace() to get this
- * @param string $crlf Char to be used for line-endings (kind of deprecated)
  * @return string The stacktrace-string
  */
-function system_stacktrace_to_string($stacktrace,$crlf="\n")
+function system_stacktrace_to_string($stacktrace)
 {
 	$stack = array();
 
@@ -667,7 +666,7 @@ function system_stacktrace_to_string($stacktrace,$crlf="\n")
 		else
 			$stack[] = sprintf("+ %s(...)",$function);
 	}
-	return implode($crlf,$stack);
+	return implode("\n",$stack);
 }
 
 /**
