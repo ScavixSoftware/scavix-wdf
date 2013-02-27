@@ -58,10 +58,9 @@ abstract class SessionBase
 	 * 
 	 * @param object $obj Object to be stored
 	 * @param string $id Key to store object under (use <create_storage_id> if not given)
-	 * @param bool $autoload DEPRECATED
 	 * @return void
 	 */
-	abstract function Store(&$obj,$id="",$autoload=false);
+	abstract function Store(&$obj,$id="");
 	
 	/**
 	 * Removes an object from the object store.

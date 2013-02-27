@@ -31,10 +31,7 @@
 class PhpSession extends SessionBase
 {
 	/**
-	 * Implements parents abstract
-	 * 
-	 * See <SessionBase::Sanitize>
-	 * @return void
+	 * @implements <SessionBase::Sanitize>
 	 */
 	function Sanitize()
 	{
@@ -61,10 +58,7 @@ class PhpSession extends SessionBase
 	}
 
 	/**
-	 * Implements parents abstract
-	 * 
-	 * See <SessionBase::KillAll>
-	 * @return void
+	 * @implements <SessionBase::KillAll>
 	 */
 	function KillAll()
 	{
@@ -75,11 +69,7 @@ class PhpSession extends SessionBase
 	}
 
 	/**
-	 * Implements parents abstract
-	 * 
-	 * See <SessionBase::KeepAlive>
-	 * @param string $request_key Key in the $_REQUEST variable where the request_id is stored
-	 * @return void
+	 * @implements <SessionBase::KeepAlive>
 	 */
 	function KeepAlive($request_key='PING')
 	{
@@ -88,15 +78,9 @@ class PhpSession extends SessionBase
 	}
 
 	/**
-	 * Implements parents abstract
-	 * 
-	 * See <SessionBase::Store>
-	 * @param object $obj Object to be stored
-	 * @param string $id Id to store $obj to
-	 * @param bool $autoload If true, will be restored on session initialization automatically
-	 * @return void
+	 * @implements <SessionBase::Store>
 	 */
-	function Store(&$obj,$id="",$autoload=false)
+	function Store(&$obj,$id="")
 	{
 		global $CONFIG;
 		$id = strtolower($id);
@@ -115,11 +99,7 @@ class PhpSession extends SessionBase
 	}
 
 	/**
-	 * Implements parents abstract
-	 * 
-	 * See <SessionBase::Delete>
-	 * @param string $id Id of object to be deleted
-	 * @return void
+	 * @implements <SessionBase::Delete>
 	 */
 	function Delete($id)
 	{
@@ -133,11 +113,7 @@ class PhpSession extends SessionBase
 	}
 
 	/**
-	 * Implements parents abstract
-	 * 
-	 * See <SessionBase::Exists>
-	 * @param string $id Id of object to be checked
-	 * @return bool true or false
+	 * @implements <SessionBase::Exists>
 	 */
 	function Exists($id)
 	{
@@ -152,11 +128,7 @@ class PhpSession extends SessionBase
 	}
 
 	/**
-	 * Implements parents abstract
-	 * 
-	 * See <SessionBase::Restore>
-	 * @param string $id Id of object to be restored
-	 * @return mixed Object from store or null
+	 * @implements <SessionBase::Restore>
 	 */
 	function &Restore($id)
 	{

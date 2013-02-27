@@ -167,9 +167,9 @@ function request_id()
 /**
  * @shortcut <SessionBase::Store>
  */
-function store_object(&$obj,$id="",$autoload=false)
+function store_object(&$obj,$id="")
 {
-	return $GLOBALS['fw_session_handler']->Store($obj,$id,$autoload);
+	return $GLOBALS['fw_session_handler']->Store($obj,$id);
 }
 
 /**

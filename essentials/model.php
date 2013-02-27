@@ -88,7 +88,7 @@ function model_store()
 	global $MODEL_DATABASES;
 	foreach( $MODEL_DATABASES as $dbname=>$db )
 		if( !is_array($db) )
-			store_object($db,$dbname,true);
+			store_object($db,$dbname);
 }
 
 /**
