@@ -50,7 +50,7 @@ class CheckBox extends Input
 	 */
 	function CreateLabel($text)
 	{
-		$this->Label = new Label($text,false,$this->id);
+		$this->Label = new Label($text,$this->id);
 		return $this->Label;
 	}
 }

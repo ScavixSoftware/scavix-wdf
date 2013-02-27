@@ -76,7 +76,7 @@ class uiButtonSet extends uiControl
 	{
 		$ctn = count($this->buttons);
 		$btn = new RadioButton(false,"radio");
-		$this->buttons[$ctn]["label"]  = new Label($label,false,$btn->id);
+		$this->buttons[$ctn]["label"]  = new Label($label,$btn->id);
 		$this->buttons[$ctn]['button'] = $btn;
 		$this->buttons[$ctn]['events']['click'] = $click_event;
 		

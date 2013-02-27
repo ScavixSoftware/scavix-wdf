@@ -30,13 +30,12 @@ class Label extends Control
 {
 	/**
 	 * @param string $name The actual text
-	 * @param bool $required This is deprecated
 	 * @param mixed $for Can be <Control> or string holding an id
 	 */
-    function __initialize($name,$required=false,$for = "")
+    function __initialize($name,$for = "")
 	{
 		parent::__initialize("label");
-		$this->content($name.($required?"<font color=red>*</font>":""));
+		$this->content($name);
 		$this->for = ($for instanceof Control)?$for->id:$for;
 	}
 }
