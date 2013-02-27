@@ -23,8 +23,18 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * Provides automatic GA tracking.
+ * 
+ */
 class GoogleAnalytics extends Template
 {
+	/**
+	 * @param string $account_code Your GA account
+	 * @param string $js_varname Name of the JS variable
+	 * @param bool $track_immediately If true calls _trackPageview() instantly
+	 * @param string $track_prefix Prefix for tracked events
+	 */
 	function __initialize($account_code,$js_varname="pageTracker",$track_immediately=true,$track_prefix="")
 	{
 		parent::__initialize();
@@ -35,10 +45,5 @@ class GoogleAnalytics extends Template
 		$this->set("track_prefix",$track_prefix);
 
 		$this->set("tracker",array());
-	}
-
-	function addClickTracking($selector)
-	{
-		$this->add2var('tracker',$selector);
 	}
 }

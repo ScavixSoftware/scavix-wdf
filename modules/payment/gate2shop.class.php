@@ -22,7 +22,11 @@
  * @copyright 2007-2012 PamConsult GmbH
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
+
+/**
+ * Gate2Shop payment provider.
+ * 
+ */
 class Gate2Shop extends PaymentProvider
 {
 	public $type = PaymentProvider::PROCESSOR_GATE2SHOP;
@@ -133,6 +137,9 @@ class Gate2Shop extends PaymentProvider
 		return md5($content);
 	}
 	
+	/**
+	 * @override
+	 */
 	public function StartCheckout(IShopOrder $order)
 	{
 		global $CONFIG;
@@ -230,8 +237,8 @@ class Gate2Shop extends PaymentProvider
 		return true;
 	}
 	
-	/*
-	 * Process the incoming IPN call from PayPal
+	/**
+	 * @override
 	 */
 	public function HandleIPN($ipndata)
 	{
@@ -250,6 +257,9 @@ class Gate2Shop extends PaymentProvider
 		return $this->HandlePayment($order, $ipndata);
 	}
 	
+	/**
+	 * @override
+	 */
 	public function SanitizeStatusFromPP($status, $ipndata)
 	{
 		// g2s has some weird cancel return values from the PPP page when user clicks "cancel" (mantis #8199)
@@ -258,8 +268,8 @@ class Gate2Shop extends PaymentProvider
 		return $status;
 	}
 	
-	/*
-	 * Process the user returning from the PP
+	/**
+	 * @override
 	 */
 	public function HandleReturnFromPP($ipndata)
 	{

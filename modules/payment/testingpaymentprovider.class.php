@@ -23,6 +23,10 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * Payment provider for testing.
+ * 
+ */
 class TestingPaymentProvider extends PaymentProvider
 {
 	public $type = PaymentProvider::PROCESSOR_TESTING;
@@ -33,13 +37,16 @@ class TestingPaymentProvider extends PaymentProvider
 		parent::__construct();
 	}
 	
+	/**
+	 * @override
+	 */
 	public function IsAvailable()
 	{
 		return isDevOrBeta();		// this one is only available on dev and beta
 	}	
 	
 	/**
-	 * Testing provider only sets order paid and forwards to dashboard
+	 * @override Testing provider only sets order paid and forwards to dashboard
 	 */
 	public function StartCheckout(IShopOrder $order)
 	{

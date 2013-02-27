@@ -23,6 +23,9 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
+/**
+ * @internal Item for the <uiNavigation> control
+ */
 class uiNavigationItem extends Control
 {
 	function __initialize($is_sub_item=false)

@@ -23,6 +23,10 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * PayPal payment provider.
+ * 
+ */
 class PayPal extends PaymentProvider
 {
 	public $type = PaymentProvider::PROCESSOR_PAYPAL;
@@ -77,6 +81,9 @@ class PayPal extends PaymentProvider
 		return 'EUR';
 	}
 	
+	/**
+	 * @override
+	 */
 	public function StartCheckout(IShopOrder $order)
 	{
 		global $CONFIG;
@@ -243,8 +250,8 @@ class PayPal extends PaymentProvider
 		return false;
 	}
 	
-	/*
-	 * Process the incoming IPN call from PayPal
+	/**
+	 * @override
 	 */
 	public function HandleIPN($ipndata)
 	{

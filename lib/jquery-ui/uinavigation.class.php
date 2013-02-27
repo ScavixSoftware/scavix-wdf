@@ -24,11 +24,17 @@
  */
 
 /**
+ * This is a MenuBar like control.
+ * 
+ * Note: This is work in progress
  * @attribute[Resource('jquery-ui/ui.navigation.js')]
  * @attribute[Resource('jquery-ui/ui.navigation.css')]
  */
 class uiNavigation extends uiControl
 {
+	/**
+	 * @param bool $is_sub_navigation If true acts as submenu
+	 */
 	function __initialize($is_sub_navigation=false)
 	{
 		global $CONFIG;
@@ -37,6 +43,13 @@ class uiNavigation extends uiControl
 			$this->script("$('#".$this->id."').navigation({root_uri:'".$CONFIG['system']['console_uri']."',item_width:130});");
 	}
 
+	/**
+	 * Adds an item to the menu.
+	 * 
+	 * @param string $label Item label
+	 * @param string $href Link to open if clicked
+	 * @return uiNavigationItem The created item
+	 */
 	function &AddItem($label, $href=false)
 	{
 		$item = new uiNavigationItem();
