@@ -23,76 +23,82 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
-function isIE()
+/**
+ * Checks the remote browser.
+ * 
+ * If $version is given will check the major version too, if $gt_match is true, greater versions will match too.
+ * Samples:
+ * <code php>
+ * browser_is('msie',7,false); // true for InternetExplorer 7
+ * browser_is('msie',7,true); // true for InternetExplorer 7, 8, 9, ...
+ * browser_is('msie'); // true for every InternetExplorer
+ * </code>
+ * @param string $id Browser id (msie, firefox,...)
+ * @param int $version Major version to check
+ * @param bool $gt_match If true greater versions match too
+ * @return bool true or false
+ */
+function browser_is($id,$version=0,$gt_match=true)
 {
-	global $__BROWSERINFO__CACHE;
-
-	if( !isset($__BROWSERINFO__CACHE) )
-		$__BROWSERINFO__CACHE = browserDetails();
-
-	return strtoupper($__BROWSERINFO__CACHE['browser']) == 'MSIE';
+	$bd = browserDetails();
+	return $bd['browser_id'] == strtoupper($id) && (
+		($gt_match && $bd['major_version']>=$version) || 
+		(!$gt_match && $bd['major_version']==$version) );
 }
 
-function isIE6()
-{
-	global $__BROWSERINFO__CACHE;
+/**
+ * @shortcut <browser_is>('MSIE')
+ */
+function isIE(){ return browser_is('MSIE'); }
 
-	if( !isset($__BROWSERINFO__CACHE) )
-		$__BROWSERINFO__CACHE = browserDetails();
+/**
+ * @shortcut <browser_is>('MSIE',6,false)
+ */
+function isIE6(){ return browser_is('MSIE',6,false); }
 
-	return strtoupper($__BROWSERINFO__CACHE['browser']) == 'MSIE' &&
-		   $__BROWSERINFO__CACHE['version'] >= 6 &&
-		   $__BROWSERINFO__CACHE['version'] < 7;
-}
+/**
+ * @shortcut <browser_is>('MSIE',7,false)
+ */
+function isIE7(){ return browser_is('MSIE',7,false); }
 
-function isIE7()
-{
-	global $__BROWSERINFO__CACHE;
+/**
+ * @shortcut <browser_is>('MSIE',8,false)
+ */
+function isIE8(){ return browser_is('MSIE',8,false); }
 
-	if( !isset($__BROWSERINFO__CACHE) )
-		$__BROWSERINFO__CACHE = browserDetails();
+/**
+ * @shortcut <browser_is>('MSIE',9,false)
+ */
+function isIE9(){ return browser_is('MSIE',9,false); }
 
-	return strtoupper($__BROWSERINFO__CACHE['browser']) == 'MSIE' &&
-		   $__BROWSERINFO__CACHE['version'] >= 7 &&
-		   $__BROWSERINFO__CACHE['version'] < 8;
-}
+/**
+ * @shortcut <browser_is>('MSIE',10,false)
+ */
+function isIE10(){ return browser_is('MSIE',10,false); }
 
-function isMinIE7()
-{
-	global $__BROWSERINFO__CACHE;
-		
-	if( !isset($__BROWSERINFO__CACHE) )
-		$__BROWSERINFO__CACHE = browserDetails();
+/**
+ * @shortcut <browser_is>('MSIE',7,true)
+ */
+function isMinIE7(){ return browser_is('MSIE',7,true); }
 
-	if( strtoupper($__BROWSERINFO__CACHE['browser']) == 'MSIE' && $__BROWSERINFO__CACHE['version'] >= 7 )
-		return true;
-	else
-		return false;
-}
+/**
+ * @shortcut <browser_is>('MSIE',8,true)
+ */
+function isMinIE8(){ return browser_is('MSIE',8,true); }
 
-function isFirefox()
-{
-	global $__BROWSERINFO__CACHE;
+/**
+ * @shortcut <browser_is>('FIREFOX')
+ */
+function isFirefox(){ return browser_is('FIREFOX'); }
 
-	if( !isset($__BROWSERINFO__CACHE) )
-		$__BROWSERINFO__CACHE = browserDetails();
+/**
+ * @shortcut <browser_is>('FIREFOX',3,true)
+ */
+function isMinFirefox3(){ return browser_is('FIREFOX',3,true); }
 
-	return strtoupper($__BROWSERINFO__CACHE['browser']) == 'FIREFOX';
-}
-
-function isMinFirefox3()
-{
-	global $__BROWSERINFO__CACHE;
-
-	if( !isset($__BROWSERINFO__CACHE) )
-		$__BROWSERINFO__CACHE = browserDetails();
-
-	if( strtoupper($__BROWSERINFO__CACHE['browser']) == 'FIREFOX' && $__BROWSERINFO__CACHE['version'] >= 3 )
-		return true;
-	else
-		return false;
-}
-
+/**
+ * @internal Fetches all browser information from `$_SERVER['HTTP_USER_AGENT']`
+ */
 function browserDetails()
 {
 	global $__BROWSERINFO__CACHE;
@@ -279,5 +285,8 @@ function browserDetails()
         $bd['aol'] = ereg_replace("[^0-9,.,a-z,A-Z]", "", $var[1]);
     }
 
+	$bd['browser_id'] = strtoupper($bd['browser']);
+	$bd['major_version'] = intval($bd['version']);
+	$__BROWSERINFO__CACHE = $bd;
     return $bd;
 }

@@ -23,6 +23,9 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  
+/**
+ * @internal SQL common query builder
+ */
 class Query
 {
 	protected $_object = false;
@@ -310,6 +313,9 @@ class Query
 	}
 }
 
+/**
+ * @internal Helper class for the SQL query builder <Query>
+ */
 class ConditionTree
 {
 	private $_firstToken = "WHERE";
@@ -385,6 +391,9 @@ class ConditionTree
 	}
 }
 
+/**
+ * @internal Helper class for the SQL query builder <Query>
+ */
 class Condition
 {
 	private $_operator;

@@ -40,7 +40,30 @@ if (isset($_GET['submitted'])) {
 
 ==============================================================================*/
 
+/**
+ * Returns a list of supported credit cards.
+ * 
+ * @return array List of supported cards
+ */
+function creditcard_getnames()
+{
+	return array(
+		'American Express','Diners Club Carte Blanche','Diners Club',
+		'Discover','Diners Club Enroute','JCB','Maestro','MasterCard',
+		'Solo','Switch','Visa','Visa Electron'
+	);
+}
 
+/**
+ * Syntactically checks a credit card number.
+ * 
+ * Valid values for $cardname are returned ny <creditcard_getnames>.
+ * @param type $cardnumber Number to check
+ * @param type $cardname Card name
+ * @param type $errornumber <b>OUT</b> The error number
+ * @param type $errortext <b>OUT</b> The error message
+ * @return boolean true or false
+ */
 function creditcard_check ($cardnumber, $cardname, &$errornumber, &$errortext) {
 
   // Define the cards we support. You may add additional card types.

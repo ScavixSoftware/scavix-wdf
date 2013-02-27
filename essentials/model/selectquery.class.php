@@ -22,7 +22,10 @@
  * @copyright 2007-2012 PamConsult GmbH
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
+
+/**
+ * @internal SQL SELECT query builder
+ */
 class SelectQuery extends Query
 {
 	protected $_groupBy = array();

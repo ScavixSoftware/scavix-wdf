@@ -24,10 +24,20 @@
  */
  
 /**
+ * This is a flashmovie wrapped by flowplayer.js
+ * 
+ * See http://flash.flowplayer.org/documentation/api/index.html
  * @attribute[Resource('flowplayer-3.1.4.min.js')]
  */
 class FlashMovie extends Template
 {
+	/**
+	 * @param string $id Player id
+	 * @param string $src Source of the movie to play
+	 * @param string $width HTML width value
+	 * @param string $height HTML height value
+	 * @param bool $autoplay True will automatically start playing
+	 */
 	function __initialize($id,$src,$width="230px",$height="",$autoplay=true)
 	{
 		parent::__initialize();
