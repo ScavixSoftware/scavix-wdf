@@ -56,11 +56,8 @@ function model_init()
 		{
 			model_init_db(
 				$name,
-				isset($mod['datasource_type'])?$mod['datasource_type']:"DataSource",
 				$mod['connection_string'],
-				isset($mod['auto_create_tables'])?$mod['auto_create_tables']:false,
-				(isset($mod['debug'])?$mod['debug']:false),
-				(isset($mod['usememcache'])?$mod['usememcache']:true)
+				isset($mod['datasource_type'])?$mod['datasource_type']:"DataSource"
 			);
 		}
 		else
@@ -72,18 +69,15 @@ function model_init()
  * Initializes a database connection.
  * 
  * @param string $name Alias name (like system, internal, data, mydb,...)
- * @param string $dstype Datasource type, always 'DataSource'
  * @param string $constr Connection string
- * @param bool $autoct DEPRECATED
- * @param bool $debug DEPRECATED
- * @param bool $usememcache DEPRECATED
+ * @param string $dstype Datasource type
  * @return void
  */
-function model_init_db($name,$dstype,$constr,$autoct=false,$debug=false,$usememcache=true)
+function model_init_db($name,$constr,$dstype='DataSource')
 {
 	global $MODEL_DATABASES;
 	
-	$MODEL_DATABASES[$name] = array($dstype,$constr,$autoct,$debug,$usememcache);
+	$MODEL_DATABASES[$name] = array($dstype,$constr);
 }
 
 /**
