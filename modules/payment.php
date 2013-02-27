@@ -214,8 +214,23 @@ interface IShopOrder
 	 */
 	function GetAddress();
 	
+    /**
+	 * Return the total price incl. VAT (if VAT applies for the given country). 
+	 * @param float $price The price without VAT.
+	 * @return float Price including VAT (if VAT applies for the country).
+	 */
 	function GetTotalPrice($price = false);
+    
+    /**
+	 * Return the total VAT (if VAT applies for the given country). 
+	 * @return float VAT in order currency
+	 */
 	function GetTotalVat();
+    
+    /**
+	 * Return the total VAT (if VAT applies for the given country). 
+	 * @return float VAT in order currency
+	 */
 	function GetVatPercent();
 }
 
@@ -301,3 +316,4 @@ function payment_list_providers()
 	}
 	return $res;
 }
+
