@@ -31,7 +31,7 @@
  * Implements Iterator, Countable and ArrayAccess for ease of use in for and foreach loops.
  * Also has methods like all(), like() and so on to access your data the really easy way:
  * <code>
- * $some_does = MyModelClass::Make()->where('OR')->like('firstname','%john%')->equal('lastname','doe');
+ * $some_does = MyModelClass::Make()->orAll()->like('firstname','%john%')->equal('lastname','doe');
  * foreach( $some_does as $sd ) echo $sd;
  * </code>
  */
@@ -440,7 +440,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$res = new $className($datasource);
 		if( $pk_value !== false )
 		{
-			$q = $res->where("AND");
+			$q = $res->andAll();
 			$pkcols = $res->GetPrimaryColumns();
 			if( count($pkcols) == 1 && !is_array($pk_value) )
 				$pk_value = array($pkcols[0] => $pk_value);
@@ -696,17 +696,6 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$res = clone $this;
 		$res->__ensureSelect();
 		$res->_query->orX($count);
-		return $res;
-	}
-
-	/**
-	 * @deprecated Use <Model::andAll> or <Model::orAll> instead or simply skip it as it is not needed
-	 */
-	public function where($defaultOperator = "AND")
-	{
-		$res = clone $this;
-		$res->__ensureSelect();
-		$res->_query->where($defaultOperator);
 		return $res;
 	}
 
@@ -1069,7 +1058,12 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	}
 	
 	/**
-	 * @deprecated Use <Model::Make>()->eq('id',$id)->current() instead
+	 * Loads a Model using SQL.
+	 * 
+	 * All field values will be loaded from DB.
+	 * @param string $where WHERE-part of the SQL statement.
+	 * @param array $arguments Arguments used in $where
+	 * @return boolean true if dataset was found, else false
 	 */
 	public function Load($where, $arguments=false)
 	{
@@ -1143,7 +1137,11 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	}
 	
 	/**
-	 * @deprecated Use <Model::Make> or <Model::Query> instead
+	 * Selects Models from the database with a partial SQL statement.
+	 * 
+	 * @param string $where WHERE-part of the SQL statement.
+	 * @param array $arguments Arguments used in $where
+	 * @return array Array of <Model> datasets
 	 */
 	public function Find($where="",$prms=array())
 	{

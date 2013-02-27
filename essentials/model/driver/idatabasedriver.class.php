@@ -74,7 +74,7 @@ interface IDatabaseDriver
 	/**
 	 * Create a table from an objects schema.
 	 * 
-	 * @deprecated We are not sure if we will ever implement this side as we prefer to create our tables in the database.
+	 * We are not sure if we will ever implement this side as we prefer to create our tables in the database.
 	 */
 	function createTable($objSchema);
 

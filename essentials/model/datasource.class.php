@@ -225,14 +225,6 @@ class DataSource
 	}
 	
 	/**
-	 * @deprecated No code in here, need to investigate if this is still needed
-	 */
-	function EmptySQLCache()
-	{
-		// todo: implement logic here and add caching capabilities to Cache* methods
-	}
-	
-	/**
 	 * Executes a statement and caches the result.
 	 * 
 	 * Of course returns the cached result if called again and cached result is still alive.
