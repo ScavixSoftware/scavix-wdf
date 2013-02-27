@@ -1,6 +1,6 @@
 <?php
 /**
- * PamConsult Web Development Framework
+ * Scavix Web Development Framework
  *
  * Copyright (c) 2007-2012 PamConsult GmbH
  *
@@ -286,7 +286,7 @@ class DataSource
 	 * 
 	 * If you dont want to write a <Model> class for a table you can use this method to create an anonymous query:
 	 * <code php>
-	 * $entries = $dataSource->Query('my_bog_entries')->youngerThan(1,'month');
+	 * $entries = $dataSource->Query('my_bog_entries')->youngerThan('created',1,'month');
 	 * </code>
 	 * @param string $tablename Name of table to query
 	 * @return CommonModel The query as CommonModel

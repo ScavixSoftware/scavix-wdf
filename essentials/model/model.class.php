@@ -1,6 +1,6 @@
 <?php
 /**
- * PamConsult Web Development Framework
+ * Scavix Web Development Framework
  *
  * Copyright (c) 2007-2012 PamConsult GmbH
  *
@@ -37,7 +37,13 @@
  */
 abstract class Model implements Iterator, Countable, ArrayAccess
 {
+	/**
+	 * Derivered classes must implement this and return the table name they are stored in.
+	 * 
+	 * @return string Table name
+	 */
 	abstract function GetTableName();
+	
 	public static $DefaultDatasource = false;
 	
 	protected static $_schemaCache = array();
@@ -116,6 +122,16 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 */
 	function count(){ $this->__ensureResults(); return count($this->_results); }
 	
+	/**
+	 * Enumerates all values from a column of the current result.
+	 * 
+	 * <code php>
+	 * $emails = MyModel::Make()->lt('id',1000)->enumerate('email',true);
+	 * </code>
+	 * @param string $property_or_fieldname Property-/Fieldname
+	 * @param bool $distinct If true will <array_unique> the results.
+	 * @return array Array of values
+	 */
 	function enumerate($property_or_fieldname, $distinct=true)
 	{
 		$res = array();
@@ -403,6 +419,21 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
 
+	/**
+	 * Static creator method for easy Model instaciation and instant method chaining
+	 * 
+	 * <code php>
+	 * $new_datasets = MyModelClass::Make()->youngerThan('created',1,'month');
+	 * </code>
+	 * There's also a shortcut syntax to load a dataset automatically, but this will only work if the tables primary key
+	 * constist of only one column:
+	 * <code php>
+	 * $loaded = MyModelClass::Make(null,2);
+	 * </code>
+	 * @param DataSource $datasource <DataSource> to bind to, defaults to <Model>::$DefaultDatasource
+	 * @param mixed $pk_value Primary key value
+	 * @return Model Returns the created model or null, if nothing can be found for a specified $pk_value
+	 */
 	public static function &Make($datasource=null,$pk_value=false)
     {
 		$className = get_called_class();
@@ -419,16 +450,18 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 					WdfDbException::Raise("Missing value for primary key column '{$pkc}'");
 				$q = $q->equal($pkc,$pk_value[$pkc]);
 			}
-			if( count($q) > 0 )
-			{
-				$q = $q[0];
-				return $q;
-			}
-			return false;
+			return $q->current();
 		}
 		return $res;
     }
 	
+	/**
+	 * Static tool method to ensure $value is of type <DateTimeEx>.
+	 * 
+	 * @param mixed $value Some value representing a datetime
+	 * @param bool $convert_now_to_value if true will check if `$value=='now()'` and if so return `new DateTimeEx` instead of `'now()'`
+	 * @return mixed <DateTimeEx> value or 'now()' if $convert_now_to_value is fale and value is 'now()'
+	 */
 	public static function EnsureDateTime($value,$convert_now_to_value=false)
 	{
 		if( $value instanceof DateTimeEx )
@@ -467,11 +500,23 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return new DateTimeEx($value);
 	}
 	
+	/**
+	 * Returns the names of all primary columns.
+	 * 
+	 * @return array List of all columns that belong to the primary key
+	 */
 	public function GetPrimaryColumns()
 	{
 		return $this->__ensureTableSchema()->PrimaryColumnNames();
 	}
 
+	/**
+	 * Returns a list of column names.
+	 * 
+	 * If $changed_only is true will only return names of fields which values have been changed compared to the saved values.	 * 
+	 * @param bool $changed_only Return only changed columns names
+	 * @return array A list of column names
+	 */
 	public function GetColumnNames($changed_only = false)
 	{
 		if( !$changed_only )
@@ -508,16 +553,34 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		//return array_keys($this->_changedColumns);
 	}
 
+	/**
+	 * Checks if this <Model> has a column $name.
+	 * 
+	 * @param string $name Column name to check for
+	 * @return bool true or false
+	 */
 	public function HasColumn($name)
 	{
 		return $this->__ensureTableSchema()->HasColumn($name);
 	}
 
+	/**
+	 * Creates a full qualified fieldname.
+	 * 
+	 * That is ```tablename`.field_name``
+	 * @param string $name Name to FQ
+	 * @return string FQ fieldname
+	 */
 	public function FullQualifiedFieldName($name)
 	{
 		return "`{$this->GetTableName()}`.".$this->__ensureFieldname($name);
 	}
 	
+	/**
+	 * Returns all field values a array.
+	 * 
+	 * @return array Associative array of fieldname=>value pairs
+	 */
 	public function AsArray()
 	{
 		$res = array();
@@ -526,6 +589,11 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
 	
+	/**
+	 * Uses <system_sanitize_parameters> to sanitze all field values.
+	 * 
+	 * @return void
+	 */
 	public function SanitizeValues()
 	{
 		$vals = $this->AsArray();
@@ -547,6 +615,12 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			$this->_query = new SelectQuery($this,$this->_ds);
 	}
 
+	/**
+	 * Ensures a valid select query.
+	 * 
+	 * Similar to <Model::noop> but will not add the `1=1` condition.
+	 * @return Model `clone $this`
+	 */
 	public function all()
 	{
 		$res = clone $this;
@@ -554,6 +628,17 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
 
+	/**
+	 * Marks that from now on all following conditions will be `AND` combined.
+	 * 
+	 * Note that this is default behaviour!
+	 * <code php>
+	 * $q1 = MyModel::Make()->andAll()->eq('id',1)->gt('sort',2);
+	 * // as andAll() is default that is the same like this
+	 * $q2 = MyModel::Make()->eq('id',1)->gt('sort',2);
+	 * </code>
+	 * @return Model `clone $this`
+	 */
 	function andAll()
 	{
 		$res = clone $this;
@@ -562,6 +647,14 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
 
+	/**
+	 * Marks that from now on all following conditions will be `OR` combined.
+	 * 
+	 * <code php>
+	 * $q = MyModel::Make()->orAll()->eq('id',1)->eq('id',2);
+	 * </code>
+	 * @return Model `clone $this`
+	 */
 	function orAll()
 	{
 		$res = clone $this;
@@ -570,6 +663,16 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
 
+	/**
+	 * Marks that the next X conditions will be `AND` combined.
+	 * 
+	 * <code php>
+	 * $q1 = MyModel::Make()->orAll()->eq('id',1)->andX(2)->gt('sort',2)->lt('sort',10);
+	 * // SELECT FROM my_model WHERE id=1 OR (sort>2 AND sort<10)
+	 * </code>
+	 * @param int $count How many following calls shall be AND-combined
+	 * @return Model `clone $this`
+	 */
 	function andX($count)
 	{
 		$res = clone $this;
@@ -578,6 +681,16 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
 
+	/**
+	 * Marks that the next X conditions will be `OR` combined.
+	 * 
+	 * <code php>
+	 * $q1 = MyModel::Make()->orX(2)->eq('id',1)->andX(2)->gt('sort',2)->lt('sort',10);
+	 * // SELECT FROM my_model WHERE id=1 OR (sort>2 AND sort<10)
+	 * </code>
+	 * @param int $count How many following calls shall be OR-combined
+	 * @return Model `clone $this`
+	 */
 	function orX($count)
 	{
 		$res = clone $this;
@@ -586,6 +699,9 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
 
+	/**
+	 * @deprecated Use <Model::andAll> or <Model::orAll> instead or simply skip it as it is not needed
+	 */
 	public function where($defaultOperator = "AND")
 	{
 		$res = clone $this;
@@ -594,6 +710,12 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
 
+	/**
+	 * Adds a HAVING statement.
+	 * 
+	 * @param string $defaultOperator 'AND' or 'OR'
+	 * @return Model `clone $this`
+	 */
 	public function having($defaultOperator = "AND")
 	{
 		$res = clone $this;
@@ -602,7 +724,14 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
 
-	function eq($property,$value,$value_is_sql=false) { return $this->equal($property,$value,$value_is_sql); }
+	/**
+	 * Check if a field has a value.
+	 * 
+	 * @param string $property Property-/Fieldname
+	 * @param mixed $value Value to check for
+	 * @param bool $value_is_sql if true, $value is treaded as SQL keyword/function/... and will fremain unescaped (sample: now())
+	 * @return Model `clone $this`
+	 */
 	public function equal($property,$value,$value_is_sql=false)
 	{
 		$res = clone $this;
@@ -611,7 +740,13 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
 	
-	function neq($property,$value) { return $this->notEqual($property,$value); }
+	/**
+	 * Check if a field has NOT a value.
+	 * 
+	 * @param string $property Property-/Fieldname
+	 * @param mixed $value Value to check for
+	 * @return Model `clone $this`
+	 */
 	public function notEqual($property,$value)
 	{
 		$res = clone $this;
@@ -620,7 +755,13 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
 	
-	function lte($property,$value) { return $this->lowerThanOrEqualTo($property,$value); }
+	/**
+	 * Check if a fields value is lower than or equal to something.
+	 * 
+	 * @param string $property Property-/Fieldname
+	 * @param mixed $value Value to check against
+	 * @return Model `clone $this`
+	 */
 	public function lowerThanOrEqualTo($property,$value)
 	{
 		$res = clone $this;
@@ -629,7 +770,13 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
 	
-	function lt($property,$value) { return $this->lowerThan($property,$value); }
+	/**
+	 * Check if a fields value is lower than something.
+	 * 
+	 * @param string $property Property-/Fieldname
+	 * @param mixed $value Value to check against
+	 * @return Model `clone $this`
+	 */
 	public function lowerThan($property,$value)
 	{
 		$res = clone $this;
@@ -638,7 +785,13 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
 	
-	function gte($property,$value) { return $this->greaterThanOrEqualTo($property,$value); }
+	/**
+	 * Check if a fields value is greater than or equal to something.
+	 * 
+	 * @param string $property Property-/Fieldname
+	 * @param mixed $value Value to check against
+	 * @return Model `clone $this`
+	 */
 	public function greaterThanOrEqualTo($property,$value)
 	{
 		$res = clone $this;
@@ -647,7 +800,13 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
 	
-	function gt($property,$value) { return $this->greaterThan($property,$value); }
+	/**
+	 * Check if a fields value is greater than something.
+	 * 
+	 * @param string $property Property-/Fieldname
+	 * @param mixed $value Value to check against
+	 * @return Model `clone $this`
+	 */
 	public function greaterThan($property,$value)
 	{
 		$res = clone $this;
@@ -656,6 +815,13 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
 	
+	/**
+	 * Check if a fields value is binary equal to another value.
+	 * 
+	 * @param string $property Property-/Fieldname
+	 * @param mixed $value Value to check against
+	 * @return Model `clone $this`
+	 */
 	public function binary($property,$value)
 	{
 		$res = clone $this;
@@ -666,6 +832,14 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
 
+	/**
+	 * Check if a fields value is LIKE another value.
+	 * 
+	 * See http://www.w3schools.com/sql/sql_like.asp
+	 * @param string $property Property-/Fieldname
+	 * @param mixed $value Value to check against
+	 * @return Model `clone $this`
+	 */
 	public function like($property,$value)
 	{
 		$res = clone $this;
@@ -674,6 +848,15 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
 
+	/**
+	 * Check if a fields value is RLIKE another value.
+	 * 
+	 * MySQL specific: see http://dev.mysql.com/doc/refman/5.1/en/regexp.html
+	 * @todo Check how <SqLite> must handle this. Perhaps use <IDatabaseDriver::PreprocessSql>?
+	 * @param string $property Property-/Fieldname
+	 * @param mixed $value Value to check against
+	 * @return Model `clone $this`
+	 */
 	public function rlike($property,$value)
 	{
 		$res = clone $this;
@@ -682,6 +865,13 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
 
+	/**
+	 * Checks if a fields value is one of the $values.
+	 * 
+	 * @param string $property Property-/Fieldname
+	 * @param array $values Array of values to check against
+	 * @return Model `clone $this`
+	 */
 	public function in($property,$values)
 	{
 		$res = clone $this;
@@ -690,6 +880,13 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
 	
+	/**
+	 * Checks if a fields value is NOT one of the $values.
+	 * 
+	 * @param string $property Property-/Fieldname
+	 * @param array $values Array of values to check against
+	 * @return Model `clone $this`
+	 */
 	public function notIn($property,$values)
 	{
 		$res = clone $this;
@@ -698,22 +895,12 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
 
-//	public function isBlank($property)
-//	{
-//		$res = clone $this;
-//		$res->__ensureSelect();
-//		$res->_query->blank($this->__ensureFieldname($property));
-//		return $res;
-//	}
-//
-//	public function notBlank($property)
-//	{
-//		$res = clone $this;
-//		$res->__ensureSelect();
-//		$res->_query->notBlank($this->__ensureFieldname($property));
-//		return $res;
-//	}
-
+	/**
+	 * Checks if a fields value is NULL.
+	 * 
+	 * @param string $property Property-/Fieldname
+	 * @return Model `clone $this`
+	 */
 	public function isNull($property)
 	{
 		$res = clone $this;
@@ -722,6 +909,12 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
 
+	/**
+	 * Checks if a fields value is NOT NULL.
+	 * 
+	 * @param string $property Property-/Fieldname
+	 * @return Model `clone $this`
+	 */
 	public function notNull($property)
 	{
 		$res = clone $this;
@@ -730,6 +923,13 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
 
+	/**
+	 * Adds a orderBy statement to the query.
+	 * 
+	 * @param string $property Property-/Fieldname to order by
+	 * @param string $direction 'ASC' or 'DESC'
+	 * @return Model `clone $this`
+	 */
 	public function orderBy($property,$direction = "ASC")
 	{
 		$res = clone $this;
@@ -738,6 +938,11 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
 	
+	/**
+	 * Like <Model::orderBy> but adds 'ORDER BY rand()'.
+	 * 
+	 * @return Model `clone $this`
+	 */
 	public function shuffle()
 	{
 		$res = clone $this;
@@ -746,6 +951,12 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
 
+	/**
+	 * Adds a groupBy statement to the query.
+	 * 
+	 * @param string $property Property-/Fieldname to group by
+	 * @return Model `clone $this`
+	 */
 	public function groupBy($property)
 	{
 		$res = clone $this;
@@ -754,11 +965,21 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
 
+	/**
+	 * @shortcut <Model::page>(0,$limit);
+	 */
 	public function limit($limit)
 	{
 		return $this->page(0,$limit);
 	}
 
+	/**
+	 * Adds paging to the query.
+	 * 
+	 * @param int $offset Zero-based offset
+	 * @param int $items Maximum items to return
+	 * @return Model `clone $this`
+	 */
 	public function page($offset,$items)
 	{
 		$res = clone $this;
@@ -768,9 +989,11 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	}
 
 	/**
-	 * Join two database tables
+	 * Join two database tables.
+	 * 
 	 * @param string $direction E.g. 'LEFT', 'RIGHT' or 'FULL'. Also 'LEFT OUTER'.
-	 * @param object $model An instance of a Model subclass.
+	 * @param Model $model An instance of a Model subclass.
+	 * @return Model `clone $this`
 	 */
 	public function join($direction,$model)
 	{
@@ -780,6 +1003,15 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
 	
+	/**
+	 * Condition: column $property must be datetime and it's value newer than given interval
+	 * 
+	 * See <DateTimeEx::youngerThan>
+	 * @param string $property Properpy-/Fieldname
+	 * @param int $value Offset value
+	 * @param string $interval Unit
+	 * @return Model `clone $this`
+	 */
 	public function newerThan($property,$value,$interval)
 	{
 		$res = clone $this;
@@ -788,6 +1020,15 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
 	
+	/**
+	 * Condition: column $property must be datetime and it's value older than given interval
+	 * 
+	 * See <DateTimeEx::olderThan>
+	 * @param string $property Properpy-/Fieldname
+	 * @param int $value Offset value
+	 * @param string $interval Unit
+	 * @return Model `clone $this`
+	 */
 	public function olderThan($property,$value,$interval)
 	{
 		$res = clone $this;
@@ -796,6 +1037,17 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
 	
+	/**
+	 * This is just a 'no operation' method.
+	 * 
+	 * You may use to ensure there's a valid query built by adding `1=1` to the conditions
+	 * <code php>
+	 * $q = MyModel::Make()->noop();
+	 * $m1 = $q->eq('id',1)->current();
+	 * $m2 = $q->eq('id',2)->current();
+	 * </code>
+	 * @return Model `clone $this`
+	 */
 	public function noop()
 	{
 		$res = clone $this;
@@ -804,7 +1056,9 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
 	
-	/*--- Currently only used from Serializer ---*/
+	/**
+	 * @internal Returns the name of the assigned <DataSource> (the alias)
+	 */
 	function DataSourceName()
 	{
 		if( $this->_ds )
@@ -814,7 +1068,9 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		WdfDbException::Raise("Model has no valid DataSource");
 	}
 	
-	/*--- Compatibility to old model ---*/
+	/**
+	 * @deprecated Use <Model::Make>()->eq('id',$id)->current() instead
+	 */
 	public function Load($where, $arguments=false)
 	{
 		$q = new SelectQuery($this, $this->_ds);
@@ -838,6 +1094,12 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return false;
 	}
 	
+	/**
+	 * Saves this model to the database.
+	 * 
+	 * New datasets will be inserted, loaded ones will be updated automatically.
+	 * @return boolean In fact always true, WdfDbException will be thrown in error case
+	 */
 	public function Save()
 	{
 		$args = array();
@@ -860,6 +1122,11 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return true;
 	}
 	
+	/**
+	 * Deletes this model from the database.
+	 * 
+	 * @return boolean true or false
+	 */
 	public function Delete()
 	{
 		$args = array();
@@ -875,10 +1142,58 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return true;
 	}
 	
+	/**
+	 * @deprecated Use <Model::Make> or <Model::Query> instead
+	 */
 	public function Find($where="",$prms=array())
 	{
 		$sql = "SELECT * FROM ".$this->GetTableName().($where?" WHERE $where":"");
 		$q = new SelectQuery($this, $this->_ds);
 		return $q->__execute($sql, $prms);
 	}
+	
+	/**
+	 * @shortcut <Model::equal>($property,$value,$value_is_sql)
+	 */
+	function eq($property,$value,$value_is_sql=false) { return $this->equal($property,$value,$value_is_sql); }
+	
+	/**
+	 * @shortcut <Model::notEqual>($property,$value)
+	 */
+	function neq($property,$value) { return $this->notEqual($property,$value); }
+	
+	/**
+	 * @shortcut <Model::lowerThanOrEqualTo>($property,$value)
+	 */
+	function lte($property,$value) { return $this->lowerThanOrEqualTo($property,$value); }	
+	
+	/**
+	 * @shortcut <Model::newerThan>($property, $value, $interval)
+	 */
+	public function yt($property,$value,$interval){ return $this->newerThan($property, $value, $interval); }
+	
+	/**
+	 * @shortcut <Model::newerThan>($property, $value, $interval)
+	 */	
+	public function youngerThan($property,$value,$interval){ return $this->newerThan($property, $value, $interval); }
+	
+	/**
+	 * @shortcut <Model::olderThan>($property, $value, $interval)
+	 */
+	public function ot($property,$value,$interval){ return $this->olderThan($property, $value, $interval); }	
+	
+	/**
+	 * @shortcut <Model::lowerThan>($property, $value)
+	 */
+	function lt($property,$value) { return $this->lowerThan($property,$value); }
+
+	/**
+	 * @shortcut <Model::greaterThanOrEqualTo>($property, $value)
+	 */
+	function gte($property,$value) { return $this->greaterThanOrEqualTo($property,$value); }
+
+	/**
+	 * @shortcut <Model::greaterThan>($property, $value)
+	 */
+	function gt($property,$value) { return $this->greaterThan($property,$value); }
 }

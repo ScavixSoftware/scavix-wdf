@@ -1,6 +1,6 @@
 <?php
 /**
- * PamConsult Web Development Framework
+ * Scavix Web Development Framework
  *
  * Copyright (c) 2007-2012 PamConsult GmbH
  *
