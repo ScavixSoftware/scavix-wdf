@@ -43,15 +43,15 @@ class ImageLink extends Control
 			$this->css("margin","$margin");
 
 		$this->content(new Image($src,$title,0));
-		$this->CloseTagNeeded();
 	}
 
 	/**
-	 * Sets the images 'style' attribute
-	 * @deprecated This is so old-school that it will be removed
+	 * Gets the inner image.
+	 * 
+	 * @return Image The inner image control
 	 */
-	function SetImgStyle($style)
+	function GetImage()
 	{
-		$this->InnerImage->style = $style;
+		return $this->_content[0];
 	}
 }
