@@ -54,14 +54,14 @@ class HtmlList extends Control
 	 * 
 	 * @param mixed $content Content to be added
 	 * @param string $id Optional id for the created item
-	 * @return ListItem Created item or null if `is_empty($content)`
+	 * @return HtmlListItem Created item or null if `is_empty($content)`
 	 */
 	function &AddItem($content,$id = "")
 	{
 		if(empty($content))
 			return null;
 		
-		$item = new ListItem($content,$id);
+		$item = new HtmlListItem($content,$id);
 		$this->items[] = $item;
 		$this->content($item);
 		
