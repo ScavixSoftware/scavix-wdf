@@ -26,7 +26,7 @@
 /**
  * &lt;li&gt; element
  */
-class ListItem extends Control
+class HtmlListItem extends Control
 {
 	/**
 	 * @param mixed $content Some content to add
