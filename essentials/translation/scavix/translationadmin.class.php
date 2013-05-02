@@ -265,11 +265,11 @@ class TranslationAdmin extends TranslationAdminBase
 	}
 	
 	/**
-	 * @internal Imports a file with translations into the translation system.
+	 * Imports a file with translations into the translation system.
 	 * 
 	 * File must contain vaid JSON data with key-value pairs of strings in an array.
 	 * Sample:
-	 * <code javascript>
+	 * <code json>
 	 * [
 	 *   {"term":"TXT_TERM1","content":"My contents of terms 1"},
 	 *   {"or":"TXT_TERM2","can_be":"My contents of terms 2"},
@@ -282,7 +282,7 @@ class TranslationAdmin extends TranslationAdminBase
 	 * - The uploaded file must be given as 'json_file' (`$_FILES['json_file']`)
 	 * @param string $lang The language the contents are given in
 	 * @return void
-	 * 
+	 * @internal
 	 * @attribute[RequestParam('lang','string',false)]
 	 */
 	function Import($lang)
