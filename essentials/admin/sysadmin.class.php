@@ -42,6 +42,7 @@ class SysAdmin extends HtmlPage
     {
         global $CONFIG;
 		
+		header("Content-Type: text/html; charset=utf-8"); // overwrite previously set header to ensure we deliver HTML
 		unset($CONFIG["use_compiled_js"]);
 		unset($CONFIG["use_compiled_css"]);
         

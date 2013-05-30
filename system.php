@@ -64,7 +64,7 @@ function system_config($filename,$reset_to_defaults=true)
 function system_config_default($reset = true)
 {
 	global $CONFIG;
-	
+
 	# see http://www.php.net/manual/de/session.configuration.php
 	ini_set('session.hash_function',1);
 	ini_set('session.hash_bits_per_character',5);
@@ -113,6 +113,8 @@ function system_config_default($reset = true)
     $path = explode("index.php",$_SERVER['PHP_SELF']);
 	if( !isset($_SERVER['REQUEST_SCHEME']) )
 		$_SERVER['REQUEST_SCHEME'] = 'http';
+	if( !isset($_SERVER['HTTP_HOST']) )
+		$_SERVER['HTTP_HOST'] = '127.0.0.1';
 	
 	$CONFIG['system']['url_root'] = "{$_SERVER['REQUEST_SCHEME']}://{$_SERVER['HTTP_HOST']}{$path[0]}";
     $CONFIG['system']['modules'] = array();
