@@ -63,6 +63,22 @@ class ResultSet implements Iterator, ArrayAccess
 	}
 	
 	/**
+	 * Merges arguments into an SQL statement.
+	 * 
+	 * Note that this is meant for debug output only!
+	 * @param string $sql SQL statement
+	 * @param array $arguments Array of arguments
+	 * @return string Merged statement
+	 */
+	public static function MergeSql($ds,$sql,$arguments)
+	{
+		if( is_array($arguments) )
+			foreach( $arguments as $a )
+				$sql = preg_replace('/\?/', "'".$ds->EscapeArgument($a)."'", $sql, 1);
+		return $sql;
+	}
+	
+	/**
 	 * Returns the last statement and the error info
 	 * 
 	 * Will combine that into a string for easy output
@@ -82,11 +98,7 @@ class ResultSet implements Iterator, ArrayAccess
 	 */
 	public function LogDebug()
 	{
-		$tmp = $this->_sql_used;
-		if( is_array($this->_arguments_used) )
-			foreach( $this->_arguments_used as $a )
-				$tmp = preg_replace('/\?/', "'".$this->_ds->EscapeArgument($a)."'", $tmp, 1);
-		log_debug("SQL: ".$this->_sql_used."\nARGS: ",$this->_arguments_used,"\nMerged: ",$tmp);
+		log_debug("SQL: ".$this->_sql_used."\nARGS: ",$this->_arguments_used,"\nMerged: ", ResultSet::MergeSql($this->_ds,$this->_sql_used,$this->_arguments_used));
 	}
 	
 	/**
