@@ -640,7 +640,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	function __ensureFieldname($name)
 	{
 		if( $this->HasColumn($name) )
-			return $name;
+			return "`$name`";
 		WdfDbException::Raise("Unknown column '$name' in table '{$this->_tableSchema->Name}'");
 	}
 
