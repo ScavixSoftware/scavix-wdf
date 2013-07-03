@@ -260,7 +260,10 @@ class MySql implements IDatabaseDriver
 		$sql = preg_replace('/LIMIT\s+[\d\s,]+/', '', $sql);
 		$sql = "SELECT count(*) FROM ($sql) AS x";
 		$stmt = $this->_pdo->prepare($sql);
-		$stmt->execute(array_values($input_arguments));
+		if( is_null($input_arguments) )
+			$stmt->execute();
+		else
+			$stmt->execute(array_values($input_arguments));
 		$total = intval($stmt->fetchColumn());
 		
 		return array
