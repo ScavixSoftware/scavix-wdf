@@ -148,6 +148,15 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	function count(){ $this->__ensureResults(); return count($this->_results); }
 	
 	/**
+	 * Returns an array containing all results.
+	 * 
+	 * In fact you may use the <Model> itself in foreach loops or stuff, but sometimes
+	 * it is better to get a plain array. For example if you need to test with `is_array`.
+	 * @return array Array of results (may be empty)
+	 */
+	function results(){ $this->__ensureResults(); return $this->_results; }
+	
+	/**
 	 * Enumerates all values from a column of the current result.
 	 * 
 	 * <code php>
