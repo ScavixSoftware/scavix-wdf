@@ -90,7 +90,7 @@ class SelectQuery extends Query
 			$tmp = array();
 			foreach( $this->_orderBy as $k=>$d )
 				if( $k != '{SPECIAL}' )
-					$tmp[] = "`$k` $d";
+					$tmp[] = "$k $d";
 				else
 					$tmp[] = "$d";
 
