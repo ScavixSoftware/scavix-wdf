@@ -50,4 +50,26 @@ class uiMessageBox extends uiDialog
 		$this->content($message_text);
 		$this->AddCloseButton(tds('BTN_OK','Ok'));
 	}
+	
+	/**
+	 * Creates a new uiMessageBox as hint.
+	 * 
+	 * @param string $message Hint text
+	 * @return uiMessagebox A new uiMessagebox 
+	 */
+	static function Hint($message)
+	{
+		return new uiMessagebox($message,'hint','');
+	}
+	
+	/**
+	 * Creates a new uiMessageBox as error.
+	 * 
+	 * @param string $message Error text
+	 * @return uiMessageBox A new uiMessagebox 
+	 */
+	static function Error($message)
+	{
+		return new uiMessagebox($message,'error','');
+	}
 }
