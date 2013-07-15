@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * Scavix Web Development Framework
  *
@@ -131,7 +131,7 @@ class TranslationAdmin extends TranslationAdminBase
             $strings = "\$GLOBALS['translation']['strings'] = ".var_export($data,true);
             file_put_contents(
                 $CONFIG['translation']['data_path'].$lang.'.inc.php', 
-                "<?\n$info;\n$strings;\n"
+                "<?php\n$info;\n$strings;\n"
             );
             $this->_contentdiv->content("<div>Created translation file for $lang</div>");
         }
