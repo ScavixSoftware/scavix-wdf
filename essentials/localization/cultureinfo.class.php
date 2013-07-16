@@ -256,7 +256,7 @@ class CultureInfo
 	{
 		$ci = internal_getCulturesByCurrency($code);
 		$ci = internal_getCultureInfo($ci[0]);
-		if( $this->CurrencyFormat->Code != $ci->CurrencyFormat->Code )
+		if( $ci && $this->CurrencyFormat->Code != $ci->CurrencyFormat->Code )
 			$this->CurrencyFormat = $ci->CurrencyFormat;
 	}
 
