@@ -1505,6 +1505,6 @@ function fq_class_name($classname)
 			WdfException::Raise("Ambigous classname: $classname",$GLOBALS['system_class_alias'][$cnl]);
 		return $GLOBALS['system_class_alias'][$cnl];
 	}
-	log_debug("fq_class_name($classname) NOOP");
+	//log_debug("fq_class_name($classname) NOOP");
 	return $classname;
 }

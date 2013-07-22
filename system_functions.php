@@ -784,7 +784,7 @@ function classpath_add($path, $recursive=true, $part=false)
 	if( !in_array($part, $CONFIG['class_path']['order']) )
 		$CONFIG['class_path']['order'][] = $part;
 			
-	if( $recursive )
+	if( $recursive && is_dir($path) )
 	{
 		foreach( system_glob($path.'*', GLOB_MARK|GLOB_ONLYDIR|GLOB_NOSORT) as $sub )
 			classpath_add($sub, true, $part);
