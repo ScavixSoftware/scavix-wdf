@@ -1265,4 +1265,21 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * @shortcut <Model::greaterThan>($property, $value)
 	 */
 	function gt($property,$value) { return $this->greaterThan($property,$value); }
+	
+	/**
+	 * Calls a callback function for each result dataset.
+	 * 
+	 * Callback function will receive each row as <Model> object and must return the (eventually changed) <Model> object.
+	 * Note that this method will not clone the result, but return the object itself!
+	 * @param mixed $callback Anonymous callback function
+	 * @return Model Returns `$this`
+	 */
+	function process($callback)
+	{
+		$this->__ensureResults();
+		$len = count($this->_results);
+		for($i=0; $i<$len; $i++)
+			$this->_results[$i] = $callback($this->_results[$i]);
+		return $this;
+	}
 }
