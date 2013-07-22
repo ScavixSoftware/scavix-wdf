@@ -882,13 +882,17 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * See http://www.w3schools.com/sql/sql_like.asp
 	 * @param string $property Property-/Fieldname
 	 * @param mixed $value Value to check against
+	 * @param bool $flipped If true, expects the roles of $property and $value switched
 	 * @return Model `clone $this`
 	 */
-	public function like($property,$value)
+	public function like($property,$value,$flipped=false)
 	{
 		$res = clone $this;
 		$res->__ensureSelect();
-		$res->_query->like($this->__ensureFieldname($property),"$value");
+		if( $flipped )
+			$res->_query->like("$property",$this->__ensureFieldname($value),$flipped);
+		else
+			$res->_query->like($this->__ensureFieldname($property),"$value",$flipped);
 		return $res;
 	}
 
@@ -899,13 +903,17 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * @todo Check how <SqLite> must handle this. Perhaps use <IDatabaseDriver::PreprocessSql>?
 	 * @param string $property Property-/Fieldname
 	 * @param mixed $value Value to check against
+	 * @param bool $flipped If true switches the roles of $property and $value
 	 * @return Model `clone $this`
 	 */
-	public function rlike($property,$value)
+	public function rlike($property,$value,$flipped=false)
 	{
 		$res = clone $this;
 		$res->__ensureSelect();
-		$res->_query->rlike($this->__ensureFieldname($property),"$value");
+		if( $flipped )
+			$res->_query->rlike("$property",$this->__ensureFieldname($value),$flipped);
+		else
+			$res->_query->rlike($this->__ensureFieldname($property),"$value",$flipped);
 		return $res;
 	}
 
