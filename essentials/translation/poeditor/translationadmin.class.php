@@ -22,6 +22,13 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
+namespace WDF\Translation;
+
+use WDF\Base\AjaxResponse;
+use WDF\Controls\Anchor;
+use WDF\Controls\Form\CheckBox;
+use WDF\Controls\Form\Form;
+use WDF\WdfException;
 
 /**
  * <SysAdmin> handler for translations.

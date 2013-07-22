@@ -25,6 +25,10 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
+
+use WDF\Localization\CultureInfo;
+use WDF\Localization\Localization;
+use WDF\Model\Model;
  
 /**
  * Initializes the translation essential.

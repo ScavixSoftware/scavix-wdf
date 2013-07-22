@@ -25,7 +25,11 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
+namespace WDF\Controls\Locale;
+
+use WDF\Controls\Form\Select;
+use WDF\Localization\Localization;
+
 /**
  * Selector for currencies.
  * 

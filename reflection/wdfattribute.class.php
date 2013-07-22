@@ -25,6 +25,7 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
+namespace WDF\Reflection;
 
 /**
  * Base class for WDF annotation implementation.
@@ -39,9 +40,9 @@
  * <at>attribute[MyFirstAttribute()]
  * <at>attribute[MyFirst]
  * 
- * Some more samples can be found at <System_Reflector::GetClassAttributes>
+ * Some more samples can be found at <WdfReflector::GetClassAttributes>
  */
-class System_Attribute
+class WdfAttribute
 {
 	var $Reflector = null;
 	var $Class = null;

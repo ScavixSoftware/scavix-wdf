@@ -25,6 +25,19 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
+namespace WDF\Session;
+
+use Closure;
+use DateTime;
+use Exception;
+use PDOStatement;
+use Reflector;
+use SimpleXMLElement;
+use WDF\Base\DateTimeEx;
+use WDF\Model\DataSource;
+use WDF\Model\Model;
+use WDF\Reflection\WdfReflector;
+use WDF\WdfException;
 
 /**
  * Serializer/Unserializer
@@ -185,7 +198,7 @@ class Serializer
 			case 'x':
 				return new DateTimeEx($line);
 			case 'y':
-				return new System_Reflector($line);
+				return new WdfReflector($line);
 			case 'z':
 				return simplexml_load_string(stripcslashes($line));
 			case 'o':

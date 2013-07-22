@@ -22,6 +22,10 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
+namespace WDF\JQueryUI;
+
+use WDF\Base\Control;
+use WDF\WdfException;
 
 /**
  * Base class for all jQueryUI controls

@@ -22,6 +22,10 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
+namespace WDF\Base;
+
+use WDF\JQueryUI\Dialog\uiConfirmation;
+use WDF\WdfException;
 
 /**
  * Helper class to build common JavaScript codes for usage in AJAX aware controls.

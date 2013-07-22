@@ -25,7 +25,14 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
+namespace WDF\Model;
+
+use Exception;
+use PDO;
+use WDF\Model\Driver\MySql;
+use WDF\Model\Driver\SqLite;
+use WDF\WdfDbException;
+
 /**
  * Provides access to a database.
  * 
@@ -69,7 +76,7 @@ class DataSource
 		}catch(Exception $ex){ WdfDbException::Raise("Error connecting database",$dsn,$ex); }
 		if( !$this->_pdo )
 			WdfDbException::Raise("Something went horribly wrong with the PdoLayer");
-		$this->_pdo->setAttribute( PDO::ATTR_STATEMENT_CLASS, array( "WdfPdoStatement", array($this,$this->_pdo) ) );
+		$this->_pdo->setAttribute( PDO::ATTR_STATEMENT_CLASS, array( "\\WDF\\Model\\WdfPdoStatement", array($this,$this->_pdo) ) );
 
 		$driver = $this->_pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
 		switch( $driver )

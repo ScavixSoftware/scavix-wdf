@@ -22,6 +22,10 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
+namespace WDF\JQueryUI\Dialog;
+
+use WDF\WdfException;
+
 default_string("TITLE_CONFIRMATION", "Confirm");
 default_string("TXT_CONFIRMATION", "Please confirm");
 

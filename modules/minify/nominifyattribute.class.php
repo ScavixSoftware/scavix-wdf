@@ -23,6 +23,6 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
-class NoMinifyAttribute extends System_Attribute
+class NoMinifyAttribute extends WdfAttribute
 {
 }

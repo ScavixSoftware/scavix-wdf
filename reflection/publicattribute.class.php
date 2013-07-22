@@ -25,6 +25,7 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
+namespace WDF\Reflection;
 
 /**
  * Marks a class/method as public
@@ -32,6 +33,6 @@
  * Not sure if this is deprecated, but of course still usable to mark classes/methods as public.
  * Note: currently not used in WDF itself.
  */
-class PublicAttribute extends System_Attribute
+class PublicAttribute extends WdfAttribute
 {
 }

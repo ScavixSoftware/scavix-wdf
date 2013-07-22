@@ -25,7 +25,13 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
+namespace WDF\Controls\Locale;
+
+use WDF\Base\AjaxResponse;
+use WDF\Base\Control;
+use WDF\Controls\Form\CheckBox;
+use WDF\Localization\Localization;
+
 /**
  * This is a checkbox allowing to choose if timezone information shall be added to date/time formats.
  * 

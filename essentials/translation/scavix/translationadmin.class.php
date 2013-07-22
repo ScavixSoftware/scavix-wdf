@@ -22,6 +22,23 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
+namespace WDF\Translation;
+
+use stdClass;
+use WDF\Base\AjaxAction;
+use WDF\Base\AjaxResponse;
+use WDF\Base\Control;
+use WDF\Controls\Anchor;
+use WDF\Controls\Form\Button;
+use WDF\Controls\Form\CheckBox;
+use WDF\Controls\Form\Form;
+use WDF\Controls\Form\Select;
+use WDF\Controls\Form\TextArea;
+use WDF\Controls\Form\TextInput;
+use WDF\Controls\Table\Table;
+use WDF\JQueryUI\Dialog\uiDialog;
+use WDF\Localization\Localization;
+use WDF\WdfException;
 
 /**
  * <SysAdmin> handler for translations.

@@ -25,7 +25,18 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
+namespace WDF\Model;
+
+use Iterator;
+use ArrayAccess;
+use Countable;
+use DateTime;
+use Exception;
+use WDF\Base\DateTimeEx;
+use WDF\WdfDbException;
+use WDF\WdfException;
+
+
 /**
  * This is base class for data objects.
  * 

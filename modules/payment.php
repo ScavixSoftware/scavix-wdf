@@ -77,7 +77,7 @@ abstract class PaymentProvider
 	
 	function __construct()
 	{
-		$this->title = "TXT_PAYMENTPROVIDER_".strtoupper(get_class($this));
+		$this->title = "TXT_PAYMENTPROVIDER_".strtoupper(get_class_simple($this));
 	}
 	
 	/**

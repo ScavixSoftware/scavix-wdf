@@ -22,6 +22,18 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
+namespace WDF\Admin;
+
+use WDF\Base\AjaxResponse;
+use WDF\Base\Control;
+use WDF\Base\HtmlPage;
+use WDF\Base\Template;
+use WDF\Controls\Anchor;
+use WDF\Controls\Form\CheckBox;
+use WDF\Controls\Form\Form;
+use WDF\Controls\Form\Select;
+use WDF\Controls\Form\TextInput;
+use WDF\Controls\Table\Table;
 
 /**
  * WDF sysadmin page
@@ -136,11 +148,11 @@ class SysAdmin extends HtmlPage
         }
         
         if( $username != $CONFIG['system']['admin']['username'] || $password != $CONFIG['system']['admin']['password'] )
-            redirect(get_class($this),'Login');
+            redirect(get_class_simple($this),'Login');
         
         $_SESSION['admin_handler_username'] = $username;
         $_SESSION['admin_handler_password'] = $password;
-        redirect(get_class($this));
+        redirect(get_class_simple($this));
 	}
     
     /**
@@ -150,7 +162,7 @@ class SysAdmin extends HtmlPage
     {
         unset($_SESSION['admin_handler_username']);
         unset($_SESSION['admin_handler_password']);
-        redirect(get_class($this),'Login');
+        redirect(get_class_simple($this),'Login');
     }
 	
 	/**

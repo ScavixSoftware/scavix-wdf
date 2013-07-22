@@ -25,7 +25,14 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
+namespace WDF\Model;
+
+use ArrayAccess;
+use Iterator;
+use PDO;
+use PDOStatement;
+use WDF\Model\Driver\MySql;
+
 /**
  * This is our own Statement class
  * 

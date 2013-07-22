@@ -85,7 +85,7 @@ function minify_forbidden($classname)
 	}
 	try
 	{
-		$ref = System_Reflector::GetInstance($classname);
+		$ref = WdfReflector::GetInstance($classname);
 		return count($ref->GetClassAttributes('NoMinify')) > 0;
 	}
 	catch(Exception $ex)

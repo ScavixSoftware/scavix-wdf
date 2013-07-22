@@ -25,6 +25,11 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
+namespace WDF\Session;
+
+use Exception;
+use WDF\Base\Renderable;
+use WDF\WdfException;
 
 /**
  * Base class for SessionHandlers.
@@ -267,12 +272,12 @@ abstract class SessionBase
 
 		if( unserializer_active() )
 		{
-			log_trace("create_storage_id while unserializing object of type ".get_class($obj));
+			log_trace("create_storage_id while unserializing object of type ".get_class_simple($obj));
 			$obj->_storage_id = "to_be_overwritten_by_unserializer";
 			return $obj->_storage_id;
 		}
 
-		$cn = strtolower(get_class($obj));
+		$cn = strtolower(get_class_simple($obj));
 		if( !isset($GLOBALS['object_ids'][$cn]) )
 		{
 			$i = 1;

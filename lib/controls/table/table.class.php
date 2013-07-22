@@ -25,6 +25,12 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
+namespace WDF\Controls\Table;
+
+use WDF\Base\AjaxResponse;
+use WDF\Base\Control;
+use WDF\Localization\CultureInfo;
+use WDF\WdfException;
 
 /**
  * An HTML table in DIV notation.
@@ -256,7 +262,7 @@ class Table extends Control
 		
         foreach( $this->_content as &$c )
         {
-			if( !is_object($c) || (get_class($c) != "TBody") )
+			if( !is_object($c) || (get_class_simple($c) != "TBody") )
 				continue;
 
             foreach( $c->_content as $r )

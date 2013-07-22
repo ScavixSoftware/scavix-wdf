@@ -22,6 +22,9 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
+namespace WDF\JQueryUI\Slider;
+
+use WDF\JQueryUI\uiControl;
 
 /**
  * Wrapper around jQueryUI Slider

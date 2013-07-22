@@ -22,6 +22,11 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
+namespace WDF\Translation;
+
+use WDF\Admin\SysAdmin;
+use WDF\Base\AjaxResponse;
+use WDF\Base\Template;
 
 /**
  * Base class for translation handlers.
@@ -33,8 +38,8 @@ abstract class TranslationAdminBase extends SysAdmin
 	function __initialize($title = "", $body_class = false)
 	{
 		parent::__initialize($title, $body_class);
-		$this->subnav('New strings', get_class($this), 'NewStrings');
-		$this->subnav('Fetch strings', get_class($this), 'Fetch');
+		$this->subnav('New strings', get_class_simple($this), 'NewStrings');
+		$this->subnav('Fetch strings', get_class_simple($this), 'Fetch');
 	}
 	
     /**
