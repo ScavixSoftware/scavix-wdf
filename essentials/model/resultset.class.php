@@ -326,6 +326,14 @@ class ResultSet implements Iterator, ArrayAccess
 	}
 	
 	/**
+	 * @shortcut <ResultSet::fetchAll>.
+	 */
+	function results()
+	{
+		return $this->fetchAll();
+	}
+	
+	/**
 	 * Returns a scalar value
 	 * 
 	 * Will return the first result rows $column.
