@@ -68,7 +68,7 @@ class SysAdmin extends HtmlPage
             ) )
             redirect('SysAdmin','Login');
         
-        parent::__initialize($title, 'sysadmin');
+        parent::__initialize("SysAdmin - $title", 'sysadmin');
         $this->_translate = false;
         
         if( current_event(true) != 'login' )
@@ -82,24 +82,23 @@ class SysAdmin extends HtmlPage
 					continue;
 				$nav->content( new Anchor(buildQuery($def[0],$def[1]),$label) );
 			}
-            $nav->content( new Anchor(buildQuery('SysAdmin','Cache'),'Cache') )
-                ->content( new Anchor(buildQuery('SysAdmin','PhpInfo'),'PHP info') )
-                ->content( new Anchor(buildQuery('TranslationAdmin','NewStrings'),'Translations') )
-                ->content( new Anchor(buildQuery('SysAdmin','Testing'),'Testing') )
-                ->content( new Anchor(buildQuery('',''),'Back to app') )
-                ->content( new Anchor(buildQuery('SysAdmin','Logout'),'Logout', 'logout') );
+            $nav->content( new Anchor(buildQuery('SysAdmin','Cache'),'Cache') );
+            $nav->content( new Anchor(buildQuery('SysAdmin','PhpInfo'),'PHP info') );
+            $nav->content( new Anchor(buildQuery('TranslationAdmin','NewStrings'),'Translations') );
+            $nav->content( new Anchor(buildQuery('SysAdmin','Testing'),'Testing') );
+            $nav->content( new Anchor(buildQuery('',''),'Back to app') );
+            $nav->content( new Anchor(buildQuery('SysAdmin','Logout'),'Logout', 'logout') );
 			
 			$this->_subnav = parent::content(new Control('div'));
         }
         
         $this->_contentdiv = parent::content(new Control('div'))->addClass('content');
         
-        parent::content(new Control('br'))->addClass('clearer');
-        $copylink = new Anchor('http://www.scavix.com', '&copy; 2012-'.date('Y').' Scavix&reg; Software Ltd. &amp; Co. KG');
+        $copylink = new Anchor('http://www.scavix.com', '&#169; 2012-'.date('Y').' Scavix&#174; Software Ltd. &amp; Co. KG');
         $copylink->target = '_blank';
-        parent::content(new Control('div'))
-                ->addClass('footer')
-                ->content($copylink);
+        $footer = parent::content(new Control('div'))->addClass('footer');
+		$footer->content("<br class='clearer'/>");
+        $footer->content($copylink);
         
         if( (current_event() == strtolower($CONFIG['system']['default_event'])) && !system_method_exists($this, current_event()) )
             redirect('SysAdmin', 'Index');
