@@ -49,7 +49,7 @@ class Button extends Input
 		$this->setType("button")->setValue($label);
 
 		if( $controller != "" && strpos($controller,"$") === false && strpos($controller,"?") === false )
-			$query = "wdf.redirect('".buildQuery($controller,$event,$data)."')";
+			$query = "ScavixWDF.redirect('".buildQuery($controller,$event,$data)."')";
 		else
 			$query = $controller;
 

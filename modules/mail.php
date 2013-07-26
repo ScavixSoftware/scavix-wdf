@@ -114,7 +114,7 @@ function mail_prepare($recipient,$subject,$message,$plainmessage="",$attachments
 		else
 			$mail->AddAddress($recipient);
 	}
-	catch(Exception $ex){ WdfException::Log($ex); $res = false;}
+	catch(Exception $ex){ ScavixWDFException::Log($ex); $res = false;}
 	
 	$mail->AddReplyTo($CONFIG['mail']['from']);
 
@@ -175,7 +175,7 @@ function mail_send($recipient,$subject="",$message="",$plainmessage="",$attachme
 	{
 		$res = $mail->Send();
 	}
-	catch(Exception $ex){ WdfException::Log($ex); $res = false;}
+	catch(Exception $ex){ ScavixWDFException::Log($ex); $res = false;}
 
 	if( !$res )
 	{

@@ -49,7 +49,7 @@ abstract class TranslationAdminBase extends SysAdmin
     {
         $this->_contentdiv->content("<h1>New strings</h1>");
         $ds = model_datasource($GLOBALS['CONFIG']['translation']['sync']['datasource']);
-		foreach( $ds->Query('wdf_unknown_strings')->all() as $row )
+		foreach( $ds->Query('ScavixWDF_unknown_strings')->all() as $row )
         {
 			$ns = Template::Make('translationnewstring');
 			foreach( $row->GetColumnNames() as $col )
@@ -65,7 +65,7 @@ abstract class TranslationAdminBase extends SysAdmin
     function DeleteString($term)
     {
         $ds = model_datasource($GLOBALS['CONFIG']['translation']['sync']['datasource']);
-        $ds->ExecuteSql("DELETE FROM wdf_unknown_strings WHERE term=?",$term);
+        $ds->ExecuteSql("DELETE FROM ScavixWDF_unknown_strings WHERE term=?",$term);
         return AjaxResponse::None();
     }
 	

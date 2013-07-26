@@ -83,7 +83,7 @@ class HtmlPage extends Template implements ICallable
 	/**
 	 * @override
 	 */
-	function WdfRenderAsRoot()
+	function ScavixWDFRenderAsRoot()
 	{
 		execute_hooks(HOOK_PRE_RENDER,array($this));
 
@@ -98,17 +98,17 @@ class HtmlPage extends Template implements ICallable
 		if( $GLOBALS['CONFIG']['system']['ajax_debug_argument'] ) 
 			$init_data['log_to_server'] = $GLOBALS['CONFIG']['system']['ajax_debug_argument'];
 		
-		$this->set("wdf_init","wdf.init(".json_encode($init_data).");");
+		$this->set("ScavixWDF_init","ScavixWDF.init(".json_encode($init_data).");");
 		$this->set("docready",$this->docready);
 		$this->set("plaindocready",$this->plaindocready);
 
-		return parent::WdfRenderAsRoot();
+		return parent::ScavixWDFRenderAsRoot();
 	}
 	
 	/**
 	 * @override
 	 */
-	function WdfRender()
+	function ScavixWDFRender()
 	{
 		if( !$this->get('isrtl') && system_is_module_loaded('localization') )
 		{
@@ -132,7 +132,7 @@ class HtmlPage extends Template implements ICallable
 		$this->set("js",$this->js);
 		$this->set("meta",$this->meta);
 		
-		return parent::WdfRender();
+		return parent::ScavixWDFRender();
 	}
 
 	/**

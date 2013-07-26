@@ -33,7 +33,7 @@ namespace ScavixWDF\Reflection;
  * <at>attribute[Resource('ineed/thisstyle.css')]
  * </code>
  */
-class ResourceAttribute extends WdfAttribute
+class ResourceAttribute extends ScavixWDFAttribute
 {
 	var $Path;
 	
@@ -62,7 +62,7 @@ class ResourceAttribute extends WdfAttribute
 	 */
 	public static function Collect($classname)
 	{
-		$ref = WdfReflector::GetInstance($classname);
+		$ref = ScavixWDFReflector::GetInstance($classname);
 		$attrs = $ref->GetClassAttributes(array('Resource','ExternalResource'));
 		$ref = $ref->getParentClass();
 		$parents = $ref?self::Collect($ref->getName()):array();

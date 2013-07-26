@@ -30,7 +30,7 @@ namespace ScavixWDF\Logging;
 /**
  * Generates a machine readable log.
  * 
- * Use PHPTracer from scavix-wdf-tools repository to read these files.
+ * Use PHPTracer from scavix-ScavixWDF-tools repository to read these files.
  * In fact writes a JSON encoded object per line that contains full tracing information.
  */
 class TraceLogger extends Logger

@@ -212,16 +212,16 @@ function globalcache_set($key, $value, $ttl = false)
 					if( $ttl > 0 )
 					{
 						$ds->ExecuteSql(
-							"REPLACE INTO wdf_cache(ckey,full_key,cvalue,valid_until)VALUES(?,?,?,".$ds->Driver->Now($ttl).")",
+							"REPLACE INTO ScavixWDF_cache(ckey,full_key,cvalue,valid_until)VALUES(?,?,?,".$ds->Driver->Now($ttl).")",
 							array(md5($key),$key,$val)
 						);
 					}
 					else
-						$ds->ExecuteSql("REPLACE INTO wdf_cache(ckey,full_key,cvalue)VALUES(?,?,?)",array(md5($key),$key,$val));
+						$ds->ExecuteSql("REPLACE INTO ScavixWDF_cache(ckey,full_key,cvalue)VALUES(?,?,?)",array(md5($key),$key,$val));
 				}
 				catch(Exception $ex)
 				{
-					$ds->ExecuteSql("CREATE TABLE IF NOT EXISTS wdf_cache (
+					$ds->ExecuteSql("CREATE TABLE IF NOT EXISTS ScavixWDF_cache (
                         ckey VARCHAR(32)  NOT NULL,
                         cvalue TEXT  NOT NULL,
                         valid_until DATETIME  NULL,
@@ -230,11 +230,11 @@ function globalcache_set($key, $value, $ttl = false)
 					
 					if( $ttl > 0 )
 						$ds->ExecuteSql(
-							"REPLACE INTO wdf_cache(ckey,full_key,cvalue,valid_until)VALUES(?,?,?,".$ds->Driver->Now($ttl).")",
+							"REPLACE INTO ScavixWDF_cache(ckey,full_key,cvalue,valid_until)VALUES(?,?,?,".$ds->Driver->Now($ttl).")",
 							array(md5($key),$key,$val)
 						);
 					else
-						$ds->ExecuteSql("REPLACE INTO wdf_cache(ckey,full_key,cvalue)VALUES(?,?,?)",array(md5($key),$key,$val));
+						$ds->ExecuteSql("REPLACE INTO ScavixWDF_cache(ckey,full_key,cvalue)VALUES(?,?,?)",array(md5($key),$key,$val));
 				}
                 return true;
                 break;
@@ -242,7 +242,7 @@ function globalcache_set($key, $value, $ttl = false)
 	}
 	catch(Exception $ex)
 	{
-		WdfException::Log($ex);
+		ScavixWDFException::Log($ex);
 		die($ex->__toString());
 	}
 	return false;
@@ -292,7 +292,7 @@ function globalcache_get($key, $default = false)
                 $ds = model_datasource($CONFIG['globalcache']['datasource']);
 				try
 				{
-					$ret = $ds->ExecuteScalar("SELECT cvalue FROM wdf_cache WHERE ckey=? AND (valid_until IS NULL OR valid_until>=".$ds->Driver->Now().")",
+					$ret = $ds->ExecuteScalar("SELECT cvalue FROM ScavixWDF_cache WHERE ckey=? AND (valid_until IS NULL OR valid_until>=".$ds->Driver->Now().")",
 						array(md5($key)));
 				}catch(Exception $ex){ return $default; }
                 if( $ret === false )
@@ -303,7 +303,7 @@ function globalcache_get($key, $default = false)
 	}
 	catch(Exception $ex)
 	{
-		WdfException::Log($ex);
+		ScavixWDFException::Log($ex);
 		die($ex->__toString());
 	}
 	return $ret;
@@ -344,7 +344,7 @@ function globalcache_clear()
         
         case globalcache_CACHE_DB:
             $ds = model_datasource($CONFIG['globalcache']['datasource']);
-			try{ $ds->ExecuteSql("DELETE FROM wdf_cache"); }catch(Exception $ex){}
+			try{ $ds->ExecuteSql("DELETE FROM ScavixWDF_cache"); }catch(Exception $ex){}
 			break;
 	}
 	return false;
@@ -388,7 +388,7 @@ function globalcache_delete($key)
         
         case globalcache_CACHE_DB:
             $ds = model_datasource($CONFIG['globalcache']['datasource']);
-			try{ $ds->ExecuteSql("DELETE FROM wdf_cache WHERE ckey=?",md5($key)); }catch(Exception $ex){}
+			try{ $ds->ExecuteSql("DELETE FROM ScavixWDF_cache WHERE ckey=?",md5($key)); }catch(Exception $ex){}
             return true;
 			break;
 	}
@@ -464,7 +464,7 @@ function globalcache_info()
 				$ret  = "Global cache is handled by DB module.\n";
 				$ret .= "Datasource: {$CONFIG['globalcache']['datasource']}\n";
 				$ret .= "DSN: ".$ds->GetDsn()."\n";
-				$ret .= "Records: ".$ds->ExecuteScalar("SELECT count(*) FROM wdf_cache")."\n";
+				$ret .= "Records: ".$ds->ExecuteScalar("SELECT count(*) FROM ScavixWDF_cache")."\n";
 			}catch(Exception $ex){}
 			break;
 	}
@@ -489,7 +489,7 @@ function globalcache_list_keys()
 			$ds = model_datasource($CONFIG['globalcache']['datasource']);
 			try
 			{
-				$rs = $ds->ExecuteSql("SELECT full_key FROM wdf_cache WHERE (valid_until IS NULL OR valid_until>=".$ds->Driver->Now().")");
+				$rs = $ds->ExecuteSql("SELECT full_key FROM ScavixWDF_cache WHERE (valid_until IS NULL OR valid_until>=".$ds->Driver->Now().")");
 				return $rs->Enumerate('full_key');
 			}catch(Exception $ex){}
 			return array(); 
@@ -504,7 +504,7 @@ function globalcache_list_keys()
             break;
             
 		default:
-			WdfException::Raise("globalcache_list_keys not implemented for handler {$CONFIG['globalcache']['CACHE']}");
+			ScavixWDFException::Raise("globalcache_list_keys not implemented for handler {$CONFIG['globalcache']['CACHE']}");
 			break;
 	}
 	return array();

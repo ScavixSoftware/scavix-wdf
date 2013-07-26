@@ -327,8 +327,8 @@ class SysAdmin extends HtmlPage
 		$tb->value = $search;
 		
 		$q = buildQuery('SysAdmin','PhpInfo');
-		$sel->onchange = "wdf.redirect({extension:$(this).val()})";
-		$tb->onkeydown = "if( event.which==13 ) wdf.redirect({search:$(this).val()})";
+		$sel->onchange = "ScavixWDF.redirect({extension:$(this).val()})";
+		$tb->onkeydown = "if( event.which==13 ) ScavixWDF.redirect({search:$(this).val()})";
 		
 		$get_version = function($ext)
 		{

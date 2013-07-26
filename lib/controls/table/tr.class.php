@@ -127,7 +127,7 @@ class Tr extends Control
 	/**
 	 * @override
 	 */
-	function WdfRender()
+	function ScavixWDFRender()
 	{
 		if( isset($this->options['oddclass']) && isset($this->options['evenclass']) )
 		{
@@ -138,6 +138,6 @@ class Tr extends Control
 			}
 		}
 
-		return parent::WdfRender();
+		return parent::ScavixWDFRender();
 	}
 }

@@ -38,7 +38,7 @@ use ScavixWDF\Base\Control;
  * This is central class as it ensures correct DocComment parsing even if a bytecode cache (like APC) is active and removing them.
  * There's also intensive caching active to improve speed.
  */
-class WdfReflector extends ReflectionClass
+class ScavixWDFReflector extends ReflectionClass
 {
 	protected $Instance = false;
 	protected $Classname = false;
@@ -52,11 +52,11 @@ class WdfReflector extends ReflectionClass
 	}
 
 	/**
-	 * Create a WdfReflector instance
+	 * Create a ScavixWDFReflector instance
 	 * 
 	 * Return a reflector for the given classname or object.
 	 * @param string|object $classname Classname or object to be reflected
-	 * @return WdfReflector A new instance of type WdfReflector
+	 * @return ScavixWDFReflector A new instance of type ScavixWDFReflector
 	 */
 	public static function &GetInstance($classname)
 	{
@@ -74,7 +74,7 @@ class WdfReflector extends ReflectionClass
 				$res->Instance = $inst;
 			return $res;
 		}
-		$res = new WdfReflector($classname);
+		$res = new ScavixWDFReflector($classname);
 
 		if( isset($inst) )
 			$res->Instance = $inst;
@@ -279,7 +279,7 @@ class WdfReflector extends ReflectionClass
 	 *									May be string for a single attribute or array of string for
 	 *									multiple attributes.
 	 * @param bool $allowAttrInheritance If true, filter not only matches directly, but also all classes derivered from a valid filter
-	 * @return array An array of objects derivered from <WdfAttribute>.
+	 * @return array An array of objects derivered from <ScavixWDFAttribute>.
 	 */
 	public function GetClassAttributes($filter=array(), $allowAttrInheritance=true)
 	{
@@ -300,11 +300,11 @@ class WdfReflector extends ReflectionClass
 	/**
 	 * Returns method attributes.
 	 * 
-	 * For a detailed description see <WdfReflector::GetClassAttributes>
+	 * For a detailed description see <ScavixWDFReflector::GetClassAttributes>
 	 * @param string $method_name The name of the method.
 	 * @param string|array $filter	Return only Attributes tha match the given filter. May be string for a single attribute or array of string for multiple attributes.
 	 * @param bool $allowAttrInheritance If true, filter not only matches directly, but also all classes derivered from a valid filter
-	 * @return array An array of objects derivered from <WdfAttribute>.
+	 * @return array An array of objects derivered from <ScavixWDFAttribute>.
 	 */
 	public function GetMethodAttributes($method_name, $filter=array(), $allowAttrInheritance=true)
 	{
@@ -321,7 +321,7 @@ class WdfReflector extends ReflectionClass
 			{
 				foreach( $this->Instance->_extender as &$ex )
 				{
-					$ref2 = WdfReflector::GetInstance($ex);
+					$ref2 = ScavixWDFReflector::GetInstance($ex);
 					$res = $ref2->GetMethodAttributes($method_name, $filter);
 					if( $res && count($res) > 0 )
 					{
@@ -366,7 +366,7 @@ class WdfReflector extends ReflectionClass
 	/**
 	 * Returns the DocComment for a method
 	 * 
-	 * Perhaps use <WdfReflector::getCommentObject>() instead as that one returns a <PhpDocComment> object.
+	 * Perhaps use <ScavixWDFReflector::getCommentObject>() instead as that one returns a <PhpDocComment> object.
 	 * @param string $method_name Name of method
 	 * @return string The DocComment
 	 */
@@ -378,7 +378,7 @@ class WdfReflector extends ReflectionClass
 	/**
 	 * Returns the DocComment for a method(or the class) as object
 	 * 
-	 * This is the modern version of <WdfReflector::getCommentString>().
+	 * This is the modern version of <ScavixWDFReflector::getCommentString>().
 	 * @param string $method_name Name of method or false if you want the class comment
 	 * @return PhpDocComment The DocComment wrapped as PhpDocComment
 	 */
@@ -389,16 +389,16 @@ class WdfReflector extends ReflectionClass
 	}
 	
 	/**
-	 * Overrides <ReflectionClass::getMethod> to enable <WdfReflectionMethod> handling.
+	 * Overrides <ReflectionClass::getMethod> to enable <ScavixWDFReflectionMethod> handling.
 	 * 
 	 * @param string $name Name of the method to get
-	 * @return WdfReflectionMethod A WdfReflectionMethod instance or false on error
+	 * @return ScavixWDFReflectionMethod A ScavixWDFReflectionMethod instance or false on error
 	 */
 	public function getMethod($name)
 	{
 		try
 		{
-			$res = new WdfReflectionMethod($this->Classname,$name);
+			$res = new ScavixWDFReflectionMethod($this->Classname,$name);
 			return $res;
 		}catch(Exception $e){ log_debug("Checking for extender method"); }
 		
@@ -406,7 +406,7 @@ class WdfReflector extends ReflectionClass
 		{
 			foreach( $this->Instance->_extender as &$ex )
 			{
-				$ref = WdfReflector::GetInstance($ex);
+				$ref = ScavixWDFReflector::GetInstance($ex);
 				$res = $ref->getMethod($name);
 				if( $res )
 					return $res;
