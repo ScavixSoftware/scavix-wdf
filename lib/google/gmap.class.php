@@ -63,18 +63,18 @@ class gMap extends GoogleControl
 		$id = $this->id;
         $this->_basicOptions['center'] = '[jscode]'.$this->_basicOptions['center'];
         $this->_basicOptions['mapTypeId'] = '[jscode]'.$this->_basicOptions['mapTypeId'];
-		$init = array("ScavixWDF.gmap.init('$id',".system_to_json($this->_basicOptions).");");
+		$init = array("wdf.gmap.init('$id',".system_to_json($this->_basicOptions).");");
 		
 		foreach( $this->_markers as $m )
 		{
 			list($lat,$lng,$opt) = $m;
-			$init[] = "ScavixWDF.gmap.addMarker('$id',$lat,$lng,".json_encode($opt).")";
+			$init[] = "wdf.gmap.addMarker('$id',$lat,$lng,".json_encode($opt).")";
 		}
 		foreach( $this->_addresses as $a )
 		{
-			$init[] = "ScavixWDF.gmap.addAddress('$id',".json_encode($a).")";
+			$init[] = "wdf.gmap.addAddress('$id',".json_encode($a).")";
 		}
-    	$init[] = "ScavixWDF.gmap.showAllMarkers('$id')";
+    	$init[] = "wdf.gmap.showAllMarkers('$id')";
 			
 		$this->_addLoadCallback('maps', $init);
 		return parent::PreRender($args);

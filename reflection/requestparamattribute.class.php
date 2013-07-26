@@ -35,7 +35,7 @@ use ScavixWDF\Localization\Localization;
  * in the doccomment will make the following usable:
  * function SomeMethod($joe){ log_debug($joe); }
  */
-class RequestParamAttribute extends ScavixWDFAttribute
+class RequestParamAttribute extends WdfAttribute
 {
 	var $Name = null;
 	var $Type = null;

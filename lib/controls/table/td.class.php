@@ -60,7 +60,7 @@ class Td extends Control
 	{
 		$tmp = clone $this;
 		$tmp->Tag = "";
-		return $tmp->ScavixWDFRender();
+		return $tmp->WdfRender();
 	}
 
 	/**

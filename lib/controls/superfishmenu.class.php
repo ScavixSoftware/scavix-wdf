@@ -86,11 +86,11 @@ class SuperfishMenu extends Control
 	/**
 	 * @override
 	 */
-	function ScavixWDFRender()
+	function WdfRender()
 	{
 		if( count($this->_content) > 0 )
 			$this->content('<li class="closer"></li>');
-		return parent::ScavixWDFRender();
+		return parent::WdfRender();
 	}
 	
 	/**
@@ -232,10 +232,10 @@ class SuperfishMenuItem extends Control
 	/**
 	 * @override
 	 */
-	function ScavixWDFRender()
+	function WdfRender()
 	{
 		if( $this->sub )
 			$this->sub->content('<li class="page_item"><span class="subclsr">&nbsp;</span></li>');
-		return parent::ScavixWDFRender();
+		return parent::WdfRender();
 	}
 }

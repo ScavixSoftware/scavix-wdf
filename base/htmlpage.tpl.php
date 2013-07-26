@@ -46,12 +46,12 @@ $(function(){
 	if( !navigator.cookieEnabled )
 		return $('body').empty().append('<?=$js_cookie_error?>');
 <?php if( count($docready) > 0 ): ?>
-	ScavixWDF.ready.add(function()
+	wdf.ready.add(function()
 	{
 	<?=implode("\n\t",$docready);?>
 	});
 <?php endif; ?>
-	<?=$ScavixWDF_init?>
+	<?=$wdf_init?>
 });
 	<?=implode("\n\t",$plaindocready)?>
 </script>

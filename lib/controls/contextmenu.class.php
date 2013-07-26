@@ -55,7 +55,7 @@ class ContextMenu extends Control
 	/**
 	 * @override Prepares JS init code
 	 */
-	public function ScavixWDFRender()
+	public function WdfRender()
 	{
         $script = "";
         $trigger = implode(",",$this->_triggers);
@@ -80,7 +80,7 @@ class ContextMenu extends Control
         $this->script($script);
         $this->_content[] = $this->CreateUL();
 
-        return parent::ScavixWDFRender();
+        return parent::WdfRender();
 	}
 
     /**

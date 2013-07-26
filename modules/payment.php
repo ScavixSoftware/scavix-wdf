@@ -37,7 +37,7 @@ function payment_init()
 	$CONFIG['class_path']['system'][] = __DIR__.'/payment/';
 	
 	if( !isset($CONFIG["payment"]["order_model"]) || !$CONFIG["payment"]["order_model"] )
-		ScavixWDFException::Raise('Please configure an order_model for the payment module');
+		WdfException::Raise('Please configure an order_model for the payment module');
 }
 
 /**

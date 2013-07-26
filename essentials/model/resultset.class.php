@@ -59,7 +59,7 @@ class ResultSet implements Iterator, ArrayAccess
 	
 	public $FetchMode = PDO::FETCH_ASSOC;
 	
-	function __construct(DataSource $ds=null, ScavixWDFPdoStatement $statement=null)
+	function __construct(DataSource $ds=null, WdfPdoStatement $statement=null)
 	{
 		$this->_ds = $ds;
 		if( $statement )
@@ -496,7 +496,7 @@ class ResultSet implements Iterator, ArrayAccess
 /**
  * @internal Extends PDOStatement so that we can easily capture calling <DataSource>
  */
-class ScavixWDFPdoStatement extends PDOStatement
+class WdfPdoStatement extends PDOStatement
 {
 	var $_ds = null;
 	var $_pdo = null;

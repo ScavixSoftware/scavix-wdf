@@ -70,10 +70,10 @@ class SimplyScroll extends Control
 			$img->alt = $title;
 		if( $clicktarget )
 		{
-			$img->onclick = "ScavixWDF.redirect('$clicktarget');";
+			$img->onclick = "wdf.redirect('$clicktarget');";
 			$img->css("cursor", 'pointer');
 		}
-		$this->content("<li>".$img->ScavixWDFRender()."</li>");
+		$this->content("<li>".$img->WdfRender()."</li>");
 		return $this;
 	}
 }

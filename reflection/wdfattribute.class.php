@@ -40,9 +40,9 @@ namespace ScavixWDF\Reflection;
  * <at>attribute[MyFirstAttribute()]
  * <at>attribute[MyFirst]
  * 
- * Some more samples can be found at <ScavixWDFReflector::GetClassAttributes>
+ * Some more samples can be found at <WdfReflector::GetClassAttributes>
  */
-class ScavixWDFAttribute
+class WdfAttribute
 {
 	var $Reflector = null;
 	var $Class = null;

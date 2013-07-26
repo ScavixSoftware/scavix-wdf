@@ -41,10 +41,10 @@ class PayPal extends PaymentProvider
 		parent::__construct();
 		
 		if( !isset($CONFIG["payment"]["paypal"]["paypal_id"]))
-			ScavixWDFException::Raise("PayPal: Missing paypal_id");
+			WdfException::Raise("PayPal: Missing paypal_id");
 		
 		if( !isset($CONFIG["payment"]["paypal"]["notify_handler"]))
-			ScavixWDFException::Raise("PayPal: Missing notify_handler");
+			WdfException::Raise("PayPal: Missing notify_handler");
 		
 		if( !isset($CONFIG["payment"]["paypal"]["use_sandbox"]) )
 			$CONFIG["payment"]["paypal"]["use_sandbox"] = false;
@@ -102,7 +102,7 @@ class PayPal extends PaymentProvider
 		global $CONFIG;
 		
 		if( !$ok_url )
-			ScavixWDFException::Raise('PayPal needs a return URL');
+			WdfException::Raise('PayPal needs a return URL');
 		if( !$cancel_url ) 
 			$cancel_url = $ok_url;
 		

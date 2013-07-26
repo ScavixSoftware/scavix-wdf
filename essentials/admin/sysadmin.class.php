@@ -78,7 +78,7 @@ class SysAdmin extends HtmlPage
 			
 			foreach( $CONFIG['system']['admin']['actions'] as $label=>$def )
 			{
-				if( !class_exists($def[0]) )
+				if( !class_exists(fq_class_name($def[0])) )
 					continue;
 				$nav->content( new Anchor(buildQuery($def[0],$def[1]),$label) );
 			}
@@ -327,8 +327,8 @@ class SysAdmin extends HtmlPage
 		$tb->value = $search;
 		
 		$q = buildQuery('SysAdmin','PhpInfo');
-		$sel->onchange = "ScavixWDF.redirect({extension:$(this).val()})";
-		$tb->onkeydown = "if( event.which==13 ) ScavixWDF.redirect({search:$(this).val()})";
+		$sel->onchange = "wdf.redirect({extension:$(this).val()})";
+		$tb->onkeydown = "if( event.which==13 ) wdf.redirect({search:$(this).val()})";
 		
 		$get_version = function($ext)
 		{

@@ -61,11 +61,11 @@ class Anchor extends Control
 	/**
 	 * @override Ensures that there's a valid href attribute, if not adds "javascript:{}" to it.
 	 */
-	public function ScavixWDFRender()
+	public function WdfRender()
 	{
         if($this->href == "")
 			$this->href = "javascript:{}";
 
-        return parent::ScavixWDFRender();
+        return parent::WdfRender();
 	}	
 }

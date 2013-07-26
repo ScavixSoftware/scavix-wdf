@@ -44,7 +44,7 @@ class PhpDocComment
 	/**
 	 * Creates a PhpDocComment instance from a string
 	 * 
-	 * See <ScavixWDFReflector::getCommentObject> for how to use this best.
+	 * See <WdfReflector::getCommentObject> for how to use this best.
 	 * @param string $comment Valid DocComment string
 	 * @return boolean|PhpDocComment False on error, else a PhpDocComment object
 	 */

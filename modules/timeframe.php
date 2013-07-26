@@ -100,7 +100,7 @@ class TimeFrame
 		if( $obj instanceof ITimeframeDataobject )
 			$GLOBALS['timeframe']['data_object'] = $obj;
 		else
-			ScavixWDFException::Raise("Trying to set an invalid dataobject. ITimeframeDataobject needed!");
+			WdfException::Raise("Trying to set an invalid dataobject. ITimeframeDataobject needed!");
 	}
 
 	static function currentTimeFrame()

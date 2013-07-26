@@ -37,13 +37,13 @@ class uiDatabaseTable extends DatabaseTable
 	/**
 	 * @override
 	 */
-	function ScavixWDFRender()
+	function WdfRender()
 	{
 		$this->_ensureCaptionObject();
 		$this->addClass('ui-widget ui-widget-content ui-corner-all');
 		if( $this->header ) $this->header->addClass('ui-widget-header');
 		if( $this->Caption ) $this->Caption->addClass('ui-widget-header');
 		if( $this->footer ) $this->footer->addClass('ui-widget-content');
-		return parent::ScavixWDFRender();
+		return parent::WdfRender();
 	}
 }

@@ -181,7 +181,7 @@ class TBody extends Control
 	/**
 	 * @override
 	 */
-    function ScavixWDFRender()
+    function WdfRender()
     {
         if( $this->options )
         {
@@ -209,7 +209,7 @@ class TBody extends Control
                     $this->header->onclick = "";
 
 				$speed = "500";
-				$func = "function(){ $('#{$this->table->id}').click(); ScavixWDF.debug('Click invoked'); }";
+				$func = "function(){ $('#{$this->table->id}').click(); wdf.debug('Click invoked'); }";
 				$func = "setTimeout(unescape(".json_encode("$('#{$this->table->id}').click();")."),$speed+10);";
                 $this->header->onclick = "$func $(this).siblings('tr').css('display') == 'none' ? $(this).siblings('tr').fadeIn($speed) : $(this).siblings('tr').fadeOut($speed);".$this->header->onclick;
 
@@ -236,6 +236,6 @@ class TBody extends Control
         if( $this->header )
             $this->_content = array_merge(array($this->header),$this->_content);
 
-        return parent::ScavixWDFRender();
+        return parent::WdfRender();
     }
 }

@@ -41,13 +41,13 @@ class Gate2Shop extends PaymentProvider
 		parent::__construct();
 		
 		if( !isset($CONFIG["payment"]["gate2shop"]["merchant_id"]) )
-			ScavixWDFException::Raise("Gate2Shop: Missing merchant_id");
+			WdfException::Raise("Gate2Shop: Missing merchant_id");
 
 		if( !isset($CONFIG["payment"]["gate2shop"]["merchant_site_id"]) )
-			ScavixWDFException::Raise("Gate2Shop: Missing merchant_site_id");
+			WdfException::Raise("Gate2Shop: Missing merchant_site_id");
 		
 		if( !isset($CONFIG["payment"]["gate2shop"]["secret_key"]) )
-			ScavixWDFException::Raise("Gate2Shop: Missing secret_key");
+			WdfException::Raise("Gate2Shop: Missing secret_key");
 		
 		$this->small_image = resFile("payment/gate2shop.png");
 	}

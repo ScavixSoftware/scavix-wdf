@@ -27,11 +27,11 @@ namespace ScavixWDF;
 /**
  * This is a wrapper/router for system (ScavixWDF) resources.
  * 
- * It tries to map *ScavixWDFResource* urls to the file in the local filessystem and writes it out using readfile().
+ * It tries to map *WdfResource* urls to the file in the local filessystem and writes it out using readfile().
  * This is to let users place the ScavixWDF folder outside the doc root while still beeing able to access resources in there
  * without having to create a domain for that. Natually doing that would be better because faster!
  */
-class ScavixWDFResource implements ICallable
+class WdfResource implements ICallable
 {
 	/**
 	 * @internal Returns a JS resource

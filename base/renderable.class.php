@@ -44,7 +44,7 @@ abstract class Renderable
 	 * Extending classes must implement this (<Control>, <Template>).
 	 * @return string The rendered control
 	 */
-	abstract function ScavixWDFRenderAsRoot();
+	abstract function WdfRenderAsRoot();
 	
 	/**
 	 * Renders this control.
@@ -52,7 +52,7 @@ abstract class Renderable
 	 * Extending classes must implement this (<Control>, <Template>).
 	 * @return string The rendered control
 	 */
-	abstract function ScavixWDFRender();
+	abstract function WdfRender();
 	
 	function __getContentVars(){ return array('_content'); }
 	

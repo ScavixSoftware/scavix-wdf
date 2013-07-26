@@ -227,7 +227,7 @@ function translation_add_unknown_strings($unknown_constants)
 	if( $CONFIG['translation']['sync']['datasource'] )
 	{
 		$ds = model_datasource($CONFIG['translation']['sync']['datasource']);
-		$ds->ExecuteSql("CREATE TABLE IF NOT EXISTS ScavixWDF_unknown_strings (
+		$ds->ExecuteSql("CREATE TABLE IF NOT EXISTS wdf_unknown_strings (
 			term VARCHAR(255) NOT NULL,
 			last_hit DATETIME NOT NULL,
 			hits INT DEFAULT 0,
@@ -235,8 +235,8 @@ function translation_add_unknown_strings($unknown_constants)
 			PRIMARY KEY (term))");
 
 		$now = $ds->Driver->Now();
-		$sql1 = "INSERT OR IGNORE INTO ScavixWDF_unknown_strings(term,last_hit,hits,default_val)VALUES(?,$now,0,?);";
-		$sql2 = "UPDATE ScavixWDF_unknown_strings SET last_hit=$now, hits=hits+1 WHERE term=?;";
+		$sql1 = "INSERT OR IGNORE INTO wdf_unknown_strings(term,last_hit,hits,default_val)VALUES(?,$now,0,?);";
+		$sql2 = "UPDATE wdf_unknown_strings SET last_hit=$now, hits=hits+1 WHERE term=?;";
 		foreach( $unknown_constants as $uc )
 		{
 			$def = cfg_getd('translation','default_strings',$uc,'');

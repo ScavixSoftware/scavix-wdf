@@ -44,7 +44,7 @@ try
 	<?=$js_varname?>._trackPageview();
 	<?php endif; ?>
 
-	ScavixWDF.ready.add( function()
+	wdf.ready.add( function()
 	{
 		$('*[title]').each( function()
 		{
