@@ -26,6 +26,10 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
+use WDF\Reflection\ResourceAttribute;
+use WDF\Reflection\WdfReflector;
+use WDF\WdfException;
+
 /**
  * Initializes the minify module.
  * 
