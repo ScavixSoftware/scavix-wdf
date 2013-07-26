@@ -25,38 +25,46 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-
-use ScavixWDF\Controls\Form\Form;
-use ScavixWDF\WdfException;
- 
-/**
- * Initializes the payment module.
- * 
- * @return void
- */
-function payment_init()
-{
-	global $CONFIG;
-	$CONFIG['class_path']['system'][] = __DIR__.'/payment/';
-	
-	if( !isset($CONFIG["payment"]["order_model"]) || !$CONFIG["payment"]["order_model"] )
-		WdfException::Raise('Please configure an order_model for the payment module');
-}
+namespace ScavixWDF\Payment;
 
 /**
- * Returns a list of payment providers.
+ * Prototype of an Address Model.
  * 
- * @return array List of <PaymentProvider> objects
+ * Your own address class must inherit from this. Usually this data is stored alongside the order itself
+ * so a typical <IShopOrder::GetAddress> method would just create a new <ShopOrderAddress> object and assign all
+ * properties from itself.
+ * <code php>
+ * class MyShopOrder implements IShopOrder
+ * {
+ *     public function GetAddress()
+ *     {
+ *         $res = new ShopOrderAddress();
+ *         $res->Firstname = $this->fname;
+ *         $res->Lastname = $this->lname;
+ *         $res->Address1 = $this->street;
+ *         $res->Zip = $this->zip;
+ *         $res->City = $this->city;
+ *         $res->Email = $this->email;
+ *         return $res;
+ *     }
+ * 
+ *     // more methods
+ * }
+ * </code>
  */
-function payment_list_providers()
+class ShopOrderAddress
 {
-	$res = array();
-	foreach( system_glob(__DIR__.'/payment/*.class.php') as $file )
-	{
-		$cn = basename($file,".class.php");
-		$cn = new $cn();
-		if( ($cn instanceof PaymentProvider) && $cn->IsAvailable() )
-			$res[] = $cn;
-	}
-	return $res;
+	public $Firstname;
+	public $Lastname;
+	public $Companyname;
+	public $Email;
+	public $Address1;	
+	public $Address2;
+	public $Country;
+	public $State;
+	public $Zip;
+	public $City;
+	public $Phone1;
+	public $Phone2;
+	public $Phone3;
 }

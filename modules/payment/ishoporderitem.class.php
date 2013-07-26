@@ -25,38 +25,47 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
+namespace ScavixWDF\Payment;
 
-use ScavixWDF\Controls\Form\Form;
-use ScavixWDF\WdfException;
- 
 /**
- * Initializes the payment module.
- * 
- * @return void
+ * Order items <Model>s must implement this.
  */
-function payment_init()
+interface IShopOrderItem
 {
-	global $CONFIG;
-	$CONFIG['class_path']['system'][] = __DIR__.'/payment/';
+	/**
+	 * Gets the items name.
+	 * @return string The item name
+	 */
+	function GetName();
 	
-	if( !isset($CONFIG["payment"]["order_model"]) || !$CONFIG["payment"]["order_model"] )
-		WdfException::Raise('Please configure an order_model for the payment module');
-}
-
-/**
- * Returns a list of payment providers.
- * 
- * @return array List of <PaymentProvider> objects
- */
-function payment_list_providers()
-{
-	$res = array();
-	foreach( system_glob(__DIR__.'/payment/*.class.php') as $file )
-	{
-		$cn = basename($file,".class.php");
-		$cn = new $cn();
-		if( ($cn instanceof PaymentProvider) && $cn->IsAvailable() )
-			$res[] = $cn;
-	}
-	return $res;
+	/**
+	 * Gets the price per item converted into the requested currency.
+	 * @param string $currency Currency code
+	 * @return float The price per item converted into $currency
+	 */
+	function GetAmount($currency);
+	
+	/**
+	 * Gets the shipping cost.
+	 * @return float Cost for shipping
+	 */
+	function GetShipping();
+	
+	/**
+	 * Gets the handling cost.
+	 * @return float Cost for handling
+	 */
+	function GetHandling();
+	
+	/**
+	 * Gets the discount.
+	 * @return float The discount
+	 */
+	function GetDiscount();
+	
+	/**
+	 * Gets the quantity.
+	 * @return float The quantity
+	 */
+	function GetQuantity();
 }
