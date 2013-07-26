@@ -25,9 +25,9 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Controls;
+namespace ScavixWDF\Controls;
 
-use WDF\Base\Control;
+use ScavixWDF\Base\Control;
 
 /**
  * Wraps a superfish menu control
@@ -86,11 +86,11 @@ class SuperfishMenu extends Control
 	/**
 	 * @override
 	 */
-	function WdfRender()
+	function ScavixWDFRender()
 	{
 		if( count($this->_content) > 0 )
 			$this->content('<li class="closer"></li>');
-		return parent::WdfRender();
+		return parent::ScavixWDFRender();
 	}
 	
 	/**
@@ -232,10 +232,10 @@ class SuperfishMenuItem extends Control
 	/**
 	 * @override
 	 */
-	function WdfRender()
+	function ScavixWDFRender()
 	{
 		if( $this->sub )
 			$this->sub->content('<li class="page_item"><span class="subclsr">&nbsp;</span></li>');
-		return parent::WdfRender();
+		return parent::ScavixWDFRender();
 	}
 }

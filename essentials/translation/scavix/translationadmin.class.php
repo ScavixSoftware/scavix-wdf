@@ -22,23 +22,23 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Translation;
+namespace ScavixWDF\Translation;
 
 use stdClass;
-use WDF\Base\AjaxAction;
-use WDF\Base\AjaxResponse;
-use WDF\Base\Control;
-use WDF\Controls\Anchor;
-use WDF\Controls\Form\Button;
-use WDF\Controls\Form\CheckBox;
-use WDF\Controls\Form\Form;
-use WDF\Controls\Form\Select;
-use WDF\Controls\Form\TextArea;
-use WDF\Controls\Form\TextInput;
-use WDF\Controls\Table\Table;
-use WDF\JQueryUI\Dialog\uiDialog;
-use WDF\Localization\Localization;
-use WDF\WdfException;
+use ScavixWDF\Base\AjaxAction;
+use ScavixWDF\Base\AjaxResponse;
+use ScavixWDF\Base\Control;
+use ScavixWDF\Controls\Anchor;
+use ScavixWDF\Controls\Form\Button;
+use ScavixWDF\Controls\Form\CheckBox;
+use ScavixWDF\Controls\Form\Form;
+use ScavixWDF\Controls\Form\Select;
+use ScavixWDF\Controls\Form\TextArea;
+use ScavixWDF\Controls\Form\TextInput;
+use ScavixWDF\Controls\Table\Table;
+use ScavixWDF\JQueryUI\Dialog\uiDialog;
+use ScavixWDF\Localization\Localization;
+use ScavixWDF\ScavixWDFException;
 
 /**
  * <SysAdmin> handler for translations.
@@ -57,9 +57,9 @@ class TranslationAdmin extends TranslationAdminBase
 		elseif( isset($GLOBALS['CONFIG']['translation']['sync']['datasource']) && $GLOBALS['CONFIG']['translation']['sync']['datasource'] )
 			$this->ds = model_datasource($GLOBALS['CONFIG']['translation']['sync']['datasource']);
 		else
-			WdfException::Raise("ScavixTranslations datasource missing!");
+			ScavixWDFException::Raise("ScavixTranslations datasource missing!");
 		
-		$this->ds->ExecuteSql("CREATE TABLE IF NOT EXISTS `wdf_translations` (
+		$this->ds->ExecuteSql("CREATE TABLE IF NOT EXISTS `ScavixWDF_translations` (
 				`lang` VARCHAR(10) NULL,
 				`id` VARCHAR(100) NULL,
 				`content` TEXT NULL,
@@ -71,7 +71,7 @@ class TranslationAdmin extends TranslationAdminBase
 	
 	private function fetchTerms($lang_code,$defaults = array())
     {
-        $rs = $this->ds->ExecuteSql("SELECT id,content FROM wdf_translations WHERE lang=?",$lang_code);
+        $rs = $this->ds->ExecuteSql("SELECT id,content FROM ScavixWDF_translations WHERE lang=?",$lang_code);
         $res = $defaults;
         foreach( $rs as $lang )
             $res[$lang['id']] = isset($lang['content'])&&$lang['content']?$lang['content']:'';
@@ -86,7 +86,7 @@ class TranslationAdmin extends TranslationAdminBase
 		$avail = $sel->CreateGroup('Available languages');
 		
 		$counts = array();
-		foreach( $this->ds->ExecuteSql("SELECT lang,count(*) as cnt FROM wdf_translations GROUP BY lang") as $row )
+		foreach( $this->ds->ExecuteSql("SELECT lang,count(*) as cnt FROM ScavixWDF_translations GROUP BY lang") as $row )
 			$counts[$row['lang']] = intval($row['cnt']);
 		foreach( Localization::get_language_names() as $code=>$name )
 		{
@@ -106,11 +106,11 @@ class TranslationAdmin extends TranslationAdminBase
         global $CONFIG;
         
         $this->_contentdiv->content("<h1>Fetch strings</h1>");
-        $db_languages = $this->ds->ExecuteSql("SELECT DISTINCT lang FROM wdf_translations ORDER BY lang")->Enumerate('lang',false);
-		$max = $this->ds->ExecuteScalar("SELECT MAX(cnt) FROM (SELECT count(*) as cnt FROM wdf_translations GROUP BY lang) AS x");
+        $db_languages = $this->ds->ExecuteSql("SELECT DISTINCT lang FROM ScavixWDF_translations ORDER BY lang")->Enumerate('lang',false);
+		$max = $this->ds->ExecuteScalar("SELECT MAX(cnt) FROM (SELECT count(*) as cnt FROM ScavixWDF_translations GROUP BY lang) AS x");
 		foreach( $db_languages as $i=>$lang )
 		{
-			$count = $this->ds->ExecuteScalar("SELECT count(*) FROM wdf_translations WHERE lang=?",$lang);
+			$count = $this->ds->ExecuteScalar("SELECT count(*) FROM ScavixWDF_translations WHERE lang=?",$lang);
 			
 			$db_languages[$i] = new stdClass();
 			$db_languages[$i]->name = Localization::getCultureInfo($lang)->EnglishName;
@@ -154,7 +154,7 @@ class TranslationAdmin extends TranslationAdminBase
         }
 		
 		$ds = model_datasource($GLOBALS['CONFIG']['translation']['sync']['datasource']);
-		$ds->ExecuteSql("TRUNCATE TABLE wdf_unknown_strings");
+		$ds->ExecuteSql("TRUNCATE TABLE ScavixWDF_unknown_strings");
 		$this->_contentdiv->content("<div>Cleared the unknown strings table</div>");
 		
 		foreach( cache_list_keys() as $key )
@@ -174,14 +174,14 @@ class TranslationAdmin extends TranslationAdminBase
     {
         global $CONFIG;
 		$text = urldecode($text);
-		$this->ds->ExecuteSql("REPLACE INTO wdf_translations(lang,id,content)VALUES(?,?,?)",array($CONFIG['localization']['default_language'],$term,$text));
+		$this->ds->ExecuteSql("REPLACE INTO ScavixWDF_translations(lang,id,content)VALUES(?,?,?)",array($CONFIG['localization']['default_language'],$term,$text));
         cache_del('lang_'.$term);
         return $this->DeleteString($term);
     }
 	
 	private function _searchQuery($lang,$search)
 	{
-		$rs = $this->ds->Query('wdf_translations')->eq('lang',$lang);
+		$rs = $this->ds->Query('ScavixWDF_translations')->eq('lang',$lang);
 		if( !$search )
 			return $rs;
 		$s = str_replace(array('_','%'), array('\_','\%'), $this->ds->EscapeArgument($search));
@@ -275,9 +275,9 @@ class TranslationAdmin extends TranslationAdminBase
 	{
 		$text = urldecode($text);
 		if( $text )
-			$this->ds->ExecuteSql("REPLACE INTO wdf_translations(lang,id,content)VALUES(?,?,?)",array($lang,$term,$text));
+			$this->ds->ExecuteSql("REPLACE INTO ScavixWDF_translations(lang,id,content)VALUES(?,?,?)",array($lang,$term,$text));
 		else
-			$this->ds->ExecuteSql("DELETE FROM wdf_translations WHERE lang=? AND id=?",array($lang,$term));
+			$this->ds->ExecuteSql("DELETE FROM ScavixWDF_translations WHERE lang=? AND id=?",array($lang,$term));
         cache_del('lang_'.$term);
 		return AjaxResponse::None();
 	}
@@ -316,7 +316,7 @@ class TranslationAdmin extends TranslationAdminBase
 			$count = 0; $unknowns = "";
 			
 			if( !$is_default ) 
-				$knowns = $this->ds->ExecuteSql("SELECT DISTINCT id FROM wdf_translations WHERE lang=?",$CONFIG['localization']['default_language'])
+				$knowns = $this->ds->ExecuteSql("SELECT DISTINCT id FROM ScavixWDF_translations WHERE lang=?",$CONFIG['localization']['default_language'])
 					->Enumerate('id',false);
 			
 			foreach( json_decode($json_string,true) as $entry )
@@ -324,7 +324,7 @@ class TranslationAdmin extends TranslationAdminBase
 				$entry = array_values($entry);
 				if( count($entry) < 2 || !$entry[1] )
 					continue;
-				$this->ds->ExecuteSql("REPLACE INTO wdf_translations(lang,id,content)VALUES(?,?,?)",array($lang,$entry[0],$entry[1]));
+				$this->ds->ExecuteSql("REPLACE INTO ScavixWDF_translations(lang,id,content)VALUES(?,?,?)",array($lang,$entry[0],$entry[1]));
 				$count++;
 				
 				if( !$is_default && !in_array($entry[0],$knowns) )
@@ -334,7 +334,7 @@ class TranslationAdmin extends TranslationAdminBase
 				}
 			}
 			if( $is_default )
-				$this->ds->ExecuteSql("DELETE FROM wdf_unknown_strings WHERE term IN(SELECT id FROM wdf_translations WHERE lang=?)",$lang);
+				$this->ds->ExecuteSql("DELETE FROM ScavixWDF_unknown_strings WHERE term IN(SELECT id FROM ScavixWDF_translations WHERE lang=?)",$lang);
 			else
 			{
 				log_debug($unknowns);
@@ -367,11 +367,11 @@ class TranslationAdmin extends TranslationAdminBase
 			$dlg = new uiDialog('Rename term');
 			$dlg->content("Enter new term: ");
 			$ti = $dlg->content(new TextInput($term));
-			$dlg->AddButton('Rename', "function(){ wdf.controller.post('Rename',{term:'$term',new_term:$('#{$ti->id}').val()}); }");
+			$dlg->AddButton('Rename', "function(){ ScavixWDF.controller.post('Rename',{term:'$term',new_term:$('#{$ti->id}').val()}); }");
 			$dlg->AddCloseButton('Cancel');
 			return $dlg;
 		}
-		$this->ds->ExecuteSql("UPDATE wdf_translations SET id=? WHERE id=?",array($new_term,$term));
+		$this->ds->ExecuteSql("UPDATE ScavixWDF_translations SET id=? WHERE id=?",array($new_term,$term));
 		return AjaxResponse::Redirect('TranslationAdmin','Translate', array(
 			'lang' => $_SESSION['trans_admin_lang'],
 			'offset' => $_SESSION['trans_admin_offset'],
@@ -395,7 +395,7 @@ class TranslationAdmin extends TranslationAdminBase
 		if( !AjaxAction::IsConfirmed("REMOVE_TERM") )
 			return AjaxAction::Confirm("REMOVE_TERM", 'TranslationAdmin', 'Remove', array('term'=>$term));
 		
-		$this->ds->ExecuteSql("DELETE FROM wdf_translations WHERE id=?",$term);
+		$this->ds->ExecuteSql("DELETE FROM ScavixWDF_translations WHERE id=?",$term);
 		return AjaxResponse::Redirect('TranslationAdmin','Translate', array(
 			'lang' => $_SESSION['trans_admin_lang'],
 			'offset' => $_SESSION['trans_admin_offset'],

@@ -25,13 +25,13 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Model;
+namespace ScavixWDF\Model;
 
 use ArrayAccess;
 use Iterator;
 use PDO;
 use PDOStatement;
-use WDF\Model\Driver\MySql;
+use ScavixWDF\Model\Driver\MySql;
 
 /**
  * This is our own Statement class
@@ -59,7 +59,7 @@ class ResultSet implements Iterator, ArrayAccess
 	
 	public $FetchMode = PDO::FETCH_ASSOC;
 	
-	function __construct(DataSource $ds=null, WdfPdoStatement $statement=null)
+	function __construct(DataSource $ds=null, ScavixWDFPdoStatement $statement=null)
 	{
 		$this->_ds = $ds;
 		if( $statement )
@@ -496,7 +496,7 @@ class ResultSet implements Iterator, ArrayAccess
 /**
  * @internal Extends PDOStatement so that we can easily capture calling <DataSource>
  */
-class WdfPdoStatement extends PDOStatement
+class ScavixWDFPdoStatement extends PDOStatement
 {
 	var $_ds = null;
 	var $_pdo = null;

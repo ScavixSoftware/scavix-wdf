@@ -25,9 +25,9 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Controls;
+namespace ScavixWDF\Controls;
 
-use WDF\Base\Control;
+use ScavixWDF\Base\Control;
 
 /**
  * Wraps a context menu.
@@ -55,7 +55,7 @@ class ContextMenu extends Control
 	/**
 	 * @override Prepares JS init code
 	 */
-	public function WdfRender()
+	public function ScavixWDFRender()
 	{
         $script = "";
         $trigger = implode(",",$this->_triggers);
@@ -80,7 +80,7 @@ class ContextMenu extends Control
         $this->script($script);
         $this->_content[] = $this->CreateUL();
 
-        return parent::WdfRender();
+        return parent::ScavixWDFRender();
 	}
 
     /**

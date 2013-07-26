@@ -22,9 +22,9 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Base;
+namespace ScavixWDF\Base;
 
-use WDF\Reflection\ResourceAttribute;
+use ScavixWDF\Reflection\ResourceAttribute;
 
 /**
  * Base class for all HTML related stuff.
@@ -44,7 +44,7 @@ abstract class Renderable
 	 * Extending classes must implement this (<Control>, <Template>).
 	 * @return string The rendered control
 	 */
-	abstract function WdfRenderAsRoot();
+	abstract function ScavixWDFRenderAsRoot();
 	
 	/**
 	 * Renders this control.
@@ -52,7 +52,7 @@ abstract class Renderable
 	 * Extending classes must implement this (<Control>, <Template>).
 	 * @return string The rendered control
 	 */
-	abstract function WdfRender();
+	abstract function ScavixWDFRender();
 	
 	function __getContentVars(){ return array('_content'); }
 	

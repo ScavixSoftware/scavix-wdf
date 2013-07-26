@@ -25,9 +25,9 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Session;
+namespace ScavixWDF\Session;
 
-use WDF\WdfException;
+use ScavixWDF\ScavixWDFException;
 
 /**
  * PHP session handling.
@@ -93,7 +93,7 @@ class PhpSession extends SessionBase
 		if( $id == "" )
 		{
 			if( !isset($obj->_storage_id) )
-				WdfException::Raise("Trying to store an object without storage_id!");
+				ScavixWDFException::Raise("Trying to store an object without storage_id!");
 			$id = $obj->_storage_id;
 		}
 		else

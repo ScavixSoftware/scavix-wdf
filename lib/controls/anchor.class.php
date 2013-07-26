@@ -25,9 +25,9 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Controls;
+namespace ScavixWDF\Controls;
 
-use WDF\Base\Control;
+use ScavixWDF\Base\Control;
 
 /**
  * HTML anchor element
@@ -61,11 +61,11 @@ class Anchor extends Control
 	/**
 	 * @override Ensures that there's a valid href attribute, if not adds "javascript:{}" to it.
 	 */
-	public function WdfRender()
+	public function ScavixWDFRender()
 	{
         if($this->href == "")
 			$this->href = "javascript:{}";
 
-        return parent::WdfRender();
+        return parent::ScavixWDFRender();
 	}	
 }

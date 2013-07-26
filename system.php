@@ -30,12 +30,12 @@ define('FRAMEWORK_LOADED','uSI7hcKMQgPaPKAQDXg5');
 require_once(__DIR__.'/system_objects.php');
 require_once(__DIR__.'/system_functions.php');
 
-use WDF\Base\AjaxResponse;
-use WDF\Base\Args;
-use WDF\Base\Renderable;
-use WDF\ICallable;
-use WDF\Reflection\WdfReflector;
-use WDF\WdfException;
+use ScavixWDF\Base\AjaxResponse;
+use ScavixWDF\Base\Args;
+use ScavixWDF\Base\Renderable;
+use ScavixWDF\ICallable;
+use ScavixWDF\Reflection\ScavixWDFReflector;
+use ScavixWDF\ScavixWDFException;
 
 // Config handling
 system_config_default( !defined("NO_DEFAULT_CONFIG") );
@@ -106,7 +106,7 @@ function system_config_default($reset = true)
 	$CONFIG['model']['internal']['datasource_type']    = 'DataSource';	
 	$CONFIG['model']['internal']['debug']			   = false;
 
-	$CONFIG['system']['application_name'] = 'wdf_application';
+	$CONFIG['system']['application_name'] = 'ScavixWDF_application';
 	$CONFIG['system']['cache_datasource'] = 'internal';
 	$CONFIG['system']['cache_ttl'] = 3600; // secs
 
@@ -178,10 +178,10 @@ function system_is_module_loaded($mod)
 }
 
 /**
- * Initializes the Scavix WDF.
+ * Initializes the Scavix ScavixWDF.
  * 
  * This is one of two essential functions you must know about.
- * Initializes the complete WDF, loads all essentials and defined modules and initializes them,
+ * Initializes the complete ScavixWDF, loads all essentials and defined modules and initializes them,
  * prepares the session and writes out some headers (from config too).
  * @param string $application_name Application name. This will become your session cookie name!
  * @param bool $skip_header Optional. If true, will not send headers.
@@ -256,21 +256,21 @@ function system_init($application_name, $skip_header = false, $logging_category=
  * 
  * Note that your .htaccess files must contain these lines:
  * <code>
- * SetEnv WDF_FEATURES_REWRITE on
+ * SetEnv ScavixWDF_FEATURES_REWRITE on
  * RewriteCond %{REQUEST_FILENAME} !-f
  * RewriteCond %{REQUEST_FILENAME} !-d
  * RewriteCond %{REQUEST_URI} !index.php
- * RewriteRule (.*) index.php?wdf_route=$1 [L,QSA]
+ * RewriteRule (.*) index.php?ScavixWDF_route=$1 [L,QSA]
  * </code>
  * @return void
  */
 function system_parse_request_path()
 {
-	if( isset($_REQUEST['wdf_route']) )
+	if( isset($_REQUEST['ScavixWDF_route']) )
 	{
-		$GLOBALS['wdf_route'] = $path = explode("/",$_REQUEST['wdf_route'],3);
-		unset($_REQUEST['wdf_route']);
-		unset($_GET['wdf_route']);
+		$GLOBALS['ScavixWDF_route'] = $path = explode("/",$_REQUEST['ScavixWDF_route'],3);
+		unset($_REQUEST['ScavixWDF_route']);
+		unset($_GET['ScavixWDF_route']);
 
 		if( count($path)>0 )
 		{
@@ -319,7 +319,7 @@ function system_instanciate_controller($controller_id)
 	elseif( class_exists($controller_id) )
 		$res = new $controller_id();
 	else
-		WdfException::Raise("ACCESS DENIED: Unknown controller '$controller_id'");
+		ScavixWDFException::Raise("ACCESS DENIED: Unknown controller '$controller_id'");
 	
 	if( system_is_ajax_call() )
 	{
@@ -330,7 +330,7 @@ function system_instanciate_controller($controller_id)
 		}
 	}
 	else if( !($res instanceof ICallable) )
-		WdfException::Raise("ACCESS DENIED: $controller_id is no ICallable");
+		ScavixWDFException::Raise("ACCESS DENIED: $controller_id is no ICallable");
 	
 	return $res;
 }
@@ -340,7 +340,7 @@ function system_instanciate_controller($controller_id)
  * 
  * This is the second of two essential functions.
  * It runs the actual execution. If fact it is the only place where you will
- * find an `echo` in the WDF code.
+ * find an `echo` in the ScavixWDF code.
  * @return void
  */
 function system_execute()
@@ -384,8 +384,8 @@ function system_execute()
 		$current_event = cfg_get('system','default_event');
 	}
 	
-	if( !isset($GLOBALS['wdf_route']) )
-		$GLOBALS['wdf_route'] = array($current_controller,$current_event);
+	if( !isset($GLOBALS['ScavixWDF_route']) )
+		$GLOBALS['ScavixWDF_route'] = array($current_controller,$current_event);
 
 	if( system_method_exists($current_controller,$current_event) || 
 		(system_method_exists($current_controller,'__method_exists') && $current_controller->__method_exists($current_event) ) )
@@ -405,7 +405,7 @@ function system_execute()
 		elseif( $content instanceof Renderable )
 			$response = AjaxResponse::Renderable($content)->Render();
 		else
-			WdfException::Raise("Unknown AJAX return value");
+			ScavixWDFException::Raise("Unknown AJAX return value");
 	}
 	elseif( $content instanceof AjaxResponse ) // is system_is_ajax_call() failed to detect AJAX but response in fact IS for AJAX
 		die("__SESSION_TIMEOUT__");
@@ -414,7 +414,7 @@ function system_execute()
 		$_SESSION['request_id'] = request_id();
 		if( $content instanceof Renderable)
 		{
-			$response = $content->WdfRenderAsRoot();
+			$response = $content->ScavixWDFRenderAsRoot();
 			if( $content->_translate && system_is_module_loaded("translation") )
 				$response = __translate($response);
 		}
@@ -441,7 +441,7 @@ function system_execute()
  */
 function system_invoke_request($target_class,$target_event,$pre_execute_hook_type)
 {
-	$ref = WdfReflector::GetInstance($target_class);
+	$ref = ScavixWDFReflector::GetInstance($target_class);
 	$params = $ref->GetMethodAttributes($target_event,"RequestParam");
 	$args = array();
 	$argscheck = array();
@@ -469,7 +469,7 @@ function system_invoke_request($target_class,$target_event,$pre_execute_hook_typ
  * Terminats the current run.
  * 
  * Will be called from exception and error handlers. You may, call this directly, but we
- * recommend to throw an exception instead. See the WdfException class and it's Raise() method
+ * recommend to throw an exception instead. See the ScavixWDFException class and it's Raise() method
  * for more about this.
  * Note: This function will call `die()`!
  * @param string $reason The reason as human readable and hopefully understandable text
@@ -480,7 +480,7 @@ function system_die($reason,$additional_message='')
 {
 	if( $reason instanceof Exception )
 	{
-		$stacktrace = ($reason instanceof WdfException)?$reason->getTraceEx():$reason->getTrace();
+		$stacktrace = ($reason instanceof ScavixWDFException)?$reason->getTraceEx():$reason->getTrace();
 		$reason = logging_render_var($reason);
 	}
 
@@ -623,7 +623,7 @@ function is_valid_hook_type($type)
 		)
 		return true;
 
-	WdfException::Raise("Invalid hook type ($type)!");
+	ScavixWDFException::Raise("Invalid hook type ($type)!");
 }
 
 /**
@@ -805,7 +805,7 @@ function system_spl_autoload($class_name)
 		}
     } 
     catch(Exception $ex)
-    { WdfException::Log("system_spl_autoload",$ex); };
+    { ScavixWDFException::Log("system_spl_autoload",$ex); };
 }
 spl_autoload_register("system_spl_autoload",true,true);
 
@@ -907,7 +907,7 @@ function __search_file_for_class($class_name,$extension="class.php",$classpath_l
 	foreach( $CONFIG['class_path']['order'] as $cp_part )
 	{
 		if( !isset($CONFIG['class_path'][$cp_part]))
-			WdfException::Raise("Invalid ClassPath! No entry for '$cp_part'.");
+			ScavixWDFException::Raise("Invalid ClassPath! No entry for '$cp_part'.");
 
 		if( $classpath_limit && $cp_part != $classpath_limit )
 			continue;
@@ -986,7 +986,7 @@ function buildQuery($controller,$event="",$data="", $url_root=false)
 	
 	if( !can_rewrite() )
 	{
-		$data = http_build_query(array('wdf_route'=>$route)).($data?"&$data":"");
+		$data = http_build_query(array('ScavixWDF_route'=>$route)).($data?"&$data":"");
 		$route = "";
 	}
 	
@@ -1138,7 +1138,7 @@ function is_host($host_or_ip)
 }
 
 /**
- * Returns a value from the wdf cache.
+ * Returns a value from the ScavixWDF cache.
  * 
  * There are multiple caches: SESSION and global.
  * Global cache required additional globalcache module to be loaded.
@@ -1281,7 +1281,7 @@ function current_event()
  */
 function constant_from_name($class_name_or_object,$constant_name)
 {
-	$ref = WdfReflector::GetInstance($class_name_or_object);
+	$ref = ScavixWDFReflector::GetInstance($class_name_or_object);
 	$constant_name = strtolower($constant_name);
 	foreach( $ref->getConstants() as $name=>$value )
 		if( strtolower($name) == $constant_name || ends_with(strtolower($name), $constant_name) )
@@ -1300,7 +1300,7 @@ function constant_from_name($class_name_or_object,$constant_name)
  */
 function name_from_constant($class_name,$constant_value,$prefix=false)
 {
-	$ref = WdfReflector::GetInstance($class_name);
+	$ref = ScavixWDFReflector::GetInstance($class_name);
 	foreach( $ref->getConstants() as $name=>$value )
 		if( $value == $constant_value && (!$prefix || starts_with($name, $prefix)) )
 			return $name;
@@ -1447,7 +1447,7 @@ function system_render_object_tree($array_of_objects)
 	foreach( $array_of_objects as $key=>&$val )
 	{
 		if( $val instanceof Renderable )
-			$res[$key] = $val->WdfRender();
+			$res[$key] = $val->ScavixWDFRender();
 		elseif( is_array($val) )
 			$res[$key] = system_render_object_tree($val);
 		elseif( $val instanceof DateTime )
@@ -1487,22 +1487,22 @@ function fq_class_name($classname)
 	$cnl = strtolower($classname);
 	switch( $cnl )
 	{
-		case 'template':              return '\\WDF\\Base\\Template';
-		case 'renderable':            return '\\WDF\\Base\\Renderable';
-		case 'control':               return '\\WDF\\Base\\Control';
-		case 'requestparamattribute': return '\\WDF\\Reflection\\RequestParamAttribute';
-		case 'resourceattribute':     return '\\WDF\\Reflection\\ResourceAttribute';
-		case 'wdfresource':           return '\\WDF\\WdfResource';
-		case 'datasource':            return '\\WDF\\Model\\DataSource';
-		case 'sysadmin':              return '\\WDF\\Admin\\SysAdmin';
-		case 'tracelogger':           return '\\WDF\\Logging\\TraceLogger';
-		case 'phpsession':            return '\\WDF\\Session\\PhpSession';
+		case 'template':              return '\\ScavixWDF\\Base\\Template';
+		case 'renderable':            return '\\ScavixWDF\\Base\\Renderable';
+		case 'control':               return '\\ScavixWDF\\Base\\Control';
+		case 'requestparamattribute': return '\\ScavixWDF\\Reflection\\RequestParamAttribute';
+		case 'resourceattribute':     return '\\ScavixWDF\\Reflection\\ResourceAttribute';
+		case 'ScavixWDFresource':           return '\\ScavixWDF\\ScavixWDFResource';
+		case 'datasource':            return '\\ScavixWDF\\Model\\DataSource';
+		case 'sysadmin':              return '\\ScavixWDF\\Admin\\SysAdmin';
+		case 'tracelogger':           return '\\ScavixWDF\\Logging\\TraceLogger';
+		case 'phpsession':            return '\\ScavixWDF\\Session\\PhpSession';
 	}
 	
 	if( isset($GLOBALS['system_class_alias'][$cnl]) )
 	{
 		if( is_array($GLOBALS['system_class_alias'][$cnl]) )
-			WdfException::Raise("Ambigous classname: $classname",$GLOBALS['system_class_alias'][$cnl]);
+			ScavixWDFException::Raise("Ambigous classname: $classname",$GLOBALS['system_class_alias'][$cnl]);
 		return $GLOBALS['system_class_alias'][$cnl];
 	}
 	//log_debug("fq_class_name($classname) NOOP");

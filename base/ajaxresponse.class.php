@@ -22,10 +22,10 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Base;
+namespace ScavixWDF\Base;
 
 use stdClass;
-use WDF\WdfException;
+use ScavixWDF\ScavixWDFException;
 
 /**
  * Helper class to easily create standard AJAX responses.
@@ -100,7 +100,7 @@ class AjaxResponse
 	{
 		$wrapped = new stdClass();
 
-		$wrapped->html = $content->WdfRenderAsRoot();
+		$wrapped->html = $content->ScavixWDFRenderAsRoot();
 		if( $content->_translate && system_is_module_loaded('translation') )
 			$wrapped->html = __translate($wrapped->html);
 		
@@ -143,7 +143,7 @@ class AjaxResponse
 	public static function Redirect($controller,$event='',$data='')
 	{
 		$q = buildQuery($controller,$event,$data);
-		return AjaxResponse::Js("wdf.redirect('$q');");
+		return AjaxResponse::Js("ScavixWDF.redirect('$q');");
 	}
 	
 	/**
@@ -176,7 +176,7 @@ class AjaxResponse
 	function AddScript($script)
 	{
 		if( !$this->_data )
-			WdfException::Raise("Cannot add script code to AJAX response of type text");
+			ScavixWDFException::Raise("Cannot add script code to AJAX response of type text");
 		
 		if( !isset($this->_data->script) )
 			$this->_data->script = force_array($script);

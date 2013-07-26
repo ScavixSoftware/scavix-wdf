@@ -25,9 +25,9 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Controls\Table;
+namespace ScavixWDF\Controls\Table;
 
-use WDF\Base\Control;
+use ScavixWDF\Base\Control;
 
 $GLOBALS['TR_CURRENTLY_ODD'] = false;
 
@@ -127,7 +127,7 @@ class Tr extends Control
 	/**
 	 * @override
 	 */
-	function WdfRender()
+	function ScavixWDFRender()
 	{
 		if( isset($this->options['oddclass']) && isset($this->options['evenclass']) )
 		{
@@ -138,6 +138,6 @@ class Tr extends Control
 			}
 		}
 
-		return parent::WdfRender();
+		return parent::ScavixWDFRender();
 	}
 }

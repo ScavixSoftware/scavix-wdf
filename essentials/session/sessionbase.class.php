@@ -25,11 +25,11 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Session;
+namespace ScavixWDF\Session;
 
 use Exception;
-use WDF\Base\Renderable;
-use WDF\WdfException;
+use ScavixWDF\Base\Renderable;
+use ScavixWDF\ScavixWDFException;
 
 /**
  * Base class for SessionHandlers.
@@ -218,7 +218,7 @@ abstract class SessionBase
 	 * objects really match the serialized ones. This is needed because fields/properties can change after
 	 * the initial save and our caching will hide that from system.
 	 * 
-	 * No need to call this manually, WDF will do!
+	 * No need to call this manually, ScavixWDF will do!
 	 * @return void
 	 */
 	function Update()
@@ -234,7 +234,7 @@ abstract class SessionBase
 			}
 			catch(Exception $ex)
 			{
-				WdfException::Log("updating session storage for object $id [".get_class($obj)."]",$ex);
+				ScavixWDFException::Log("updating session storage for object $id [".get_class($obj)."]",$ex);
 			}
 		}
 	}
@@ -242,7 +242,7 @@ abstract class SessionBase
 	/**
 	 * Returns a (new) request id
 	 * 
-	 * WDF creates a new ID for every request and passed it to every subsequent AJAX call.
+	 * ScavixWDF creates a new ID for every request and passed it to every subsequent AJAX call.
 	 * This method does the real magic and creates a new request id or returns the current.
 	 * @return string A new request id or the current one
 	 */
@@ -260,7 +260,7 @@ abstract class SessionBase
 	/**
 	 * Creates a object id
 	 * 
-	 * WDF will create IDs for <Renderable> objects automatically and ensures uniqueness for
+	 * ScavixWDF will create IDs for <Renderable> objects automatically and ensures uniqueness for
 	 * the whole session. This method creates such an id based on the given objects classname.
 	 * It will store it to `$obj->_storage_id` and return it.
 	 * @param object $obj Object which needs an id

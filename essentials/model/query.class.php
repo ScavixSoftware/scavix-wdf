@@ -25,11 +25,11 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Model;
+namespace ScavixWDF\Model;
 
 use DateTime;
 use PDO;
-use WDF\WdfDbException;
+use ScavixWDF\ScavixWDFDbException;
 
 /**
  * @internal SQL common query builder
@@ -104,7 +104,7 @@ class Query
 				$this->_statement->bindValue($i+1,$v);
 		}
 		if( !$this->_statement->execute() )
-			WdfDbException::Raise($this->_statement->ErrorOutput(),"\nArguments:",$this->_values,"\nMerged:",ResultSet::MergeSql($this->_ds,$sql, $this->_values));
+			ScavixWDFDbException::Raise($this->_statement->ErrorOutput(),"\nArguments:",$this->_values,"\nMerged:",ResultSet::MergeSql($this->_ds,$sql, $this->_values));
 		
 		$res = $this->_statement->fetchAll(PDO::FETCH_CLASS,get_class($this->_object),$ctor_args);
 		return $res;

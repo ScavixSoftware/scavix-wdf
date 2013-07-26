@@ -22,10 +22,10 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\JQueryUI;
+namespace ScavixWDF\JQueryUI;
 
-use WDF\Controls\Form\Label;
-use WDF\Controls\Form\Select;
+use ScavixWDF\Controls\Form\Label;
+use ScavixWDF\Controls\Form\Select;
 
 default_string('TXT_VERY_POOR', 'Poor');
 default_string('TXT_NOT_THAT_BAD', 'Bad');

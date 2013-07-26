@@ -22,21 +22,21 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Admin;
+namespace ScavixWDF\Admin;
 
-use WDF\Base\AjaxResponse;
-use WDF\Base\Control;
-use WDF\Base\HtmlPage;
-use WDF\Base\Template;
-use WDF\Controls\Anchor;
-use WDF\Controls\Form\CheckBox;
-use WDF\Controls\Form\Form;
-use WDF\Controls\Form\Select;
-use WDF\Controls\Form\TextInput;
-use WDF\Controls\Table\Table;
+use ScavixWDF\Base\AjaxResponse;
+use ScavixWDF\Base\Control;
+use ScavixWDF\Base\HtmlPage;
+use ScavixWDF\Base\Template;
+use ScavixWDF\Controls\Anchor;
+use ScavixWDF\Controls\Form\CheckBox;
+use ScavixWDF\Controls\Form\Form;
+use ScavixWDF\Controls\Form\Select;
+use ScavixWDF\Controls\Form\TextInput;
+use ScavixWDF\Controls\Table\Table;
 
 /**
- * WDF sysadmin page
+ * ScavixWDF sysadmin page
  * 
  * This is a tweak mechanism that allows you to manage your application.
  * For example you can create strings, manage the cache and check the PHP configuration.
@@ -327,8 +327,8 @@ class SysAdmin extends HtmlPage
 		$tb->value = $search;
 		
 		$q = buildQuery('SysAdmin','PhpInfo');
-		$sel->onchange = "wdf.redirect({extension:$(this).val()})";
-		$tb->onkeydown = "if( event.which==13 ) wdf.redirect({search:$(this).val()})";
+		$sel->onchange = "ScavixWDF.redirect({extension:$(this).val()})";
+		$tb->onkeydown = "if( event.which==13 ) ScavixWDF.redirect({search:$(this).val()})";
 		
 		$get_version = function($ext)
 		{

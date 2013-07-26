@@ -25,7 +25,7 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Logging;
+namespace ScavixWDF\Logging;
 
 $GLOBALS['logger_severity_map'] = array
 (

@@ -25,9 +25,9 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Controls;
+namespace ScavixWDF\Controls;
 
-use WDF\Base\Control;
+use ScavixWDF\Base\Control;
 
 /**
  * Wraps a simplyscroll object
@@ -70,10 +70,10 @@ class SimplyScroll extends Control
 			$img->alt = $title;
 		if( $clicktarget )
 		{
-			$img->onclick = "wdf.redirect('$clicktarget');";
+			$img->onclick = "ScavixWDF.redirect('$clicktarget');";
 			$img->css("cursor", 'pointer');
 		}
-		$this->content("<li>".$img->WdfRender()."</li>");
+		$this->content("<li>".$img->ScavixWDFRender()."</li>");
 		return $this;
 	}
 }

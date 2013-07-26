@@ -22,13 +22,13 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Translation;
+namespace ScavixWDF\Translation;
 
-use WDF\Base\AjaxResponse;
-use WDF\Controls\Anchor;
-use WDF\Controls\Form\CheckBox;
-use WDF\Controls\Form\Form;
-use WDF\WdfException;
+use ScavixWDF\Base\AjaxResponse;
+use ScavixWDF\Controls\Anchor;
+use ScavixWDF\Controls\Form\CheckBox;
+use ScavixWDF\Controls\Form\Form;
+use ScavixWDF\ScavixWDFException;
 
 /**
  * <SysAdmin> handler for translations.
@@ -43,9 +43,9 @@ class TranslationAdmin extends TranslationAdminBase
     {
         parent::__initialize($title, $body_class);
         if( !isset($GLOBALS['CONFIG']['translation']['sync']['poeditor_api_key']) || !$GLOBALS['CONFIG']['translation']['sync']['poeditor_api_key'] )
-            WdfException::Raise("POEditor API key missing!");
+            ScavixWDFException::Raise("POEditor API key missing!");
         if( !isset($GLOBALS['CONFIG']['translation']['sync']['poeditor_project_id']) || !$GLOBALS['CONFIG']['translation']['sync']['poeditor_project_id'] )
-            WdfException::Raise("POEditor ProjectID missing!");
+            ScavixWDFException::Raise("POEditor ProjectID missing!");
     }
     
     private function request($data=array())
@@ -144,7 +144,7 @@ class TranslationAdmin extends TranslationAdminBase
         }
 		
 		$ds = model_datasource($GLOBALS['CONFIG']['translation']['sync']['datasource']);
-		$ds->ExecuteSql("TRUNCATE TABLE wdf_unknown_strings");
+		$ds->ExecuteSql("TRUNCATE TABLE ScavixWDF_unknown_strings");
 		$this->_contentdiv->content("<div>Cleared the unknown strings table</div>");
 		
 		foreach( cache_list_keys() as $key )

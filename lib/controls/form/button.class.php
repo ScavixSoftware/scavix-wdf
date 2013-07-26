@@ -25,7 +25,7 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Controls\Form;
+namespace ScavixWDF\Controls\Form;
 
 /**
  * This is an &lt;input type=button/&gt;.
@@ -49,7 +49,7 @@ class Button extends Input
 		$this->setType("button")->setValue($label);
 
 		if( $controller != "" && strpos($controller,"$") === false && strpos($controller,"?") === false )
-			$query = "wdf.redirect('".buildQuery($controller,$event,$data)."')";
+			$query = "ScavixWDF.redirect('".buildQuery($controller,$event,$data)."')";
 		else
 			$query = $controller;
 

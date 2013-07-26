@@ -22,7 +22,7 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Reflection;
+namespace ScavixWDF\Reflection;
 
 /**
  * Specifies that a resource file is needed.
@@ -33,7 +33,7 @@ namespace WDF\Reflection;
  * <at>attribute[Resource('ineed/thisstyle.css')]
  * </code>
  */
-class ResourceAttribute extends WdfAttribute
+class ResourceAttribute extends ScavixWDFAttribute
 {
 	var $Path;
 	
@@ -62,7 +62,7 @@ class ResourceAttribute extends WdfAttribute
 	 */
 	public static function Collect($classname)
 	{
-		$ref = WdfReflector::GetInstance($classname);
+		$ref = ScavixWDFReflector::GetInstance($classname);
 		$attrs = $ref->GetClassAttributes(array('Resource','ExternalResource'));
 		$ref = $ref->getParentClass();
 		$parents = $ref?self::Collect($ref->getName()):array();

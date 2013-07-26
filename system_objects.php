@@ -22,7 +22,7 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF;
+namespace ScavixWDF;
 
 use Exception;
 
@@ -39,15 +39,15 @@ interface ICallable {}
  * Transparently wraps Exceptions thus providing a way to catch them easily while still having the original
  * Exception information.
  * 
- * Using static <WdfException::Raise>() method you can pass in multiple arguments. WDF will try to detect
+ * Using static <ScavixWDFException::Raise>() method you can pass in multiple arguments. ScavixWDF will try to detect
  * if there's an exception object given and use it (the first one detected) as inner exception object.
  * <code php>
- * WdfException::Raise('My simple test');
- * WdfException::Raise('My simple test2',$obj_to_debug_1,'and',$obj_to_debug_2);
- * try{ $i=42/0; }catch(Exception $ex){ WdfException::Raise('That was stupid!',$ex); }
+ * ScavixWDFException::Raise('My simple test');
+ * ScavixWDFException::Raise('My simple test2',$obj_to_debug_1,'and',$obj_to_debug_2);
+ * try{ $i=42/0; }catch(Exception $ex){ ScavixWDFException::Raise('That was stupid!',$ex); }
  * <code>
  */
-class WdfException extends Exception
+class ScavixWDFException extends Exception
 {
 	private function ex()
 	{
@@ -92,7 +92,7 @@ class WdfException extends Exception
 	 * <code php>
 	 * try{
 	 *  some code
-	 * }catch(Exception $ex){ WdfException::Log("Weird:",$ex); }
+	 * }catch(Exception $ex){ ScavixWDFException::Log("Weird:",$ex); }
 	 * </code>
 	 * Note that Raise method will log automatically, so this is mainly useful when silently catching exceptions.
 	 * @return void
@@ -152,12 +152,12 @@ class WdfException extends Exception
  * 
  * We use this like this: `ToDoException::Raise('Not yet implemented')`
  */
-class ToDoException extends WdfException {}
+class ToDoException extends ScavixWDFException {}
 
 /**
  * Thrown from all database related system parts
  * 
- * All code in the model essential (essentials/model.php + essentials/model/*) use this instead of WdfException.
+ * All code in the model essential (essentials/model.php + essentials/model/*) use this instead of ScavixWDFException.
  * Just to have everyting nicely wrapped.
  */
-class WdfDbException extends WdfException {}
+class ScavixWDFDbException extends ScavixWDFException {}

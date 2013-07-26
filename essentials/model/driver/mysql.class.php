@@ -25,15 +25,15 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Model\Driver;
+namespace ScavixWDF\Model\Driver;
 
 use DateTime;
 use PDO;
-use WDF\Model\ColumnSchema;
-use WDF\Model\ResultSet;
-use WDF\Model\TableSchema;
-use WDF\ToDoException;
-use WDF\WdfDbException;
+use ScavixWDF\Model\ColumnSchema;
+use ScavixWDF\Model\ResultSet;
+use ScavixWDF\Model\TableSchema;
+use ScavixWDF\ToDoException;
+use ScavixWDF\ScavixWDFDbException;
 
 /**
  * MySQL database driver.
@@ -76,7 +76,7 @@ class MySql implements IDatabaseDriver
 		$tableSql = $this->_pdo->query($sql);
 		
 		if( !$tableSql )
-			WdfDbException::Raise("Table `$tablename` not found!","PDO error info: ",$this->_pdo->errorInfo());
+			ScavixWDFDbException::Raise("Table `$tablename` not found!","PDO error info: ",$this->_pdo->errorInfo());
 		
 		$tableSql = $tableSql->fetch();
 		$tableSql = $tableSql[1];
@@ -130,7 +130,7 @@ class MySql implements IDatabaseDriver
 		$stmt->setFetchMode(PDO::FETCH_NUM);
 		$stmt->bindValue(1,$tablename);
 		if( !$stmt->execute() )
-			WdfDbException::Raise($stmt->errorInfo());
+			ScavixWDFDbException::Raise($stmt->errorInfo());
 		$row = $stmt->fetch();
 		return count($row)>0;
 	}

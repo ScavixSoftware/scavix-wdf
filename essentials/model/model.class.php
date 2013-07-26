@@ -25,16 +25,16 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Model;
+namespace ScavixWDF\Model;
 
 use Iterator;
 use ArrayAccess;
 use Countable;
 use DateTime;
 use Exception;
-use WDF\Base\DateTimeEx;
-use WDF\WdfDbException;
-use WDF\WdfException;
+use ScavixWDF\Base\DateTimeEx;
+use ScavixWDF\ScavixWDFDbException;
+use ScavixWDF\ScavixWDFException;
 
 
 /**
@@ -238,7 +238,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	function __initialize($datasource=null)
 	{
 		if( $datasource && !($datasource instanceof DataSource) )
-			WdfDbException::Raise("Invalid argument. Object of type DataSource expected",$datasource);
+			ScavixWDFDbException::Raise("Invalid argument. Object of type DataSource expected",$datasource);
 		
         $this->_ds = $datasource;
 		if( $this->_ds )
@@ -336,7 +336,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 				}
 				catch(Exception $ex)
 				{
-					WdfException::Log("date/time error with value '$value'",$ex);
+					ScavixWDFException::Log("date/time error with value '$value'",$ex);
 				}
 				break;
 		}
@@ -357,7 +357,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			return $this->_tableSchema;
 		
 		if( !$this->_ds )
-			WdfDbException::Raise("Missing Datasource");
+			ScavixWDFDbException::Raise("Missing Datasource");
 
 		if( !isset(self::$_schemaCache[$this->_cacheKey]) )
 		{
@@ -368,7 +368,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			$this->_tableSchema = self::$_schemaCache[$this->_cacheKey];
 		}
 		if( !($this->_tableSchema) )
-			WdfDbException::Raise("Error using table schema");
+			ScavixWDFDbException::Raise("Error using table schema");
 		
 		return $this->_tableSchema;
 	}
@@ -502,7 +502,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			foreach( $pkcols as $pkc )
 			{
 				if( !isset($pk_value[$pkc]) )
-					WdfDbException::Raise("Missing value for primary key column '{$pkc}'");
+					ScavixWDFDbException::Raise("Missing value for primary key column '{$pkc}'");
 				$q = $q->equal($pkc,$pk_value[$pkc]);
 			}
 			return $q->current();
@@ -661,7 +661,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
 		if( $this->HasColumn($name) )
 			return "`$name`";
-		WdfDbException::Raise("Unknown column '$name' in table '{$this->_tableSchema->Name}'");
+		ScavixWDFDbException::Raise("Unknown column '$name' in table '{$this->_tableSchema->Name}'");
 	}
 
 	private function __ensureSelect()
@@ -1125,7 +1125,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			return $this->_ds->_storage_id;
 		elseif( self::$DefaultDatasource )
 			return self::$DefaultDatasource->_storage_id;
-		WdfDbException::Raise("Model has no valid DataSource");
+		ScavixWDFDbException::Raise("Model has no valid DataSource");
 	}
 	
 	/**
@@ -1163,7 +1163,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * Saves this model to the database.
 	 * 
 	 * New datasets will be inserted, loaded ones will be updated automatically.
-	 * @return boolean In fact always true, WdfDbException will be thrown in error case
+	 * @return boolean In fact always true, ScavixWDFDbException will be thrown in error case
 	 */
 	public function Save()
 	{
@@ -1174,7 +1174,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			return true; // nothing to save
 				
 		if( !$stmt->execute($args) )
-			WdfDbException::Raise(render_var($stmt->ErrorOutput()));
+			ScavixWDFDbException::Raise(render_var($stmt->ErrorOutput()));
 
 		$pkcols = $this->GetPrimaryColumns();
 		if( count($pkcols) == 1 )

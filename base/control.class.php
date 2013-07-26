@@ -25,9 +25,9 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Base;
+namespace ScavixWDF\Base;
 
-use WDF\WdfException;
+use ScavixWDF\ScavixWDFException;
 
 /**
  * These are unsiversal HTML attributes.
@@ -238,7 +238,7 @@ class Control extends Renderable
 					return;
 				}
 			}
-			WdfException::Raise("'$varname' is not an allowed attriute for a control of type '{$this->Tag}'");
+			ScavixWDFException::Raise("'$varname' is not an allowed attriute for a control of type '{$this->Tag}'");
 		}
 		$this->_attributes[$varname] = $value;
 
@@ -257,7 +257,7 @@ class Control extends Renderable
 			if( system_method_exists($ex,$name) )
 				return system_call_user_func_array_byref($ex, $name, $arguments);
 		}
-		WdfException::Raise("Call to undefined method '$name' on object of type '".get_class($this)."'");
+		ScavixWDFException::Raise("Call to undefined method '$name' on object of type '".get_class($this)."'");
     }
 
 	/**
@@ -485,20 +485,20 @@ class Control extends Renderable
 	/**
 	 * @override
 	 */
-	function WdfRenderAsRoot()
+	function ScavixWDFRenderAsRoot()
 	{
 		if( !hook_already_fired(HOOK_PRE_RENDER) )
 		{
 			$this->_skipRendering = true;
 			execute_hooks(HOOK_PRE_RENDER,array($this));
 		}
-		return $this->WdfRender();
+		return $this->ScavixWDFRender();
 	}
 
 	/**
 	 * @override
 	 */
-	function WdfRender()
+	function ScavixWDFRender()
 	{
 		$attr = array();
 		foreach( $this->_attributes as $name=>$value )
@@ -678,7 +678,7 @@ class Control extends Renderable
 		if( ($target instanceof Control) || ($target instanceof HtmlPage) )
 			$target->content($this);
 		else
-			WdfException::Raise("Target must be of type Control or HtmlPage");
+			ScavixWDFException::Raise("Target must be of type Control or HtmlPage");
 		return $this;
 	}
 	
@@ -721,6 +721,6 @@ class Control extends Renderable
 				$this->$name = func_get_arg(1);
 				return $this;
 		}
-		WdfException::Raise("Control::attr needs 0,1 or 2 parameters");
+		ScavixWDFException::Raise("Control::attr needs 0,1 or 2 parameters");
 	}
 }

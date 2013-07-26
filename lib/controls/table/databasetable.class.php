@@ -25,14 +25,14 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Controls\Table;
+namespace ScavixWDF\Controls\Table;
 
 use ExcelCulture;
 use PDO;
-use WDF\Base\Control;
-use WDF\Controls\Anchor;
-use WDF\Localization\CultureInfo;
-use WDF\Model\DataSource;
+use ScavixWDF\Base\Control;
+use ScavixWDF\Controls\Anchor;
+use ScavixWDF\Localization\CultureInfo;
+use ScavixWDF\Model\DataSource;
 
 default_string("TXT_NO_DATA_FOUND","no data found");
 

@@ -43,8 +43,8 @@ function resources_init()
 	
 	if( !isset($CONFIG['resources_system_url_root']) || !$CONFIG['resources_system_url_root'] )
 		$CONFIG['resources_system_url_root'] = can_rewrite()
-			?$CONFIG['system']['url_root'].'WdfResource/'
-			:$CONFIG['system']['url_root'].'?wdf_route=WdfResource/';
+			?$CONFIG['system']['url_root'].'ScavixWDFResource/'
+			:$CONFIG['system']['url_root'].'?ScavixWDF_route=ScavixWDFResource/';
 
 	
 	foreach( $CONFIG['resources'] as $i=>$conf )

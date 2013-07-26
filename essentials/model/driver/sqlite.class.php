@@ -25,12 +25,12 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Model\Driver;
+namespace ScavixWDF\Model\Driver;
 
-use WDF\Model\ColumnSchema;
-use WDF\Model\ResultSet;
-use WDF\Model\TableSchema;
-use WDF\WdfDbException;
+use ScavixWDF\Model\ColumnSchema;
+use ScavixWDF\Model\ResultSet;
+use ScavixWDF\Model\TableSchema;
+use ScavixWDF\ScavixWDFDbException;
  
 /**
  * SqLite database driver.
@@ -58,7 +58,7 @@ class SqLite implements IDatabaseDriver
 			case 'bool':
 				return $colAttr->Name.' INTEGER(1)';
 		}
-		WdfDbException::Raise("Unknown columne type {$colAttr->Type}");
+		ScavixWDFDbException::Raise("Unknown columne type {$colAttr->Type}");
 	}
 
 	/**
@@ -119,7 +119,7 @@ class SqLite implements IDatabaseDriver
 		$tableSql = $tableSql['sql'];
 
 		if( !$tableSql )
-			WdfDbException::Raise("Table `$tablename` not found!","PDO error info: ",$this->_pdo->errorInfo());
+			ScavixWDFDbException::Raise("Table `$tablename` not found!","PDO error info: ",$this->_pdo->errorInfo());
 
 		$res = new TableSchema($this->_ds, $tablename);
 		$sql = 'PRAGMA table_info("'.$tablename.'")';
@@ -156,7 +156,7 @@ class SqLite implements IDatabaseDriver
 		$stmt->setFetchMode(PDO::FETCH_NUM);
 		$stmt->bindValue(1,$tablename);
 		if( !$stmt->execute() )
-			WdfDbException::Raise($stmt->errorInfo());
+			ScavixWDFDbException::Raise($stmt->errorInfo());
 		$row = $stmt->fetch();
 		return is_array($row) && count($row)>0;
 	}
@@ -174,7 +174,7 @@ class SqLite implements IDatabaseDriver
 		$sql = 'CREATE TABLE "'.$objSchema->Table.'" ('."\n".implode(",\n",$sql)."\n".')';
 		$stmt = $this->_pdo->prepare($sql);//,array(PDO::ATTR_CURSOR=>PDO::CURSOR_SCROLL));
 		if( !$stmt->execute() )
-			WdfDbException::Raise($stmt->errorInfo());
+			ScavixWDFDbException::Raise($stmt->errorInfo());
 	}
 
 	/**

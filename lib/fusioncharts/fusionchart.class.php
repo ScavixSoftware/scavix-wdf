@@ -25,10 +25,10 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\FusionCharts;
+namespace ScavixWDF\FusionCharts;
 
-use WDF\Base\Control;
-use WDF\WdfException;
+use ScavixWDF\Base\Control;
+use ScavixWDF\ScavixWDFException;
 
 /**
  * @deprecated You will need to buy a license frm them, s please use <GoogleVisualization> instead
@@ -117,7 +117,7 @@ class FusionChart extends Control
 		if( $async )
 		{
 			if( !$handler || !$method )
-				WdfException::Raise("Data handler and method needed for asynchronous charts");
+				ScavixWDFException::Raise("Data handler and method needed for asynchronous charts");
 			$data_url = buildQuery($handler->id,$method);
 		}
 		else

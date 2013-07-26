@@ -22,10 +22,10 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\JQueryUI;
+namespace ScavixWDF\JQueryUI;
 
-use WDF\Base\Control;
-use WDF\WdfException;
+use ScavixWDF\Base\Control;
+use ScavixWDF\ScavixWDFException;
 
 /**
  * Base class for all jQueryUI controls
@@ -136,7 +136,7 @@ class uiControl extends Control
 	{
 		if(in_array($icon_to_test, self::$_icons) )
 			return $icon_to_test;
-		WdfException::Raise("Invalid Icon '$icon_to_test'");
+		ScavixWDFException::Raise("Invalid Icon '$icon_to_test'");
 	}
 	
 	/**

@@ -25,7 +25,7 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Session;
+namespace ScavixWDF\Session;
 
 use Closure;
 use DateTime;
@@ -33,11 +33,11 @@ use Exception;
 use PDOStatement;
 use Reflector;
 use SimpleXMLElement;
-use WDF\Base\DateTimeEx;
-use WDF\Model\DataSource;
-use WDF\Model\Model;
-use WDF\Reflection\WdfReflector;
-use WDF\WdfException;
+use ScavixWDF\Base\DateTimeEx;
+use ScavixWDF\Model\DataSource;
+use ScavixWDF\Model\Model;
+use ScavixWDF\Reflection\ScavixWDFReflector;
+use ScavixWDF\ScavixWDFException;
 
 /**
  * Serializer/Unserializer
@@ -198,7 +198,7 @@ class Serializer
 			case 'x':
 				return new DateTimeEx($line);
 			case 'y':
-				return new WdfReflector($line);
+				return new ScavixWDFReflector($line);
 			case 'z':
 				return simplexml_load_string(stripcslashes($line));
 			case 'o':
@@ -220,14 +220,14 @@ class Serializer
 						$this->Stack[$id]->__wakeup();
 					
 				}catch(Exception $ex){
-					WdfException::Log("Unserialise Exception in line '$orig_line' ($id,$len,$type,$datasource)",$ex);
+					ScavixWDFException::Log("Unserialise Exception in line '$orig_line' ($id,$len,$type,$datasource)",$ex);
 					return null;
 				}
 				return $this->Stack[$id];
 				
 			case 'r':
 				if( !isset($this->Stack[intval($line)]) )
-					WdfException::Raise("Trying to reference unknown object.");
+					ScavixWDFException::Raise("Trying to reference unknown object.");
 				if( $this->Stack[intval($line)] instanceof DataSource )
 					return model_datasource($this->Stack[intval($line)]->_storage_id);
 				return $this->Stack[intval($line)];
@@ -240,7 +240,7 @@ class Serializer
 			case 'b':
 				return $line==1;
 			default:
-				WdfException::Raise("Unserialize found unknown datatype '$type'. Line was $orig_line");
+				ScavixWDFException::Raise("Unserialize found unknown datatype '$type'. Line was $orig_line");
 		}
 	}
 }

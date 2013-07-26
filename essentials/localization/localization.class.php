@@ -22,11 +22,11 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Localization;
+namespace ScavixWDF\Localization;
 
 use DateTimeZone;
-use WDF\Base\Args;
-use WDF\WdfException;
+use ScavixWDF\Base\Args;
+use ScavixWDF\ScavixWDFException;
 
 /**
  * Helper class to wrap some tool functions.
@@ -290,13 +290,13 @@ class Localization
 		global $CONFIG;
 
 		if( $cultureCode !== false && !is_string($cultureCode) )
-			WdfException::Raise("Who calls this function with a wrong param? Provide string please!");
+			ScavixWDFException::Raise("Who calls this function with a wrong param? Provide string please!");
 
 		switch( strtolower($cultureCode) )
 		{
 			case "usd":
 			case "eur":
-				WdfException::Raise("DO NOT PUT CURRENCY CODES INTO CULTURECODE VARIABLES!!!11elf");
+				ScavixWDFException::Raise("DO NOT PUT CURRENCY CODES INTO CULTURECODE VARIABLES!!!11elf");
 		}
 		$ci = self::getCultureInfo($cultureCode);
 		if( !isset($ci->CurrencyFormat) )

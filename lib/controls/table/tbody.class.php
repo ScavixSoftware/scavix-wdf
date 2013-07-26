@@ -25,9 +25,9 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Controls\Table;
+namespace ScavixWDF\Controls\Table;
 
-use WDF\Base\Control;
+use ScavixWDF\Base\Control;
 
 /**
  * This is tbody in div annotation.
@@ -181,7 +181,7 @@ class TBody extends Control
 	/**
 	 * @override
 	 */
-    function WdfRender()
+    function ScavixWDFRender()
     {
         if( $this->options )
         {
@@ -209,7 +209,7 @@ class TBody extends Control
                     $this->header->onclick = "";
 
 				$speed = "500";
-				$func = "function(){ $('#{$this->table->id}').click(); wdf.debug('Click invoked'); }";
+				$func = "function(){ $('#{$this->table->id}').click(); ScavixWDF.debug('Click invoked'); }";
 				$func = "setTimeout(unescape(".json_encode("$('#{$this->table->id}').click();")."),$speed+10);";
                 $this->header->onclick = "$func $(this).siblings('tr').css('display') == 'none' ? $(this).siblings('tr').fadeIn($speed) : $(this).siblings('tr').fadeOut($speed);".$this->header->onclick;
 
@@ -236,6 +236,6 @@ class TBody extends Control
         if( $this->header )
             $this->_content = array_merge(array($this->header),$this->_content);
 
-        return parent::WdfRender();
+        return parent::ScavixWDFRender();
     }
 }

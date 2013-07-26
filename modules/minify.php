@@ -26,9 +26,9 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
-use WDF\Reflection\ResourceAttribute;
-use WDF\Reflection\WdfReflector;
-use WDF\WdfException;
+use ScavixWDF\Reflection\ResourceAttribute;
+use ScavixWDF\Reflection\ScavixWDFReflector;
+use ScavixWDF\ScavixWDFException;
 
 /**
  * Initializes the minify module.
@@ -52,7 +52,7 @@ function minify_init()
 /**
  * Handler for HOOK_PRE_RENDER
  * 
- * Checks if there are minified files present as sets up WDF to use them.
+ * Checks if there are minified files present as sets up ScavixWDF to use them.
  * Do not call this directly!
  * @param mixed $args Do not call!
  * @return void
@@ -89,12 +89,12 @@ function minify_forbidden($classname)
 	}
 	try
 	{
-		$ref = WdfReflector::GetInstance($classname);
+		$ref = ScavixWDFReflector::GetInstance($classname);
 		return count($ref->GetClassAttributes('NoMinify')) > 0;
 	}
 	catch(Exception $ex)
 	{
-		WdfException::Log("minify_forbidden($classname)",$ex);
+		ScavixWDFException::Log("minify_forbidden($classname)",$ex);
 		return false;
 	}
 }
@@ -161,7 +161,7 @@ function minify_js($paths,$target_file)
 				$code .= jsmin::minify($js)."\n";
 			} catch(Exception $ex)
 			{
-				WdfException::Log("EXCEPTION occured in jsmin::minify ($js)",$ex);
+				ScavixWDFException::Log("EXCEPTION occured in jsmin::minify ($js)",$ex);
 				$code .= $js."\n";	
 			}
 		}

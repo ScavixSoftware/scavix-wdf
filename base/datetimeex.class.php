@@ -25,11 +25,11 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Base;
+namespace ScavixWDF\Base;
 
 use DateInterval;
 use DateTime;
-use WDF\WdfException;
+use ScavixWDF\ScavixWDFException;
 
 /**
  * Extends <DateTime> with sime useful methods.
@@ -123,7 +123,7 @@ class DateTimeEx extends DateTime
 			case self::SECONDS:
 				return $factor * ($diff->days*24*60*60 + $diff->s);
 		}
-		WdfException::Raise("Getting the age is not possible in unit '$unit'");
+		ScavixWDFException::Raise("Getting the age is not possible in unit '$unit'");
 	}
 	
 	/**

@@ -25,14 +25,14 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Reflection;
+namespace ScavixWDF\Reflection;
 
 /**
  * Marks a class/method as public
  * 
  * Not sure if this is deprecated, but of course still usable to mark classes/methods as public.
- * Note: currently not used in WDF itself.
+ * Note: currently not used in ScavixWDF itself.
  */
-class PublicAttribute extends WdfAttribute
+class PublicAttribute extends ScavixWDFAttribute
 {
 }

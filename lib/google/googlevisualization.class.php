@@ -22,12 +22,12 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Google;
+namespace ScavixWDF\Google;
 
 use MC_Google_Visualization;
 use PDO;
-use WDF\ICallable;
-use WDF\Model\DataSource;
+use ScavixWDF\ICallable;
+use ScavixWDF\Model\DataSource;
 
 /**
  * Base class for google visualization controls.

@@ -25,7 +25,7 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Localization;
+namespace ScavixWDF\Localization;
 
 /**
  * Represents culture information.
@@ -371,7 +371,7 @@ class CultureInfo
 			$dt->setTimezone($tz);
 		}catch(Exception $ex){ 
 			$this->TimeZone = "";
-			WdfException::Log($ex);
+			ScavixWDFException::Log($ex);
 		}
 		return strtotime($dt->format('Y-m-d H:i:s'));
 	}

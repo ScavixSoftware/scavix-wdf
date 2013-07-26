@@ -22,7 +22,7 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Google;
+namespace ScavixWDF\Google;
 
 use Exception;
 use stdClass;
@@ -63,18 +63,18 @@ class gMap extends GoogleControl
 		$id = $this->id;
         $this->_basicOptions['center'] = '[jscode]'.$this->_basicOptions['center'];
         $this->_basicOptions['mapTypeId'] = '[jscode]'.$this->_basicOptions['mapTypeId'];
-		$init = array("wdf.gmap.init('$id',".system_to_json($this->_basicOptions).");");
+		$init = array("ScavixWDF.gmap.init('$id',".system_to_json($this->_basicOptions).");");
 		
 		foreach( $this->_markers as $m )
 		{
 			list($lat,$lng,$opt) = $m;
-			$init[] = "wdf.gmap.addMarker('$id',$lat,$lng,".json_encode($opt).")";
+			$init[] = "ScavixWDF.gmap.addMarker('$id',$lat,$lng,".json_encode($opt).")";
 		}
 		foreach( $this->_addresses as $a )
 		{
-			$init[] = "wdf.gmap.addAddress('$id',".json_encode($a).")";
+			$init[] = "ScavixWDF.gmap.addAddress('$id',".json_encode($a).")";
 		}
-    	$init[] = "wdf.gmap.showAllMarkers('$id')";
+    	$init[] = "ScavixWDF.gmap.showAllMarkers('$id')";
 			
 		$this->_addLoadCallback('maps', $init);
 		return parent::PreRender($args);

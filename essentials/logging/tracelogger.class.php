@@ -25,12 +25,12 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Logging;
+namespace ScavixWDF\Logging;
 
 /**
  * Generates a machine readable log.
  * 
- * Use PHPTracer from scavix-wdf-tools repository to read these files.
+ * Use PHPTracer from scavix-ScavixWDF-tools repository to read these files.
  * In fact writes a JSON encoded object per line that contains full tracing information.
  */
 class TraceLogger extends Logger

@@ -27,8 +27,8 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
-use WDF\Model\DataSource;
-use WDF\WdfDbException;
+use ScavixWDF\Model\DataSource;
+use ScavixWDF\ScavixWDFDbException;
 
 /**
  * Initializes the model essential.
@@ -52,7 +52,7 @@ function model_init()
 	$GLOBALS['MODEL_REGISTER'] = array();
 
 	if( !is_array($CONFIG['model']) )
-		WdfDbException::Raise("Please configure at least one DB in CONFIG['model']");
+		ScavixWDFDbException::Raise("Please configure at least one DB in CONFIG['model']");
 
 	foreach( $CONFIG['model'] as $name=>$mod )
 	{
@@ -68,7 +68,7 @@ function model_init()
 			);
 		}
 		else
-			WdfDbException::Raise("Unable to initialize database '$name'! Missing CONFIG information.");
+			ScavixWDFDbException::Raise("Unable to initialize database '$name'! Missing CONFIG information.");
 	}
 }
 
@@ -132,7 +132,7 @@ function &model_datasource($name)
 		$dstype = fq_class_name($dstype);
 		$model_db = new $dstype($name,$constr);
 		if( !$model_db )
-			WdfDbException::Raise("Unable to connect to database '$name'.");
+			ScavixWDFDbException::Raise("Unable to connect to database '$name'.");
 		$MODEL_DATABASES[$name] = $model_db;
 	}
 

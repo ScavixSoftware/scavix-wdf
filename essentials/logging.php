@@ -26,9 +26,9 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
-use WDF\Logging\Logger;
-use WDF\Logging\LogReport;
-use WDF\WdfException;
+use ScavixWDF\Logging\Logger;
+use ScavixWDF\Logging\LogReport;
+use ScavixWDF\ScavixWDFException;
 
 $GLOBALS['LOGGING_ERROR_NAMES'] = array(
 	'ERROR','WARNING','PARSE','NOTICE','CORE_ERROR','CORE_WARNING','COMPILE_ERROR',
@@ -405,7 +405,7 @@ function logging_render_var($content,&$stack=array(),$indent="")
 	elseif( is_object($content) )
 	{
 		$stack[] = $content;
-		if( $content instanceof WdfException )
+		if( $content instanceof ScavixWDFException )
 		{
 			$res[] = get_class($content).": ".$content->getMessageEx();
 			$res[] = "in ".$content->getFileEx().":".$content->getLineEx();

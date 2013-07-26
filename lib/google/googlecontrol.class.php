@@ -22,10 +22,10 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Google;
+namespace ScavixWDF\Google;
 
-use WDF\Base\Control;
-use WDF\Base\HtmlPage;
+use ScavixWDF\Base\Control;
+use ScavixWDF\Base\HtmlPage;
 
 /**
  * Base class for all google controls.

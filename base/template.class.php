@@ -25,9 +25,9 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Base;
+namespace ScavixWDF\Base;
 
-use WDF\WdfException;
+use ScavixWDF\ScavixWDFException;
 
 /**
  * Building blocks of web pages.
@@ -69,7 +69,7 @@ class Template extends Renderable
 			}
 		}
 		if( !$tpl_file )
-			WdfException::Raise("Template not found: $template_basename");
+			ScavixWDFException::Raise("Template not found: $template_basename");
 		$res = new Template($tpl_file);
 		return $res;
 	}
@@ -241,17 +241,17 @@ class Template extends Renderable
 	/**
 	 * @override
 	 */
-	function WdfRenderAsRoot()
+	function ScavixWDFRenderAsRoot()
 	{
 		if( !hook_already_fired(HOOK_PRE_RENDER) )
 			execute_hooks(HOOK_PRE_RENDER,array($this));
-        return $this->WdfRender();
+        return $this->ScavixWDFRender();
 	}
 
 	/**
 	 * @override
 	 */
-	function WdfRender()
+	function ScavixWDFRender()
 	{
 		$tempvars = system_render_object_tree($this->get_vars());
 
@@ -270,7 +270,7 @@ class Template extends Renderable
 		{
 			$__template_file = __autoload__template($this,$this->SubTemplate?$this->SubTemplate:"");
 			if( $__template_file === false )
-				WdfException::Raise("SubTemplate for class '".get_class($this)."' not found: ".$this->file,$this->SubTemplate);
+				ScavixWDFException::Raise("SubTemplate for class '".get_class($this)."' not found: ".$this->file,$this->SubTemplate);
 
 			if( stripos($__template_file,"htmlpage.tpl.php") === false )
 			{
@@ -284,7 +284,7 @@ class Template extends Renderable
 
 		$__template_file = __autoload__template($this,$this->file);
 		if( $__template_file === false )
-			WdfException::Raise("Template for class '".get_class($this)."' not found: ".$this->file);
+			ScavixWDFException::Raise("Template for class '".get_class($this)."' not found: ".$this->file);
 
 		ob_start();
 		require($__template_file);

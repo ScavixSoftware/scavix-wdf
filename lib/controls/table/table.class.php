@@ -25,12 +25,12 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Controls\Table;
+namespace ScavixWDF\Controls\Table;
 
-use WDF\Base\AjaxResponse;
-use WDF\Base\Control;
-use WDF\Localization\CultureInfo;
-use WDF\WdfException;
+use ScavixWDF\Base\AjaxResponse;
+use ScavixWDF\Base\Control;
+use ScavixWDF\Localization\CultureInfo;
+use ScavixWDF\ScavixWDFException;
 
 /**
  * An HTML table in DIV notation.
@@ -244,7 +244,7 @@ class Table extends Control
 	/**
 	 * @override 
 	 */
-	function WdfRender()
+	function ScavixWDFRender()
     {
         if( $this->footer )
             $this->_content = array_merge(array($this->footer),$this->_content);
@@ -280,7 +280,7 @@ class Table extends Control
 				}
 			}
         }
-		return parent::WdfRender();
+		return parent::ScavixWDFRender();
     }
 	
 /* --------------- High level methods returning $this for easy usage --------------------- */
@@ -429,7 +429,7 @@ class Table extends Control
 	function AddDataToRow($model)
 	{
 		if( !$this->current_row )
-			WdfException::Raise("No row added yet");
+			ScavixWDFException::Raise("No row added yet");
 		$this->current_row->id = $this->current_row->_storage_id;
 		$this->_rowModels[$this->current_row->id] = $model;
 		return $this;
@@ -505,7 +505,7 @@ class Table extends Control
 	function Sortable($handler,$method)
 	{
 		$this->_sortHandler = array($handler,$method);
-		$s = "wdf.post('{self}/OnReordered',{rows:$('#{self} .tbody .tr').enumAttr('id')}); $('#{self} .ui-table-actions').removeClass('sorting');";
+		$s = "ScavixWDF.post('{self}/OnReordered',{rows:$('#{self} .tbody .tr').enumAttr('id')}); $('#{self} .ui-table-actions').removeClass('sorting');";
 		$s = "$('#{self} .tbody').sortable({distance:5,update: function(){ $s }, start:function(){ $('#{self} .ui-table-actions').addClass('sorting').hide(); } });";
 		$this->script($s);
 		store_object($this);

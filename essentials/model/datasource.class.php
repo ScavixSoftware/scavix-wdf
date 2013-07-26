@@ -25,13 +25,13 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Model;
+namespace ScavixWDF\Model;
 
 use Exception;
 use PDO;
-use WDF\Model\Driver\MySql;
-use WDF\Model\Driver\SqLite;
-use WDF\WdfDbException;
+use ScavixWDF\Model\Driver\MySql;
+use ScavixWDF\Model\Driver\SqLite;
+use ScavixWDF\ScavixWDFDbException;
 
 /**
  * Provides access to a database.
@@ -73,10 +73,10 @@ class DataSource
 		
         try{ 
 			$this->_pdo = new PdoLayer($dsn,$username,$password); 
-		}catch(Exception $ex){ WdfDbException::Raise("Error connecting database",$dsn,$ex); }
+		}catch(Exception $ex){ ScavixWDFDbException::Raise("Error connecting database",$dsn,$ex); }
 		if( !$this->_pdo )
-			WdfDbException::Raise("Something went horribly wrong with the PdoLayer");
-		$this->_pdo->setAttribute( PDO::ATTR_STATEMENT_CLASS, array( "\\WDF\\Model\\WdfPdoStatement", array($this,$this->_pdo) ) );
+			ScavixWDFDbException::Raise("Something went horribly wrong with the PdoLayer");
+		$this->_pdo->setAttribute( PDO::ATTR_STATEMENT_CLASS, array( "\\ScavixWDF\\Model\\ScavixWDFPdoStatement", array($this,$this->_pdo) ) );
 
 		$driver = $this->_pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
 		switch( $driver )
@@ -91,7 +91,7 @@ class DataSource
                 require_once(__DIR__.'/driver/mysql.class.php');
                 $this->Driver = new MySql(); 
                 break;
-			default: WdfDbException::Raise("Unknown DB driver: $driver");
+			default: ScavixWDFDbException::Raise("Unknown DB driver: $driver");
 		}
 		$this->Driver->initDriver($this,$this->_pdo);
     }
@@ -205,7 +205,7 @@ class DataSource
 	{
 		$stmt = $this->_pdo->prepare($sql);
 		if( !$stmt )
-			WdfDbException::Raise("Invalid SQL: $sql");
+			ScavixWDFDbException::Raise("Invalid SQL: $sql");
 		return new ResultSet($this,$stmt);
 	}
 
@@ -223,7 +223,7 @@ class DataSource
 		
 		$stmt = $this->Prepare($sql);
 		if( !$stmt->execute($parameter) )
-			WdfDbException::Raise("SQL Error: ".$stmt->ErrorOutput(),"\nArguments:",$parameter,"\nMerged:",ResultSet::MergeSql($this,$sql,$parameter));
+			ScavixWDFDbException::Raise("SQL Error: ".$stmt->ErrorOutput(),"\nArguments:",$parameter,"\nMerged:",ResultSet::MergeSql($this,$sql,$parameter));
 		$this->_last_affected_rows_count = $stmt->Count();
 		return $stmt;
 	}

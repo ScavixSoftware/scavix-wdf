@@ -22,7 +22,7 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Reflection;
+namespace ScavixWDF\Reflection;
 
 /**
  * Specifies an external resource like JS APIs from google or stuff

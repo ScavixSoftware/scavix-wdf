@@ -22,10 +22,10 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Base;
+namespace ScavixWDF\Base;
 
-use WDF\JQueryUI\Dialog\uiConfirmation;
-use WDF\WdfException;
+use ScavixWDF\JQueryUI\Dialog\uiConfirmation;
+use ScavixWDF\ScavixWDFException;
 
 /**
  * Helper class to build common JavaScript codes for usage in AJAX aware controls.
@@ -40,7 +40,7 @@ class AjaxAction
 				return "$data";
 			if( is_array($data) || is_object($data) )
 				return json_encode($data);
-			WdfException::Raise("Invalid argmuent: 'data' should be string, array or object, but '".gettype($data)."' detected");
+			ScavixWDFException::Raise("Invalid argmuent: 'data' should be string, array or object, but '".gettype($data)."' detected");
 		}
 		return '';
 	}
@@ -50,7 +50,7 @@ class AjaxAction
 	 * 
 	 * @param mixed $controller Controller object, Classname or _storage_id of the controller
 	 * @param string $event Optional method to be called
-	 * @return string A valid URL for use in JavaScript wdf object
+	 * @return string A valid URL for use in JavaScript ScavixWDF object
 	 */
 	public static function Url($controller,$event='')
 	{
@@ -60,13 +60,13 @@ class AjaxAction
 	}
 	
 	/**
-	 * Creates a wdf.post call.
+	 * Creates a ScavixWDF.post call.
 	 * 
 	 * @param mixed $controller Controller to call
 	 * @param string $event Method to call
 	 * @param string|array $data Data to be posted
 	 * @param string $callback JS callback method
-	 * @return string Valid JS code performing wdf.post
+	 * @return string Valid JS code performing ScavixWDF.post
 	 */
 	public static function Post($controller,$event='',$data='',$callback='')
 	{
@@ -74,7 +74,7 @@ class AjaxAction
 		$data = self::_data($data);
 		if( $data ) $data = ",$data";
 		if( $callback ) $callback = ",$callback";
-		return "wdf.post('$q'$data$callback);";
+		return "ScavixWDF.post('$q'$data$callback);";
 	}
 	
 	/**

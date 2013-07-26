@@ -22,7 +22,7 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\JQueryUI;
+namespace ScavixWDF\JQueryUI;
 
 /**
  * Wrapper around jQueryUI Butto

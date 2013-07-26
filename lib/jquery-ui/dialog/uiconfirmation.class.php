@@ -22,9 +22,9 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\JQueryUI\Dialog;
+namespace ScavixWDF\JQueryUI\Dialog;
 
-use WDF\WdfException;
+use ScavixWDF\ScavixWDFException;
 
 default_string("TITLE_CONFIRMATION", "Confirm");
 default_string("TXT_CONFIRMATION", "Please confirm");
@@ -74,7 +74,7 @@ class uiConfirmation extends uiDialog
 				$this->AddCloseButton(tds('BTN_NO','No'));
 				break;
 			default:
-				WdfException::Raise("Wrong button_mode: $button_mode");
+				ScavixWDFException::Raise("Wrong button_mode: $button_mode");
 		}
 		$this->Mode = $button_mode;
 		$this->content($text);

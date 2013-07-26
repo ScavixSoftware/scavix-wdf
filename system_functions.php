@@ -22,7 +22,7 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-use WDF\WdfException;
+use ScavixWDF\ScavixWDFException;
 
 if( !defined('FRAMEWORK_LOADED') || FRAMEWORK_LOADED != 'uSI7hcKMQgPaPKAQDXg5' ) die('');
 
@@ -164,7 +164,7 @@ function cfg_set()
 		case 5: $CONFIG[$args[0]][$args[1]][$args[2]][$args[3]] = $args[4]; break;
 		case 6: $CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]] = $args[5]; break;
 		case 7: $CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]] = $args[6]; break;
-		default: WdfException::Raise("Illegal argument count: ".count($args));
+		default: ScavixWDFException::Raise("Illegal argument count: ".count($args));
 	}
 }
 
@@ -186,7 +186,7 @@ function cfg_setd()
 		case 5: if( !isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]]) ) $CONFIG[$args[0]][$args[1]][$args[2]][$args[3]] = $args[4]; break;
 		case 6: if( !isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]]) ) $CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]] = $args[5]; break;
 		case 7: if( !isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]]) ) $CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]] = $args[6]; break;
-		default: WdfException::Raise("Illegal argument count: ".count($args));
+		default: ScavixWDFException::Raise("Illegal argument count: ".count($args));
 	}
 }
 
@@ -208,7 +208,7 @@ function cfg_add()
 		case 5: $CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][] = $args[4]; break;
 		case 6: $CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][] = $args[5]; break;
 		case 7: $CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]][] = $args[6]; break;
-		default: WdfException::Raise("Illegal argument count: ".count($args));
+		default: ScavixWDFException::Raise("Illegal argument count: ".count($args));
 	}
 }
 
@@ -230,7 +230,7 @@ function cfg_get()
 		case 4: return isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]])?$CONFIG[$args[0]][$args[1]][$args[2]][$args[3]]:false;
 		case 5: return isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]])?$CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]]:false;
 		case 6: return isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]])?$CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]]:false;
-		default: WdfException::Raise("Illegal argument count: ".count($args));
+		default: ScavixWDFException::Raise("Illegal argument count: ".count($args));
 	}
 }
 
@@ -252,7 +252,7 @@ function cfg_getd()
 		case 5: return isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]])?$CONFIG[$args[0]][$args[1]][$args[2]][$args[3]]:$args[4];
 		case 6: return isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]])?$CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]]:$args[5];
 		case 7: return isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]])?$CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]]:$args[6];
-		default: WdfException::Raise("Illegal argument count: ".count($args));
+		default: ScavixWDFException::Raise("Illegal argument count: ".count($args));
 	}
 }
 
@@ -274,7 +274,7 @@ function cfg_del()
 		case 4: unset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]]); break;
 		case 5: unset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]]); break;
 		case 6: unset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]]); break;
-		default: WdfException::Raise("Illegal argument count: ".count($args));
+		default: ScavixWDFException::Raise("Illegal argument count: ".count($args));
 	}
 }
 
@@ -291,13 +291,13 @@ function cfg_check()
 	$args = func_get_args();
 	switch( func_num_args() )
 	{
-		case 2: if( !isset($CONFIG[$args[0]]) || !$CONFIG[$args[0]] ) WdfException::Raise($args[1]); break;
-		case 3: if( !isset($CONFIG[$args[0]][$args[1]]) || !$CONFIG[$args[0]][$args[1]] ) WdfException::Raise($args[2]); break;
-		case 4: if( !isset($CONFIG[$args[0]][$args[1]][$args[2]]) || $CONFIG[$args[0]][$args[1]][$args[2]] ) WdfException::Raise($args[3]); break;
-		case 5: if( !isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]]) || $CONFIG[$args[0]][$args[1]][$args[2]][$args[3]] ) WdfException::Raise($args[4]); break;
-		case 6: if( !isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]]) || !$CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]] ) WdfException::Raise($args[5]); break;
-		case 7: if( !isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]]) || !$CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]] ) WdfException::Raise($args[6]); break;
-		default: WdfException::Raise("Illegal argument count: ".count($args));
+		case 2: if( !isset($CONFIG[$args[0]]) || !$CONFIG[$args[0]] ) ScavixWDFException::Raise($args[1]); break;
+		case 3: if( !isset($CONFIG[$args[0]][$args[1]]) || !$CONFIG[$args[0]][$args[1]] ) ScavixWDFException::Raise($args[2]); break;
+		case 4: if( !isset($CONFIG[$args[0]][$args[1]][$args[2]]) || $CONFIG[$args[0]][$args[1]][$args[2]] ) ScavixWDFException::Raise($args[3]); break;
+		case 5: if( !isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]]) || $CONFIG[$args[0]][$args[1]][$args[2]][$args[3]] ) ScavixWDFException::Raise($args[4]); break;
+		case 6: if( !isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]]) || !$CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]] ) ScavixWDFException::Raise($args[5]); break;
+		case 7: if( !isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]]) || !$CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]] ) ScavixWDFException::Raise($args[6]); break;
+		default: ScavixWDFException::Raise("Illegal argument count: ".count($args));
 	}
 }
 
@@ -310,7 +310,7 @@ function cfg_check()
  * @param int $major Major version
  * @param int $minor Minor version
  * @param int $build Build number
- * @param string $codename Codename (like 'alpha' or 'woohoo-wdf')
+ * @param string $codename Codename (like 'alpha' or 'woohoo-ScavixWDF')
  * @param string $nc_salt Optional string to salt the nocache argument
  * @return void
  */
@@ -828,22 +828,22 @@ function system_glob_rec($directory='',$pattern='*.*')
 }
 
 /**
- * Checks if WDF_FEATURES_REWRITE is on
+ * Checks if ScavixWDF_FEATURES_REWRITE is on
  * 
- * You can set it in .htaccess with `SetEnv WDF_FEATURES_REWRITE on`
+ * You can set it in .htaccess with `SetEnv ScavixWDF_FEATURES_REWRITE on`
  * Note that this check is case sensitive, so 'on' really means 'on' and not 'On' or '1'!
  * @return bool true or false
  */
-function can_rewrite(){ return array_val_is($_SERVER,'WDF_FEATURES_REWRITE','on'); }
+function can_rewrite(){ return array_val_is($_SERVER,'ScavixWDF_FEATURES_REWRITE','on'); }
 
 /**
- * Checks if WDF_FEATURES_NOCACHE is on
+ * Checks if ScavixWDF_FEATURES_NOCACHE is on
  * 
- * You can set it in .htaccess with `SetEnv WDF_FEATURES_NOCACHE on`
+ * You can set it in .htaccess with `SetEnv ScavixWDF_FEATURES_NOCACHE on`
  * Note that this check is case sensitive, so 'on' really means 'on' and not 'On' or '1'!
  * @return bool true or false
  */
-function can_nocache(){ return array_val_is($_SERVER,'WDF_FEATURES_NOCACHE','on'); }
+function can_nocache(){ return array_val_is($_SERVER,'ScavixWDF_FEATURES_NOCACHE','on'); }
 
 /**
  * Natural sorts an array by it's keys.

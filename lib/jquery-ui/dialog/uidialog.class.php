@@ -22,9 +22,9 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\JQueryUI\Dialog;
+namespace ScavixWDF\JQueryUI\Dialog;
 
-use WDF\JQueryUI\uiControl;
+use ScavixWDF\JQueryUI\uiControl;
 
 default_string('TITLE_DIALOG', 'Dialog');
 
@@ -91,7 +91,7 @@ class uiDialog extends uiControl
 			$this->Options['buttons'] = $this->Buttons;
 			$tmp = $this->_script;
 			$this->_script = array();
-			$this->script("try{ $('#{$this->id}').dialog(".system_to_json($this->Options)."); }catch(ex){ wdf.debug(ex); }");
+			$this->script("try{ $('#{$this->id}').dialog(".system_to_json($this->Options)."); }catch(ex){ ScavixWDF.debug(ex); }");
 			$this->script("$('#{$this->id}').parent().find('.ui-dialog-buttonpane .ui-button').click(function(){ $(this).parent().find('.ui-button').button('disable'); });");
 			$this->_script = array_merge($this->_script,$tmp);
 

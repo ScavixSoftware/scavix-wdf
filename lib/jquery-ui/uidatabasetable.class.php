@@ -22,9 +22,9 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\JQueryUI;
+namespace ScavixWDF\JQueryUI;
 
-use WDF\Controls\Table\DatabaseTable;
+use ScavixWDF\Controls\Table\DatabaseTable;
 
 /**
  * Wrapper class to ensure jQueryUI is loaded.
@@ -37,13 +37,13 @@ class uiDatabaseTable extends DatabaseTable
 	/**
 	 * @override
 	 */
-	function WdfRender()
+	function ScavixWDFRender()
 	{
 		$this->_ensureCaptionObject();
 		$this->addClass('ui-widget ui-widget-content ui-corner-all');
 		if( $this->header ) $this->header->addClass('ui-widget-header');
 		if( $this->Caption ) $this->Caption->addClass('ui-widget-header');
 		if( $this->footer ) $this->footer->addClass('ui-widget-content');
-		return parent::WdfRender();
+		return parent::ScavixWDFRender();
 	}
 }

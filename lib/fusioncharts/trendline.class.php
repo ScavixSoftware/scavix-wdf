@@ -25,7 +25,7 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\FusionCharts;
+namespace ScavixWDF\FusionCharts;
 
 /**
  * @deprecated You will need to buy a license frm them, s please use <GoogleVisualization> instead

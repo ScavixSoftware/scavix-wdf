@@ -23,6 +23,6 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
-class NoMinifyAttribute extends WdfAttribute
+class NoMinifyAttribute extends ScavixWDFAttribute
 {
 }
