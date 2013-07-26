@@ -25,9 +25,9 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Session;
+namespace ScavixWDF\Session;
 
-use WDF\WdfException;
+use ScavixWDF\WdfException;
 
 /**
  * PHP session handling.

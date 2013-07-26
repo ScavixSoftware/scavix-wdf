@@ -22,11 +22,11 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Translation;
+namespace ScavixWDF\Translation;
 
-use WDF\Admin\SysAdmin;
-use WDF\Base\AjaxResponse;
-use WDF\Base\Template;
+use ScavixWDF\Admin\SysAdmin;
+use ScavixWDF\Base\AjaxResponse;
+use ScavixWDF\Base\Template;
 
 /**
  * Base class for translation handlers.

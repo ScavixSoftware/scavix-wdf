@@ -25,10 +25,10 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Controls\Locale;
+namespace ScavixWDF\Controls\Locale;
 
-use WDF\Base\AjaxResponse;
-use WDF\Controls\Form\Select;
+use ScavixWDF\Base\AjaxResponse;
+use ScavixWDF\Controls\Form\Select;
  
 /**
  * Selector for currency formats.

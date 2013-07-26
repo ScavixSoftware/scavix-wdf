@@ -22,10 +22,10 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\JQueryUI\Slider;
+namespace ScavixWDF\JQueryUI\Slider;
 
-use WDF\Base\Control;
-use WDF\JQueryUI\uiControl;
+use ScavixWDF\Base\Control;
+use ScavixWDF\JQueryUI\uiControl;
 
 /**
  * Double slider input control allowing you to input time values.

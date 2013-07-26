@@ -22,11 +22,11 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\JQueryUI;
+namespace ScavixWDF\JQueryUI;
 
-use WDF\Localization\CultureInfo;
-use WDF\Localization\DateTimeFormat;
-use WDF\Localization\Localization;
+use ScavixWDF\Localization\CultureInfo;
+use ScavixWDF\Localization\DateTimeFormat;
+use ScavixWDF\Localization\Localization;
 
 default_string('BTN_DP_NEXT', 'Next');
 default_string('BTN_DP_PREV', 'Prev');

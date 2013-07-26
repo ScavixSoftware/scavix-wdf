@@ -27,8 +27,8 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
-use WDF\Model\DataSource;
-use WDF\WdfDbException;
+use ScavixWDF\Model\DataSource;
+use ScavixWDF\WdfDbException;
 
 /**
  * Initializes the model essential.

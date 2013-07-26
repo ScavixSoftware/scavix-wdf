@@ -26,7 +26,7 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
-use WDF\Localization\Localization;
+use ScavixWDF\Localization\Localization;
 
 /**
  * Initializes the localization essential.

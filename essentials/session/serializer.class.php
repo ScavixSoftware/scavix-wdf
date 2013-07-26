@@ -25,7 +25,7 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Session;
+namespace ScavixWDF\Session;
 
 use Closure;
 use DateTime;
@@ -33,11 +33,11 @@ use Exception;
 use PDOStatement;
 use Reflector;
 use SimpleXMLElement;
-use WDF\Base\DateTimeEx;
-use WDF\Model\DataSource;
-use WDF\Model\Model;
-use WDF\Reflection\WdfReflector;
-use WDF\WdfException;
+use ScavixWDF\Base\DateTimeEx;
+use ScavixWDF\Model\DataSource;
+use ScavixWDF\Model\Model;
+use ScavixWDF\Reflection\WdfReflector;
+use ScavixWDF\WdfException;
 
 /**
  * Serializer/Unserializer

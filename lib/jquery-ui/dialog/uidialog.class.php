@@ -22,9 +22,9 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\JQueryUI\Dialog;
+namespace ScavixWDF\JQueryUI\Dialog;
 
-use WDF\JQueryUI\uiControl;
+use ScavixWDF\JQueryUI\uiControl;
 
 default_string('TITLE_DIALOG', 'Dialog');
 

@@ -25,8 +25,8 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Localization;
-use WDF\WdfException;
+namespace ScavixWDF\Localization;
+use ScavixWDF\WdfException;
 
 /**
  * Helper class to deal with datetime values.

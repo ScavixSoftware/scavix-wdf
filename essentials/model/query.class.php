@@ -25,11 +25,11 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Model;
+namespace ScavixWDF\Model;
 
 use DateTime;
 use PDO;
-use WDF\WdfDbException;
+use ScavixWDF\WdfDbException;
 
 /**
  * @internal SQL common query builder

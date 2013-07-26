@@ -26,8 +26,8 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
-use WDF\Session\Serializer;
-use WDF\WdfException;
+use ScavixWDF\Session\Serializer;
+use ScavixWDF\WdfException;
 
 require_once(__DIR__.'/session/serializer.class.php');
 

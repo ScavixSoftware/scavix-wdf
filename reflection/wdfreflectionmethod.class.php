@@ -25,12 +25,12 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Reflection;
+namespace ScavixWDF\Reflection;
 
 use Exception;
 use ReflectionMethod;
-use WDF\Base\Control;
-use WDF\WdfException;
+use ScavixWDF\Base\Control;
+use ScavixWDF\WdfException;
 
 /**
  * Wraps ReflectionMethod class and overrides invokeArgs method to allow control extender pattern to work.

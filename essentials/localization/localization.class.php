@@ -22,11 +22,11 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Localization;
+namespace ScavixWDF\Localization;
 
 use DateTimeZone;
-use WDF\Base\Args;
-use WDF\WdfException;
+use ScavixWDF\Base\Args;
+use ScavixWDF\WdfException;
 
 /**
  * Helper class to wrap some tool functions.

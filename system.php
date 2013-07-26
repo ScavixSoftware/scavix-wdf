@@ -30,12 +30,12 @@ define('FRAMEWORK_LOADED','uSI7hcKMQgPaPKAQDXg5');
 require_once(__DIR__.'/system_objects.php');
 require_once(__DIR__.'/system_functions.php');
 
-use WDF\Base\AjaxResponse;
-use WDF\Base\Args;
-use WDF\Base\Renderable;
-use WDF\ICallable;
-use WDF\Reflection\WdfReflector;
-use WDF\WdfException;
+use ScavixWDF\Base\AjaxResponse;
+use ScavixWDF\Base\Args;
+use ScavixWDF\Base\Renderable;
+use ScavixWDF\ICallable;
+use ScavixWDF\Reflection\WdfReflector;
+use ScavixWDF\WdfException;
 
 // Config handling
 system_config_default( !defined("NO_DEFAULT_CONFIG") );
@@ -178,10 +178,10 @@ function system_is_module_loaded($mod)
 }
 
 /**
- * Initializes the Scavix WDF.
+ * Initializes the Scavix ScavixWDF.
  * 
  * This is one of two essential functions you must know about.
- * Initializes the complete WDF, loads all essentials and defined modules and initializes them,
+ * Initializes the complete ScavixWDF, loads all essentials and defined modules and initializes them,
  * prepares the session and writes out some headers (from config too).
  * @param string $application_name Application name. This will become your session cookie name!
  * @param bool $skip_header Optional. If true, will not send headers.
@@ -340,7 +340,7 @@ function system_instanciate_controller($controller_id)
  * 
  * This is the second of two essential functions.
  * It runs the actual execution. If fact it is the only place where you will
- * find an `echo` in the WDF code.
+ * find an `echo` in the ScavixWDF code.
  * @return void
  */
 function system_execute()
@@ -1487,16 +1487,16 @@ function fq_class_name($classname)
 	$cnl = strtolower($classname);
 	switch( $cnl )
 	{
-		case 'template':              return '\\WDF\\Base\\Template';
-		case 'renderable':            return '\\WDF\\Base\\Renderable';
-		case 'control':               return '\\WDF\\Base\\Control';
-		case 'requestparamattribute': return '\\WDF\\Reflection\\RequestParamAttribute';
-		case 'resourceattribute':     return '\\WDF\\Reflection\\ResourceAttribute';
-		case 'wdfresource':           return '\\WDF\\WdfResource';
-		case 'datasource':            return '\\WDF\\Model\\DataSource';
-		case 'sysadmin':              return '\\WDF\\Admin\\SysAdmin';
-		case 'tracelogger':           return '\\WDF\\Logging\\TraceLogger';
-		case 'phpsession':            return '\\WDF\\Session\\PhpSession';
+		case 'template':              return '\\ScavixWDF\\Base\\Template';
+		case 'renderable':            return '\\ScavixWDF\\Base\\Renderable';
+		case 'control':               return '\\ScavixWDF\\Base\\Control';
+		case 'requestparamattribute': return '\\ScavixWDF\\Reflection\\RequestParamAttribute';
+		case 'resourceattribute':     return '\\ScavixWDF\\Reflection\\ResourceAttribute';
+		case 'wdfresource':           return '\\ScavixWDF\\WdfResource';
+		case 'datasource':            return '\\ScavixWDF\\Model\\DataSource';
+		case 'sysadmin':              return '\\ScavixWDF\\Admin\\SysAdmin';
+		case 'tracelogger':           return '\\ScavixWDF\\Logging\\TraceLogger';
+		case 'phpsession':            return '\\ScavixWDF\\Session\\PhpSession';
 	}
 	
 	if( isset($GLOBALS['system_class_alias'][$cnl]) )

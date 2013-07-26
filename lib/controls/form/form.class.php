@@ -25,10 +25,10 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Controls\Form;
+namespace ScavixWDF\Controls\Form;
 
-use WDF\Base\AjaxAction;
-use WDF\Base\Control;
+use ScavixWDF\Base\AjaxAction;
+use ScavixWDF\Base\Control;
 
 /**
  * Wraps an HTML &ltform&gt; element.

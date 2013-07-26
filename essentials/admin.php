@@ -23,7 +23,7 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
-use WDF\WdfException;
+use ScavixWDF\WdfException;
 
 /**
  * Initializes the admin essential.

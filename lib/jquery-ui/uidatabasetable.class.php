@@ -22,9 +22,9 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\JQueryUI;
+namespace ScavixWDF\JQueryUI;
 
-use WDF\Controls\Table\DatabaseTable;
+use ScavixWDF\Controls\Table\DatabaseTable;
 
 /**
  * Wrapper class to ensure jQueryUI is loaded.

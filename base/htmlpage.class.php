@@ -25,10 +25,10 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Base;
+namespace ScavixWDF\Base;
 
-use WDF\ICallable;
-use WDF\Localization\Localization;
+use ScavixWDF\ICallable;
+use ScavixWDF\Localization\Localization;
 
 default_string('ERR_JAVASCRIPT_AND_COOKIES_REQUIRED','This page requires JavaScript and Cookies.');
 /**

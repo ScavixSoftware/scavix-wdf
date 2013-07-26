@@ -26,9 +26,9 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
-use WDF\Reflection\ResourceAttribute;
-use WDF\Reflection\WdfReflector;
-use WDF\WdfException;
+use ScavixWDF\Reflection\ResourceAttribute;
+use ScavixWDF\Reflection\WdfReflector;
+use ScavixWDF\WdfException;
 
 /**
  * Initializes the minify module.
@@ -52,7 +52,7 @@ function minify_init()
 /**
  * Handler for HOOK_PRE_RENDER
  * 
- * Checks if there are minified files present as sets up WDF to use them.
+ * Checks if there are minified files present as sets up ScavixWDF to use them.
  * Do not call this directly!
  * @param mixed $args Do not call!
  * @return void

@@ -25,12 +25,12 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Controls\Table;
+namespace ScavixWDF\Controls\Table;
 
-use WDF\Base\AjaxResponse;
-use WDF\Base\Control;
-use WDF\Localization\CultureInfo;
-use WDF\WdfException;
+use ScavixWDF\Base\AjaxResponse;
+use ScavixWDF\Base\Control;
+use ScavixWDF\Localization\CultureInfo;
+use ScavixWDF\WdfException;
 
 /**
  * An HTML table in DIV notation.

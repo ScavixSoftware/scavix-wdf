@@ -22,9 +22,9 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Base;
+namespace ScavixWDF\Base;
 
-use WDF\Reflection\ResourceAttribute;
+use ScavixWDF\Reflection\ResourceAttribute;
 
 /**
  * Base class for all HTML related stuff.

@@ -22,7 +22,7 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF;
+namespace ScavixWDF;
 
 /**
  * This is a wrapper/router for system (wdf) resources.

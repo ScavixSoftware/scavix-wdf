@@ -22,10 +22,10 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\JQueryUI;
+namespace ScavixWDF\JQueryUI;
 
-use WDF\Base\Control;
-use WDF\Base\Renderable;
+use ScavixWDF\Base\Control;
+use ScavixWDF\Base\Renderable;
 
 /**
  * Wraps jQueryUI Tabs

@@ -25,9 +25,9 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Controls;
+namespace ScavixWDF\Controls;
 
-use WDF\Base\Control;
+use ScavixWDF\Base\Control;
 
 /**
  * &lt;img&gt; element.

@@ -22,10 +22,10 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Base;
+namespace ScavixWDF\Base;
 
 use stdClass;
-use WDF\WdfException;
+use ScavixWDF\WdfException;
 
 /**
  * Helper class to easily create standard AJAX responses.

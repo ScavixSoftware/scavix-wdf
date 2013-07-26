@@ -25,8 +25,8 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Reflection;
-use WDF\Localization\Localization;
+namespace ScavixWDF\Reflection;
+use ScavixWDF\Localization\Localization;
 
 /**
  * Allows to automatically pass REQUEST parameters to methods arguments.

@@ -25,11 +25,11 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Widgets;
+namespace ScavixWDF\Widgets;
 
-use WDF\Base\Template;
-use WDF\Controls\Anchor;
-use WDF\Controls\Image;
+use ScavixWDF\Base\Template;
+use ScavixWDF\Controls\Anchor;
+use ScavixWDF\Controls\Image;
 
 /**
  * Links to some social networks for sharing the current uri.

@@ -26,9 +26,9 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
-use WDF\Logging\Logger;
-use WDF\Logging\LogReport;
-use WDF\WdfException;
+use ScavixWDF\Logging\Logger;
+use ScavixWDF\Logging\LogReport;
+use ScavixWDF\WdfException;
 
 $GLOBALS['LOGGING_ERROR_NAMES'] = array(
 	'ERROR','WARNING','PARSE','NOTICE','CORE_ERROR','CORE_WARNING','COMPILE_ERROR',

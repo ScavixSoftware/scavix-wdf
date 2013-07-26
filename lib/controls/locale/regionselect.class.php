@@ -25,12 +25,12 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Controls\Locale;
+namespace ScavixWDF\Controls\Locale;
 
-use WDF\Base\Renderable;
-use WDF\Controls\Form\Select;
-use WDF\Localization\CultureInfo;
-use WDF\Localization\Localization;
+use ScavixWDF\Base\Renderable;
+use ScavixWDF\Controls\Form\Select;
+use ScavixWDF\Localization\CultureInfo;
+use ScavixWDF\Localization\Localization;
 
 /**
  * Region selector.

@@ -25,10 +25,10 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Reflection;
+namespace ScavixWDF\Reflection;
 
 /**
- * Base class for WDF annotation implementation.
+ * Base class for ScavixWDF annotation implementation.
  * 
  * All attributes must inherit this class and can the be noted as attributes to classes and/or methods like this:
  * <at>attribute[classname(constructor arguments)]

@@ -25,9 +25,9 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace WDF\Base;
+namespace ScavixWDF\Base;
 
-use WDF\Localization\CultureInfo;
+use ScavixWDF\Localization\CultureInfo;
 
 /**
  * Generic Argument wrapper class
