@@ -25,7 +25,16 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
+namespace ScavixWDF\Model\Driver;
+
+use DateTime;
+use PDO;
+use ScavixWDF\Model\ColumnSchema;
+use ScavixWDF\Model\ResultSet;
+use ScavixWDF\Model\TableSchema;
+use ScavixWDF\ToDoException;
+use ScavixWDF\WdfDbException;
+
 /**
  * MySQL database driver.
  * 

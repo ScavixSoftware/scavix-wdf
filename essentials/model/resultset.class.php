@@ -25,7 +25,14 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
+namespace ScavixWDF\Model;
+
+use ArrayAccess;
+use Iterator;
+use PDO;
+use PDOStatement;
+use ScavixWDF\Model\Driver\MySql;
+
 /**
  * This is our own Statement class
  * 
@@ -316,6 +323,14 @@ class ResultSet implements Iterator, ArrayAccess
 				Model::$DefaultDatasource = $mem_def_db;
 		}
 		return $this->_rowbuffer;
+	}
+	
+	/**
+	 * @shortcut <ResultSet::fetchAll>.
+	 */
+	function results()
+	{
+		return $this->fetchAll();
 	}
 	
 	/**

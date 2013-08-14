@@ -25,7 +25,12 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
+namespace ScavixWDF\Model;
+
+use DateTime;
+use PDO;
+use ScavixWDF\WdfDbException;
+
 /**
  * @internal SQL common query builder
  */
@@ -240,25 +245,41 @@ class Query
 		}			
 	}
 
-	function like($property,$value)
+	function like($property,$value,$flipped=false)
 	{
 		if( $value instanceof ColumnAttribute )
 			$this->__conditionTree()->Add(new Condition("LIKE",$property,$value));
 		else
 		{
-			$this->__conditionTree()->Add(new Condition("LIKE",$property));
-			$this->_values[] = $value;
+			if( $flipped )
+			{
+				$this->__conditionTree()->Add(new Condition("LIKE","?",$value));
+				$this->_values[] = $property;
+			}
+			else
+			{
+				$this->__conditionTree()->Add(new Condition("LIKE",$property));
+				$this->_values[] = $value;
+			}
 		}			
 	}
 
-	function rlike($property,$value)
+	function rlike($property,$value,$flipped=false)
 	{
 		if( $value instanceof ColumnAttribute )
 			$this->__conditionTree()->Add(new Condition("RLIKE",$property,$value));
 		else
 		{
-			$this->__conditionTree()->Add(new Condition("RLIKE",$property));
-			$this->_values[] = $value;
+			if( $flipped )
+			{
+				$this->__conditionTree()->Add(new Condition("RLIKE","?",$value));
+				$this->_values[] = $property;
+			}
+			else
+			{
+				$this->__conditionTree()->Add(new Condition("RLIKE",$property));
+				$this->_values[] = $value;
+			}
 		}
 	}
 

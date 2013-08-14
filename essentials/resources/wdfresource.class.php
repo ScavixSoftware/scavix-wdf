@@ -22,35 +22,42 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace ScavixWDF\JQueryUI;
-
-use ScavixWDF\Base\Control;
-use ScavixWDF\Controls\Anchor;
+namespace ScavixWDF;
 
 /**
- * @internal Item for the <uiNavigation> control
+ * This is a wrapper/router for system (ScavixWDF) resources.
+ * 
+ * It tries to map *WdfResource* urls to the file in the local filessystem and writes it out using readfile().
+ * This is to let users place the ScavixWDF folder outside the doc root while still beeing able to access resources in there
+ * without having to create a domain for that. Natually doing that would be better because faster!
  */
-class uiNavigationItem extends Control
+class WdfResource implements ICallable
 {
-	function __initialize($is_sub_item=false)
+	/**
+	 * @internal Returns a JS resource
+	 * @attribute[RequestParam('res','string')]
+	 */
+	function js($res)
 	{
-		parent::__initialize("li");
+		$res = explode("?",$res);
+		$res = realpath(__DIR__."/../../js/".$res[0]);
+		
+		header('Content-Type: text/javascript');
+		readfile($res);
+		die();
 	}
-
-	function &AddItem($label, $href=false)
+	
+	/**
+	 * @internal Returns a CSS resource
+	 * @attribute[RequestParam('res','string')]
+	 */
+	function skin($res)
 	{
-		if( count($this->_content) < 1 || !($this->_content[count($this->_content)-1] instanceof uiNavigation))
-			$this->content( new uiNavigation(true) );
-
-		$item = new uiNavigationItem(true);
-		$item->content(new Anchor($href,$label));
-
-		$this->_content[count($this->_content)-1]->content($item);
-		return $item;
-	}
-
-	function SetDefault()
-	{
-		$this->_content[0]->rel = "default";
+		$res = explode("?",$res);
+		$res = realpath(__DIR__."/../../skin/".$res[0]);
+		
+		header('Content-Type: text/css');
+		readfile($res);
+		die();
 	}
 }
