@@ -25,42 +25,46 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace ScavixWDF\Controls\Locale;
-
-use ScavixWDF\Controls\Form\Select;
-use ScavixWDF\Localization\Localization;
+namespace ScavixWDF\Payment;
 
 /**
- * Selector for currencies.
+ * Prototype of an Address Model.
  * 
- * @attribute[Resource('locale_settings.js')]
+ * Your own address class must inherit from this. Usually this data is stored alongside the order itself
+ * so a typical <IShopOrder::GetAddress> method would just create a new <ShopOrderAddress> object and assign all
+ * properties from itself.
+ * <code php>
+ * class MyShopOrder implements IShopOrder
+ * {
+ *     public function GetAddress()
+ *     {
+ *         $res = new ShopOrderAddress();
+ *         $res->Firstname = $this->fname;
+ *         $res->Lastname = $this->lname;
+ *         $res->Address1 = $this->street;
+ *         $res->Zip = $this->zip;
+ *         $res->City = $this->city;
+ *         $res->Email = $this->email;
+ *         return $res;
+ *     }
+ * 
+ *     // more methods
+ * }
+ * </code>
  */
-class CurrencySelect extends Select
+class ShopOrderAddress
 {
-	var $current_currency_code = false;
-	
-	/**
-	 * @param string $current_currency_code Currently selected currency
-	 * @param array $supported_currencies Array of supported currencies or false
-	 */
-	function __initialize($current_currency_code=false, $supported_currencies = false)
-	{
-		parent::__initialize();
-		$this->script("Locale_Settings_Init();");
-		$this->setData('role', 'currency');
-		
-		$this->current_currency_code = $current_currency_code;
-		if( $current_currency_code )
-			$this->SetCurrentValue($current_currency_code);
-		
-		if( !$supported_currencies )
-			$supported_currencies = Localization::get_currency_codes();
-		
-		foreach($supported_currencies as $code)
-		{
-			$ci = Localization::get_currency_culture($code);
-			$this->AddOption($code, "{$ci->CurrencyFormat->Code} ({$ci->CurrencyFormat->Symbol})");
-		}
-	}
+	public $Firstname;
+	public $Lastname;
+	public $Companyname;
+	public $Email;
+	public $Address1;	
+	public $Address2;
+	public $Country;
+	public $State;
+	public $Zip;
+	public $City;
+	public $Phone1;
+	public $Phone2;
+	public $Phone3;
 }
-

@@ -22,6 +22,23 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
+namespace ScavixWDF\Translation;
+
+use stdClass;
+use ScavixWDF\Base\AjaxAction;
+use ScavixWDF\Base\AjaxResponse;
+use ScavixWDF\Base\Control;
+use ScavixWDF\Controls\Anchor;
+use ScavixWDF\Controls\Form\Button;
+use ScavixWDF\Controls\Form\CheckBox;
+use ScavixWDF\Controls\Form\Form;
+use ScavixWDF\Controls\Form\Select;
+use ScavixWDF\Controls\Form\TextArea;
+use ScavixWDF\Controls\Form\TextInput;
+use ScavixWDF\Controls\Table\Table;
+use ScavixWDF\JQueryUI\Dialog\uiDialog;
+use ScavixWDF\Localization\Localization;
+use ScavixWDF\WdfException;
 
 /**
  * <SysAdmin> handler for translations.
