@@ -26,6 +26,8 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
+use ScavixWDF\WdfException;
+
 define('globalcache_CACHE_OFF',0);
 define('globalcache_CACHE_EACCELERATOR',1);
 define('globalcache_CACHE_MEMCACHE',2);

@@ -25,7 +25,18 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
+namespace ScavixWDF\Model;
+
+use Iterator;
+use ArrayAccess;
+use Countable;
+use DateTime;
+use Exception;
+use ScavixWDF\Base\DateTimeEx;
+use ScavixWDF\WdfDbException;
+use ScavixWDF\WdfException;
+
+
 /**
  * This is base class for data objects.
  * 
@@ -871,13 +882,17 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * See http://www.w3schools.com/sql/sql_like.asp
 	 * @param string $property Property-/Fieldname
 	 * @param mixed $value Value to check against
+	 * @param bool $flipped If true, expects the roles of $property and $value switched
 	 * @return Model `clone $this`
 	 */
-	public function like($property,$value)
+	public function like($property,$value,$flipped=false)
 	{
 		$res = clone $this;
 		$res->__ensureSelect();
-		$res->_query->like($this->__ensureFieldname($property),"$value");
+		if( $flipped )
+			$res->_query->like("$property",$this->__ensureFieldname($value),$flipped);
+		else
+			$res->_query->like($this->__ensureFieldname($property),"$value",$flipped);
 		return $res;
 	}
 
@@ -888,13 +903,17 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * @todo Check how <SqLite> must handle this. Perhaps use <IDatabaseDriver::PreprocessSql>?
 	 * @param string $property Property-/Fieldname
 	 * @param mixed $value Value to check against
+	 * @param bool $flipped If true switches the roles of $property and $value
 	 * @return Model `clone $this`
 	 */
-	public function rlike($property,$value)
+	public function rlike($property,$value,$flipped=false)
 	{
 		$res = clone $this;
 		$res->__ensureSelect();
-		$res->_query->rlike($this->__ensureFieldname($property),"$value");
+		if( $flipped )
+			$res->_query->rlike("$property",$this->__ensureFieldname($value),$flipped);
+		else
+			$res->_query->rlike($this->__ensureFieldname($property),"$value",$flipped);
 		return $res;
 	}
 
@@ -1246,4 +1265,21 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * @shortcut <Model::greaterThan>($property, $value)
 	 */
 	function gt($property,$value) { return $this->greaterThan($property,$value); }
+	
+	/**
+	 * Calls a callback function for each result dataset.
+	 * 
+	 * Callback function will receive each row as <Model> object and must return the (eventually changed) <Model> object.
+	 * Note that this method will not clone the result, but return the object itself!
+	 * @param mixed $callback Anonymous callback function
+	 * @return Model Returns `$this`
+	 */
+	function process($callback)
+	{
+		$this->__ensureResults();
+		$len = count($this->_results);
+		for($i=0; $i<$len; $i++)
+			$this->_results[$i] = $callback($this->_results[$i]);
+		return $this;
+	}
 }

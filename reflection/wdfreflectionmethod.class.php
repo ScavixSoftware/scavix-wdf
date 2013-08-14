@@ -25,52 +25,43 @@
  * @copyright since 2012 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-namespace ScavixWDF\Controls\Table;
+namespace ScavixWDF\Reflection;
 
+use Exception;
+use ReflectionMethod;
 use ScavixWDF\Base\Control;
+use ScavixWDF\WdfException;
 
 /**
- * Just a table cell (td).
+ * Wraps ReflectionMethod class and overrides invokeArgs method to allow control extender pattern to work.
  * 
  */
-class Td extends Control
+class WdfReflectionMethod extends ReflectionMethod
 {
-    var $options = false;
-	var $CellFormat = false;
-	
-	var $colspan = "";
-
 	/**
-	 * @param array $options No valid options defined yet
-	 */
-	function __initialize($options=false)
-	{
-		parent::__initialize("div");
-		$this->class = "td";
-        $this->options = $options;
-	}
-
-	/**
-	 * Returns this cells contents.
+	 * Overrides default invokeArgs method
 	 * 
-	 * Note: This will return the unformatted content and ignore an eventually active <CellFormat>.
-	 * @return string Contents
+	 * See <ReflectionMethod::invokeArgs>
+	 * Will additionally check all defined extenders and call the method there if present.
+	 * @param object $object The object to invoke the method on. In case of static methods, you can pass null to this parameter
+	 * @param array $argsarray The parameters to be passed to the function, as an array
+	 * @return mixed Returns the method result. 
 	 */
-	function GetContent()
+	public function invokeArgs($object, array $argsarray)
 	{
-		$tmp = clone $this;
-		$tmp->Tag = "";
-		return $tmp->WdfRender();
-	}
-
-	/**
-	 * Set new content.
-	 * 
-	 * @param mixed $content The new content
-	 * @return void
-	 */
-	function SetContent($content)
-	{
-		$this->content($content,true);
+		try{
+			return parent::invokeArgs($object, $argsarray);
+		}catch(Exception $e){ log_debug("Checking for extender invokation"); }
+		
+		if( !is_null($object) && $object instanceof Control )
+		{
+			foreach( $object->_extender as &$ex )
+			{
+				try{
+					return $this->invokeArgs($ex, $argsarray);
+				}catch(Exception $e){ log_debug("Checking other extenders"); }
+			}
+		}
+		WdfException::Raise("Error invoking ".$this->class."->".$this->name);
 	}
 }
