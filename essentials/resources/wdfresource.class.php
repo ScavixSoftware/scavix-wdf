@@ -33,6 +33,24 @@ namespace ScavixWDF;
  */
 class WdfResource implements ICallable
 {
+	private function _validatedCacheResponse($file)
+	{
+		$etag = md5($file);
+		$days = 365*86400;
+		header("Expires: ".date("D, d M Y H:i:s",time()+$days));
+		header("Last-Modified: ".date("D, d M Y H:i:s"));
+		header("Cache-Control: public, max-age=$days");
+		header("ETag: $etag");
+		
+		$headers = getallheaders();
+		if( isset($headers['If-None-Match']) && $headers['If-None-Match'] == $etag && cache_get("etag_$etag",false) )
+		{
+			header($_SERVER['SERVER_PROTOCOL'].' 304 Not Modified');
+			die();
+		}
+		cache_set("etag_$etag",true);
+	}
+	
 	/**
 	 * @internal Returns a JS resource
 	 * @attribute[RequestParam('res','string')]
@@ -41,8 +59,8 @@ class WdfResource implements ICallable
 	{
 		$res = explode("?",$res);
 		$res = realpath(__DIR__."/../../js/".$res[0]);
-		
 		header('Content-Type: text/javascript');
+		$this->_validatedCacheResponse($res);
 		readfile($res);
 		die();
 	}
@@ -55,8 +73,8 @@ class WdfResource implements ICallable
 	{
 		$res = explode("?",$res);
 		$res = realpath(__DIR__."/../../skin/".$res[0]);
-		
 		header('Content-Type: text/css');
+		$this->_validatedCacheResponse($res);
 		readfile($res);
 		die();
 	}
