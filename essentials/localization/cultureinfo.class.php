@@ -272,6 +272,27 @@ class CultureInfo
 	}
 
 	/**
+	 */
+	function FormatDuration($durationInSeconds)
+	{
+		$days = floor($durationInSeconds / 86400);
+		$durationInSeconds -= $days * 86400;
+		$hours = floor($durationInSeconds / 3600);
+		$durationInSeconds -= $hours * 3600;
+		$minutes = floor($durationInSeconds / 60);
+		$seconds = $durationInSeconds - $minutes * 60;
+
+		$ret = '';
+		if($days > 0)
+		  $ret .= $days . ' d';
+		if($hours > 0)
+		  $ret .= ' ' . $hours . '.';
+		$ret .= $minutes . ':';
+		$ret .= str_pad($seconds, 2, '0', STR_PAD_LEFT);
+		return trim($ret);
+	}
+
+	/**
 	 * @shortcut <NumberFormat::Format($number, 0)
 	 */
 	function FormatInt($number)
@@ -365,9 +386,9 @@ class CultureInfo
 		if( !isset($this->TimeZone) || !$this->TimeZone )
 			return $date;
 		
-		$dt = new DateTime(date('Y-m-d H:i:s', $date));
+		$dt = new \DateTime(date('Y-m-d H:i:s', $date));
 		try{
-			$tz = new DateTimeZone($this->TimeZone);
+			$tz = new \DateTimeZone($this->TimeZone);
 			$dt->setTimezone($tz);
 		}catch(Exception $ex){ 
 			$this->TimeZone = "";
