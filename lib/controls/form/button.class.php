@@ -56,4 +56,18 @@ class Button extends Input
 		if( $query != "" )
 			$this->onclick = $query;
 	}
+	
+	/**
+	 * Overrides <Control::Make> with own logic.
+	 * 
+	 * @param string $label Label
+	 * @param string $onclick OnClick JS code
+	 * @return Button The new button
+	 */
+	static function Make($label,$onclick=false)
+	{
+		$res = new Button($label);
+		if( $onclick ) $res->onclick = $onclick;
+		return $res;
+	}
 }
