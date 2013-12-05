@@ -78,6 +78,9 @@ class HtmlPage extends Template implements ICallable
 
 		if( resourceExists("favicon.ico") )
 			$this->set("favicon", resFile("favicon.ico"));
+		
+		// set up correct display on mobile devices: http://stackoverflow.com/questions/8220267/jquery-detect-scroll-at-bottom
+		$this->addMeta("viewport","width=device-width, height=device-height, initial-scale=1.0");
 	}
 
 	/**
