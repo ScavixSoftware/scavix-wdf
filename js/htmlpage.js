@@ -157,7 +157,13 @@ $.ajaxSetup({cache:false});
 				href = this.settings.site_root + href;
 			
 			if( typeof data == 'object' )
-				href += (this.settings.rewrite?"?":"&")+$.param(data);
+			{
+				var cleaned = {};
+				for(var i in data)
+					if( i.substring(0,3) != 'ui-' )
+						cleaned[i] = data[i];
+				href += (this.settings.rewrite?"?":"&")+$.param(cleaned);
+			}
 			
 			if( location.href == href )
 				location.reload();
