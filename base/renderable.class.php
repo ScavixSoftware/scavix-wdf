@@ -121,6 +121,19 @@ abstract class Renderable
 					$res = array_merge($res,$sub);
 				}
 				
+				// for Template class check the template file too
+				if( $template instanceof Template )
+				{
+					$fnl = strtolower(array_shift(explode(".",basename($template->file))));
+					if( get_class_simple($template,true) != $fnl )
+					{
+						if( resourceExists("$fnl.css") )
+							$res[] = resFile("$fnl.css");
+						if( resourceExists("$fnl.js") )
+							$res[] = resFile("$fnl.js");
+					}
+				}
+				
 				// finally include the 'self' stuff (<classname>.js,...)
 				// Note: these can be forced to be loaded in static if they require to be loaded before the contents resources
 				$classname = get_class_simple($template);
