@@ -298,4 +298,19 @@ class Template extends Renderable
         
 		return $contents;
 	}
+	
+	/**
+	 * Append this control to another control.
+	 * 
+	 * @param mixed $target Object of type <Control> or <HtmlPage>
+	 * @return Control `$this`
+	 */
+	function appendTo($target)
+	{
+		if( ($target instanceof Control) || ($target instanceof HtmlPage) )
+			$target->content($this);
+		else
+			WdfException::Raise("Target must be of type Control or HtmlPage");
+		return $this;
+	}
 }
