@@ -348,6 +348,38 @@ $.ajaxSetup({cache:false});
 //				setTimeout(wdf.server_logger,100);
 //			}
 //			wdf.server_logger();
+		},
+		
+		loadMoreContent: function(href,target_container,offset)
+		{
+			href = this.validateHref(href);
+			target_container = target_container || 'body';
+			offset = offset || 1;
+			
+			var scroll_handler = function ()
+			{
+                if ($(window).scrollTop() + $(window).height() < $(document).height())
+				{
+					var lc = $(target_container).children().last();
+					var cont = $(target_container);
+					while( cont && cont.height() == 0 )
+						cont = cont.parent();
+					
+					if( lc.position().top + (2*lc.height()) > cont.height() )
+						return;
+				}
+				
+				$(window).unbind('scroll',scroll_handler);
+				wdf.post(href,{offset:offset},function(result)
+				{
+					if( typeof(result) != 'string' || result == "" )
+						return;
+					offset++;
+					$(target_container).append(result);
+					$(window).scroll(scroll_handler);
+				});
+            }
+			$(window).scroll(scroll_handler).scroll();
 		}
 	};
 	
