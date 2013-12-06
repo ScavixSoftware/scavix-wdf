@@ -123,8 +123,6 @@ class DateTimeFormat
 		// array of patterns to be replaced
 		$pattern = self::$PatternPlaceholders;
 
-		// throw away the %
-//		$format = str_replace("%", "", $format);
 		// find all placeholders
 		$arplaceholders = array();
 		$pl = sizeof($pattern);
@@ -135,31 +133,15 @@ class DateTimeFormat
 				$arplaceholders[] = $p;
 		}
 
-//		$slf = strlen($format);
-//		$pl = sizeof($pattern);
-//		for( $i=0; $i<$slf; $i++ )
-//		{
-////			foreach( $pattern as $k=>$p )
-//			for($j = 0; $j < $pl; $j++)
-//			{
-//				$p = $pattern[$j];
-//				$slp = strlen($p);
-//				$test = substr($format,$i,$slp);
-//				if( $test == $p )
-//				{
-//					$arplaceholders[$p] = "";
-//					$i += $slp;
-//					break;
-//				}
-//			}
-//		}
-
 		$i = 0;
 		foreach($arplaceholders as $k=>$p)
 		{
 			$repl = "";
 			switch($p)
 			{
+				case 'd5':
+					$repl = date('jS',$date);
+					break;
 				case 'd4':
 					$repl = $this->DayNames[date('w',$date)];
 					break;
@@ -172,16 +154,6 @@ class DateTimeFormat
 				case 'd1':
 					$repl = date('j',$date);
 					break;
-
-//				case 'fffffff':
-//				case 'ffffff':
-//				case 'fffff':
-//				case 'ffff':
-//				case 'fff':
-//				case 'ff':
-//				case 'f':
-//					$repl = substr(date('u',$date),0,strlen($k));
-//					break;
 
 				case 'h2':
 					$repl = date('h',$date);
@@ -240,7 +212,6 @@ class DateTimeFormat
 				$format = str_replace($p, $repl, $format);
 		}
 
-//		$format = str_replace($arreplace, array_values($arplaceholders), $format);
 		return $format;
 	}
 
