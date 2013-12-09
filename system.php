@@ -448,7 +448,7 @@ function system_invoke_request($target_class,$target_event,$pre_execute_hook_typ
 	$argscheck = array();
 	$failedargs = array();
 
-	$req_data = array_merge($_GET,$_POST);
+	$req_data = array_merge($_FILES,$_GET,$_POST);
 	foreach( $params as $prm )
 	{
 		$argscheck[$prm->Name] = $prm->UpdateArgs($req_data,$args);
