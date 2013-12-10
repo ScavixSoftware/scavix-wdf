@@ -38,12 +38,11 @@ class WdfResource implements ICallable
 		$etag = md5($file);
 		$days = 365*86400;
 		$cached = cache_get("etag_$etag",false);
-		$now = date("D, d M Y H:i:s");
+		$mtime = date("D, d M Y H:i:s",filemtime($file));
 		header("Expires: ".date("D, d M Y H:i:s",time()+$days));
-		header("Last-Modified: ".($cached?$cached:$now));
+		header("Last-Modified: ".$mtime);
 		header("Cache-Control: public, max-age=$days");
 		header("ETag: $etag");
-		
 		$headers = getallheaders();
 		if( $cached )
 		{
@@ -52,13 +51,13 @@ class WdfResource implements ICallable
 				header($_SERVER['SERVER_PROTOCOL'].' 304 Not Modified');
 				die();
 			}
-			if( isset($headers['If-Modified-Since']) && strtotime($headers['If-Modified-Since']) < strtotime($cached) )
+			if( isset($headers['If-Modified-Since']) && strtotime($headers['If-Modified-Since']) >= strtotime($mtime) )
 			{
 				header($_SERVER['SERVER_PROTOCOL'].' 304 Not Modified');
 				die();
 			}
 		}
-		cache_set("etag_$etag",$now);
+		cache_set("etag_$etag",$mtime);
 	}
 	
 	/**
