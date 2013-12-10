@@ -43,7 +43,7 @@ class DateTimeFormat
 	const DF_SHORTTIME	= 0x06;
 
 	private static $PatternPlaceholders = array(
-			"d4","d3","d2","d1",
+			"d5","d4","d3","d2","d1",
 			"h2","h1","H2","H1",
 			"m2","m1",
 			"M4","M3","M2","M1",
