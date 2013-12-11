@@ -3149,7 +3149,7 @@ function internal_getDateTimeFormat($cultureCode)
 	switch( strtolower( str_replace("_", "-", $cultureCode)) )
 	{
 		case 'en-us':
-			return new DateTimeFormat('0','d4, M4 d2, y4 h1:m2:s2 t2','d4, M4 d2, y4','h1:m2:s2 t2','M4 d5','M1/d1/y4','h1:m2 t2','M4, y4','AM','PM');
+			return new DateTimeFormat('0','d4, M4 d5, y4 h1:m2:s2 t2','d4, M4 d5, y4','h1:m2:s2 t2','M4 d5','M1/d1/y4','h1:m2 t2','M4, y4','am','pm');
 		case 'de-de':
 			return new DateTimeFormat('1','d4, d1. M4 y4 H2:m2:s2','d4, d1. M4 y4','H2:m2:s2','d1. M4','d2.M2.y4','H2:m2','M4 y4','','');
 		case 'it-it':

@@ -265,6 +265,7 @@ class DateTimeFormat
 		$apm1 = substr($this->AM,0,1).'|'.substr($this->PM,0,1);
 		$regex_data = array
 		(
+			"d5" => '(\d(|st|nd|rd))',
 			"d4" => '('.$this->_regexEscapeArray($this->DayNames).')',
 			"d3" => '('.$this->_regexEscapeArray($this->ShortDayNames).')',
 			"d2" => '(\d\d)',
@@ -342,6 +343,7 @@ class DateTimeFormat
 		{
 			switch( $semantics[$iter-1] )
 			{
+				case "d5":
 				case "d4":
 				case "d3":
 					break;
@@ -415,9 +417,6 @@ class DateTimeFormat
 		if( $y == 0 && isset($y2) )
 			$y = intval(substr(date("Y"),0,2).$y2);
 
-		$res = mktime($h, $i, $s, $m, $d, $y);
-//		log_debug("$h, $i, $s, $m, $d, $y");
-//		log_debug("$str -> ".$res." -> ".date("Y-m-d H:i:s",$res));
-		return $res;
+		return mktime($h, $i, $s, $m, $d, $y);
 	}
 }
