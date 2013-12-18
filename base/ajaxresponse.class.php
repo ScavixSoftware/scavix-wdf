@@ -39,11 +39,18 @@ class AjaxResponse
 	/**
 	 * This is a valid Noop return.
 	 * 
+	 * @param bool $abort_handling Abort clientside success/error handling
 	 * @return AjaxResponse The created response
 	 */
-	public static function None()
+	public static function None($abort_handling=false)
 	{
-		return new AjaxResponse();
+		$res = new AjaxResponse();
+		if( $abort_handling )
+		{
+			$res->_data = new stdClass(); 
+			$res->_data->abort = $abort_handling;
+		}
+		return $res;
 	}
 	
 	/**
