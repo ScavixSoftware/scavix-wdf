@@ -46,6 +46,7 @@ class HtmlPage extends Template implements ICallable
 	var $css = array();
 	var $docready = array();
 	var $plaindocready = array();
+	var $wdf_settings = array('focus_first_input'=>true);
 
 	/**
 	 * Setting this to a filename (relative to class) will load it as subtemplate
@@ -90,7 +91,10 @@ class HtmlPage extends Template implements ICallable
 	{
 		execute_hooks(HOOK_PRE_RENDER,array($this));
 
-		$init_data = array('request_id' => request_id(),'site_root' => cfg_get('system','url_root'));
+		$init_data = $this->wdf_settings;
+		$init_data['request_id'] = request_id();
+		$init_data['site_root']  = cfg_get('system','url_root');
+		
 		if( cfg_getd('system','attach_session_to_ajax',false) )
 		{
 			$init_data['session_id'] = session_id();
