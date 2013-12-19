@@ -932,3 +932,22 @@ function is_assoc($array)
 {
   return (bool)count( array_filter(array_keys($array), 'is_string') );
 }
+
+function ifnull()
+{
+	$args = func_get_args();
+	$data = array_shift($args);
+	
+	if( count($args) == 0 )
+		ScavixWDF\WdfException::Raise("ifnull needs at least two arguments");
+	
+	if( is_array($data) )
+		$data = (object)$data;
+	if( !is_object($data) )
+		ScavixWDF\WdfException::Raise("First argument needs to be array or object");
+	
+	foreach( $args as $n )
+		if( isset($data->$n) && $data->$n !== null )
+			return $data->$n;
+	return null;
+}

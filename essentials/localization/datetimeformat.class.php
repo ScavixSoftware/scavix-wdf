@@ -26,6 +26,8 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 namespace ScavixWDF\Localization;
+
+use DateTime;
 use ScavixWDF\WdfException;
 
 /**
@@ -132,6 +134,9 @@ class DateTimeFormat
 			if(strpos($format, $p) !== false)
 				$arplaceholders[] = $p;
 		}
+		
+		if( $date instanceof DateTime )
+			$date = $date->getTimestamp();
 
 		$i = 0;
 		foreach($arplaceholders as $k=>$p)

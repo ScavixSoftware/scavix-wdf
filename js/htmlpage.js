@@ -358,34 +358,35 @@ $.ajaxSetup({cache:false});
 		
 		loadMoreContent: function(href,target_container,offset)
 		{
+			if( href === 'stop' )
+			{
+				$('.loadMoreContent_removable_trigger').remove();
+				return;
+			}
 			href = this.validateHref(href);
 			target_container = target_container || 'body';
 			offset = offset || 1;
 			
-			var scroll_handler = function ()
+			var trigger = $(target_container).next()
+			if( trigger.length === 0 )
+				trigger = $('<div/>').addClass('wdf_overlay_anim loadMoreContent_removable_trigger').insertAfter(target_container);
+			
+			var scroll_handler = function(e)
 			{
-                if ($(window).scrollTop() + $(window).height() < $(document).height())
-				{
-					var lc = $(target_container).children().last();
-					var cont = $(target_container);
-					while( cont && cont.height() == 0 )
-						cont = cont.parent();
-					
-					if( lc.position().top + (2*lc.height()) > cont.height() )
-						return;
-				}
+                if( $(window).scrollTop() + $(window).height() < trigger.position().top )
+					return;
 				
-				$(window).unbind('scroll',scroll_handler);
+				$(window).unbind('scroll.loadMoreContent',scroll_handler);
 				wdf.post(href,{offset:offset},function(result)
 				{
 					if( typeof(result) != 'string' || result == "" )
 						return;
 					offset++;
 					$(target_container).append(result);
-					$(window).scroll(scroll_handler);
+					$(window).bind('scroll.loadMoreContent',scroll_handler);
 				});
             }
-			$(window).scroll(scroll_handler).scroll();
+			$(window).bind('scroll.loadMoreContent',scroll_handler).scroll();
 		}
 	};
 	

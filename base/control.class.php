@@ -386,6 +386,16 @@ class Control extends Renderable
 	}
 	
 	/**
+	 * Gets the number of contents.
+	 * 
+	 * @return int Length of the contents array
+	 */
+	function length()
+	{
+		return count($this->_content);
+	}
+	
+	/**
 	 * Gets the content at index $index.
 	 * 
 	 * @param int $index Zerao based index of content to get

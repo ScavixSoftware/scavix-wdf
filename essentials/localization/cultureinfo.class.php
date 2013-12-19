@@ -27,6 +27,12 @@
  */
 namespace ScavixWDF\Localization;
 
+use Closure;
+use DateTime;
+use DateTimeZone;
+use Exception;
+use ScavixWDF\WdfException;
+
 /**
  * Represents culture information.
  * 
@@ -390,9 +396,9 @@ class CultureInfo
 		if( !isset($this->TimeZone) || !$this->TimeZone )
 			return $date;
 		
-		$dt = new \DateTime(date('Y-m-d H:i:s', $date));
+		$dt = new DateTime(date('Y-m-d H:i:s', $date));
 		try{
-			$tz = new \DateTimeZone($this->TimeZone);
+			$tz = new DateTimeZone($this->TimeZone);
 			$dt->setTimezone($tz);
 		}catch(Exception $ex){ 
 			$this->TimeZone = "";
