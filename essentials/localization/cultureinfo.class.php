@@ -284,10 +284,14 @@ class CultureInfo
 
 		$ret = '';
 		if($days > 0)
-		  $ret .= $days . ' d';
+			$ret .= $days.' d';
 		if($hours > 0)
-		  $ret .= ' ' . $hours . '.';
-		$ret .= $minutes . ':';
+		{
+			$ret .= ' '.$hours .':';
+			$ret .= str_pad($minutes, 2, '0', STR_PAD_LEFT) . ':';
+		}
+		else
+			$ret .= ' '.$minutes.':';
 		$ret .= str_pad($seconds, 2, '0', STR_PAD_LEFT);
 		return trim($ret);
 	}
