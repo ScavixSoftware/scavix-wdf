@@ -101,11 +101,12 @@ class DateTimeEx extends DateTime
 	 * 
 	 * Depending on $unit returns the age of the object in years, months, days, hours, minutes or secods.
 	 * @param string $unit Values: sec, min, hour, day, weeks, month, year
+	 * @param DateTimeEx $zero_point The point in time this DateTimeEx object shall be compared to. Defaults to <DateTimeEx::Now>()
 	 * @return float The calculated age
 	 */
-	public function Age($unit)
+	public function Age($unit, $zero_point=false)
 	{
-		$now = self::Now();
+		$now = $zero_point?$zero_point:self::Now();
 		$factor = ($this>$now)?-1:1;
 		$diff = $now->diff($this);
 		switch( $unit )
@@ -119,9 +120,9 @@ class DateTimeEx extends DateTime
 			case self::HOURS:
 				return $factor * ($diff->days*24 + $diff->h);
 			case self::MINUTES:
-				return $factor * ($diff->days*24*60 + $diff->i);
+				return $factor * ($diff->days*1440 + $diff->h*60 + $diff->i);
 			case self::SECONDS:
-				return $factor * ($diff->days*24*60*60 + $diff->s);
+				return $factor * ($diff->days*86400 + $diff->h*3600 + $diff->i*60 + $diff->s);
 		}
 		WdfException::Raise("Getting the age is not possible in unit '$unit'");
 	}
