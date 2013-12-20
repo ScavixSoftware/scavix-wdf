@@ -149,11 +149,12 @@ class HtmlPage extends Template implements ICallable
 	 * @param string $name The name
 	 * @param string $content The content
 	 * @param string $scheme The scheme
+	 * @param string $type The meta-tags name ('name','http-equiv',...)
 	 * @return HtmlPage `$this`
 	 */
-	function addMeta($name,$content,$scheme="")
+	function addMeta($name,$content,$scheme="",$type='name')
 	{
-		$meta = "\t<meta name='$name' content='$content'".(($scheme=="")?"":" scheme='$scheme'")."/>\n";
+		$meta = "\t<meta $type='$name' content='$content'".(($scheme=="")?"":" scheme='$scheme'")."/>\n";
 		$this->meta[$name.$content] = $meta;
 		return $this;
 	}
