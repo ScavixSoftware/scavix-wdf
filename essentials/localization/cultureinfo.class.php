@@ -26,6 +26,7 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 namespace ScavixWDF\Localization;
+use ScavixWDF\Base\DateTimeEx;
 
 /**
  * Represents culture information.
@@ -92,12 +93,12 @@ class CultureInfo
 		{
 			// check if a valid int is given (ex: '123123123')
 			if( !preg_match('/[^0-9]+/',$date) )
-				$date = $date + 0;
+				return $date + 0;
 			else
-				$date = strtotime($date);
+				return strtotime($date);
 		}
-		elseif( $date instanceof DateTime )
-			$date = intval($date->format('U'));
+		elseif( ($date instanceof DateTime) || ($date instanceof DateTimeEx) )
+			return intval($date->format('U'));
 		return $date;
 	}
 
@@ -314,7 +315,6 @@ class CultureInfo
 			log_error("No DateTimeFormat instance: {$this->Code}",$dtf);
 			return "No DateTimeFormat instance: {$this->Code}";
 		}
-		
 		return $dtf->Format($date, $format_id);
 	}
 
