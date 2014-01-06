@@ -922,7 +922,7 @@ function __search_file_for_class($class_name,$extension="class.php",$classpath_l
 	foreach( $CONFIG['class_path']['order'] as $cp_part )
 	{
 		if( !isset($CONFIG['class_path'][$cp_part]))
-			WdfException::Raise("Invalid ClassPath! No entry for '$cp_part'.");
+			continue; //WdfException::Raise("Invalid ClassPath! No entry for '$cp_part'.");
 
 		if( $classpath_limit && $cp_part != $classpath_limit )
 			continue;
