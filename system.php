@@ -1559,8 +1559,8 @@ function system_process_running($pid)
  * So if you dont change this the locks will have no effect beyond process bounds!
  * @param string $name A name for the lock.
  * @param mixed $datasource Name of datasource to use or <DataSource> object itself.
- * @param int $timeout Timeout in seconds (an Exception will be thrown on timeout).
- * @return void
+ * @param int $timeout Timeout in seconds (an Exception will be thrown on timeout). If <=0 will return immediately true|false
+ * @return void|bool Returns true|false only if $timeout is <=0. Else will return nothing or throw an exception
  */
 function system_get_lock($name,$datasource='internal',$timeout=10)
 {
@@ -1573,9 +1573,11 @@ function system_get_lock($name,$datasource='internal',$timeout=10)
 	do
 	{
 		if( isset($cnt) )
+		{
 			usleep(100000);
-		if( microtime(true)-$start > $timeout)
-			WdfException::Raise("Timeout while awaiting the lock '$name'");
+			if( microtime(true)-$start > $timeout)
+				WdfException::Raise("Timeout while awaiting the lock '$name'");
+		}
 		
 		foreach( $ds->ExecuteSql("SELECT pid FROM wdf_locks")->Enumerate('pid') as $pid )
 		{
@@ -1584,7 +1586,11 @@ function system_get_lock($name,$datasource='internal',$timeout=10)
 		}
 		$ds->ExecuteSql("INSERT OR IGNORE INTO wdf_locks(lockname,pid)VALUES(?,?)",$args);
 		$cnt = $ds->getAffectedRowsCount();
+		
+		if( $cnt == 0 && $timeout <= 0 )
+			return false;
 	}while( $cnt == 0 );
+	return true;
 }
 
 /**
