@@ -120,7 +120,7 @@ function system_config_default($reset = true)
 	
     $path = explode("index.php",$_SERVER['PHP_SELF']);
 	if( !isset($_SERVER['REQUEST_SCHEME']) )
-		$_SERVER['REQUEST_SCHEME'] = 'http';
+		$_SERVER['REQUEST_SCHEME'] = urlScheme(false);
 	if( !isset($_SERVER['HTTP_HOST']) )
 		$_SERVER['HTTP_HOST'] = '127.0.0.1';
 	
