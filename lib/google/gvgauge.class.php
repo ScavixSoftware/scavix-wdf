@@ -25,18 +25,18 @@
 namespace ScavixWDF\Google;
 
 /**
- * A gauge
+ * A pie chart
  * 
- * See https://google-developers.appspot.com/chart/interactive/docs/gallery/gauge
+ * See https://developers.google.com/chart/interactive/docs/gallery
  */
-class gvPieChart extends GoogleVisualization
+class gvGauge extends GoogleVisualization
 {
 	/**
 	 * @override
 	 */
 	function __initialize($options=array(),$query=false,$ds=false)
 	{
-		parent::__initialize('PieChart',$options,$query,$ds);
-		$this->_loadPackage('corechart');
+		parent::__initialize('Gauge',$options,$query,$ds);
+		$this->_loadPackage('gauge');
 	}
 }
