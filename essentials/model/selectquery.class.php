@@ -78,7 +78,7 @@ class SelectQuery extends Query
 		{
 			$tmp = array();
 			foreach( $this->_groupBy as $g )
-				$tmp[] = "`$g`";
+				$tmp[] = "$g";
 
 			$sql .= " GROUP BY ".implode(",",$tmp);
 		}
