@@ -775,6 +775,21 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$res->_query->having($defaultOperator);
 		return $res;
 	}
+	
+	/**
+	 * Adds a raw SQL part to the statement.
+	 * 
+	 * @param string $sql_statement_part The raw SQL code
+	 * @param array The arguments of the raw SQL query part
+	 * @return Model `clone $this`
+	 */
+	public function sql($sql_statement_part,$args=array())
+	{
+		$res = clone $this;
+		$res->__ensureSelect();
+		$res->_query->sql($sql_statement_part,$args);
+		return $res;
+	}
 
 	/**
 	 * Check if a field has a value.
