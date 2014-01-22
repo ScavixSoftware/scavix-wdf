@@ -216,6 +216,10 @@ function system_init($application_name, $skip_header = false, $logging_category=
 		logging_add_category($logging_category);
 	logging_set_user(); // works as both (session and logging) are now essentials
 	
+	//if( $CONFIG['error']['clean_each_run'] )
+	//	log_debug("=== Initialization (modules already loaded =================================");
+	session_run();
+	
 	// auto-load all system-modules defined in $CONFIG['system']['modules']
 	foreach( $CONFIG['system']['modules'] as $mod )
 	{
@@ -224,10 +228,6 @@ function system_init($application_name, $skip_header = false, $logging_category=
 		elseif( file_exists( "$mod.php") )
 			system_load_module("$mod.php");
 	}
-
-	//if( $CONFIG['error']['clean_each_run'] )
-	//	log_debug("=== Initialization (modules already loaded =================================");
-	session_run();
 
 	if( isset($_REQUEST['request_id']) )
 	{

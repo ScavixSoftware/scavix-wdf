@@ -160,6 +160,12 @@ class Query
 	{
 		$this->__conditionTree()->Nest($count,"OR");
 	}
+	
+	function sql($sql,$args=array())
+	{
+		$this->__conditionTree()->Add($sql);
+		foreach( $args as $v ) $this->_values[] = $v;
+	}
 
 	function equal($property,$value,$value_is_sql=false)
 	{
@@ -360,7 +366,8 @@ class ConditionTree
 	function __fqFields(&$knownModels)
 	{
 		foreach( $this->_conditions as &$c )
-			$c->__fqFields($knownModels);
+			if( $c instanceof Condition)
+				$c->__fqFields($knownModels);
 	}
 
 	function __generateSql()
