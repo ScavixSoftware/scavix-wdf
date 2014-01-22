@@ -356,38 +356,48 @@ $.ajaxSetup({cache:false});
 //			wdf.server_logger();
 		},
 		
-		loadMoreContent: function(href,target_container,offset)
+		showScrollListLoadAnim: function()
 		{
-			if( href === 'stop' )
-			{
-				$('.loadMoreContent_removable_trigger').remove();
-				return;
-			}
+			$('#scrollloader_overlay_anim').fadeIn();
+		},
+		
+		initScrollListLoader: function(href,target_container,offset)
+		{
 			href = this.validateHref(href);
 			target_container = target_container || 'body';
-			offset = offset || 1;
+			top.offset = offset || 1;
 			
-			var trigger = $(target_container).next()
+			var trigger = $('#scrollloader_overlay_anim');
 			if( trigger.length === 0 )
-				trigger = $('<div/>').addClass('wdf_overlay_anim loadMoreContent_removable_trigger').insertAfter(target_container);
-			
+				trigger = $('<div/>').attr('id', 'scrollloader_overlay_anim').addClass('wdf_overlay_anim loadMoreContent_removable_trigger').insertAfter(target_container);
+
 			var scroll_handler = function(e)
 			{
                 if( $(window).scrollTop() + $(window).height() < trigger.position().top )
 					return;
 				
-				$(window).unbind('scroll.loadMoreContent',scroll_handler);
-				wdf.post(href,{offset:offset},function(result)
+				wdf.showScrollListLoadAnim();
+				$(window).unbind('scroll.loadMoreContent', scroll_handler);
+				wdf.post(href,{offset:top.offset},function(result)
 				{
 					if( typeof(result) != 'string' || result == "" )
 						return;
-					offset++;
+					top.offset++;
 					$(target_container).append(result);
-					$(window).bind('scroll.loadMoreContent',scroll_handler);
+					$(window).bind('scroll.loadMoreContent', scroll_handler);
+					
+					if( $(window).scrollTop() + $(window).height() >= trigger.position().top )
+						scroll_handler();		// keep loading until it fills the page
 				});
             }
-			$(window).bind('scroll.loadMoreContent',scroll_handler).scroll();
-		}
+			$(window).bind('scroll.loadMoreContent', scroll_handler);
+			scroll_handler();		// load more content if page not filled yet
+		},
+		
+		stopScrollListLoader: function()
+		{
+			$('.loadMoreContent_removable_trigger').fadeOut();
+		}		
 	};
 	
 	if( typeof win.Debug != "function" )
