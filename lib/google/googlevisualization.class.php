@@ -24,10 +24,13 @@
  */
 namespace ScavixWDF\Google;
 
+use DateTime;
 use MC_Google_Visualization;
 use PDO;
 use ScavixWDF\ICallable;
+use ScavixWDF\Localization\CultureInfo;
 use ScavixWDF\Model\DataSource;
+use ScavixWDF\Model\ResultSet;
 
 /**
  * Base class for google visualization controls.
@@ -37,6 +40,8 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 {
 	public static $DefaultDatasource = false;
 	
+	var $_culture = false;
+	var $_columnDef = false;
 	var $_data = array();
 	
 	var $_entities = array();
@@ -91,6 +96,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		$opts = json_encode($this->gvOptions);
 		if( count($this->_data)>0 )
 		{
+			array_walk_recursive($this->_data,function(&$item, &$key){ if( $item instanceof DateTime) $item = "[jscode]new Date(".($item->getTimestamp()*1000).")"; });
 			$d = system_to_json($this->_data);
 			$js = "var d=google.visualization.arrayToDataTable($d); var c=new google.visualization.{$this->gvType}($('#$id').get(0));c.draw(d,$opts);$('#$id').data('googlechart', c);";
 		}
@@ -98,8 +104,9 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		{
 			$q = buildQuery($this->id,'Query');
 			$js = "var $id = new google.visualization.Query('$q');$id.setQuery('{$this->gvQuery}');$id.send(function(r){ if(r.isError()){ $('#$id').html(r.getDetailedMessage()); }else{ var c=new google.visualization.{$this->gvType}($('#$id').get(0));c.draw(r.getDataTable(),$opts);$('#$id').data('googlechart', c);}});";
-		}		
-		$this->_addLoadCallback('visualization', $js);
+		}
+		
+		$this->_addLoadCallback('visualization', $js, true);
 		
 		if( isset($this->gvOptions['width']) )
 			$this->css('width',"{$this->gvOptions['width']}px");
@@ -311,6 +318,76 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 			$this->_data = array_merge(array($this->_data[0]),$rows);
 		else
 			$this->_data = $rows;
+		return $this;
+	}
+	
+	function linkSelect($other_vis)
+	{
+		$js = "google.visualization.events.addListener($('#{$this->id}').data('googlechart'), 'select', function(){ $('#{$other_vis->id}').data('googlechart').setSelection($('#{$this->id}').data('googlechart').getSelection()); });";
+		$this->_addLoadCallback('visualization', $js);
+		return $this;
+	}
+	
+	function addColumn($name,$label=false,$type=false)
+	{
+		$this->_columnDef[$label] = array($name,$type);
+		return $this;
+	}
+	
+	function setCulture(CultureInfo $ci)
+	{
+		$this->_culture = $ci;
+		return $this;
+	}
+	
+	function setResultSet(ResultSet $rs)
+	{
+		$this->_data = array(array_keys($this->_columnDef));
+		$ci = $this->_culture;
+		foreach( $rs as $row )
+		{
+			$d = array();
+			foreach( $this->_columnDef as $def )
+			{
+				list($name,$type) = $def;
+				$v = $row[$name];
+				switch( $type )
+				{
+					case 'int': 
+					case 'integer': 
+						$v = intval($v); 
+						break;
+					case 'float': 
+					case 'double': 
+						$v = floatval($v);
+						if( $ci )
+							$v = array('v'=>$v,'f'=>$ci->FormatNumber($v));
+						break;
+					case 'currency': 
+						$v = floatval($v);
+						if( $ci )
+							$v = array('v'=>$v,'f'=>$ci->FormatCurrency($v));
+						break;
+					case 'date': 
+						$v = new DateTime($v);
+						if( $ci )
+							$v = array('v'=>$v,'f'=>$ci->FormatDate($v));
+						break;
+					case 'time': 
+						$v = new DateTime($v);
+						if( $ci )
+							$v = array('v'=>$v,'f'=>$ci->FormatTime($v));
+						break;
+					case 'datetime': 
+						$v = new DateTime($v);
+						if( $ci )
+							$v = array('v'=>$v,'f'=>$ci->FormatDateTime($v));
+						break;
+				}
+				$d[] = $v;
+			}
+			$this->_data[] = $d;
+		}
 		return $this;
 	}
 }
