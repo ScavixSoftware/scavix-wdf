@@ -39,6 +39,7 @@ use ScavixWDF\Model\ResultSet;
 abstract class GoogleVisualization extends GoogleControl implements ICallable
 {
 	public static $DefaultDatasource = false;
+	public static $Colors = false;
 	
 	var $_culture = false;
 	var $_columnDef = false;
@@ -62,7 +63,9 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		$className = get_called_class();
 		$res = new $className();
 		if( $title )
-			return $res->opt('title',$title);
+			$res->opt('title',$title);
+		if( self::$Colors )
+			$res->opt('colors',self::$Colors);		
 		return $res;
 	}
 	
@@ -331,6 +334,12 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	function addColumn($name,$label=false,$type=false)
 	{
 		$this->_columnDef[$label] = array($name,$type);
+		if( isset(self::$Colors[$name]) )
+		{
+			$cols = force_array($this->opt('colors'));
+			$cols[] = self::$Colors[$name];
+			$this->opt('colors',$cols);
+		}
 		return $this;
 	}
 	
@@ -340,7 +349,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		return $this;
 	}
 	
-	function setResultSet(ResultSet $rs)
+	function setResultSet($rs)
 	{
 		$this->_data = array(array_keys($this->_columnDef));
 		$ci = $this->_culture;
@@ -350,6 +359,8 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 			foreach( $this->_columnDef as $def )
 			{
 				list($name,$type) = $def;
+				if( !isset($row[$name]) )
+					$row[$name] = "";
 				$v = $row[$name];
 				switch( $type )
 				{
