@@ -62,6 +62,8 @@ class DateTimeEx extends DateTime
 			return clone $source;
 		if( $source instanceof DateTime )
 			return new DateTimeEx( $source->format('c') );
+		if( is_numeric($source) )
+			return new DateTimeEx( date('c',$source) );
 		return new DateTimeEx($source);
 	}
 	
