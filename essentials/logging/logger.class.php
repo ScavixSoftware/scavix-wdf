@@ -201,7 +201,7 @@ class Logger
 		
 		if( isset($this->min_severity) )
 		{
-			$s = @constant("Logger::$severity");
+			$s = @constant("\\ScavixWDF\\Logging\\Logger::$severity");
 			if( $s!==null && $s<$this->min_severity  )
 				return false;
 		}
