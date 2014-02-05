@@ -90,12 +90,12 @@ class Select extends Control
 		if( !$this->_first_option_value )
 			$this->_first_option_value = $value;
 
-		if( !$selected && $this->_current )
+		if( !$selected && $this->_current !== false )
 			$selected = $value == $this->_current;
 		$selected = $selected?" selected='selected'":"";
 //		$opt = "<option value='$value'$selected>".htmlspecialchars($label)."</option>\r\n";
 		$opt = "<option ";
-		if($value != '')
+		if($value !== '')
 			$opt .= "value='$value'";
 		$opt .= "$selected>".$label."</option>\r\n";
 		if( $opt_group )
