@@ -182,7 +182,8 @@ class Control extends Renderable
 		{
 			create_storage_id($this);
 			$args = func_get_args();
-			system_call_user_func_array_byref($this, '__initialize', $args);
+			if( count($args)!=1 || $args[0]!=='Make is calling so skip __initialize call')
+				system_call_user_func_array_byref($this, '__initialize', $args);
 		}
 	}
 
@@ -312,9 +313,10 @@ class Control extends Renderable
 	public static function Make($tag=false)
     {
 		$className = get_called_class();
-		if( $tag === false )
-			return new $className();
-		return new $className($tag);
+		$res = new $className('Make is calling so skip __initialize call');
+		$args = func_get_args();
+		system_call_user_func_array_byref($res, '__initialize', $args);
+		return $res;
 	}
 
 	/**
