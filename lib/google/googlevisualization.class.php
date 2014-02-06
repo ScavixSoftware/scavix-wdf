@@ -95,22 +95,29 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	 */
 	function PreRender($args = array())
 	{
-		$id = $this->id;
-		$opts = json_encode($this->gvOptions);
-		if( count($this->_data)>0 )
+		if( count($this->_data)>1 )
 		{
-			array_walk_recursive($this->_data,function(&$item, &$key){ if( $item instanceof DateTime) $item = "[jscode]new Date(".($item->getTimestamp()*1000).")"; });
-			$d = system_to_json($this->_data);
-			$js = "var d=google.visualization.arrayToDataTable($d); var c=new google.visualization.{$this->gvType}($('#$id').get(0));c.draw(d,$opts);$('#$id').data('googlechart', c);";
+			$id = $this->id;
+			$opts = json_encode($this->gvOptions);
+			if( count($this->_data)>0 )
+			{
+				array_walk_recursive($this->_data,function(&$item, &$key){ if( $item instanceof DateTime) $item = "[jscode]new Date(".($item->getTimestamp()*1000).")"; });
+				$d = system_to_json($this->_data);
+				$js = "var d=google.visualization.arrayToDataTable($d); var c=new google.visualization.{$this->gvType}($('#$id').get(0));c.draw(d,$opts);$('#$id').data('googlechart', c);";
+			}
+			else
+			{
+				$q = buildQuery($this->id,'Query');
+				$js = "var $id = new google.visualization.Query('$q');$id.setQuery('{$this->gvQuery}');$id.send(function(r){ if(r.isError()){ $('#$id').html(r.getDetailedMessage()); }else{ var c=new google.visualization.{$this->gvType}($('#$id').get(0));c.draw(r.getDataTable(),$opts);$('#$id').data('googlechart', c);}});";
+			}
+			$this->_addLoadCallback('visualization', $js, true);
 		}
 		else
 		{
-			$q = buildQuery($this->id,'Query');
-			$js = "var $id = new google.visualization.Query('$q');$id.setQuery('{$this->gvQuery}');$id.send(function(r){ if(r.isError()){ $('#$id').html(r.getDetailedMessage()); }else{ var c=new google.visualization.{$this->gvType}($('#$id').get(0));c.draw(r.getDataTable(),$opts);$('#$id').data('googlechart', c);}});";
+			$t = $this->opt('title');
+			$this->css('text-align','center')
+				->content( ($t?"<b>$t:</b> ":"").tds("TXT_NO_DATA", "No data found") , true);
 		}
-		
-		$this->_addLoadCallback('visualization', $js, true);
-		
 		if( isset($this->gvOptions['width']) )
 			$this->css('width',"{$this->gvOptions['width']}px");
 		if( isset($this->gvOptions['height']) )
