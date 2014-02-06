@@ -47,11 +47,11 @@ class Query
 	protected $_values = array();
 	protected $_statement = false;
 
-    function __construct(&$obj,&$datasource)
+    function __construct(&$obj,&$datasource,$conditions_separator="WHERE")
 	{
 		$this->_object = $obj;
 		$this->_ds = $datasource;
-		$this->_where = new ConditionTree();
+		$this->_where = new ConditionTree(-1,"AND",$conditions_separator);
 		$this->_currentTree = $this->_where;
 		$this->_knownmodels = array($obj);
 	}

@@ -476,9 +476,9 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
 		$className = get_called_class();
 		$res = new $className($datasource);
-		$res->__ensureSelect();
-		$res->_querySql = $sql;
-		$res->_queryArgs = $args;
+		$res->__ensureSelect($sql);
+		//$sql = preg_replace('/^select\s(.*)\swhere\s/Ui','',$sql);
+		$res->_query->sql($sql,force_array($args));
 		return $res;
 	}
 
@@ -672,10 +672,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		WdfDbException::Raise("Unknown column '$name' in table '{$this->_tableSchema->Name}'");
 	}
 
-	private function __ensureSelect()
+	private function __ensureSelect($select_statement=false)
 	{
 		if( !$this->_query )
-			$this->_query = new SelectQuery($this,$this->_ds);
+			$this->_query = new SelectQuery($this,$this->_ds,$select_statement);
 	}
 
 	/**
