@@ -361,15 +361,24 @@ $.ajaxSetup({cache:false});
 			$('#scrollloader_overlay_anim').fadeIn();
 		},
 		
+		resetScrollListLoader: function()
+		{
+			wdf.initScrollListLoader();
+			//wdf.stopScrollListLoader();
+		},
+		
+		scrollListLoaderHref: false,
+		scrollListLoaderContainer: false,
+		scrollListLoaderOffset: false,
 		initScrollListLoader: function(href,target_container,offset)
 		{
-			href = this.validateHref(href);
-			target_container = target_container || 'body';
-			top.offset = offset || 1;
+			if( href ) wdf.scrollListLoaderHref = this.validateHref(href);
+			wdf.scrollListLoaderContainer = target_container || wdf.scrollListLoaderContainer || 'body';
+			wdf.scrollListLoaderOffset = offset || 1;
 			
 			var trigger = $('#scrollloader_overlay_anim');
 			if( trigger.length === 0 )
-				trigger = $('<div/>').attr('id', 'scrollloader_overlay_anim').addClass('wdf_overlay_anim loadMoreContent_removable_trigger').insertAfter(target_container);
+				trigger = $('<div/>').attr('id', 'scrollloader_overlay_anim').addClass('wdf_overlay_anim loadMoreContent_removable_trigger').insertAfter(wdf.scrollListLoaderContainer);
 
 			var scroll_handler = function(e)
 			{
@@ -378,12 +387,12 @@ $.ajaxSetup({cache:false});
 				
 				wdf.showScrollListLoadAnim();
 				$(window).unbind('scroll.loadMoreContent', scroll_handler);
-				wdf.post(href,{offset:top.offset},function(result)
+				wdf.post(wdf.scrollListLoaderHref,{offset:wdf.scrollListLoaderOffset},function(result)
 				{
 					if( typeof(result) != 'string' || result == "" )
 						return;
-					top.offset++;
-					$(target_container).append(result);
+					wdf.scrollListLoaderOffset++;
+					$(wdf.scrollListLoaderContainer).append(result);
 					$(window).bind('scroll.loadMoreContent', scroll_handler);
 					
 					if( $(window).scrollTop() + $(window).height() >= trigger.position().top )
