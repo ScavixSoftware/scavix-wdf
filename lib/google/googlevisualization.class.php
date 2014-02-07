@@ -30,7 +30,6 @@ use PDO;
 use ScavixWDF\ICallable;
 use ScavixWDF\Localization\CultureInfo;
 use ScavixWDF\Model\DataSource;
-use ScavixWDF\Model\ResultSet;
 
 /**
  * Base class for google visualization controls.
