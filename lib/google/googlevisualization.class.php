@@ -43,6 +43,8 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	var $_culture = false;
 	var $_columnDef = false;
 	var $_data = array();
+	var $_rowCallbacks = array();
+	var $_roleCallbacks = array();
 	
 	var $_entities = array();
 	var $_ds;
@@ -294,7 +296,10 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	function setDataHeader()
 	{
 		$this->_entities = array(); $this->gvQuery = false;
-		$this->_data = array(func_get_args());
+		$args = func_get_args();
+		if( count($args)==1 && is_array($args[0]) )
+			$args = array_shift($args);
+		$this->_data = array($args);
 		return $this;
 	}
 	
@@ -308,7 +313,10 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	function addDataRow()
 	{
 		$this->_entities = array(); $this->gvQuery = false;
-		$this->_data[] = func_get_args();
+		$args = func_get_args();
+		if( count($args)==1 && is_array($args[0]) )
+			$args = array_shift($args);
+		$this->_data[] = $args;
 		return $this;
 	}
 	
@@ -355,15 +363,43 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		return $this;
 	}
 	
+	function addRowCallback($callback)
+	{
+		$this->_rowCallbacks[] = $callback;
+		return $this;
+	}
+	
+	function addColumnRole($role,$callback)
+	{
+		$key = "{$role}_".count($this->_roleCallbacks);
+		$this->_columnDef[$key] = $role;
+		$this->_roleCallbacks[$key] = array($role,$callback);
+		return $this;
+	}
+	
 	function setResultSet($rs)
 	{
-		$this->_data = array(array_keys($this->_columnDef));
+		$head = array();
+		foreach( $this->_columnDef as $key=>$def )
+		{
+			if( isset($this->_roleCallbacks[$key]) )
+				$head[] = array('role'=>$def);
+			else
+				$head[] = $key;
+		}
+		$this->_data = array($head);
 		$ci = $this->_culture;
 		foreach( $rs as $row )
 		{
 			$d = array();
-			foreach( $this->_columnDef as $def )
+			foreach( $this->_columnDef as $key=>$def )
 			{
+				if( isset($this->_roleCallbacks[$key]) )
+				{
+					list($role,$callback) = $this->_roleCallbacks[$key];
+					$d[] = $callback($role,$d,$row);
+					continue;
+				}
 				list($name,$type) = $def;
 				if( !isset($row[$name]) )
 					$row[$name] = "";
@@ -403,6 +439,8 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 				}
 				$d[] = $v;
 			}
+			foreach( $this->_rowCallbacks as $rcb )
+				$d = $rcb($d);
 			$this->_data[] = $d;
 		}
 		return $this;
