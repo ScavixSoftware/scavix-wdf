@@ -49,6 +49,7 @@ class CultureInfo
 
 	var $DateTimeFormat;
 	var $CurrencyFormat;
+	var $PercentFormat;
 	var $NumberFormat;
 	var $IsRTL;
 
@@ -382,6 +383,16 @@ class CultureInfo
 		if( $use_long )
 			return $this->FormatDate($date,DateTimeFormat::DF_LONGDATE,$convert_to_timezone)." ".$this->FormatTime($date,DateTimeFormat::DF_LONGTIME,$convert_to_timezone);
 		return $this->FormatDate($date,false,$convert_to_timezone)." ".$this->FormatTime($date,false,$convert_to_timezone);
+	}
+	
+	/**
+	 * @shortcut <PercentFormat::Format($number)
+	 */
+	function FormatPercent($number)
+	{
+		if( $this->PercentFormat )
+			return $this->PercentFormat->Format($number);
+		return $this->FormatNumber($number)."%";
 	}
 
 	/**
