@@ -518,6 +518,23 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
     }
 	
+	public static function MakeFromData($data,$datasource=null)
+	{
+		$className = get_called_class();
+		$res = new $className($datasource);
+		$pks = $res->GetPrimaryColumns();
+		foreach( $res->GetColumnNames() as $cn )
+		{
+			if( isset($data[$cn]) )
+				$res->$cn = $data[$cn];
+			$i = array_search($cn, $pks);
+			if( $i !== false )
+				unset($pks[$i]);
+		}
+		$res->_saved = count($pks)==0;
+		return $res;
+	}
+	
 	/**
 	 * Static tool method to ensure $value is of type <DateTimeEx>.
 	 * 
