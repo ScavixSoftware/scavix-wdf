@@ -1515,6 +1515,7 @@ function fq_class_name($classname)
 		case 'wdfresource':               return '\\ScavixWDF\\WdfResource';
 		case 'datasource':                return '\\ScavixWDF\\Model\\DataSource';
 		case 'sysadmin':                  return '\\ScavixWDF\\Admin\\SysAdmin';
+		case 'translationadmin':          return '\\ScavixWDF\\Translation\\TranslationAdmin';
 		case 'minifyadmin':               return '\\ScavixWDF\\Admin\\MinifyAdmin';
 		case 'tracelogger':               return '\\ScavixWDF\\Logging\\TraceLogger';
 		case 'phpsession':                return '\\ScavixWDF\\Session\\PhpSession';
