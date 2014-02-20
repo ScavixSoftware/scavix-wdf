@@ -804,7 +804,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
 		$res = clone $this;
 		$res->__ensureSelect();
-		$res->_query->sql($sql_statement_part,$args);
+		$res->_query->sql($sql_statement_part,force_array($args));
 		return $res;
 	}
 
