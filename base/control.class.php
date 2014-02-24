@@ -516,7 +516,7 @@ class Control extends Renderable
 		foreach( $this->_attributes as $name=>$value )
 		{
 			if($name{0} != "_")
-				$attr[] = "$name=\"".str_replace("\"","\\\"",$value)."\"";
+				$attr[] = "$name=\"".str_replace("\"","&#34;",$value)."\"";
 		}
 		foreach( $this->_data_attributes as $name=>$value )
 		{
