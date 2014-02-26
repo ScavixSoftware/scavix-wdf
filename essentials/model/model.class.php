@@ -531,6 +531,25 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			if( $i !== false )
 				unset($pks[$i]);
 		}
+		$res->__init_db_values(false);
+		$res->_saved = count($pks)==0;
+		return $res;
+	}
+	
+	public static function CastFrom($model)
+	{
+		$className = get_called_class();
+		$res = new $className($model->_ds);
+		$pks = $res->GetPrimaryColumns();
+		foreach( $res->GetColumnNames() as $cn )
+		{
+			if( isset($model->$cn) )
+				$res->$cn = $model->$cn;
+			$i = array_search($cn, $pks);
+			if( $i !== false )
+				unset($pks[$i]);
+		}
+		$res->__init_db_values(false);
 		$res->_saved = count($pks)==0;
 		return $res;
 	}
