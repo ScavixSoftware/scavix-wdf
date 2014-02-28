@@ -104,12 +104,21 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 			{
 				array_walk_recursive($this->_data,function(&$item, &$key){ if( $item instanceof DateTime) $item = "[jscode]new Date(".($item->getTimestamp()*1000).")"; });
 				$d = system_to_json($this->_data);
-				$js = "var d=google.visualization.arrayToDataTable($d); var c=new google.visualization.{$this->gvType}($('#$id').get(0));c.draw(d,$opts);$('#$id').data('googlechart', c);";
+				$js = "var d=google.visualization.arrayToDataTable($d);"
+					. "var c=new google.visualization.{$this->gvType}($('#$id').get(0));"
+					. "google.visualization.events.addListener(c, 'ready', function(){ $('#$id').data('ready',true); });"
+					. "c.draw(d,$opts);"
+					. "$('#$id').data('googlechart', c);";
 			}
 			else
 			{
 				$q = buildQuery($this->id,'Query');
-				$js = "var $id = new google.visualization.Query('$q');$id.setQuery('{$this->gvQuery}');$id.send(function(r){ if(r.isError()){ $('#$id').html(r.getDetailedMessage()); }else{ var c=new google.visualization.{$this->gvType}($('#$id').get(0));c.draw(r.getDataTable(),$opts);$('#$id').data('googlechart', c);}});";
+				$js = "var $id = new google.visualization.Query('$q');"
+					. "$id.setQuery('{$this->gvQuery}');"
+					. "$id.send(function(r){ if(r.isError()){ $('#$id').html(r.getDetailedMessage()); }else{ var c=new google.visualization.{$this->gvType}($('#$id').get(0));"
+					. "google.visualization.events.addListener(c, 'ready', function(){ $('#$id').data('ready',true); });"
+					. "c.draw(r.getDataTable(),$opts);"
+					. "$('#$id').data('googlechart', c);}});";
 			}
 			$this->_addLoadCallback('visualization', $js, true);
 		}
