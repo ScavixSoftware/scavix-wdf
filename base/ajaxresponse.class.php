@@ -154,6 +154,16 @@ class AjaxResponse
 	}
 	
 	/**
+	 * Let the client reload the current page.
+	 * 
+	 * @return AjaxResponse The created response
+	 */
+	public static function Reload()
+	{
+		return AjaxResponse::Js("document.location.reload();");
+	}
+	
+	/**
 	 * @internal Renders the response for output.
 	 */
 	function Render()
