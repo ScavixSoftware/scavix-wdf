@@ -104,6 +104,8 @@ class Args
 		}
 		if( !$name )
 			return array_keys(self::$_buffer[$order]);
+		if( self::$_ignore_case )
+			$name = strtolower($name);
 		if( isset(self::$_buffer[$order][$name]) )
 			return is_null($filter)?self::$_buffer[$order][$name]:self::sanitize(self::$_buffer[$order][$name],$filter,$filter_options);
 		if( !is_null($default) )
