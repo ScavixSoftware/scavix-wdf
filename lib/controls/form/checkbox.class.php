@@ -33,8 +33,6 @@ namespace ScavixWDF\Controls\Form;
  */
 class CheckBox extends Input
 {
-	var $Label = false;
-	
 	/**
 	 * @param string $name The name
 	 */
@@ -42,19 +40,5 @@ class CheckBox extends Input
 	{
 		parent::__initialize();
 		$this->setType("checkbox")->setName($name)->setValue(1);
-	}
-	
-	/**
-	 * Creates a label element for this checkbox.
-	 * 
-	 * Note that this only ensures that the label is correctly assigne to this checkbox.
-	 * It will not add it somewhere!
-	 * @param string $text Text for the label
-	 * @return Label The created label element
-	 */
-	function CreateLabel($text)
-	{
-		$this->Label = new Label($text,$this->id);
-		return $this->Label;
 	}
 }

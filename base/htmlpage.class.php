@@ -138,6 +138,7 @@ class HtmlPage extends Template implements ICallable
 		$this->set("css",$this->css);
 		$this->set("js",$this->js);
 		$this->set("meta",$this->meta);
+		$this->set("content",$this->_content);
 		
 		return parent::WdfRender();
 	}
@@ -208,18 +209,6 @@ class HtmlPage extends Template implements ICallable
 		$css = "\t<link rel='stylesheet' type='text/css' href='$src'/>\n";
 		$this->css[$src] = $css;
 		return $this;
-	}
-
-	/**
-	 * Adds content to the page
-	 * 
-	 * @param mixed $content Content to be added
-	 * @return mixed The content
-	 */
-	function content($content)
-	{
-		$this->add2var("content",$content);
-        return $content;
 	}
 
 	/**
