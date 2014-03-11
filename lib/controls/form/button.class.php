@@ -70,4 +70,11 @@ class Button extends Input
 		if( $onclick ) $res->onclick = $onclick;
 		return $res;
 	}
+	
+	function LinkTo($controller,$method='',$data=array())
+	{
+		$q = buildQuery($controller,$method,$data);
+		$this->onclick = "document.location.href = '$q';";
+		return $this;
+	}
 }
