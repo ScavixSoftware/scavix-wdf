@@ -247,24 +247,23 @@ class Table extends Control
 	function WdfRender()
     {
         if( $this->footer )
-            $this->_content = $this->prepend($this->footer);//array_merge(array($this->footer),$this->_content);
+            $this->prepend($this->footer);//array_merge(array($this->footer),$this->_content);
         if( $this->header )
-            $this->_content = $this->prepend($this->header);//array_merge(array($this->header),$this->_content);
+            $this->prepend($this->header);//array_merge(array($this->header),$this->_content);
 
 		if( $this->colgroup )
-			$this->_content = $this->prepend($this->colgroup);//array_merge(array($this->colgroup),$this->_content);
+			$this->prepend($this->colgroup);//array_merge(array($this->colgroup),$this->_content);
 
         if( $this->Caption )
         {
 			$this->_ensureCaptionObject();
-            $this->_content = $this->prepend($this->Caption);//array_merge(array($this->Caption),$this->_content);
+            $this->prepend($this->Caption);//array_merge(array($this->Caption),$this->_content);
         }
 		
         foreach( $this->_content as &$c )
         {
 			if( !is_object($c) || (get_class_simple($c) != "TBody") )
 				continue;
-
             foreach( $c->_content as $r )
 			{
 				if( !($r instanceof Tr) )

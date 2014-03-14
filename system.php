@@ -1458,11 +1458,22 @@ function shuffle_assoc(&$array)
  */
 function system_render_object_tree($array_of_objects)
 {
+	if( !isset($GLOBALS['system_render_object_tree_stack']) )
+		$GLOBALS['system_render_object_tree_stack'] = array();
+	
 	$res = array();
 	foreach( $array_of_objects as $key=>&$val )
 	{
 		if( $val instanceof Renderable )
+		{
+			if( in_array($val,$GLOBALS['system_render_object_tree_stack']) )
+			{
+				log_debug("XREF in object tree! Object already rendered elsewhere:",$val);
+				continue;
+			}
+			$GLOBALS['system_render_object_tree_stack'][] = $val;
 			$res[$key] = $val->WdfRender();
+		}
 		elseif( is_array($val) )
 			$res[$key] = system_render_object_tree($val);
 		elseif( $val instanceof DateTime )
