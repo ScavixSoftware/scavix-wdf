@@ -179,7 +179,7 @@ class TranslationAdmin extends TranslationAdminBase
         return $this->DeleteString($term);
     }
 	
-	private function _searchQuery($lang,$search)
+	private function _searchQuery($lang,$search=false)
 	{
 		$rs = $this->ds->Query('wdf_translations')->eq('lang',$lang);
 		if( !$search )
