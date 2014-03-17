@@ -126,6 +126,11 @@ class Args
 		self::$_ignore_case = $ignore;
 	}
 	
+	public static function clearBuffer()
+	{
+		self::$_buffer = array();
+	}
+	
 	/**
 	 * Sets the default superglobal query range.
 	 * 
