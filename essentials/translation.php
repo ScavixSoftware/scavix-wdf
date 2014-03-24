@@ -630,6 +630,14 @@ function add_trans_data($name,$data,$depth=0)
 	$name = str_replace(array('{','}'),array('',''),$name);
 	if( $data instanceof Model )
 		$data = $data->AsArray();
+	if( $data instanceof DateTime )
+	{
+		if( !isset($GLOBALS['current_language']) )
+			detect_language();
+		$ci = Localization::getCultureInfo($GLOBALS['current_language']);
+		$GLOBALS['translation']['data'][$name."_asdate"] = $ci->FormatDate($data);
+		$data = $ci->FormatDateTime($data);
+	}
 	if( is_object($data) )
 		$data = (array)$data;
 	if( is_array($data) )
