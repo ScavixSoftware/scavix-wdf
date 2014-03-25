@@ -146,6 +146,12 @@ class Logger
 				}
 			}
 		}
+		
+		if( !file_exists($this->filename) )
+		{
+			touch($this->filename);
+			chmod($this->filename, 0755);
+		}
 	}
 	
 	protected function rotate()
