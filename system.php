@@ -57,6 +57,7 @@ elseif( !defined("NO_CONFIG_NEEDED") )
  */
 function system_config($filename,$reset_to_defaults=true)
 {
+	global $CONFIG;
 	if( $reset_to_defaults )
 		system_config_default();
 	require_once($filename);
