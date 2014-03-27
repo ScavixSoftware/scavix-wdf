@@ -280,7 +280,7 @@ class CultureInfo
 
 	/**
 	 */
-	function FormatDuration($durationInSeconds)
+	function FormatDuration($durationInSeconds,$days_as_hours=false)
 	{
 		$days = floor($durationInSeconds / 86400);
 		$durationInSeconds -= $days * 86400;
@@ -291,7 +291,12 @@ class CultureInfo
 
 		$ret = '';
 		if($days > 0)
-			$ret .= $days.' d';
+		{
+			if( $days_as_hours )
+				$hours += $days * 24;
+			else
+				$ret .= $days.' d';
+		}
 		if($hours > 0)
 		{
 			$ret .= ' '.$hours .':';
