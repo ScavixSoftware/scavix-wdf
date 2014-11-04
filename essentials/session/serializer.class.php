@@ -49,8 +49,9 @@ use SimpleXMLElement;
 class Serializer
 {
 	var $Stack;
+	var $Hashes;
+	var $UseSPL;
 	var $Lines;
-//	var $PassedLines;
 
 	/**
 	 * Serializes a value
@@ -62,6 +63,8 @@ class Serializer
 	function Serialize(&$data)
 	{
 		$this->Stack = array();
+		$this->Hashes = array();
+		$this->UseSPL = function_exists('spl_object_hash');
 		return $this->Ser_Inner($data);
 	}
  
@@ -86,7 +89,19 @@ class Serializer
 			}
 			return $res;
 		}
-		elseif( is_object($data) )
+		elseif( is_bool($data) )
+		{
+			return "b:".($data?'1':'0')."\n";
+		}
+		elseif( is_float($data) )
+		{
+			return "f:$data\n";
+		}
+		elseif( empty($data) )
+		{
+			return "n:\n";
+		}
+		else
 		{
 			if( $data instanceof DataSource )
 				return "m:".$data->_storage_id."\n";
@@ -111,12 +126,22 @@ class Serializer
 			if( $data instanceof SimpleXMLElement )
 				return "z:".addcslashes($data->asXML(),"\n")."\n";
 			
-			foreach( $this->Stack as $index=>&$val )
-				if( equals($this->Stack[$index], $data) )
-					return "r:$index\n";
-
-			$this->Stack[] = $data;
-			$id = count($this->Stack) - 1;
+			if( $this->UseSPL )
+			{
+				$hash = spl_object_hash($data);
+				if( isset($this->Hashes[$hash]) )
+					return "r:{$this->Hashes[$hash]}";
+				$this->Stack[] = $data;
+				$this->Hashes[$hash] = $id = count($this->Stack) - 1;
+			}	
+			else
+			{
+				foreach( $this->Stack as $index=>&$val )
+					if( equals($this->Stack[$index], $data, false) )
+						return "r:$index\n";
+				$this->Stack[] = $data;
+				$id = count($this->Stack) - 1;
+			}
 
 			if( system_method_exists($data, '__sleep') )
 				$vars = $data->__sleep();
@@ -131,27 +156,13 @@ class Serializer
 				$res = "o:$id:".$max.":".get_class($data).":\n";
 			
             $i = 0;
-//			while($i++<$max)
 			foreach( $vars as $field )
 			{
-//                $field = $vars[$i];
 				$res .= "f:".$this->Ser_Inner($field,$level+1);
 				$res .= "v:".$this->Ser_Inner($data->$field,$level+1);
 			}
 
 			return $res;
-		}
-		elseif( is_bool($data) )
-		{
-			return "b:".($data?'1':'0')."\n";
-		}
-		elseif( is_float($data) )
-		{
-			return "f:$data\n";
-		}
-		elseif( empty($data) )
-		{
-			return "n:\n";
 		}
 	}
 
