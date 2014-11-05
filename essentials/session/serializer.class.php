@@ -49,8 +49,8 @@ use SimpleXMLElement;
 class Serializer
 {
 	var $Stack;
-	var $Hashes;
-	var $UseSPL;
+	var $clsmap;
+	var $sleepmap;
 	var $Lines;
 
 	/**
@@ -62,9 +62,9 @@ class Serializer
 	 */
 	function Serialize(&$data)
 	{
-		$this->Stack = array();
-		$this->Hashes = array();
-		$this->UseSPL = function_exists('spl_object_hash');
+		$this->Stack  = array();
+		$this->clsmap = array();
+		$this->sleepmap = array();
 		return $this->Ser_Inner($data);
 	}
  
@@ -105,20 +105,20 @@ class Serializer
 		{
 			if( $data instanceof DataSource )
 				return "m:".$data->_storage_id."\n";
-			if( $data instanceof ADORecordSet_mysql || $data instanceof PDOStatement || $data instanceof Closure )
+			if( $data instanceof PDOStatement || $data instanceof Closure )
 				return "n:\n";
 			if( $data instanceof DateTimeEx )
 			{
 				$dtres = $data->format('c');
 				if( substr($dtres,0,4)=="-001" )
-					$dtres = "";
+					return "x:\n";
 				return "x:$dtres\n";
 			}
 			if( $data instanceof DateTime )
 			{
 				$dtres = $data->format('c');
 				if( substr($dtres,0,4)=="-001" )
-					$dtres = "";
+					return "d:\n";
 				return "d:$dtres\n";
 			}
 			if( $data instanceof Reflector )
@@ -126,36 +126,24 @@ class Serializer
 			if( $data instanceof SimpleXMLElement )
 				return "z:".addcslashes($data->asXML(),"\n")."\n";
 			
-			if( $this->UseSPL )
-			{
-				$hash = spl_object_hash($data);
-				if( isset($this->Hashes[$hash]) )
-					return "r:{$this->Hashes[$hash]}";
-				$this->Stack[] = $data;
-				$this->Hashes[$hash] = $id = count($this->Stack) - 1;
-			}	
-			else
-			{
-				foreach( $this->Stack as $index=>&$val )
-					if( equals($this->Stack[$index], $data, false) )
-						return "r:$index\n";
-				$this->Stack[] = $data;
-				$id = count($this->Stack) - 1;
-			}
+			$index = array_search($data, $this->Stack, true);
+			if( $index !== false  )
+				return "r:$index\n";
+			$id = count($this->Stack);
+			$this->Stack[] = $data;
 
-			if( system_method_exists($data, '__sleep') )
-				$vars = $data->__sleep();
-			else
-				$vars = array_keys(get_object_vars($data));
-
+			$classname = get_class($data);
+			if( !isset($this->sleepmap[$classname]) )
+				$this->sleepmap[$classname] = method_exists($data,'__sleep');
+			$vars = $this->sleepmap[$classname]
+				?$data->__sleep()
+				:array_keys(get_object_vars($data));
             $max = count($vars);
 
-			if( $data instanceof Model)
-				$res = "o:$id:".$max.":".get_class($data).":{$data->DataSourceName()}\n";
-			else
-				$res = "o:$id:".$max.":".get_class($data).":\n";
+			$res = ( $data instanceof Model)
+				?"o:$id:$max:$classname:{$data->DataSourceName()}\n"
+				:"o:$id:$max:$classname:\n";
 			
-            $i = 0;
 			foreach( $vars as $field )
 			{
 				$res .= "f:".$this->Ser_Inner($field,$level+1);
