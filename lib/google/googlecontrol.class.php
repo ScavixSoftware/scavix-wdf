@@ -26,6 +26,8 @@ namespace ScavixWDF\Google;
 
 use ScavixWDF\Base\Control;
 use ScavixWDF\Base\HtmlPage;
+use ScavixWDF\Base\Renderable;
+use ScavixWDF\Localization\CultureInfo;
 
 /**
  * Base class for all google controls.
@@ -37,22 +39,43 @@ class GoogleControl extends Control
 	protected static $_apis = array();
 	private static $_delayedHookAdded = false;
 	private $disposed = false;
+	private $frozen = true;
+	var $_culture = false;
 	
 	/**
 	 * @param string $tag Allows to specify another tag for the wrapper control, default for google controls is &lt;span&gt;
 	 */
-	function __initialize($tag='span')
+	function __initialize($tag='span',$frozen = true)
 	{
 		parent::__initialize($tag);
+		$this->frozen = $frozen;
 		$page = current_controller(false);
 		if( $page instanceof HtmlPage )
-			$page->addJs('//www.google.com/jsapi');
+		{
+			if( $this->frozen )
+				$page->addJs('//www.gstatic.com/charts/loader.js');
+			else
+				$page->addJs('//www.google.com/jsapi');
+		}
 	}
 	
 	function __dispose()
 	{
 		delete_object($this->id);
 		$this->disposed = true;
+	}
+	
+	/**
+	 * Assigns a culture to this control.
+	 * 
+	 * This will be used for value formatting.
+	 * @param CultureInfo $ci The culture object
+	 * @return GoogleControl `$this`
+	 */
+	function setCulture(CultureInfo $ci)
+	{
+		$this->_culture = $ci;
+		return $this;
 	}
 	
 	/**
@@ -65,7 +88,7 @@ class GoogleControl extends Control
 		if( count($args) > 0 )
 		{
 			$controller = $args[0];
-			if( $controller instanceof \ScavixWDF\Base\Renderable )
+			if( $controller instanceof Renderable )
 			{
 				if( !self::$_delayedHookAdded )
 				{
@@ -90,7 +113,18 @@ class GoogleControl extends Control
 				$options['callback'] = "function(){ ".implode("\n",$options['callback'])." }";
 			else
 				$options['callback'] = "function(){}";
-			$loader[] = "google.load('$api','$version',".system_to_json($options).");";
+			
+			if( $this->_culture )
+				$options['language'] = $this->_culture->ResolveToLanguage()->Code;
+			
+			if( $this->frozen )
+			{
+				$loader[] = "window.googleLoadCallback = ".$options['callback'];
+				$options['callback'] = 'function(){ window.googleLoadCallback(); }';
+				$loader[] = "if( window.googleLoaded ) { window.googleLoadCallback(); } else { window.googleLoaded = true; google.charts.load('42',".system_to_json($options)."); }";
+			}
+			else
+				$loader[] = "google.load('$api','$version',".system_to_json($options).");";
 		}
 		$controller = $args[0];
 		if( system_is_ajax_call() )

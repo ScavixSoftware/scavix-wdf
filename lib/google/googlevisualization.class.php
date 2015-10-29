@@ -41,7 +41,6 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	public static $DefaultDatasource = false;
 	public static $Colors = false;
 	
-	var $_culture = false;
 	var $_columnDef = false;
 	var $_data = array();
 	var $_rowCallbacks = array();
@@ -97,40 +96,28 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	 */
 	function PreRender($args = array())
 	{
-		if( count($this->_data)>1 )
+		if( count($this->_data)>1 || $this->_columnDef )
 		{
-			$id = $this->id;
+			$id = $this->id; $d = "d$id"; $c = "c$id";
 			$opts = json_encode($this->gvOptions);
-			if( count($this->_data)>0 )
+
+			array_walk_recursive($this->_data,function(&$item, &$key){ if( $item instanceof DateTime) $item = "[jscode]new Date(".($item->getTimestamp()*1000).")"; });
+			$data = system_to_json($this->_data);
+			if( self::$UseMaterialDesign && in_array($this->gvType, array('Bar', 'Column')))
 			{
-				array_walk_recursive($this->_data,function(&$item, &$key){ if( $item instanceof DateTime) $item = "[jscode]new Date(".($item->getTimestamp()*1000).")"; });
-				$d = system_to_json($this->_data);
-				if( self::$UseMaterialDesign && in_array($this->gvType, array('Bar', 'Column')))
-				{
-					$js = "var d=google.visualization.arrayToDataTable($d);\n"
-						. "var c=new google.charts.Bar($('#$id').get(0));\n"
-						. "google.visualization.events.addListener(c, 'ready', function(){ $('#$id').data('ready',true); });\n"
-						. "c.draw(d,google.charts.{$this->gvType}.convertOptions($opts));\n"
-						. "$('#$id').data('googlechart', c);";
-				}
-				else
-				{
-					$js = "var d=google.visualization.arrayToDataTable($d);\n"
-						. "var c=new google.visualization.{$this->gvType}($('#$id').get(0));\n"
-						. "google.visualization.events.addListener(c, 'ready', function(){ $('#$id').data('ready',true); });\n"
-						. "c.draw(d,$opts);\n"
-						. "$('#$id').data('googlechart', c);";
-				}
+				$js = "var $d=google.visualization.arrayToDataTable($data);\n"
+					. "var $c=new google.charts.Bar($('#$id').get(0));\n"
+					. "google.visualization.events.addListener($c, 'ready', function(){ $('#$id').data('ready',true); });\n"
+					. "$c.draw($d,google.charts.{$this->gvType}.convertOptions($opts));\n"
+					. "$('#$id').data('googlechart', $c);";
 			}
 			else
 			{
-				$q = buildQuery($this->id,'Query');
-				$js = "var $id = new google.visualization.Query('$q');\n"
-					. "$id.setQuery('{$this->gvQuery}');\n"
-					. "$id.send(function(r){ if(r.isError()){ $('#$id').html(r.getDetailedMessage()); }else{ var c=new google.visualization.{$this->gvType}($('#$id').get(0));\n"
-					. "google.visualization.events.addListener(c, 'ready', function(){ $('#$id').data('ready',true); });\n"
-					. "c.draw(r.getDataTable(),$opts);\n"
-					. "$('#$id').data('googlechart', c);}});";
+				$js = "var $d=google.visualization.arrayToDataTable($data);\n"
+					. "var $c=new google.visualization.{$this->gvType}($('#$id').get(0));\n"
+					. "google.visualization.events.addListener($c, 'ready', function(){ $('#$id').data('ready',true); });\n"
+					. "$c.draw($d,$opts);\n"
+					. "$('#$id').data('googlechart', $c);";
 			}
 			$this->_addLoadCallback('visualization', $js, true);
 		}
@@ -398,19 +385,6 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	}
 	
 	/**
-	 * Assigns a culture to this visualization.
-	 * 
-	 * This will be used for value formatting.
-	 * @param CultureInfo $ci The culture object
-	 * @return GoogleVisualization `$this`
-	 */
-	function setCulture(CultureInfo $ci)
-	{
-		$this->_culture = $ci;
-		return $this;
-	}
-	
-	/**
 	 * Adds a callback method that will be called for each added data row.
 	 * 
 	 * @param Closure $callback Method to be called
@@ -490,8 +464,9 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 					case 'double': 
 					case 'number': 
 						$v = floatval($v);
-						if( $ci )
-							$v = array('v'=>$v,'f'=>$ci->FormatNumber($v));
+						// if we format the output will be HTML (used in tooltip) but the standard tooltip cannot handle that
+//						if( $ci )
+//							$v = array('v'=>$v,'f'=>$ci->FormatNumber($v)); 
 						break;
 					case 'currency': 
 						$v = floatval($v);
@@ -512,6 +487,9 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 						$v = new DateTime($v);
 						if( $ci )
 							$v = array('v'=>$v,'f'=>$ci->FormatDateTime($v));
+						break;
+					case 'timeofday': 
+						$v = explode(':',$v);
 						break;
 				}
 				$d[] = $v;
