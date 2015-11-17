@@ -100,6 +100,17 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		{
 			$id = $this->id; $d = "d$id"; $c = "c$id";
 			$opts = json_encode($this->gvOptions);
+			
+			if($this->gvQuery == false)
+			{
+				foreach( $this->_rowCallbacks as $rcb )
+				{
+					$d = array();
+					foreach($this->_data as $row)
+						$d[] = $rcb($row);
+					$this->_data = $d;
+				}
+			}
 
 			array_walk_recursive($this->_data,function(&$item, &$key){ if( $item instanceof DateTime) $item = "[jscode]new Date(".($item->getTimestamp()*1000).")"; });
 			$data = system_to_json($this->_data);
