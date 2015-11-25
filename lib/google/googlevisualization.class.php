@@ -91,27 +91,25 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		store_object($this);
 	}
 	
+	private function _applyRowCallbacks($row)
+	{
+		foreach( $this->_rowCallbacks as $rcb )
+			$row = $rcb($row);
+		return $row;
+	}
+	
 	/**
 	 * @override
 	 */
 	function PreRender($args = array())
 	{
+		$this->_data = array_values_rec($this->_data);
+		
 		if( count($this->_data)>1 || $this->_columnDef )
 		{
 			$id = $this->id; $d = "d$id"; $c = "c$id";
 			$opts = json_encode($this->gvOptions);
 			
-			if($this->gvQuery == false)
-			{
-				foreach( $this->_rowCallbacks as $rcb )
-				{
-					$d = array();
-					foreach($this->_data as $row)
-						$d[] = $rcb($row);
-					$this->_data = $d;
-				}
-			}
-
 			array_walk_recursive($this->_data,function(&$item, &$key){ if( $item instanceof DateTime) $item = "[jscode]new Date(".($item->getTimestamp()*1000).")"; });
 			$data = system_to_json($this->_data);
 			if( self::$UseMaterialDesign && in_array($this->gvType, array('Bar', 'Column')))
@@ -323,7 +321,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		$args = func_get_args();
 		if( count($args)==1 && is_array($args[0]) )
 			$args = array_shift($args);
-		$this->_data = array($args);
+		$this->_data = array($this->_applyRowCallbacks($args));
 		return $this;
 	}
 	
@@ -340,7 +338,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		$args = func_get_args();
 		if( count($args)==1 && is_array($args[0]) )
 			$args = array_shift($args);
-		$this->_data[] = $args;
+		$this->_data[] = $this->_applyRowCallbacks($args);
 		return $this;
 	}
 	
@@ -355,6 +353,10 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	function setDataRows($rows)
 	{
 		$this->_entities = array(); $this->gvQuery = false;
+		
+		foreach( $rows as $i=>$r )
+			$rows[$i] = $this->_applyRowCallbacks($r);
+		
 		if( count($this->_data)>0 )
 			$this->_data = array_merge(array($this->_data[0]),$rows);
 		else
@@ -455,13 +457,13 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 			$d = array();
 			foreach( $this->_columnDef as $key=>$def )
 			{
+				list($name,$type) = $def;
 				if( isset($this->_roleCallbacks[$key]) )
 				{
 					list($role,$callback) = $this->_roleCallbacks[$key];
-					$d[] = $callback($role,$d,$row);
+					$d[$name] = $callback($role,$d,$row);
 					continue;
 				}
-				list($name,$type) = $def;
 				if( !isset($row[$name]) )
 					$row[$name] = "";
 				$v = $row[$name];
@@ -503,11 +505,9 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 						$v = explode(':',$v);
 						break;
 				}
-				$d[] = $v;
+				$d[$name] = $v;
 			}
-			foreach( $this->_rowCallbacks as $rcb )
-				$d = $rcb($d);
-			$this->_data[] = $d;
+			$this->_data[] = $this->_applyRowCallbacks($d);
 		}
 		return $this;
 	}

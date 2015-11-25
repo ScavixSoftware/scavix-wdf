@@ -1111,3 +1111,18 @@ function ifavail()
 			return $data->$n;
 	return null;
 }
+
+/**
+ * Performs `array_values` on a multidimentional array.
+ */
+function array_values_rec($array)
+{
+	$res = array();
+	foreach( $array as $v )
+	{
+		if( is_array($v) )
+			$v = array_values_rec($v);
+		$res[] = $v;
+	}
+	return $res;
+}
