@@ -431,6 +431,50 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		return $this;
 	}
 	
+	private function getTypedValue($v,$type)
+	{
+		$ci = $this->_culture;
+		switch( $type )
+		{
+			case 'int': 
+			case 'integer': 
+				$v = intval($v); 
+				break;
+			case 'float': 
+			case 'double': 
+			case 'number': 
+				$v = floatval($v);
+				// if we format the output will be HTML (used in tooltip) but the standard tooltip cannot handle that
+//						if( $ci )
+//							$v = array('v'=>$v,'f'=>$ci->FormatNumber($v)); 
+				break;
+			case 'currency': 
+				$v = floatval($v);
+				if( $ci )
+					$v = array('v'=>$v,'f'=>$ci->FormatCurrency($v));
+				break;
+			case 'date': 
+				$v = new DateTime($v);
+				if( $ci )
+					$v = array('v'=>$v,'f'=>$ci->FormatDate($v));
+				break;
+			case 'time': 
+				$v = new DateTime($v);
+				if( $ci )
+					$v = array('v'=>$v,'f'=>$ci->FormatTime($v));
+				break;
+			case 'datetime': 
+				$v = new DateTime($v);
+				if( $ci )
+					$v = array('v'=>$v,'f'=>$ci->FormatDateTime($v));
+				break;
+			case 'timeofday': 
+				$v = explode(':',$v);
+				break;
+		}
+		return $v;
+	}
+	
 	/**
 	 * Adds a <ResultSet> as data for this visualization.
 	 * 
@@ -451,7 +495,6 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 				$head[] = $key;
 		}
 		$this->_data = array($head);
-		$ci = $this->_culture;
 		foreach( $rs as $row )
 		{
 			$d = array();
@@ -466,49 +509,63 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 				}
 				if( !isset($row[$name]) )
 					$row[$name] = "";
-				$v = $row[$name];
-				switch( $type )
-				{
-					case 'int': 
-					case 'integer': 
-						$v = intval($v); 
-						break;
-					case 'float': 
-					case 'double': 
-					case 'number': 
-						$v = floatval($v);
-						// if we format the output will be HTML (used in tooltip) but the standard tooltip cannot handle that
-//						if( $ci )
-//							$v = array('v'=>$v,'f'=>$ci->FormatNumber($v)); 
-						break;
-					case 'currency': 
-						$v = floatval($v);
-						if( $ci )
-							$v = array('v'=>$v,'f'=>$ci->FormatCurrency($v));
-						break;
-					case 'date': 
-						$v = new DateTime($v);
-						if( $ci )
-							$v = array('v'=>$v,'f'=>$ci->FormatDate($v));
-						break;
-					case 'time': 
-						$v = new DateTime($v);
-						if( $ci )
-							$v = array('v'=>$v,'f'=>$ci->FormatTime($v));
-						break;
-					case 'datetime': 
-						$v = new DateTime($v);
-						if( $ci )
-							$v = array('v'=>$v,'f'=>$ci->FormatDateTime($v));
-						break;
-					case 'timeofday': 
-						$v = explode(':',$v);
-						break;
-				}
-				$d[$name] = $v;
+				$d[$name] = $this->getTypedValue($row[$name],$type);
 			}
 			$this->_data[] = $this->_applyRowCallbacks($d);
 		}
+		return $this;
+	}
+	
+	function setMultiSeriesResultSet($rs,$xAxisCol,$newColSpecifier,$newColValue)
+	{
+		$results = $rs->results();
+		
+		$xAxisColDef = $xAxisCol;
+		if( !isset($this->_columnDef[$xAxisCol]) )
+		{
+			$found = false;
+			foreach( $this->_columnDef as $key=>$def )
+			{
+				list($name,$type) = $def;
+				if( $name == $xAxisCol )
+				{
+					$xAxisColDef = $key;
+					$found = true;
+					break;
+				}
+			}
+			if( !$found )
+				$this->addColumn($xAxisCol,$xAxisCol,'string');
+		}
+		foreach( $results as $row )
+		{
+			$key = $row[$newColSpecifier];
+			if( isset($this->_columnDef[$key]) )
+				continue;
+			$this->addColumn($key,$key,'number');
+		}
+		
+		$head = array();
+		foreach( $this->_columnDef as $key=>$def )
+		{
+			if( isset($this->_roleCallbacks[$key]) )
+				$head[] = array('role'=>$def);
+			else
+				$head[] = $key;
+		}
+		$this->_data = array($head);
+
+		foreach( $results as $row )
+		{
+			$xVal = $row[$xAxisCol];
+			if( !isset($this->_data[$xVal]) )
+			{
+				$this->_data[$xVal] = array_combine(array_keys($this->_columnDef), array_fill(0,count($this->_columnDef),0));
+				$this->_data[$xVal][$xAxisColDef] = $xVal;
+			}
+			$this->_data[$xVal][$row[$newColSpecifier]] = $this->getTypedValue($row[$newColValue],'number');
+		}
+		
 		return $this;
 	}
 }
