@@ -1115,13 +1115,15 @@ function ifavail()
 /**
  * Performs `array_values` on a multidimentional array.
  */
-function array_values_rec($array)
+function array_values_rec($array,$max_depth=false,$cur_depth=1)
 {
+	if( $max_depth !== false && $cur_depth>$max_depth )
+		return $array;
 	$res = array();
 	foreach( $array as $v )
 	{
 		if( is_array($v) )
-			$v = array_values_rec($v);
+			$v = array_values_rec($v,$max_depth,$cur_depth+1);
 		$res[] = $v;
 	}
 	return $res;

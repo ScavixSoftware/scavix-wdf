@@ -103,7 +103,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	 */
 	function PreRender($args = array())
 	{
-		$this->_data = array_values_rec($this->_data);
+		$this->_data = array_values_rec($this->_data,2);
 		
 		if( count($this->_data)>1 || $this->_columnDef )
 		{
