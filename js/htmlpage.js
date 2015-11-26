@@ -66,9 +66,10 @@ $.ajaxSetup({cache:false});
 			// prepare settings object
 			settings.route = location.href.substr(settings.site_root.length);
 			settings.rewrite = !settings.route.match(/^\?wdf_route/);
-			settings.route = settings.rewrite
-				?settings.route.split("/")
-				:this.arg('wdf_route').split("/");
+			var route = (settings.rewrite ? settings.route : this.arg('wdf_route'));
+			if(route.indexOf("?") != -1)
+				route = route.substr(0, route.indexOf("?"));
+			settings.route = route.split("/");
 			settings.controller = settings.route[0] || '~';
 			settings.method = settings.route[1] || '';
 			settings.route = settings.rewrite
