@@ -1220,6 +1220,15 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
 		return $this->olderThan($property, '0', 'second');
 	}
+	
+	/**
+	 * Filters by date values in the future
+	 * @shortcut <Model::newerThan>($property,0,'second')
+	 */
+	public function isFuture($property)
+	{
+		return $this->newerThan($property, '0', 'second');
+	}
 		
 	/**
 	 * This is just a 'no operation' method.
