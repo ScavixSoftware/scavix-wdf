@@ -1514,7 +1514,7 @@ function system_render_object_tree($array_of_objects)
 	{
 		if( $val instanceof Renderable )
 		{
-			if( in_array($val,$GLOBALS['system_render_object_tree_stack']) )
+			if( in_array($val, $GLOBALS['system_render_object_tree_stack'], true) )
 			{
 				log_debug("XREF in object tree! Object already rendered elsewhere:",$val);
 				continue;
