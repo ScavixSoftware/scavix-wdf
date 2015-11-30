@@ -504,7 +504,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 				if( isset($this->_roleCallbacks[$key]) )
 				{
 					list($role,$callback) = $this->_roleCallbacks[$key];
-					$d[$name] = $callback($role,$d,$row);
+					$d[$key] = $callback($role,$d,$row);
 					continue;
 				}
 				if( !isset($row[$name]) )
