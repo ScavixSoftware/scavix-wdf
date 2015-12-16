@@ -78,8 +78,13 @@ class WdfResource implements ICallable
 		$res = explode("?",$res);
 		$res = realpath(__DIR__."/../../js/".$res[0]);
 		header('Content-Type: text/javascript');
-		WdfResource::ValidatedCacheResponse($res);
-		readfile($res);
+		if( $res )
+		{
+			WdfResource::ValidatedCacheResponse($res);
+			readfile($res);
+		}
+		else
+			header("HTTP/1.0 404 Not Found");
 		die();
 	}
 	
@@ -99,8 +104,13 @@ class WdfResource implements ICallable
 			header('Content-Type: image/jpeg');
 		elseif(ends_iwith($res, '.gif'))
 			header('Content-Type: image/gif');
-		WdfResource::ValidatedCacheResponse($res);
-		readfile($res);
+		if( $res )
+		{
+			WdfResource::ValidatedCacheResponse($res);
+			readfile($res);
+		}
+		else
+			header("HTTP/1.0 404 Not Found");
 		die();
 	}
 	
