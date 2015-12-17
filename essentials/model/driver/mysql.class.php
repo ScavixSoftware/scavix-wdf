@@ -174,8 +174,10 @@ class MySql implements IDatabaseDriver
 			if( !isset($model->$col) )
 			{
 				if( !isset($ovars) )
+				{
 					$ovars = get_object_vars($model);
-				
+					$ovars = array_combine(array_keys($ovars),array_fill(0,count($ovars),true));
+				}
 				if( !isset($ovars[$col]) )
 					continue;
 			}
