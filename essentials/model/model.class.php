@@ -550,12 +550,23 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * @param DataSource $datasource Optional datasource to assign to the created <Model>
 	 * @return subclass_of_Model The newly created typed <Model>
 	 */
-	public static function MakeFromData($data,$datasource=null)
+	public static function MakeFromData($data,$datasource=null,$allFields=false,$className=false)
 	{
-		$className = get_called_class();
+		$className = $className?$className:get_called_class();
 		$res = new $className($datasource);
 		$pks = $res->GetPrimaryColumns();
-		foreach( $res->GetColumnNames() as $cn )
+        
+        if( $allFields )
+		{
+			$columns = array_diff(
+				array_keys($data),
+				array_keys(get_object_vars($res))
+			);
+		}
+		else
+			$columns = $res->GetColumnNames();
+        
+		foreach( $columns as $cn )
 		{
 			if( isset($data[$cn]) )
 				$res->$cn = $data[$cn];
@@ -578,12 +589,23 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * @param Model $model Object of (sub-)type <Model>
 	 * @return subclass_of_Model The typed object
 	 */
-	public static function CastFrom($model)
+	public static function CastFrom($model,$allFields=false,$className=false)
 	{
-		$className = get_called_class();
+        $className = $className?$className:get_called_class();
 		$res = new $className($model->_ds);
 		$pks = $res->GetPrimaryColumns();
-		foreach( $res->GetColumnNames() as $cn )
+		
+		if( $allFields )
+		{
+			$columns = array_diff(
+				array_keys(get_object_vars($model)),
+				array_keys(get_object_vars($res))
+			);
+		}
+		else
+			$columns = $res->GetColumnNames();
+		
+		foreach( $columns as $cn )
 		{
 			if( isset($model->$cn) )
 				$res->$cn = $model->$cn;
