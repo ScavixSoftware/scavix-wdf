@@ -110,7 +110,7 @@ class WdfResource implements ICallable
 	 */
 	function CompileLess($file)
 	{
-		$vars = cfg_getd('resources_less_variables',array());
+		$vars = isset($_SESSION['resources_less_variables'])?$_SESSION['resources_less_variables']:array();
 		$file_key = md5($file.serialize($vars));
 		
 		$less = resFile(basename($file),true);
