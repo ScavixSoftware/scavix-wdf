@@ -246,7 +246,7 @@ function cfg_getd()
 	$args = func_get_args();
 	switch( func_num_args() )
 	{
-		case 2: return isset($CONFIG[$args[0]])?$CONFIG[$args[0]]:$args[1];
+        case 2: return isset($CONFIG[$args[0]])?$CONFIG[$args[0]]:$args[1];
 		case 3: return isset($CONFIG[$args[0]][$args[1]])?$CONFIG[$args[0]][$args[1]]:$args[2];
 		case 4: return isset($CONFIG[$args[0]][$args[1]][$args[2]])?$CONFIG[$args[0]][$args[1]][$args[2]]:$args[3];
 		case 5: return isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]])?$CONFIG[$args[0]][$args[1]][$args[2]][$args[3]]:$args[4];

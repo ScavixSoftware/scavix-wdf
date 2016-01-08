@@ -135,8 +135,15 @@ function resFile($filename, $as_local_path = false)
 
 function register_less_variable($name,$value)
 {
-	global $CONFIG;
-	$vars = cfg_getd('resources_less_variables',array());
-	$vars[$name] = $value;
-	cfg_set('resources_less_variables',$vars);
+    if( !isset($_SESSION['resources_less_variables']) )
+        $_SESSION['resources_less_variables'] = array();
+	$_SESSION['resources_less_variables'][$name] = $value;
+}
+
+function clear_less_cache()
+{
+    foreach( glob(sys_get_temp_dir()."/*.css") as $c )
+        @unlink($c);
+    foreach( glob(sys_get_temp_dir()."/*.cache") as $c )
+        @unlink($c);
 }

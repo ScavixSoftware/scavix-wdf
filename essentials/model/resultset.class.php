@@ -329,9 +329,18 @@ class ResultSet implements Iterator, ArrayAccess
 	/**
 	 * @shortcut <ResultSet::fetchAll>.
 	 */
-	function results()
+	function results($className=false)
 	{
-		return $this->fetchAll();
+        if( !$this->_data_fetched )
+			$this->fetchAll();
+        
+        if( !$className )
+            return $this->_rowbuffer;
+        
+        $res = array();
+        foreach( $this->_rowbuffer as $row )
+            $res[] = Model::MakeFromData($row, $this->_ds, true, $className);
+        return $res;
 	}
 	
 	/**

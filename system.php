@@ -1282,6 +1282,7 @@ function cache_clear($global_cache=true, $session_cache=true)
 		$_SESSION["system_internal_cache"] = array();
     if( $global_cache && system_is_module_loaded('globalcache') )
 		globalcache_clear();
+    clear_less_cache();
 }
 
 /**
@@ -1514,7 +1515,7 @@ function system_render_object_tree($array_of_objects)
 	{
 		if( $val instanceof Renderable )
 		{
-			if( in_array($val,$GLOBALS['system_render_object_tree_stack']) )
+			if( in_array($val, $GLOBALS['system_render_object_tree_stack'], true) )
 			{
 				log_debug("XREF in object tree! Object already rendered elsewhere:",$val);
 				continue;
