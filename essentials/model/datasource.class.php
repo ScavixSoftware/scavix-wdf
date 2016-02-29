@@ -280,7 +280,7 @@ class DataSource
 	 */
 	function CacheExecuteSql($sql,$prms=array(),$lifetime=300)
 	{
-		if( !system_is_module_loaded('globalcache') )
+		if( !system_is_module_loaded('globalcache') || $lifetime === 0 )
 			return $this->ExecuteSql($sql, $prms);
 		
 		$key = 'DB_Cache_Sql_'.md5( $sql.serialize($prms).$lifetime );
@@ -305,7 +305,7 @@ class DataSource
 	 */
 	function CacheDLookUp($field_name, $table_name = "", $where_condition = "", $parameter = array(),$lifetime=300)
 	{
-		if( !system_is_module_loaded('globalcache') )
+		if( !system_is_module_loaded('globalcache') || $lifetime === 0 )
 			return $this->DLookUp($field_name, $table_name, $where_condition, $parameter);
 		
 		$key = 'DB_Cache_Look_'.md5( $field_name.$table_name.$where_condition.serialize($parameter).$lifetime );
@@ -415,7 +415,7 @@ class DataSource
 	 */
 	function CacheExecuteScalar($sql,$prms=array(),$lifetime=300)
 	{
-		if( !system_is_module_loaded('globalcache') )
+		if( !system_is_module_loaded('globalcache') || $lifetime === 0 )
 			return $this->ExecuteScalar($sql, $prms);
 		
 		$key = 'SB_Cache_Scalar_'.md5( $sql.serialize($prms).$lifetime );
