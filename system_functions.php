@@ -572,10 +572,14 @@ function system_is_ajax_call()
 	{
 		$GLOBALS['result_of_system_is_ajax_call'] = strtolower(array_val($_SERVER, 'HTTP_X_REQUESTED_WITH', '')) == 'xmlhttprequest';
 		if( !$GLOBALS['result_of_system_is_ajax_call'] )
-			$GLOBALS['result_of_system_is_ajax_call'] = 
-				isset($_REQUEST['request_id']) && 
-				isset($_SESSION['request_id']) && 
-				$_REQUEST['request_id'] == $_SESSION['request_id'];
+		{
+			if( !isset($_REQUEST['request_id']) || !isset($_SESSION['request_id']) )
+			{
+				unset($GLOBALS['result_of_system_is_ajax_call']);
+				return false;
+			}
+			$GLOBALS['result_of_system_is_ajax_call'] = $_REQUEST['request_id'] == $_SESSION['request_id'];
+		}
 	}
 	return $GLOBALS['result_of_system_is_ajax_call'];
 }
