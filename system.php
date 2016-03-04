@@ -1282,6 +1282,7 @@ function cache_clear($global_cache=true, $session_cache=true)
 		$_SESSION["system_internal_cache"] = array();
     if( $global_cache && system_is_module_loaded('globalcache') )
 		globalcache_clear();
+    clear_less_cache();
 }
 
 /**

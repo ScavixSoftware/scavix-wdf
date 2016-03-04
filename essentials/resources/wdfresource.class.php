@@ -78,8 +78,13 @@ class WdfResource implements ICallable
 		$res = explode("?",$res);
 		$res = realpath(__DIR__."/../../js/".$res[0]);
 		header('Content-Type: text/javascript');
-		WdfResource::ValidatedCacheResponse($res);
-		readfile($res);
+		if( $res )
+		{
+			WdfResource::ValidatedCacheResponse($res);
+			readfile($res);
+		}
+		else
+			header("HTTP/1.0 404 Not Found");
 		die();
 	}
 	
@@ -99,8 +104,13 @@ class WdfResource implements ICallable
 			header('Content-Type: image/jpeg');
 		elseif(ends_iwith($res, '.gif'))
 			header('Content-Type: image/gif');
-		WdfResource::ValidatedCacheResponse($res);
-		readfile($res);
+		if( $res )
+		{
+			WdfResource::ValidatedCacheResponse($res);
+			readfile($res);
+		}
+		else
+			header("HTTP/1.0 404 Not Found");
 		die();
 	}
 	
@@ -110,7 +120,7 @@ class WdfResource implements ICallable
 	 */
 	function CompileLess($file)
 	{
-		$vars = cfg_getd('resources_less_variables',array());
+		$vars = isset($_SESSION['resources_less_variables'])?$_SESSION['resources_less_variables']:array();
 		$file_key = md5($file.serialize($vars));
 		
 		$less = resFile(basename($file),true);

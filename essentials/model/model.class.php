@@ -716,10 +716,11 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 						$res[] = $col;
 				}
 			}
-			elseif( !isset($this->$col) && isset($this->_dbValues[$col]) )
-				$res[] = $col;
-			elseif( (!isset($this->$col) || is_null($this->$col)) && (!isset($this->_dbValues[$col]) || !is_null($this->_dbValues[$col])) )
-				$res[] = $col;
+			else
+			{
+				if( isset($this->_dbValues[$col]) )
+					$res[] = $col;
+			}
 		}
 		return $res;
 		//return array_keys($this->_changedColumns);

@@ -151,6 +151,7 @@ class MySql implements IDatabaseDriver
 		$all = array();
 		$vals = array();
 		$pkcols = array();
+		$pks2 = array();
 
 		foreach( $pks as $col )
 		{
@@ -161,20 +162,23 @@ class MySql implements IDatabaseDriver
 				$vals[] = ":$col";
 				$args[":$col"] = $model->$col;
 			}
+			$pks2[$col] = $col;
 		}
 		$columns_to_update = $columns_to_update?$columns_to_update:$model->GetColumnNames(true);
 		foreach( $columns_to_update as $col )
 		{
-			if( in_array($col,$pks) || !$model->HasColumn($col) )
+			if( isset($pks2[$col]) || !$model->HasColumn($col) )
 				continue;
 			
 			// isset returns false too if $this->$col is set to NULL, so we need some more logic here
 			if( !isset($model->$col) )
 			{
 				if( !isset($ovars) )
+				{
 					$ovars = get_object_vars($model);
-				
-				if( !array_key_exists($col,$ovars) )
+					$ovars = array_combine(array_keys($ovars),array_fill(0,count($ovars),true));
+				}
+				if( !isset($ovars[$col]) )
 					continue;
 			}
 			
