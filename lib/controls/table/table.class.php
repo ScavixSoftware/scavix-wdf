@@ -295,7 +295,7 @@ class Table extends Control
 				$rcnt = count($r->_content);
 				for($i=0; $i<$rcnt; $i++)
 				{
-					if( $r->_content[$i]->CellFormat )
+					if( $r->_content[$i] && $r->_content[$i]->CellFormat )
 						$r->_content[$i]->CellFormat->Format($r->_content[$i], $this->Culture);
 					elseif( isset($this->ColFormats[$i]) )
 						$this->ColFormats[$i]->Format($r->_content[$i], $this->Culture);

@@ -350,16 +350,16 @@ class DatabaseTable extends Table implements ICallable
 	 * @internal Currently untested, so marked <b>internal</b>
 	 * @attribute[RequestParam('format','string')]
 	 */
-	function Export($format)
+	function Export($format, $rowcallback = null)
 	{
 		switch( $format )
 		{
 			case self::EXPORT_FORMAT_XLS:
 			case self::EXPORT_FORMAT_XLSX:
-				$this->_exportExcel($format);
+				$this->_exportExcel($format,$rowcallback);
 				break;
 			case self::EXPORT_FORMAT_CSV:
-				$this->_exportCsv();
+				$this->_exportCsv($rowcallback);
 				break;
 		}
 	}
@@ -385,7 +385,7 @@ class DatabaseTable extends Table implements ICallable
 		return $res;
 	}
 	
-	private function _export_get_data(CultureInfo $ci=null)
+	private function _export_get_data(CultureInfo $ci=null, $rowcallback = null)
 	{
 		$copy = clone $this;
 		$copy->ItemsPerPage = false; 
@@ -399,6 +399,9 @@ class DatabaseTable extends Table implements ICallable
 		{
 			$row = $copy->_preProcessData($row);
 			
+            if( $rowcallback != null )
+                $row = $rowcallback($row);
+            
 			if( !isset($format_buffer) )
 			{
 				$i=0; $format_buffer = array();
@@ -417,7 +420,7 @@ class DatabaseTable extends Table implements ICallable
 		return $res;
 	}
 	
-	protected function _exportExcel($format=self::EXPORT_FORMAT_XLSX)
+	protected function _exportExcel($format=self::EXPORT_FORMAT_XLSX, $rowcallback = null)
 	{		
 		system_load_module(__DIR__.'/../../../modules/mod_phpexcel.php');
 		$xls = new PHPExcel();
@@ -429,7 +432,7 @@ class DatabaseTable extends Table implements ICallable
 		$head_rows = $this->_export_get_header();
 		$first_data_row = count($head_rows)+1;
 
-		foreach( array_merge($head_rows,$this->_export_get_data($ci)) as $data_row )
+		foreach( array_merge($head_rows,$this->_export_get_data($ci,$rowcallback)) as $data_row )
 		{
 			$i = 0;
 			foreach( $data_row as $val )
@@ -472,13 +475,13 @@ class DatabaseTable extends Table implements ICallable
 		die('');
 	}
 	
-	protected function _exportCsv()
+	protected function _exportCsv($rowcallback = null)
 	{
 		$esc = '"';
 		$sep = ',';
 		$newline = "\n";
 		$csv = array();
-		foreach( array_merge($this->_export_get_header(),$this->_export_get_data()) as $row )
+		foreach( array_merge($this->_export_get_header(),$this->_export_get_data(null,$rowcallback)) as $row )
 		{
 			$csv_line = array();
 			foreach( $row as $val )
