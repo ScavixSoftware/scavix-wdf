@@ -516,7 +516,7 @@ class DatabaseTable extends Table implements ICallable
 	
 	protected function RenderPager()
 	{
-		$this->TotalItems = $this->ResultSet->GetpagingInfo('total_rows');
+		$this->TotalItems = $this->ResultSet?$this->ResultSet->GetpagingInfo('total_rows'):0;
 		return parent::RenderPager();
 	}
 }
