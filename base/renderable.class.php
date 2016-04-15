@@ -339,6 +339,17 @@ abstract class Renderable
 		$i = $this->par()->indexOf($this);
 		return $this->par()->get($i+1);
 	}
+    
+    function closest($classname)
+    {
+        if( !$this->_parent )
+            return false;
+        if( is_subclass_of($this->_parent,fq_class_name($classname)) )
+            return $this->_parent;
+        if( get_class_simple($this->_parent,true) == strtolower($classname) )
+            return $this->_parent;
+        return $this->_parent->closest($classname);
+    }
 	
 	/**
 	 * Appends content to this Renderable.
