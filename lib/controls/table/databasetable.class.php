@@ -55,6 +55,7 @@ class DatabaseTable extends Table implements ICallable
 	var $CacheExecute = false;
 
 	var $Columns = false;
+	var $Join = false;
 	var $Where = false;
 	var $GroupBy = false;
 	var $Having = false;
@@ -127,6 +128,9 @@ class DatabaseTable extends Table implements ICallable
 			if( !$this->Columns )
 				$this->Columns = $this->GetColumns();
 
+			if( !$this->Join )
+				$this->Join = $this->GetJoin();
+            
 			if( !$this->Where )
 				$this->Where = $this->GetWhere();
 
@@ -150,19 +154,22 @@ class DatabaseTable extends Table implements ICallable
 			}
 
 			$this->Columns = is_array($this->Columns)?implode(",",$this->Columns):$this->Columns;
+			$this->Join = $this->Join?$this->Join:"";
 			$this->Where = $this->Where?$this->Where:"";
 			$this->GroupBy = $this->GroupBy?$this->GroupBy:"";
 			$this->OrderBy = $this->OrderBy?$this->OrderBy:"";
 
 			if( $this->Where && !preg_match('/^\s+WHERE\s+/',$this->Where) ) $this->Where = " WHERE ".$this->Where;
+			if( $this->Join && !preg_match('/^\s+JOIN\s+/',$this->Join) ) $this->Join = " LEFT JOIN ".$this->Join;
 			if( $this->GroupBy && !preg_match('/^\s+GROUP\sBY\s+/',$this->GroupBy) ) $this->GroupBy = " GROUP BY ".$this->GroupBy;
 			if( $this->Having && !preg_match('/^\s+HAVING\s+/',$this->Having) ) $this->Having = " HAVING ".$this->Having;
 			if( $this->OrderBy && !preg_match('/^\s+ORDER\sBY\s+/',$this->OrderBy) ) $this->OrderBy = " ORDER BY ".$this->OrderBy;
 			if( $this->Limit && !preg_match('/^\s+LIMIT\s+/',$this->Limit) ) $this->Limit = " LIMIT ".$this->Limit;
 
-			$sql = "SELECT @fields@ FROM @table@@where@@groupby@@having@@orderby@@limit@";
+			$sql = "SELECT @fields@ FROM @table@@join@@where@@groupby@@having@@orderby@@limit@";
 			$sql = str_replace("@fields@",$this->Columns,$sql);
 			$sql = str_replace("@table@","`".$this->DataTable."`",$sql);
+			$sql = str_replace("@join@",$this->Join,$sql);
 			$sql = str_replace("@where@",$this->Where,$sql);
 			$sql = str_replace("@groupby@",$this->GroupBy,$sql);
 			$sql = str_replace("@having@",$this->Having,$sql);
@@ -221,6 +228,7 @@ class DatabaseTable extends Table implements ICallable
 	}
 
 	protected function GetColumns(){return array("*");}
+	protected function GetJoin(){return "";}
 	protected function GetWhere(){return "";}
 	protected function GetGroupBy(){return "";}
 	protected function GetHaving(){return "";}
@@ -350,16 +358,16 @@ class DatabaseTable extends Table implements ICallable
 	 * @internal Currently untested, so marked <b>internal</b>
 	 * @attribute[RequestParam('format','string')]
 	 */
-	function Export($format)
+	function Export($format, $rowcallback = null)
 	{
 		switch( $format )
 		{
 			case self::EXPORT_FORMAT_XLS:
 			case self::EXPORT_FORMAT_XLSX:
-				$this->_exportExcel($format);
+				$this->_exportExcel($format,$rowcallback);
 				break;
 			case self::EXPORT_FORMAT_CSV:
-				$this->_exportCsv();
+				$this->_exportCsv($rowcallback);
 				break;
 		}
 	}
@@ -385,7 +393,7 @@ class DatabaseTable extends Table implements ICallable
 		return $res;
 	}
 	
-	private function _export_get_data(CultureInfo $ci=null)
+	private function _export_get_data(CultureInfo $ci=null, $rowcallback = null)
 	{
 		$copy = clone $this;
 		$copy->ItemsPerPage = false; 
@@ -399,6 +407,9 @@ class DatabaseTable extends Table implements ICallable
 		{
 			$row = $copy->_preProcessData($row);
 			
+            if( $rowcallback != null )
+                $row = $rowcallback($row);
+            
 			if( !isset($format_buffer) )
 			{
 				$i=0; $format_buffer = array();
@@ -417,7 +428,7 @@ class DatabaseTable extends Table implements ICallable
 		return $res;
 	}
 	
-	protected function _exportExcel($format=self::EXPORT_FORMAT_XLSX)
+	protected function _exportExcel($format=self::EXPORT_FORMAT_XLSX, $rowcallback = null)
 	{		
 		system_load_module(__DIR__.'/../../../modules/mod_phpexcel.php');
 		$xls = new PHPExcel();
@@ -429,7 +440,7 @@ class DatabaseTable extends Table implements ICallable
 		$head_rows = $this->_export_get_header();
 		$first_data_row = count($head_rows)+1;
 
-		foreach( array_merge($head_rows,$this->_export_get_data($ci)) as $data_row )
+		foreach( array_merge($head_rows,$this->_export_get_data($ci,$rowcallback)) as $data_row )
 		{
 			$i = 0;
 			foreach( $data_row as $val )
@@ -472,13 +483,13 @@ class DatabaseTable extends Table implements ICallable
 		die('');
 	}
 	
-	protected function _exportCsv()
+	protected function _exportCsv($rowcallback = null)
 	{
 		$esc = '"';
 		$sep = ',';
 		$newline = "\n";
 		$csv = array();
-		foreach( array_merge($this->_export_get_header(),$this->_export_get_data()) as $row )
+		foreach( array_merge($this->_export_get_header(),$this->_export_get_data(null,$rowcallback)) as $row )
 		{
 			$csv_line = array();
 			foreach( $row as $val )
@@ -516,7 +527,7 @@ class DatabaseTable extends Table implements ICallable
 	
 	protected function RenderPager()
 	{
-		$this->TotalItems = $this->ResultSet->GetpagingInfo('total_rows');
+		$this->TotalItems = $this->ResultSet?$this->ResultSet->GetpagingInfo('total_rows'):0;
 		return parent::RenderPager();
 	}
 }

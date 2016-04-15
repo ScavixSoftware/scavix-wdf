@@ -159,19 +159,22 @@ class Tr extends Control
 	{
 		foreach( $alignment as $i=>$a )
 		{
+            $cell = $this->GetCell($i);
+            if( !$cell )
+                continue;
 			switch( strtolower($a) )
 			{
 				case 'l':
 				case 'left':
-					$this->GetCell($i)->align = 'left';
+					$cell->align = 'left';
 					break;
 				case 'r':
 				case 'right':
-					$this->GetCell($i)->align = 'right';
+					$cell->align = 'right';
 					break;
 				case 'c':
 				case 'center':
-					$this->GetCell($i)->align = 'center';
+					$cell->align = 'center';
 					break;
 			}
 		}
