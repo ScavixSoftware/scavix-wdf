@@ -123,6 +123,20 @@ class Tr extends Control
 	{
 		return count($this->_content);
 	}
+    
+    function FormatCells($table=false)
+    {
+        $tab = $table?$table:$this->closest("Table");
+        $culture = $tab?$tab->Culture:false;
+        $rcnt = count($this->_content);
+        for($i=0; $i<$rcnt; $i++)
+        {
+            if( $this->_content[$i]->CellFormat )
+                $this->_content[$i]->CellFormat->Format($this->_content[$i], $culture);
+            elseif( isset($tab->ColFormats[$i]) )
+                $tab->ColFormats[$i]->Format($this->_content[$i], $culture);
+        }
+    }
 
 	/**
 	 * @override
