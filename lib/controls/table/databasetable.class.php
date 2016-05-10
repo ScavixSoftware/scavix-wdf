@@ -320,6 +320,7 @@ class DatabaseTable extends Table implements ICallable
 		}
         else
         {
+            $this->_rowModels = array();
             foreach( $this->ResultSet as $raw_row )
             {
 				$row = $this->_preProcessData($raw_row);
