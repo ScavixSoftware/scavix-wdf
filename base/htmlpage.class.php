@@ -132,6 +132,8 @@ class HtmlPage extends Template implements ICallable
 		$this->js = array_reverse($this->js,true);
 		foreach( array_reverse($res) as $r )
 		{
+            if($r === '')
+                continue;
 			$ext = pathinfo($r,PATHINFO_EXTENSION);
 			if( $ext == 'css' || $ext == 'less' )
 				$this->addCss($r);
@@ -195,6 +197,7 @@ class HtmlPage extends Template implements ICallable
 	 */
 	function addJs($src)
 	{
+        log_debug($src);
 		if( isset($this->js[$src]) )
 			return;
 		$js = "\t<script type='text/javascript' src='$src'></script>\n";
