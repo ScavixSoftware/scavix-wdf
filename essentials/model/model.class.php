@@ -760,6 +760,9 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$filter = func_get_args();
 		if( count($filter)>0 )
 		{
+            if( count($filter)==1 && is_array($filter[0]) )
+                $filter = $filter[0];
+                
 			foreach( $filter as $cn )
 				if( isset($this->$cn) )
 					$res[$cn] = $this->__typedValue($cn);

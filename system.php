@@ -127,7 +127,7 @@ function system_config_default($reset = true)
 	if( !isset($_SERVER['HTTP_HOST']) )
 		$_SERVER['HTTP_HOST'] = '127.0.0.1';
 	
-	$CONFIG['system']['url_root'] = "{$_SERVER['REQUEST_SCHEME']}://{$_SERVER['HTTP_HOST']}{$path[0]}";
+	$CONFIG['system']['url_root'] = idn_to_utf8("{$_SERVER['REQUEST_SCHEME']}://{$_SERVER['HTTP_HOST']}")."{$path[0]}";
     $CONFIG['system']['modules'] = array();
     $CONFIG['system']['default_page'] = "HtmlPage";
     $CONFIG['system']['default_event'] = false;

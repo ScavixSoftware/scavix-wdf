@@ -455,7 +455,10 @@ class Control extends Renderable
 			$res = "{$content}";
 			
 		if( system_is_ajax_call() && count($this->_script)>0 )
-			$res .= "<script> ".implode("\n",$this->_script)."</script>";
+        {
+            $this->_script[] = "$('#{$this->id}').on('remove',function(){ $('[data-wdf-remove-with=\"{$this->id}\"]').remove(); });";
+			$res .= "<script data-wdf-remove-with='{$this->id}'> ".implode("\n",$this->_script)."</script>";
+        }
 		return $res;
 	}
 
