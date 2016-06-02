@@ -197,7 +197,6 @@ class HtmlPage extends Template implements ICallable
 	 */
 	function addJs($src)
 	{
-        log_debug($src);
 		if( isset($this->js[$src]) )
 			return;
 		$js = "\t<script type='text/javascript' src='$src'></script>\n";
