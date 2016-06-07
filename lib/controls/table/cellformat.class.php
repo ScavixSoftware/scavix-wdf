@@ -179,7 +179,10 @@ class CellFormat
 					break;
 				case 'currency':
 					if( !is_numeric($content) ) return $full_content;
-					$content = str_replace($content,$culture->FormatCurrency($content),$full_content);
+                    $v = $culture->FormatCurrency($content);                    
+                    if(isset($options[0]) && ($options[0] === false))
+                        $v = str_replace($culture->CurrencyFormat->DecimalSeparator.'00', '', $v);
+                    $content = str_replace($content,$v,$full_content);
 					break;
 				case 'int':
 				case 'integer':
