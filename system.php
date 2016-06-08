@@ -228,6 +228,8 @@ function system_init($application_name, $skip_header = false, $logging_category=
 			system_load_module($thispath."/modules/$mod.php");
 		elseif( file_exists( "$mod.php") )
 			system_load_module("$mod.php");
+		elseif( file_exists( "$mod") )
+			system_load_module("$mod");
 	}
 
 	if( isset($_REQUEST['request_id']) )
