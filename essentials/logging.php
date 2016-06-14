@@ -480,3 +480,19 @@ function render_var($content)
 {
 	return logging_render_var($content);
 }
+
+function start_timer($name)
+{
+    $id = uniqid();
+    $GLOBALS['logging_timers'][$id] = array($name,microtime(true));
+    return $id;
+}
+
+function finish_timer($id)
+{
+    if( !isset($GLOBALS['logging_timers'][$id]) )
+        return;
+    list($name,$start) = $GLOBALS['logging_timers'][$id];
+    unset($GLOBALS['logging_timers'][$id]);
+    log_debug("Timer $name: ".round((microtime(true)-$start)*1000)."ms");
+}
