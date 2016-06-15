@@ -60,6 +60,8 @@ class Table extends Control
 	var $MaxPagesToShow = false;
 	var $TotalItems = false;
 	var $HidePager = false;
+    
+    var $PersistName = false;
 	
 	function __initialize()
 	{
@@ -107,6 +109,8 @@ class Table extends Control
 	 */
 	function Clear()
 	{
+		$this->header = false;
+		$this->footer = false;
 		$this->current_row_group = false;
 		$this->current_row = false;
 		$this->current_cell = false;
@@ -114,7 +118,7 @@ class Table extends Control
 			$this->content($this->_actions,true);
 		else
 			$this->clearContent();
-		return $this;
+        return $this;
 	}
 
 	/**
@@ -537,6 +541,26 @@ class Table extends Control
 		store_object($this);
 		return $this;
 	}
+    
+    function Persist($name)
+    {
+        $this->PersistName = $name;
+        if( isset($_SESSION["table_persist_{$name}_page"]) )
+            $this->CurrentPage = $_SESSION["table_persist_{$name}_page"];
+        else
+            $_SESSION["table_persist_{$name}_page"] = $this->CurrentPage;
+        store_object($this);
+        return $this;
+    }
+    
+    function ResetPager()
+    {
+        if( $this->ItemsPerPage )
+           $this->CurrentPage = 1;
+        if( $this->PersistName )
+            unset($_SESSION["table_persist_{$this->PersistName}_page"]);
+        return $this;
+    }
 	
 	/**
 	 * Sets a handler to be called whenever the table needs data.
@@ -559,6 +583,8 @@ class Table extends Control
 	function GotoPage($number)
 	{
 		$this->CurrentPage = $number;
+        if( $this->PersistName )
+             $_SESSION["table_persist_{$this->PersistName}_page"] = $this->CurrentPage;
 	}
 	
 	protected function RenderPager()
