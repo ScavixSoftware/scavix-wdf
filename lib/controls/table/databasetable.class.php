@@ -115,7 +115,7 @@ class DatabaseTable extends Table implements ICallable
 	function Clear()
 	{
 		$this->ResultSet = false;
-		parent::Clear();
+		return parent::Clear();
 	}
 
 	/**
