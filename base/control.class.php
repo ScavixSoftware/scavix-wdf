@@ -426,9 +426,7 @@ class Control extends Renderable
 				$attr[] = "$name=\"".str_replace("\"","&#34;",$value)."\"";
 		}
 		foreach( $this->_data_attributes as $name=>$value )
-		{
-			$attr[] = "data-$name='".str_replace("'","\\'",$value)."'";
-		}
+			$attr[] = "data-$name=\"".str_replace('"','\"',$value).'"';
 		
 		$content = system_render_object_tree($this->_content);
 
