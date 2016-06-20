@@ -382,7 +382,7 @@ class Control extends Renderable
 	{
 		if( $this->_skipRendering )
 			return;
-		
+        
 		if( count($args) > 0 && count($this->_script) > 0 )
 		{
 			if( !$this->_parent )
