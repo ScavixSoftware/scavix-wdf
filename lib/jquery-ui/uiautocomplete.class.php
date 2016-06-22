@@ -57,4 +57,9 @@ class uiAutocomplete extends uiControl
 		$this->hidden->onchange = $function;
 		return $this;
 	}
+    
+    public function __sleep() 
+    {
+        return array();
+    }
 }
