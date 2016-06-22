@@ -29,9 +29,14 @@
 .ui-table-actions > div { cursor: pointer; float:left; display: inline-block; width: 16px; }
 .ui-table-actions > div.ui-state-hover { margin: -1px; }
 
-.table .pager
+.table .pager.foot
 {
-	position: absolute;
+    display: table-footer-group;
+}
+
+.table .pager.head
+{
+    display: table-header-group;
 }
 
 .table .pager a, 

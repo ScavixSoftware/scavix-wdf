@@ -60,6 +60,7 @@ class Table extends Control
 	var $MaxPagesToShow = false;
 	var $TotalItems = false;
 	var $HidePager = false;
+    var $PagerAtTop = false;
     
     var $PersistName = false;
 	
@@ -275,6 +276,9 @@ class Table extends Control
             $this->prepend($this->footer);//array_merge(array($this->footer),$this->_content);
         if( $this->header )
             $this->prepend($this->header);//array_merge(array($this->header),$this->_content);
+
+        if( isset($pager) && $this->PagerAtTop )
+            $this->prepend($this->RenderPager(true));
 
 		if( $this->colgroup )
 			$this->prepend($this->colgroup);//array_merge(array($this->colgroup),$this->_content);
@@ -587,14 +591,14 @@ class Table extends Control
              $_SESSION["table_persist_{$this->PersistName}_page"] = $this->CurrentPage;
 	}
 	
-	protected function RenderPager()
+	protected function RenderPager($as_header=false)
 	{
 		$pages = ceil($this->TotalItems / $this->ItemsPerPage);
 		if( $pages < 2 )
 			return;
 		
 		$ui = new Control('div');
-		$ui->addClass("pager");
+		$ui->addClass("pager")->addClass($as_header?'head':'foot');
 
 		if( $this->CurrentPage > 1 )
 		{

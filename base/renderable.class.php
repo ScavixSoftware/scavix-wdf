@@ -39,6 +39,8 @@ abstract class Renderable
 	var $_content = array();
 	var $_script = array();
 
+    function PreRender($args=array()){}
+    
 	/**
 	 * Renders this Renderable as controller.
 	 * 
@@ -55,6 +57,19 @@ abstract class Renderable
 	 */
 	abstract function WdfRender();
 	
+    function WdfRenderInline()
+    {
+        if( isset($GLOBALS['current_rendering_template']) )
+            $this->_parent = $GLOBALS['current_rendering_template'];
+        $this->PreRender(array(current_controller(false)));
+        
+        if( isset($GLOBALS['current_rendering_template']) )
+        {
+            $GLOBALS['current_rendering_template']->script($this->_script);
+        }
+        return $this->WdfRender();
+    }
+    
 	function __getContentVars(){ return array('_content'); }
 	
 	function __collectResources()
