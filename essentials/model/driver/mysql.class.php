@@ -271,7 +271,10 @@ class MySql implements IDatabaseDriver
 		$length = intval($length);
 		
 		$sql = preg_replace('/LIMIT\s+[\d\s,]+/i', '', $sql);
-		$sql = "SELECT count(*) FROM ($sql) AS x";
+        if( stripos($sql, 'select * from') === 0 )
+            $sql = "SELECT 1 FROM".substr($sql,13);
+        $sql = "SELECT count(*) FROM ($sql) AS x";
+        
 		$stmt = $this->_pdo->prepare($sql);
 		if( is_null($input_arguments) )
 			$stmt->execute();
