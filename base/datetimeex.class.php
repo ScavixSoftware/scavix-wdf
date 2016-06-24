@@ -56,7 +56,7 @@ class DateTimeEx extends DateTime
 	 * @param mixed $source <DateTimeEx>, <DateTime> or anything <DateTime> accepts in it's constructor
 	 * @return DateTimeEx The created instance
 	 */
-	public static function Make($source)
+	public static function Make($source=false)
 	{
 		if( $source )
 		{
