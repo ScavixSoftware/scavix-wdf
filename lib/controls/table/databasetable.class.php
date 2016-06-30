@@ -159,8 +159,8 @@ class DatabaseTable extends Table implements ICallable
 			$this->GroupBy = $this->GroupBy?$this->GroupBy:"";
 			$this->OrderBy = $this->OrderBy?$this->OrderBy:"";
 
-			if( $this->Where && !preg_match('/^\s+WHERE\s+/',$this->Where) ) $this->Where = " WHERE ".$this->Where;
-			if( $this->Join && !preg_match('/^\s+JOIN\s+/',$this->Join) ) $this->Join = " LEFT JOIN ".$this->Join;
+            if( $this->Where && !preg_match('/^\s+WHERE\s+/',$this->Where) ) $this->Where = " WHERE ".$this->Where;
+			if( $this->Join && !preg_match('/^(LEFT|INNER|RIGHT|\s+)+JOIN\s+/',$this->Join) ) $this->Join = " LEFT JOIN ".$this->Join;
 			if( $this->GroupBy && !preg_match('/^\s+GROUP\sBY\s+/',$this->GroupBy) ) $this->GroupBy = " GROUP BY ".$this->GroupBy;
 			if( $this->Having && !preg_match('/^\s+HAVING\s+/',$this->Having) ) $this->Having = " HAVING ".$this->Having;
 			if( $this->OrderBy && !preg_match('/^\s+ORDER\sBY\s+/',$this->OrderBy) ) $this->OrderBy = " ORDER BY ".$this->OrderBy;
@@ -175,7 +175,6 @@ class DatabaseTable extends Table implements ICallable
 			$sql = str_replace("@having@",$this->Having,$sql);
 			$sql = str_replace("@orderby@",$this->OrderBy,$sql);
 			$sql = str_replace("@limit@",$this->Limit,$sql);
-
 			$this->Sql = $sql;
 		}
 
