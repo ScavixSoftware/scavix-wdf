@@ -123,7 +123,7 @@ class Select extends Control
 		$opt = Control::Make('option')->append($label!==""?$label:$value);
 		if( $selected )
 			$opt->attr("selected","selected");
-		if( $value!=='' )
+//		if( $value!=='' )
 			$opt->attr("value",$value);
 		
 		if( $opt_group )
