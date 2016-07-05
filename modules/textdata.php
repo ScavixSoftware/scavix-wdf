@@ -62,6 +62,10 @@ function csv_to_array($csv, $delimiter = false, $enclosure = '"', $escape = '\\'
             $values = str_getcsv($row,$delimiter,$enclosure,$escape);
             if( !$values )
 				$values = array_fill(0,$nc,null);
+            while( count($values) < count($names) )
+                $values[] = "";
+            while( count($names) < count($values) )
+                $names[] = "COLUMN".count($names);
             $result[] = array_combine($names,$values);
         }
 	}
@@ -104,4 +108,13 @@ function csv_detect_delimiter($csv)
 		$counts[count(explode($delim,$r))] = $delim;
 	krsort($counts);
     return array_shift($counts);	
+}
+
+/**
+ * @see http://stackoverflow.com/a/15423899
+ */
+function remove_utf8_bom($text)
+{
+    $bom = pack('H*','EFBBBF');
+    return preg_replace("/^$bom/", '', $text);
 }
