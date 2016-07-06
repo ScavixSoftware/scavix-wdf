@@ -110,8 +110,8 @@ class Table extends Control
 	 */
 	function Clear()
 	{
-		$this->header = false;
-		$this->footer = false;
+//		$this->header = false;
+//		$this->footer = false;
 		$this->current_row_group = false;
 		$this->current_row = false;
 		$this->current_cell = false;
@@ -597,6 +597,7 @@ class Table extends Control
 		if( $pages < 2 )
 			return;
 		
+        $this->addClass('haspager');
 		$ui = new Control('div');
 		$ui->addClass("pager")->addClass($as_header?'head':'foot');
 
