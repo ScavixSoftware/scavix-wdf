@@ -55,17 +55,17 @@ function csv_to_array($csv, $delimiter = false, $enclosure = '"', $escape = '\\'
     $rows = explode("\n",trim($csv));
     $names = str_getcsv(array_shift($rows),$delimiter,$enclosure,$escape);
     $nc = count($names);
+    
+    $line = "";
     foreach( $rows as $row )
 	{
-        if( trim($row) )
+        $line .= $row;
+        if( trim($line) )
 		{
-            $values = str_getcsv($row,$delimiter,$enclosure,$escape);
-            if( !$values )
-				$values = array_fill(0,$nc,null);
-            while( count($values) < count($names) )
-                $values[] = "";
-            while( count($names) < count($values) )
-                $names[] = "COLUMN".count($names);
+            $values = str_getcsv($line,$delimiter,$enclosure,$escape);
+            if( !$values || count($values) != count($names) )
+                continue;
+            $line = "";
             $result[] = array_combine($names,$values);
         }
 	}
