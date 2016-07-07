@@ -63,16 +63,24 @@ $.fn.table = function()
 		}
 		
 		$('.pager',self).each( function(){ $(this).width(self.width());});
-        $('.pager.foot', self).each( function() { $(this).css('top', self.offset().top + self.height() - $('.pager.head', self).height()); } )
-        $('.pager.head', self).css('display', 'table-header-group');
-        setTimeout(function() { $('.pager.head', self).css('display', 'table-caption'); }, 1);
+        $(this).placePager();
 	});
 };
 
 $.fn.gotoPage = function(n)
 {
 	var self = this;
-	wdf.post(self.attr('id')+'/GotoPage',{number:n},function(d){ self.replaceWith(d); });
+	wdf.post(self.attr('id')+'/GotoPage',{number:n},function(d){ self.replaceWith(d); self.placePager(); });
 };
+
+$.fn.placePager = function()
+{
+    var self = this;
+    setTimeout(function() {
+        $('.pager.foot', self).each( function() { $(this).css('top', self.height() + 4); } )
+        $('.pager.head', self).css('display', 'table-header-group');
+        setTimeout(function() { $('.pager.head', self).css('display', 'table-caption'); }, 10);
+    }, 10);
+}
 
 })(jQuery);
