@@ -37,7 +37,7 @@
 .table .pager.foot
 {
     display: table-caption;
-    position: absolute;
+    position: relative;
     padding-left: 4px;
 }
 
