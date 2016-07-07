@@ -63,7 +63,9 @@ $.fn.table = function()
 		}
 		
 		$('.pager',self).each( function(){ $(this).width(self.width());});
-        $('.pager.foot', self).each( function() { $(this).css('top', self.height() + 2); } )
+        $('.pager.foot', self).each( function() { $(this).css('top', self.offset().top + self.height() - $('.pager.head', self).height()); } )
+        $('.pager.head', self).css('display', 'table-header-group');
+        setTimeout(function() { $('.pager.head', self).css('display', 'table-caption'); }, 1);
 	});
 };
 
