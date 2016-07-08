@@ -32,6 +32,7 @@ default_string('BTN_DP_NEXT', 'Next');
 default_string('BTN_DP_PREV', 'Prev');
 default_string('TXT_DP_CLOSE', 'Close');
 default_string('TXT_DP_CURRENT', 'Today');
+default_string('TXT_DP_NOW', 'Now');
 
 /**
  * Wraps a jQueryUI DatePicker
@@ -54,7 +55,7 @@ class uiDatePicker extends uiControl
 			'prevText' => 'BTN_DP_PREV',
 			'buttonText' => '...',
 			'closeText' => 'TXT_DP_CLOSE',
-			'currentText' => 'TXT_DP_CURRENT',
+			'currentText' => (get_class_simple($this)=="uiDateTimePicker" ? 'TXT_DP_NOW' : 'TXT_DP_CURRENT'),
 		);
         if( !$inline )
             $this->type = 'text';
