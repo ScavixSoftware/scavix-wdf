@@ -91,4 +91,16 @@ class uiMessage extends uiControl
 			return $this->sub->insert($content,1);
 		return parent::append($content);
 	}
+    
+    function prependLine($message,$icon='blank')
+    {
+        $this->sub->prepend("<p><span class='ui-icon ui-icon-$icon'></span>$message</p>");
+        return $this;
+    }
+    
+    function addLine($message,$icon='blank')
+    {
+        $this->sub->content("<p><span class='ui-icon ui-icon-$icon'></span>$message</p>");
+        return $this;
+    }
 }
