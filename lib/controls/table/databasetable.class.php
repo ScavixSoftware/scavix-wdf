@@ -300,6 +300,12 @@ class DatabaseTable extends Table implements ICallable
 	 */
 	function PreRender($args = array())
 	{
+        // stop rebuilding the table of row-action was clicked: 
+        // - performance 
+        // - row-ids would change and trigger error on subsequent clicked actions
+        if( current_event() == 'onactionclicked' && current_controller(false) instanceof Table )
+            return parent::PreRender($args);
+        
 		$this->GetData();
 		
         if( !$this->ResultSet || $this->ResultSet->Count()==0 )
