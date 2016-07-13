@@ -35,6 +35,7 @@ use ScavixWDF\Base\Control;
 class uiMessage extends uiControl
 {
 	var $sub;
+    var $messages = array();
 	
 	function __initialize($message,$type='highlight')
 	{
@@ -51,6 +52,7 @@ class uiMessage extends uiControl
 		$this->sub->content("<p><span class='ui-icon ui-icon-$icon'></span>$message</p>");
 		
 		$this->InitFunctionName = false;
+        $this->messages[] = $message;            
 	}
 	
 	/**
@@ -94,12 +96,14 @@ class uiMessage extends uiControl
     
     function prependLine($message,$icon='blank')
     {
+        array_unshift($this->messages,$message);
         $this->sub->prepend("<p><span class='ui-icon ui-icon-$icon'></span>$message</p>");
         return $this;
     }
     
     function addLine($message,$icon='blank')
     {
+        $this->messages[] = $message;
         $this->sub->content("<p><span class='ui-icon ui-icon-$icon'></span>$message</p>");
         return $this;
     }
