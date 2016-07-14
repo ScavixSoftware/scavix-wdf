@@ -488,11 +488,19 @@ function start_timer($name)
     return $id;
 }
 
+function hit_timer($id,$label='hit')
+{
+    if( !isset($GLOBALS['logging_timers'][$id]) )
+        return;
+    list($name,$start) = $GLOBALS['logging_timers'][$id];
+    log_debug("Timer $name $label: ".round((microtime(true)-$start)*1000)."ms");
+}
+
 function finish_timer($id)
 {
     if( !isset($GLOBALS['logging_timers'][$id]) )
         return;
     list($name,$start) = $GLOBALS['logging_timers'][$id];
     unset($GLOBALS['logging_timers'][$id]);
-    log_debug("Timer $name: ".round((microtime(true)-$start)*1000)."ms");
+    log_debug("Timer $name finished: ".round((microtime(true)-$start)*1000)."ms");
 }
