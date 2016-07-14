@@ -82,8 +82,19 @@ function session_run()
 	}
 	$CONFIG['session']['handler'] = fq_class_name($CONFIG['session']['handler']);
 	$GLOBALS['fw_session_handler'] = new $CONFIG['session']['handler']();
+    
+    if( !isset($_SESSION[$GLOBALS['CONFIG']['session']['prefix']."object_access"]) )
+        $_SESSION[$GLOBALS['CONFIG']['session']['prefix']."object_access"] = array();
 
-//	if( system_is_ajax_call() && isset($_SESSION['object_id_storage']) )
+    foreach( $_SESSION[$GLOBALS['CONFIG']['session']['prefix']."object_access"] as $id=>$time )
+    {
+        if( isset($_SESSION['session'][$id]) || $time + 60 > time() )
+            continue;
+        unset($_SESSION[$GLOBALS['CONFIG']['session']['prefix']."object_access"][$id]);
+        if( isset($_SESSION['object_id_storage'][$id]) ) unset($_SESSION['object_id_storage'][$id]);
+        if( isset($_SESSION['session'][$id]) ) unset($_SESSION['session'][$id]);
+    }
+
 	if( isset($_SESSION['object_id_storage']) )
 		$GLOBALS['object_ids'] = $_SESSION['object_id_storage'];
 }
@@ -180,7 +191,9 @@ function request_id()
  */
 function store_object(&$obj,$id="")
 {
-	return $GLOBALS['fw_session_handler']->Store($obj,$id);
+	$res = $GLOBALS['fw_session_handler']->Store($obj,$id);
+    $_SESSION[$GLOBALS['CONFIG']['session']['prefix']."object_access"][$obj->_storage_id] = time();
+    return $res;
 }
 
 /**
@@ -188,6 +201,8 @@ function store_object(&$obj,$id="")
  */
 function delete_object($id)
 {
+    if( isset($_SESSION[$GLOBALS['CONFIG']['session']['prefix']."object_access"][$id]) )
+        unset($_SESSION[$GLOBALS['CONFIG']['session']['prefix']."object_access"][$id]);
 	return $GLOBALS['fw_session_handler']->Delete($id);
 }
 
@@ -206,7 +221,10 @@ function in_object_storage($id)
  */
 function &restore_object($id)
 {
-	return $GLOBALS['fw_session_handler']->Restore($id);
+	$res = $GLOBALS['fw_session_handler']->Restore($id);
+    if( $res )
+        $_SESSION[$GLOBALS['CONFIG']['session']['prefix']."object_access"][$res->_storage_id] = time();
+    return $res;
 }
 
 /**
