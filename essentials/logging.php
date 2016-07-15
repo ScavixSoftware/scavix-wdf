@@ -89,6 +89,22 @@ function logging_init()
 	register_shutdown_function('global_fatal_handler');
 }
 
+function logging_mem_ok()
+{
+    $val = trim(ini_get('memory_limit'));
+    $last = strtolower($val[strlen($val)-1]);
+    switch($last) {
+        // The 'G' modifier is available since PHP 5.1.0
+        case 'g':
+            $val *= 1024;
+        case 'm':
+            $val *= 1024;
+        case 'k':
+            $val *= 1024;
+    }
+    return ($val-memory_get_usage()) > 1048576;
+}
+
 /**
  * @internal Global error handler. See <set_error_handler>
  */
@@ -415,6 +431,9 @@ function log_report(LogReport $report, $severity="TRACE")
  */
 function logging_render_var($content,&$stack=array(),$indent="")
 {
+    if( !logging_mem_ok() )
+        return "*OUTOFMEM*";
+    
 	foreach( $stack as $s )
 	{
 		if( $s === $content )
@@ -470,7 +489,7 @@ function logging_render_var($content,&$stack=array(),$indent="")
 		return (count($stack)>0?"(bool)":"").($content?"true":"false");
 	else
 		return (count($stack)>0?"(".gettype($content).")":"").strval($content);
-	return implode("\n",$res);
+	return substr(implode("\n",$res),0,10240);
 }
 
 /**
