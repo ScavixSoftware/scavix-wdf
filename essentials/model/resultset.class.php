@@ -388,8 +388,12 @@ class ResultSet implements Iterator, ArrayAccess
 	 */
 	function GetPagingInfo($key=false)
 	{
-		if( !$this->_paging_info )
+        if( !$this->_paging_info )
+        {
+            if( !$this->_ds || !$this->_ds->Driver )
+                return $key?0:array();
 			$this->_paging_info = $this->_ds->Driver->getPagingInfo($this->_stmt->queryString,$this->_arguments_used);
+        }
 		if( $key && isset($this->_paging_info[$key]) )
 			return $this->_paging_info[$key];
 		return $this->_paging_info;
