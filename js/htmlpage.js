@@ -112,17 +112,19 @@ $.ajaxSetup({cache:false});
 			// Focus the first visible input on the page (or after the hash)
 			if( this.settings.focus_first_input )
 			{
-				if( location.hash && $('a[name="'+location.hash.replace(/#/,'')+'"]').length > 0 )
-				{
-					var anchor = $("a[name='"+location.hash.replace(/#/,'')+"']");
-					var input = anchor.parentsUntil('*:has(input:text)').parent().find('input:text:first');
-					if( input.length > 0 && anchor.position().top < input.position().top )
-						input.select();
-				}
-				else
-				{
-					$('form').find('input[type="text"],input[type="email"],input[type="password"],textarea,select').filter(':visible:first').select();
-				}
+                $(function() {
+                    if( location.hash && $('a[name="'+location.hash.replace(/#/,'')+'"]').length > 0 )
+                    {
+                        var anchor = $("a[name='"+location.hash.replace(/#/,'')+"']");
+                        var input = anchor.parentsUntil('*:has(input:text)').parent().find('input:text:first');
+                        if( input.length > 0 && anchor.position().top < input.position().top )
+                            input.focus().select();
+                    }
+                    else
+                    {
+                        $('form').find('input[type="text"]:not(.uidatepicker),input[type="email"],input[type="password"],textarea,select').filter(':visible:first').focus().select();
+                    }
+                });
 			}
 			
 			//win.onerror = function(a){ server_debug(a); };
