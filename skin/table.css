@@ -29,27 +29,10 @@
 .ui-table-actions > div { cursor: pointer; float:left; display: inline-block; width: 16px; }
 .ui-table-actions > div.ui-state-hover { margin: -1px; }
 
-.table.haspager
-{
-    margin-bottom: 30px;
-}
-
-.table .pager.foot
-{
-    display: table-caption;
-    position: relative;
-    padding-left: 4px;
-}
-
-.table .pager.head
-{
-    display: table-caption;
-}
-
-.table .pager a, 
-.table .pager a:link, 
-.table .pager a:visited, 
-.table .pager a:active
+.pager a, 
+.pager a:link, 
+.pager a:visited, 
+.pager a:active
 {
 	text-decoration: none;
 	border: 1px solid transparent;
@@ -60,12 +43,12 @@
 	margin-right :2px;
 }
 
-.table .pager a:hover
+.pager a:hover
 {
 	border: 1px solid black;
 }
 
-.table .pager .current
+.pager .current
 {
 	color: black;
 	font-weight: bold;

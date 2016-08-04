@@ -68,7 +68,6 @@ class Table extends Control
 	{
 		parent::__initialize("div");
 		$this->class = 'table';
-		$this->script("$('#{self}').table();");
 	}
 	
 	/**
@@ -234,6 +233,13 @@ class Table extends Control
 	 */
 	function PreRender($args=array())
 	{
+        $opts = array
+        (
+            'top_pager' => $this->ItemsPerPage && !$this->HidePager && $this->PagerAtTop,
+            'bottom_pager' => $this->ItemsPerPage && !$this->HidePager,
+        );
+        
+        $this->script("$('#{self}').table(".json_encode($opts).");");
 		if( isset($this->RowOptions['hoverclass']) && $this->RowOptions['hoverclass'] )
 		{
 			$over = "function(){ $(this).addClass('{$this->RowOptions['hoverclass']}') }";
@@ -276,9 +282,6 @@ class Table extends Control
             $this->prepend($this->footer);//array_merge(array($this->footer),$this->_content);
         if( $this->header )
             $this->prepend($this->header);//array_merge(array($this->header),$this->_content);
-
-        if( isset($pager) && $this->PagerAtTop )
-            $this->prepend($this->RenderPager(true));
 
 		if( $this->colgroup )
 			$this->prepend($this->colgroup);//array_merge(array($this->colgroup),$this->_content);
@@ -591,7 +594,7 @@ class Table extends Control
              $_SESSION["table_persist_{$this->PersistName}_page"] = $this->CurrentPage;
 	}
 	
-	protected function RenderPager($as_header=false)
+	protected function RenderPager()
 	{
 		$pages = ceil($this->TotalItems / $this->ItemsPerPage);
 		if( $pages < 2 )
@@ -599,7 +602,7 @@ class Table extends Control
 		
         $this->addClass('haspager');
 		$ui = new Control('div');
-		$ui->addClass("pager")->addClass($as_header?'head':'foot');
+		$ui->addClass("pager");
 
 		if( $this->CurrentPage > 1 )
 		{

@@ -531,9 +531,9 @@ class DatabaseTable extends Table implements ICallable
 		return parent::AddPager(0,$items_per_page,$current_page,$max_pages_to_show);
 	}
 	
-	protected function RenderPager($as_header=false)
+	protected function RenderPager()
 	{
 		$this->TotalItems = $this->ResultSet?$this->ResultSet->GetpagingInfo('total_rows'):0;
-		return parent::RenderPager($as_header);
+		return parent::RenderPager();
 	}
 }
