@@ -69,10 +69,19 @@ $.fn.table = function(opts)
 	});
 };
 
+$.fn.updateTable = function(html)
+{
+    var self = this;
+    self.prev('.pager').remove(); 
+    self.next('.pager').remove(); 
+    self.replaceWith(html); 
+    self.placePager();
+};
+
 $.fn.gotoPage = function(n)
 {
 	var self = this;
-	wdf.post(self.attr('id')+'/GotoPage',{number:n},function(d){ self.prev('.pager').remove(); self.next('.pager').remove(); self.replaceWith(d); self.placePager(); });
+	wdf.post(self.attr('id')+'/GotoPage',{number:n},function(d){ self.updateTable(d); });
 };
 
 $.fn.placePager = function(opts)
