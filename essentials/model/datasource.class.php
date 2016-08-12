@@ -560,4 +560,10 @@ class DataSource
 	{
 		return $this->_pdo->lastInsertId($table);
 	}
+    
+    public function LogLastSatement($label='Last Statement')
+	{
+		if( $this->LastStatement )
+            $this->LastStatement->LogDebug($label);
+	}
 }

@@ -275,12 +275,10 @@ class MySql implements IDatabaseDriver
             $sql = "SELECT 1 FROM".substr($sql,13);
         $sql = "SELECT count(*) FROM ($sql) AS x";
         
-		$stmt = $this->_pdo->prepare($sql);
-		if( is_null($input_arguments) )
-			$stmt->execute();
-		else
-			$stmt->execute(array_values($input_arguments));
-		$total = intval($stmt->fetchColumn());
+        $ok = $this->_ds->ExecuteScalar($sql,is_null($input_arguments)?array():$input_arguments);
+        $total = intval($ok);
+        if( $ok === false )
+            $this->_ds->LogLastSatement("Error querying paging info");
 		
 		return array
 		(
