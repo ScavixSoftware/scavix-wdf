@@ -25,7 +25,7 @@
 
 $.fn.table = function(opts)
 {
-    opts = $.extend({bottom_pager:false,top_pager:false},opts||{});
+    this.opts = $.extend({bottom_pager:false,top_pager:false},opts||{});
             
 	return this.each( function()
 	{
@@ -75,7 +75,7 @@ $.fn.updateTable = function(html)
     self.prev('.pager').remove(); 
     self.next('.pager').remove(); 
     self.replaceWith(html); 
-    self.placePager();
+    self.placePager(self.opts);
 };
 
 $.fn.gotoPage = function(n)
