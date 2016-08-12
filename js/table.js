@@ -88,12 +88,12 @@ $.fn.placePager = function(opts)
 {
     var $p = $('.pager',this).remove();
     
-    if( opts.top_pager )
+    if( opts && opts.top_pager )
     {
         //$(this).prev('.pager').remove();
         $p = $p.insertBefore(this).css('display','inline').clone(true);
     }
-    if( opts.bottom_pager )
+    if( opts && opts.bottom_pager )
     {
         //$(this).next().remove();
         $p.insertAfter(this).css('display','inline');
