@@ -122,7 +122,7 @@ $.ajaxSetup({cache:false});
                     }
                     else
                     {
-                        $('form').find('input[type="text"]:not(.uidatepicker),input[type="email"],input[type="password"],textarea,select').filter(':visible:first').focus().select();
+                        $('form').find('input[type="text"]:not(.hasDatepicker),input[type="email"],input[type="password"],textarea,select').filter(':visible:first').focus().select();
                     }
                 });
 			}

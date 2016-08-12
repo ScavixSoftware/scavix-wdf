@@ -104,9 +104,13 @@ class ResultSet implements Iterator, ArrayAccess
 	 * and try to combine it for easy copy+paste from log to your sql tool (for retry).
 	 * @return void
 	 */
-	public function LogDebug()
+	public function LogDebug($label='')
 	{
-		log_debug("SQL: ".$this->_sql_used."\nARGS: ",$this->_arguments_used,"\nMerged: ", ResultSet::MergeSql($this->_ds,$this->_sql_used,$this->_arguments_used));
+        if( $label ) $label = "$label\n";
+        if( count($this->_arguments_used) )
+            log_debug("{$label}SQL   : ".$this->_sql_used."\nARGS  : ".json_encode($this->_arguments_used)."\nMERGED: ".ResultSet::MergeSql($this->_ds,$this->_sql_used,$this->_arguments_used));
+        else
+            log_debug("{$label}SQL: ".$this->_sql_used);
 	}
 	
 	/**
