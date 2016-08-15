@@ -96,7 +96,15 @@ class DatabaseTable extends Table implements ICallable
 		else
 		{
 			if( $this->ItemsPerPage )
+            {
 				$this->ResultSet = $this->DataSource->PageExecute($sql,$this->ItemsPerPage,$this->CurrentPage,$prms);
+                if(($this->ResultSet->Count() == 0) && ($this->CurrentPage > 1))
+                {
+                    // no items on current page, so reset to first page
+                    $this->ResetPager();
+                    $this->ResultSet = $this->DataSource->PageExecute($sql,$this->ItemsPerPage,$this->CurrentPage,$prms);
+                }
+            }
 			else
 			{
 				if( $this->CacheExecute )
