@@ -56,10 +56,16 @@ class DateTimeEx extends DateTime
 	 * @param mixed $source <DateTimeEx>, <DateTime> or anything <DateTime> accepts in it's constructor
 	 * @return DateTimeEx The created instance
 	 */
-	public static function Make($source=false)
+	public static function Make($source=false, $format = false)
 	{
 		if( $source )
 		{
+            if( $format )
+            {
+                $source = \DateTime::createFromFormat($format,$source);
+                if( !$source )
+                    WdfException::Raise("Error creating DateTime object from format '$format' and source '$source'");
+            }
 			if( $source instanceof DateTimeEx )
 				return clone $source;
 			if( $source instanceof DateTime )
