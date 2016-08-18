@@ -362,7 +362,7 @@ class ConditionTree
 	{
 		$this->_operator = $operator;
 		$this->_maxConditions = $conditionCount;
-		$this->_current =& $this;
+		$this->_current = $this;
 		$this->_firstToken = $firstToken;
 	}
 
@@ -402,18 +402,17 @@ class ConditionTree
 
 	function __ensureClose()
 	{
-		if( $this->_current->_maxConditions > -1 &&
+		if( $this->_current->_parent && $this->_current->_maxConditions > -1 &&
 			count($this->_current->_conditions) == $this->_current->_maxConditions )
 		{
-			$this->_current =& $this->_current->_parent;
-			$this->_current->__ensureClose();
+			$this->_current = $this->_current->_parent;
+			$this->__ensureClose();
 		}
 	}
 
 	function SetOperator($operator)
 	{
 		$this->Nest(-1,$operator);
-		//$this->_current->_operator = $operator;
 	}
 
 	function Add($condition)
@@ -424,9 +423,9 @@ class ConditionTree
 
 	function Nest($conditionCount,$operator = "AND")
 	{
-		$mem =& $this->_current;
+		$mem = $this->_current;
 		$this->_current->_conditions[] = new ConditionTree($conditionCount,$operator);
-		$this->_current =& $this->_current->_conditions[count($this->_current->_conditions)-1];
+		$this->_current = $this->_current->_conditions[count($this->_current->_conditions)-1];
 		$this->_current->_parent = $mem;
 	}
 }
