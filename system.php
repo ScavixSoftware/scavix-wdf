@@ -1616,6 +1616,7 @@ function fq_class_name($classname)
 		case 'minifyadmin':               return '\\ScavixWDF\\Admin\\MinifyAdmin';
 		case 'tracelogger':               return '\\ScavixWDF\\Logging\\TraceLogger';
 		case 'phpsession':                return '\\ScavixWDF\\Session\\PhpSession';
+		case 'dbsession':                return '\\ScavixWDF\\Session\\DbSession';
 	}
 	
 	if( isset($GLOBALS['system_class_alias'][$cnl]) )
