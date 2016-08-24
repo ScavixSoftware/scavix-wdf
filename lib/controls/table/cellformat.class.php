@@ -198,6 +198,9 @@ class CellFormat
 					if( !is_numeric($content) ) return $full_content;
 					$content = str_replace($content,$culture->FormatNumber($content,intval($options[0])),$full_content);
 					break;
+                case 'custom':
+                    $content = str_replace($content,sprintf($options[0],$content),$full_content);
+                    break;
 			}
 		}
 		else

@@ -126,6 +126,9 @@ class Tr extends Control
     
     function FormatCells($table=false)
     {
+        if( $this->_parent instanceof THead )
+            return;
+        
         $tab = $table?$table:$this->closest("Table");
         $culture = $tab?$tab->Culture:false;
         $rcnt = count($this->_content);
