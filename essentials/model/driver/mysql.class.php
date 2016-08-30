@@ -278,7 +278,7 @@ class MySql implements IDatabaseDriver
         $ok = $this->_ds->ExecuteScalar($sql,is_null($input_arguments)?array():$input_arguments);
         $total = intval($ok);
         if( $ok === false )
-            $this->_ds->LogLastSatement("Error querying paging info");
+            $this->_ds->LogLastStatement("Error querying paging info");
 		
 		return array
 		(

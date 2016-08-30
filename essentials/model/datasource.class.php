@@ -563,6 +563,11 @@ class DataSource
     
     public function LogLastSatement($label='Last Statement')
 	{
+		$this->LogLastStatement("[Wrong call to LogLastSatement, please use LogLastStatement] $label");
+	}
+    
+    public function LogLastStatement($label='Last Statement')
+	{
 		if( $this->LastStatement )
             $this->LastStatement->LogDebug($label);
 	}
