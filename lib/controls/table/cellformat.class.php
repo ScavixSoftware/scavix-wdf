@@ -125,7 +125,7 @@ class CellFormat
 		if( !$this->format )
 			return $full_content;
 		
-		if( is_array($this->format) )
+        if( is_array($this->format) )
 		{
 			list($format,$options) = $this->format;
 			$format = strtolower($format);

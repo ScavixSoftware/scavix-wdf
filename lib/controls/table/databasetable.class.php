@@ -417,27 +417,32 @@ class DatabaseTable extends Table implements ICallable
 		
 		$res = array();
 		$copy->ResultSet->FetchMode = PDO::FETCH_ASSOC;
+        $cols = $this->Columns;
 		foreach( $copy->ResultSet as $row )
 		{
 			$row = $copy->_preProcessData($row);
-			
             if( $rowcallback != null )
                 $row = $rowcallback($row);
+            $r = [];
+            foreach( $cols as $k )
+                if(isset($row[$k]))
+                    $r[$k] = $row[$k];
+                else
+                    $r[$k] = null;
             
 			if( !isset($format_buffer) )
 			{
 				$i=0; $format_buffer = array();
-				foreach( $row as $k=>$v )
+				foreach( $r as $k=>$v )
 				{
-					if( isset($this->ColFormats[$i]) )
-						$format_buffer[$k] = $this->ColFormats[$i];
-					$i++;
+                    if( isset($this->ColFormats[$i]) )
+                        $format_buffer[$k] = $this->ColFormats[$i];
+                    $i++;
 				}
 			}
 			foreach( $format_buffer as $k=>$cellformat )
-				$row[$k] = $cellformat->FormatContent($row[$k],$copy->Culture);
-			
-			$res[] = $row;
+				$r[$k] = $cellformat->FormatContent($r[$k],$copy->Culture);
+			$res[] = $r;
 		}
 		return $res;
 	}
@@ -450,7 +455,7 @@ class DatabaseTable extends Table implements ICallable
 		$row = 1;
 		$max_cell = 0;
 		
-		$ci = ExcelCulture::FromCode('en-US');
+		$ci = ExcelCulture::FromCode(isset($this->Culture) ? $this->Culture->Code : 'en-US');
 		$head_rows = $this->_export_get_header();
 		$first_data_row = count($head_rows)+1;
 
