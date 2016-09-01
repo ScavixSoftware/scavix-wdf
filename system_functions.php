@@ -28,6 +28,7 @@ if( !defined('FRAMEWORK_LOADED') || FRAMEWORK_LOADED != 'uSI7hcKMQgPaPKAQDXg5' )
 
 define("HOOK_POST_INIT",1);
 define("HOOK_POST_INITSESSION",2);
+define("HOOK_PRE_CONSTRUCT",9);
 define("HOOK_PRE_EXECUTE",3);
 define("HOOK_PRE_RENDER",8);
 define("HOOK_POST_EXECUTE",4);

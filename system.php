@@ -196,7 +196,6 @@ function system_init($application_name, $skip_header = false, $logging_category=
 {
 	global $CONFIG;
 	$thispath = __DIR__;
-
 	if(!isset($_SESSION["system_internal_cache"]))
 		$_SESSION["system_internal_cache"] = array();
 
@@ -214,7 +213,7 @@ function system_init($application_name, $skip_header = false, $logging_category=
 	system_load_module('essentials/translation.php');
 	foreach( system_glob($thispath.'/essentials/*.php') as $essential ) // load all other essentials
 		system_load_module($essential);
-	
+
 	if( $logging_category )
 		logging_add_category($logging_category);
 	logging_set_user(); // works as both (session and logging) are now essentials
@@ -243,7 +242,7 @@ function system_init($application_name, $skip_header = false, $logging_category=
 		try {
 			foreach( $CONFIG['system']['header'] as $k=>$v )
 				header("$k: $v");
-		} catch(Exception $ex) {}
+		} catch(Exception $ex) { log_debug($ex); }
 	}
 
 	// if $_SERVER['SCRIPT_URI'] is not set build from $_SERVER['SCRIPT_NAME'] and $_SERVER['SERVER_NAME'] Mantis #3477
@@ -391,6 +390,7 @@ function system_execute()
 	
 	global $current_controller,$current_event;
 	list($current_controller,$current_event) = system_parse_request_path();
+    execute_hooks(HOOK_PRE_CONSTRUCT,array($current_controller,$current_event));
 
 	$current_controller = system_instanciate_controller($current_controller);
 	if( !(system_method_exists($current_controller,$current_event) || 
@@ -664,7 +664,7 @@ function execute_hooks($type,$arguments = array())
  */
 function is_valid_hook_type($type)
 {
-	if( $type == HOOK_POST_INIT || $type == HOOK_POST_INITSESSION ||
+	if( $type == HOOK_POST_INIT || $type == HOOK_POST_INITSESSION || $type == HOOK_PRE_CONSTRUCT ||
 	    $type == HOOK_PRE_EXECUTE || $type == HOOK_POST_EXECUTE ||
 		$type == HOOK_PRE_FINISH || $type == HOOK_POST_MODULE_INIT ||
 		$type == HOOK_PING_RECIEVED || $type == HOOK_SYSTEM_DIE || $type == HOOK_PRE_RENDER ||
@@ -692,6 +692,7 @@ function hook_type_to_string($type)
 	{
 		case HOOK_POST_INIT: return 'HOOK_POST_INIT';
 		case HOOK_POST_INITSESSION: return 'HOOK_POST_INITSESSION';
+        case HOOK_PRE_CONSTRUCT: return 'HOOK_PRE_CONSTRUCT';
 		case HOOK_PRE_EXECUTE: return 'HOOK_PRE_EXECUTE';
 		case HOOK_POST_EXECUTE: return 'HOOK_POST_EXECUTE';
 		case HOOK_PRE_FINISH: return 'HOOK_PRE_FINISH';
