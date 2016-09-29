@@ -417,7 +417,9 @@ class DatabaseTable extends Table implements ICallable
 		
 		$res = array();
 		$copy->ResultSet->FetchMode = PDO::FETCH_ASSOC;
-        $cols = $this->Columns;
+        $cols = [];
+        foreach( $this->Columns as $c )
+            $cols[] = trim($c,"`");
 		foreach( $copy->ResultSet as $row )
 		{
 			$row = $copy->_preProcessData($row);
@@ -429,8 +431,8 @@ class DatabaseTable extends Table implements ICallable
                     $r[$k] = $row[$k];
                 else
                     $r[$k] = null;
-            
-			if( !isset($format_buffer) )
+
+            if( !isset($format_buffer) )
 			{
 				$i=0; $format_buffer = array();
 				foreach( $r as $k=>$v )
@@ -444,6 +446,7 @@ class DatabaseTable extends Table implements ICallable
 				$r[$k] = $cellformat->FormatContent($r[$k],$copy->Culture);
 			$res[] = $r;
 		}
+        DataSource::Get()->LogLastStatement();
 		return $res;
 	}
 	
