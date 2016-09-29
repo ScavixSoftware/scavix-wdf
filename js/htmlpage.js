@@ -90,8 +90,13 @@ $.ajaxSetup({cache:false});
 				this[ method ] = function( controller, data, callback )
 				{
 					var url = wdf.settings.site_root;
-					if( typeof controller === "string"  )
-						url += controller;
+					if( typeof controller === "string" )
+                    {
+                        if( controller.match(/^https*:\/\//) )
+                            url = controller;
+                        else
+                            url += controller;
+                    }
 					else
 						url += $(controller).attr('id')
 					url = wdf.validateHref(url);
