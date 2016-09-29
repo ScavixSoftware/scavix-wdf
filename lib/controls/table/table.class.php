@@ -332,7 +332,10 @@ class Table extends Control
 	 */
 	function SetHeader()
 	{
-		$this->Header()->NewRow(func_get_args());
+        $args = func_get_args();
+        if((count($args) == 1) && is_array($args[0]))
+            $args = $args[0];
+		$this->Header()->NewRow($args);
 		return $this;
 	}
 	
@@ -343,7 +346,10 @@ class Table extends Control
 	 */
 	function SetFooter()
 	{
-		$this->Footer()->NewRow(func_get_args());
+        $args = func_get_args();
+        if((count($args) == 1) && is_array($args[0]))
+            $args = $args[0];
+		$this->Footer()->NewRow($args);
 		return $this;
 	}
 	
@@ -366,7 +372,10 @@ class Table extends Control
 	 */
 	function AddNewRow()
 	{
-		$this->NewRow(func_get_args());
+        $args = func_get_args();
+        if((count($args) == 1) && is_array($args[0]))
+            $args = $args[0];        
+		$this->NewRow($args);
 		return $this;
 	}
 	
@@ -381,11 +390,14 @@ class Table extends Control
 	function SetAlignment()
 	{
 		$args = func_get_args();
-		$cg = $this->ColGroup()->SetAlignment($args);
-		$head = $this->Header()->SetAlignment($args);
-		$foot = $this->Footer()->SetAlignment($args);
+        if((count($args) == 1) && is_array($args[0]))
+            $args = $args[0];
+		$this->ColGroup()->SetAlignment($args);
+		$this->Header()->SetAlignment($args);
+		$this->Footer()->SetAlignment($args);
 		foreach( $this->_content as $tbody )
-			$tbody->SetAlignment($args);
+            if(method_exists($tbody, 'SetAlignment'))
+                $tbody->SetAlignment($args);
 		return $this;
 	}
 	
@@ -399,7 +411,10 @@ class Table extends Control
 	 */
 	function SetFormat()
 	{
-		foreach( func_get_args() as $i=>$f )
+        $args = func_get_args();
+        if((count($args) == 1) && is_array($args[0]))
+            $args = $args[0];
+		foreach( $args as $i=>$f )
 		{
 			if( $f == "" )
 				continue;
