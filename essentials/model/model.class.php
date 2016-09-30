@@ -1136,7 +1136,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
 		$res = clone $this;
 		$res->__ensureSelect();
-		$res->_query->orderBy($this->__ensureFieldname($property),$direction);
+		$res->_query->orderBy((starts_with($property, 'FIELD(') ? $property : $this->__ensureFieldname($property)),$direction);
 		return $res;
 	}
 	
