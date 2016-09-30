@@ -54,7 +54,10 @@ class uiAutocomplete extends uiControl
 	 */
 	function setOnChange($function)
 	{
-		$this->hidden->onchange = $function;
+        if( !starts_iwith($function,'function'))
+            $function = "function(event,ui){ $function }";
+		//$this->hidden->onchange = $function;
+        $this->opt('change',$function);
 		return $this;
 	}
     
