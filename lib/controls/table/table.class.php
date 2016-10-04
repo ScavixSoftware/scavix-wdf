@@ -391,7 +391,7 @@ class Table extends Control
 	{
 		$args = func_get_args();
         if((count($args) == 1) && is_array($args[0]))
-            $args = $args[0];
+            $args = array_values($args[0]);
 		$this->ColGroup()->SetAlignment($args);
 		$this->Header()->SetAlignment($args);
 		$this->Footer()->SetAlignment($args);
