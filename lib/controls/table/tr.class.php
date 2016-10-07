@@ -134,6 +134,8 @@ class Tr extends Control
         $rcnt = count($this->_content);
         for($i=0; $i<$rcnt; $i++)
         {
+            if( !isset($this->_content[$i]) )
+                continue;
             if( $this->_content[$i]->CellFormat )
                 $this->_content[$i]->CellFormat->Format($this->_content[$i], $culture);
             elseif( isset($tab->ColFormats[$i]) )
