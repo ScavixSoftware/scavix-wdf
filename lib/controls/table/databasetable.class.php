@@ -70,6 +70,8 @@ class DatabaseTable extends Table implements ICallable
 	public $contentNoData = "TXT_NO_DATA_FOUND";
 
 	var $ParsingBehaviour = self::PB_HTMLSPECIALCHARS;
+    
+    var $SlimSerialization = false;
 
 	/**
 	 * @param DataSource $datasource DataSource to use
@@ -88,7 +90,19 @@ class DatabaseTable extends Table implements ICallable
 		
 		store_object($this);
 	}
-	
+    
+    function __sleep()
+    {
+        $res = get_object_vars($this);
+        if( $this->SlimSerialization )
+        {
+            unset($res['_content']);
+            unset($res['current_row_group']);
+            unset($res['current_row']);
+        }
+        return array_keys($res);
+    }
+    
 	private function ExecuteSql($sql,$prms=array())
 	{
 		if( $this->ExecuteSqlHandler )

@@ -604,7 +604,7 @@ class Table extends Control
 	 */
 	function GotoPage($number)
 	{
-		$this->CurrentPage = $number;
+        $this->CurrentPage = $number;
         if( $this->PersistName )
              $_SESSION["table_persist_{$this->PersistName}_page"] = $this->CurrentPage;
 	}
