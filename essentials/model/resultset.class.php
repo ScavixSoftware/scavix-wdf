@@ -415,7 +415,7 @@ class ResultSet implements Iterator, ArrayAccess
 	 * @param bool $distinct True to array_unique, false to keep duplicates
 	 * @return type
 	 */
-	function Enumerate($column_name, $distinct=true)
+	function Enumerate($column_name, $distinct=true, $key_column_name=false)
 	{
 		if( !$this->_data_fetched )
 			$this->fetchAll();
@@ -427,8 +427,12 @@ class ResultSet implements Iterator, ArrayAccess
 		}
 		foreach( $this->_rowbuffer as $row )
 		{
-			if( !$distinct || !in_array($row[$column_name], $res) )
-				$res[] = $row[$column_name];
+			if( $distinct && in_array($row[$column_name], $res) )
+                continue;
+			if( $key_column_name && is_string($key_column_name) )
+                $res[$row[$key_column_name]] = $row[$column_name];
+            else
+                $res[] = $row[$column_name];
 		}
 		return $res;
 	}
