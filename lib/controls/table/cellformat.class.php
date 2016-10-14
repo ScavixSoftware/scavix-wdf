@@ -188,7 +188,7 @@ class CellFormat
 					break;
 				case 'currency':
                     $v = $this->getNumeric($content);
-                    if( !$v ) return $full_content;
+                    if( $v === false ) return $full_content;
                     $v = $culture->FormatCurrency($v);                    
                     if(isset($options[0]) && ($options[0] === false))
                         $v = str_replace($culture->CurrencyFormat->DecimalSeparator.'00', '', $v);
@@ -197,18 +197,18 @@ class CellFormat
 				case 'int':
 				case 'integer':
 					$v = $this->getNumeric($content);
-                    if( !$v ) return $full_content;
+                    if( $v === false ) return $full_content;
 					$content = str_replace($content,$culture->FormatInt($v),$full_content);
 					break;
 				case 'percent':
 					$v = $this->getNumeric($content);
-                    if( !$v ) return $full_content;
+                    if( $v === false ) return $full_content;
 					$content = str_replace($content,$culture->FormatInt($v)."%",$full_content);
 					break;
 				case 'float':
 				case 'double':
 					$v = $this->getNumeric($content);
-                    if( !$v ) return $full_content;
+                    if( $v === false ) return $full_content;
 					$content = str_replace($content,$culture->FormatNumber($v,intval($options[0])),$full_content);
 					break;
                 case 'custom':
