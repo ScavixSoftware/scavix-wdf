@@ -275,7 +275,7 @@ class MySql implements IDatabaseDriver
             $sql = "SELECT 1 FROM".substr($sql,13);
         $sql = "SELECT count(*) FROM ($sql) AS x";
         
-        $ok = $this->_ds->ExecuteScalar($sql,is_null($input_arguments)?array():$input_arguments);
+        $ok = $this->_ds->ExecuteScalar($sql,is_null($input_arguments)?array():array_values($input_arguments));
         $total = intval($ok);
         if( $ok === false )
             $this->_ds->LogLastStatement("Error querying paging info");
