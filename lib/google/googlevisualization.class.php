@@ -109,8 +109,31 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		{
 			$id = $this->id; $d = "d$id"; $c = "c$id";
 			$opts = json_encode($this->gvOptions);
-			
-			array_walk_recursive($this->_data,function(&$item, &$key){ if( $item instanceof DateTime) $item = "[jscode]new Date(".($item->getTimestamp()*1000).")"; });
+            $coldefs = false;
+            if($this->_columnDef)
+                $coldefs = array_values($this->_columnDef);
+
+			array_walk_recursive($this->_data, function(&$item, &$key) use ($coldefs) { 
+                //log_debug($key, $item);
+                if( $item instanceof DateTime) 
+                    $item = "[jscode]new Date(".($item->getTimestamp()*1000).")";
+                elseif($coldefs)
+                {
+                    if((count($coldefs) >= $key) && isset($coldefs[$key]) && isset($coldefs[$key][1]))
+                    {
+//                        log_debug($key, $item, $coldefs[$key][1]);
+                        switch($coldefs[$key][1])
+                        {
+                            case 'date':
+                                $stime = strtotime($item.' 00:00:00');
+                                if(date('Y-m-d', $stime) == $item)
+                                    $item = ['v' => "[jscode]new Date(".($stime * 1000).")", 'f' => ($this->_culture ? $this->_culture->FormatDate($item) : $item)];
+                                break;
+                        }
+                    }
+                }
+            });
+            
 			$data = system_to_json($this->_data);
 			if( self::$UseMaterialDesign && in_array($this->gvType, array('Bar', 'Column')))
 			{
@@ -444,19 +467,21 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 			case 'double': 
 			case 'number': 
 				$v = floatval($v);
-				// if we format the output will be HTML (used in tooltip) but the standard tooltip cannot handle that
-//						if( $ci )
-//							$v = array('v'=>$v,'f'=>$ci->FormatNumber($v)); 
+                if( $ci )
+                    $v = array('v'=>$v,'f'=>$ci->FormatNumber($v)); 
 				break;
 			case 'currency': 
 				$v = floatval($v);
 				if( $ci )
 					$v = array('v'=>$v,'f'=>$ci->FormatCurrency($v));
 				break;
-			case 'date': 
-				$v = new DateTime($v);
-				if( $ci )
-					$v = array('v'=>$v,'f'=>$ci->FormatDate($v));
+			case 'date':
+                if(strtotime($v))
+                {
+                    $v = new DateTime($v);
+                    if( $ci )
+                        $v = array('v'=>$v,'f'=>$ci->FormatDate($v));
+                }
 				break;
 			case 'time': 
 				$v = new DateTime($v);
@@ -470,6 +495,12 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 				break;
 			case 'timeofday': 
 				$v = explode(':',$v);
+				break;
+			case 'duration': 
+                $v = floatval($v);
+                $h = floor($v);
+                $m = ($v - $h) * 60;
+                $v = array('v'=>$v,'f'=>sprintf("%d:%02d",$h,$m));
 				break;
 		}
 		return $v;
@@ -516,7 +547,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		return $this;
 	}
 	
-	function setMultiSeriesResultSet($rs,$xAxisCol,$newColSpecifier,$newColValue)
+	function setMultiSeriesResultSet($rs,$xAxisCol,$newColSpecifier,$newColValue,$newcolformat = 'number')
 	{
 		$results = $rs->results();
 		
@@ -542,7 +573,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 			$key = $row[$newColSpecifier];
 			if( isset($this->_columnDef[$key]) )
 				continue;
-			$this->addColumn($key,$key,'number');
+			$this->addColumn($key,$key,$newcolformat);
 		}
 		
 		$head = array();
@@ -563,7 +594,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 				$this->_data[$xVal] = array_combine(array_keys($this->_columnDef), array_fill(0,count($this->_columnDef),0));
 				$this->_data[$xVal][$xAxisColDef] = $xVal;
 			}
-			$this->_data[$xVal][$row[$newColSpecifier]] = $this->getTypedValue($row[$newColValue],'number');
+			$this->_data[$xVal][$row[$newColSpecifier]] = $this->getTypedValue($row[$newColValue],$newcolformat);
 		}
 		
 		return $this;
