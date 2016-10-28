@@ -376,7 +376,7 @@ class CultureInfo
         // If the time to be printed is in another DST range than we are 'now'
         // we must remove that gap to not confuse users with times beeing for example  8:00 instead of 9:00
         // when we look at them from our point of view.
-        if( $date instanceof DateTime)
+        if( false && $date instanceof DateTime)
         {
             $local = date("I"); $byobj = $date->format("I");
             if( $local < $byobj )
