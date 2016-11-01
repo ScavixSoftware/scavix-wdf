@@ -155,6 +155,11 @@ class DateTimeEx extends DateTime
 		$res->add($di);
 		return $res;
 	}
+    
+    public function midnight()
+    {
+        return new DateTimeEx(date("Y-m-d 00:00:00",$this->getTimestamp()));
+    }
 	
 	/**
 	 * Calculates the age in x
