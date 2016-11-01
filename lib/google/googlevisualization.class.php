@@ -524,16 +524,19 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		if( !isset($this->_columnDef[$xAxisCol]) )
 		{
 			$found = false;
-			foreach( $this->_columnDef as $key=>$def )
-			{
-				list($name,$type) = $def;
-				if( $name == $xAxisCol )
-				{
-					$xAxisColDef = $key;
-					$found = true;
-					break;
-				}
-			}
+            if( is_array($this->_columnDef) )
+            {
+                foreach( $this->_columnDef as $key=>$def )
+                {
+                    list($name,$type) = $def;
+                    if( $name == $xAxisCol )
+                    {
+                        $xAxisColDef = $key;
+                        $found = true;
+                        break;
+                    }
+                }
+            }
 			if( !$found )
 				$this->addColumn($xAxisCol,$xAxisCol,'string');
 		}
@@ -565,7 +568,6 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 			}
 			$this->_data[$xVal][$row[$newColSpecifier]] = $this->getTypedValue($row[$newColValue],'number');
 		}
-		
 		return $this;
 	}
 }
