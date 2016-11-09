@@ -347,7 +347,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 				}
 				catch(Exception $ex)
 				{
-					WdfException::Log("date/time error with value '$value'",$ex);
+					WdfException::Log("date/time error with value (".gettype($value).")$value",$ex);
 				}
 				break;
 		}
@@ -663,7 +663,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 						$value);
 			}
 		}
-		elseif( is_integer($value) )
+		elseif( is_integer($value) || is_float($value) || is_double($value) )
 		{
 			$res = new DateTimeEx();
 			$res->setTimestamp($value);
