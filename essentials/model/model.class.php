@@ -998,11 +998,11 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * @param mixed $value Value to check against
 	 * @return Model `clone $this`
 	 */
-	public function greaterThan($property,$value)
+	public function greaterThan($property,$value,$value_is_sql=false)
 	{
 		$res = clone $this;
 		$res->__ensureSelect();
-		$res->_query->greaterThan($this->__ensureFieldname($property),$this->__toTypedValue($property,$value));
+		$res->_query->greaterThan($this->__ensureFieldname($property),$value_is_sql?$value:$this->__toTypedValue($property,$value),$value_is_sql);
 		return $res;
 	}
 	
@@ -1439,7 +1439,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	/**
 	 * @shortcut <Model::greaterThan>($property, $value)
 	 */
-	function gt($property,$value) { return $this->greaterThan($property,$value); }
+	function gt($property,$value,$value_is_sql=false) { return $this->greaterThan($property,$value,$value_is_sql); }
 	
 	/**
 	 * Calls a callback function for each result dataset.
