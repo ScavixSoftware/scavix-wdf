@@ -515,11 +515,14 @@ function hit_timer($id,$label='hit')
     log_debug("Timer $name $label: ".round((microtime(true)-$start)*1000)."ms");
 }
 
-function finish_timer($id)
+function finish_timer($id,$min_ms = false)
 {
     if( !isset($GLOBALS['logging_timers'][$id]) )
         return;
     list($name,$start) = $GLOBALS['logging_timers'][$id];
     unset($GLOBALS['logging_timers'][$id]);
-    log_debug("Timer $name finished: ".round((microtime(true)-$start)*1000)."ms");
+    
+    $ms = round((microtime(true)-$start)*1000);
+    if( !$min_ms || $ms >= $min_ms )
+        log_debug("Timer $name finished: {$ms}ms");
 }

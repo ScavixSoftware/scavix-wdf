@@ -105,6 +105,9 @@ class DatabaseTable extends Table implements ICallable
     
 	private function ExecuteSql($sql,$prms=array())
 	{
+        if( $this->logIfSlow )
+            $logtimer = start_timer("[".\ScavixWDF\Model\ResultSet::MergeSql($this->DataSource,$sql,$prms)."]");
+        
 		if( $this->ExecuteSqlHandler )
 			call_user_func($this->ExecuteSqlHandler,$this,$sql,$prms);
 		else
@@ -129,6 +132,8 @@ class DatabaseTable extends Table implements ICallable
 		}
 		if( $this->DataSource->ErrorMsg() )
 			log_error(get_class($this).": ".$this->DataSource->ErrorMsg());
+        elseif( isset($logtimer) )
+            finish_timer($logtimer,$this->logIfSlow);
 	}
 
 	/**
@@ -566,4 +571,11 @@ class DatabaseTable extends Table implements ICallable
 		$this->TotalItems = $this->ResultSet?$this->ResultSet->GetpagingInfo('total_rows'):0;
 		return parent::RenderPager();
 	}
+    
+    var $logIfSlow = false;
+    function LogIfSlow($min_ms)
+    {
+        $this->logIfSlow = $min_ms;
+        return $this;
+    }
 }
