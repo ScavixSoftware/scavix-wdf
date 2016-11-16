@@ -1111,12 +1111,15 @@ function redirect($controller,$event="",$data="",$url_root=false)
  * @param int $len The length of the return string
  * @return string The generated string sequence
  */
-function generatePW($len = 8, $case_sensitive=true)
+function generatePW($len = 8, $case_sensitive=true, $chars='')
 {
-	$chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	if( $case_sensitive )
-		$chars .= "abcdefghijklmnopqrstuvwxyz";
-	$chars .= "0123456789";
+    if( !$chars )
+    {
+        $chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        if( $case_sensitive )
+            $chars .= "abcdefghijklmnopqrstuvwxyz";
+        $chars .= "0123456789";
+    }
 	$res = "";
     mt_srand ((double) microtime() * 1000000);
 	while( strlen($res) < $len )
