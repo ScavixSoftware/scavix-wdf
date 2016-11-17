@@ -65,6 +65,7 @@ $.fn.table = function(opts)
 		}
 		
 		$('.pager',self).each( function(){ $(this).width(self.width());});
+        $('.thead a',self).click(self.showLoadingOverlay);
         $(this).placePager(opts);
 	});
 };
@@ -75,12 +76,14 @@ $.fn.updateTable = function(html)
     self.prev('.pager').remove(); 
     self.next('.pager').remove(); 
     self.replaceWith(html); 
+    $('.thead a',self).click(self.showLoadingOverlay);
     self.placePager(self.opts);
 };
 
 $.fn.gotoPage = function(n)
 {
 	var self = this;
+    self.showLoadingOverlay();
 	wdf.post(self.attr('id')+'/GotoPage',{number:n},function(d){ self.updateTable(d); });
 };
 
@@ -98,6 +101,31 @@ $.fn.placePager = function(opts)
         //$(this).next().remove();
         $p.insertAfter(this).css('display','inline');
     }
-}
+};
+
+var table_loading_counter = 0;
+$.fn.showLoadingOverlay = function()
+{
+    var self = $(this);
+    if( !self.is('.table') )
+        self = self.closest('.table');
+    
+    var loadingClass = 'loading_'+(table_loading_counter++),
+        $tab = self.addClass(loadingClass),
+        $pt = $tab.prev('.pager'), $pb = $tab.next('.pager'),
+        $ol = $("<div/>").appendTo('body')
+            .width($tab.width())
+            .height( $pb.position().top + $pb.height() - $pt.position().top )
+            .css('background-color','black').css('opacity','0.2')
+            .position({my:'left top',at:'left top',of:$pt})
+        wait = function()
+        {
+            if( $('.'+loadingClass).length )
+                setTimeout(wait,10);
+            else
+                $ol.remove();
+        };
+    wait();
+};
 
 })(jQuery);
