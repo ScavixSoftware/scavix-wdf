@@ -414,7 +414,18 @@ $.ajaxSetup({cache:false});
 		stopScrollListLoader: function()
 		{
 			$('.loadMoreContent_removable_trigger').fadeOut();
-		}		
+		},
+        
+        whenAvailable: function(name, callback)
+        {
+            window.setTimeout(function()
+            {
+                if (window[name])
+                    callback(window[name]);
+                else
+                    window.setTimeout(arguments.callee, 10);
+            }, 10);
+        }
 	};
 	
 	if( typeof win.Debug != "function" )
