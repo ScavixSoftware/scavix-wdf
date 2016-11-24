@@ -107,4 +107,11 @@ class uiMessage extends uiControl
         $this->sub->content("<p><span class='ui-icon ui-icon-$icon'></span>$message</p>");
         return $this;
     }
+    
+    function addLines($messages,$icon='blank')
+    {
+        foreach( $messages as $m )
+            $this->addLine($m,$icon);
+        return $this;
+    }
 }
