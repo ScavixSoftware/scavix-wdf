@@ -465,7 +465,6 @@ class DatabaseTable extends Table implements ICallable
 				$r[$k] = $cellformat->FormatContent($r[$k],$copy->Culture);
 			$res[] = $r;
 		}
-        DataSource::Get()->LogLastStatement();
 		return $res;
 	}
 	
