@@ -87,7 +87,7 @@ class Select extends Control
             {
                 if(isset($opt->Tag) && ($opt->Tag == 'optgroup'))
                     $this->_setval($opt->_content, $val);
-                if((is_array($val) && in_array($opt->value, $val)) || ($opt->value == $val))
+                if((is_array($val) && in_array($opt->value, $val)) || ($opt->value == $val) && ($opt->Tag != 'optgroup'))
                     $opt->attr('selected', 'selected');
                 elseif(isset($opt->_attributes['selected']))
                     unset($opt->_attributes['selected']);

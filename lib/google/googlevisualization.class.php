@@ -83,8 +83,10 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		
 		$this->_ds = $ds?$ds:(self::$DefaultDatasource?self::$DefaultDatasource:model_datasource('internal'));
 		
+        $this->gvOptions = ['tooltip' => ['isHtml' => true]];
+        
 		$this->gvType = $type?$type:substr(get_class_simple($this),2);
-		$this->gvOptions = $options?$options:array();
+		$this->gvOptions = $options?array_merge($this->gvOptions,$options):$this->gvOptions;
 		$this->gvQuery = $query;
 		
 		$this->content("<div class='loading'>&nbsp;</div>");
@@ -468,12 +470,12 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 			case 'number': 
 				$v = floatval($v);
                 if( $ci )
-                    $v = array('v'=>$v,'f'=>$ci->FormatNumber($v)); 
+                    $v = array('v'=>$v,'f'=>$ci->FormatNumber($v,false,true)); 
 				break;
 			case 'currency': 
 				$v = floatval($v);
 				if( $ci )
-					$v = array('v'=>$v,'f'=>$ci->FormatCurrency($v));
+					$v = array('v'=>$v,'f'=>$ci->FormatCurrency($v,true));
 				break;
 			case 'date':
                 if(strtotime($v))

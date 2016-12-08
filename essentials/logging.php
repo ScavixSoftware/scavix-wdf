@@ -121,6 +121,7 @@ function global_error_handler($errno, $errstr, $errfile, $errline)
 	if ( ($errno & error_reporting()) == 0 || $errno == E_STRICT )
         return;
 	
+    $sev = 'NOTICE';
 	foreach( $LOGGING_ERROR_NAMES as $n )
 		if( constant("E_$n") == $errno )
 		{
