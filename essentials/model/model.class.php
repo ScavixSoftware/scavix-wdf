@@ -59,6 +59,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	abstract function GetTableName();
 	
 	public static $DefaultDatasource = false;
+    public static $SaveDelayed = false;
 	
 	protected static $_schemaCache = array();
 	private static $_typeMap = array();

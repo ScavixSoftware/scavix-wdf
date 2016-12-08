@@ -214,9 +214,9 @@ class MySql implements IDatabaseDriver
 		else
 		{
 			if( count($all) == 0 )
-				$sql = "INSERT INTO `".$model->GetTableName()."`";
+				$sql = (\ScavixWDF\Model\Model::$SaveDelayed?"INSERT DELAYED INTO `":"INSERT INTO `").$model->GetTableName()."`";
 			else
-				$sql  = "INSERT INTO `".$model->GetTableName()."`(".implode(",",$all).")VALUES(".implode(',',$vals).")";
+				$sql  = (\ScavixWDF\Model\Model::$SaveDelayed?"INSERT DELAYED INTO `":"INSERT INTO `").$model->GetTableName()."`(".implode(",",$all).")VALUES(".implode(',',$vals).")";
 		}
 		return new ResultSet($this->_ds, $this->_pdo->prepare($sql));
 	}
