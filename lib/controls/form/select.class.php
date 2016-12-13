@@ -174,5 +174,13 @@ class Select extends Control
 	{
 		return new Label($text,$this->id);
 	}
+    
+    static function Create($options,$name=false,$selected=false)
+    {
+        $res = new Select($name);
+        if( $selected ) $res->SetCurrentValue($selected);
+        foreach( $options as $k=>$v )
+            $res->AddOption($k,$v);
+        return $res;
+    }
 }
-

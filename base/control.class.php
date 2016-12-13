@@ -576,4 +576,9 @@ class Control extends Renderable
 		}
 		WdfException::Raise("Control::attr needs 0,1 or 2 parameters");
 	}
+    
+    function setTitle($title)
+    {
+        return $this->attr('title',$title);
+    }
 }
