@@ -119,6 +119,8 @@ class uiDatePicker extends uiControl
 		$format = str_replace("y3", "yy", $format);
 		$format = str_replace("y4", "yy", $format);
 		
+        $this->Options['firstDay'] = $cultureInfo->DateTimeFormat->FirstDayOfWeek;
+        
 		$this->Options['dayNames'] = $cultureInfo->DateTimeFormat->DayNames;
 		$this->Options['dayNamesMin'] = $cultureInfo->DateTimeFormat->ShortDayNames;
 		$this->Options['dayNamesShort'] = $cultureInfo->DateTimeFormat->ShortDayNames;
@@ -129,4 +131,13 @@ class uiDatePicker extends uiControl
 		
 		return $this;
 	}
+    
+    public static function PromoteDefaults(\ScavixWDF\Base\HtmlPage $page, $cultureInfo)
+    {
+        $cls = get_called_class();
+        $temp = new $cls();
+        $temp->SetCulture($cultureInfo);
+        $def = json_encode($temp->Options);
+        $page->addDocReady("$.datepicker.setDefaults($def);");
+    }
 }
