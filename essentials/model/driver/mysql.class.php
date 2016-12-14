@@ -130,7 +130,7 @@ class MySql implements IDatabaseDriver
 		$stmt->setFetchMode(PDO::FETCH_NUM);
 		$stmt->bindValue(1,$tablename);
 		if( !$stmt->execute() )
-			WdfDbException::Raise($stmt->errorInfo());
+			WdfDbException::RaiseStatement($stmt);
 		$row = $stmt->fetch();
 		return count($row)>0;
 	}

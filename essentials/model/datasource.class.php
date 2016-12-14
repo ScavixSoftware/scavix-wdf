@@ -264,7 +264,8 @@ class DataSource
 		
 		$stmt = $this->Prepare($sql);
 		if( !$stmt->execute($parameter) )
-			WdfDbException::Raise("SQL Error: ".$stmt->ErrorOutput(),"\nArguments:",$parameter,"\nMerged:",ResultSet::MergeSql($this,$sql,$parameter));
+            WdfDbException::RaiseStatement($stmt,true);
+
 		$this->_last_affected_rows_count = $stmt->Count();
 		return $stmt;
 	}

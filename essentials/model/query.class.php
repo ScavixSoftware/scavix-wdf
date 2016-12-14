@@ -107,7 +107,7 @@ class Query
 				$this->_statement->bindValue($i+1,$v);
 		}
 		if( !$this->_statement->execute() )
-			WdfDbException::Raise($this->_statement->ErrorOutput(),"\nArguments:",$this->_values,"\nMerged:",ResultSet::MergeSql($this->_ds,$sql, $this->_values));
+			WdfDbException::RaiseStatement($stmt,true);
 		
 		$res = $this->_statement->fetchAll(PDO::FETCH_CLASS,get_class($this->_object),$ctor_args);
 		return $res;

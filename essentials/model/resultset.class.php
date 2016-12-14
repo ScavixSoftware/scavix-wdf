@@ -130,6 +130,15 @@ class ResultSet implements Iterator, ArrayAccess
 	{
 		return $this->_arguments_used;
 	}
+    
+    /**
+	 * Gets the merged query used (inline arguments)
+	 * @return string SQL query
+	 */
+	public function GetMergedSql()
+	{
+		return ResultSet::MergeSql($this->_ds,$this->_sql_used,$this->_arguments_used);
+	}
 
 	/**
 	 * Savely serializes this object
