@@ -619,16 +619,18 @@ class Table extends Control
 		$ui = new Control('div');
 		$ui->addClass("pager");
 
-		if( $this->CurrentPage > 1 )
-		{
-			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage(1)","|&lt;") );
-			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage(".($this->CurrentPage-1).")","&lt;") );
-		}
-
 		$start = 1;
 		while( $pages > $this->MaxPagesToShow && $this->CurrentPage > $start + $this->MaxPagesToShow / 2 )
 			$start++;
 
+		if( $start == 2 )
+            $ui->content( new Anchor("javascript: $('#$this->id').gotoPage(1)","1") );
+		elseif( $start > 1 )
+		{
+			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage(1)","1 &lt;&lt;") );
+			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage(".($this->CurrentPage-1).")","&lt;") );
+		}
+        
 		for( $i=$start; $i<=$pages && $i<($start+$this->MaxPagesToShow); $i++ )
 		{
 			if( $i == $this->CurrentPage )
@@ -636,11 +638,13 @@ class Table extends Control
 			else
 				$ui->content(new Anchor("javascript: $('#$this->id').gotoPage($i)",$i));
 		}
-
-		if( $this->CurrentPage < $pages )
+        
+		if( $i == $pages )
+            $ui->content(new Anchor("javascript: $('#$this->id').gotoPage($i)",$i));
+        elseif( $i < $pages )
 		{
 			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage(".($this->CurrentPage+1).")","&gt;") );
-			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage($pages)","&gt;|") );
+			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage($pages)","&gt;&gt; $pages") );
 		}
 		return $ui;
 	}
