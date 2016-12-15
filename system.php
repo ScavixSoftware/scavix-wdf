@@ -835,7 +835,7 @@ function system_spl_autoload($class_name)
 				{
 					if( !ends_with($c,$class_name) )
 						continue;
-					log_info("Aliasing previously included class '$c' to '$class_name'. To avoid this check the use statements or use a qualified classname.");
+					log_trace("Aliasing previously included class '$c' to '$class_name'. To avoid this check the use statements or use a qualified classname.");
 					create_class_alias($c,$class_name,true);
 					break;
 				}
@@ -846,7 +846,7 @@ function system_spl_autoload($class_name)
 				if( strtolower($def) != strtolower($class_name) && ends_iwith($def,$class_name) ) // no qualified classname requested but class was defined with namespace
 				{
 
-					log_info("Aliasing class '$def' to '$class_name'. To avoid this check the use statements or use a qualified classname.");
+					log_trace("Aliasing class '$def' to '$class_name'. To avoid this check the use statements or use a qualified classname.");
 					create_class_alias($def,$class_name,true);
 				}
 			}
