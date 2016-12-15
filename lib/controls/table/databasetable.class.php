@@ -193,7 +193,10 @@ class DatabaseTable extends Table implements ICallable
 			if( $this->OrderBy && !preg_match('/^\s+ORDER\sBY\s+/',$this->OrderBy) ) $this->OrderBy = " ORDER BY ".$this->OrderBy;
 			if( $this->Limit && !preg_match('/^\s+LIMIT\s+/',$this->Limit) ) $this->Limit = " LIMIT ".$this->Limit;
 
-			$sql = "SELECT @fields@ FROM @table@@join@@where@@groupby@@having@@orderby@@limit@";
+            if( $this->ItemsPerPage && !$this->HidePager )
+                $sql = "SELECT SQL_CALC_FOUND_ROWS @fields@ FROM @table@@join@@where@@groupby@@having@@orderby@@limit@";
+            else
+                $sql = "SELECT @fields@ FROM @table@@join@@where@@groupby@@having@@orderby@@limit@";
 			$sql = str_replace("@fields@",$this->Columns,$sql);
 			$sql = str_replace("@table@","`".$this->DataTable."`",$sql);
 			$sql = str_replace("@join@",$this->Join,$sql);

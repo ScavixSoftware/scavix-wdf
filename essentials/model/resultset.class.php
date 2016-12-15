@@ -236,10 +236,19 @@ class ResultSet implements Iterator, ArrayAccess
 		if( $this->_ds )
 			$this->_ds->LastStatement = $this;
 		
-		if( is_null($input_parameters) )
-			return $this->_stmt->execute();
+        if( is_null($input_parameters) )
+			$result = $this->_stmt->execute();
 		else
-			return $this->_stmt->execute($input_parameters);
+			$result = $this->_stmt->execute($input_parameters);
+        
+        if( stripos($this->_sql_used, 'SQL_CALC_FOUND_ROWS') !== false )
+        {
+            $found_rows = $this->_pdo->query("SELECT FOUND_ROWS()",PDO::FETCH_COLUMN,0)->fetchColumn(0);
+            $key = 'DB_Cache_FoundRows_'.md5($this->_sql_used.serialize($this->_arguments_used));
+            cache_set($key,$found_rows,60,false,true);
+        }
+        
+		return $result;
 	}
 	
 	/**
