@@ -167,7 +167,7 @@ class WdfDbException extends WdfException
     public static function RaiseStatement($statement, $use_extended_info = false)
 	{
         if( $use_extended_info )
-            $ex = new WdfDbException("SQL Error: ".$statement->ErrorOutput(),"\nSQL:",$statement->GetMergedSql());
+            $ex = new WdfDbException("SQL Error: ".$statement->ErrorOutput()."\nSQL:".$statement->GetMergedSql());
         else
             $ex = new WdfDbException(render_var($statement->ErrorOutput()));
         $ex->statement = $statement;
