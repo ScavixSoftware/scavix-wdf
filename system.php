@@ -203,7 +203,7 @@ function system_init($application_name, $skip_header = false, $logging_category=
 	if(!isset($CONFIG['model']['internal']['connection_string']))
 		$CONFIG['model']['internal']['connection_string']  = 'sqlite::memory:';
 
-	// load essentials as if they were modules.
+    // load essentials as if they were modules.
 	system_load_module('essentials/logging.php');
 	system_load_module('essentials/model.php');
 	system_load_module('essentials/session.php');
@@ -217,10 +217,9 @@ function system_init($application_name, $skip_header = false, $logging_category=
 	if( $logging_category )
 		logging_add_category($logging_category);
 	logging_set_user(); // works as both (session and logging) are now essentials
-	
 	session_run();
-	
-	// auto-load all system-modules defined in $CONFIG['system']['modules']
+
+    // auto-load all system-modules defined in $CONFIG['system']['modules']
 	foreach( $CONFIG['system']['modules'] as $mod )
 	{
 		if( file_exists($thispath."/modules/$mod.php") )
@@ -230,7 +229,7 @@ function system_init($application_name, $skip_header = false, $logging_category=
 		elseif( file_exists( "$mod") )
 			system_load_module("$mod");
 	}
-
+    
 	if( isset($_REQUEST['request_id']) )
 	{
 		session_keep_alive('request_id');
@@ -933,7 +932,7 @@ function __search_file_for_class($class_name,$extension="class.php",$classpath_l
 {
 	global $CONFIG;
 
-    $key = "autoload_class-".getAppVersion('nc').$class_name.$extension.$classpath_limit;
+    $key = "autoload_class-".session_name().getAppVersion('nc').$class_name.$extension.$classpath_limit;
     $r = cache_get($key);
     if( $r !== false )
         return $r;
