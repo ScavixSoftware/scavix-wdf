@@ -80,6 +80,7 @@ function session_run()
 			(!$CONFIG['session']['usephpsession'] && $CONFIG['session']['handler'] == "PhpSession") )
 			WdfException::Raise('Do not use $CONFIG[\'session\'][\'usephpsession\'] anymore! See session_init() for details.');
 	}
+    
 	$CONFIG['session']['handler'] = fq_class_name($CONFIG['session']['handler']);
 	$GLOBALS['fw_session_handler'] = new $CONFIG['session']['handler']();
     

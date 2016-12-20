@@ -569,6 +569,8 @@ function array_val_is($array,$key,$needle)
  */
 function system_is_ajax_call()
 {
+    if( php_sapi_name() == "cli" )
+        $GLOBALS['result_of_system_is_ajax_call'] = false;
 	if( !isset($GLOBALS['result_of_system_is_ajax_call']) )
 	{
 		$GLOBALS['result_of_system_is_ajax_call'] = strtolower(array_val($_SERVER, 'HTTP_X_REQUESTED_WITH', '')) == 'xmlhttprequest';
