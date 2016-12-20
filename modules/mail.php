@@ -151,9 +151,9 @@ function mail_prepare($recipient,$subject,$message,$plainmessage="",$attachments
 	if( !is_array($attachments) )
 		$attachments = array($attachments);
 
-	foreach( $attachments as $a )
+	foreach( $attachments as $k => $a )
 		if( file_exists($a) )
-			$mail->AddAttachment($a);
+			$mail->AddAttachment($a, (is_numeric($k) ? '' : $k));
 		else
 			log_debug("email attachment not found: $a");
 	
