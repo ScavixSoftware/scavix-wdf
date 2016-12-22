@@ -121,7 +121,8 @@ class WdfResource implements ICallable
 	function CompileLess($file)
 	{
 		$vars = isset($_SESSION['resources_less_variables'])?$_SESSION['resources_less_variables']:array();
-		$file_key = md5($file.serialize($vars));
+        $dirs = isset($_SESSION['resources_less_dirs'])?$_SESSION['resources_less_dirs']:false;
+		$file_key = md5($file.serialize($vars).serialize($dirs));
 		
 		$less = resFile(basename($file),true);
 		$css = sys_get_temp_dir().'/'.$file_key.'.css';
@@ -136,7 +137,10 @@ class WdfResource implements ICallable
 		
 		require_once(__DIR__.'/lessphp/lessc.inc.php');
 		$compiler = new \lessc();
-		$compiler->setVariables($vars);		
+		$compiler->setVariables($vars);
+        if( $dirs )
+            $compiler->setImportDir(array_merge([''],$dirs));
+        
 		$newCache = $compiler->cachedCompile($cache);
 		if( !is_array($cache) || $newCache["updated"] > $cache["updated"] )
 		{
