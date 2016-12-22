@@ -107,7 +107,7 @@ class Query
 				$this->_statement->bindValue($i+1,$v);
 		}
 		if( !$this->_statement->execute() )
-			WdfDbException::RaiseStatement($stmt,true);
+			WdfDbException::RaiseStatement($this->_statement,true);
 		
 		$res = $this->_statement->fetchAll(PDO::FETCH_CLASS,get_class($this->_object),$ctor_args);
 		return $res;
