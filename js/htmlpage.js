@@ -132,14 +132,15 @@ $.ajaxSetup({cache:false});
                 });
 			}
 			
-			//win.onerror = function(a){ server_debug(a); };
-			this.resetPing();
+            this.resetPing();
 			this.setCallbackDefault('exception', function(msg){ alert(msg); });
 			this.ready.fire();
 		},
 		
 		resetPing: function()
 		{
+            if( wdf.settings.no_ping )
+                return;
 			if( wdf.ping_timer ) clearTimeout(wdf.ping_timer);
 			wdf.ping_timer = setTimeout(function()
 			{
