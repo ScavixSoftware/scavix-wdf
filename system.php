@@ -474,6 +474,10 @@ function system_exit($result=null,$die=true)
 	else
 	{
 		$_SESSION['request_id'] = request_id();
+        $_SESSION['latest_requests'][$_SESSION['request_id']] = [current_controller(),current_event(),$_GET,$_POST];
+        while( count($_SESSION['latest_requests']) > 20 )
+            array_shift($_SESSION['latest_requests']);
+        
 		if( $result instanceof Renderable)
 		{
 			$response = $result->WdfRenderAsRoot();
@@ -1336,6 +1340,17 @@ function current_controller($as_string=true)
 function current_event()
 {
 	return isset($GLOBALS['current_event'])?strtolower($GLOBALS['current_event']):'';
+}
+
+function system_current_request()
+{
+    if( system_is_ajax_call() )
+    {
+        $rid = \ScavixWDF\Base\Args::request('request_id');
+        if( $rid && isset($_SESSION['latest_requests'][$rid]) )
+            return $_SESSION['latest_requests'][$rid];
+    }
+    return [current_controller(),current_event(),$_GET,$_POST];
 }
 
 /**
