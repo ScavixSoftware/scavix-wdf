@@ -63,6 +63,6 @@ class uiAutocomplete extends uiControl
     
     public function __sleep() 
     {
-        return array();
+        return array('_storage_id');
     }
 }
