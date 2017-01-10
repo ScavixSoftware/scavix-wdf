@@ -281,7 +281,7 @@ function system_parse_request_path()
 		
 		// now for the normal processing
 		$wdf_route = $_REQUEST['wdf_route'];
-		$GLOBALS['wdf_route'] = $path = explode("/",$_REQUEST['wdf_route'],3);
+		$GLOBALS['wdf_route'] = $path = explode("/",$_REQUEST['wdf_route']);
 		unset($_REQUEST['wdf_route']);
 		unset($_GET['wdf_route']);
 
@@ -298,8 +298,8 @@ function system_parse_request_path()
 					if( count($path)>2 )
 					{
 						foreach( array_slice($path,2) as $ra )
-							if( $ra ) 
-								$GLOBALS['routing_args'][] = $ra;
+                            if( $ra !== '' )
+                                $GLOBALS['routing_args'][] = $ra;
 					}
 				}
 			}
@@ -431,9 +431,10 @@ function system_invoke_request($target_class,$target_event,$pre_execute_hook_typ
 	$failedargs = array();
 
 	$req_data = array_merge($_FILES,$_GET,$_POST);
-	foreach( $params as $prm )
+    $last = max(array_keys($params));
+	foreach( $params as $i=>$prm )
 	{
-		$argscheck[$prm->Name] = $prm->UpdateArgs($req_data,$args);
+		$argscheck[$prm->Name] = $prm->UpdateArgs($req_data,$args,$i==$last);
 		if( $argscheck[$prm->Name] !== true )
 		{
 			$failedargs[$prm->Name] = "ARGUMENT FAILED";
