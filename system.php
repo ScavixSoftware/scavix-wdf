@@ -427,24 +427,28 @@ function system_invoke_request($target_class,$target_event,$pre_execute_hook_typ
 	$ref = WdfReflector::GetInstance($target_class);
 	$params = $ref->GetMethodAttributes($target_event,"RequestParam");
 	$args = array();
-	$argscheck = array();
-	$failedargs = array();
+    
+    if( count($params) > 0 )
+    {
+        $argscheck = array();
+        $failedargs = array();
 
-	$req_data = array_merge($_FILES,$_GET,$_POST);
-    $last = max(array_keys($params));
-	foreach( $params as $i=>$prm )
-	{
-		$argscheck[$prm->Name] = $prm->UpdateArgs($req_data,$args,$i==$last);
-		if( $argscheck[$prm->Name] !== true )
-		{
-			$failedargs[$prm->Name] = "ARGUMENT FAILED";
-			$args[$prm->Name] = "ARGUMENT FAILED";
-		}
-	}
+        $req_data = array_merge($_FILES,$_GET,$_POST);
+        $last = max(array_keys($params));
+        foreach( $params as $i=>$prm )
+        {
+            $argscheck[$prm->Name] = $prm->UpdateArgs($req_data,$args,$i==$last);
+            if( $argscheck[$prm->Name] !== true )
+            {
+                $failedargs[$prm->Name] = "ARGUMENT FAILED";
+                $args[$prm->Name] = "ARGUMENT FAILED";
+            }
+        }
 
-	if( count($failedargs) > 0 )
-		execute_hooks(HOOK_ARGUMENTS_PARSED, $failedargs);
-
+        if( count($failedargs) > 0 )
+            execute_hooks(HOOK_ARGUMENTS_PARSED, $failedargs);
+    }
+    
 	execute_hooks($pre_execute_hook_type,array($target_class,$target_event,$args));
 	return call_user_func_array(array(&$target_class,$target_event), $args);
 }
