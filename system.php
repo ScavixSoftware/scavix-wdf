@@ -596,7 +596,7 @@ function register_hook($type,&$handler_obj,$handler_method)
  * This is automatically called when content is removed from <Renderable> objects to avoid performing actions on objects that are not part
  * of the DOM anymore.
  * @param object $handler_obj The object taht shall be removed from the hanlder stack
- * @retunr void
+ * @return void
  */
 function release_hooks($handler_obj)
 {
@@ -1117,6 +1117,8 @@ function redirect($controller,$event="",$data="",$url_root=false)
  * 
  * Can be used as password, sessionid, ticket....
  * @param int $len The length of the return string
+ * @param int $case_sensitive If FALSE, only upper case chars are used. Applies only if $chars is not given
+ * @param int $chars Chars to generate password from
  * @return string The generated string sequence
  */
 function generatePW($len = 8, $case_sensitive=true, $chars='')
@@ -1347,6 +1349,12 @@ function current_event()
 	return isset($GLOBALS['current_event'])?strtolower($GLOBALS['current_event']):'';
 }
 
+/**
+ * Returns information about the current request.
+ * 
+ * If the current request is an AJAX request, it returns info about the last 'normal' call.
+ * @return array Array with (string)controller,(string)method,(array)get and (array)post
+ */
 function system_current_request()
 {
     if( system_is_ajax_call() )

@@ -414,6 +414,9 @@ function starts_with($string,$start)
 	return strpos($string,$start) === 0;
 }
 
+/**
+ * @shortcut <starts_with>() but ignoring the case
+ */
 function starts_iwith($string,$start)
 {
 	if( func_num_args() > 2 )
@@ -1120,7 +1123,7 @@ function ifavail()
 }
 
 /**
- * Performs `array_values` on a multidimentional array.
+ * @shortcut <array_values> on a multidimentional array
  */
 function array_values_rec($array,$max_depth=false,$cur_depth=1)
 {
@@ -1138,6 +1141,9 @@ function array_values_rec($array,$max_depth=false,$cur_depth=1)
 
 if( !function_exists('idn_to_utf8') )
 {
+    /**
+     * @internal Use own implementation if missing
+     */
     class IDN {
         // adapt bias for punycode algorithm
         private static function punyAdapt(
@@ -1227,5 +1233,8 @@ if( !function_exists('idn_to_utf8') )
         }
     }
     
+    /**
+     * @internal Use own implementation if missing
+     */
     function idn_to_utf8($domain) { return IDN::decodeIDN($domain); }
 }

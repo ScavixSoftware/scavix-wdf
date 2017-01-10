@@ -164,6 +164,9 @@ class WdfDbException extends WdfException
 {
     private $statement;
     
+    /**
+     * @internal Raises an Exception for a failed DB Statement.
+     */
     public static function RaiseStatement($statement, $use_extended_info = false)
 	{
         if( $use_extended_info )
@@ -174,6 +177,11 @@ class WdfDbException extends WdfException
 		throw $ex;
 	}
     
+    /**
+     * Returns the SQL string used
+     * 
+     * @return string SQL
+     */
     function getSql()
     {
         if( $this->statement )
@@ -181,6 +189,11 @@ class WdfDbException extends WdfException
         return '(undefined)';
     }
     
+    /**
+     * Returns the arguments used
+     * 
+     * @return array The arguments
+     */
     function getArguments()
     {
         if( $this->statement )
@@ -188,6 +201,11 @@ class WdfDbException extends WdfException
         return [];
     }
     
+    /**
+     * Returns a string merged from the SQL statement and the arguments
+     * 
+     * @return string Merged SQL statement
+     */
     function getMergedSql()
     {
         if( $this->statement )
