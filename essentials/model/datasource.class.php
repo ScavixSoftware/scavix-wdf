@@ -562,11 +562,11 @@ class DataSource
 		return $this->_pdo->lastInsertId($table);
 	}
     
-    public function LogLastSatement($label='Last Statement')
-	{
-		$this->LogLastStatement("[Wrong call to LogLastSatement, please use LogLastStatement] $label");
-	}
-    
+    /**
+     * @shortcut <ResultSet::LogDebug>
+     * @param type $label
+     * @return void
+     */
     public function LogLastStatement($label='Last Statement')
 	{
 		if( $this->LastStatement )

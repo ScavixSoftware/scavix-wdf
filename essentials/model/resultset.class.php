@@ -102,6 +102,7 @@ class ResultSet implements Iterator, ArrayAccess
 	 * 
 	 * Sometimes you will need to debug specific statements. This method will create a logentry with the SQL query, the arguments used
 	 * and try to combine it for easy copy+paste from log to your sql tool (for retry).
+     * @param string $label Optional label to use as prefix for the log entry
 	 * @return void
 	 */
 	public function LogDebug($label='')
@@ -431,6 +432,7 @@ class ResultSet implements Iterator, ArrayAccess
 	 * </code>
 	 * @param string|int $column_name Column to enumerate values for. If an integer is given will see that as zero-based index.
 	 * @param bool $distinct True to array_unique, false to keep duplicates
+	 * @param string $key_column_name If given uses this column as key for an associative resulting array
 	 * @return type
 	 */
 	function Enumerate($column_name, $distinct=true, $key_column_name=false)

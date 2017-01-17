@@ -549,6 +549,8 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * 
 	 * @param array $data Associative array with data
 	 * @param DataSource $datasource Optional datasource to assign to the created <Model>
+	 * @param bool $allFields If true, all data is taken to the result, not only that one that are present in the columns of the type
+	 * @param bool $className Optional classname to allow anonymous calls like `Model::MakeFromData`
 	 * @return subclass_of_Model The newly created typed <Model>
 	 */
 	public static function MakeFromData($data,$datasource=null,$allFields=false,$className=false)
@@ -588,6 +590,8 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * $entry = MyTableModel::CastFrom($entry);                // now it is type of MyTableModel
 	 * </code>
 	 * @param Model $model Object of (sub-)type <Model>
+	 * @param bool $allFields If true, all data is taken to the result, not only that one that are present in the columns of the type
+	 * @param bool $className Optional classname to allow anonymous calls like `Model::MakeFromData`
 	 * @return subclass_of_Model The typed object
 	 */
 	public static function CastFrom($model,$allFields=false,$className=false)
@@ -997,6 +1001,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * 
 	 * @param string $property Property-/Fieldname
 	 * @param mixed $value Value to check against
+     * @param bool $value_is_sql if true, $value is treaded as SQL keyword/function/... and will fremain unescaped (sample: now())
 	 * @return Model `clone $this`
 	 */
 	public function greaterThan($property,$value,$value_is_sql=false)

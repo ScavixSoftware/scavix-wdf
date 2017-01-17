@@ -107,6 +107,7 @@ function unserializer_active()
  * Checks reference-equality or storage_id equality (if storage_id is set)
  * @param object $o1 First object to compare
  * @param object $o2 Second object to compare
+ * @param bool $compare_classes Seems to be deprecated
  * @return bool true if eual, else false
  */
 function equals(&$o1, &$o2, $compare_classes=true)
