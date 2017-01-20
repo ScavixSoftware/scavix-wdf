@@ -439,14 +439,11 @@ class DatabaseTable extends Table implements ICallable
 		
 		$res = array();
 		$copy->ResultSet->FetchMode = PDO::FETCH_ASSOC;
-<<<<<<< master
-=======
         $cols = [];
         if(!$this->Columns && $this->Sql)
             $this->Columns = array_keys($copy->ResultSet->fetchRow());
         foreach( $this->Columns as $c )
             $cols[] = trim($c,"`");
->>>>>>> local
 		foreach( $copy->ResultSet as $row )
 		{
 			$row = $copy->_preProcessData($row);
@@ -483,13 +480,7 @@ class DatabaseTable extends Table implements ICallable
 		$sheet = $xls->getActiveSheet();
 		$row = 1;
 		$max_cell = 0;
-<<<<<<< master
-		
-		$ci = ExcelCulture::FromCode(isset($this->Culture) ? $this->Culture->Code : 'en-US');
-=======
-
 		$ci = ExcelCulture::FromCode(isset($this->Culture) && $this->Culture ? $this->Culture->Code : 'en-US');
->>>>>>> local
 		$head_rows = $this->_export_get_header();
 		$first_data_row = count($head_rows)+1;
 
