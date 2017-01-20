@@ -160,4 +160,56 @@ class ToDoException extends WdfException {}
  * All code in the model essential (essentials/model.php + essentials/model/*) use this instead of WdfException.
  * Just to have everyting nicely wrapped.
  */
-class WdfDbException extends WdfException {}
+class WdfDbException extends WdfException
+{
+    private $statement;
+    
+    /**
+     * @internal Raises an Exception for a failed DB Statement.
+     */
+    public static function RaiseStatement($statement, $use_extended_info = false)
+	{
+        if( $use_extended_info )
+            $ex = new WdfDbException("SQL Error: ".$statement->ErrorOutput()."\nSQL:".$statement->GetMergedSql());
+        else
+            $ex = new WdfDbException(render_var($statement->ErrorOutput()));
+        $ex->statement = $statement;
+		throw $ex;
+	}
+    
+    /**
+     * Returns the SQL string used
+     * 
+     * @return string SQL
+     */
+    function getSql()
+    {
+        if( $this->statement )
+            return $this->statement->GetSql();
+        return '(undefined)';
+    }
+    
+    /**
+     * Returns the arguments used
+     * 
+     * @return array The arguments
+     */
+    function getArguments()
+    {
+        if( $this->statement )
+            return $this->statement->GetArgs();
+        return [];
+    }
+    
+    /**
+     * Returns a string merged from the SQL statement and the arguments
+     * 
+     * @return string Merged SQL statement
+     */
+    function getMergedSql()
+    {
+        if( $this->statement )
+            return $this->statement->GetMergedSql();
+        return '(undefined)';
+    }
+}

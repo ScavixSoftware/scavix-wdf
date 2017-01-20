@@ -28,6 +28,7 @@ if( !defined('FRAMEWORK_LOADED') || FRAMEWORK_LOADED != 'uSI7hcKMQgPaPKAQDXg5' )
 
 define("HOOK_POST_INIT",1);
 define("HOOK_POST_INITSESSION",2);
+define("HOOK_PRE_CONSTRUCT",9);
 define("HOOK_PRE_EXECUTE",3);
 define("HOOK_PRE_RENDER",8);
 define("HOOK_POST_EXECUTE",4);
@@ -413,6 +414,9 @@ function starts_with($string,$start)
 	return strpos($string,$start) === 0;
 }
 
+/**
+ * @shortcut <starts_with>() but ignoring the case
+ */
 function starts_iwith($string,$start)
 {
 	if( func_num_args() > 2 )
@@ -568,6 +572,8 @@ function array_val_is($array,$key,$needle)
  */
 function system_is_ajax_call()
 {
+    if( php_sapi_name() == "cli" )
+        $GLOBALS['result_of_system_is_ajax_call'] = false;
 	if( !isset($GLOBALS['result_of_system_is_ajax_call']) )
 	{
 		$GLOBALS['result_of_system_is_ajax_call'] = strtolower(array_val($_SERVER, 'HTTP_X_REQUESTED_WITH', '')) == 'xmlhttprequest';
@@ -1117,7 +1123,7 @@ function ifavail()
 }
 
 /**
- * Performs `array_values` on a multidimentional array.
+ * @shortcut <array_values> on a multidimentional array
  */
 function array_values_rec($array,$max_depth=false,$cur_depth=1)
 {
@@ -1135,6 +1141,9 @@ function array_values_rec($array,$max_depth=false,$cur_depth=1)
 
 if( !function_exists('idn_to_utf8') )
 {
+    /**
+     * @internal Use own implementation if missing
+     */
     class IDN {
         // adapt bias for punycode algorithm
         private static function punyAdapt(
@@ -1224,5 +1233,8 @@ if( !function_exists('idn_to_utf8') )
         }
     }
     
+    /**
+     * @internal Use own implementation if missing
+     */
     function idn_to_utf8($domain) { return IDN::decodeIDN($domain); }
 }

@@ -70,6 +70,8 @@ class DatabaseTable extends Table implements ICallable
 	public $contentNoData = "TXT_NO_DATA_FOUND";
 
 	var $ParsingBehaviour = self::PB_HTMLSPECIALCHARS;
+    
+    var $SlimSerialization = false;
 
 	/**
 	 * @param DataSource $datasource DataSource to use
@@ -88,15 +90,38 @@ class DatabaseTable extends Table implements ICallable
 		
 		store_object($this);
 	}
-	
+    
+    function __sleep()
+    {
+        $res = get_object_vars($this);
+        if( $this->SlimSerialization )
+        {
+            unset($res['_content']);
+            unset($res['current_row_group']);
+            unset($res['current_row']);
+        }
+        return array_keys($res);
+    }
+    
 	private function ExecuteSql($sql,$prms=array())
 	{
+        if( $this->logIfSlow )
+            $logtimer = start_timer("[".\ScavixWDF\Model\ResultSet::MergeSql($this->DataSource,$sql,$prms)."]");
+        
 		if( $this->ExecuteSqlHandler )
 			call_user_func($this->ExecuteSqlHandler,$this,$sql,$prms);
 		else
 		{
 			if( $this->ItemsPerPage )
+            {
 				$this->ResultSet = $this->DataSource->PageExecute($sql,$this->ItemsPerPage,$this->CurrentPage,$prms);
+                if(($this->ResultSet->Count() == 0) && ($this->CurrentPage > 1))
+                {
+                    // no items on current page, so reset to first page
+                    $this->ResetPager();
+                    $this->ResultSet = $this->DataSource->PageExecute($sql,$this->ItemsPerPage,$this->CurrentPage,$prms);
+                }
+            }
 			else
 			{
 				if( $this->CacheExecute )
@@ -107,6 +132,8 @@ class DatabaseTable extends Table implements ICallable
 		}
 		if( $this->DataSource->ErrorMsg() )
 			log_error(get_class($this).": ".$this->DataSource->ErrorMsg());
+        elseif( isset($logtimer) )
+            finish_timer($logtimer,$this->logIfSlow);
 	}
 
 	/**
@@ -166,7 +193,10 @@ class DatabaseTable extends Table implements ICallable
 			if( $this->OrderBy && !preg_match('/^\s+ORDER\sBY\s+/',$this->OrderBy) ) $this->OrderBy = " ORDER BY ".$this->OrderBy;
 			if( $this->Limit && !preg_match('/^\s+LIMIT\s+/',$this->Limit) ) $this->Limit = " LIMIT ".$this->Limit;
 
-			$sql = "SELECT @fields@ FROM @table@@join@@where@@groupby@@having@@orderby@@limit@";
+            if( $this->ItemsPerPage && !$this->HidePager )
+                $sql = "SELECT SQL_CALC_FOUND_ROWS @fields@ FROM @table@@join@@where@@groupby@@having@@orderby@@limit@";
+            else
+                $sql = "SELECT @fields@ FROM @table@@join@@where@@groupby@@having@@orderby@@limit@";
 			$sql = str_replace("@fields@",$this->Columns,$sql);
 			$sql = str_replace("@table@","`".$this->DataTable."`",$sql);
 			$sql = str_replace("@join@",$this->Join,$sql);
@@ -300,6 +330,12 @@ class DatabaseTable extends Table implements ICallable
 	 */
 	function PreRender($args = array())
 	{
+        // stop rebuilding the table of row-action was clicked: 
+        // - performance 
+        // - row-ids would change and trigger error on subsequent clicked actions
+        if( current_event() == 'onactionclicked' && current_controller(false) instanceof Table )
+            return parent::PreRender($args);
+        
 		$this->GetData();
 		
         if( !$this->ResultSet || $this->ResultSet->Count()==0 )
@@ -414,24 +450,28 @@ class DatabaseTable extends Table implements ICallable
 		foreach( $copy->ResultSet as $row )
 		{
 			$row = $copy->_preProcessData($row);
-			
             if( $rowcallback != null )
                 $row = $rowcallback($row);
-            
-			if( !isset($format_buffer) )
+            $r = [];
+            foreach( $cols as $k )
+                if(isset($row[$k]))
+                    $r[$k] = $row[$k];
+                else
+                    $r[$k] = null;
+
+            if( !isset($format_buffer) )
 			{
 				$i=0; $format_buffer = array();
-				foreach( $row as $k=>$v )
+				foreach( $r as $k=>$v )
 				{
-					if( isset($this->ColFormats[$i]) )
-						$format_buffer[$k] = $this->ColFormats[$i];
-					$i++;
+                    if( isset($this->ColFormats[$i]) )
+                        $format_buffer[$k] = $this->ColFormats[$i];
+                    $i++;
 				}
 			}
 			foreach( $format_buffer as $k=>$cellformat )
-				$row[$k] = $cellformat->FormatContent($row[$k],$copy->Culture);
-			
-			$res[] = $row;
+				$r[$k] = $cellformat->FormatContent($r[$k],$copy->Culture);
+			$res[] = $r;
 		}
 		return $res;
 	}
@@ -445,7 +485,7 @@ class DatabaseTable extends Table implements ICallable
 		$max_cell = 0;
 <<<<<<< master
 		
-		$ci = ExcelCulture::FromCode('en-US');
+		$ci = ExcelCulture::FromCode(isset($this->Culture) ? $this->Culture->Code : 'en-US');
 =======
 
 		$ci = ExcelCulture::FromCode(isset($this->Culture) && $this->Culture ? $this->Culture->Code : 'en-US');
@@ -538,9 +578,16 @@ class DatabaseTable extends Table implements ICallable
 		return parent::AddPager(0,$items_per_page,$current_page,$max_pages_to_show);
 	}
 	
-	protected function RenderPager($as_header=false)
+	protected function RenderPager()
 	{
 		$this->TotalItems = $this->ResultSet?$this->ResultSet->GetpagingInfo('total_rows'):0;
-		return parent::RenderPager($as_header);
+		return parent::RenderPager();
 	}
+    
+    var $logIfSlow = false;
+    function LogIfSlow($min_ms)
+    {
+        $this->logIfSlow = $min_ms;
+        return $this;
+    }
 }

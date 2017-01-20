@@ -78,9 +78,10 @@ class RequestParamAttribute extends WdfAttribute
 	 * from the $data argument. We will most likely clean this procedure up in the future.
 	 * @param array $data Combined request data
 	 * @param array $args resulting typed values
+     * @param bool $is_last TRUE if this is the last arguement (used for nameless argument passing)
 	 * @return boolean|string true if everything went fine, an error string if not
 	 */
-	function UpdateArgs($data, &$args)
+	function UpdateArgs($data, &$args, $is_last = false)
 	{		
 		global $CONFIG;
 		if( $CONFIG['requestparam']['ignore_case'] )
@@ -96,9 +97,11 @@ class RequestParamAttribute extends WdfAttribute
 			$name = $this->Name;
 
 		if( isset($GLOBALS['routing_args']) && count($GLOBALS['routing_args'])>0 && !isset($data[$name]) )
-			$data[$name] = array_shift($GLOBALS['routing_args']);
+			$data[$name] = $is_last
+                ?implode("/",$GLOBALS['routing_args'])
+                :array_shift($GLOBALS['routing_args']);
 
-		if( !isset($data[$name]) )
+        if( !isset($data[$name]) )
 		{
 			if( !is_null($this->Default) )
 			{

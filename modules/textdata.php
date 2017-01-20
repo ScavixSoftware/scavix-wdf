@@ -55,13 +55,17 @@ function csv_to_array($csv, $delimiter = false, $enclosure = '"', $escape = '\\'
     $rows = explode("\n",trim($csv));
     $names = str_getcsv(array_shift($rows),$delimiter,$enclosure,$escape);
     $nc = count($names);
+    
+    $line = "";
     foreach( $rows as $row )
 	{
-        if( trim($row) )
+        $line .= $row;
+        if( trim($line) )
 		{
-            $values = str_getcsv($row,$delimiter,$enclosure,$escape);
-            if( !$values )
-				$values = array_fill(0,$nc,null);
+            $values = str_getcsv($line,$delimiter,$enclosure,$escape);
+            if( !$values || count($values) != count($names) )
+                continue;
+            $line = "";
             $result[] = array_combine($names,$values);
         }
 	}
@@ -104,4 +108,17 @@ function csv_detect_delimiter($csv)
 		$counts[count(explode($delim,$r))] = $delim;
 	krsort($counts);
     return array_shift($counts);	
+}
+
+/**
+ * Removes the BOM header from a string.
+ * 
+ * @see http://stackoverflow.com/a/15423899
+ * @param string $text Text, potentially with leading BOM
+ * @return string Clean string
+ */
+function remove_utf8_bom($text)
+{
+    $bom = pack('H*','EFBBBF');
+    return preg_replace("/^$bom/", '', $text);
 }

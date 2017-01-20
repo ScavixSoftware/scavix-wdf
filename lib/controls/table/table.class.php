@@ -68,7 +68,6 @@ class Table extends Control
 	{
 		parent::__initialize("div");
 		$this->class = 'table';
-		$this->script("$('#{self}').table();");
 	}
 	
 	/**
@@ -110,8 +109,8 @@ class Table extends Control
 	 */
 	function Clear()
 	{
-		$this->header = false;
-		$this->footer = false;
+//		$this->header = false;
+//		$this->footer = false;
 		$this->current_row_group = false;
 		$this->current_row = false;
 		$this->current_cell = false;
@@ -234,6 +233,13 @@ class Table extends Control
 	 */
 	function PreRender($args=array())
 	{
+        $opts = array
+        (
+            'top_pager' => $this->ItemsPerPage && !$this->HidePager && $this->PagerAtTop,
+            'bottom_pager' => $this->ItemsPerPage && !$this->HidePager,
+        );
+        
+        $this->script("$('#{self}').table(".json_encode($opts).");");
 		if( isset($this->RowOptions['hoverclass']) && $this->RowOptions['hoverclass'] )
 		{
 			$over = "function(){ $(this).addClass('{$this->RowOptions['hoverclass']}') }";
@@ -276,9 +282,6 @@ class Table extends Control
             $this->prepend($this->footer);//array_merge(array($this->footer),$this->_content);
         if( $this->header )
             $this->prepend($this->header);//array_merge(array($this->header),$this->_content);
-
-        if( isset($pager) && $this->PagerAtTop )
-            $this->prepend($this->RenderPager(true));
 
 		if( $this->colgroup )
 			$this->prepend($this->colgroup);//array_merge(array($this->colgroup),$this->_content);
@@ -329,7 +332,10 @@ class Table extends Control
 	 */
 	function SetHeader()
 	{
-		$this->Header()->NewRow(func_get_args());
+        $args = func_get_args();
+        if((count($args) == 1) && is_array($args[0]))
+            $args = $args[0];
+		$this->Header()->NewRow($args);
 		return $this;
 	}
 	
@@ -340,7 +346,10 @@ class Table extends Control
 	 */
 	function SetFooter()
 	{
-		$this->Footer()->NewRow(func_get_args());
+        $args = func_get_args();
+        if((count($args) == 1) && is_array($args[0]))
+            $args = $args[0];
+		$this->Footer()->NewRow($args);
 		return $this;
 	}
 	
@@ -363,7 +372,10 @@ class Table extends Control
 	 */
 	function AddNewRow()
 	{
-		$this->NewRow(func_get_args());
+        $args = func_get_args();
+        if((count($args) == 1) && is_array($args[0]))
+            $args = $args[0];        
+		$this->NewRow($args);
 		return $this;
 	}
 	
@@ -378,11 +390,14 @@ class Table extends Control
 	function SetAlignment()
 	{
 		$args = func_get_args();
-		$cg = $this->ColGroup()->SetAlignment($args);
-		$head = $this->Header()->SetAlignment($args);
-		$foot = $this->Footer()->SetAlignment($args);
+        if((count($args) == 1) && is_array($args[0]))
+            $args = array_values($args[0]);
+		$this->ColGroup()->SetAlignment($args);
+		$this->Header()->SetAlignment($args);
+		$this->Footer()->SetAlignment($args);
 		foreach( $this->_content as $tbody )
-			$tbody->SetAlignment($args);
+            if(method_exists($tbody, 'SetAlignment'))
+                $tbody->SetAlignment($args);
 		return $this;
 	}
 	
@@ -396,7 +411,10 @@ class Table extends Control
 	 */
 	function SetFormat()
 	{
-		foreach( func_get_args() as $i=>$f )
+        $args = func_get_args();
+        if((count($args) == 1) && is_array($args[0]))
+            $args = $args[0];
+		foreach( $args as $i=>$f )
 		{
 			if( $f == "" )
 				continue;
@@ -586,30 +604,33 @@ class Table extends Control
 	 */
 	function GotoPage($number)
 	{
-		$this->CurrentPage = $number;
+        $this->CurrentPage = $number;
         if( $this->PersistName )
              $_SESSION["table_persist_{$this->PersistName}_page"] = $this->CurrentPage;
 	}
 	
-	protected function RenderPager($as_header=false)
+	protected function RenderPager()
 	{
 		$pages = ceil($this->TotalItems / $this->ItemsPerPage);
 		if( $pages < 2 )
 			return;
 		
+        $this->addClass('haspager');
 		$ui = new Control('div');
-		$ui->addClass("pager")->addClass($as_header?'head':'foot');
-
-		if( $this->CurrentPage > 1 )
-		{
-			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage(1)","|&lt;") );
-			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage(".($this->CurrentPage-1).")","&lt;") );
-		}
+		$ui->addClass("pager");
 
 		$start = 1;
 		while( $pages > $this->MaxPagesToShow && $this->CurrentPage > $start + $this->MaxPagesToShow / 2 )
 			$start++;
 
+		if( $start == 2 )
+            $ui->content( new Anchor("javascript: $('#$this->id').gotoPage(1)","1") );
+		elseif( $start > 1 )
+		{
+			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage(1)","1 &lt;&lt;") );
+			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage(".($this->CurrentPage-1).")","&lt;") );
+		}
+        
 		for( $i=$start; $i<=$pages && $i<($start+$this->MaxPagesToShow); $i++ )
 		{
 			if( $i == $this->CurrentPage )
@@ -617,11 +638,13 @@ class Table extends Control
 			else
 				$ui->content(new Anchor("javascript: $('#$this->id').gotoPage($i)",$i));
 		}
-
-		if( $this->CurrentPage < $pages )
+        
+		if( $i == $pages )
+            $ui->content(new Anchor("javascript: $('#$this->id').gotoPage($i)",$i));
+        elseif( $i < $pages )
 		{
 			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage(".($this->CurrentPage+1).")","&gt;") );
-			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage($pages)","&gt;|") );
+			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage($pages)","&gt;&gt; $pages") );
 		}
 		return $ui;
 	}
