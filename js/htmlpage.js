@@ -82,7 +82,8 @@ $.ajaxSetup({cache:false});
 			this.settings = settings;
 			this.request_id = settings.request_id;
 			this.initLogging();
-			this.initAjax();
+            if( !settings.skip_ajax_handling )
+                this.initAjax(settings.skip_dependency_loading);
 			
 			// Add some methods
 			for(var method in {"get":1, "post":1})
@@ -180,7 +181,7 @@ $.ajaxSetup({cache:false});
 				location.href = href;
 		},
 		
-		initAjax: function()
+		initAjax: function(skip_dependency_loading)
 		{
 			this.original_ajax = $.ajax;
 			$.extend({
@@ -227,12 +228,12 @@ $.ajaxSetup({cache:false});
 						if( json_result )
 						{
 							var head = document.getElementsByTagName("head")[0];
-							if( json_result.dep_css )
+							if( !skip_dependency_loading && json_result.dep_css )
 							{
 								for( var i in json_result.dep_css )
 								{
-									var css = json_result.dep_css[i];
-									if( $('link[href=\''+css+'\']').length == 0 )
+									var css = json_result.dep_css[i], key = css.split("?")[0];
+									if( $('link[href^=\''+key+'\']').length == 0 )
 									{
 										var fileref = document.createElement("link")
 										fileref.setAttribute("rel", "stylesheet");
@@ -243,12 +244,12 @@ $.ajaxSetup({cache:false});
 								}
 							}
 
-							if( json_result.dep_js )
+							if( !skip_dependency_loading && json_result.dep_js )
 							{
 								for( var i in json_result.dep_js )
 								{
-									var js = json_result.dep_js[i];
-									if( $('script[src=\''+js+'\']').length == 0 )
+									var js = json_result.dep_js[i], key = js.split("?")[0];
+									if( $('script[src^=\''+key+'\']').length == 0 )
 									{
 										var script = document.createElement("script");
 										script.setAttribute("type", "text/javascript");
