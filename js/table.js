@@ -145,4 +145,12 @@ $.fn.showLoadingOverlay = function()
     wait();
 };
 
+$.fn.hideLoadingOverlay = function()
+{
+    var c = $(this).attr('class').split(' ');
+    for(var i in c)
+        if( c[i].match(/^loading_/) )
+            $(this).removeClass(c[i]);
+};
+
 })(jQuery);
