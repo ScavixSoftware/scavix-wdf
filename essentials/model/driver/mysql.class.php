@@ -130,7 +130,7 @@ class MySql implements IDatabaseDriver
 		$stmt->setFetchMode(PDO::FETCH_NUM);
 		$stmt->bindValue(1,$tablename);
 		if( !$stmt->execute() )
-			WdfDbException::Raise($stmt->errorInfo());
+			WdfDbException::RaiseStatement($stmt);
 		$row = $stmt->fetch();
 		return count($row)>0;
 	}
@@ -214,9 +214,9 @@ class MySql implements IDatabaseDriver
 		else
 		{
 			if( count($all) == 0 )
-				$sql = "INSERT INTO `".$model->GetTableName()."`";
+				$sql = (\ScavixWDF\Model\Model::$SaveDelayed?"INSERT DELAYED INTO `":"INSERT INTO `").$model->GetTableName()."`";
 			else
-				$sql  = "INSERT INTO `".$model->GetTableName()."`(".implode(",",$all).")VALUES(".implode(',',$vals).")";
+				$sql  = (\ScavixWDF\Model\Model::$SaveDelayed?"INSERT DELAYED INTO `":"INSERT INTO `").$model->GetTableName()."`(".implode(",",$all).")VALUES(".implode(',',$vals).")";
 		}
 		return new ResultSet($this->_ds, $this->_pdo->prepare($sql));
 	}
@@ -270,16 +270,23 @@ class MySql implements IDatabaseDriver
 		$offset = intval($offset);
 		$length = intval($length);
 		
-		$sql = preg_replace('/LIMIT\s+[\d\s,]+/i', '', $sql);
-        if( stripos($sql, 'select * from') === 0 )
-            $sql = "SELECT 1 FROM".substr($sql,13);
-        $sql = "SELECT count(*) FROM ($sql) AS x";
+        $key = 'DB_Cache_FoundRows_'.md5($sql.serialize($input_arguments));
+        $found_rows = cache_get($key,false,false,true);
+        if( $found_rows === false )
+        {
+            $sql = preg_replace('/LIMIT\s+[\d\s,]+/i', '', $sql);
+            if( stripos($sql, 'select * from') === 0 )
+                $sql = "SELECT 1 FROM".substr($sql,13);
+            $sql = "SELECT count(*) FROM ($sql) AS x";
+
+            $ok = $this->_ds->ExecuteScalar($sql,is_null($input_arguments)?array():$input_arguments);
+            $total = intval($ok);
+            if( $ok === false )
+                $this->_ds->LogLastStatement("Error querying paging info");
+        }
+        else
+            $total = intval($found_rows);
         
-        $ok = $this->_ds->ExecuteScalar($sql,is_null($input_arguments)?array():$input_arguments);
-        $total = intval($ok);
-        if( $ok === false )
-            $this->_ds->LogLastStatement("Error querying paging info");
-		
 		return array
 		(
 			'rows_per_page'=> $length,

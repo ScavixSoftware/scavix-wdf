@@ -112,19 +112,36 @@ $.fn.showLoadingOverlay = function()
     
     var loadingClass = 'loading_'+(table_loading_counter++),
         $tab = self.addClass(loadingClass),
-        $pt = $tab.prev('.pager'), $pb = $tab.next('.pager'),
-        $ol = $("<div/>").appendTo('body')
+        $pt = $tab.prev('.pager'), $pb = $tab.next('.pager')
+        $offsetParent = $tab;
+   
+    var $ol = $("<div/>").appendTo('body')
             .width($tab.width())
-            .height( $pb.position().top + $pb.height() - $pt.position().top )
-            .css('background-color','black').css('opacity','0.2')
-            .position({my:'left top',at:'left top',of:$pt})
+            .css('background-color','black').css('opacity','0.2');
         wait = function()
         {
+            $ol.position({my:'left top',at:'left top',of:$offsetParent});
             if( $('.'+loadingClass).length )
                 setTimeout(wait,10);
             else
                 $ol.remove();
         };
+        
+    if( $pt.length && $pb.length )
+    {
+        $ol.height( $pb.position().top + $pb.height() - $pt.position().top );
+        $offsetParent = $pt;
+    }
+    else if( $pt.length )
+    {
+        $ol.height( $tab.position().top + $tab.height() - $pt.position().top );
+        $offsetParent = $pt;
+    }
+    else if( $pb.length )
+        $ol.height( $pb.position().top + $pb.height() - $tab.position().top );
+    else
+        $ol.height( $tab.height() );
+    
     wait();
 };
 

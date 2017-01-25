@@ -193,7 +193,10 @@ class DatabaseTable extends Table implements ICallable
 			if( $this->OrderBy && !preg_match('/^\s+ORDER\sBY\s+/',$this->OrderBy) ) $this->OrderBy = " ORDER BY ".$this->OrderBy;
 			if( $this->Limit && !preg_match('/^\s+LIMIT\s+/',$this->Limit) ) $this->Limit = " LIMIT ".$this->Limit;
 
-			$sql = "SELECT @fields@ FROM @table@@join@@where@@groupby@@having@@orderby@@limit@";
+            if( $this->ItemsPerPage && !$this->HidePager )
+                $sql = "SELECT SQL_CALC_FOUND_ROWS @fields@ FROM @table@@join@@where@@groupby@@having@@orderby@@limit@";
+            else
+                $sql = "SELECT @fields@ FROM @table@@join@@where@@groupby@@having@@orderby@@limit@";
 			$sql = str_replace("@fields@",$this->Columns,$sql);
 			$sql = str_replace("@table@","`".$this->DataTable."`",$sql);
 			$sql = str_replace("@join@",$this->Join,$sql);
@@ -437,6 +440,8 @@ class DatabaseTable extends Table implements ICallable
 		$res = array();
 		$copy->ResultSet->FetchMode = PDO::FETCH_ASSOC;
         $cols = [];
+        if(!$this->Columns && $this->Sql)
+            $this->Columns = array_keys($copy->ResultSet->fetchRow());
         foreach( $this->Columns as $c )
             $cols[] = trim($c,"`");
 		foreach( $copy->ResultSet as $row )
@@ -465,7 +470,6 @@ class DatabaseTable extends Table implements ICallable
 				$r[$k] = $cellformat->FormatContent($r[$k],$copy->Culture);
 			$res[] = $r;
 		}
-        DataSource::Get()->LogLastStatement();
 		return $res;
 	}
 	
@@ -476,8 +480,7 @@ class DatabaseTable extends Table implements ICallable
 		$sheet = $xls->getActiveSheet();
 		$row = 1;
 		$max_cell = 0;
-		
-		$ci = ExcelCulture::FromCode(isset($this->Culture) ? $this->Culture->Code : 'en-US');
+		$ci = ExcelCulture::FromCode(isset($this->Culture) && $this->Culture ? $this->Culture->Code : 'en-US');
 		$head_rows = $this->_export_get_header();
 		$first_data_row = count($head_rows)+1;
 

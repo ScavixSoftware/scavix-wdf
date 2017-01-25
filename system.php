@@ -203,7 +203,7 @@ function system_init($application_name, $skip_header = false, $logging_category=
 	if(!isset($CONFIG['model']['internal']['connection_string']))
 		$CONFIG['model']['internal']['connection_string']  = 'sqlite::memory:';
 
-	// load essentials as if they were modules.
+    // load essentials as if they were modules.
 	system_load_module('essentials/logging.php');
 	system_load_module('essentials/model.php');
 	system_load_module('essentials/session.php');
@@ -217,10 +217,9 @@ function system_init($application_name, $skip_header = false, $logging_category=
 	if( $logging_category )
 		logging_add_category($logging_category);
 	logging_set_user(); // works as both (session and logging) are now essentials
-	
 	session_run();
-	
-	// auto-load all system-modules defined in $CONFIG['system']['modules']
+
+    // auto-load all system-modules defined in $CONFIG['system']['modules']
 	foreach( $CONFIG['system']['modules'] as $mod )
 	{
 		if( file_exists($thispath."/modules/$mod.php") )
@@ -230,7 +229,7 @@ function system_init($application_name, $skip_header = false, $logging_category=
 		elseif( file_exists( "$mod") )
 			system_load_module("$mod");
 	}
-
+    
 	if( isset($_REQUEST['request_id']) )
 	{
 		session_keep_alive('request_id');
@@ -282,7 +281,7 @@ function system_parse_request_path()
 		
 		// now for the normal processing
 		$wdf_route = $_REQUEST['wdf_route'];
-		$GLOBALS['wdf_route'] = $path = explode("/",$_REQUEST['wdf_route'],3);
+		$GLOBALS['wdf_route'] = $path = explode("/",$_REQUEST['wdf_route']);
 		unset($_REQUEST['wdf_route']);
 		unset($_GET['wdf_route']);
 
@@ -299,8 +298,8 @@ function system_parse_request_path()
 					if( count($path)>2 )
 					{
 						foreach( array_slice($path,2) as $ra )
-							if( $ra ) 
-								$GLOBALS['routing_args'][] = $ra;
+                            if( $ra !== '' )
+                                $GLOBALS['routing_args'][] = $ra;
 					}
 				}
 			}
@@ -428,23 +427,28 @@ function system_invoke_request($target_class,$target_event,$pre_execute_hook_typ
 	$ref = WdfReflector::GetInstance($target_class);
 	$params = $ref->GetMethodAttributes($target_event,"RequestParam");
 	$args = array();
-	$argscheck = array();
-	$failedargs = array();
+    
+    if( count($params) > 0 )
+    {
+        $argscheck = array();
+        $failedargs = array();
 
-	$req_data = array_merge($_FILES,$_GET,$_POST);
-	foreach( $params as $prm )
-	{
-		$argscheck[$prm->Name] = $prm->UpdateArgs($req_data,$args);
-		if( $argscheck[$prm->Name] !== true )
-		{
-			$failedargs[$prm->Name] = "ARGUMENT FAILED";
-			$args[$prm->Name] = "ARGUMENT FAILED";
-		}
-	}
+        $req_data = array_merge($_FILES,$_GET,$_POST);
+        $last = max(array_keys($params));
+        foreach( $params as $i=>$prm )
+        {
+            $argscheck[$prm->Name] = $prm->UpdateArgs($req_data,$args,$i==$last);
+            if( $argscheck[$prm->Name] !== true )
+            {
+                $failedargs[$prm->Name] = "ARGUMENT FAILED";
+                $args[$prm->Name] = "ARGUMENT FAILED";
+            }
+        }
 
-	if( count($failedargs) > 0 )
-		execute_hooks(HOOK_ARGUMENTS_PARSED, $failedargs);
-
+        if( count($failedargs) > 0 )
+            execute_hooks(HOOK_ARGUMENTS_PARSED, $failedargs);
+    }
+    
 	execute_hooks($pre_execute_hook_type,array($target_class,$target_event,$args));
 	return call_user_func_array(array(&$target_class,$target_event), $args);
 }
@@ -475,6 +479,10 @@ function system_exit($result=null,$die=true)
 	else
 	{
 		$_SESSION['request_id'] = request_id();
+        $_SESSION['latest_requests'][$_SESSION['request_id']] = [current_controller(),current_event(),$_GET,$_POST];
+        while( count($_SESSION['latest_requests']) > 20 )
+            array_shift($_SESSION['latest_requests']);
+        
 		if( $result instanceof Renderable)
 		{
 			$response = $result->WdfRenderAsRoot();
@@ -588,7 +596,7 @@ function register_hook($type,&$handler_obj,$handler_method)
  * This is automatically called when content is removed from <Renderable> objects to avoid performing actions on objects that are not part
  * of the DOM anymore.
  * @param object $handler_obj The object taht shall be removed from the hanlder stack
- * @retunr void
+ * @return void
  */
 function release_hooks($handler_obj)
 {
@@ -835,7 +843,7 @@ function system_spl_autoload($class_name)
 				{
 					if( !ends_with($c,$class_name) )
 						continue;
-					log_info("Aliasing previously included class '$c' to '$class_name'. To avoid this check the use statements or use a qualified classname.");
+					log_trace("Aliasing previously included class '$c' to '$class_name'. To avoid this check the use statements or use a qualified classname.");
 					create_class_alias($c,$class_name,true);
 					break;
 				}
@@ -846,7 +854,7 @@ function system_spl_autoload($class_name)
 				if( strtolower($def) != strtolower($class_name) && ends_iwith($def,$class_name) ) // no qualified classname requested but class was defined with namespace
 				{
 
-					log_info("Aliasing class '$def' to '$class_name'. To avoid this check the use statements or use a qualified classname.");
+					log_trace("Aliasing class '$def' to '$class_name'. To avoid this check the use statements or use a qualified classname.");
 					create_class_alias($def,$class_name,true);
 				}
 			}
@@ -933,7 +941,7 @@ function __search_file_for_class($class_name,$extension="class.php",$classpath_l
 {
 	global $CONFIG;
 
-    $key = "autoload_class-".getAppVersion('nc').$class_name.$extension.$classpath_limit;
+    $key = "autoload_class-".session_name().getAppVersion('nc').$class_name.$extension.$classpath_limit;
     $r = cache_get($key);
     if( $r !== false )
         return $r;
@@ -1109,6 +1117,8 @@ function redirect($controller,$event="",$data="",$url_root=false)
  * 
  * Can be used as password, sessionid, ticket....
  * @param int $len The length of the return string
+ * @param int $case_sensitive If FALSE, only upper case chars are used. Applies only if $chars is not given
+ * @param int $chars Chars to generate password from
  * @return string The generated string sequence
  */
 function generatePW($len = 8, $case_sensitive=true, $chars='')
@@ -1337,6 +1347,23 @@ function current_controller($as_string=true)
 function current_event()
 {
 	return isset($GLOBALS['current_event'])?strtolower($GLOBALS['current_event']):'';
+}
+
+/**
+ * Returns information about the current request.
+ * 
+ * If the current request is an AJAX request, it returns info about the last 'normal' call.
+ * @return array Array with (string)controller,(string)method,(array)get and (array)post
+ */
+function system_current_request()
+{
+    if( system_is_ajax_call() )
+    {
+        $rid = \ScavixWDF\Base\Args::request('request_id');
+        if( $rid && isset($_SESSION['latest_requests'][$rid]) )
+            return $_SESSION['latest_requests'][$rid];
+    }
+    return [current_controller(),current_event(),$_GET,$_POST];
 }
 
 /**

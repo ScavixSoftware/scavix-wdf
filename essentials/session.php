@@ -80,6 +80,7 @@ function session_run()
 			(!$CONFIG['session']['usephpsession'] && $CONFIG['session']['handler'] == "PhpSession") )
 			WdfException::Raise('Do not use $CONFIG[\'session\'][\'usephpsession\'] anymore! See session_init() for details.');
 	}
+    
 	$CONFIG['session']['handler'] = fq_class_name($CONFIG['session']['handler']);
 	$GLOBALS['fw_session_handler'] = new $CONFIG['session']['handler']();
     
@@ -106,6 +107,7 @@ function unserializer_active()
  * Checks reference-equality or storage_id equality (if storage_id is set)
  * @param object $o1 First object to compare
  * @param object $o2 Second object to compare
+ * @param bool $compare_classes Seems to be deprecated
  * @return bool true if eual, else false
  */
 function equals(&$o1, &$o2, $compare_classes=true)
