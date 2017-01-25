@@ -1355,14 +1355,25 @@ function current_event()
  * If the current request is an AJAX request, it returns info about the last 'normal' call.
  * @return array Array with (string)controller,(string)method,(array)get and (array)post
  */
-function system_current_request()
+function system_current_request($as_url=false)
 {
     if( system_is_ajax_call() )
     {
         $rid = \ScavixWDF\Base\Args::request('request_id');
         if( $rid && isset($_SESSION['latest_requests'][$rid]) )
-            return $_SESSION['latest_requests'][$rid];
+        {
+            if( !$as_url )
+                return $_SESSION['latest_requests'][$rid];
+            return buildQuery
+            (
+                $_SESSION['latest_requests'][$rid][0],
+                $_SESSION['latest_requests'][$rid][1],
+                $_SESSION['latest_requests'][$rid][2]
+            );
+        }
     }
+    if( $as_url )
+        return samePage($_GET);
     return [current_controller(),current_event(),$_GET,$_POST];
 }
 
