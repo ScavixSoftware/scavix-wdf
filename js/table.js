@@ -42,7 +42,12 @@ $.fn.table = function(opts)
 			$('.ui-table-actions .ui-icon',self)
 				.click(function()
 				{
-					wdf.post(self.attr('id')+'/OnActionClicked',{action:$(this).data('action'),row:current_row.attr('id')});
+                    self.showLoadingOverlay();
+					wdf.post(self.attr('id')+'/OnActionClicked',{action:$(this).data('action'),row:current_row.attr('id')},function(d)
+                    {
+                        $('body').append(d);
+                        self.hideLoadingOverlay();
+                    });
 				});
 
 			$('.ui-table-actions',self).width(w);
