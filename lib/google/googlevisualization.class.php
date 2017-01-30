@@ -143,7 +143,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 					. "var $c=new google.charts.Bar($('#$id').get(0));\n"
 					. "google.visualization.events.addListener($c, 'ready', function(){ $('#$id').data('ready',true); });\n"
 					. "$c.draw($d,google.charts.{$this->gvType}.convertOptions($opts));\n"
-					. "$('#$id').data('googlechart', $c).data('chartdata',$d);";
+					. "$('#$id').data('googlechart', $c).data('chartdata',$d).data('chartoptions',google.charts.{$this->gvType}.convertOptions($opts));";
 			}
 			else
 			{
@@ -151,7 +151,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 					. "var $c=new google.visualization.{$this->gvType}($('#$id').get(0));\n"
 					. "google.visualization.events.addListener($c, 'ready', function(){ $('#$id').data('ready',true); });\n"
 					. "$c.draw($d,$opts);\n"
-					. "$('#$id').data('googlechart', $c).data('chartdata',$d);";
+					. "$('#$id').data('googlechart', $c).data('chartdata',$d).data('chartoptions',$opts);";
 			}
 			$this->_addLoadCallback('visualization', $js, true);
 		}
@@ -162,9 +162,9 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 				->content( ($t?"<b>$t:</b> ":"").tds("TXT_NO_DATA", "No data found") , true);
 		}
 		if( isset($this->gvOptions['width']) )
-			$this->css('width',"{$this->gvOptions['width']}px");
+			$this->css('width', is_numeric($this->gvOptions['width'])?"{$this->gvOptions['width']}px":"{$this->gvOptions['width']}");
 		if( isset($this->gvOptions['height']) )
-			$this->css('height',"{$this->gvOptions['height']}px");
+			$this->css('height',is_numeric($this->gvOptions['height'])?"{$this->gvOptions['height']}px":"{$this->gvOptions['height']}");
 		
 		return parent::PreRender($args);
 	}
@@ -246,7 +246,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	 */
 	function setSize($width,$height)
 	{
-		return $this->opt('width',intval($width))->opt('height',intval($height));
+		return $this->opt('width',$width)->opt('height',$height);
 	}
 	
 	/**
@@ -587,7 +587,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 			if( isset($this->_roleCallbacks[$key]) )
 				$head[] = array('role'=>$def);
 			else
-				$head[] = $key;
+				$head[] = "$key";
 		}
 		$this->_data = array($head);
 
@@ -603,4 +603,45 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		}
 		return $this;
 	}
+    
+    function makeContinousDateAxis($format='Y-m-d')
+    {
+        $keys = array_keys($this->_data);
+        array_shift($keys); // shift off column definition
+
+        $start = \ScavixWDF\Base\DateTimeEx::Make(array_shift($keys));
+        $end = \ScavixWDF\Base\DateTimeEx::Make(array_pop($keys));
+        $null = array_combine(array_keys($this->_columnDef), array_fill(0,count($this->_columnDef),0));
+        
+        $first = $this->_data[0][0]; // get the key of the first column
+        
+        if( $start > $end )
+        {
+            $reverse = $start;
+            $start = $end;
+            $end = $reverse;
+        }
+        
+        $res = [];
+        while( $start < $end )
+        {
+            $now = $start->format($format);
+            if( isset($this->_data[$now]) )
+                $res[$now] = $this->_data[$now];
+            else
+            {
+                $res[$now] = $null;
+                $res[$now][$first] = $now; // first column is the _data key
+            }
+            $start = $start->Offset(1,'day');
+        }
+        
+        // preserve column definition in the first place
+        if( isset($reverse) )
+            $this->_data = array_merge([0=>$this->_data[0]],array_reverse($res));
+        else
+            $this->_data = array_merge([0=>$this->_data[0]],$res);
+        
+        return $this;
+    }
 }
