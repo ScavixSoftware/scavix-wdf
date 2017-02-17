@@ -487,6 +487,21 @@ abstract class Renderable
 			WdfException::Raise("Target must be of type Renderable");
 		return $this;
 	}
+    
+    /**
+	 * Prepends this Renderable to another Renderable.
+	 * 
+	 * @param mixed $target Object of type <Renderable>
+	 * @return Renderable `$this`
+	 */
+	function prependTo($target)
+	{
+		if( ($target instanceof Renderable) )
+			$target->prepend($this);
+		else
+			WdfException::Raise("Target must be of type Renderable");
+		return $this;
+	}
 	
 	/**
 	 * Adds this Renderable before another Renderable.
