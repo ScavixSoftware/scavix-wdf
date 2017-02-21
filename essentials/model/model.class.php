@@ -1099,7 +1099,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
 		$res = clone $this;
 		$res->__ensureSelect();
-		$res->_query->notIn($this->__ensureFieldname($property),$values);
+        if( $values !== null && count($values)>0 )
+            $res->_query->notIn($this->__ensureFieldname($property),$values);
+        else
+			$res->_query->sql("1=1"); // true condition if there's nothing in the values
 		return $res;
 	}
 
