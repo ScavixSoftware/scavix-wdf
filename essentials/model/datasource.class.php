@@ -279,10 +279,13 @@ class DataSource
 	 * @param int $lifetime Lifetime in seconds
 	 * @return ResultSet The ResultSet
 	 */
-	function CacheExecuteSql($sql,$prms=array(),$lifetime=300)
+	function CacheExecuteSql($sql,$prms=array(),$lifetime=false)
 	{
 		if( !system_is_module_loaded('globalcache') || $lifetime === 0 )
 			return $this->ExecuteSql($sql, $prms);
+        
+        if( $lifetime === false )
+            $lifetime = cfg_getd('model','cache_ttl',300);
 		
 		$key = 'DB_Cache_Sql_'.md5( $sql.serialize($prms).$lifetime );
 		$null = null;
@@ -414,17 +417,23 @@ class DataSource
 	 * @param int $lifetime Lifetime in seconds
 	 * @return mixed The first scalar
 	 */
-	function CacheExecuteScalar($sql,$prms=array(),$lifetime=300)
+	function CacheExecuteScalar($sql,$prms=array(),$lifetime=false)
 	{
 		if( !system_is_module_loaded('globalcache') || $lifetime === 0 )
 			return $this->ExecuteScalar($sql, $prms);
-		
+
+        if( $lifetime === false )
+            $lifetime = cfg_getd('model','cache_ttl',300);
+        
+        $sess = $lifetime === 's';
+        $glob = !$sess;
+        
 		$key = 'SB_Cache_Scalar_'.md5( $sql.serialize($prms).$lifetime );
 		$null = null;
-		if( is_null($res = cache_get($key, $null, true, false)) )
+		if( is_null($res = cache_get($key, $null, $glob, $sess)) )
 		{
 			$res = $this->ExecuteScalar($sql, $prms);
-			cache_set($key, $res, $lifetime, true, false);
+			cache_set($key, $res, $sess?false:$lifetime, $glob, $sess);
 		}
 		return $res;
 	}
