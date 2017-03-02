@@ -341,7 +341,10 @@ class DatabaseTable extends Table implements ICallable
         if( !$this->ResultSet || $this->ResultSet->Count()==0 )
 		{
 			if( !$this->noDataAsRow )
-	           return $this->contentNoData;
+            {
+                $this->content($this->contentNoData);
+                return $this->contentNoData;
+            }
 			
 			if( !$this->header )
 				if( $this->OnAddHeader )
