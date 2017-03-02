@@ -729,7 +729,27 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		}
 		return $res;
 		//return array_keys($this->_changedColumns);
-	}
+    }
+    
+    public function HasChanged($col)
+    {
+        if( isset($this->$col) )
+        {
+            if( !isset($this->_dbValues[$col]) )
+                return true;
+         
+            $v1 = $this->$col;
+            if( $v1 instanceof DateTime )
+                $v1 = $v1->format('U');
+
+            $v2 = $this->_dbValues[$col];
+            if( $v2 instanceof DateTime )
+                $v2 = $v2->format('U');
+
+            return $v1 != $v2;
+        }
+        return isset($this->_dbValues[$col]);
+    }
 
 	/**
 	 * Checks if this <Model> has a column $name.
