@@ -709,11 +709,11 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 					$res[] = $col;
 				else
 				{
-					$v1 = $this->$col;
+					$v1 = $this->__typedValue($col);
 					if( $v1 instanceof DateTime )
 						$v1 = $v1->format('U');
 					
-					$v2 = $this->_dbValues[$col];
+					$v2 = $this->__toTypedValue($col,$this->_dbValues[$col]);
 					if( $v2 instanceof DateTime )
 						$v2 = $v2->format('U');
 					
@@ -729,6 +729,24 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		}
 		return $res;
 		//return array_keys($this->_changedColumns);
+    }
+    
+    public function GetChanges()
+	{
+		$res = array();
+		foreach( $this->GetColumnNames(true) as $col )
+		{
+            $v1 = $this->__typedValue($col);
+            if( $v1 instanceof DateTime )
+                $v1 = $v1->format('U');
+
+            $v2 = $this->__toTypedValue($col,$this->_dbValues[$col]);
+            if( $v2 instanceof DateTime )
+                $v2 = $v2->format('U');
+
+            $res[$col] = [$v2,$v1];
+		}
+		return $res;
     }
     
     public function HasChanged($col)
