@@ -1132,11 +1132,11 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * @param string $direction 'ASC' or 'DESC'
 	 * @return Model `clone $this`
 	 */
-	public function orderBy($property,$direction = "ASC")
+	public function orderBy($property,$direction = "ASC",$checkfieldname=true)
 	{
 		$res = clone $this;
 		$res->__ensureSelect();
-		$res->_query->orderBy((starts_with($property, 'FIELD(') ? $property : $this->__ensureFieldname($property)),$direction);
+		$res->_query->orderBy(((starts_iwith($property, 'FIELD(') || !$checkfieldname) ? $property : $this->__ensureFieldname($property)),$direction);
 		return $res;
 	}
 	
