@@ -287,11 +287,6 @@ class MySql implements IDatabaseDriver
         else
             $total = intval($found_rows);
         
-        $ok = $this->_ds->ExecuteScalar($sql,is_null($input_arguments)?array():array_values($input_arguments));
-        $total = intval($ok);
-        if( $ok === false )
-            $this->_ds->LogLastStatement("Error querying paging info");
-		
 		return array
 		(
 			'rows_per_page'=> $length,
