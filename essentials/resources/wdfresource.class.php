@@ -153,11 +153,9 @@ class WdfResource implements ICallable
     
     private function resolveUrls($file)
     {
-        return preg_replace_callback("/url\s*\((.*)\)/siU",function($match)
+        return preg_replace_callback("/url\s*\(['\"]*resfile\/(.*)['\"]*\)/siU",function($match)
         {
             $url = trim($match[1],"\"' ");
-            if( starts_with($url, 'data:') || starts_with($url, 'http') || starts_with($url, '//') )
-                return $match[0];
             return "url('".resFile($url)."')";
         }, file_get_contents($file));
     }
