@@ -369,12 +369,14 @@ class DatabaseTable extends Table implements ICallable
                     else
                         $this->AddHeader(array_keys($row));
 
+                $cnt = $this->current_row_group?$this->current_row_group->length():0;
                 if( $this->OnAddRow )
                     $this->OnAddRow[0]->{$this->OnAddRow[1]}($this, $row);
                 else
                     $this->AddRow($row);
 				
-				$this->AddDataToRow($raw_row);
+                if( $cnt < ($this->current_row_group?$this->current_row_group->length():0) )
+                    $this->AddDataToRow($raw_row);
             }
 			if( $this->ItemsPerPage )
 				$this->HidePager = false;
