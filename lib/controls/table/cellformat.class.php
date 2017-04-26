@@ -146,10 +146,10 @@ class CellFormat
 
 		if( $format == 'duration' )
 		{
-			if( intval($content)."" != $content )
+			if( intval($content)."" != $content && doubleval($content)."" != $content )
 				return $full_content;
 			
-			$completedur = $dur = intval($content);
+            $completedur = $dur = intval($content);
 			$s = sprintf("%02u",$dur % 60);
 			$dur = floor($dur / 60);
 			$h = floor($dur / 60);
