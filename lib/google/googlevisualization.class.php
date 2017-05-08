@@ -528,7 +528,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 				$head[] = $key;
 		}
 		$this->_data = array($head);
-		foreach( $rs as $row )
+		foreach( $rs->results() as $row )
 		{
 			$d = array();
 			foreach( $this->_columnDef as $key=>$def )
