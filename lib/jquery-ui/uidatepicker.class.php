@@ -132,12 +132,12 @@ class uiDatePicker extends uiControl
 		return $this;
 	}
     
-    public static function PromoteDefaults(\ScavixWDF\Base\HtmlPage $page, $cultureInfo)
+    public static function PromoteDefaults(\ScavixWDF\Base\HtmlPage $page, $cultureInfo, $options = [])
     {
         $cls = get_called_class();
         $temp = new $cls();
         $temp->SetCulture($cultureInfo);
-        $def = json_encode($temp->Options);
+        $def = json_encode(array_merge($temp->Options,$options));
         $page->addDocReady("$.datepicker.setDefaults($def);");
     }
 }
