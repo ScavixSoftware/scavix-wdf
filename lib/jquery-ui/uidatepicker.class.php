@@ -41,6 +41,7 @@ default_string('TXT_DP_NOW', 'Now');
  */
 class uiDatePicker extends uiControl
 {
+    static $DefaultCI = false;
 	protected $CultureInfo = false;
 
 	/**
@@ -66,6 +67,9 @@ class uiDatePicker extends uiControl
 			else
 				$this->Options['defaultDate'] = $value;
 		}
+        
+        if( self::$DefaultCI )
+            $this->SetCulture(self::$DefaultCI);
 	}
 
 	/**
@@ -139,5 +143,6 @@ class uiDatePicker extends uiControl
         $temp->SetCulture($cultureInfo);
         $def = json_encode(array_merge($temp->Options,$options));
         $page->addDocReady("$.datepicker.setDefaults($def);");
+        self::$DefaultCI = $cultureInfo;
     }
 }
