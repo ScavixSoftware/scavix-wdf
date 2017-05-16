@@ -320,7 +320,6 @@ class DateTimeFormat
 			$format = str_replace('/','\/',$format);
 			$format = str_replace(' ','\s',$format);
 			$format = '/'.$format.'/iU';
-            log_debug(__METHOD__." Checking format $format");
 			try
 			{
 				if( preg_match($format, $str, $match) )
