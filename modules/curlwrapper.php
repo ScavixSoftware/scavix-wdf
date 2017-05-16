@@ -67,7 +67,7 @@ function sendHTTPRequest($url, $postdata = false, $cacheTTLsec = false, &$respon
  * @param array $request_header Headers to send along with the request (one entry per header)
  * @param int $cacheTTLsec If set: time to life in cache
  * @param int $request_timeout Timeout in seconds
- * @param array $response_header <b>OUT</b> Will contain the reponse headers
+ * @param array $response_header <b>OUT</b> Will contain the response headers
  * @param string $cookie_file Name of the cookie file to use
  * @return string The downloaded data
  */
