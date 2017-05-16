@@ -203,13 +203,19 @@ class CellFormat
 				case 'percent':
 					$v = $this->getNumeric($content);
                     if( $v === false ) return $full_content;
-                    $content = str_replace($content,$culture->FormatNumber($v,intval($options[0])).'%',$full_content);
+                    if(isset($options[0]))
+                        $content = str_replace($content,$culture->FormatNumber($v,intval($options[0])).'%',$full_content);
+                    else
+                        $content = str_replace($content,$culture->FormatNumber($v).'%',$full_content);
 					break;
 				case 'float':
 				case 'double':
 					$v = $this->getNumeric($content);
                     if( $v === false ) return $full_content;
-					$content = str_replace($content,$culture->FormatNumber($v,intval($options[0])),$full_content);
+                    if(isset($options[0]))
+                        $content = str_replace($content,$culture->FormatNumber($v,intval($options[0])),$full_content);
+                    else
+                        $content = str_replace($content,$culture->FormatNumber($v),$full_content);
 					break;
                 case 'custom':
                     $content = str_replace($content,sprintf($options[0],$content),$full_content);
