@@ -740,10 +740,14 @@ abstract class Model implements Iterator, Countable, ArrayAccess
             if( $v1 instanceof DateTime )
                 $v1 = $v1->format('U');
 
-            $v2 = $this->__toTypedValue($col,$this->_dbValues[$col]);
-            if( $v2 instanceof DateTime )
-                $v2 = $v2->format('U');
-
+            if( isset($this->_dbValues[$col]) )
+            {
+                $v2 = $this->__toTypedValue($col,$this->_dbValues[$col]);
+                if( $v2 instanceof DateTime )
+                    $v2 = $v2->format('U');
+            }
+            else
+                $v2 = null;
             $res[$col] = [$v2,$v1];
 		}
 		return $res;
