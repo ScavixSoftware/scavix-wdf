@@ -81,7 +81,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		parent::__initialize();
 		$this->addClass('google_vis');
 		
-		$this->_ds = $ds?$ds:(self::$DefaultDatasource?self::$DefaultDatasource:model_datasource('internal'));
+		$this->_ds = $ds?$ds:(self::$DefaultDatasource?self::$DefaultDatasource:DataSource::Get());
 		
         $this->gvOptions = ['tooltip' => ['isHtml' => true]];
         
