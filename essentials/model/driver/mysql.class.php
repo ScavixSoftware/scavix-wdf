@@ -62,7 +62,7 @@ class MySql implements IDatabaseDriver
 	{
 		$sql = 'SHOW TABLES';
 		$tables = array();
-		foreach($this->_pdo->query() as $row)
+		foreach($this->_pdo->query($sql) as $row)
 			$tables[] = $row[0];
 		return $tables;
 	}
