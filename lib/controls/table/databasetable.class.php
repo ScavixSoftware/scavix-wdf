@@ -300,30 +300,30 @@ class DatabaseTable extends Table implements ICallable
 
 		if( $this->ParsingBehaviour == self::PB_NOPROCESSING )
 		{
-			foreach( $row as $k=>$v )
-			{
-                $v = preg_replace('/<!--(.*)-->/Uis', '', $v); // strip comments
-				$c = 0;
-				if( preg_match_all('/<([^\s\/>]+)>/', $v, $tags, PREG_SET_ORDER) )
-				{
-					foreach( $tags as $t )
-					{
-						if( !preg_match_all('/<\/'.$t[1].'>/', $v, $ctags, PREG_SET_ORDER) )
-							continue;
-						$c++;
-					}
-				}
-
-				$c1 = count(explode('"',$v));
-				$c2 = count(explode("'",$v));
-				$c3 = count(explode(">",$v));
-				$c4 = count(explode("<",$v));
-				if( count($tags)!=$c || ($c1 & 1)==0 || ($c2 & 1)==0 || ($c3 & 1)==0 || ($c4 & 1)==0 )
-                {
-					$row[$k] = htmlspecialchars($v);
-                    log_debug("spec because $c1 $c2 $c3 $c4",$v);
-                }
-			}
+//			foreach( $row as $k=>$v )
+//			{
+//                $v = preg_replace('/<!--(.*)-->/Uis', '', $v); // strip comments
+//				$c = 0;
+//				if( preg_match_all('/<([^\s\/>]+)>/', $v, $tags, PREG_SET_ORDER) )
+//				{
+//					foreach( $tags as $t )
+//					{
+//						if( !preg_match_all('/<\/'.$t[1].'>/', $v, $ctags, PREG_SET_ORDER) )
+//							continue;
+//						$c++;
+//					}
+//				}
+//
+//				$c1 = count(explode('"',$v));
+//				$c2 = count(explode("'",$v));
+//				$c3 = count(explode(">",$v));
+//				$c4 = count(explode("<",$v));
+//				if( count($tags)!=$c || ($c1 & 1)==0 || ($c2 & 1)==0 || ($c3 & 1)==0 || ($c4 & 1)==0 )
+//                {
+//					$row[$k] = htmlspecialchars($v);
+//                    log_debug("spec because $c1 $c2 $c3 $c4",$v);
+//                }
+//			}
 		}
 		return $row;
 	}
