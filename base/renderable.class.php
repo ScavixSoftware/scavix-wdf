@@ -88,15 +88,15 @@ abstract class Renderable
 		$js = array(); $css = array();
 		foreach( $res as $r )
 		{
-			if( ends_with($r, '.js') )
-			{
-				if( !$min_js_file )
-					$js[] = $r;
-			}
-			else
+			if( ends_with($r, '.css') || ends_with($r, '.less') )
 			{
 				if( !$min_css_file )
 					$css[] = $r;
+			}
+			else
+			{
+				if( !$min_js_file )
+					$js[] = $r;
 			}
 		}
 		
@@ -110,9 +110,13 @@ abstract class Renderable
 		return $js;
 	}
 	
-	private function __collectResourcesInternal($template,&$static_stack = array())
+	protected function __collectResourcesInternal($template,&$static_stack = array())
 	{
-		$res = array();
+        // kind of dirty hack to allow overrides in subclasses
+        if( $template instanceof Renderable && $template != $this )
+            return $template->__collectResourcesInternal($template,$static_stack);
+        
+        $res = array();
 		
 		if( is_object($template) )
 		{
