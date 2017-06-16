@@ -163,7 +163,7 @@ function session_keep_alive($request_key='PING')
     // increase object lifetime on PING
     if( $request_key == 'PING' )
         foreach( $_SESSION[$GLOBALS['CONFIG']['session']['prefix']."object_access"] as $id=>$time )
-            $_SESSION[$GLOBALS['CONFIG']['session']['prefix']."object_access"][$id] += 60;
+            $_SESSION[$GLOBALS['CONFIG']['session']['prefix']."object_access"][$id] = time();
 	return $GLOBALS['fw_session_handler']->KeepAlive($request_key);
 }
 
@@ -177,11 +177,12 @@ function session_update()
         // after(!) real page loads check for old objects and remove them
         foreach( $_SESSION[$GLOBALS['CONFIG']['session']['prefix']."object_access"] as $id=>$time )
         {
-            if( isset($GLOBALS['object_storage'][$id]) || $time + 60 > time() )
+            if( isset($GLOBALS['object_storage'][$id]) || $time + 30 > time() )
                 continue;
             delete_object($id);
         }
     }
+    //log_debug("SessionSize",strlen(serialize($_SESSION)));
     return $GLOBALS['fw_session_handler']->Update();
 }
 
@@ -234,7 +235,7 @@ function in_object_storage($id)
 function &restore_object($id)
 {
 	$res = $GLOBALS['fw_session_handler']->Restore($id);
-    if( $res )// update objects last access        
+    if( $res )// update objects last access       
         $_SESSION[$GLOBALS['CONFIG']['session']['prefix']."object_access"][$res->_storage_id] = time();
     return $res;
 }
