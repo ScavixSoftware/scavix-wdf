@@ -75,10 +75,9 @@ function downloadData($url, $postdata = false, $request_header = array(), $cache
 {
 	if( starts_with($url, '//') )
 		$url = urlScheme().':'.$url;
-	
 	if( $cacheTTLsec )
 	{
-		$hash = md5($url."|".($postdata ? serialize($postdata) : ""));
+		$hash = md5($url."|".($postdata ? serialize($postdata) : "").'|'.serialize($request_header));
 		$ret = cache_get("CURL_$hash");
 		if($ret !== false)
 			return $ret;
