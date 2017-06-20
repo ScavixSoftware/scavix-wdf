@@ -72,7 +72,8 @@ class Serializer
 	{
 		if( is_string($data) )
 		{
-			return "s:". str_replace("\n","\\n",$data) ."\n";
+			return "S:". json_encode($data) ."\n";
+//			return "s:". str_replace("\n", "\\n", $data) ."\n";     // old DEPRECATED
 		}
 		elseif( is_int($data) )
 		{
@@ -191,7 +192,10 @@ class Serializer
 		{
 			switch( $type )
 			{
+				case 'S':
+					return json_decode($line);
 				case 's':
+                    // this one is only for backward-compatibility. Changed to json_encoded strings (see above)
 					return str_replace("\\n","\n",$line);
 				case 'i':
 					return intval($line);
