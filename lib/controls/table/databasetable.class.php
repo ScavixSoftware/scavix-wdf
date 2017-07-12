@@ -151,66 +151,76 @@ class DatabaseTable extends Table implements ICallable
 	final function GetData()
 	{
 		if( !$this->Sql )
-		{
-			if( !$this->Columns )
-				$this->Columns = $this->GetColumns();
-
-			if( !$this->Join )
-				$this->Join = $this->GetJoin();
-            
-			if( !$this->Where )
-				$this->Where = $this->GetWhere();
-
-			if( !$this->GroupBy )
-				$this->GroupBy = $this->GetGroupBy();
-
-			if( !$this->Having )
-				$this->Having = $this->GetHaving();
-
-			if( !$this->OrderBy )
-				$this->OrderBy = $this->GetOrderBy();
-
-			if( !$this->Limit )
-				$this->Limit = $this->GetLimit();
-
-			if( is_array($this->Columns) )
-			{
-				foreach( $this->Columns as $k=>$v )
-					if( !preg_match('/[^a-zA-Z0-9]/',$v) )
-						$this->Columns[$k] = "`$v`";
-			}
-
-			$this->Columns = is_array($this->Columns)?implode(",",$this->Columns):$this->Columns;
-			$this->Join = $this->Join?$this->Join:"";
-			$this->Where = $this->Where?$this->Where:"";
-			$this->GroupBy = $this->GroupBy?$this->GroupBy:"";
-			$this->OrderBy = $this->OrderBy?$this->OrderBy:"";
-
-            if( $this->Where && !preg_match('/^\s+WHERE\s+/',$this->Where) ) $this->Where = " WHERE ".$this->Where;
-			if( $this->Join && !preg_match('/^(LEFT|INNER|RIGHT|\s+)+JOIN\s+/',$this->Join) ) $this->Join = " LEFT JOIN ".$this->Join;
-			if( $this->GroupBy && !preg_match('/^\s+GROUP\sBY\s+/',$this->GroupBy) ) $this->GroupBy = " GROUP BY ".$this->GroupBy;
-			if( $this->Having && !preg_match('/^\s+HAVING\s+/',$this->Having) ) $this->Having = " HAVING ".$this->Having;
-			if( $this->OrderBy && !preg_match('/^\s+ORDER\sBY\s+/',$this->OrderBy) ) $this->OrderBy = " ORDER BY ".$this->OrderBy;
-			if( $this->Limit && !preg_match('/^\s+LIMIT\s+/',$this->Limit) ) $this->Limit = " LIMIT ".$this->Limit;
-
-            if( $this->ItemsPerPage && !$this->HidePager )
-                $sql = "SELECT SQL_CALC_FOUND_ROWS @fields@ FROM @table@@join@@where@@groupby@@having@@orderby@@limit@";
-            else
-                $sql = "SELECT @fields@ FROM @table@@join@@where@@groupby@@having@@orderby@@limit@";
-			$sql = str_replace("@fields@",$this->Columns,$sql);
-			$sql = str_replace("@table@","`".$this->DataTable."`",$sql);
-			$sql = str_replace("@join@",$this->Join,$sql);
-			$sql = str_replace("@where@",$this->Where,$sql);
-			$sql = str_replace("@groupby@",$this->GroupBy,$sql);
-			$sql = str_replace("@having@",$this->Having,$sql);
-			$sql = str_replace("@orderby@",$this->OrderBy,$sql);
-			$sql = str_replace("@limit@",$this->Limit,$sql);
-			$this->Sql = $sql;
-		}
+			$this->Sql = $this->GetSQL();
 
 		$this->Clear();
 		$this->ExecuteSql($this->Sql);
+        if($this->ResultSet->HadError() && $this->OrderBy)
+        {
+            $this->OrderBy = false;
+            $this->Sql = $this->GetSQL();
+            $this->ExecuteSql($this->Sql);
+        }
 	}
+    
+    final function GetSQL()
+    {
+        if( !$this->Columns )
+            $this->Columns = $this->GetColumns();
+
+        if( !$this->Join )
+            $this->Join = $this->GetJoin();
+
+        if( !$this->Where )
+            $this->Where = $this->GetWhere();
+
+        if( !$this->GroupBy )
+            $this->GroupBy = $this->GetGroupBy();
+
+        if( !$this->Having )
+            $this->Having = $this->GetHaving();
+
+        if( !$this->OrderBy )
+            $this->OrderBy = $this->GetOrderBy();
+
+        if( !$this->Limit )
+            $this->Limit = $this->GetLimit();
+
+        if( is_array($this->Columns) )
+        {
+            foreach( $this->Columns as $k=>$v )
+                if( !preg_match('/[^a-zA-Z0-9]/',$v) )
+                    $this->Columns[$k] = "`$v`";
+        }
+
+        $this->Columns = is_array($this->Columns)?implode(",",$this->Columns):$this->Columns;
+        $this->Join = $this->Join?$this->Join:"";
+        $this->Where = $this->Where?$this->Where:"";
+        $this->GroupBy = $this->GroupBy?$this->GroupBy:"";
+        $this->OrderBy = $this->OrderBy?$this->OrderBy:"";
+
+        if( $this->Where && !preg_match('/^\s+WHERE\s+/',$this->Where) ) $this->Where = " WHERE ".$this->Where;
+        if( $this->Join && !preg_match('/^(LEFT|INNER|RIGHT|\s+)+JOIN\s+/',$this->Join) ) $this->Join = " LEFT JOIN ".$this->Join;
+        if( $this->GroupBy && !preg_match('/^\s+GROUP\sBY\s+/',$this->GroupBy) ) $this->GroupBy = " GROUP BY ".$this->GroupBy;
+        if( $this->Having && !preg_match('/^\s+HAVING\s+/',$this->Having) ) $this->Having = " HAVING ".$this->Having;
+        if( $this->OrderBy && !preg_match('/^\s+ORDER\sBY\s+/',$this->OrderBy) ) $this->OrderBy = " ORDER BY ".$this->OrderBy;
+        if( $this->Limit && !preg_match('/^\s+LIMIT\s+/',$this->Limit) ) $this->Limit = " LIMIT ".$this->Limit;
+
+        if( $this->ItemsPerPage && !$this->HidePager )
+            $sql = "SELECT SQL_CALC_FOUND_ROWS @fields@ FROM @table@@join@@where@@groupby@@having@@orderby@@limit@";
+        else
+            $sql = "SELECT @fields@ FROM @table@@join@@where@@groupby@@having@@orderby@@limit@";
+        $sql = str_replace("@fields@",$this->Columns,$sql);
+        $sql = str_replace("@table@","`".$this->DataTable."`",$sql);
+        $sql = str_replace("@join@",$this->Join,$sql);
+        $sql = str_replace("@where@",$this->Where,$sql);
+        $sql = str_replace("@groupby@",$this->GroupBy,$sql);
+        $sql = str_replace("@having@",$this->Having,$sql);
+        $sql = str_replace("@orderby@",$this->OrderBy,$sql);
+        $sql = str_replace("@limit@",$this->Limit,$sql);
+        
+        return $sql;
+    }
 
 	/**
 	 * Allows to override the default execute method

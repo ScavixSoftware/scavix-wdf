@@ -98,6 +98,15 @@ class ResultSet implements Iterator, ArrayAccess
 	}
 	
 	/**
+	 * Returns the last query error code
+	 * @return int The error code
+	 */
+	public function HadError()
+	{
+		return ($this->_stmt->errorCode() != '00000');
+	}
+	
+	/**
 	 * Logs this statement
 	 * 
 	 * Sometimes you will need to debug specific statements. This method will create a logentry with the SQL query, the arguments used

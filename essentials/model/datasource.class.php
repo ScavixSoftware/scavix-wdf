@@ -470,7 +470,7 @@ class DataSource
 	{
 		$stmt = $this->Driver->getPagedStatement($sql,$page,$items_per_page);
 		if( !$stmt->execute($parameter) )
-			log_error("SQL Error: $sql",$parameter);
+			log_error("SQL Error: $sql", $stmt->ErrorOutput(), $parameter);
 		$this->_last_affected_rows_count = $stmt->Count();
 		return $stmt;
 	}
