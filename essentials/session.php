@@ -177,7 +177,7 @@ function session_update()
         // after(!) real page loads check for old objects and remove them
         foreach( $_SESSION[$GLOBALS['CONFIG']['session']['prefix']."object_access"] as $id=>$time )
         {
-            if( isset($GLOBALS['object_storage'][$id]) || $time + 30 > time() )
+            if( isset($GLOBALS['object_storage'][$id]) || $time + 60 > time() )
                 continue;
             delete_object($id);
         }
