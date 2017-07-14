@@ -472,7 +472,7 @@ function system_exit($result=null,$die=true)
         elseif( $result instanceof ScavixWDF\Base\HtmlPage )
         {
             log_error("Cannot deliver HtmlPage via AJAX.",$GLOBALS['wdf_route'],"Triggered from page:",system_current_request());
-            $response = AjaxResponse::Reload()->Render();
+            $response = AjaxResponse::None()->Render();
         }
 		elseif( $result instanceof Renderable )
 			$response = AjaxResponse::Renderable($result)->Render();
