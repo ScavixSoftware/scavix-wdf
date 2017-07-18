@@ -231,9 +231,9 @@ function system_init($application_name, $skip_header = false, $logging_category=
 	}
     
 	if( isset($_REQUEST['request_id']) )
-	{
 		session_keep_alive('request_id');
-	}
+    else
+        session_keep_alive();
 
 	// attach more headers here if required
 	if( !$skip_header )
@@ -364,7 +364,6 @@ function system_execute()
 	// respond to PING requests that are sended to keep the session alive
 	if( Args::request('ping',false) )
 	{
-		session_keep_alive();
 		execute_hooks(HOOK_PING_RECIEVED);
 		die("PONG");
 	}
