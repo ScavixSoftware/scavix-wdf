@@ -232,15 +232,19 @@ $.ajaxSetup({cache:false});
 							{
 								for( var i in json_result.dep_css )
 								{
-									var css = json_result.dep_css[i], key = css.split("?")[0];
-									if( $('link[href^=\''+key+'\']').length == 0 )
-									{
-										var fileref = document.createElement("link")
-										fileref.setAttribute("rel", "stylesheet");
-										fileref.setAttribute("type", "text/css");
-										fileref.setAttribute("href", css);
-										head.appendChild(fileref);
-									}
+									var css = json_result.dep_css[i];
+                                    if(css)
+                                    {
+                                        var key = css.split("?")[0];
+                                        if( $('link[href^=\''+key+'\']').length == 0 )
+                                        {
+                                            var fileref = document.createElement("link")
+                                            fileref.setAttribute("rel", "stylesheet");
+                                            fileref.setAttribute("type", "text/css");
+                                            fileref.setAttribute("href", css);
+                                            head.appendChild(fileref);
+                                        }
+                                    }
 								}
 							}
 
@@ -248,23 +252,27 @@ $.ajaxSetup({cache:false});
 							{
 								for( var i in json_result.dep_js )
 								{
-									var js = json_result.dep_js[i], key = js.split("?")[0];
-									if( $('script[src^=\''+key+'\']').length == 0 )
-									{
-										var script = document.createElement("script");
-										script.setAttribute("type", "text/javascript");
-										script.setAttribute("ajaxdelayload", "1");
-										script.src = js;
-										var jscallback = function() { this.setAttribute("ajaxdelayload", "0"); };
-										if (script.addEventListener)
-											script.addEventListener("load", jscallback, false);
-										else
-											script.onreadystatechange = function() {
-												if ((this.readyState == "complete") || (this.readyState == "loaded"))
-													jscallback.call(this);
-											}
-										head.appendChild(script);
-									}
+									var js = json_result.dep_js[i];
+                                    if(js)
+                                    {
+                                        var key = js.split("?")[0];
+                                        if( $('script[src^=\''+key+'\']').length == 0 )
+                                        {
+                                            var script = document.createElement("script");
+                                            script.setAttribute("type", "text/javascript");
+                                            script.setAttribute("ajaxdelayload", "1");
+                                            script.src = js;
+                                            var jscallback = function() { this.setAttribute("ajaxdelayload", "0"); };
+                                            if (script.addEventListener)
+                                                script.addEventListener("load", jscallback, false);
+                                            else
+                                                script.onreadystatechange = function() {
+                                                    if ((this.readyState == "complete") || (this.readyState == "loaded"))
+                                                        jscallback.call(this);
+                                                }
+                                            head.appendChild(script);
+                                        }
+                                    }
 								}
 							
 							}
