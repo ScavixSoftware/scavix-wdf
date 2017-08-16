@@ -77,6 +77,7 @@ $.ajaxSetup({cache:false});
 				:'?wdf_route='+encodeURIComponent(this.arg('wdf_route'));
 			settings.url_path = settings.site_root + settings.route;
 			settings.focus_first_input = (settings.focus_first_input === undefined)?true:settings.focus_first_input;
+			settings.ajax_include_credentials = (settings.ajax_include_credentials === undefined)?false:settings.ajax_include_credentials;
 			
 			// Init
 			this.settings = settings;
@@ -192,6 +193,13 @@ $.ajaxSetup({cache:false});
 				ajax: function( s )
 				{
 					wdf.resetPing();
+                    if(wdf.settings.ajax_include_credentials)
+                    {
+                        s.xhrFields = { withCredentials: true };
+//                        s.beforeSend = function(jqXHR, settings) {
+//                            jqXHR.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+//                        };
+                    }
 					if( !s.data )
 						s.data = {};
 					else if( $.isArray(s.data) )
