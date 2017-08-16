@@ -48,10 +48,15 @@ class MySql implements IDatabaseDriver
 	 */
 	function initDriver($datasource,$pdo)
 	{
+        global $CONFIG;
 		$this->_ds = $datasource;
 		$this->_pdo = $pdo;
-		$this->_pdo->exec("SET CHARACTER SET utf8");
-		$this->_pdo->exec("SET NAMES utf8");
+        if(isset($CONFIG['model'][$datasource->_storage_id]) && isset($CONFIG['model'][$datasource->_storage_id]['bufferedquery']) && $CONFIG['model'][$datasource->_storage_id]['bufferedquery'])
+            $this->_pdo->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true); 
+//        if(!isset($CONFIG['model'][$datasource->_storage_id]['forceutf8']) || (isset($CONFIG['model'][$datasource->_storage_id]['forceutf8']) && $CONFIG['model'][$datasource->_storage_id]['forceutf8']))
+        {
+            $this->_pdo->exec("SET CHARACTER SET utf8; SET NAMES utf8");
+        }
         $this->_pdo->Driver = $this;
 	}
 

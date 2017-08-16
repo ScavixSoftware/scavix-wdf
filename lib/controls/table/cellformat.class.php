@@ -136,8 +136,8 @@ class CellFormat
 		
         if( is_array($this->format) )
 		{
-			list($format,$options) = $this->format;
-			$format = strtolower($format);
+            $format = strtolower($this->format[0]);
+            $options = array_slice($this->format,1);
 			if(!is_array($options))
 				$options = array($options);
 		}
@@ -189,7 +189,7 @@ class CellFormat
 				case 'currency':
                     $v = $this->getNumeric($content);
                     if( $v === false ) return $full_content;
-                    $v = $culture->FormatCurrency($v);                    
+                    $v = $culture->FormatCurrency($v,false,isset($options[1])?$options[1]:false);
                     if(isset($options[0]) && ($options[0] === false))
                         $v = str_replace($culture->CurrencyFormat->DecimalSeparator.'00', '', $v);
                     $content = str_replace($content,$v,$full_content);
