@@ -254,6 +254,8 @@ class MySql implements IDatabaseDriver
 	function getPagedStatement($sql,$page,$items_per_page)
 	{
 		$offset = ($page-1)*$items_per_page;
+        if(intval($offset) < 0)
+            $offset = 0;
 		$sql = preg_replace('/LIMIT\s+[\d\s,]+/', '', $sql);
 		$sql .= " LIMIT $offset,$items_per_page";
 		return new ResultSet($this->_ds, $this->_pdo->prepare($sql));
