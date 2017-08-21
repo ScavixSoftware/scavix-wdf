@@ -93,7 +93,7 @@ $.ajaxSetup({cache:false});
 					var url = wdf.settings.site_root;
 					if( typeof controller === "string" )
                     {
-                        if( controller.match(/^https*:\/\//) )
+                        if( controller.match(/^(http:|https:|)\/\//) )
                             url = controller;
                         else
                             url += controller;
