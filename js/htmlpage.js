@@ -192,7 +192,15 @@ $.ajaxSetup({cache:false});
 			$.extend({
 				ajax: function( s )
 				{
-					wdf.resetPing();
+                    try
+                    {
+                        if(s.url.indexOf(wdf.settings.site_root) === 0)         // only reset pinger if the ajax url is the page root, not if we ajax to other sites
+                            wdf.resetPing();
+                    }
+                    catch(ex)
+                    {
+                        wdf.resetPing();
+                    }
                     if(wdf.settings.ajax_include_credentials)
                     {
                         s.xhrFields = { withCredentials: true };

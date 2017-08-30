@@ -169,10 +169,17 @@ class WdfDbException extends WdfException
      */
     public static function RaiseStatement($statement, $use_extended_info = false)
 	{
-        if( $use_extended_info )
-            $ex = new WdfDbException("SQL Error: ".$statement->ErrorOutput()."\nSQL:".$statement->GetMergedSql());
+        $errid = uniqid();
+        if(isDev())
+        {
+            if( $use_extended_info )
+                $msg = "SQL Error: ".$statement->ErrorOutput()."\nSQL:".$statement->GetMergedSql()."\nError ID: ".$errid;
+            else
+                $msg = render_var($statement->ErrorOutput())."\nError ID: ".$errid;
+        }
         else
-            $ex = new WdfDbException(render_var($statement->ErrorOutput()));
+            $msg = 'SQL Error occured. Please contact the technical team and tell them this error ID: '.$errid;
+        $ex = new WdfDbException($msg);
         $ex->statement = $statement;
 		throw $ex;
 	}
