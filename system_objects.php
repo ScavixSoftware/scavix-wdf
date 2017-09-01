@@ -178,7 +178,10 @@ class WdfDbException extends WdfException
                 $msg = render_var($statement->ErrorOutput())."\nError ID: ".$errid;
         }
         else
+        {
             $msg = 'SQL Error occured. Please contact the technical team and tell them this error ID: '.$errid;
+            log_error("SQL Error", $errid, $statement->ErrorOutput(), $statement->GetMergedSql());
+        }
         $ex = new WdfDbException($msg);
         $ex->statement = $statement;
 		throw $ex;

@@ -536,25 +536,26 @@ function system_die($reason,$additional_message='')
 		));
 	}
 
+    $errid = uniqid();
+    log_error('Fatal system error', $errid, $reason, $additional_message, $stacktrace);
+    
     if( system_is_ajax_call() )
 	{
-		$res = AjaxResponse::Error($reason."\n".$additional_message,true);
+        if(isDev())
+            $res = AjaxResponse::Error('Fatal system error (ErrorID: '.$errid.')'."\n".$reason."\n".$additional_message."\n".system_stacktrace_to_string($stacktrace),true);
+        else
+            $res = AjaxResponse::Error('Oh no! A fatal system error occured. Please try again. Contact our technical support if this problem occurs again (ErrorID: '.$errid.')',true);
 		die($res->Render());
-//		$code = "alert(unescape(".json_encode($reason."\n".$additional_message)."));";
-//		$res = new stdClass();
-//		$res->html = "<script>$code</script>";
-//		die(system_to_json($res));
 	}
 	else
 	{
-		$stacktrace = system_stacktrace_to_string($stacktrace);
-		$res  = "<html><head><title>Fatal system error</title></head>";
+		$res  = "<html><head><style> * { font-family: Arial,sans-serif; } body { margin: 20px; } </style><title>Fatal system error</title></head>";
 		$res .= "<body>";
-		$res .= "<h1>Fatal system error occured</h1>";
+		$res .= "<h1>Oh no! A fatal system error occured...</h1>";
 		if(isDev())
-			$res .= "<pre>$reason</pre><pre>$additional_message</pre><pre>".$stacktrace."</pre>";
+			$res .= "ErrorID: {$errid}<br/><pre>$reason</pre><pre>$additional_message</pre><pre>".system_stacktrace_to_string($stacktrace)."</pre>";
 		else
-			$res .= "Fatal System Error occured.<br/>Please try again.<br/>Contact our technical support if this problem occurs again.<br/><br/>Apologies for any inconveniences this may have caused you.";
+            $res .= "<br/>Please try again.<br/>Contact our technical support if this problem occurs again (ErrorID: {$errid}).<br/><br/>Apologies for any inconveniences this may have caused you.";
 		$res .= "</body></html>";
         die($res);
 	}
