@@ -38,6 +38,8 @@ class uiDialog extends uiControl
 	protected $Buttons = array();
 	protected $CloseButton = null;
 	var $CloseButtonAction = null;
+    
+    public static $DESTROY_ON_CLOSE = false;        // destroy the dialog when it's closed. To keep backward-comaptibility, this new beahviour can only be enabled manually
 
 	/**
 	 * @param string $title The dialogs title
@@ -59,8 +61,20 @@ class uiDialog extends uiControl
 				'open'=>"function(){ $(this).parent().find('.ui-button').button('enable');$tit_script }",
 			),$options);
 		
-		$rem = system_is_ajax_call()?".remove()":'';
-		$this->CloseButtonAction = "function(){ $('#{$this->id}').dialog('close')$rem; }";
+        if(uiDialog::$DESTROY_ON_CLOSE)
+        {
+            // remove the dialog on close
+            $this->Options = array_merge(array(
+				'close'=>"function(){ $(this).dialog('destroy').remove(); }",
+			),$this->Options );
+    		$this->CloseButtonAction = "function(){ $('#{$this->id}').dialog('close'); }";
+        }
+        else
+        {
+            // old behaviour
+            $rem = system_is_ajax_call()?".remove()":'';
+            $this->CloseButtonAction = "function(){ $('#{$this->id}').dialog('close')$rem; }";
+        }
 		
 		$this->InitFunctionName = false;
 	}
