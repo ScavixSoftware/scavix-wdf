@@ -184,11 +184,11 @@ function request_id()
 /**
  * @shortcut <SessionBase::Store>
  */
-function store_object(&$obj,$id="")
+function store_object(&$obj,$id="",$serialized_data=false)
 {
     if( !isset($GLOBALS['fw_object_store']) )
 		return false;
-	$res = $GLOBALS['fw_object_store']->Store($obj,$id);
+	$res = $GLOBALS['fw_object_store']->Store($obj,$id,$serialized_data);
     return $res;
 }
 

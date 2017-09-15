@@ -31,6 +31,8 @@ namespace ScavixWDF\Session;
  */
 class DbStore extends ObjectStore
 {
+    private $serializer;
+    
     public function __construct()
     {
         global $CONFIG;
@@ -39,15 +41,10 @@ class DbStore extends ObjectStore
             $CONFIG['session']['dbstore']['datasource'] = 'internal';
         
         $this->ds = model_datasource($CONFIG['session']['dbstore']['datasource']);
+        $this->serializer = new Serializer();
         
-        $this->exec(
-            "DELETE FROM wdf_objects WHERE session_id=? AND ISNULL(data)",
-            [session_id()]
-        );
-        
-        $GLOBALS['object_ids'] = $this->exec(
-            "SELECT classname,no FROM wdf_objects WHERE session_id=? GROUP BY classname ORDER BY classname ASC, no DESC",
-            [session_id()])->Enumerate('no',false,'classname');
+        if( !isset($_SESSION['object_ids']) )
+            $_SESSION['object_ids'] = [];
     }
     
     private function exec($sql,$args=[])
@@ -65,6 +62,7 @@ class DbStore extends ObjectStore
                         `session_id` VARCHAR(100) NOT NULL,
                         `id` VARCHAR(255) NOT NULL,
                         `classname` VARCHAR(255) NOT NULL,
+                        `no` INT(10) UNSIGNED NULL DEFAULT NULL,
                         `created` DATETIME NULL DEFAULT NULL,
                         `last_access` DATETIME NULL DEFAULT NULL,
                         `data` LONGTEXT NULL,
@@ -79,8 +77,9 @@ class DbStore extends ObjectStore
         return new \ScavixWDF\Model\ResultSet($this->ds);
     }
     
-    function Store(&$obj,$id="")
+    function Store(&$obj,$id="",$serialized_data=false)
     {
+        $start = microtime(true);
 		$id = strtolower($id);
 		if( $id == "" )
 		{
@@ -91,52 +90,49 @@ class DbStore extends ObjectStore
 		else
 			$obj->_storage_id = $id;
         
-        $cn = strtolower(get_class_simple($obj));
-        $no = str_replace($cn,'',$obj->_storage_id);
-		$serializer = new Serializer();
-		$content = $serializer->Serialize($obj);
-        
-//        log_debug(__METHOD__,session_id(),$id);
-		$this->exec("INSERT INTO wdf_objects
-				SET session_id	= ?,
-					id		    = ?,
-					classname   = ?,
-					no          = ?,
-					created	    = now(),
-					last_access	= now(),
-					data		= ?
-				ON DUPLICATE KEY UPDATE
-					last_access	= now(),
-					data		= ?", [session_id(),$obj->_storage_id,$cn,$no,$content,$content]);
-		$GLOBALS['object_storage'][$id] = $obj;
+        if( $serialized_data )
+        {
+            $cn = strtolower(get_class_simple($obj));
+            $no = str_replace($cn,'',$id);
+
+            $sql = "('".session_id()."','{$id}','{$cn}','$no',now(),now(),'".$this->ds->EscapeArgument($serialized_data)."')";
+            $sql = "INSERT DELAYED INTO wdf_objects(session_id,id,classname,no,created,last_access,data)VALUES $sql ON DUPLICATE KEY UPDATE last_access	= now(),data = VALUES(data)";
+            $this->exec($sql);
+        }
+        $GLOBALS['object_storage'][$id] = $obj;
+        $this->_stats(__METHOD__,$start);
     }
     
 	function Delete($id)
     {
+        $start = microtime(true);
 		if( is_object($id) && isset($id->_storage_id) )
 			$id = $id->_storage_id;
         
         if( isset($GLOBALS['object_storage'][$id]) )
             unset($GLOBALS['object_storage'][$id]);
 		$this->exec("DELETE FROM wdf_objects WHERE session_id=? AND id=?", [session_id(),$id]);
+        $this->_stats(__METHOD__,$start);
     }
     
 	function Exists($id)
     {
-//        log_debug(__METHOD__,session_id(),$id);
+        $start = microtime(true);
 		if( is_object($id) && isset($id->_storage_id) )
 			$id = $id->_storage_id;
 		$id = strtolower($id);
 		if( isset($GLOBALS['object_storage'][$id]) )
-			return true;
-
-		return $this->exec("SELECT id FROM wdf_objects WHERE session_id=? AND id=?", [session_id(),$id])->Count()>0;
+            $res = true;
+        else
+            $res = $this->exec("SELECT id FROM wdf_objects WHERE session_id=? AND id=?", [session_id(),$id])->Count()>0;
+        $this->_stats(__METHOD__,$start);
+		return $res;
     }
     
 	function Restore($id)
     {
+        $start = microtime(true);
 		$id = strtolower($id);
-//        log_debug(__METHOD__,session_id(),$id);
 
 		if( isset($GLOBALS['object_storage'][$id]) )
 			$res = $GLOBALS['object_storage'][$id];
@@ -145,16 +141,17 @@ class DbStore extends ObjectStore
             $row = $this->exec("SELECT data FROM wdf_objects WHERE session_id=? AND id=?", [session_id(),$id])->current();
             $data = $row['data'];
 
-            $serializer = new Serializer();
-            $res = $serializer->Unserialize($data);
+            $res = $this->serializer->Unserialize($data);
             $GLOBALS['object_storage'][$id] = $res;
 
         }
+        $this->_stats(__METHOD__,$start);
 		return $res;
     }
     
     function CreateId(&$obj)
     {
+        $start = microtime(true);
 		if( unserializer_active() )
 		{
 			log_trace("create_storage_id while unserializing object of type ".get_class_simple($obj));
@@ -163,33 +160,19 @@ class DbStore extends ObjectStore
 		}
 
 		$cn = strtolower(get_class_simple($obj));
-		if( !isset($GLOBALS['object_ids'][$cn]) )
-			$GLOBALS['object_ids'][$cn] = 1;
+		if( !isset($_SESSION['object_ids'][$cn]) )
+			$_SESSION['object_ids'][$cn] = 1;
 		else
-			$GLOBALS['object_ids'][$cn]++;
+			$_SESSION['object_ids'][$cn]++;
 
-        do
-        {
-            $obj->_storage_id = $cn.$GLOBALS['object_ids'][$cn];
-            if( system_is_ajax_call() )
-                return $obj->_storage_id;
-            
-            $rs = $this->exec("INSERT IGNORE INTO wdf_objects
-                    SET session_id	= ?,
-                        id		    = ?,
-                        classname   = ?,
-                        no          = ?,
-                        created	    = now(),
-                        last_access	= now()", [session_id(),$obj->_storage_id,$cn,$GLOBALS['object_ids'][$cn]]);
-            if( $rs->Count() > 0 )
-                break;
-            $GLOBALS['object_ids'][$cn]++;
-        }while( true );
-		return $obj->_storage_id;
+        $obj->_storage_id = $cn.$_SESSION['object_ids'][$cn];
+        $this->_stats(__METHOD__,$start);
+        return $obj->_storage_id;
     }
     
     function Cleanup($classname=false)
     {
+        $start = microtime(true);
         if( $classname )
         {
             $classname = strtolower($classname);
@@ -198,6 +181,7 @@ class DbStore extends ObjectStore
                 if( get_class_simple($obj,true) == $classname )
                     $this->Delete($id);
             }
+            $this->_stats(__METHOD__."/CN",$start);
             return;
         }
 
@@ -207,47 +191,45 @@ class DbStore extends ObjectStore
                 OR (last_access<now()-interval 300 second)",
             [session_id()]
         );
+        $this->_stats(__METHOD__,$start);
     }
     
     function Update($keep_alive=false)
     {
-//        log_debug(__METHOD__,session_id(),$keep_alive);
+        $start = microtime(true);
         
         if( $keep_alive )
         {
             $this->exec("UPDATE wdf_objects SET last_access=now() WHERE session_id=?",[session_id()]);
+            $this->_stats(__METHOD__."/KA",$start);
             return;
         }
-        foreach( $GLOBALS['object_storage'] as $id=>&$obj )
+        
+        $sql = [];
+        foreach( $GLOBALS['object_storage'] as $id=>$obj )
 		{
 			try
 			{
-				$this->Store($obj,$id);
+                $cn = strtolower(get_class_simple($obj));
+                $no = str_replace($cn,'',$id);
+                $content = $this->serializer->Serialize($obj);
+
+                $sql = "('".session_id()."','{$id}','{$cn}','$no',now(),now(),'".$this->ds->EscapeArgument($content)."')";
+                $sql = "INSERT DELAYED INTO wdf_objects(session_id,id,classname,no,created,last_access,data)VALUES $sql ON DUPLICATE KEY UPDATE last_access	= now(),data = VALUES(data)";
+                $this->exec($sql);
 			}
 			catch(Exception $ex)
 			{
 				WdfException::Log("updating storage for object $id [".get_class($obj)."]",$ex);
 			}
 		}
+        $this->_stats(__METHOD__,$start);
     }
     
     function Migrate($old_session_id, $new_session_id)
     {
-//        log_debug("Migrate($old_session_id, $new_session_id)");
+        $start = microtime(true);
         $this->exec("UPDATE IGNORE wdf_objects SET session_id=? WHERE session_id=?",[$new_session_id,$old_session_id]);
-    }
-    
-    function ListIds($classname=false)
-    {
-        if( !$classname )
-            return array_keys($GLOBALS['object_storage']);
-        $classname = strtolower($classname);
-        $res = [];
-        foreach( $GLOBALS['object_storage'] as $id=>&$obj )
-        {
-            if( get_class_simple($obj,true) == $classname )
-                $res[] = $id;
-        }
-        return $res;
+        $this->_stats(__METHOD__,$start);
     }
 }

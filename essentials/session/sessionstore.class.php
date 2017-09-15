@@ -196,18 +196,4 @@ class SessionStore extends ObjectStore
     {
         // nothing to to because session variable is migrated by PHP itself
     }
-    
-    function ListIds($classname=false)
-    {
-        if( !$classname )
-            return array_keys($GLOBALS['object_storage']);
-        $classname = strtolower($classname);
-        $res = [];
-        foreach( $GLOBALS['object_storage'] as $id=>&$obj )
-        {
-            if( get_class_simple($obj,true) == $classname )
-                $res[] = $id;
-        }
-        return $res;
-    }
 }

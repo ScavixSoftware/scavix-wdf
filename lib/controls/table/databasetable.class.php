@@ -96,9 +96,14 @@ class DatabaseTable extends Table implements ICallable
         $res = get_object_vars($this);
         if( $this->SlimSerialization )
         {
-            unset($res['_content']);
+            unset($res['header']);
+            unset($res['footer']);
+            unset($res['colgroup']);
             unset($res['current_row_group']);
             unset($res['current_row']);
+            unset($res['current_cell']);
+            
+            unset($res['_content']);
         }
         return array_keys($res);
     }

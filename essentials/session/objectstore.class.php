@@ -31,7 +31,20 @@ namespace ScavixWDF\Session;
  */
 abstract class ObjectStore
 {
-	abstract function Store(&$obj,$id="");
+    var $Statistics = [];
+    protected function _stats($name,$started)
+    {
+        $now = microtime(true);
+        if( isset($this->Statistics[$name]) )
+        {
+            $this->Statistics[$name][0]++;
+            $this->Statistics[$name][1] += ($now-$started)*1000;
+        }
+        else
+            $this->Statistics[$name] = [1,($now-$started)*1000];
+    }
+    
+	abstract function Store(&$obj,$id="",$serialized_data=false);
 	
 	abstract function Delete($id);
 	
@@ -46,6 +59,4 @@ abstract class ObjectStore
     abstract function Update($keep_alive=false);
     
     abstract function Migrate($old_session_id, $new_session_id);
-    
-    abstract function ListIds($classname=false);
 }
