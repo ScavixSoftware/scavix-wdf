@@ -39,7 +39,7 @@ class SessionStore extends ObjectStore
             $GLOBALS['object_ids'] = [];
     }
     
-    function Store(&$obj,$id="")
+    function Store(&$obj,$id="",$serialized_data=false)
     {
         global $CONFIG;
 		$id = strtolower($id);
@@ -51,9 +51,15 @@ class SessionStore extends ObjectStore
 		}
 		else
 			$obj->_storage_id = $id;
-		$serializer = new Serializer();
-		$content = $serializer->Serialize($obj);
-		$_SESSION[$CONFIG['session']['prefix']."session"][$id] = $content;
+        
+        if( $serialized_data )
+            $content = $serialized_data;
+        else
+        {
+            $serializer = new Serializer();
+            $content = $serializer->Serialize($obj);
+        }
+        $_SESSION[$CONFIG['session']['prefix']."session"][$id] = $content;
 		$GLOBALS['object_storage'][$id] = $obj;
         
         $_SESSION[$CONFIG['session']['prefix']."object_access"][$obj->_storage_id] = time();
