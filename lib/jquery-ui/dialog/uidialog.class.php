@@ -111,10 +111,13 @@ class uiDialog extends uiControl
 			$this->script("$('#{$this->id}').parent().find('.ui-dialog-buttonpane .ui-button').click(function(){ $(this).parent().find('.ui-button').button().prop('disabled', true).addClass( 'ui-state-disabled' ); });");
 			$this->_script = array_merge($this->_script,$tmp);
 
-			foreach( $this->_script as $s )
-			{
-				$controller->addDocReady($s);
-			}
+            if(!system_is_ajax_call())
+            {
+                foreach( $this->_script as $s )
+                {
+                    $controller->addDocReady($s);
+                }
+            }
 		}
 		return parent::PreRender($args);
 	}

@@ -91,14 +91,17 @@ class DbStore extends ObjectStore
 			$obj->_storage_id = $id;
         
         if( $serialized_data )
-        {
-            $cn = strtolower(get_class_simple($obj));
-            $no = str_replace($cn,'',$id);
+            $content = $serialized_data;
+        else
+            $content = $this->serializer->Serialize($obj);
+        
+        $cn = strtolower(get_class_simple($obj));
+        $no = str_replace($cn,'',$id);
 
-            $sql = "('".session_id()."','{$id}','{$cn}','$no',now(),now(),'".$this->ds->EscapeArgument($serialized_data)."')";
-            $sql = "INSERT DELAYED INTO wdf_objects(session_id,id,classname,no,created,last_access,data)VALUES $sql ON DUPLICATE KEY UPDATE last_access	= now(),data = VALUES(data)";
-            $this->exec($sql);
-        }
+        $sql = "('".session_id()."','{$id}','{$cn}','$no',now(),now(),'".$this->ds->EscapeArgument($content)."')";
+        $sql = "INSERT DELAYED INTO wdf_objects(session_id,id,classname,no,created,last_access,data)VALUES $sql ON DUPLICATE KEY UPDATE last_access	= now(),data = VALUES(data)";
+        $this->exec($sql);
+
         $GLOBALS['object_storage'][$id] = $obj;
         $this->_stats(__METHOD__,$start);
     }
@@ -210,13 +213,7 @@ class DbStore extends ObjectStore
 		{
 			try
 			{
-                $cn = strtolower(get_class_simple($obj));
-                $no = str_replace($cn,'',$id);
-                $content = $this->serializer->Serialize($obj);
-
-                $sql = "('".session_id()."','{$id}','{$cn}','$no',now(),now(),'".$this->ds->EscapeArgument($content)."')";
-                $sql = "INSERT DELAYED INTO wdf_objects(session_id,id,classname,no,created,last_access,data)VALUES $sql ON DUPLICATE KEY UPDATE last_access	= now(),data = VALUES(data)";
-                $this->exec($sql);
+                $this->Store($obj, $id);
 			}
 			catch(Exception $ex)
 			{
