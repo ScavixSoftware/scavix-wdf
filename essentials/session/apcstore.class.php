@@ -178,7 +178,7 @@ class APCStore extends ObjectStore
     
     function Migrate($old_session_id, $new_session_id)
     {
-        log_debug('Migrate', $old_session_id, $new_session_id);
+//        log_debug('Migrate', $old_session_id, $new_session_id);
         $start = microtime(true);
         $data = apc_cache_info('user');
         if($data && $data['cache_list'])
