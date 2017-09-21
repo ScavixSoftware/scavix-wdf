@@ -26,52 +26,23 @@ namespace ScavixWDF\Session;
 
 /**
  */
-class DbStore extends ObjectStore
+class APCStore extends ObjectStore
 {
     private $serializer;
     
     public function __construct()
     {
         global $CONFIG;
-        
-        if( !isset($CONFIG['session']['dbstore']['datasource']) )
-            $CONFIG['session']['dbstore']['datasource'] = 'internal';
-        
-        $this->ds = model_datasource($CONFIG['session']['dbstore']['datasource']);
+        $servername = isset($_SERVER['SERVER_NAME'])?$_SERVER['SERVER_NAME']:"SCAVIX_WDF_SERVER";
+        if(isset($CONFIG['apcstore']['key_prefix']))
+            $GLOBALS['apcstore_key_prefix'] = "apcstore_".md5($servername."-".$CONFIG['apcstore']['key_prefix']."-".getAppVersion('nc')).'_';
+        else
+            $GLOBALS["apcstore_key_prefix"] = "apcstore_".md5($servername."-".session_name()."-".getAppVersion('nc')).'_';
+
         $this->serializer = new Serializer();
         
         if( !isset($_SESSION['object_ids']) )
             $_SESSION['object_ids'] = [];
-    }
-    
-    private function exec($sql,$args=[])
-    {
-        try
-        {
-            return $this->ds->ExecuteSql($sql,$args);
-        }
-        catch (\ScavixWDF\WdfDbException $ex)
-        {
-            $info = $ex->getErrorInfo();
-            if( isset($info[1]) && $info[1] == 1146 )
-            {
-                $this->ds->ExecuteSql("CREATE TABLE `wdf_objects` (
-                        `session_id` VARCHAR(100) NOT NULL,
-                        `id` VARCHAR(255) NOT NULL,
-                        `classname` VARCHAR(255) NOT NULL,
-                        `no` INT(10) UNSIGNED NULL DEFAULT NULL,
-                        `created` DATETIME NULL DEFAULT NULL,
-                        `last_access` DATETIME NULL DEFAULT NULL,
-                        `data` LONGTEXT NULL,
-                        PRIMARY KEY (`session_id`, `id`)
-                    )
-                    COLLATE='utf8_general_ci'
-                    ENGINE=InnoDB");
-                
-                return $this->ds->ExecuteSql($sql,$args);
-            }
-        }
-        return new \ScavixWDF\Model\ResultSet($this->ds);
     }
     
     function Store(&$obj,$id="",$serialized_data=false)
@@ -92,12 +63,7 @@ class DbStore extends ObjectStore
         else
             $content = $this->serializer->Serialize($obj);
         
-        $cn = strtolower(get_class_simple($obj));
-        $no = str_replace($cn,'',$id);
-
-        $sql = "('".session_id()."','{$id}','{$cn}','$no',now(),now(),'".$this->ds->EscapeArgument($content)."')";
-        $sql = "INSERT DELAYED INTO wdf_objects(session_id,id,classname,no,created,last_access,data)VALUES $sql ON DUPLICATE KEY UPDATE last_access	= now(),data = VALUES(data)";
-        $this->exec($sql);
+        apc_store($GLOBALS["apcstore_key_prefix"].session_id().'_'.$id, $content, (ini_get('session.gc_maxlifetime')?:300));
 
         $GLOBALS['object_storage'][$id] = $obj;
         $this->_stats(__METHOD__,$start);
@@ -111,7 +77,9 @@ class DbStore extends ObjectStore
         
         if( isset($GLOBALS['object_storage'][$id]) )
             unset($GLOBALS['object_storage'][$id]);
-		$this->exec("DELETE FROM wdf_objects WHERE session_id=? AND id=?", [session_id(),$id]);
+        
+		apc_delete($GLOBALS["apcstore_key_prefix"].session_id().'_'.$id);
+        
         $this->_stats(__METHOD__,$start);
     }
     
@@ -124,7 +92,7 @@ class DbStore extends ObjectStore
 		if( isset($GLOBALS['object_storage'][$id]) )
             $res = true;
         else
-            $res = $this->exec("SELECT id FROM wdf_objects WHERE session_id=? AND id=?", [session_id(),$id])->Count()>0;
+            $res = (apc_exists($GLOBALS["apcstore_key_prefix"].session_id().'_'.$id) === true);
         $this->_stats(__METHOD__,$start);
 		return $res;
     }
@@ -138,9 +106,7 @@ class DbStore extends ObjectStore
 			$res = $GLOBALS['object_storage'][$id];
         else
         {
-            $row = $this->exec("SELECT data FROM wdf_objects WHERE session_id=? AND id=?", [session_id(),$id])->current();
-            $data = $row['data'];
-
+            $data = apc_fetch($GLOBALS["apcstore_key_prefix"].session_id().'_'.$id);
             $res = $this->serializer->Unserialize($data);
             $GLOBALS['object_storage'][$id] = $res;
 
@@ -172,26 +138,7 @@ class DbStore extends ObjectStore
     
     function Cleanup($classname=false)
     {
-        $start = microtime(true);
-        if( $classname )
-        {
-            $classname = strtolower($classname);
-            foreach( $GLOBALS['object_storage'] as $id=>&$obj )
-            {
-                if( get_class_simple($obj,true) == $classname )
-                    $this->Delete($id);
-            }
-            $this->_stats(__METHOD__."/CN",$start);
-            return;
-        }
-
-        $this->exec(
-            "DELETE FROM wdf_objects WHERE 
-                (session_id=? AND (last_access<now()-interval 60 second OR ISNULL(data)) )
-                OR (last_access<now()-interval 300 second)",
-            [session_id()]
-        );
-        $this->_stats(__METHOD__,$start);
+        // not necessary for APC
     }
     
     function Update($keep_alive=false)
@@ -200,7 +147,16 @@ class DbStore extends ObjectStore
         
         if( $keep_alive )
         {
-            $this->exec("UPDATE wdf_objects SET last_access=now() WHERE session_id=?",[session_id()]);
+            $data = apc_cache_info('user');
+            if($data && $data['cache_list'])
+            {
+                foreach($data['cache_list'] as $entry)
+                {
+                    if(starts_with($entry['info'], $GLOBALS["apcstore_key_prefix"].session_id().'_'))
+                        apc_store($entry['info'], apc_fetch($entry['info']), (ini_get('session.gc_maxlifetime')?:300));
+                }
+                return;
+            }
             $this->_stats(__METHOD__."/KA",$start);
             return;
         }
@@ -222,8 +178,19 @@ class DbStore extends ObjectStore
     
     function Migrate($old_session_id, $new_session_id)
     {
+        log_debug('Migrate', $old_session_id, $new_session_id);
         $start = microtime(true);
-        $this->exec("UPDATE IGNORE wdf_objects SET session_id=? WHERE session_id=?",[$new_session_id,$old_session_id]);
+        $data = apc_cache_info('user');
+        if($data && $data['cache_list'])
+        {
+            foreach($data['cache_list'] as $entry)
+            {
+                if(starts_with($entry['info'], $GLOBALS["apcstore_key_prefix"].$old_session_id.'_'))
+                {
+                    apc_store(str_replace($GLOBALS["apcstore_key_prefix"].$old_session_id.'_', $GLOBALS["apcstore_key_prefix"].$new_session_id.'_', $entry['info']), apc_fetch($entry['info']), (ini_get('session.gc_maxlifetime')?:300));
+                }
+            }
+        }
         $this->_stats(__METHOD__,$start);
     }
 }
