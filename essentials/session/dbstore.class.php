@@ -28,7 +28,7 @@ namespace ScavixWDF\Session;
  */
 class DbStore extends ObjectStore
 {
-    private $serializer;
+    protected $serializer;
     
     public function __construct()
     {
