@@ -79,12 +79,11 @@ class MySql implements IDatabaseDriver
 	{
 		$sql = 'SHOW CREATE TABLE `'.$tablename.'`';
 		$tableSql = $this->_pdo->query($sql);
-		
 		if( !$tableSql )
 			WdfDbException::Raise("Table `$tablename` not found!","PDO error info: ",$this->_pdo->errorInfo());
-		
-		$tableSql = $tableSql->fetch();
-		$tableSql = $tableSql[1];
+
+        $tableSql = $tableSql->fetch();
+        $tableSql = $tableSql[1];
 
 		$res = new TableSchema($this->_ds, $tablename);
 		$sql = "show columns from `$tablename`";
@@ -254,6 +253,8 @@ class MySql implements IDatabaseDriver
 	function getPagedStatement($sql,$page,$items_per_page)
 	{
 		$offset = ($page-1)*$items_per_page;
+        if(intval($offset) < 0)
+            $offset = 0;
 		$sql = preg_replace('/LIMIT\s+[\d\s,]+/', '', $sql);
 		$sql .= " LIMIT $offset,$items_per_page";
 		return new ResultSet($this->_ds, $this->_pdo->prepare($sql));
