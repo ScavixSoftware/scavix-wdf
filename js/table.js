@@ -80,6 +80,8 @@ $.fn.updateTable = function(html)
     var self = this;
     self.prev('.pager').remove(); 
     self.next('.pager').remove(); 
+    if( self.data('overlay') )
+        self.data('overlay').remove();
     self.replaceWith(html); 
     $('.thead a',self).click(self.showLoadingOverlay);
     self.placePager(self.opts);
@@ -120,18 +122,18 @@ $.fn.showLoadingOverlay = function()
         $pt = $tab.prev('.pager'), $pb = $tab.next('.pager')
         $offsetParent = $tab;
    
-    var $ol = $("<div/>").appendTo('body')
+    var $ol = $("<div data-lc='"+loadingClass+"'/>").appendTo('body')
             .width($tab.width())
-            .css('background-color','black').css('opacity','0.2');
-        wait = function()
+            .css('background-color','black').css('opacity','0.2'),
+        wait = function(ol,par)
         {
-            $ol.position({my:'left top',at:'left top',of:$offsetParent});
-            if( $('.'+loadingClass).length )
-                setTimeout(wait,10);
-            else
-                $ol.remove();
+            if(!jQuery.contains(document, ol[0]))
+                return;
+            ol.position({my:'left top',at:'left top',of:par});
+            setTimeout(function(){ wait(ol,par); },10);
         };
-        
+    $tab.data('overlay',$ol);
+    
     if( $pt.length && $pb.length )
     {
         $ol.height( $pb.position().top + $pb.height() - $pt.position().top );
@@ -147,7 +149,7 @@ $.fn.showLoadingOverlay = function()
     else
         $ol.height( $tab.height() );
     
-    wait();
+    wait($ol,$offsetParent);
 };
 
 $.fn.hideLoadingOverlay = function()
