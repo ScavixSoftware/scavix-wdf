@@ -79,12 +79,11 @@ class MySql implements IDatabaseDriver
 	{
 		$sql = 'SHOW CREATE TABLE `'.$tablename.'`';
 		$tableSql = $this->_pdo->query($sql);
-		
 		if( !$tableSql )
 			WdfDbException::Raise("Table `$tablename` not found!","PDO error info: ",$this->_pdo->errorInfo());
-		
-		$tableSql = $tableSql->fetch();
-		$tableSql = $tableSql[1];
+
+        $tableSql = $tableSql->fetch();
+        $tableSql = $tableSql[1];
 
 		$res = new TableSchema($this->_ds, $tablename);
 		$sql = "show columns from `$tablename`";

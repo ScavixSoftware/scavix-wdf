@@ -96,6 +96,16 @@ class ResultSet implements Iterator, ArrayAccess
 	{
 		return render_var($this->_stmt->errorInfo())."\n".$this->_sql_used;
 	}
+    
+    /**
+	 * Returns the error info
+	 * 
+	 * @return string ErrorInfo
+	 */
+	public function ErrorInfo()
+	{
+		return $this->_stmt->errorInfo();
+	}
 	
 	/**
 	 * Returns the last query error code
