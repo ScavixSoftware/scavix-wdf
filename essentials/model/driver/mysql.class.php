@@ -150,6 +150,7 @@ class MySql implements IDatabaseDriver
 	 */
 	function getSaveStatement($model,&$args,$columns_to_update=false)
 	{
+        $argnum = 0;
 		$cols = array();
 		$pks = $model->GetPrimaryColumns();
 		$all = array();
@@ -195,13 +196,14 @@ class MySql implements IDatabaseDriver
 			}
 			else
 			{
-				$cols[] = "`$col`=:$col";
+                $argn = ":arg".($argnum++);
+				$cols[] = "`$col`=$argn";
 				$all[] = "`$col`";
-				$vals[] = ":$col";
-				$args[":$col"] = $tv;
+				$vals[] = "$argn";
+				$args["$argn"] = $tv;
 			
-				if( $args[":$col"] instanceof DateTime )
-					$args[":$col"] = $args[":$col"]->format("c");
+				if( $args["$argn"] instanceof DateTime )
+					$args["$argn"] = $args["$argn"]->format("c");
 			}
 		}
 		
