@@ -183,7 +183,11 @@ $.ajaxSetup({cache:false});
 			if( location.href == href )
 				location.reload();
 			else
+            {
 				location.href = href;
+                if(location.hash)
+                    location.reload();
+            }
 		},
 		
 		initAjax: function(skip_dependency_loading)
