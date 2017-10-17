@@ -184,6 +184,7 @@ $.ajaxSetup({cache:false});
 				location.reload();
 			else
             {
+                location.hash = '';
 				location.href = href;
                 if(location.hash)
                     location.reload();
