@@ -92,7 +92,11 @@ class FilesStore extends ObjectStore
         if( $serialized_data )
             $content = $serialized_data;
         else
+        {
+            $sers = microtime(true);
             $content = $this->serializer->Serialize($obj);
+            $this->_stats(__METHOD__.'/SER',$sers);
+        }
         
         file_put_contents($this->getFile($id), $content);
         $GLOBALS['object_storage'][$id] = $obj;
@@ -135,8 +139,10 @@ class FilesStore extends ObjectStore
         else
         {
             $data = file_get_contents($this->getFile($id));
+            $sers = microtime(true);
             $res = $this->serializer->Unserialize($data);
             $GLOBALS['object_storage'][$id] = $res;
+            $this->_stats(__METHOD__.'/UNSER',$sers);
         }
         $this->_stats(__METHOD__,$start);
 		return $res;
@@ -177,6 +183,7 @@ class FilesStore extends ObjectStore
             $this->_stats(__METHOD__."/CN",$start);
             return;
         }
+        clearstatcache();
         $p = $GLOBALS['CONFIG']['session']['filesstore']['path'];
         foreach( glob($p.'/*',GLOB_ONLYDIR) as $d )
         {
@@ -188,10 +195,16 @@ class FilesStore extends ObjectStore
                 if( $d != "$d/." && $d != "$d/.." )
                     unlink($f);
             rmdir($d);
+            log_debug(__METHOD__,"Session removed:",$d);
         }   
         foreach( system_glob_rec($this->getPath(),'*') as $f )
+        {
             if( time() - filemtime($f) > 300 )
+            {
                 unlink($f);
+                log_debug(__METHOD__,"Object removed:",$f);
+            }
+        }
         $this->_stats(__METHOD__,$start);
     }
     
@@ -201,11 +214,13 @@ class FilesStore extends ObjectStore
         
         if( $keep_alive )
         {
+            touch( $this->getPath() );
             foreach( system_glob_rec($this->getFile(''),'*') as $f )
                 touch($f);
             return;
         }
 
+        touch( $this->getPath() );
         $ids = array_keys($GLOBALS['object_storage']);
         foreach( $ids as $id )
             touch($this->getFile($id));

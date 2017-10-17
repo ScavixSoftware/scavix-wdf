@@ -1679,6 +1679,8 @@ function fq_class_name($classname)
 		case 'sessionstore':              return '\\ScavixWDF\\Session\\SessionStore';
         case 'dbstore':                   return '\\ScavixWDF\\Session\\DbStore';
         case 'apcstore':                  return '\\ScavixWDF\\Session\\APCStore';
+        case 'redisstore':                return '\\ScavixWDF\\Session\\RedisStore';
+        case 'filesstore':                return '\\ScavixWDF\\Session\\FilesStore';
 	}
 	
 	if( isset($GLOBALS['system_class_alias'][$cnl]) )
