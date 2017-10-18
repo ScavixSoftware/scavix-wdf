@@ -45,7 +45,7 @@ class APCStore extends ObjectStore
             $_SESSION['object_ids'] = [];
     }
     
-    function Store(&$obj,$id="",$serialized_data=false)
+    function Store(&$obj,$id="")
     {
         $start = microtime(true);
 		$id = strtolower($id);
@@ -58,10 +58,7 @@ class APCStore extends ObjectStore
 		else
 			$obj->_storage_id = $id;
         
-        if( $serialized_data )
-            $content = $serialized_data;
-        else
-            $content = $this->serializer->Serialize($obj);
+        $content = $this->serializer->Serialize($obj);
         
         apc_store($GLOBALS["apcstore_key_prefix"].session_id().'_'.$id, $content, (ini_get('session.gc_maxlifetime')?:300));
 

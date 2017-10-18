@@ -154,7 +154,7 @@ class RedisStore extends ObjectStore
         return $this->exec('expire',[$this->_key($key),300]);
     }
     
-    function Store(&$obj,$id="",$serialized_data=false)
+    function Store(&$obj,$id="")
     {
         $start = microtime(true);
 		$id = strtolower($id);
@@ -167,10 +167,7 @@ class RedisStore extends ObjectStore
 		else
 			$obj->_storage_id = $id;
         
-        if( $serialized_data )
-            $content = $serialized_data;
-        else
-            $content = $this->serializer->Serialize($obj);
+        $content = $this->serializer->Serialize($obj);
         
         $this->set($id,$content);
         $GLOBALS['object_storage'][$id] = $obj;

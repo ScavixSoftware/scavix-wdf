@@ -74,7 +74,7 @@ class DbStore extends ObjectStore
         return new \ScavixWDF\Model\ResultSet($this->ds);
     }
     
-    function Store(&$obj,$id="",$serialized_data=false)
+    function Store(&$obj,$id="")
     {
         $start = microtime(true);
 		$id = strtolower($id);
@@ -87,17 +87,14 @@ class DbStore extends ObjectStore
 		else
 			$obj->_storage_id = $id;
         
-        if( $serialized_data )
-            $content = $serialized_data;
-        else
-            $content = $this->serializer->Serialize($obj);
-        
-        $cn = strtolower(get_class_simple($obj));
-        $no = str_replace($cn,'',$id);
-
-        $sql = "('".session_id()."','{$id}','{$cn}','$no',now(),now(),'".$this->ds->EscapeArgument($content)."')";
-        $sql = "INSERT DELAYED INTO wdf_objects(session_id,id,classname,no,created,last_access,data)VALUES $sql ON DUPLICATE KEY UPDATE last_access	= now(),data = VALUES(data)";
-        $this->exec($sql);
+//        $content = $this->serializer->Serialize($obj);
+//        
+//        $cn = strtolower(get_class_simple($obj));
+//        $no = str_replace($cn,'',$id);
+//
+//        $sql = "('".session_id()."','{$id}','{$cn}','$no',now(),now(),'".$this->ds->EscapeArgument($content)."')";
+//        $sql = "INSERT DELAYED INTO wdf_objects(session_id,id,classname,no,created,last_access,data)VALUES $sql ON DUPLICATE KEY UPDATE last_access	= now(),data = VALUES(data)";
+//        $this->exec($sql);
 
         $GLOBALS['object_storage'][$id] = $obj;
         $this->_stats(__METHOD__,$start);
@@ -210,7 +207,15 @@ class DbStore extends ObjectStore
 		{
 			try
 			{
-                $this->Store($obj, $id);
+                $content = $this->serializer->Serialize($obj);
+        
+                $cn = strtolower(get_class_simple($obj));
+                $no = str_replace($cn,'',$id);
+
+                $sql = "('".session_id()."','{$id}','{$cn}','$no',now(),now(),'".$this->ds->EscapeArgument($content)."')";
+                $sql = "INSERT DELAYED INTO wdf_objects(session_id,id,classname,no,created,last_access,data)VALUES $sql ON DUPLICATE KEY UPDATE last_access	= now(),data = VALUES(data)";
+                $this->exec($sql);
+//                $this->Store($obj, $id);
 			}
 			catch(Exception $ex)
 			{

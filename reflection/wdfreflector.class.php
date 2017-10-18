@@ -50,7 +50,7 @@ class WdfReflector extends ReflectionClass
 
 		parent::__construct($classname);
 	}
-
+    
 	/**
 	 * Create a WdfReflector instance
 	 * 

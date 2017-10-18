@@ -24,11 +24,10 @@
  */
 namespace ScavixWDF\Session;
 
-use Exception;
 use ScavixWDF\WdfException;
 use function get_class_simple;
-use function log_debug;
 use function log_trace;
+use function system_glob_rec;
 use function unserializer_active;
 
 /**
@@ -76,7 +75,7 @@ class FilesStore extends ObjectStore
             $_SESSION['object_ids'] = [];
     }
     
-    function Store(&$obj,$id="",$serialized_data=false)
+    function Store(&$obj,$id="")
     {
         $start = microtime(true);
 		$id = strtolower($id);
@@ -88,17 +87,12 @@ class FilesStore extends ObjectStore
 		}
 		else
 			$obj->_storage_id = $id;
-        
-        if( $serialized_data )
-            $content = $serialized_data;
-        else
-        {
-            $sers = microtime(true);
-            $content = $this->serializer->Serialize($obj);
-            $this->_stats(__METHOD__.'/SER',$sers);
-        }
-        
-        file_put_contents($this->getFile($id), $content);
+  
+        /* serialization and storage will be done in Update method */
+//        $content = $this->serializer->Serialize($obj);
+//        $this->_stats(__METHOD__.'/SER',$start);
+//        $start = microtime(true);
+//        file_put_contents($this->getFile($id), $content);
         $GLOBALS['object_storage'][$id] = $obj;
         $this->_stats(__METHOD__,$start);
     }
@@ -135,16 +129,19 @@ class FilesStore extends ObjectStore
 		$id = strtolower($id);
 
 		if( isset($GLOBALS['object_storage'][$id]) )
+        {
 			$res = $GLOBALS['object_storage'][$id];
+            $this->_stats(__METHOD__,$start);
+        }
         else
         {
             $data = file_get_contents($this->getFile($id));
-            $sers = microtime(true);
+            $this->_stats(__METHOD__,$start);
+            $start = microtime(true);
             $res = $this->serializer->Unserialize($data);
             $GLOBALS['object_storage'][$id] = $res;
-            $this->_stats(__METHOD__.'/UNSER',$sers);
+            $this->_stats(__METHOD__.'/UNSER',$start);
         }
-        $this->_stats(__METHOD__,$start);
 		return $res;
     }
     
@@ -195,14 +192,14 @@ class FilesStore extends ObjectStore
                 if( $d != "$d/." && $d != "$d/.." )
                     unlink($f);
             rmdir($d);
-            log_debug(__METHOD__,"Session removed:",$d);
+            //log_debug(__METHOD__,"Session removed:",$d);
         }   
         foreach( system_glob_rec($this->getPath(),'*') as $f )
         {
             if( time() - filemtime($f) > 300 )
             {
                 unlink($f);
-                log_debug(__METHOD__,"Object removed:",$f);
+                //log_debug(__METHOD__,"Object removed:",$f);
             }
         }
         $this->_stats(__METHOD__,$start);
@@ -220,17 +217,21 @@ class FilesStore extends ObjectStore
             return;
         }
 
+        /* Update is guaranteed to be called (see register_shutdown_function), so perform storage here once the script is ready */
         touch( $this->getPath() );
-        $ids = array_keys($GLOBALS['object_storage']);
-        foreach( $ids as $id )
-            touch($this->getFile($id));
+        foreach( $GLOBALS['object_storage'] as $id=>$obj )
+        {
+            $content = $this->serializer->Serialize($obj);
+            file_put_contents($this->getFile($id), $content);
+        }
         $this->_stats(__METHOD__.($keep_alive?"/KA":''),$start);
     }
     
     function Migrate($old_session_id, $new_session_id)
     {
         $start = microtime(true);
-        rename($this->getPath($old_session_id),$this->getPath($new_session_id));
+        @rename($this->getPath($old_session_id),$this->getPath($new_session_id));
+        $this->path = false;
         $this->_stats(__METHOD__,$start);
     }
 }

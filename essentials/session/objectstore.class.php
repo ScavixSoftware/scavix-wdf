@@ -52,7 +52,7 @@ abstract class ObjectStore
         return $this->Statistics;
     }
     
-	abstract function Store(&$obj,$id="",$serialized_data=false);
+	abstract function Store(&$obj,$id="");
 	
 	abstract function Delete($id);
 	
