@@ -435,7 +435,10 @@ $.ajaxSetup({cache:false});
 		
 		stopScrollListLoader: function()
 		{
-			$('.loadMoreContent_removable_trigger').fadeOut();
+			var trigger = $('#scrollloader_overlay_anim');
+			if( trigger.length === 0 )
+				trigger = $('.loadMoreContent_removable_trigger');
+			trigger.fadeOut();
 		},
         
         whenAvailable: function(name, callback)
