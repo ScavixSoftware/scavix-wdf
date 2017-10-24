@@ -824,7 +824,8 @@ function system_spl_autoload($class_name)
 		if( strpos($class_name, '\\') !== false )
 		{
 			$orig = $class_name;
-			$class_name = array_pop(explode('\\',$class_name));
+            $class_name = explode('\\',$class_name);
+			$class_name = array_pop($class_name);
 		}
         $file = __search_file_for_class($class_name);
         if( $file && is_readable($file) )
