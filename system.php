@@ -1680,6 +1680,8 @@ function fq_class_name($classname)
 		case 'sessionstore':              return '\\ScavixWDF\\Session\\SessionStore';
         case 'dbstore':                   return '\\ScavixWDF\\Session\\DbStore';
         case 'apcstore':                  return '\\ScavixWDF\\Session\\APCStore';
+        case 'redisstore':                return '\\ScavixWDF\\Session\\RedisStore';
+        case 'filesstore':                return '\\ScavixWDF\\Session\\FilesStore';
 	}
 	
 	if( isset($GLOBALS['system_class_alias'][$cnl]) )
@@ -1745,8 +1747,15 @@ function system_get_lock($name,$datasource='internal',$timeout=10)
 			if( !system_process_running($pid) )
 				$ds->ExecuteSql("DELETE FROM wdf_locks WHERE pid=?",$pid);
 		}
-		$ds->ExecuteSql("INSERT OR IGNORE INTO wdf_locks(lockname,pid)VALUES(?,?)",$args);
-		$cnt = $ds->getAffectedRowsCount();
+		try
+        {
+            $ds->ExecuteSql("INSERT OR IGNORE INTO wdf_locks(lockname,pid)VALUES(?,?)",$args);
+            $cnt = $ds->getAffectedRowsCount();
+        }
+        catch (Exception $ex)
+        {
+            $cnt = 0;
+        }
 		
 		if( $cnt == 0 && $timeout <= 0 )
 			return false;

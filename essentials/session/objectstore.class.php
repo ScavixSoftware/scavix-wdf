@@ -2,8 +2,7 @@
 /**
  * Scavix Web Development Framework
  *
- * Copyright (c) 2007-2012 PamConsult GmbH
- * Copyright (c) since 2013 Scavix Software Ltd. & Co. KG
+ * Copyright (c) since 2017 Scavix Software Ltd. & Co. KG
  *
  * This library is free software; you can redistribute it
  * and/or modify it under the terms of the GNU Lesser General
@@ -19,10 +18,8 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library. If not, see <http://www.gnu.org/licenses/>
  *
- * @author PamConsult GmbH http://www.pamconsult.com <info@pamconsult.com>
- * @copyright 2007-2012 PamConsult GmbH
  * @author Scavix Software Ltd. & Co. KG http://www.scavix.com <info@scavix.com>
- * @copyright since 2012 Scavix Software Ltd. & Co. KG
+ * @copyright since 2017 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 namespace ScavixWDF\Session;
@@ -44,7 +41,18 @@ abstract class ObjectStore
             $this->Statistics[$name] = [1,($now-$started)*1000];
     }
     
-	abstract function Store(&$obj,$id="",$serialized_data=false);
+    public function GetStats()
+    {
+        if( isset($this->Statistics['total_time']) )
+            unset($this->Statistics['total_time']);
+        $t = 0;
+        foreach( $this->Statistics as $k=>$v )
+            $t += $v[1];
+        $this->Statistics['total_time'] = $t;
+        return $this->Statistics;
+    }
+    
+	abstract function Store(&$obj,$id="");
 	
 	abstract function Delete($id);
 	

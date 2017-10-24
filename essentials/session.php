@@ -166,6 +166,10 @@ function session_keep_alive($request_key='PING')
 
 function session_update($keep_alive=false)
 {
+    if( isset($GLOBALS['session_update_done']) )
+        return;
+    $GLOBALS['session_update_done'] = true;
+    
     if( !system_is_ajax_call() )
         $GLOBALS['fw_object_store']->Cleanup();
 
@@ -184,11 +188,11 @@ function request_id()
 /**
  * @shortcut <SessionBase::Store>
  */
-function store_object(&$obj,$id="",$serialized_data=false)
+function store_object(&$obj,$id="")
 {
     if( !isset($GLOBALS['fw_object_store']) )
 		return false;
-	$res = $GLOBALS['fw_object_store']->Store($obj,$id,$serialized_data);
+	$res = $GLOBALS['fw_object_store']->Store($obj,$id);
     return $res;
 }
 

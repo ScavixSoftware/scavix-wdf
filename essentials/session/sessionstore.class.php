@@ -2,8 +2,7 @@
 /**
  * Scavix Web Development Framework
  *
- * Copyright (c) 2007-2012 PamConsult GmbH
- * Copyright (c) since 2013 Scavix Software Ltd. & Co. KG
+ * Copyright (c) since 2017 Scavix Software Ltd. & Co. KG
  *
  * This library is free software; you can redistribute it
  * and/or modify it under the terms of the GNU Lesser General
@@ -19,10 +18,8 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library. If not, see <http://www.gnu.org/licenses/>
  *
- * @author PamConsult GmbH http://www.pamconsult.com <info@pamconsult.com>
- * @copyright 2007-2012 PamConsult GmbH
  * @author Scavix Software Ltd. & Co. KG http://www.scavix.com <info@scavix.com>
- * @copyright since 2012 Scavix Software Ltd. & Co. KG
+ * @copyright since 2017 Scavix Software Ltd. & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 namespace ScavixWDF\Session;
@@ -31,17 +28,22 @@ namespace ScavixWDF\Session;
  */
 class SessionStore extends ObjectStore
 {
+    protected $serializer;
+    
     public function __construct()
     {
         if( isset($_SESSION['object_id_storage']) )
     		$GLOBALS['object_ids'] = $_SESSION['object_id_storage'];
         else
             $GLOBALS['object_ids'] = [];
+        
+        $this->serializer = new Serializer();
     }
     
-    function Store(&$obj,$id="",$serialized_data=false)
+    function Store(&$obj,$id="")
     {
         global $CONFIG;
+        $start = microtime(true);
 		$id = strtolower($id);
 		if( $id == "" )
 		{
@@ -52,22 +54,19 @@ class SessionStore extends ObjectStore
 		else
 			$obj->_storage_id = $id;
         
-        if( $serialized_data )
-            $content = $serialized_data;
-        else
-        {
-            $serializer = new Serializer();
-            $content = $serializer->Serialize($obj);
-        }
+        $content = $this->serializer->Serialize($obj);
         $_SESSION[$CONFIG['session']['prefix']."session"][$id] = $content;
+        
 		$GLOBALS['object_storage'][$id] = $obj;
         
         $_SESSION[$CONFIG['session']['prefix']."object_access"][$obj->_storage_id] = time();
+        $this->_stats(__METHOD__,$start);
     }
     
 	function Delete($id)
     {
         global $CONFIG;
+        $start = microtime(true);
         
 		if( is_object($id) && isset($id->_storage_id) )
 			$id = $id->_storage_id;
@@ -83,23 +82,29 @@ class SessionStore extends ObjectStore
 		if(isset($_SESSION[$CONFIG['session']['prefix']."session"][$id]))
 			unset($_SESSION[$CONFIG['session']['prefix']."session"][$id]);
 		unset($GLOBALS['object_storage'][$id]);
+        $this->_stats(__METHOD__,$start);
     }
     
 	function Exists($id)
     {
         global $CONFIG;
+        $start = microtime(true);
+        
 		if( is_object($id) && isset($id->_storage_id) )
 			$id = $id->_storage_id;
 		$id = strtolower($id);
 		if( isset($GLOBALS['object_storage'][$id]) )
-			return true;
-
-		return isset($_SESSION[$CONFIG['session']['prefix']."session"][$id]);
+			$res = true;
+        else
+            $res = isset($_SESSION[$CONFIG['session']['prefix']."session"][$id]);
+        $this->_stats(__METHOD__,$start);
+		return $res;
     }
     
 	function Restore($id)
     {
         global $CONFIG;
+        $start = microtime(true);
 		$id = strtolower($id);
 
 		if( isset($GLOBALS['object_storage'][$id]) )
@@ -111,20 +116,21 @@ class SessionStore extends ObjectStore
             
             $data = $_SESSION[$CONFIG['session']['prefix']."session"][$id];
 
-            $serializer = new Serializer();
-            $res = $serializer->Unserialize($data);
+            $res = $this->serializer->Unserialize($data);
             $GLOBALS['object_storage'][$id] = $res;
 
         }
         
         if( $res )// update objects last access       
             $_SESSION[$CONFIG['session']['prefix']."object_access"][$res->_storage_id] = time();
+        $this->_stats(__METHOD__,$start);
 		return $res;
     }
     
     function CreateId(&$obj)
     {
         global $CONFIG;
+        $start = microtime(true);
 
 		if( unserializer_active() )
 		{
@@ -149,12 +155,14 @@ class SessionStore extends ObjectStore
 		if( session_id() )
 			$_SESSION['object_id_storage'] = $GLOBALS['object_ids'];
 
+        $this->_stats(__METHOD__,$start);
 		return $obj->_storage_id;
     }
     
     function Cleanup($classname=false)
     {
         global $CONFIG;
+        $start = microtime(true);
         
         if( $classname )
         {
@@ -164,6 +172,7 @@ class SessionStore extends ObjectStore
                 if( get_class_simple($obj,true) == $classname )
                     $this->Delete($id);
             }
+            $this->_stats(__METHOD__."/CN",$start);
             return;
         }
         
@@ -173,11 +182,13 @@ class SessionStore extends ObjectStore
                 continue;
             delete_object($id);
         }
+        $this->_stats(__METHOD__,$start);
     }
     
     function Update($keep_alive=false)
     {
         global $CONFIG;
+        $start = microtime(true);
         
         if( $keep_alive )
         {
@@ -185,6 +196,7 @@ class SessionStore extends ObjectStore
                 $_SESSION[$CONFIG['session']['prefix']."object_access"][$id] = time();
             return;
         }
+        
         foreach( $GLOBALS['object_storage'] as $id=>&$obj )
 		{
 			try
@@ -196,6 +208,7 @@ class SessionStore extends ObjectStore
 				WdfException::Log("updating storage for object $id [".get_class($obj)."]",$ex);
 			}
 		}
+        $this->_stats(__METHOD__.($keep_alive?"/KA":''),$start);
     }
     
     function Migrate($old_session_id, $new_session_id)

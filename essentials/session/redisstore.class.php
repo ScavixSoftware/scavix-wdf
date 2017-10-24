@@ -24,54 +24,134 @@
  */
 namespace ScavixWDF\Session;
 
+use Exception;
+use ScavixWDF\WdfException;
+use function get_class_simple;
+use function log_debug;
+use function log_trace;
+use function unserializer_active;
+
 /**
  */
-class DbStore extends ObjectStore
+class RedisStore extends ObjectStore
 {
     protected $serializer;
+    
+    protected $socket;
+    protected function getSocket()
+    {
+        return $this->socket
+            ? $this->socket
+            : ($this->socket = stream_socket_client($GLOBALS['CONFIG']['session']['redisstore']['server']));
+    }
+    
+    protected function _key($key)
+    {
+        if( strpos($key,session_id()."_")===0 )
+            return $key;
+        return session_id()."_$key";
+    }
     
     public function __construct()
     {
         global $CONFIG;
         
-        if( !isset($CONFIG['session']['dbstore']['datasource']) )
-            $CONFIG['session']['dbstore']['datasource'] = 'internal';
+        if( !isset($CONFIG['session']['redisstore']['server']) )
+            $CONFIG['session']['redisstore']['server'] = 'localhost:6379';
         
-        $this->ds = model_datasource($CONFIG['session']['dbstore']['datasource']);
         $this->serializer = new Serializer();
         
         if( !isset($_SESSION['object_ids']) )
             $_SESSION['object_ids'] = [];
     }
     
-    private function exec($sql,$args=[])
+    private function makePaket($args)
     {
+        $cmd = '*' . count($args) . "\r\n";
+        foreach ($args as $item) {
+            $cmd .= '$' . strlen($item) . "\r\n" . $item . "\r\n";
+        }
+        return $cmd;
+    }
+    
+    private function exec($method,$args=[])
+    {
+        if( $method == 'multi' )
+        {
+            $cmd = "multi\r\n";
+            foreach( $args as $a )
+                $cmd .= $this->makePaket($a);
+            $cmd .= "exec\r\n";
+        }
+        else
+        {
+            array_unshift($args, $method);
+            $cmd = $this->makePaket($args);
+        }
+        
+        fwrite($this->getSocket(), $cmd);
         try
         {
-            return $this->ds->ExecuteSql($sql,$args);
-        }
-        catch (\ScavixWDF\WdfDbException $ex)
-        {
-            $info = $ex->getErrorInfo();
-            if( isset($info[1]) && $info[1] == 1146 )
+            $res = $this->getResponse();
+            if( $method == 'multi' && $res == 'OK' )
             {
-                $this->ds->ExecuteSql("CREATE TABLE `wdf_objects` (
-                        `session_id` VARCHAR(100) NOT NULL,
-                        `id` VARCHAR(255) NOT NULL,
-                        `classname` VARCHAR(255) NOT NULL,
-                        `no` INT(10) UNSIGNED NULL DEFAULT NULL,
-                        `created` DATETIME NULL DEFAULT NULL,
-                        `last_access` DATETIME NULL DEFAULT NULL,
-                        `data` LONGTEXT NULL,
-                        PRIMARY KEY (`session_id`, `id`)
-                    )
-                    COLLATE='utf8_general_ci'
-                    ENGINE=InnoDB");
-                
-                return $this->ds->ExecuteSql($sql,$args);
+                $res = $this->getResponse();
+                log_debug('multi response',$res);
+            }
+            return $res;
+        }
+        catch (Exception $ex) 
+        {
+            log_error($ex,"CMD",$cmd);
+        }
+        return false;
+    }
+    
+    private function getResponse()
+    {
+        do
+        {
+            $line = fgets($this->getSocket());
+        
+            list($type, $result) = array($line[0], substr($line, 1, strlen($line) - 3));
+            if ($type == '-') { // error message
+                throw new Exception($result);
+            } elseif ($type == '$') { // bulk reply
+                if ($result == -1) {
+                    $result = null;
+                } else {
+                    $line = fread($this->getSocket(), $result + 2);
+                    $result = substr($line, 0, strlen($line) - 2);
+                }
+            } elseif ($type == '*') { // multi-bulk reply
+                $count = ( int ) $result;
+                for ($i = 0, $result = array(); $i < $count; $i++) {
+                    $result[] = $this->getResponse();
+                }
             }
         }
-        return new \ScavixWDF\Model\ResultSet($this->ds);
+        while( is_string($result) && trim($result) == 'QUEUED' );
+        return $result;
+    }
+    
+    function set($key,$value)
+    {
+        return $this->exec('setex',[$this->_key($key),'300',$value]);
+    }
+    function get($key)
+    {
+        $res = $this->exec('get',[$this->_key($key)]);
+        if( !$res )
+            log_debug("get returned nothing");
+        return $res;
+    }
+    function del($key)
+    {
+        return $this->exec('del',[$this->_key($key)]);
+    }
+    function expire($key)
+    {
+        return $this->exec('expire',[$this->_key($key),300]);
     }
     
     function Store(&$obj,$id="")
@@ -87,15 +167,9 @@ class DbStore extends ObjectStore
 		else
 			$obj->_storage_id = $id;
         
-//        $content = $this->serializer->Serialize($obj);
-//        
-//        $cn = strtolower(get_class_simple($obj));
-//        $no = str_replace($cn,'',$id);
-//
-//        $sql = "('".session_id()."','{$id}','{$cn}','$no',now(),now(),'".$this->ds->EscapeArgument($content)."')";
-//        $sql = "INSERT DELAYED INTO wdf_objects(session_id,id,classname,no,created,last_access,data)VALUES $sql ON DUPLICATE KEY UPDATE last_access	= now(),data = VALUES(data)";
-//        $this->exec($sql);
-
+        $content = $this->serializer->Serialize($obj);
+        
+        $this->set($id,$content);
         $GLOBALS['object_storage'][$id] = $obj;
         $this->_stats(__METHOD__,$start);
     }
@@ -108,7 +182,7 @@ class DbStore extends ObjectStore
         
         if( isset($GLOBALS['object_storage'][$id]) )
             unset($GLOBALS['object_storage'][$id]);
-		$this->exec("DELETE FROM wdf_objects WHERE session_id=? AND id=?", [session_id(),$id]);
+		$this->del($id);
         $this->_stats(__METHOD__,$start);
     }
     
@@ -121,7 +195,7 @@ class DbStore extends ObjectStore
 		if( isset($GLOBALS['object_storage'][$id]) )
             $res = true;
         else
-            $res = $this->exec("SELECT id FROM wdf_objects WHERE session_id=? AND id=?", [session_id(),$id])->Count()>0;
+            $res = $this->exec('exists',[$this->_key($id)]);
         $this->_stats(__METHOD__,$start);
 		return $res;
     }
@@ -135,12 +209,9 @@ class DbStore extends ObjectStore
 			$res = $GLOBALS['object_storage'][$id];
         else
         {
-            $row = $this->exec("SELECT data FROM wdf_objects WHERE session_id=? AND id=?", [session_id(),$id])->current();
-            $data = $row['data'];
-
+            $data = $this->get($id);
             $res = $this->serializer->Unserialize($data);
             $GLOBALS['object_storage'][$id] = $res;
-
         }
         $this->_stats(__METHOD__,$start);
 		return $res;
@@ -181,13 +252,7 @@ class DbStore extends ObjectStore
             $this->_stats(__METHOD__."/CN",$start);
             return;
         }
-
-        $this->exec(
-            "DELETE FROM wdf_objects WHERE 
-                (session_id=? AND (last_access<now()-interval 60 second OR ISNULL(data)) )
-                OR (last_access<now()-interval 300 second)",
-            [session_id()]
-        );
+        
         $this->_stats(__METHOD__,$start);
     }
     
@@ -196,39 +261,24 @@ class DbStore extends ObjectStore
         $start = microtime(true);
         
         if( $keep_alive )
-        {
-            $this->exec("UPDATE wdf_objects SET last_access=now() WHERE session_id=?",[session_id()]);
-            $this->_stats(__METHOD__."/KA",$start);
-            return;
-        }
-        
-        $sql = [];
-        foreach( $GLOBALS['object_storage'] as $id=>$obj )
-		{
-			try
-			{
-                $content = $this->serializer->Serialize($obj);
-        
-                $cn = strtolower(get_class_simple($obj));
-                $no = str_replace($cn,'',$id);
+            $ids = $this->exec('keys',[session_id()."_*"]);
+        else
+            $ids = array_keys($GLOBALS['object_storage']);
 
-                $sql = "('".session_id()."','{$id}','{$cn}','$no',now(),now(),'".$this->ds->EscapeArgument($content)."')";
-                $sql = "INSERT DELAYED INTO wdf_objects(session_id,id,classname,no,created,last_access,data)VALUES $sql ON DUPLICATE KEY UPDATE last_access	= now(),data = VALUES(data)";
-                $this->exec($sql);
-//                $this->Store($obj, $id);
-			}
-			catch(Exception $ex)
-			{
-				WdfException::Log("updating storage for object $id [".get_class($obj)."]",$ex);
-			}
-		}
-        $this->_stats(__METHOD__,$start);
+        foreach( $ids as $id )
+            $this->expire($id);
+        $this->_stats(__METHOD__.($keep_alive?"/KA":''),$start);
     }
     
     function Migrate($old_session_id, $new_session_id)
     {
         $start = microtime(true);
-        $this->exec("UPDATE IGNORE wdf_objects SET session_id=? WHERE session_id=?",[$new_session_id,$old_session_id]);
+        $ids = $this->exec('keys',["{$old_session_id}_*"]);
+        foreach( array_unique($ids) as $id )
+        {
+            $nid = str_replace("{$old_session_id}_","{$new_session_id}_", $id);
+            $this->exec('rename',[$id,$nid]);
+        }
         $this->_stats(__METHOD__,$start);
     }
 }
