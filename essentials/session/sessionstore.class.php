@@ -176,11 +176,14 @@ class SessionStore extends ObjectStore
             return;
         }
         
-        foreach( $_SESSION[$CONFIG['session']['prefix']."object_access"] as $id=>$time )
+        if(isset($_SESSION[$CONFIG['session']['prefix']."object_access"]))
         {
-            if( isset($GLOBALS['object_storage'][$id]) || $time + 60 > time() )
-                continue;
-            delete_object($id);
+            foreach( $_SESSION[$CONFIG['session']['prefix']."object_access"] as $id=>$time )
+            {
+                if( isset($GLOBALS['object_storage'][$id]) || $time + 60 > time() )
+                    continue;
+                delete_object($id);
+            }
         }
         $this->_stats(__METHOD__,$start);
     }
