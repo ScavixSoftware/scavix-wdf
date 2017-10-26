@@ -49,7 +49,7 @@ function globalcache_init()
 	
 	$servername = isset($_SERVER['SERVER_NAME'])?$_SERVER['SERVER_NAME']:"SCAVIX_WDF_SERVER";
 	
-	if( !isset($CONFIG['globalcache']['CACHE']) || !$CONFIG['globalcache']['CACHE'] )
+	if( !isset($CONFIG['globalcache']['CACHE']) )
 		$CONFIG['globalcache']['CACHE'] = (function_exists('apc_store') ? globalcache_CACHE_APC : globalcache_CACHE_OFF);
 
 	if(isset($CONFIG['globalcache']['key_prefix']))
