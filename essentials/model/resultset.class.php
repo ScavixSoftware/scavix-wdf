@@ -39,7 +39,7 @@ use ScavixWDF\Model\Driver\MySql;
  * There are some difficulties with PHPs PDOStatement class as it will not allow us to override all methods (Traversable hides Iterator).
  * So we cannot simply inherit from there, but must wrap it.
  */
-class ResultSet implements Iterator, ArrayAccess
+class ResultSet implements Iterator, ArrayAccess, \Serializable
 {
 	private $_stmt = null;
 	private $_ds = null;
@@ -181,6 +181,24 @@ class ResultSet implements Iterator, ArrayAccess
 		);		
 		return serialize($buf);
 	}
+    
+    function unserialize($data)
+	{
+        log_debug(__METHOD__,$data);
+		$buf = unserialize($data);
+		$this->_ds = model_datasource($buf['ds']);
+		$this->_sql_used = $buf['sql'];
+		$this->_arguments_used = $buf['args'];
+		$this->_paging_info = $buf['paging_info'];
+		$this->_field_types = $buf['field_types'];
+		$this->_index = $buf['index'];
+		$this->_rowbuffer = $buf['rows'];
+		$this->_rowCount = isset($buf['rowCount'])?$buf['rowCount']:false;
+		$this->_loaded_from_cache = true;
+		$this->_data_fetched = isset($buf['df'])?$buf['df']:false;
+		if( isset($this->_rowbuffer[$this->_index]) )
+			$this->_current = $this->_rowbuffer[$this->_index];
+	}
 	
 	/**
 	 * Creates a ResultSet from a serialized data string
@@ -189,7 +207,7 @@ class ResultSet implements Iterator, ArrayAccess
 	 * @param string $data serialized data string
 	 * @return ResultSet Restored ResultSet object
 	 */
-	static function &unserialize($data)
+	static function &restore($data)
 	{
 		$buf = unserialize($data);
 		$res = new ResultSet(model_datasource($buf['ds']),null);

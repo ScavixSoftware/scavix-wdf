@@ -24,21 +24,51 @@
  */
 namespace ScavixWDF\Session;
 
+use ScavixWDF\WdfException;
+use function get_class_simple;
+use function log_trace;
+use function system_glob_rec;
+use function unserializer_active;
+
 /**
  */
-class APCStore extends ObjectStore
+class FilesStore extends ObjectStore
 {
-    private $serializer;
+    protected $serializer;
+    protected $path = false;
+    
+    protected function getPath($sid=false)
+    {
+        if( $sid )
+            return $GLOBALS['CONFIG']['session']['filesstore']['path']."/$sid";
+        if( !$this->path )
+        {
+            $this->path = $GLOBALS['CONFIG']['session']['filesstore']['path']."/".session_id();
+            if( !file_exists($this->path) )
+                mkdir($this->path);
+        }
+        return $this->path;
+    }
+    
+    protected function getFile($id)
+    {
+        return $this->getPath()."/$id";
+    }
+    
+    protected function _key($key)
+    {
+        return $key;
+    }
     
     public function __construct()
     {
         global $CONFIG;
-        $servername = isset($_SERVER['SERVER_NAME'])?$_SERVER['SERVER_NAME']:"SCAVIX_WDF_SERVER";
-        if(isset($CONFIG['apcstore']['key_prefix']))
-            $GLOBALS['apcstore_key_prefix'] = "apcstore_".md5($servername."-".$CONFIG['apcstore']['key_prefix']."-".getAppVersion('nc')).'_';
-        else
-            $GLOBALS["apcstore_key_prefix"] = "apcstore_".md5($servername."-".session_name()."-".getAppVersion('nc')).'_';
-
+        
+        if( !isset($CONFIG['session']['filesstore']['path']) )
+            $CONFIG['session']['filesstore']['path'] = sys_get_temp_dir()."/filesstore";
+        if( !file_exists($CONFIG['session']['filesstore']['path']) )
+            mkdir($CONFIG['session']['filesstore']['path']);
+        
         $this->serializer = new Serializer();
         
         if( !isset($_SESSION['object_ids']) )
@@ -57,11 +87,12 @@ class APCStore extends ObjectStore
 		}
 		else
 			$obj->_storage_id = $id;
-        
-        $content = $this->serializer->Serialize($obj);
-        
-        apc_store($GLOBALS["apcstore_key_prefix"].session_id().'_'.$id, $content, (ini_get('session.gc_maxlifetime')?:300));
-
+  
+        /* serialization and storage will be done in Update method */
+//        $content = $this->serializer->Serialize($obj);
+//        $this->_stats(__METHOD__.'/SER',$start);
+//        $start = microtime(true);
+//        file_put_contents($this->getFile($id), $content);
         $GLOBALS['object_storage'][$id] = $obj;
         $this->_stats(__METHOD__,$start);
     }
@@ -74,9 +105,7 @@ class APCStore extends ObjectStore
         
         if( isset($GLOBALS['object_storage'][$id]) )
             unset($GLOBALS['object_storage'][$id]);
-        
-		apc_delete($GLOBALS["apcstore_key_prefix"].session_id().'_'.$id);
-        
+		unlink($this->getFile($id));
         $this->_stats(__METHOD__,$start);
     }
     
@@ -89,7 +118,7 @@ class APCStore extends ObjectStore
 		if( isset($GLOBALS['object_storage'][$id]) )
             $res = true;
         else
-            $res = (apc_exists($GLOBALS["apcstore_key_prefix"].session_id().'_'.$id) === true);
+            $res = file_exists($this->getFile($id));
         $this->_stats(__METHOD__,$start);
 		return $res;
     }
@@ -100,15 +129,19 @@ class APCStore extends ObjectStore
 		$id = strtolower($id);
 
 		if( isset($GLOBALS['object_storage'][$id]) )
+        {
 			$res = $GLOBALS['object_storage'][$id];
+            $this->_stats(__METHOD__,$start);
+        }
         else
         {
-            $data = apc_fetch($GLOBALS["apcstore_key_prefix"].session_id().'_'.$id);
+            $data = file_get_contents($this->getFile($id));
+            $this->_stats(__METHOD__,$start);
+            $start = microtime(true);
             $res = $this->serializer->Unserialize($data);
             $GLOBALS['object_storage'][$id] = $res;
-
+            $this->_stats(__METHOD__.'/UNSER',$start);
         }
-        $this->_stats(__METHOD__,$start);
 		return $res;
     }
     
@@ -135,7 +168,41 @@ class APCStore extends ObjectStore
     
     function Cleanup($classname=false)
     {
-        // not necessary for APC
+        $start = microtime(true);
+        if( $classname )
+        {
+            $classname = strtolower($classname);
+            foreach( $GLOBALS['object_storage'] as $id=>&$obj )
+            {
+                if( get_class_simple($obj,true) == $classname )
+                    $this->Delete($id);
+            }
+            $this->_stats(__METHOD__."/CN",$start);
+            return;
+        }
+        clearstatcache();
+        $p = $GLOBALS['CONFIG']['session']['filesstore']['path'];
+        foreach( glob($p.'/*',GLOB_ONLYDIR) as $d )
+        {
+            if( $d == "$p/." || $d == "$p/.." )
+                continue;
+            if( time() - filemtime($d) <= 300 )
+                continue;
+            foreach( glob($d.'/*') as $f )
+                if( $d != "$d/." && $d != "$d/.." )
+                    unlink($f);
+            rmdir($d);
+            //log_debug(__METHOD__,"Session removed:",$d);
+        }   
+        foreach( system_glob_rec($this->getPath(),'*') as $f )
+        {
+            if( time() - filemtime($f) > 300 )
+            {
+                unlink($f);
+                //log_debug(__METHOD__,"Object removed:",$f);
+            }
+        }
+        $this->_stats(__METHOD__,$start);
     }
     
     function Update($keep_alive=false)
@@ -144,50 +211,27 @@ class APCStore extends ObjectStore
         
         if( $keep_alive )
         {
-            $data = apc_cache_info('user');
-            if($data && $data['cache_list'])
-            {
-                foreach($data['cache_list'] as $entry)
-                {
-                    if(starts_with($entry['info'], $GLOBALS["apcstore_key_prefix"].session_id().'_'))
-                        apc_store($entry['info'], apc_fetch($entry['info']), (ini_get('session.gc_maxlifetime')?:300));
-                }
-                return;
-            }
-            $this->_stats(__METHOD__."/KA",$start);
+            touch( $this->getPath() );
+            foreach( system_glob_rec($this->getFile(''),'*') as $f )
+                touch($f);
             return;
         }
-        
-        $sql = [];
+
+        /* Update is guaranteed to be called (see register_shutdown_function), so perform storage here once the script is ready */
+        touch( $this->getPath() );
         foreach( $GLOBALS['object_storage'] as $id=>$obj )
-		{
-			try
-			{
-                $this->Store($obj, $id);
-			}
-			catch(Exception $ex)
-			{
-				WdfException::Log("updating storage for object $id [".get_class($obj)."]",$ex);
-			}
-		}
-        $this->_stats(__METHOD__,$start);
+        {
+            $content = $this->serializer->Serialize($obj);
+            file_put_contents($this->getFile($id), $content);
+        }
+        $this->_stats(__METHOD__.($keep_alive?"/KA":''),$start);
     }
     
     function Migrate($old_session_id, $new_session_id)
     {
-//        log_debug('Migrate', $old_session_id, $new_session_id);
         $start = microtime(true);
-        $data = apc_cache_info('user');
-        if($data && $data['cache_list'])
-        {
-            foreach($data['cache_list'] as $entry)
-            {
-                if(starts_with($entry['info'], $GLOBALS["apcstore_key_prefix"].$old_session_id.'_'))
-                {
-                    apc_store(str_replace($GLOBALS["apcstore_key_prefix"].$old_session_id.'_', $GLOBALS["apcstore_key_prefix"].$new_session_id.'_', $entry['info']), apc_fetch($entry['info']), (ini_get('session.gc_maxlifetime')?:300));
-                }
-            }
-        }
+        @rename($this->getPath($old_session_id),$this->getPath($new_session_id));
+        $this->path = false;
         $this->_stats(__METHOD__,$start);
     }
 }

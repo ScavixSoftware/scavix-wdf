@@ -646,7 +646,7 @@ function execute_hooks($type,$arguments = array())
 		{
 			if( $loghooks )
 				log_debug( "Executing ".get_class($hook[0])."->".$hook[1]."(...)",hook_type_to_string($type) );
-			$res = $hook[0]->$hook[1]($arguments);
+            $res = $hook[0]->$hook[1]($arguments);
 			if( $loghooks )
 				log_debug( "result:",$res);
 		}
@@ -824,7 +824,8 @@ function system_spl_autoload($class_name)
 		if( strpos($class_name, '\\') !== false )
 		{
 			$orig = $class_name;
-			$class_name = array_pop(explode('\\',$class_name));
+			$array = explode('\\',$class_name);
+			$class_name = $array[count($array)-1]; ;
 		}
         $file = __search_file_for_class($class_name);
         if( $file && is_readable($file) )
@@ -1679,6 +1680,8 @@ function fq_class_name($classname)
 		case 'sessionstore':              return '\\ScavixWDF\\Session\\SessionStore';
         case 'dbstore':                   return '\\ScavixWDF\\Session\\DbStore';
         case 'apcstore':                  return '\\ScavixWDF\\Session\\APCStore';
+        case 'redisstore':                return '\\ScavixWDF\\Session\\RedisStore';
+        case 'filesstore':                return '\\ScavixWDF\\Session\\FilesStore';
 	}
 	
 	if( isset($GLOBALS['system_class_alias'][$cnl]) )

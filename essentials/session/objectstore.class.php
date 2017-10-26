@@ -41,7 +41,18 @@ abstract class ObjectStore
             $this->Statistics[$name] = [1,($now-$started)*1000];
     }
     
-	abstract function Store(&$obj,$id="",$serialized_data=false);
+    public function GetStats()
+    {
+        if( isset($this->Statistics['total_time']) )
+            unset($this->Statistics['total_time']);
+        $t = 0;
+        foreach( $this->Statistics as $k=>$v )
+            $t += $v[1];
+        $this->Statistics['total_time'] = $t;
+        return $this->Statistics;
+    }
+    
+	abstract function Store(&$obj,$id="");
 	
 	abstract function Delete($id);
 	

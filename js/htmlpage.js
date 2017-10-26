@@ -183,7 +183,13 @@ $.ajaxSetup({cache:false});
 			if( location.href == href )
 				location.reload();
 			else
+            {
+                if(location.hash && (location.hash != '#'))
+                    location.hash = '';
 				location.href = href;
+                if(location.hash && (location.hash != '#'))
+                    location.reload();
+            }
 		},
 		
 		initAjax: function(skip_dependency_loading)
@@ -430,7 +436,10 @@ $.ajaxSetup({cache:false});
 		
 		stopScrollListLoader: function()
 		{
-			$('.loadMoreContent_removable_trigger').fadeOut();
+			var trigger = $('#scrollloader_overlay_anim');
+			if( trigger.length === 0 )
+				trigger = $('.loadMoreContent_removable_trigger');
+			trigger.fadeOut();
 		},
         
         whenAvailable: function(name, callback)

@@ -168,6 +168,9 @@ function global_exception_handler($ex)
  */
 function global_fatal_handler()
 {
+    if( !system_is_ajax_call() )
+        session_update();
+    
 	$error = error_get_last();
 	if(($error === NULL) || ($error['type'] !== E_ERROR))
 		return;

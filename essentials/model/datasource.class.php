@@ -300,7 +300,7 @@ class DataSource
 			}
 		}
 		else
-			$res = ResultSet::unserialize($res);
+			$res = ResultSet::restore($res);
 		return $res;
 	}
 	
