@@ -184,9 +184,10 @@ $.ajaxSetup({cache:false});
 				location.reload();
 			else
             {
-                location.hash = '';
+                if(location.hash && (location.hash != '#'))
+                    location.hash = '';
 				location.href = href;
-                if(location.hash)
+                if(location.hash && (location.hash != '#'))
                     location.reload();
             }
 		},

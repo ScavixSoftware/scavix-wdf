@@ -970,7 +970,8 @@ function castObject($instance, $className)
  */
 function get_class_simple($object, $lower_case=false)
 {
-	$res = array_pop(explode('\\',get_class($object)));
+    $array = explode('\\',get_class($object));
+    $res = $array[count($array)-1];
 	return $lower_case?strtolower($res):$res;
 }
 
