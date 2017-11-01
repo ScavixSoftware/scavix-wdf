@@ -887,7 +887,7 @@ function system_glob_rec($directory='',$pattern='*.*')
  * Note that this check is case sensitive, so 'on' really means 'on' and not 'On' or '1'!
  * @return bool true or false
  */
-function can_rewrite(){ return array_val_is($_SERVER,'WDF_FEATURES_REWRITE','on'); }
+function can_rewrite(){ return array_val_is($_SERVER,'WDF_FEATURES_REWRITE','on') || array_val_is($_SERVER,'REDIRECT_WDF_FEATURES_REWRITE','on'); }
 
 /**
  * Checks if WDF_FEATURES_NOCACHE is on
@@ -896,7 +896,7 @@ function can_rewrite(){ return array_val_is($_SERVER,'WDF_FEATURES_REWRITE','on'
  * Note that this check is case sensitive, so 'on' really means 'on' and not 'On' or '1'!
  * @return bool true or false
  */
-function can_nocache(){ return array_val_is($_SERVER,'WDF_FEATURES_NOCACHE','on'); }
+function can_nocache(){ return array_val_is($_SERVER,'WDF_FEATURES_NOCACHE','on') || array_val_is($_SERVER,'REDIRECT_WDF_FEATURES_NOCACHE','on'); }
 
 /**
  * Natural sorts an array by it's keys.
@@ -1237,4 +1237,26 @@ if( !function_exists('idn_to_utf8') )
      * @internal Use own implementation if missing
      */
     function idn_to_utf8($domain) { return IDN::decodeIDN($domain); }
+}
+
+function array_first($array)
+{
+    if( is_array($array) )
+    {
+        $keys = array_keys($array);
+        if( isset($keys[0]) )
+            return $array[$keys[0]];
+    }
+    return null;
+}
+
+function array_last($array)
+{
+    if( is_array($array) )
+    {
+        $keys = array_keys($array);
+        if( isset($keys[count($keys)-1]) )
+            return $array[$keys[count($keys)-1]];
+    }
+    return null;
 }
