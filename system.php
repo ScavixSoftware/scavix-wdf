@@ -641,20 +641,20 @@ function execute_hooks($type,$arguments = array())
 	// note: as hooks may be added to the chain do not remove the count(...) here: it may grow!
 	for($i=0; $i<count($GLOBALS['system']['hooks'][$type]); $i++)
 	{
-		$hook = $GLOBALS['system']['hooks'][$type][$i];
-		if( is_object($hook[0]) )
+		list($hook0,$hook1) = $GLOBALS['system']['hooks'][$type][$i];
+		if( is_object($hook0) )
 		{
 			if( $loghooks )
-				log_debug( "Executing ".get_class($hook[0])."->".$hook[1]."(...)",hook_type_to_string($type) );
-            $res = $hook[0]->$hook[1]($arguments);
+				log_debug( "Executing ".get_class($hook0)."->".$hook1."(...)",hook_type_to_string($type) );
+            $res = $hook0->$hook1($arguments);
 			if( $loghooks )
 				log_debug( "result:",$res);
 		}
 		else
 		{
 			if( $loghooks )
-				log_debug( "Executing '".$hook[1]."(...)'",hook_type_to_string($type) );
-			$res = $hook[1]($arguments);
+				log_debug( "Executing '".$hook1."(...)'",hook_type_to_string($type) );
+            $res = $hook1($arguments);
 		}
 
 		if( $res === false )
@@ -957,12 +957,12 @@ function __search_file_for_class($class_name,$extension="class.php",$classpath_l
 	$short_class_name = "";
 	if( strpos($class_name,"_") !== false )
 	{
-		$short_class_name = array_pop(explode("_",$class_name));
+		$short_class_name = array_last(explode("_",$class_name));
 		$short_class_name_lc = strtolower($short_class_name);
 	}
 	elseif( strpos($class_name,"\\") !== false )
 	{
-		$short_class_name = array_pop(explode("\\",$class_name));
+		$short_class_name = array_last(explode("\\",$class_name));
 		$short_class_name_lc = strtolower($short_class_name);
 	}
 

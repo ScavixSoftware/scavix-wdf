@@ -147,7 +147,7 @@ abstract class Renderable
 				// for Template class check the template file too
 				if( $template instanceof Template )
 				{
-					$fnl = strtolower(array_shift(explode(".",basename($template->file))));
+					$fnl = strtolower(array_first(explode(".",basename($template->file))));
                     if( !isset($static_stack[$fnl]) )
                     {
                         if( get_class_simple($template,true) != $fnl )
@@ -179,7 +179,7 @@ abstract class Renderable
                             $parents[] = resFile("$cnl.js");
                         $static_stack[$cnl] = true;
                     }
-					$classname = array_pop(explode('\\',get_parent_class(fq_class_name($classname))));
+					$classname = array_last(explode('\\',get_parent_class(fq_class_name($classname))));
 					$cnl = strtolower($classname);
 				}
 				while($classname != "");
