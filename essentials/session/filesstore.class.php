@@ -65,7 +65,7 @@ class FilesStore extends ObjectStore
         global $CONFIG;
         
         if( !isset($CONFIG['session']['filesstore']['path']) )
-            $CONFIG['session']['filesstore']['path'] = sys_get_temp_dir()."/filesstore";
+            $CONFIG['session']['filesstore']['path'] = sys_get_temp_dir()."/filesstore/".session_name();
         if( !file_exists($CONFIG['session']['filesstore']['path']) )
             mkdir($CONFIG['session']['filesstore']['path']);
         
@@ -105,7 +105,7 @@ class FilesStore extends ObjectStore
         
         if( isset($GLOBALS['object_storage'][$id]) )
             unset($GLOBALS['object_storage'][$id]);
-		unlink($this->getFile($id));
+		@unlink($this->getFile($id));
         $this->_stats(__METHOD__,$start);
     }
     
