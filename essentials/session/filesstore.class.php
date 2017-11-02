@@ -44,6 +44,8 @@ class FilesStore extends ObjectStore
         if( !$this->path )
         {
             $this->path = $GLOBALS['CONFIG']['session']['filesstore']['path']."/".session_id();
+            if( is_file($this->path) )
+                unlink($this->path);
             if( !file_exists($this->path) )
                 mkdir($this->path);
         }
@@ -208,17 +210,19 @@ class FilesStore extends ObjectStore
     function Update($keep_alive=false)
     {
         $start = microtime(true);
+        $this->path = false;
+        $p = $this->getPath();
         
         if( $keep_alive )
         {
-            touch( $this->getPath() );
+            touch( $p );
             foreach( system_glob_rec($this->getFile(''),'*') as $f )
                 touch($f);
             return;
         }
 
         /* Update is guaranteed to be called (see register_shutdown_function), so perform storage here once the script is ready */
-        touch( $this->getPath() );
+        touch( $p );
         foreach( $GLOBALS['object_storage'] as $id=>$obj )
         {
             $content = $this->serializer->Serialize($obj);
