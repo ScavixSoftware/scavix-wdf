@@ -647,4 +647,30 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
         
         return $this;
     }
+    
+    function makeContinousIntAxis()
+    {
+        $null = array_fill(0,count($this->_data[0]),0);
+        
+        $keys = array_map(function($i){ return $i[array_keys($i)[0]]; }, array_slice($this->_data,1) );
+        $min = min($keys); $max = max($keys);
+        $rows = array_fill($min,$max-$min+1,$null);
+        
+        foreach( array_slice($this->_data,1) as $item )
+        {
+            $k = array_keys($item)[0];
+            $i = intval($item[$k]);
+            $item[$k] = $i;
+            $rows[$i] = $item;
+        }
+        foreach( $rows as $i=>&$item )
+        {
+            $k = array_keys($item)[0];
+            $item[$k] = $i;
+        }
+        array_unshift($rows,$this->_data[array_keys($this->_data)[0]]);
+        $this->_data = $rows;
+        
+        return $this;
+    }
 }
