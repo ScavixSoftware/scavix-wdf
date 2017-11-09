@@ -293,10 +293,15 @@ function system_parse_request_path()
 				$controller = $path[0];
 				if( count($path)>1 )
 				{
-					$event = $path[1];
-					if( count($path)>2 )
+                    $offset = 2;
+                    if( system_method_exists($controller,$path[1]) )
+                        $event = $path[1];
+                    else
+                        $offset = 1;
+                    
+					if( count($path)>$offset )
 					{
-						foreach( array_slice($path,2) as $ra )
+						foreach( array_slice($path,$offset) as $ra )
                             if( $ra !== '' )
                                 $GLOBALS['routing_args'][] = $ra;
 					}
