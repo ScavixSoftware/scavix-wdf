@@ -294,7 +294,7 @@ function system_parse_request_path()
 				if( count($path)>1 )
 				{
                     $offset = 2;
-                    if( system_method_exists($controller,$path[1]) )
+                    if( in_object_storage($path[0]) || system_method_exists($controller,$path[1]) )
                         $event = $path[1];
                     else
                         $offset = 1;
