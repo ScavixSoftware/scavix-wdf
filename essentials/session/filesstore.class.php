@@ -192,7 +192,8 @@ class FilesStore extends ObjectStore
         {
             if( $d == "$p/." || $d == "$p/.." )
                 continue;
-            if( time() - filemtime($d) <= 300 )
+            $time = @filemtime($d);
+            if( !$time || (time() - $time <= 300) )
                 continue;
             foreach( glob($d.'/*') as $f )
                 if( $d != "$d/." && $d != "$d/.." )
@@ -202,7 +203,8 @@ class FilesStore extends ObjectStore
         }   
         foreach( system_glob_rec($this->getPath(),'*') as $f )
         {
-            if( time() - filemtime($f) > 300 )
+            $time = @filemtime($f);
+            if( $time && (time() - $time > 300) )
             {
                 unlink($f);
                 //log_debug(__METHOD__,"Object removed:",$f);
