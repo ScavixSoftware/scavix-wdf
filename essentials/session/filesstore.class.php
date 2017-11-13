@@ -47,7 +47,10 @@ class FilesStore extends ObjectStore
 			if( is_file($this->path) )
 				unlink($this->path);
             if( !file_exists($this->path) )
-                mkdir($this->path);
+            {
+                if(!mkdir($this->path, 0777, true))
+                    log_error('unable to create '.$this->path, error_get_last());
+            }
         }
         return $this->path;
     }
@@ -69,7 +72,8 @@ class FilesStore extends ObjectStore
         if( !isset($CONFIG['session']['filesstore']['path']) )
             $CONFIG['session']['filesstore']['path'] = sys_get_temp_dir()."/filesstore/".session_name();
         if( !file_exists($CONFIG['session']['filesstore']['path']) )
-            mkdir($CONFIG['session']['filesstore']['path']);
+            if(!mkdir($CONFIG['session']['filesstore']['path'], 0777, true))
+                log_error('unable to create '.$CONFIG['session']['filesstore']['path'], error_get_last());
         
         $this->serializer = new Serializer();
         
