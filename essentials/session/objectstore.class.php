@@ -31,6 +31,8 @@ abstract class ObjectStore
     var $Statistics = [];
     protected function _stats($name,$started)
     {
+        if(!isDev())
+            return;
         $now = microtime(true);
         if( isset($this->Statistics[$name]) )
         {
@@ -43,6 +45,8 @@ abstract class ObjectStore
     
     public function GetStats()
     {
+        if(!isDev())
+            return;
         if( isset($this->Statistics['total_time']) )
             unset($this->Statistics['total_time']);
         $t = 0;
