@@ -387,7 +387,7 @@ function minify_collect_from_file($kind,$f,$debug_path='')
 	
 	if( !$f )
 		return;
-	$classname = fq_class_name(array_shift(explode('.',basename($f))) );
+	$classname = fq_class_name(array_first(explode('.',basename($f))) );
 	if( isset($res_file_storage[$classname]) || minify_forbidden($classname) )
 		return;
 	
@@ -443,7 +443,7 @@ function minify_collect_from_file($kind,$f,$debug_path='')
 				}
 				break;
 			case 'self':
-				$simplecls = array_pop(explode("\\",$classname));
+				$simplecls = array_last(explode("\\",$classname));
 				if( resourceExists(strtolower("$simplecls.$kind")) )
 				{
 					$tmp = resFile(strtolower("$simplecls.$kind"));

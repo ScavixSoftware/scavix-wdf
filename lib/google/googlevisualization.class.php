@@ -192,7 +192,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		require_once('MC/Google/Visualization.php');
 		return new MC_Google_Visualization( 
 				new PDO($ds->GetDsn(),$ds->Username(),$ds->Password() ), 
-				strtolower(array_pop(explode("\\",get_class($ds->Driver))))
+				strtolower(array_last(explode("\\",get_class($ds->Driver))))
 			);
 	}
 	
