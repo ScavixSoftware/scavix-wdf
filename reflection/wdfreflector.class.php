@@ -114,7 +114,7 @@ class WdfReflector extends ReflectionClass
 			$key = "$name:$filter";
 		else
 			$key = "$name:".implode(",",$filter);
-		return $CONFIG['session']['session_name']."-".$key;
+		return $CONFIG['session']['session_name']."-".getAppVersion('nc').'-'.$key;
 	}
 
 	private function _setCached($name,$filter,$value)
