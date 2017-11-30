@@ -133,7 +133,7 @@ class WdfReflector extends ReflectionClass
 	{
 		global $CONFIG;
 		$ref = $method_name?$this->getMethod($method_name):$this;
-		$key = $CONFIG['session']['session_name']."-".($method_name?$this->Classname."::".$method_name:$this->Classname);
+		$key = $CONFIG['session']['session_name']."-".getAppVersion('nc')."-".($method_name?$this->Classname."::".$method_name:$this->Classname);
 
 		$comment = cache_get("doccomment_$key");
 		if( $comment === false )
