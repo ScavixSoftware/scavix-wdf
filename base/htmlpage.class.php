@@ -104,7 +104,7 @@ class HtmlPage extends Template implements ICallable
 			$init_data['session_id'] = session_id();
 			$init_data['session_name'] = session_name();
 		}
-		if( isDevOrBeta() )
+		if(isDevOrBeta() && !isset($init_data['log_to_console']) )
 			$init_data['log_to_console'] = true;
 		if( $GLOBALS['CONFIG']['system']['ajax_debug_argument'] ) 
 			$init_data['log_to_server'] = $GLOBALS['CONFIG']['system']['ajax_debug_argument'];
