@@ -78,13 +78,13 @@ $.fn.table = function(opts)
 $.fn.updateTable = function(html)
 {
     var self = this;
-    self.prev('.pager').remove(); 
-    self.next('.pager').remove(); 
-    if( self.data('overlay') )
-        self.data('overlay').remove();
-    self.replaceWith(html); 
-    $('.thead a',self).click(self.showLoadingOverlay);
-    self.placePager(self.opts);
+    self.hideLoadingOverlay( function() {
+        self.prev('.pager').remove(); 
+        self.next('.pager').remove();
+        self.replaceWith(html); 
+        $('.thead a',self).click(self.showLoadingOverlay);
+        self.placePager(self.opts);
+    });
 };
 
 $.fn.gotoPage = function(n)
@@ -122,9 +122,12 @@ $.fn.showLoadingOverlay = function()
         $pt = $tab.prev('.pager'), $pb = $tab.next('.pager')
         $offsetParent = $tab;
    
-    var $ol = $("<div data-lc='"+loadingClass+"'/>").appendTo('body')
+    var $ol = $("<div data-lc='"+loadingClass+"' data-for='"+self.attr('id')+"' />").appendTo('body')
             .width($tab.width())
-            .css('background-color','black').css('opacity','0.2'),
+            .css('display','none')
+            .css('cursor','wait')
+            .css('background-color','black')
+            .css('opacity','0.2'),
         wait = function(ol,par)
         {
             if(!jQuery.contains(document, ol[0]))
@@ -133,6 +136,7 @@ $.fn.showLoadingOverlay = function()
             setTimeout(function(){ wait(ol,par); },10);
         };
     $tab.data('overlay',$ol);
+    $tab.data('overlay_id',loadingClass);
     
     if( $pt.length && $pb.length )
     {
@@ -149,15 +153,18 @@ $.fn.showLoadingOverlay = function()
     else
         $ol.height( $tab.height() );
     
+    $ol.fadeIn('fast');
     wait($ol,$offsetParent);
 };
 
-$.fn.hideLoadingOverlay = function()
+$.fn.hideLoadingOverlay = function(callback)
 {
-    var c = $(this).attr('class').split(' ');
-    for(var i in c)
-        if( c[i].match(/^loading_/) )
-            $(this).removeClass(c[i]);
+    var self = $(this);
+    if( !self.is('.table') )
+        self = self.closest('.table');
+    $ol = $('div[data-lc][data-for="' + self.attr('id') + '"]');
+    if($ol.length > 0)
+        $ol.fadeOut('fast', function() { $ol.remove(); if(callback) callback(); });
 };
 
 })(jQuery);
