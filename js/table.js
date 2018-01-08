@@ -164,7 +164,7 @@ $.fn.hideLoadingOverlay = function(callback)
         self = self.closest('.table');
     $ol = $('div[data-lc][data-for="' + self.attr('id') + '"]');
     if($ol.length > 0)
-        $ol.fadeOut('fast', function() { $ol.remove(); if(callback) callback(); });
+        $ol.fadeOut('fast', function() { $ol.remove(); if(callback) { callback(); wdf.ajaxReady.fire(); } });
 };
 
 })(jQuery);
