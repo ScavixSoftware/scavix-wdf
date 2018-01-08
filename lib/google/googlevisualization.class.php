@@ -502,10 +502,15 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 				$v = explode(':',$v);
 				break;
 			case 'duration': 
-                $v = floatval($v);
-                $h = floor($v);
-                $m = ($v - $h) * 60;
-                $v = array('v'=>$v,'f'=>sprintf("%d:%02d",$h,$m));
+                if( $ci )
+                    $v = array('v'=>floatval($v),'f'=>$ci->FormatDuration($v, true));
+                else
+                {
+                    $v = floatval($v);
+                    $h = floor($v);
+                    $m = ($v - $h) * 60;
+                    $v = array('v'=>$v,'f'=>sprintf("%d:%02d",$h,$m));
+                }
 				break;
 		}
 		return $v;
