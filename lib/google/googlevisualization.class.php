@@ -499,7 +499,9 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 					$v = array('v'=>$v,'f'=>$ci->FormatDateTime($v));
 				break;
 			case 'timeofday': 
-				$v = explode(':',$v);
+                $anextv = explode(':', $v);
+                $nextv = sprintf('%02d', $anextv[0]+1).':'.$anextv[1];
+                $v = ['v' => $v, 'f' => $v.'-'.$nextv];
 				break;
 			case 'duration': 
                 if( $ci )
