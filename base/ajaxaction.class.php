@@ -91,7 +91,7 @@ class AjaxAction
 	 */
 	public static function Confirm($text_base,$controller,$event='',$data='')
 	{
-		$dlg = new uiConfirmation($text_base);
+		$dlg = new uiConfirmation($text_base, false, uiConfirmation::YES_NO);
 		$q = self::Url($controller,$event);
 		$data = self::_data($data);
 		$data = "var d = ".($data?$data:'{}')."; for(var n in $('#{$dlg->id}').data()) if( typeof $('#{$dlg->id}').data(n) == 'string') d[n] = $('#{$dlg->id}').data(n); ";

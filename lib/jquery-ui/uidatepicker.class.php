@@ -33,6 +33,12 @@ default_string('BTN_DP_PREV', 'Prev');
 default_string('TXT_DP_CLOSE', 'Close');
 default_string('TXT_DP_CURRENT', 'Today');
 default_string('TXT_DP_NOW', 'Now');
+default_string('TXT_DP_TIME', 'Time');
+default_string('TXT_DP_HOUR', 'Hour');
+default_string('TXT_DP_MINUTE', 'Minute');
+default_string('TXT_DP_SECOND', 'Second');
+default_string('TXT_DP_CHOOSE_TIME', 'Choose Time');
+default_string('TXT_DP_TIME_ZONE', 'Time Zone');
 
 /**
  * Wraps a jQueryUI DatePicker
@@ -58,6 +64,18 @@ class uiDatePicker extends uiControl
 			'closeText' => 'TXT_DP_CLOSE',
 			'currentText' => (get_class_simple($this)=="uiDateTimePicker" ? 'TXT_DP_NOW' : 'TXT_DP_CURRENT'),
 		);
+        if(get_class_simple($this)=="uiDateTimePicker")
+        {
+            $this->Options += 
+                    [
+                        'timeText' => 'TXT_DP_TIME',
+                        'hourText' => 'TXT_DP_HOUR',
+                        'minuteText' => 'TXT_DP_MINUTE',
+                        'secondText' => 'TXT_DP_SECOND',
+                        'timeOnlyTitle' => 'TXT_DP_CHOOSE_TIME',
+                        'timezoneText' => 'TXT_DP_TIME_ZONE',
+                    ];
+        }
         if( !$inline )
             $this->type = 'text';
 		if( $value )

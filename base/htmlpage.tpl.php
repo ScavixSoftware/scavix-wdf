@@ -31,7 +31,7 @@ $render_noscript_block = isset($render_noscript_block)?$render_noscript_block:$G
 $doctype = isset($doctype)?$doctype:$GLOBALS['CONFIG']['system']['htmlpage']['doctype'];
 
 echo '<?xml version="1.0" encoding="UTF-8" ?>'."\n$doctype\n";?>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml"<?=(isset($languagecode) ? ' lang="'.$languagecode.'"' : '')?>>
 <head>
 	<title><?=$title?></title>
 <?php if(isset($favicon) && $favicon) { ?>
@@ -59,7 +59,7 @@ $(function(){
 	<?=implode((isDev() ? "\n" : ""),$plaindocready)?>
 </script>
 </head>
-<body<?=isset($isrtl)?"$isrtl":""?><?=isset($bodyClass)?" class='$bodyClass'":""?>>
+<body<?=(isset($isrtl)?$isrtl:"")?><?=isset($bodyClass)?" class='$bodyClass'":""?>>
 <?php if( $render_noscript_block ): ?>
 <noscript>
 	<style type="text/css">
