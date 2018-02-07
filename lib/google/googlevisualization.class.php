@@ -505,7 +505,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 				break;
 			case 'duration': 
                 if( $ci )
-                    $v = array('v'=>floatval($v),'f'=>$ci->FormatDuration($v, true));
+                    $v = array('v'=>floatval($v),'f'=>$ci->FormatDuration($v*60, true));
                 else
                 {
                     $v = floatval($v);
