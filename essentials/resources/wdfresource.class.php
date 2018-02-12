@@ -68,6 +68,18 @@ class WdfResource implements ICallable
 		}
 		cache_set("etag_$etag",$mtime);
 	}
+    
+    /**
+	 * @internal Returns a resource
+	 * @attribute[RequestParam('res','string')]
+	 */
+    function res($res)
+    {
+        if( ends_iwith($res, '.js') )
+            $this->js($res);
+        else
+            $this->skin($res);
+    }
 	
 	/**
 	 * @internal Returns a JS resource
@@ -75,11 +87,13 @@ class WdfResource implements ICallable
 	 */
 	function js($res)
 	{
-		$res = explode("?",$res);
-		$res = realpath(__DIR__."/../../js/".$res[0]);
-		header('Content-Type: text/javascript');
+		$res = array_first(explode("?",$res));
+        $res = resFile($res,true);
+        
 		if( $res )
 		{
+            header('Content-Type: text/javascript');
+            
 			WdfResource::ValidatedCacheResponse($res);
 			readfile($res);
 		}
@@ -94,18 +108,20 @@ class WdfResource implements ICallable
 	 */
 	function skin($res)
 	{
-		$res = explode("?",$res);
-		$res = realpath(__DIR__."/../../skin/".$res[0]);
-		if(ends_iwith($res, '.css'))
-			header('Content-Type: text/css');
-		elseif(ends_iwith($res, '.png'))
-			header('Content-Type: image/png');
-		elseif(ends_iwith($res, '.jpg'))
-			header('Content-Type: image/jpeg');
-		elseif(ends_iwith($res, '.gif'))
-			header('Content-Type: image/gif');
+		$res = array_first(explode("?",$res));
+        $res = resFile($res,true);
+
 		if( $res )
 		{
+            if(ends_iwith($res, '.css'))
+                header('Content-Type: text/css');
+            elseif(ends_iwith($res, '.png'))
+                header('Content-Type: image/png');
+            elseif(ends_iwith($res, '.jpg'))
+                header('Content-Type: image/jpeg');
+            elseif(ends_iwith($res, '.gif'))
+                header('Content-Type: image/gif');
+            
 			WdfResource::ValidatedCacheResponse($res);
             die( $this->resolveUrls($res) );
 		}
