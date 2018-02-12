@@ -209,8 +209,8 @@ class Logger
 			$this->ensureFile();
 		if( !file_exists($this->filename) )
 			touch($this->filename);
-		if( fileperms($this->filename) != 0755 )
-			@chmod($this->filename, 0755);
+		if( fileperms($this->filename) != 0777 )
+			@chmod($this->filename, 0777);
 		
 		$parts = array();
 		if( !is_null( $a1) ) $parts[] = $this->render( $a1);
@@ -248,13 +248,13 @@ class Logger
 		if( !$content ) return;
 		$content = $content->toReadable($log_trace);
 		$try = 0;
-		while((file_put_contents($this->filename, "$content\n", FILE_APPEND) === false) && ($try < 10) )
+		while((@file_put_contents($this->filename, "$content\n", FILE_APPEND) === false) && ($try < 10) )
 		{
 			usleep(100);
 			$try ++;
 		}
-//		if($try >= 10)
-//			log_error();		// mhmm, will end in endless recursive loop
+		if($try >= 10)
+			error_log("Cannot write to {$this->filename}: ".$content);
 	}
 	
 	/**

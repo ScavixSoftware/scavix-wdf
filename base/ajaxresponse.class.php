@@ -113,7 +113,7 @@ class AjaxResponse
 		
 		foreach( $content->__collectResources() as $r )
 		{
-			$ext = pathinfo($r,PATHINFO_EXTENSION);
+			$ext = array_first(explode("?",pathinfo($r,PATHINFO_EXTENSION)));
 			if( starts_with($ext,'css') || starts_with($ext,'less') )
 				$wrapped->dep_css[] = $r;
 			else

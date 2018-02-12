@@ -61,6 +61,7 @@ class Table extends Control
 	var $TotalItems = false;
 	var $HidePager = false;
     var $PagerAtTop = false;
+    var $ShowTotalText = false;
     
     var $PersistName = false;
 	
@@ -646,6 +647,11 @@ class Table extends Control
 			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage(".($this->CurrentPage+1).")","&gt;") );
 			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage($pages)","&gt;&gt; $pages") );
 		}
+        
+        if( $this->ShowTotalText )
+        {
+            $ui->append("<span class='total'>".sprintf($this->ShowTotalText,$this->TotalItems)."</span>");
+        }
 		return $ui;
 	}
 }

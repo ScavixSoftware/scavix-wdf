@@ -192,7 +192,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		require_once('MC/Google/Visualization.php');
 		return new MC_Google_Visualization( 
 				new PDO($ds->GetDsn(),$ds->Username(),$ds->Password() ), 
-				strtolower(array_pop(explode("\\",get_class($ds->Driver))))
+				strtolower(array_last(explode("\\",get_class($ds->Driver))))
 			);
 	}
 	
@@ -499,13 +499,20 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 					$v = array('v'=>$v,'f'=>$ci->FormatDateTime($v));
 				break;
 			case 'timeofday': 
-				$v = explode(':',$v);
+                $anextv = explode(':', $v);
+                $nextv = sprintf('%02d', $anextv[0]+1).':'.$anextv[1];
+                $v = ['v' => $v, 'f' => $v.'-'.$nextv];
 				break;
 			case 'duration': 
-                $v = floatval($v);
-                $h = floor($v);
-                $m = ($v - $h) * 60;
-                $v = array('v'=>$v,'f'=>sprintf("%d:%02d",$h,$m));
+                if( $ci )
+                    $v = array('v'=>floatval($v),'f'=>$ci->FormatDuration($v*60, true));
+                else
+                {
+                    $v = floatval($v);
+                    $h = floor($v);
+                    $m = ($v - $h) * 60;
+                    $v = array('v'=>$v,'f'=>sprintf("%d:%02d",$h,$m));
+                }
 				break;
 		}
 		return $v;
@@ -644,6 +651,32 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
             $this->_data = array_merge([0=>$this->_data[0]],array_reverse($res));
         else
             $this->_data = array_merge([0=>$this->_data[0]],$res);
+        
+        return $this;
+    }
+    
+    function makeContinousIntAxis()
+    {
+        $null = array_fill(0,count($this->_data[0]),0);
+        
+        $keys = array_map(function($i){ return $i[array_keys($i)[0]]; }, array_slice($this->_data,1) );
+        $min = min($keys); $max = max($keys);
+        $rows = array_fill($min,$max-$min+1,$null);
+        
+        foreach( array_slice($this->_data,1) as $item )
+        {
+            $k = array_keys($item)[0];
+            $i = intval($item[$k]);
+            $item[$k] = $i;
+            $rows[$i] = $item;
+        }
+        foreach( $rows as $i=>&$item )
+        {
+            $k = array_keys($item)[0];
+            $item[$k] = $i;
+        }
+        array_unshift($rows,$this->_data[array_keys($this->_data)[0]]);
+        $this->_data = $rows;
         
         return $this;
     }

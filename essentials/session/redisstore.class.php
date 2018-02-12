@@ -26,10 +26,6 @@ namespace ScavixWDF\Session;
 
 use Exception;
 use ScavixWDF\WdfException;
-use function get_class_simple;
-use function log_debug;
-use function log_trace;
-use function unserializer_active;
 
 /**
  */

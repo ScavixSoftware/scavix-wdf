@@ -25,10 +25,6 @@
 namespace ScavixWDF\Session;
 
 use ScavixWDF\WdfException;
-use function get_class_simple;
-use function log_trace;
-use function system_glob_rec;
-use function unserializer_active;
 
 /**
  */
@@ -44,8 +40,13 @@ class FilesStore extends ObjectStore
         if( !$this->path )
         {
             $this->path = $GLOBALS['CONFIG']['session']['filesstore']['path']."/".session_id();
+			if( is_file($this->path) )
+				unlink($this->path);
             if( !file_exists($this->path) )
-                mkdir($this->path);
+            {
+                if(!mkdir($this->path, 0777, true))
+                    log_error('unable to create '.$this->path, error_get_last());
+        }
         }
         return $this->path;
     }
@@ -65,9 +66,10 @@ class FilesStore extends ObjectStore
         global $CONFIG;
         
         if( !isset($CONFIG['session']['filesstore']['path']) )
-            $CONFIG['session']['filesstore']['path'] = sys_get_temp_dir()."/filesstore";
+            $CONFIG['session']['filesstore']['path'] = sys_get_temp_dir()."/filesstore/".session_name();
         if( !file_exists($CONFIG['session']['filesstore']['path']) )
-            mkdir($CONFIG['session']['filesstore']['path']);
+            if(!mkdir($CONFIG['session']['filesstore']['path'], 0777, true))
+                log_error('unable to create '.$CONFIG['session']['filesstore']['path'], error_get_last());
         
         $this->serializer = new Serializer();
         
@@ -105,7 +107,7 @@ class FilesStore extends ObjectStore
         
         if( isset($GLOBALS['object_storage'][$id]) )
             unset($GLOBALS['object_storage'][$id]);
-		unlink($this->getFile($id));
+		@unlink($this->getFile($id));
         $this->_stats(__METHOD__,$start);
     }
     
@@ -186,7 +188,8 @@ class FilesStore extends ObjectStore
         {
             if( $d == "$p/." || $d == "$p/.." )
                 continue;
-            if( time() - filemtime($d) <= 300 )
+            $time = @filemtime($d);
+            if( !$time || (time() - $time <= 300) )
                 continue;
             foreach( glob($d.'/*') as $f )
                 if( $d != "$d/." && $d != "$d/.." )
@@ -196,7 +199,8 @@ class FilesStore extends ObjectStore
         }   
         foreach( system_glob_rec($this->getPath(),'*') as $f )
         {
-            if( time() - filemtime($f) > 300 )
+            $time = @filemtime($f);
+            if( $time && (time() - $time > 300) )
             {
                 unlink($f);
                 //log_debug(__METHOD__,"Object removed:",$f);
@@ -211,19 +215,19 @@ class FilesStore extends ObjectStore
         
         if( $keep_alive )
         {
-            touch( $this->getPath() );
             foreach( system_glob_rec($this->getFile(''),'*') as $f )
                 touch($f);
+            touch( $this->getPath() );
             return;
         }
 
         /* Update is guaranteed to be called (see register_shutdown_function), so perform storage here once the script is ready */
-        touch( $this->getPath() );
         foreach( $GLOBALS['object_storage'] as $id=>$obj )
         {
             $content = $this->serializer->Serialize($obj);
             file_put_contents($this->getFile($id), $content);
         }
+        touch( $this->getPath() );
         $this->_stats(__METHOD__.($keep_alive?"/KA":''),$start);
     }
     

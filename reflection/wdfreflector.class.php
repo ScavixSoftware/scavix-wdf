@@ -114,7 +114,7 @@ class WdfReflector extends ReflectionClass
 			$key = "$name:$filter";
 		else
 			$key = "$name:".implode(",",$filter);
-		return $CONFIG['session']['session_name']."-".$key;
+		return $CONFIG['session']['session_name']."-".getAppVersion('nc').'-'.$key;
 	}
 
 	private function _setCached($name,$filter,$value)
@@ -133,7 +133,7 @@ class WdfReflector extends ReflectionClass
 	{
 		global $CONFIG;
 		$ref = $method_name?$this->getMethod($method_name):$this;
-		$key = $CONFIG['session']['session_name']."-".($method_name?$this->Classname."::".$method_name:$this->Classname);
+		$key = $CONFIG['session']['session_name']."-".getAppVersion('nc')."-".($method_name?$this->Classname."::".$method_name:$this->Classname);
 
 		$comment = cache_get("doccomment_$key");
 		if( $comment === false )

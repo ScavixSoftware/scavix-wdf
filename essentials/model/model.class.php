@@ -1306,6 +1306,16 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
 		return $this->newerThan($property, '0', 'second');
 	}
+	
+	/**
+	 * Checks if the given date is between start & end of dataset
+	 */
+	public function isDateInRange($startfieldname, $endfieldname, $date = false)
+	{
+        $date = ($date ? DateTimeEx::Make($date) : DateTimeEx::Today());
+        return $this->isPast($startfieldname)
+                ->orX(2)->isNull($endfieldname)->gte($endfieldname, $date->Format('Y-m-d'));
+	}
 		
 	/**
 	 * This is just a 'no operation' method.

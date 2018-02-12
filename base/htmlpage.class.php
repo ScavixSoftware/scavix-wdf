@@ -104,7 +104,7 @@ class HtmlPage extends Template implements ICallable
 			$init_data['session_id'] = session_id();
 			$init_data['session_name'] = session_name();
 		}
-		if( isDevOrBeta() )
+		if(isDevOrBeta() && !isset($init_data['log_to_console']) )
 			$init_data['log_to_console'] = true;
 		if( $GLOBALS['CONFIG']['system']['ajax_debug_argument'] ) 
 			$init_data['log_to_server'] = $GLOBALS['CONFIG']['system']['ajax_debug_argument'];
@@ -121,11 +121,12 @@ class HtmlPage extends Template implements ICallable
 	 */
 	function WdfRender()
 	{
-		if( !$this->get('isrtl') && system_is_module_loaded('localization') )
+		if( system_is_module_loaded('localization') )
 		{
 			$ci = Localization::detectCulture();
-			if( $ci->IsRTL )
+			if( !$this->get('isrtl') && $ci->IsRTL )
 				$this->set("isrtl", " dir='rtl'");
+            $this->set("languagecode", $ci->Code);
 		}
 		
 		$res = $this->__collectResources();
@@ -134,11 +135,13 @@ class HtmlPage extends Template implements ICallable
 		{
             if($r === '')
                 continue;
-			$ext = pathinfo($r,PATHINFO_EXTENSION);
+			$ext = array_first(explode("?",pathinfo($r,PATHINFO_EXTENSION)));
 			if( $ext == 'css' || $ext == 'less' )
 				$this->addCss($r);
 			else
+            {
 				$this->addjs($r);
+            }
 		}
 		$this->js = array_reverse($this->js,true);
 		

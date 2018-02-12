@@ -274,10 +274,26 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 		if( $this->_ds )
 			$this->_ds->LastStatement = $this;
 		
-        if( is_null($input_parameters) )
-			$result = $this->_stmt->execute();
-		else
-			$result = $this->_stmt->execute($input_parameters);
+        $deadlock_retries = 0;
+        do
+        {
+            if( is_null($input_parameters) )
+                $result = $this->_stmt->execute();
+            else
+                $result = $this->_stmt->execute($input_parameters);
+            
+            // this is MySQL deadlock
+            if( $result === false && $deadlock_retries++<5 )
+            {
+                $ei = $this->_stmt->errorInfo();
+                if( $ei && isset($ei[1]) && $ei[1] == 1213 )
+                {
+                    usleep(10000);
+                    continue;
+                }
+            }
+            break;
+        }while(true);
         
         if( stripos($this->_sql_used, 'SQL_CALC_FOUND_ROWS') !== false )
         {

@@ -121,8 +121,12 @@ function global_error_handler($errno, $errstr, $errfile, $errline)
 	if ( ($errno & error_reporting()) == 0 || $errno == E_STRICT )
         return;
 	
+    if( strpos($errstr, 'Declaration of') === 0 && strpos($errstr,'should be compatible with') !== false )
+        return true;
+    
     $sev = 'NOTICE';
 	foreach( $LOGGING_ERROR_NAMES as $n )
+    {
 		if( constant("E_$n") == $errno )
 		{
 			$sev = $n;
@@ -130,7 +134,7 @@ function global_error_handler($errno, $errstr, $errfile, $errline)
 			$sev = $sev[count($sev)-1];
 			break;
 		}
-	
+    }
 	foreach( $GLOBALS['logging_logger'] as $l )
 	{
 		$l->addCategory("GLOBAL");
