@@ -93,12 +93,13 @@ function logging_mem_ok()
 {
     $val = trim(ini_get('memory_limit'));
     $last = strtolower($val[strlen($val)-1]);
+    $val = preg_replace('/[^0-9]/', '', $val);
     switch($last) {
         // The 'G' modifier is available since PHP 5.1.0
         case 'g':
-            $val *= 1024;
+            $val *= 1024 * 1024 * 1024;
         case 'm':
-            $val *= 1024;
+            $val *= 1024 * 1024;
         case 'k':
             $val *= 1024;
     }
