@@ -43,7 +43,7 @@ $.fn.table = function(opts)
 				.click(function()
 				{
                     self.showLoadingOverlay();
-					wdf.post(self.attr('id')+'/OnActionClicked',{action:$(this).data('action'),row:current_row.attr('id')},function(d)
+					wdf.post(self.attr('id')+'/onactionclicked',{action:$(this).data('action'),row:current_row.attr('id')},function(d)
                     {
                         $('body').append(d);
                         self.hideLoadingOverlay();
@@ -66,7 +66,7 @@ $.fn.table = function(opts)
 			$('.caption, .thead, .tfoot',self).bind('mouseenter',off);
 			self.bind('mouseleave',off);
 
-			$('.tbody .tr .td:last-child',self).css('padding-right',w);
+			$('.tbody .tr .td:last-child, .thead .tr .td:last-child, .tfoot .tr .td:last-child',self).css('padding-right',w+10);
 		}
 		
 		$('.pager',self).each( function(){ $(this).width(self.width());});
@@ -91,7 +91,7 @@ $.fn.gotoPage = function(n)
 {
 	var self = this;
     self.showLoadingOverlay();
-	wdf.post(self.attr('id')+'/GotoPage',{number:n},function(d){ self.updateTable(d); });
+	wdf.post(self.attr('id')+'/gotopage',{number:n},function(d){ self.updateTable(d); });
 };
 
 $.fn.placePager = function(opts)
@@ -100,12 +100,12 @@ $.fn.placePager = function(opts)
     
     if( opts && opts.top_pager )
     {
-        //$(this).prev('.pager').remove();
+        $(this).addClass('pager_top');
         $p = $p.insertBefore(this).css('display','inline').clone(true);
     }
     if( opts && opts.bottom_pager )
     {
-        //$(this).next().remove();
+        $(this).addClass('pager_bottom');
         $p.insertAfter(this).css('display','inline');
     }
 };
