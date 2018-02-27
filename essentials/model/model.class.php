@@ -338,10 +338,18 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			case 'double':
 				return floatval($value);
 			case 'date':
+                try
+				{
+					return Model::EnsureDateTime($value)->format('Y-m-d');
+				}
+				catch(Exception $ex)
+				{
+					WdfException::Log("date/time error with value (".gettype($value).")$value",$ex);
+				}
+				break;
 			case 'time':
 			case 'datetime':
 			case 'timestamp':
-				
 				try
 				{
 					return Model::EnsureDateTime($value);
@@ -1312,8 +1320,8 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 */
 	public function isDateInRange($startfieldname, $endfieldname, $date = false)
 	{
-        $date = ($date ? DateTimeEx::Make($date) : DateTimeEx::Today());
-        return $this->isPast($startfieldname)
+        $date = ($date ? ($date instanceof DateTimeEx ? $date : DateTimeEx::Make($date)) : DateTimeEx::Today());
+        return $this->lte($startfieldname, $date->Format('Y-m-d').' 00:00:00')
                 ->orX(2)->isNull($endfieldname)->gte($endfieldname, $date->Format('Y-m-d'));
 	}
 		
