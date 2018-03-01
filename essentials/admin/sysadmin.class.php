@@ -319,14 +319,19 @@ class SysAdmin extends HtmlPage
 			->AddNewRow("PHP version",phpversion())
 			->AddNewRow("PHP ini file",php_ini_loaded_file())
 			->AddNewRow("SAPI",php_sapi_name())
-			->AddNewRow("OS",php_uname())
-			->AddNewRow("Apache version",apache_get_version())
-			->AddNewRow("Apache modules",implode(', ',apache_get_modules()))
-			->AddNewRow("Loaded extensions",implode(', ',get_loaded_extensions()))
-			->AddNewRow("Stream wrappers",implode(', ',stream_get_wrappers()))
-			->AddNewRow("Stream transports",implode(', ',stream_get_transports()))
-			->AddNewRow("Stream filters",implode(', ',stream_get_filters()))
-			;
+			->AddNewRow("OS",php_uname());
+        if(function_exists('apache_get_version'))
+			$tab->AddNewRow("Apache version",apache_get_version());
+        if(function_exists('apache_get_modules'))
+            $tab->AddNewRow("Apache modules",implode(', ',apache_get_modules()));
+        if(function_exists('get_loaded_extensions'))
+            $tab->AddNewRow("Loaded extensions",implode(', ',get_loaded_extensions()));
+        if(function_exists('stream_get_wrappers'))
+            $tab->AddNewRow("Stream wrappers",implode(', ',stream_get_wrappers()));
+        if(function_exists('stream_get_transports'))
+            $tab->AddNewRow("Stream transports",implode(', ',stream_get_transports()));
+        if(function_exists('stream_get_filters'))
+            $tab->AddNewRow("Stream filters",implode(', ',stream_get_filters()));
 		
 		$ext_nav = $this->content(new Control('div'))->css('margin-bottom','25px');
 		$ext_nav->content("Select extension: ");
