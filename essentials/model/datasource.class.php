@@ -222,7 +222,7 @@ class DataSource
 	function EscapeArgument($value)
 	{
 		$res = $this->_pdo->quote($value);
-		return substr($res, 1, count($res)-2);
+		return substr($res, 1, strlen($res)-2);
 	}
 	
 	/**
