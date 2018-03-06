@@ -337,6 +337,37 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			case 'float':
 			case 'double':
 				return floatval($value);
+			case 'time':
+			case 'datetime':
+			case 'timestamp':
+				try
+				{
+					return Model::EnsureDateTime($value);
+				}
+				catch(Exception $ex)
+				{
+					WdfException::Log("date/time error with value (".gettype($value).")$value",$ex);
+				}
+				break;
+		}
+		return $value;
+	}
+	
+	private function __toTypedSQLValue($column_name,$value)
+	{
+		if( isset(self::$_typeMap[$this->_cacheKey][$column_name]) )
+			$t = self::$_typeMap[$this->_cacheKey][$column_name];
+		else
+			$t = $this->__typeOf($column_name);
+		
+		switch( $t )
+		{
+			case 'int':
+			case 'integer':
+				return intval($value);
+			case 'float':
+			case 'double':
+				return floatval($value);
 			case 'date':
                 try
 				{
@@ -975,7 +1006,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * 
 	 * @param string $property Property-/Fieldname
 	 * @param mixed $value Value to check for
-	 * @param bool $value_is_sql if true, $value is treaded as SQL keyword/function/... and will fremain unescaped (sample: now())
+	 * @param bool $value_is_sql if true, $value is treaded as SQL keyword/function/... and will remain unescaped (sample: now())
 	 * @return Model `clone $this`
 	 */
 	public function equal($property,$value,$value_is_sql=false)
