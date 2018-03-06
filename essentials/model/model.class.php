@@ -337,6 +337,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			case 'float':
 			case 'double':
 				return floatval($value);
+			case 'date':
 			case 'time':
 			case 'datetime':
 			case 'timestamp':
