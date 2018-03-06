@@ -1014,7 +1014,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
 		$res = clone $this;
 		$res->__ensureSelect();
-		$res->_query->equal($this->__ensureFieldname($property),$value_is_sql?$value:$this->__toTypedValue($property,$value),$value_is_sql);
+		$res->_query->equal($this->__ensureFieldname($property),$value_is_sql?$value:$this->__toTypedSQLValue($property,$value),$value_is_sql);
 		return $res;
 	}
 	
@@ -1029,7 +1029,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
 		$res = clone $this;
 		$res->__ensureSelect();
-		$res->_query->notEqual($this->__ensureFieldname($property),$this->__toTypedValue($property,$value));
+		$res->_query->notEqual($this->__ensureFieldname($property),$this->__toTypedSQLValue($property,$value));
 		return $res;
 	}
 	
@@ -1044,7 +1044,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
 		$res = clone $this;
 		$res->__ensureSelect();
-		$res->_query->lowerThanOrEqualTo($this->__ensureFieldname($property),$this->__toTypedValue($property,$value));
+		$res->_query->lowerThanOrEqualTo($this->__ensureFieldname($property),$this->__toTypedSQLValue($property,$value));
 		return $res;
 	}
 	
@@ -1059,7 +1059,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
 		$res = clone $this;
 		$res->__ensureSelect();
-		$res->_query->lowerThan($this->__ensureFieldname($property),$this->__toTypedValue($property,$value));
+		$res->_query->lowerThan($this->__ensureFieldname($property),$this->__toTypedSQLValue($property,$value));
 		return $res;
 	}
 	
@@ -1074,7 +1074,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
 		$res = clone $this;
 		$res->__ensureSelect();
-		$res->_query->greaterThanOrEqualTo($this->__ensureFieldname($property),$this->__toTypedValue($property,$value));
+		$res->_query->greaterThanOrEqualTo($this->__ensureFieldname($property),$this->__toTypedSQLValue($property,$value));
 		return $res;
 	}
 	
@@ -1090,7 +1090,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
 		$res = clone $this;
 		$res->__ensureSelect();
-		$res->_query->greaterThan($this->__ensureFieldname($property),$value_is_sql?$value:$this->__toTypedValue($property,$value),$value_is_sql);
+		$res->_query->greaterThan($this->__ensureFieldname($property),$value_is_sql?$value:$this->__toTypedSQLValue($property,$value),$value_is_sql);
 		return $res;
 	}
 	
@@ -1106,8 +1106,8 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$res = clone $this;
 		$res->__ensureSelect();
 		$res->_query->andX(2);
-		$res->_query->equal($this->__ensureFieldname($property),$this->__toTypedValue($property,$value));
-		$res->_query->binary($this->__ensureFieldname($property),$this->__toTypedValue($property,$value));
+		$res->_query->equal($this->__ensureFieldname($property),$this->__toTypedSQLValue($property,$value));
+		$res->_query->binary($this->__ensureFieldname($property),$this->__toTypedSQLValue($property,$value));
 		return $res;
 	}
 
