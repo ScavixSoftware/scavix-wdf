@@ -103,22 +103,26 @@ class AjaxResponse
 	 * @param Renderable $content Content to be passed out
 	 * @return AjaxResponse The created response
 	 */
-	public static function Renderable(Renderable $content)
+	public static function Renderable(Renderable $content, $force_dependency_loading = null)
 	{
+        global $CONFIG;
 		$wrapped = new stdClass();
 
 		$wrapped->html = $content->WdfRenderAsRoot();
 		if( $content->_translate && system_is_module_loaded('translation') )
 			$wrapped->html = __translate($wrapped->html);
 		
-		foreach( $content->__collectResources() as $r )
-		{
-			$ext = array_first(explode("?",pathinfo($r,PATHINFO_EXTENSION)));
-			if( starts_with($ext,'css') || starts_with($ext,'less') )
-				$wrapped->dep_css[] = $r;
-			else
-				$wrapped->dep_js[] = $r;
-		}
+        if($force_dependency_loading !== false)
+        {
+            foreach( $content->__collectResources() as $r )
+            {
+                $ext = array_first(explode("?",pathinfo($r,PATHINFO_EXTENSION)));
+                if( starts_with($ext,'css') || starts_with($ext,'less') )
+                    $wrapped->dep_css[] = $r;
+                else
+                    $wrapped->dep_js[] = $r;
+            }
+        }
 		$res = AjaxResponse::Json($wrapped);
 		$res->_translated = true;
 		return $res;

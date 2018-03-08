@@ -71,6 +71,12 @@ class Td extends Control
 	 */
 	function SetContent($content)
 	{
+        if($content instanceof \ScavixWDF\Base\Renderable)
+        {
+            $table = $this->closest('Table');
+            if($table !== false)
+                $table->force_ajax_dependenciesloading = true;
+        }
 		$this->content($content,true);
 	}
 }

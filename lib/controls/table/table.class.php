@@ -64,12 +64,22 @@ class Table extends Control
     var $ShowTotalText = false;
     
     var $PersistName = false;
+    var $force_ajax_dependenciesloading = false;
 	
 	function __initialize()
 	{
 		parent::__initialize("div");
 		$this->class = 'table';
+        if(system_is_ajax_call())
+            $this->force_ajax_dependenciesloading = true;
 	}
+    
+    function __collectResourcesInternal($template)
+	{
+        if(system_is_ajax_call() && !$this->force_ajax_dependenciesloading)
+            return [];
+        return parent::__collectResourcesInternal($template);
+    }
 	
 	/**
 	 * Sets the format for a specific column.
