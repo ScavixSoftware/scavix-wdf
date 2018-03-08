@@ -462,6 +462,12 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	private function getTypedValue($v,$type)
 	{
 		$ci = $this->_culture;
+        $extraparams = [];
+        if(is_array($type))
+        {
+            $extraparams = $type;
+            $type = array_shift($extraparams);
+        }
 		switch( $type )
 		{
 			case 'int': 
@@ -473,12 +479,12 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 			case 'number': 
 				$v = floatval($v);
                 if( $ci )
-                    $v = array('v'=>$v,'f'=>$ci->FormatNumber($v,false,true)); 
+                    $v = array('v'=>$v,'f'=>$ci->FormatNumber($v,(count($extraparams) > 0 ? $extraparams[0] : false), (count($extraparams) > 1 ? $extraparams[1] : true))); 
 				break;
 			case 'currency': 
 				$v = floatval($v);
 				if( $ci )
-					$v = array('v'=>$v,'f'=>$ci->FormatCurrency($v,true));
+					$v = array('v'=>$v,'f'=>$ci->FormatCurrency($v,(count($extraparams) > 0 ? $extraparams[0] : true)));
 				break;
 			case 'date':
                 if(strtotime($v))
@@ -505,7 +511,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 				break;
 			case 'duration': 
                 if( $ci )
-                    $v = array('v'=>floatval($v),'f'=>$ci->FormatDuration($v*60, true));
+                    $v = array('v'=>floatval($v),'f'=>$ci->FormatDuration($v*60, (count($extraparams) > 0 ? $extraparams[0] : true)));
                 else
                 {
                     $v = floatval($v);
