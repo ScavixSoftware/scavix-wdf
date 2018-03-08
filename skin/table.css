@@ -29,27 +29,32 @@
 .ui-table-actions > div { cursor: pointer; float:left; display: inline-block; width: 16px; }
 .ui-table-actions > div.ui-state-hover { margin: -1px; }
 
+.table.haspager.pager_top { margin-top: 6px; }
+
 .pager a, 
 .pager a:link, 
 .pager a:visited, 
 .pager a:active
 {
 	text-decoration: none;
-	border: 1px solid transparent;
+	border: 1px solid #cccccc;
 	color: black;
 	font-weight: normal;
-	padding-left :5px;
-	padding-right :2px;
-	margin-right :2px;
+	padding-left: 5px;
+    padding-right: 5px;
+    margin-right: 2px;
 }
 
 .pager a:hover
 {
-	border: 1px solid black;
+	border: 1px solid #666666;
 }
 
 .pager .current
 {
 	color: black;
 	font-weight: bold;
+    padding-left: 5px;
+    padding-right: 5px;
+    margin-right: 2px;
 }

@@ -341,7 +341,47 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			case 'time':
 			case 'datetime':
 			case 'timestamp':
-				
+				try
+				{
+					return Model::EnsureDateTime($value);
+				}
+				catch(Exception $ex)
+				{
+					WdfException::Log("date/time error with value (".gettype($value).")$value",$ex);
+				}
+				break;
+		}
+		return $value;
+	}
+	
+	private function __toTypedSQLValue($column_name,$value)
+	{
+		if( isset(self::$_typeMap[$this->_cacheKey][$column_name]) )
+			$t = self::$_typeMap[$this->_cacheKey][$column_name];
+		else
+			$t = $this->__typeOf($column_name);
+		
+		switch( $t )
+		{
+			case 'int':
+			case 'integer':
+				return intval($value);
+			case 'float':
+			case 'double':
+				return floatval($value);
+			case 'date':
+                try
+				{
+					return Model::EnsureDateTime($value)->format('Y-m-d');
+				}
+				catch(Exception $ex)
+				{
+					WdfException::Log("date/time error with value (".gettype($value).")$value",$ex);
+				}
+				break;
+			case 'time':
+			case 'datetime':
+			case 'timestamp':
 				try
 				{
 					return Model::EnsureDateTime($value);
@@ -967,14 +1007,14 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * 
 	 * @param string $property Property-/Fieldname
 	 * @param mixed $value Value to check for
-	 * @param bool $value_is_sql if true, $value is treaded as SQL keyword/function/... and will fremain unescaped (sample: now())
+	 * @param bool $value_is_sql if true, $value is treaded as SQL keyword/function/... and will remain unescaped (sample: now())
 	 * @return Model `clone $this`
 	 */
 	public function equal($property,$value,$value_is_sql=false)
 	{
 		$res = clone $this;
 		$res->__ensureSelect();
-		$res->_query->equal($this->__ensureFieldname($property),$value_is_sql?$value:$this->__toTypedValue($property,$value),$value_is_sql);
+		$res->_query->equal($this->__ensureFieldname($property),$value_is_sql?$value:$this->__toTypedSQLValue($property,$value),$value_is_sql);
 		return $res;
 	}
 	
@@ -989,7 +1029,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
 		$res = clone $this;
 		$res->__ensureSelect();
-		$res->_query->notEqual($this->__ensureFieldname($property),$this->__toTypedValue($property,$value));
+		$res->_query->notEqual($this->__ensureFieldname($property),$this->__toTypedSQLValue($property,$value));
 		return $res;
 	}
 	
@@ -1004,7 +1044,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
 		$res = clone $this;
 		$res->__ensureSelect();
-		$res->_query->lowerThanOrEqualTo($this->__ensureFieldname($property),$this->__toTypedValue($property,$value));
+		$res->_query->lowerThanOrEqualTo($this->__ensureFieldname($property),$this->__toTypedSQLValue($property,$value));
 		return $res;
 	}
 	
@@ -1019,7 +1059,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
 		$res = clone $this;
 		$res->__ensureSelect();
-		$res->_query->lowerThan($this->__ensureFieldname($property),$this->__toTypedValue($property,$value));
+		$res->_query->lowerThan($this->__ensureFieldname($property),$this->__toTypedSQLValue($property,$value));
 		return $res;
 	}
 	
@@ -1034,7 +1074,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
 		$res = clone $this;
 		$res->__ensureSelect();
-		$res->_query->greaterThanOrEqualTo($this->__ensureFieldname($property),$this->__toTypedValue($property,$value));
+		$res->_query->greaterThanOrEqualTo($this->__ensureFieldname($property),$this->__toTypedSQLValue($property,$value));
 		return $res;
 	}
 	
@@ -1050,7 +1090,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
 		$res = clone $this;
 		$res->__ensureSelect();
-		$res->_query->greaterThan($this->__ensureFieldname($property),$value_is_sql?$value:$this->__toTypedValue($property,$value),$value_is_sql);
+		$res->_query->greaterThan($this->__ensureFieldname($property),$value_is_sql?$value:$this->__toTypedSQLValue($property,$value),$value_is_sql);
 		return $res;
 	}
 	
@@ -1066,8 +1106,8 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$res = clone $this;
 		$res->__ensureSelect();
 		$res->_query->andX(2);
-		$res->_query->equal($this->__ensureFieldname($property),$this->__toTypedValue($property,$value));
-		$res->_query->binary($this->__ensureFieldname($property),$this->__toTypedValue($property,$value));
+		$res->_query->equal($this->__ensureFieldname($property),$this->__toTypedSQLValue($property,$value));
+		$res->_query->binary($this->__ensureFieldname($property),$this->__toTypedSQLValue($property,$value));
 		return $res;
 	}
 
@@ -1312,8 +1352,8 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 */
 	public function isDateInRange($startfieldname, $endfieldname, $date = false)
 	{
-        $date = ($date ? DateTimeEx::Make($date) : DateTimeEx::Today());
-        return $this->isPast($startfieldname)
+        $date = ($date ? ($date instanceof DateTimeEx ? $date : DateTimeEx::Make($date)) : DateTimeEx::Today());
+        return $this->lte($startfieldname, $date->Format('Y-m-d').' 00:00:00')
                 ->orX(2)->isNull($endfieldname)->gte($endfieldname, $date->Format('Y-m-d'));
 	}
 		

@@ -189,7 +189,7 @@ class CellFormat
 				case 'currency':
                     $v = $this->getNumeric($content);
                     if( $v === false ) return $full_content;
-                    $v = $culture->FormatCurrency($v,false,isset($options[1])?$options[1]:false);
+                    $v = $culture->FormatCurrency($v,isset($options[2])?$options[2]:false,isset($options[1])?$options[1]:false);
                     if(isset($options[0]) && ($options[0] === false))
                         $v = str_replace($culture->CurrencyFormat->DecimalSeparator.'00', '', $v);
                     $content = str_replace($content,$v,$full_content);
