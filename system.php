@@ -542,7 +542,7 @@ function system_die($reason,$additional_message='')
 	}
 
     $errid = uniqid();
-    log_error('Fatal system error', $errid, $reason, $additional_message, $stacktrace);
+    log_fatal('Fatal system error (ErrorID: '.$errid.')'."\n".$reason."\n".$additional_message."\n".system_stacktrace_to_string($stacktrace));
     
     if( system_is_ajax_call() )
 	{
