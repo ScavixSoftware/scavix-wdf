@@ -95,7 +95,6 @@ function resourceExists($filename, $return_url = false, $as_local_path = false, 
 		return $return_url?$res:($res != "0");
 
 	$ext = pathinfo($filename,PATHINFO_EXTENSION);
-	$reg = "/(^$ext$|^$ext\||\|$ext$)/i";
 	foreach( $CONFIG['resources'] as $conf )
 	{	
 		if( strpos("|".$conf['ext']."|", "|".$ext."|") === false )

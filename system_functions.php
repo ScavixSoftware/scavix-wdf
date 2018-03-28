@@ -26,6 +26,9 @@ use ScavixWDF\WdfException;
 
 if( !defined('FRAMEWORK_LOADED') || FRAMEWORK_LOADED != 'uSI7hcKMQgPaPKAQDXg5' ) die('');
 
+if( !defined("RESOURCE_EXTENSIONS") )
+    define("RESOURCE_EXTENSIONS",'js|css|less|png|jpg|jpeg|gif|htc|ico|mp3|ogg|woff|woff2|ttf');
+
 define("HOOK_POST_INIT",1);
 define("HOOK_POST_INITSESSION",2);
 define("HOOK_PRE_CONSTRUCT",9);
@@ -300,6 +303,32 @@ function cfg_check()
 		case 7: if( !isset($CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]]) || !$CONFIG[$args[0]][$args[1]][$args[2]][$args[3]][$args[4]][$args[5]] ) WdfException::Raise($args[6]); break;
 		default: WdfException::Raise("Illegal argument count: ".count($args));
 	}
+}
+
+function add_resource_dir($path,$url,$append_nc=true,$ext=false)
+{
+    $url = buildQuery($url);
+    if( !$ext ) $ext = RESOURCE_EXTENSIONS;
+    $GLOBALS['CONFIG']['resources'][] = compact('ext','path','url','append_nc');
+}
+
+function prepend_resource_dir($path,$url,$append_nc=true,$ext=false)
+{
+    $url = buildQuery($url);
+    if( !$ext ) $ext = RESOURCE_EXTENSIONS;
+    if( !isset($GLOBALS['CONFIG']['resources']) )
+        $GLOBALS['CONFIG']['resources'] = [];
+    array_unshift($GLOBALS['CONFIG']['resources'],compact('ext','path','url','append_nc'));
+}
+
+function add_wdfresource_dir($path,$append_nc=true,$ext=false)
+{
+    add_resource_dir($path, "wdfresource/res", $append_nc, $ext);
+}
+
+function prepend_wdfresource_dir($path,$append_nc=true,$ext=false)
+{
+    prepend_resource_dir($path, "wdfresource/res", $append_nc, $ext);
 }
 
 /**
