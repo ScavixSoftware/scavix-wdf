@@ -31,6 +31,7 @@ use ScavixWDF\ICallable;
 use ScavixWDF\Localization\Localization;
 
 default_string('ERR_JAVASCRIPT_AND_COOKIES_REQUIRED','This page requires JavaScript and Cookies.');
+define("WDF_HTMLPAGE_TEMPLATE", __DIR__."/htmlpage.tpl.php");
 /**
  * Base class for all Html pages.
  * 
@@ -65,8 +66,7 @@ class HtmlPage extends Template implements ICallable
 		// this makes HtmlPage.tpl.php the 'one and only' template
 		// for all derivered classes, unless they override it after
 		// parent::__initialize with $this->file = X
-		$file = str_replace(".class.php",".tpl.php",__FILE__);
-		parent::__initialize($file);
+		parent::__initialize(WDF_HTMLPAGE_TEMPLATE);
 
 		$this->set("title",$title);
 		$this->set("meta",$this->meta);

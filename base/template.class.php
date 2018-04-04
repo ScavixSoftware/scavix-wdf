@@ -262,20 +262,20 @@ class Template extends Renderable
 			$$un_common_k_e_y_value = $un_common_v_a_l_value;
 		}
 
-		if( ($this instanceof HtmlPage) && stripos($this->file,"htmlpage.tpl.php") !== false )
+		if( ($this instanceof HtmlPage) && $this->file == WDF_HTMLPAGE_TEMPLATE )
 		{
 			$__template_file = __autoload__template($this,$this->SubTemplate?$this->SubTemplate:"");
 			if( $__template_file === false )
 				WdfException::Raise("SubTemplate for class '".get_class($this)."' not found: ".$this->file,$this->SubTemplate);
 
-			if( stripos($__template_file,"htmlpage.tpl.php") === false )
+			if( $__template_file != WDF_HTMLPAGE_TEMPLATE )
 			{
 				ob_start();
 				require($__template_file);
 				$sub_template_content = ob_get_contents();
 				ob_end_clean();
 			}
-			$this->file = __DIR__."/htmlpage.tpl.php";
+			$this->file = WDF_HTMLPAGE_TEMPLATE;
 		}
 
 		$__template_file = __autoload__template($this,$this->file);
