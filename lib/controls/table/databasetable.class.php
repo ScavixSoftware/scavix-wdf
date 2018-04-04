@@ -396,6 +396,8 @@ class DatabaseTable extends Table implements ICallable
                 if( $cnt < ($this->current_row_group?$this->current_row_group->length():0) )
                     $this->AddDataToRow($raw_row);
             }
+            if($this->alignments)
+                $this->SetAlignment($this->alignments);
 			if( $this->ItemsPerPage )
 				$this->HidePager = false;
         }
