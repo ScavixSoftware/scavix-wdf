@@ -45,6 +45,7 @@ class Table extends Control
     var $current_row_group = false;
     var $current_row = false;
     var $current_cell = false;
+    var $alignments = false;
 
     var $Caption = false;
 
@@ -403,6 +404,7 @@ class Table extends Control
 		$args = func_get_args();
         if((count($args) == 1) && is_array($args[0]))
             $args = array_values($args[0]);
+        $this->alignments = $args;
 		$this->ColGroup()->SetAlignment($args);
 		$this->Header()->SetAlignment($args);
 		$this->Footer()->SetAlignment($args);
