@@ -164,3 +164,98 @@ function model_build_connection_string($type,$server,$username,$password,$databa
 {
 	return sprintf("%s://%s:%s@%s/%s",$type,$username,$password,$server,$database);
 }
+
+/**
+ * Updates the given datasource to a given version.
+ *
+ * To use the DB versioning you must:
+ * 1. Create a folder containing SQL scripts '<dbversion>.sql', <dbversion> must be 0-padded to a length of 4 chars ('0001.sql')
+ * 2. Call this function like this model_update_db('system',1,'/path/to/sql/scripts');
+ * 
+ * SQL scripts can contain line-comments, that may start with '#' or '--' but must not contain leading white-spaces.
+ * Script files will be executed directly, so each statement must be terminated with semi-colon (;).
+ * Scripts my inlcude other files (like view create/update statements) like this: @include(views/my_view.sql);
+ * These include statements must be one-per-line and they must be terminated by semi-colon (;).
+ * The path must be relative to the inclusing SQL file.
+ */
+function model_update_db($datasource,$version,$script_folder)
+{
+    $ds = ($datasource instanceof DataSource)?$datasource:model_datasource($datasource);
+    $ds->ExecuteSql(
+        "CREATE TABLE IF NOT EXISTS `wdf_versions` (
+            `version` int(11) NOT NULL,
+            `started` datetime DEFAULT NULL,
+            `finished` datetime DEFAULT NULL,
+            `error` text COLLATE utf8_unicode_ci,
+            PRIMARY KEY (`version`)
+          ) CHARSET=utf8 COLLATE=utf8_unicode_ci;"
+        );
+    
+    $current = $ds->ExecuteScalar("SELECT version FROM wdf_versions ORDER BY version DESC");
+    if( $current == $version )
+        return;
+    if( !$current )
+        $current = 0;
+    
+    $res = [];
+    $files = glob("$script_folder/*.sql");
+    sort($files);
+    foreach( $files as $file )
+    {
+        if( preg_match('/(\d+)\.sql/',$file,$m) === false )
+            continue;
+        $v = intval($m[1]);
+        
+        // skip past and future updates
+        if( $v < $current || $v > $version )
+            continue;
+        
+        // 'reserve' the update 
+        $ds->ExecuteSql("INSERT IGNORE INTO wdf_versions(version,started)VALUES(?,now())",$v);
+        if( $ds->getAffectedRowsCount() == 0 )
+            continue;
+        
+        try
+        {
+            log_debug("Upgrading DB to version '$v'");
+            $sql = file_get_contents($file);
+            
+            $sql = preg_replace_callback('/@include\((.*)\);/',function($m)use($file)
+            {
+                $inc = @file_get_contents(dirname($file)."/".$m[1]);
+                if( !$inc )
+                {
+                    log_error("SQL include not found: {$m[1]}");
+                    return '';
+                }
+                return preg_replace_callback('/@include\((.*)\);/',function($circ)use($m)
+                {
+                    log_error("Deep level SQL include detected, ignoring: {$circ[1]} in file {$m[1]}");
+                    return '';
+                },$inc);
+            },$sql);
+            
+            $sql = preg_replace("/^(#|--).*$/m", "", $sql);
+            
+            foreach( preg_split('/;[\r\n]+/', $sql) as $statement )
+            {
+                $statement = trim($statement);
+                if( $statement )
+                {
+                    $statement .= ";";
+                    log_debug("-> ",$statement);
+                    $ds->ExecuteSql($statement);
+                }
+            }
+            $ds->ExecuteSql("UPDATE wdf_versions SET finished=now() WHERE version=?",$v);
+            $res[$v] = 'success';
+        }
+        catch(Exception $ex)
+        {
+            $ds->ExecuteSql("UPDATE wdf_versions SET error=? WHERE version=?",array($ex->getMessage(),$v)); 
+            log_error("Error upgrading DB to version '$v'",$ex);
+            $res[$v] = $ex->getMessage();
+        }
+    }
+    return $res;
+}
