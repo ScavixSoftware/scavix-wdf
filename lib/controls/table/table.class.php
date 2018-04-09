@@ -657,12 +657,12 @@ class Table extends Control
         elseif( $i < $pages )
 		{
 			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage(".($this->CurrentPage+1).")","&gt;") );
-			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage($pages)","&gt;&gt; $pages") );
+			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage($pages)","&gt;&gt; ".($this->Culture !== false ? $this->Culture->FormatInt($pages) : $pages)) );
 		}
         
         if( $this->ShowTotalText )
         {
-            $ui->append("<span class='total'>".sprintf($this->ShowTotalText,$this->TotalItems)."</span>");
+            $ui->append("<span class='total'>".sprintf($this->ShowTotalText, ($this->Culture !== false ? $this->Culture->FormatInt($this->TotalItems) : $this->TotalItems))."</span>");
         }
 		return $ui;
 	}
