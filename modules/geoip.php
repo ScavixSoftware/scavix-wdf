@@ -218,83 +218,67 @@ function get_timezone_by_ip($ip = false)
     
 	$key = "get_timezone_by_ip.".getAppVersion('nc')."-".$ip;
     $ret = cache_get($key);
-	if( $ret )
+	if( !isDev() && $ret )
 		return $ret;
     
-	// try via freegeoip:
-	$url = "https://freegeoip.net/xml/".$GLOBALS['current_ip_addr'];
-	try
-	{
-		$xml = downloadData($url, false, false, 60 * 60, 2);
-	}catch(Exception $ex){ WdfException::Log("Unable to get Timezone for ".$ip." ($url)",$ex); return false; }
-	if( preg_match_all('/<TimeZone>([^<]*)<\/TimeZone>/', $xml, $zone, PREG_SET_ORDER) )
-	{
-		$zone = $zone[0];
-		if($zone[1] != "")
-		{
-            cache_set($key,$zone[1], 24 * 60 * 60);
-			return $zone[1];
-		}
-	}
-	log_error("No timezone found for ".$GLOBALS['current_ip_addr']." via freegeoip.net");
-	
-	$url = "http://ip-api.com/php/".$ip;
-	try
-	{
-		$data = @unserialize(downloadData($url, false, false, 60 * 60, 2));
-	}catch(Exception $ex){ WdfException::Log("Unable to get Timezone for ".$ip." ($url) ".$ex->getMessage(),$ex); return false; }
-	if($data && $data['status'] == 'success')
-	{
-		$zone = $data['timezone'];
-		cache_set($key, $zone, 24 * 60 * 60);
-		return $zone;
-	}
-	log_error("No timezone found for ".$ip." via ip-api.com");
-	
-	// new url with api key:
-    if(isset($CONFIG['geoip']['ipinfodb']) && isset($CONFIG['geoip']['ipinfodb']['apikey']))
+    $services = [];
+    $services["https://freegeoip.net/xml/$ip"] = function($response)
     {
-        $url = "https://api.ipinfodb.com/v3/ip-city/?key=".$CONFIG['geoip']['ipinfodb']['apikey']."&ip=".$GLOBALS['current_ip_addr']."&format=xml";
-        try
+        if( !preg_match_all('/<TimeZone>([^<]*)<\/TimeZone>/', $response, $zone, PREG_SET_ORDER) )
+            return false;
+        $zone = $zone[0];
+        return ($zone[1] != "")?$zone[1]:false;
+    };
+    $services["http://ip-api.com/php/$ip"] = function($response)
+    {
+        $data = @unserialize($response);
+        if( $data && $data['status'] == 'success' )
+            return $data['timezone'];
+        return false;
+    };
+    if( isset($CONFIG['geoip']['ipinfodb']) && isset($CONFIG['geoip']['ipinfodb']['apikey']) )
+    {
+        $services["https://api.ipinfodb.com/v3/ip-city/?key={$CONFIG['geoip']['ipinfodb']['apikey']}&ip={$ip}&format=xml"] = function($response)
         {
-            $xml = downloadData($url, false, false, 60 * 60, 2);
-        }catch(Exception $ex){ WdfException::Log("Unable to get Timezone for ".$ip." ($url)",$ex); return false; }
-        if( preg_match_all('/<timeZone>([^<]*)<\/timeZone>/', $xml, $zone, PREG_SET_ORDER) )
-        {
+            if( !preg_match_all('/<timeZone>([^<]*)<\/timeZone>/', $response, $zone, PREG_SET_ORDER) )
+                return false;
             $zone = $zone[0];
-            if($zone[1] != "")
-            {
-                cache_set($key,$zone[1], 24 * 60 * 60);
-                return $zone[1];
-            }
-        }
-        log_error("No timezone found for ".$GLOBALS['current_ip_addr']." via ipinfodb.com");
+            return ($zone[1] != "")?$zone[1]:false;
+        };
     }
-
-	$coords = get_coordinates_by_ip($ip);
-	if($coords === false)
-	{
-		log_error("No timezone found for IP ".$ip." (missing coordinates)");
-		// disaster-fallback: use our timezone:
-		return "Etc/GMT+2";
-	}
-
-	// ALTERNATIVE 1:
-//	ws.geonames.org had only timeouts on 2/10/2010...
-//	$url = "http://ws.geonames.org/timezone?lat=".$coords['latitude'].'&lng='.$coords['longitude'];
-	$url = "http://api.geonames.org/timezone?lat=".$coords['latitude'].'&lng='.$coords['longitude']."&username=scavix";
-	try
-	{
-		$xml = downloadData($url, false, false, 60 * 60, 2);
-	}catch(Exception $ex){ WdfException::Log("Unable to get Timezone for ".$ip." ($url) ".$ex->getMessage(),$ex); return false; }
-	if( preg_match_all('/<timezoneId>([^<]*)<\/timezoneId>/', $xml, $zone, PREG_SET_ORDER) )
-	{
-		$zone = $zone[0];
-		cache_set($key,$zone[1], 24 * 60 * 60);
-		return $zone[1];
-	}
-	log_error("No timezone found for ".$ip." via geonames.org");
-
-	// disaster-fallback: use our timezone:
-	return "Etc/GMT+2";
+    if( isset($CONFIG['geoip']['geonames']) && isset($CONFIG['geoip']['geonames']['username']) )
+        $services['geo'] = false; // prepare geo search inline to avoid overhead here
+    
+    foreach( $services as $url=>$cb )
+    {
+        if( $url == 'geo' ) // prepare geo search inline to only have overhead when we reach that case
+        {
+            $coords = get_coordinates_by_ip($ip);
+            if( !$coords )
+                continue;
+            
+            $url = "http://api.geonames.org/timezone?username={$CONFIG['geoip']['geonames']['username']}&lat={$coords['latitude']}&lng={$coords['longitude']}";
+            $cb = function($response)
+            {
+                if( !preg_match_all('/<timezoneId>([^<]*)<\/timezoneId>/', $response, $zone, PREG_SET_ORDER) )
+                    return false;
+                $zone = $zone[0];
+                return ($zone[1] != "")?$zone[1]:false;
+            };
+        }
+        
+        $resp = downloadData($url, false, false, 60 * 60, 2);
+        $zone = $cb($resp);
+        if( $zone )
+        {
+            cache_set($key, $zone, 24 * 60 * 60);
+            return $zone;
+        }
+    }
+    $zone = isset($CONFIG['geoip']['default_timezone'])
+        ?$CONFIG['geoip']['default_timezone']
+        :date_default_timezone_get();
+    log_debug("No timezone found for $ip, falling back to $zone");
+    cache_set($key, $zone, 60 * 60); // keep that in cache for an hour
+	return $zone;
 }
