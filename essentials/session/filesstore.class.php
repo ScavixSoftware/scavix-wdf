@@ -193,8 +193,8 @@ class FilesStore extends ObjectStore
                 continue;
             foreach( glob($d.'/*') as $f )
                 if( $d != "$d/." && $d != "$d/.." )
-                    unlink($f);
-            rmdir($d);
+                    @unlink($f);
+            @rmdir($d);
             //log_debug(__METHOD__,"Session removed:",$d);
         }   
         foreach( system_glob_rec($this->getPath(),'*') as $f )
@@ -202,7 +202,7 @@ class FilesStore extends ObjectStore
             $time = @filemtime($f);
             if( $time && (time() - $time > 300) )
             {
-                unlink($f);
+                @unlink($f);
                 //log_debug(__METHOD__,"Object removed:",$f);
             }
         }
