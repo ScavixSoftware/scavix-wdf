@@ -203,6 +203,14 @@ function __translate($text)
 	{
 		if(!is_string($text))
 			return $text;
+        
+        if(count($GLOBALS['translation']['data']) > 0)
+        {
+            $repl = [];
+            foreach( $GLOBALS['translation']['data'] as $k=>$v )
+                if( $k[0] == '{' ) $repl[$k] = $v; else $repl['{'.$k.'}'] = $v;
+            $text = ReplaceVariables($text, $repl);
+        }
 
 		$text = preg_replace_callback(
 			$GLOBALS['__translate_regpattern'],
@@ -360,6 +368,7 @@ function getString($constant, $arreplace = null, $unbuffered = false, $encoding 
 		else
 			$arreplace = $GLOBALS['translation']['data'];
 	}
+    
 	if( !$arreplace )
 		return getStringOrig($constant,$arreplace,$unbuffered,$encoding);
 	$n = array();

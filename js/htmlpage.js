@@ -194,7 +194,8 @@ $.ajaxSetup({cache:false});
 		
 		initAjax: function(skip_dependency_loading)
 		{
-			this.original_ajax = $.ajax;
+            if(!this.original_ajax)
+                this.original_ajax = $.ajax;
 			$.extend({
 				ajax: function( s )
 				{
