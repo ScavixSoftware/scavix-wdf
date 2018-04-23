@@ -514,28 +514,32 @@ function render_var($content)
 function start_timer($name)
 {
     $id = uniqid();
-    $GLOBALS['logging_timers'][$id] = array($name,microtime(true));
+    $GLOBALS['logging_timers'][$id] = [ [$name,microtime(true),0] ];
     return $id;
 }
 
-function hit_timer($id,$label='',$min_ms=false)
+function hit_timer($id,$label='(no label)')
 {
     if( !isset($GLOBALS['logging_timers'][$id]) )
         return;
-    list($name,$start) = $GLOBALS['logging_timers'][$id];
-    $ms = round((microtime(true)-$start)*1000);
-    if( !$min_ms || $ms >= $min_ms )
-        log_debug("Timer hit:\t{$ms}ms\t$name $label");
+    list($name,$start,$dur) = array_last($GLOBALS['logging_timers'][$id]);
+    $GLOBALS['logging_timers'][$id][] = [$label,microtime(true),round((microtime(true)-$start)*1000)];
 }
 
 function finish_timer($id,$min_ms = false)
 {
     if( !isset($GLOBALS['logging_timers'][$id]) )
         return;
-    list($name,$start) = $GLOBALS['logging_timers'][$id];
+    $trace = $GLOBALS['logging_timers'][$id];
+    list($name,$start,$dur) = array_shift($trace);
     unset($GLOBALS['logging_timers'][$id]);
     
     $ms = round((microtime(true)-$start)*1000);
     if( !$min_ms || $ms >= $min_ms )
-        log_debug("Timer finish:\t{$ms}ms\t$name");
+    {
+        $trace = array_map(function($a){ return "{$a[2]}ms for {$a[0]}"; },$trace);
+        array_unshift($trace, "started ".date("H:i:s",$start));
+        $trace[] = "{$ms}ms total";
+        log_debug("Timer finish:\t$name\n\t".implode("\n\t",$trace));
+    }
 }
