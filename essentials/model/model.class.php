@@ -681,11 +681,15 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		if( is_string($value) )
 		{
 			// special handling for NOW() argument
-			if( strtolower($value) == "now()" )
+			if( starts_iwith($value,"now()") )
 			{
 				if( $convert_now_to_value )
-					return new DateTimeEx();
-				return "now()";
+                {
+                    if( strcasecmp($value,"now()") === 0 )
+                        return new DateTimeEx();
+					return new DateTimeEx(DataSource::Get()->ExecuteScalar("SELECT $value"));
+                }
+				return "$value";
 			}
 			// check if we have a timestamp as string
 			if( is_numeric($value) )

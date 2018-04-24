@@ -188,11 +188,11 @@ class MySql implements IDatabaseDriver
 			}
 			
 			$tv = $model->TypedValue($col);
-			if( is_string($tv) && strtolower($tv)=="now()" )
+			if( is_string($tv) && starts_iwith($tv,"now()") )
 			{
-				$cols[] = "`$col`=NOW()";
+				$cols[] = "`$col`=$tv";
 				$all[] = "`$col`";
-				$vals[] = "NOW()";
+				$vals[] = "$tv";
 			}
 			else
 			{
