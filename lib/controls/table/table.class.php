@@ -577,6 +577,12 @@ class Table extends Control
 		return $this;
 	}
     
+    /**
+     * Store this tables current page in the Session.
+     * 
+     * @param string $name A (session-)unique name for the table
+     * @return $this
+     */
     function Persist($name)
     {
         $this->PersistName = $name;
@@ -588,6 +594,11 @@ class Table extends Control
         return $this;
     }
     
+    /**
+     * Resets the current page to be the first.
+     * 
+     * @return $this
+     */
     function ResetPager()
     {
         if( $this->ItemsPerPage )

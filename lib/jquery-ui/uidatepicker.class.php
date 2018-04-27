@@ -154,6 +154,14 @@ class uiDatePicker extends uiControl
 		return $this;
 	}
     
+    /**
+     * Add default uiDatepicker settings to the given <HtmlPage>s JavaScript code.
+     * 
+     * @param HtmlPage $page The HtmlPage
+     * @param CultureInfo $cultureInfo The <CultureInfo> to be default
+     * @param array $options Default options
+     * @return void
+     */
     public static function PromoteDefaults(\ScavixWDF\Base\HtmlPage $page, $cultureInfo, $options = [])
     {
         $cls = get_called_class();

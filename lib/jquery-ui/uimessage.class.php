@@ -60,6 +60,7 @@ class uiMessage extends uiControl
 	 * Creates a new uiMessage as hint.
 	 * 
 	 * @param string $message Hint text
+     * @param bool $closeable Display close button true|false
 	 * @return uiMessage A new uiMessage 
 	 */
 	static function Hint($message,$closeable=true)
@@ -71,6 +72,7 @@ class uiMessage extends uiControl
 	 * Creates a new uiMessage as error.
 	 * 
 	 * @param string $message Error text
+     * @param bool $closeable Display close button true|false
 	 * @return uiMessage A new uiMessage 
 	 */
 	static function Error($message,$closeable=true)
@@ -78,6 +80,9 @@ class uiMessage extends uiControl
 		return new uiMessage($message,'error',$closeable);
 	}
 	
+    /**
+     * @override
+     */
 	function content($content, $replace = false)
 	{
 		if( $this->sub )
@@ -88,6 +93,9 @@ class uiMessage extends uiControl
 		return parent::content($content, $replace);
 	}
 	
+    /**
+     * @override
+     */
 	function append($content)
 	{
 		if( $this->sub )
@@ -95,6 +103,13 @@ class uiMessage extends uiControl
 		return parent::append($content);
 	}
     
+    /**
+     * Prepends a line to the message.
+     * 
+     * @param mixed $message The message to be added
+     * @param string $icon Icon to be used
+     * @return $this
+     */
     function prependLine($message,$icon='blank')
     {
         array_unshift($this->messages,$message);
@@ -102,6 +117,13 @@ class uiMessage extends uiControl
         return $this;
     }
     
+    /**
+     * Adds a line to the message.
+     * 
+     * @param mixed $message The message to be added
+     * @param string $icon Icon to be used
+     * @return $this
+     */
     function addLine($message,$icon='blank')
     {
         $this->messages[] = $message;
@@ -109,6 +131,13 @@ class uiMessage extends uiControl
         return $this;
     }
     
+    /**
+     * Adds lines to the message.
+     * 
+     * @param array $messages Array of messages to be added
+     * @param string $icon Icon to be used
+     * @return $this
+     */
     function addLines($messages,$icon='blank')
     {
         foreach( $messages as $m )

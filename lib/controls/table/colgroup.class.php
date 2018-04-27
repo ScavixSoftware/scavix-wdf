@@ -84,6 +84,12 @@ class ColGroup extends Control
 		return $this->_content[$index];
 	}
 	
+    /**
+     * Sets the alignment.
+     * 
+     * @param array $alignment Array of alignments for each column l(eft)|r(ight)|c(enter)
+     * @return $this
+     */
 	function SetAlignment($alignment)
 	{
 		foreach( $alignment as $i=>$a )

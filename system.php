@@ -39,7 +39,6 @@ use ScavixWDF\Model\DataSource;
 use ScavixWDF\Reflection\WdfReflector;
 use ScavixWDF\WdfException;
 use ScavixWDF\WdfResource;
-use ScavixWDF\CacheEntry;
 
 // Config handling
 system_config_default( !defined("NO_DEFAULT_CONFIG") );
@@ -1244,11 +1243,6 @@ function cache_get($key,$default=false,$use_global_cache=true,$use_session_cache
 {
     if( $use_session_cache && isset($_SESSION["system_internal_cache"][$key]) )
 		return session_unserialize($_SESSION["system_internal_cache"][$key]);
-//	if( $use_session_cache )
-//    {
-//        if( CacheEntry::Exists($key) )
-//            return CacheEntry::Load($key);
-//    }
 	if( $use_global_cache && system_is_module_loaded('globalcache') )
     {
         $res = globalcache_get($key,$default);
@@ -1281,8 +1275,6 @@ function cache_set($key,$value,$ttl=false,$use_global_cache=true,$use_session_ca
 
     if( $use_session_cache )
 		$_SESSION["system_internal_cache"][$key] = session_serialize($value);
-//	if( $use_session_cache )
-//        CacheEntry::Create ($key, $value);
 }
 
 /**
@@ -1296,7 +1288,6 @@ function cache_del($key)
 {
     if( isset($_SESSION["system_internal_cache"][$key]) )
 		unset($_SESSION["system_internal_cache"][$key]);
-	//CacheEntry::Delete($key);
 	if( system_is_module_loaded('globalcache') )
 		globalcache_delete($key);
 }
@@ -1314,8 +1305,6 @@ function cache_clear($global_cache=true, $session_cache=true)
 {
     if( $session_cache )
 		$_SESSION["system_internal_cache"] = array();
-//	if( $session_cache && isset($GLOBALS['fw_object_store']) && is_object($GLOBALS['fw_object_store']) )
-//        return $GLOBALS['fw_object_store']->Cleanup('cacheentry');
     
     if( $global_cache && system_is_module_loaded('globalcache') )
 		globalcache_clear();
@@ -1334,8 +1323,6 @@ function cache_clear($global_cache=true, $session_cache=true)
 function cache_list_keys($global_cache=true, $session_cache=true)
 {
     $res = $session_cache?array_keys($_SESSION["system_internal_cache"]):array();
-//	$res = $session_cache && isset($GLOBALS['fw_object_store']) && is_object($GLOBALS['fw_object_store'])
-//        ?$GLOBALS['fw_object_store']->ListKeys('cacheentry'):array();
 	
 	if( $global_cache && system_is_module_loaded('globalcache') )
 		$res = array_merge($res, globalcache_list_keys() );
@@ -1376,6 +1363,7 @@ function current_event()
  * Returns information about the current request.
  * 
  * If the current request is an AJAX request, it returns info about the last 'normal' call.
+ * @param bool $as_url If true will return a string URL containing all the GET parametes
  * @return array Array with (string)controller,(string)method,(array)get and (array)post
  */
 function system_current_request($as_url=false)

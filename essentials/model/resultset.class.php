@@ -182,6 +182,12 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 		return serialize($buf);
 	}
     
+    /**
+	 * Savely unserializes this object
+	 * 
+	 * This is mainly needed for query caching
+	 * @return void
+	 */
     function unserialize($data)
 	{
         log_debug(__METHOD__,$data);

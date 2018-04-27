@@ -125,6 +125,7 @@ class gMap extends GoogleControl
 	 * 
 	 * Will use googles geolocation to resolve the address to a marker.
 	 * @param string $address The address as string
+	 * @param string $title An optional title
 	 * @return gMap `$this`
 	 */
 	function AddAddress($address,$title=false)

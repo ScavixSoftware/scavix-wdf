@@ -305,6 +305,16 @@ function cfg_check()
 	}
 }
 
+/**
+ * Adds a resource dir
+ * 
+ * @see prepend_resource_dir
+ * @param string $path Path in local filesystem
+ * @param string $url Relative URL how this can be reached
+ * @param string $append_nc Use nocache handling true|false
+ * @param string $ext Pipe (|) separated list of filename extensions 
+ * @return void
+ */
 function add_resource_dir($path,$url,$append_nc=true,$ext=false)
 {
     $url = buildQuery($url);
@@ -312,6 +322,16 @@ function add_resource_dir($path,$url,$append_nc=true,$ext=false)
     $GLOBALS['CONFIG']['resources'][] = compact('ext','path','url','append_nc');
 }
 
+/**
+ * Prepends a resource dir
+ * 
+ * @see add_resource_dir
+ * @param string $path Path in local filesystem
+ * @param string $url Relative URL how this can be reached
+ * @param string $append_nc Use nocache handling true|false
+ * @param string $ext Pipe (|) separated list of filename extensions 
+ * @return void
+ */
 function prepend_resource_dir($path,$url,$append_nc=true,$ext=false)
 {
     $url = buildQuery($url);
@@ -321,11 +341,29 @@ function prepend_resource_dir($path,$url,$append_nc=true,$ext=false)
     array_unshift($GLOBALS['CONFIG']['resources'],compact('ext','path','url','append_nc'));
 }
 
+/**
+ * Adds a WdfResource controlled resource dir
+ * 
+ * @see add_resource_dir
+ * @param string $path Path in local filesystem
+ * @param string $append_nc Use nocache handling true|false
+ * @param string $ext Pipe (|) separated list of filename extensions 
+ * @return void
+ */
 function add_wdfresource_dir($path,$append_nc=true,$ext=false)
 {
     add_resource_dir($path, "wdfresource/res", $append_nc, $ext);
 }
 
+/**
+ * Prepends a WdfResource controlled resource dir
+ * 
+ * @see prepend_resource_dir
+ * @param string $path Path in local filesystem
+ * @param string $append_nc Use nocache handling true|false
+ * @param string $ext Pipe (|) separated list of filename extensions 
+ * @return void
+ */
 function prepend_wdfresource_dir($path,$append_nc=true,$ext=false)
 {
     prepend_resource_dir($path, "wdfresource/res", $append_nc, $ext);
@@ -1268,6 +1306,12 @@ if( !function_exists('idn_to_utf8') )
     function idn_to_utf8($domain) { return IDN::decodeIDN($domain); }
 }
 
+/**
+ * Returns the first element of a given array.
+ * 
+ * @param array $array The array
+ * @return mixed The first element
+ */
 function array_first($array)
 {
     if( is_array($array) )
@@ -1279,6 +1323,12 @@ function array_first($array)
     return null;
 }
 
+/**
+ * Returns the last element of a given array.
+ * 
+ * @param array $array The array
+ * @return mixed The last element
+ */
 function array_last($array)
 {
     if( is_array($array) )

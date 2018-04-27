@@ -42,6 +42,12 @@ class CheckBox extends Input
 		$this->setType("checkbox")->setName($name)->setValue(1);
 	}
 	
+    /**
+     * Sets if checked or not.
+     * 
+     * @param bool $on true for checked, false for unchecked
+     * @return $this
+     */
 	function setChecked($on)
 	{
 		if( $on )

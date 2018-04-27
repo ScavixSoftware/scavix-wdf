@@ -411,6 +411,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	 * @param string $name Column name
 	 * @param string $label Column label
 	 * @param string $type Type of values
+	 * @param string $style Style of values
 	 * @return GoogleVisualization `$this`
 	 */
 	function addColumn($name,$label=false,$type=false,$style=false)
@@ -565,6 +566,16 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		return $this;
 	}
 	
+    /**
+     * Sets up a <ResultSet> as source of multiple data series.
+     * 
+     * @param ResultSet $rs The resultset containing the series data
+     * @param string $xAxisCol Name of column containing the xAxis data
+     * @param string $newColSpecifier Name of column containing the series identifiers
+     * @param string $newColValue Name of column containing the real series data
+     * @param string $newcolformat Optional format of the data values
+     * @return $this
+     */
 	function setMultiSeriesResultSet($rs,$xAxisCol,$newColSpecifier,$newColValue,$newcolformat = 'number')
 	{
 		$results = $rs->results();
@@ -620,6 +631,12 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		return $this;
 	}
     
+    /**
+     * Ensures a continous axis of type Date.
+     * 
+     * @param string $format Optional format
+     * @return $this
+     */
     function makeContinousDateAxis($format='Y-m-d')
     {
         $keys = array_keys($this->_data);
@@ -661,6 +678,11 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
         return $this;
     }
     
+    /**
+     * Ensures a continous axis of type Integer.
+     * 
+     * @return $this
+     */
     function makeContinousIntAxis()
     {
         $null = array_fill(0,count($this->_data[0]),0);

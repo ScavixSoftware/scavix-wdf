@@ -124,6 +124,12 @@ class Tr extends Control
 		return count($this->_content);
 	}
     
+    /**
+     * Applies the format to all cells.
+     * 
+     * @param Table $table Optional <Table> object (this <Tr> belongs to)
+     * @return void
+     */
     function FormatCells($table=false)
     {
         if( $this->_parent instanceof THead )
@@ -160,6 +166,12 @@ class Tr extends Control
 		return parent::WdfRender();
 	}
 	
+    /**
+     * Sets the alignment for all columns.
+     * 
+     * @param array $alignment Array of alignments for each column l(eft)|r(ight)|c(enter)
+     * @return $this
+     */
 	function SetAlignment($alignment)
 	{
 		foreach( $alignment as $i=>$a )

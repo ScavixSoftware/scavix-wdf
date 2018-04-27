@@ -775,6 +775,13 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		//return array_keys($this->_changedColumns);
     }
     
+    /**
+     * Returns an array of changes.
+     * 
+     * The result is an array with column names as keys and each element
+     * an array of the old an the new value.
+     * @return array Array containing all changes
+     */
     public function GetChanges()
 	{
 		$res = array();
@@ -797,6 +804,12 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
     }
     
+    /**
+     * Checks if a column has changed.
+     * 
+     * @param string $col Name of the column to check
+     * @return boolean true if changed, else false
+     */
     public function HasChanged($col)
     {
         if( isset($this->$col) )
@@ -1225,6 +1238,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * 
 	 * @param string $property Property-/Fieldname to order by
 	 * @param string $direction 'ASC' or 'DESC'
+	 * @param bool $checkfieldname Check the fieldname or not (true|false)
 	 * @return Model `clone $this`
 	 */
 	public function orderBy($property,$direction = "ASC",$checkfieldname=true)
@@ -1352,7 +1366,12 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	}
 	
 	/**
-	 * Checks if the given date is between start & end of dataset
+	 * Filters by "the given date is between start & end".
+     * 
+     * @param string $startfieldname Name of the column containing the start date(-time)
+     * @param string $endfieldname  Name of the column containing the end date(-time)
+     * @param mixed $date The date value to be chacked against
+     * @return Model $this
 	 */
 	public function isDateInRange($startfieldname, $endfieldname, $date = false)
 	{

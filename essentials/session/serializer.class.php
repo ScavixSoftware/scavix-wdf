@@ -343,7 +343,7 @@ class Serializer
 						$this->Stack[$id]->$field = $this->Unser_Inner();
 					}
 
-					if( !($this->Stack[$id] instanceof \ScavixWDF\CacheEntry) && system_method_exists($this->Stack[$id],'__wakeup') )
+					if( system_method_exists($this->Stack[$id],'__wakeup') )
 						$this->Stack[$id]->__wakeup();
 
 					return $this->Stack[$id];

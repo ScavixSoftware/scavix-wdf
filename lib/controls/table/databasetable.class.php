@@ -167,7 +167,11 @@ class DatabaseTable extends Table implements ICallable
             $this->ExecuteSql($this->Sql);
         }
 	}
-    
+    /**
+     * Returns the SQL statement used in this table.
+     * 
+     * @return string The SQL statement
+     */
     final function GetSQL()
     {
         if( !$this->Columns )
@@ -602,6 +606,13 @@ class DatabaseTable extends Table implements ICallable
 	}
     
     var $logIfSlow = false;
+    
+    /**
+     * Write a log information if querying was slow.
+     * 
+     * @param int $min_ms Minimum milliseconds that must be reached to really write info to log 
+     * @return $this
+     */
     function LogIfSlow($min_ms)
     {
         $this->logIfSlow = $min_ms;

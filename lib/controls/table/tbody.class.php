@@ -239,6 +239,12 @@ class TBody extends Control
         return parent::WdfRender();
     }
 	
+    /**
+     * Sets the alignment for all rows.
+     * 
+     * @param array $alignment Array of alignments for each column l(eft)|r(ight)|c(enter)
+     * @return $this
+     */
 	function SetAlignment($alignment)
 	{
 		foreach( $this->_content as $tr )

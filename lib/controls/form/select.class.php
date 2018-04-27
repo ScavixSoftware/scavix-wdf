@@ -110,6 +110,15 @@ class Select extends Control
 		return $this;
 	}
 	
+    /**
+     * Creates an option and returns it.
+     * 
+	 * @param mixed $value The value
+	 * @param mixed $label An optional label
+	 * @param bool $selected True if selected (hint: use <Select::SetCurrentValue> instead of evaluating selected state for each option)
+	 * @param Control $opt_group If given the option will be added to this optgroup element. Create one via <Select::CreateGroup>.
+	 * @return Control The created option
+     */
 	function CreateOption($value, $label="", $selected = false, $opt_group=false)
 	{
 		$label = $label==""?$value:$label;
@@ -179,6 +188,14 @@ class Select extends Control
 		return new Label($text,$this->id);
 	}
     
+    /**
+     * Created and return a <Select> control.
+     * 
+     * @param array $options Options
+     * @param string $name Optional name attribute
+     * @param string $selected Selected value
+     * @return Select The created Select control
+     */
     static function Create($options,$name=false,$selected=false)
     {
         $res = new Select($name);

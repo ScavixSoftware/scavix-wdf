@@ -235,35 +235,3 @@ class WdfDbException extends WdfException
         return [];
     }
 }
-
-class CacheEntry
-{
-	var $_storage_id;
-	var $data;
-    
-    static function Create($key, $data)
-    {
-        $res = new CacheEntry();
-        $res->_storage_id = $key;
-        $res->data = $data;
-        store_object($res,$res->_storage_id);
-    }
-    
-    static function Load($key)
-    {
-        $res = restore_object($key);
-        if( $res )
-            return $res->data;
-        return null;
-    }
-    
-    static function Exists($key)
-    {
-        return in_object_storage($key);
-    }
-    
-    static function Delete($key)
-    {
-        delete_object($key);
-    }
-}
