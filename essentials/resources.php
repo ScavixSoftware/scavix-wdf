@@ -132,6 +132,13 @@ function resFile($filename, $as_local_path = false)
 	return "";
 }
 
+/**
+ * Registers a variable for use in LESS files.
+ * 
+ * @param string $name Variable name
+ * @param string $value Variable value
+ * @return void
+ */
 function register_less_variable($name,$value)
 {
     if( !isset($_SESSION['resources_less_variables']) )
@@ -139,6 +146,13 @@ function register_less_variable($name,$value)
 	$_SESSION['resources_less_variables'][$name] = $value;
 }
 
+/**
+ * Adds a folder to the LESS search path.
+ * 
+ * @param string $dir Folder to be added
+ * @param mixed $key If given names this folder, so that it can be overwritten by another call to <add_less_import_dir>
+ * @return void
+ */
 function add_less_import_dir($dir,$key=false)
 {
     if( !isset($_SESSION['resources_less_dirs']) )
@@ -149,6 +163,11 @@ function add_less_import_dir($dir,$key=false)
         $_SESSION['resources_less_dirs'][] = $dir;
 }
 
+/**
+ * Clears the LESS cache.
+ * 
+ * @return void
+ */
 function clear_less_cache()
 {
     foreach( glob(sys_get_temp_dir()."/*.css") as $c )

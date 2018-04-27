@@ -39,45 +39,6 @@ use ScavixWDF\Reflection\WdfReflector;
 use ScavixWDF\WdfException;
 use SimpleXMLElement;
 
-
-class LazyLoader
-{
-    var $serializer;
-    var $data;
-    var $obj;
-    
-    function __construct($data,$serializer)
-    {
-        $this->data = $data;
-        $this->serializer = clone $serializer;
-    }
-    
-    private function getObj()
-    {
-        if( !$this->obj )
-            $this->obj = $this->serializer->UnserializeDeeper($this->data);
-        return $this->obj;
-    }
-    
-    function __get($name)
-    {
-        $o = $this->getObj();
-        return $o->$name;
-    }
-    
-    function __set($name, $value)
-    {
-        $o = $this->getObj();
-        $o->$name = $value;
-    }
-    
-    function __call($name, $arguments)
-    {
-        $o = $this->getObj();
-        return call_user_func_array($o->$name,$arguments);
-    }
-}
-
 /**
  * Serializer/Unserializer
  * 

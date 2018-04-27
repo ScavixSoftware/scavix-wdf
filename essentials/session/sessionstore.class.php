@@ -25,6 +25,10 @@
 namespace ScavixWDF\Session;
 
 /**
+ * Stores objects in the SESSION.
+ * 
+ * Well...this is the storage that does what we did not want anymore: Blow up the PHP Session.
+ * It ist straight and some cases it can be useful, because it's configurationless.
  */
 class SessionStore extends ObjectStore
 {
@@ -40,6 +44,9 @@ class SessionStore extends ObjectStore
         $this->serializer = new Serializer();
     }
     
+    /**
+     * @override <ObjectStore::Store>
+     */
     function Store(&$obj,$id="")
     {
         global $CONFIG;
@@ -63,6 +70,9 @@ class SessionStore extends ObjectStore
         $this->_stats(__METHOD__,$start);
     }
     
+    /**
+     * @override <ObjectStore::Delete>
+     */
 	function Delete($id)
     {
         global $CONFIG;
@@ -85,6 +95,9 @@ class SessionStore extends ObjectStore
         $this->_stats(__METHOD__,$start);
     }
     
+    /**
+     * @override <ObjectStore::Exists>
+     */
 	function Exists($id)
     {
         global $CONFIG;
@@ -101,6 +114,9 @@ class SessionStore extends ObjectStore
 		return $res;
     }
     
+    /**
+     * @override <ObjectStore::Restore>
+     */
 	function Restore($id)
     {
         global $CONFIG;
@@ -127,6 +143,9 @@ class SessionStore extends ObjectStore
 		return $res;
     }
     
+    /**
+     * @override <ObjectStore::CreateId>
+     */
     function CreateId(&$obj)
     {
         global $CONFIG;
@@ -159,6 +178,9 @@ class SessionStore extends ObjectStore
 		return $obj->_storage_id;
     }
     
+    /**
+     * @override <ObjectStore::Cleanup>
+     */
     function Cleanup($classname=false)
     {
         global $CONFIG;
@@ -188,6 +210,9 @@ class SessionStore extends ObjectStore
         $this->_stats(__METHOD__,$start);
     }
     
+    /**
+     * @override <ObjectStore::Update>
+     */
     function Update($keep_alive=false)
     {
         global $CONFIG;
@@ -214,6 +239,9 @@ class SessionStore extends ObjectStore
         $this->_stats(__METHOD__.($keep_alive?"/KA":''),$start);
     }
     
+    /**
+     * @override <ObjectStore::Migrate>
+     */
     function Migrate($old_session_id, $new_session_id)
     {
         // nothing to to because session variable is migrated by PHP itself

@@ -25,6 +25,9 @@
 namespace ScavixWDF\Session;
 
 /**
+ * Stores Objects in a MySQL Database.
+ * 
+ * Uses table `wdf_objects`.
  */
 class DbStore extends ObjectStore
 {
@@ -74,6 +77,9 @@ class DbStore extends ObjectStore
         return new \ScavixWDF\Model\ResultSet($this->ds);
     }
     
+    /**
+     * @override <ObjectStore::Store>
+     */
     function Store(&$obj,$id="")
     {
         $start = microtime(true);
@@ -100,7 +106,10 @@ class DbStore extends ObjectStore
         $this->_stats(__METHOD__,$start);
     }
     
-	function Delete($id)
+    /**
+     * @override <ObjectStore::Delete>
+     */
+    function Delete($id)
     {
         $start = microtime(true);
 		if( is_object($id) && isset($id->_storage_id) )
@@ -112,6 +121,9 @@ class DbStore extends ObjectStore
         $this->_stats(__METHOD__,$start);
     }
     
+    /**
+     * @override <ObjectStore::Exists>
+     */
 	function Exists($id)
     {
         $start = microtime(true);
@@ -126,6 +138,9 @@ class DbStore extends ObjectStore
 		return $res;
     }
     
+    /**
+     * @override <ObjectStore::Restore>
+     */
 	function Restore($id)
     {
         $start = microtime(true);
@@ -146,6 +161,9 @@ class DbStore extends ObjectStore
 		return $res;
     }
     
+    /**
+     * @override <ObjectStore::CreateId>
+     */
     function CreateId(&$obj)
     {
         $start = microtime(true);
@@ -167,6 +185,9 @@ class DbStore extends ObjectStore
         return $obj->_storage_id;
     }
     
+    /**
+     * @override <ObjectStore::Cleanup>
+     */
     function Cleanup($classname=false)
     {
         $start = microtime(true);
@@ -191,6 +212,9 @@ class DbStore extends ObjectStore
         $this->_stats(__METHOD__,$start);
     }
     
+    /**
+     * @override <ObjectStore::Update>
+     */
     function Update($keep_alive=false)
     {
         $start = microtime(true);
@@ -225,6 +249,9 @@ class DbStore extends ObjectStore
         $this->_stats(__METHOD__,$start);
     }
     
+    /**
+     * @override <ObjectStore::Migrate>
+     */
     function Migrate($old_session_id, $new_session_id)
     {
         $start = microtime(true);

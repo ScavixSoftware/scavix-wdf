@@ -25,6 +25,7 @@
 namespace ScavixWDF\Session;
 
 /**
+ * Implements <ObjectStore> for use with APC.
  */
 class APCStore extends ObjectStore
 {
@@ -45,6 +46,9 @@ class APCStore extends ObjectStore
             $_SESSION['object_ids'] = [];
     }
     
+    /**
+     * @override <ObjectStore::Store>
+     */
     function Store(&$obj,$id="")
     {
         $start = microtime(true);
@@ -66,6 +70,9 @@ class APCStore extends ObjectStore
         $this->_stats(__METHOD__,$start);
     }
     
+    /**
+     * @override <ObjectStore::Delete>
+     */
 	function Delete($id)
     {
         $start = microtime(true);
@@ -80,6 +87,9 @@ class APCStore extends ObjectStore
         $this->_stats(__METHOD__,$start);
     }
     
+    /**
+     * @override <ObjectStore::Exists>
+     */
 	function Exists($id)
     {
         $start = microtime(true);
@@ -94,6 +104,9 @@ class APCStore extends ObjectStore
 		return $res;
     }
     
+    /**
+     * @override <ObjectStore::Restore>
+     */
 	function Restore($id)
     {
         $start = microtime(true);
@@ -112,6 +125,9 @@ class APCStore extends ObjectStore
 		return $res;
     }
     
+    /**
+     * @override <ObjectStore::CreateId>
+     */    
     function CreateId(&$obj)
     {
         $start = microtime(true);
@@ -133,11 +149,17 @@ class APCStore extends ObjectStore
         return $obj->_storage_id;
     }
     
+    /**
+     * @override <ObjectStore::Cleanup>
+     */
     function Cleanup($classname=false)
     {
         // not necessary for APC
     }
     
+    /**
+     * @override <ObjectStore::Update>
+     */
     function Update($keep_alive=false)
     {
         $start = microtime(true);
@@ -173,6 +195,9 @@ class APCStore extends ObjectStore
         $this->_stats(__METHOD__,$start);
     }
     
+    /**
+     * @override <ObjectStore::Migrate>
+     */
     function Migrate($old_session_id, $new_session_id)
     {
 //        log_debug('Migrate', $old_session_id, $new_session_id);

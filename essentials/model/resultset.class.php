@@ -185,7 +185,8 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
     /**
 	 * Savely unserializes this object
 	 * 
-	 * This is mainly needed for query caching
+	 * This is mainly needed for query caching.
+     * @param string $data Serialized data, see result of <ResultSet::serialize>
 	 * @return void
 	 */
     function unserialize($data)

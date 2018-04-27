@@ -54,6 +54,7 @@ class DateTimeEx extends DateTime
 	 * Creates a new DateTimeEx object ready for method chaining.
 	 * 
 	 * @param mixed $source <DateTimeEx>, <DateTime> or anything <DateTime> accepts in it's constructor
+	 * @param string $format Optional format to use when parsing $source
 	 * @return DateTimeEx The created instance
 	 */
 	public static function Make($source=false, $format = false)
@@ -158,6 +159,11 @@ class DateTimeEx extends DateTime
 		return $res;
 	}
     
+    /**
+     * Returns the midnight value.
+     * 
+     * @return DateTimeEx $this
+     */
     public function midnight()
     {
         return new DateTimeEx(date("Y-m-d 00:00:00",$this->getTimestamp()));

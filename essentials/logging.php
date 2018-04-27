@@ -89,6 +89,11 @@ function logging_init()
 	register_shutdown_function('global_fatal_handler');
 }
 
+/**
+ * Checks if there's enough memory.
+ * 
+ * @return bool true if ok, else false
+ */
 function logging_mem_ok()
 {
     $val = trim(ini_get('memory_limit'));
@@ -511,6 +516,12 @@ function render_var($content)
 	return logging_render_var($content);
 }
 
+/**
+ * Starts a named timer.
+ * 
+ * @param string $name Name of the timer
+ * @return string Timer-Identifier
+ */
 function start_timer($name)
 {
     $id = uniqid();
@@ -518,6 +529,13 @@ function start_timer($name)
     return $id;
 }
 
+/**
+ * Set a marker in a named timer.
+ * 
+ * @param string $id Timer-Identifier
+ * @param string $label Label to be written
+ * @return void
+ */
 function hit_timer($id,$label='(no label)')
 {
     if( !isset($GLOBALS['logging_timers'][$id]) )
@@ -526,6 +544,13 @@ function hit_timer($id,$label='(no label)')
     $GLOBALS['logging_timers'][$id][] = [$label,microtime(true),round((microtime(true)-$start)*1000)];
 }
 
+/**
+ * Finishes a timer and writes it to log.
+ * 
+ * @param string $id Timer-Identifier
+ * @param int $min_ms Minimum milliseconds that must be reached for the timer to be written to log
+ * @return void
+ */
 function finish_timer($id,$min_ms = false)
 {
     if( !isset($GLOBALS['logging_timers'][$id]) )

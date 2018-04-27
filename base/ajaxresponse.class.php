@@ -101,6 +101,7 @@ class AjaxResponse
 	 * Return a Controller (with full init-code).
 	 * 
 	 * @param Renderable $content Content to be passed out
+	 * @param bool $force_dependency_loading If false, stops automatic JS/CSS dependency search and delivery
 	 * @return AjaxResponse The created response
 	 */
 	public static function Renderable(Renderable $content, $force_dependency_loading = null)

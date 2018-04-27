@@ -177,6 +177,10 @@ function model_build_connection_string($type,$server,$username,$password,$databa
  * Scripts my inlcude other files (like view create/update statements) like this: @include(views/my_view.sql);
  * These include statements must be one-per-line and they must be terminated by semi-colon (;).
  * The path must be relative to the inclusing SQL file.
+ * @param mixed $datasource The datasource to be used
+ * @param string|int $version Target version
+ * @param string $script_folder Folder with the SQL update scripts
+ * @return array Array of results
  */
 function model_update_db($datasource,$version,$script_folder)
 {
@@ -193,7 +197,7 @@ function model_update_db($datasource,$version,$script_folder)
     
     $current = $ds->ExecuteScalar("SELECT version FROM wdf_versions ORDER BY version DESC");
     if( $current == $version )
-        return;
+        return [];
     if( !$current )
         $current = 0;
     

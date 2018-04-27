@@ -27,6 +27,10 @@ namespace ScavixWDF\Session;
 use ScavixWDF\WdfException;
 
 /**
+ * Stores objects in the filesystem.
+ * 
+ * This is by far the fastets <ObjectStore> implementation. As we use it mostly,
+ * it is most commonly updated!
  */
 class FilesStore extends ObjectStore
 {
@@ -77,6 +81,9 @@ class FilesStore extends ObjectStore
             $_SESSION['object_ids'] = [];
     }
     
+    /**
+     * @override <ObjectStore::Store>
+     */
     function Store(&$obj,$id="")
     {
         $start = microtime(true);
@@ -99,6 +106,9 @@ class FilesStore extends ObjectStore
         $this->_stats(__METHOD__,$start);
     }
     
+    /**
+     * @override <ObjectStore::Delete>
+     */
 	function Delete($id)
     {
         $start = microtime(true);
@@ -111,6 +121,9 @@ class FilesStore extends ObjectStore
         $this->_stats(__METHOD__,$start);
     }
     
+    /**
+     * @override <ObjectStore::Exists>
+     */
 	function Exists($id)
     {
         $start = microtime(true);
@@ -125,6 +138,9 @@ class FilesStore extends ObjectStore
 		return $res;
     }
     
+    /**
+     * @override <ObjectStore::Restore>
+     */
 	function Restore($id)
     {
         $start = microtime(true);
@@ -147,6 +163,9 @@ class FilesStore extends ObjectStore
 		return $res;
     }
     
+    /**
+     * @override <ObjectStore::CreateId>
+     */
     function CreateId(&$obj)
     {
         $start = microtime(true);
@@ -168,6 +187,9 @@ class FilesStore extends ObjectStore
         return $obj->_storage_id;
     }
     
+    /**
+     * @override <ObjectStore::Cleanup>
+     */
     function Cleanup($classname=false)
     {
         $start = microtime(true);
@@ -209,6 +231,9 @@ class FilesStore extends ObjectStore
         $this->_stats(__METHOD__,$start);
     }
     
+    /**
+     * @override <ObjectStore::Update>
+     */
     function Update($keep_alive=false)
     {
         $start = microtime(true);
@@ -231,6 +256,9 @@ class FilesStore extends ObjectStore
         $this->_stats(__METHOD__.($keep_alive?"/KA":''),$start);
     }
     
+    /**
+     * @override <ObjectStore::Migrate>
+     */
     function Migrate($old_session_id, $new_session_id)
     {
         $start = microtime(true);

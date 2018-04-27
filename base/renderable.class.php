@@ -39,6 +39,9 @@ abstract class Renderable
 	var $_content = array();
 	var $_script = array();
 
+    /**
+     * @internal Dummy. Can be used in subclasses by overriding.
+     */
     function PreRender($args=array()){}
     
 	/**
@@ -57,6 +60,11 @@ abstract class Renderable
 	 */
 	abstract function WdfRender();
 	
+    /**
+     * Renders this instance without dependencies direcly.
+     * 
+     * @return string Rendered HTML content
+     */
     function WdfRenderInline()
     {
         if( isset($GLOBALS['current_rendering_template']) )
@@ -370,6 +378,12 @@ abstract class Renderable
 		return $this->par()->get($i+1);
 	}
     
+    /**
+     * Returns the next Control of a given type when stepping up the object tree.
+     * 
+     * @param string $classname Class to search for
+     * @return mixed The closest object or false if not found
+     */
     function closest($classname)
     {
         if( !$this->_parent )

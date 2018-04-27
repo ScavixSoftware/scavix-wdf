@@ -153,17 +153,26 @@ function session_sanitize()
 }
 
 /**
+ * Truncates the session.
+ * 
+ * @return void
  */
 function session_kill_all()
 {
 	$GLOBALS['fw_session_handler']->KillAll();
 }
 
+/**
+ * @internal Keeps session alive
+ */
 function session_keep_alive($request_key='PING')
 {
 	return $GLOBALS['fw_session_handler']->KeepAlive($request_key);
 }
 
+/**
+ * @internal Keeps used stored objects alive
+ */
 function session_update($keep_alive=false)
 {
     if( isset($GLOBALS['session_update_done']) )
