@@ -393,7 +393,7 @@ class DatabaseTable extends Table implements ICallable
 
                 $cnt = $this->current_row_group?$this->current_row_group->length():0;
                 if( $this->OnAddRow )
-                    $this->OnAddRow[0]->{$this->OnAddRow[1]}($this, $row);
+                    $this->OnAddRow[0]->{$this->OnAddRow[1]}($this, $row, $raw_row);
                 else
                     $this->AddRow($row);
 				
