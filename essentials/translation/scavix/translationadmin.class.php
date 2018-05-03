@@ -126,22 +126,21 @@ class TranslationAdmin extends TranslationAdminBase
 			$db_languages[$i]->percentage = round($count / $max * 100,0);
 		}
         
-        if( !$languages )
+        $div = $this->_contentdiv->content(new Form());
+        foreach( $db_languages as $lang )
         {
-            $div = $this->_contentdiv->content(new Form());
-            foreach( $db_languages as $lang )
-            {
-                $cb = $div->content( new CheckBox('languages[]') );
-                $cb->value = $lang->code;
-                $div->content($cb->CreateLabel($lang->name." ({$lang->code}, {$lang->percentage}% complete)"));
-                $div->content("<br/>");
-            }
-            $a = $div->content(new Anchor('#','Select all'));
-            $a->script("$('#{$a->id}').click(function(){ $('input','#{$div->id}').attr('checked',true); });");
-            $div->content("&nbsp;&nbsp;");
-            $div->AddSubmit("Fetch");
-            return;
+            $cb = $div->content( new CheckBox('languages[]') );
+            $cb->value = $lang->code;
+            $div->content($cb->CreateLabel($lang->name." ({$lang->code}, {$lang->percentage}% complete)"));
+            $div->content("<br/>");
         }
+        $a = $div->content(new Anchor('#','Select all'));
+        $a->script("$('#{$a->id}').click(function(){ $('input','#{$div->id}').attr('checked',true); });");
+        $div->content("&nbsp;&nbsp;");
+        $div->AddSubmit("Fetch");
+        
+        if( !$languages )
+            return; 
         
         $head = array();
         foreach( $db_languages as $lang )
@@ -170,7 +169,19 @@ class TranslationAdmin extends TranslationAdminBase
 			if( starts_with($key, 'lang_') )
 				cache_del($key);
 		}
-		$this->_contentdiv->content("<div>Cleared the string cache</div>");
+		$this->_contentdiv->content("<div>Clearestringd the  cache</div>");
+        
+        foreach( array_unique($languages) as $lang )
+        {
+            $lang = strtolower($lang);
+            $fn = $CONFIG['translation']['data_path'].$lang.'.inc.php';
+            $strings = file_get_contents($fn);
+            
+            $fn = "$fn <a style='font-weight:normal' href='javascript:void(0)' onclick='document.getElementById(\"strings_{$lang}\").select(); document.execCommand(\"Copy\");'>copy</a>";
+            
+            $this->_contentdiv->content("<h2>$fn</h2>");
+            $this->_contentdiv->content("<textarea id='strings_{$lang}' style='width: 90%; min-height: 30px'>$strings</textarea>");
+        }
     }
 	
     /**
