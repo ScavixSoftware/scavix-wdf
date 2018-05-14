@@ -64,6 +64,7 @@ class DatabaseTable extends Table implements ICallable
 
 	var $OnAddHeader = false;
 	var $OnAddRow = false;
+	var $OnAddFooter = false;
 	var $ExecuteSqlHandler = false;
 
 	public $noDataAsRow = false;
@@ -259,6 +260,7 @@ class DatabaseTable extends Table implements ICallable
 		$this->OnAddHeader = array($handler,$function);
 		return $this;
 	}
+    
 	/**
 	 * Allows to assign your own handler to the AddRow function
 	 * 
@@ -272,6 +274,22 @@ class DatabaseTable extends Table implements ICallable
 	{
 		$res = $this->OnAddRow;
 		$this->OnAddRow = array($handler,$function);
+		return $this;
+	}
+    
+	/**
+	 * Allows to assign your own handler to the AddFooter function
+	 * 
+	 * Sometimes you do not want to inherit from this, but create a table and assign the handlers
+	 * to another object.
+	 * @param object $handler Object containing the handler method
+	 * @param string $function Name of the handler method
+	 * @return DatabaseTable `$this`
+	 */
+	function AssignOnAddFooter(&$handler,$function)
+	{
+		$res = $this->OnAddFooter;
+		$this->OnAddFooter = array($handler,$function);
 		return $this;
 	}
 
@@ -306,6 +324,20 @@ class DatabaseTable extends Table implements ICallable
 	{
 		$head = array_combine($keys,$keys);
 		$this->Header()->NewRow($head);
+	}
+	
+	/**
+	 * Default AddFooter method
+	 * 
+	 * Creates a table footer with the given keys as text.
+	 * Uses <Table::Footer>() internally
+	 * @param array $keys Array of columns this <DatabaseTable> contains
+	 * @return void
+	 */
+	function AddFooter($keys)
+	{
+		$foot = array_combine($keys,$keys);
+		$this->Footer()->NewRow($foot);
 	}
 
 	protected function _preProcessData($row)
@@ -373,6 +405,10 @@ class DatabaseTable extends Table implements ICallable
 					$this->OnAddHeader[0]->{$this->OnAddHeader[1]}($this, array());
 				else
 					$this->AddHeader(array());
+			
+			if( !$this->footer )
+				if( $this->OnAddFooter )
+					$this->OnAddFooter[0]->{$this->OnAddFooter[1]}($this, array());
 				
 			$td = $this->SetColFormat(0,"")->NewCell($this->contentNoData);
 			$td->colspan = $this->header->GetMaxCellCount();
@@ -396,10 +432,13 @@ class DatabaseTable extends Table implements ICallable
                     $this->OnAddRow[0]->{$this->OnAddRow[1]}($this, $row, $raw_row);
                 else
                     $this->AddRow($row);
-				
+
                 if( $cnt < ($this->current_row_group?$this->current_row_group->length():0) )
                     $this->AddDataToRow($raw_row);
             }
+            if( !$this->footer )
+                if( $this->OnAddFooter )
+                    $this->OnAddFooter[0]->{$this->OnAddFooter[1]}($this, array_keys($row));
             if($this->alignments)
                 $this->SetAlignment($this->alignments);
 			if( $this->ItemsPerPage )

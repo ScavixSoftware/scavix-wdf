@@ -658,13 +658,13 @@ class Table extends Control
 		for( $i=$start; $i<=$pages && $i<($start+$this->MaxPagesToShow); $i++ )
 		{
 			if( $i == $this->CurrentPage )
-				$ui->content("<span class='current'>$i</span>");
+				$ui->content("<span class='current'>".($this->Culture !== false ? $this->Culture->FormatInt($i) : $i)."</span>");
 			else
-				$ui->content(new Anchor("javascript: $('#$this->id').gotoPage($i)",$i));
+				$ui->content(new Anchor("javascript: $('#$this->id').gotoPage($i)", ($this->Culture !== false ? $this->Culture->FormatInt($i) : $i)));
 		}
         
 		if( $i == $pages )
-            $ui->content(new Anchor("javascript: $('#$this->id').gotoPage($i)",$i));
+            $ui->content(new Anchor("javascript: $('#$this->id').gotoPage($i)", ($this->Culture !== false ? $this->Culture->FormatInt($i) : $i)));
         elseif( $i < $pages )
 		{
 			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage(".($this->CurrentPage+1).")","&gt;") );
