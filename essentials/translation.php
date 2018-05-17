@@ -596,6 +596,16 @@ function translation_string_exists($constant)
 	return in_array($constant, $known);
 }
 
+function translation_is_valid_constant($constant)
+{
+	$text = preg_replace(
+		$GLOBALS['__translate_regpattern'],
+        '',
+        $constant
+    );
+    return trim($text) == '';
+}
+
 /**
  * @internal Ensures that a string will not be translated
  */

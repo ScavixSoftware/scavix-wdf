@@ -278,8 +278,14 @@ function system_parse_request_path()
 		}
 		
 		// now for the normal processing
-		$wdf_route = $_REQUEST['wdf_route'];
-		$GLOBALS['wdf_route'] = $path = explode("/",$_REQUEST['wdf_route']);
+		if( isset($GLOBALS['CONFIG']['wdf_route_parser']) )
+        {
+            $path = $GLOBALS['CONFIG']['wdf_route_parser'];
+            $path = $path(explode("/",$_REQUEST['wdf_route']));
+        }
+        else
+            $path = explode("/",$_REQUEST['wdf_route']);
+		$GLOBALS['wdf_route'] = $path;
 		unset($_REQUEST['wdf_route']);
 		unset($_GET['wdf_route']);
 
