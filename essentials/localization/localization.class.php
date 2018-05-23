@@ -339,6 +339,20 @@ class Localization
 			return false;
 		return $region->DefaultCulture();
 	}
+    
+    /**
+	 * Gets the <RegionInfo> for a country.
+	 * 
+	 * @param string $country_code Country code
+	 * @return RegionInfo The region info or false on error
+	 */
+	public static function get_country_region($country_code)
+	{
+		$region = internal_getRegion($country_code);
+		if( !$region )
+			return false;
+		return $region;
+	}
 
 	/**
 	 * Gets a list of country names.
