@@ -137,7 +137,7 @@ class GoogleControl extends Control
 				$loader[] = "google.load('$api','$version',".system_to_json($options).");";
 		}
 		$controller = $args[0];
-		if( system_is_ajax_call() && ($controller instanceof GoogleControl) )
+		if( system_is_ajax_call() && (($controller instanceof GoogleControl) || $controller->hasContentOfInstance('ScavixWDF\Google\GoogleControl')) )
 			$controller->script($loader);
 		elseif( $controller instanceof HtmlPage )
 			$controller->addDocReady($loader,false); // <- see the 'false'? we add these codes inline, not into the ready handler as this crashes

@@ -72,9 +72,8 @@ abstract class Renderable
         $this->PreRender(array(current_controller(false)));
         
         if( isset($GLOBALS['current_rendering_template']) )
-        {
             $GLOBALS['current_rendering_template']->script($this->_script);
-        }
+
         return $this->WdfRender();
     }
     
@@ -450,7 +449,7 @@ abstract class Renderable
 	 * Returns the zero based index of `$content`.
 	 * 
 	 * Checks the content array for the given `$content` and returns it's index of found.
-	 * Returns -1 of not found.
+	 * Returns -1 if not found.
 	 * @param mixed $content Content to search for
 	 * @return int Zero based index or -1 if not found
 	 */
@@ -461,6 +460,22 @@ abstract class Renderable
 			if( $this->_content[$i] == $content )
 				return $i;
 		return -1;
+	}
+	
+	/**
+	 * Returns if there is an element in the content with the given instance type
+	 * 
+	 * @param mixed $type Instance type to search for (via InstanceOf)
+	 * @return bool True if an element of given instance was found
+	 */
+	function hasContentOfInstance($type)
+	{
+        foreach( get_object_vars($this) as $name => $c )
+        {
+            if( is_object($c) && ( ($c instanceof $type) || is_subclass_of($c, $type) ) )
+                return true;
+        }
+        return false;
 	}
 	
 	/**
