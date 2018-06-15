@@ -198,7 +198,7 @@ class CellFormat
 				case 'integer':
 					$v = $this->getNumeric($content);
                     if( $v === false ) return $full_content;
-					$content = str_replace($content,$culture->FormatInt($v),$full_content);
+					$content = str_replace($content,$culture->FormatNumber($v, 0, isset($options[0])),$full_content);
 					break;
 				case 'percent':
 					$v = $this->getNumeric($content);
