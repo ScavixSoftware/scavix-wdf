@@ -176,7 +176,15 @@ function model_build_connection_string($type,$server,$username,$password,$databa
  * Script files will be executed directly, so each statement must be terminated with semi-colon (;).
  * Scripts my inlcude other files (like view create/update statements) like this: @include(views/my_view.sql);
  * These include statements must be one-per-line and they must be terminated by semi-colon (;).
- * The path must be relative to the inclusing SQL file.
+ * The path must be relative to the including SQL file.
+ * 
+ * Update will stop on error which will be written to the wdf_versions table. You'll then have
+ * to correct the script and remove the verions datasen from wdf_versions to let it run again.
+ * 
+ * Scripts should always ensure that statements can be executed again without erroring out, to
+ * help you with that, you can prepend an @-symbol to each statement. Errors will be ignored and only logged
+ * to the error.log. This way you can for example 'ALTER TABLE's with columns that alread exist.
+ * 
  * @param mixed $datasource The datasource to be used
  * @param string|int $version Target version
  * @param string $script_folder Folder with the SQL update scripts
@@ -236,7 +244,7 @@ function model_update_db($datasource,$version,$script_folder)
                 {
                     log_error("Deep level SQL include detected, ignoring: {$circ[1]} in file {$m[1]}");
                     return '';
-                },$inc);
+                },"$inc;");
             },$sql);
             
             $sql = preg_replace("/^(#|--).*$/m", "", $sql);
@@ -244,11 +252,22 @@ function model_update_db($datasource,$version,$script_folder)
             foreach( preg_split('/;[\r\n]+/', $sql) as $statement )
             {
                 $statement = trim($statement);
+                $ignore = isset($statement[0]) && $statement[0]=='@';
+                $statement = trim($statement,'@ ');    
                 if( $statement )
                 {
-                    $statement .= ";";
-                    log_debug("-> ",$statement);
-                    $ds->ExecuteSql($statement);
+                    try
+                    {
+                        $statement .= ";";
+                        log_debug("-> ",$statement);
+                        $ds->ExecuteSql($statement);
+                    }
+                    catch(Exception $first)
+                    {
+                        if( !$ignore )
+                            throw $first;
+                        log_info("Warning upgrading DB to version '$v'",$first->getMessage());
+                    }
                 }
             }
             $ds->ExecuteSql("UPDATE wdf_versions SET finished=now() WHERE version=?",$v);
