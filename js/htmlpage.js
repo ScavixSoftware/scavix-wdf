@@ -117,7 +117,11 @@ $.ajaxSetup({cache:false});
                 post: function( handler, data, callback )
 				{
 					return wdf.post(wdf.settings.controller+'/'+handler,data,callback);
-				}
+				},
+                redirect: function(handler, data)
+                {
+                    return wdf.redirect(wdf.settings.controller+'/'+handler,data);
+                }
             };
 
 			// Focus the first visible input on the page (or after the hash)
