@@ -109,6 +109,13 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		
 		if( count($this->_data)>1 || $this->_columnDef )
 		{
+            $cols = force_array($this->opt('colors'));
+            foreach( self::$Colors as $k=>$c )
+                if( !is_string($k) )
+                    $cols[] = $c;
+            if( count($cols)>0 )
+                $this->opt('colors',$cols);
+            
 			$id = $this->id; $d = "d$id"; $c = "c$id";
             if(isset($this->gvOptions['isStacked']) && isset($this->gvOptions['colors']) && is_array($this->gvOptions['colors']) && (count($this->gvOptions['colors']) > 1))
                 $opts = json_encode($this->gvOptions, JSON_FORCE_OBJECT);
@@ -420,7 +427,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		{
 			$cols = force_array($this->opt('colors'));
 			$cols[] = $style = self::$Colors[$name];
-			$this->opt('colors',$cols);			
+			$this->opt('colors',$cols);
 		}
 		$this->_columnDef[$label] = array($name,$type,$style);
 		return $this;
@@ -560,6 +567,13 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 				if( !isset($row[$name]) )
 					$row[$name] = "";
 				$d[$name] = $this->getTypedValue($row[$name],$type);
+                
+                if( ($this instanceof gvPieChart) && isset(self::$Colors[$d[$name]]) )
+                {
+                    $cols = force_array($this->opt('colors'));
+                    $cols[] = self::$Colors[$d[$name]];
+                    $this->opt('colors',$cols);			
+                }
 			}
 			$this->_data[] = $this->_applyRowCallbacks($d);
 		}
