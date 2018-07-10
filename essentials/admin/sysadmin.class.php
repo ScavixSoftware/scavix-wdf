@@ -49,6 +49,39 @@ class SysAdmin extends HtmlPage
     
     protected $_contentdiv = false;
 	protected $_subnav = false;
+    
+    private function authenticated()
+    {
+        global $CONFIG;
+        
+        if( !isset($_SESSION['admin_handler_username']) || !isset($_SESSION['admin_handler_password']) )
+            return false;
+        
+        $CFG = $CONFIG['system']['admin'];
+        
+        if( avail($CFG,'credentials') )
+        {
+            foreach( $CFG['credentials'] as $cred )
+            {
+                if( $_SESSION['admin_handler_username'] == $cred['username']
+                    &&
+                    $_SESSION['admin_handler_password'] == $cred['password'] )
+                {
+                    $_SESSION['admin_handler_role'] = isset($cred['role'])?$cred['role']:'admin';
+                    return true;
+                }
+            }
+            return false;
+        }   
+        if( $_SESSION['admin_handler_username'] == $CFG['username']
+            &&
+            $_SESSION['admin_handler_password'] == $CFG['password'] )
+        {
+            $_SESSION['admin_handler_role'] = 'admin';
+            return true;
+        }
+        return false;
+    }
 	
 	function __initialize($title = "", $body_class = false)
     {
@@ -62,17 +95,8 @@ class SysAdmin extends HtmlPage
 		unset($CONFIG["use_compiled_js"]);
 		unset($CONFIG["use_compiled_css"]);
         
-        if( current_event(true) != 'login'
-            &&
-            (   
-                !isset($_SESSION['admin_handler_username']) 
-                || !isset($_SESSION['admin_handler_password']) 
-                || $_SESSION['admin_handler_username'] != $CONFIG['system']['admin']['username']
-                || $_SESSION['admin_handler_password'] != $CONFIG['system']['admin']['password'] 
-            ) )
-		{
+        if( current_event(true) != 'login' && !$this->authenticated() )
             redirect('sysadmin','login');
-		}
         
         parent::__initialize("SysAdmin - $title", 'sysadmin');
         $this->_translate = false;
@@ -82,19 +106,24 @@ class SysAdmin extends HtmlPage
             $nav = parent::content(new Control('div'));
             $nav->class = "navigation";
 			
-			foreach( $CONFIG['system']['admin']['actions'] as $label=>$def )
-			{
-				if( !class_exists(fq_class_name($def[0])) )
-					continue;
-				$nav->content( new Anchor(buildQuery($def[0],$def[1]),$label) );
-			}
-            $nav->content( new Anchor(buildQuery('sysadmin','cache'),'Cache') );
-            $nav->content( new Anchor(buildQuery('sysadmin','phpinfo'),'PHP info') );
-            $nav->content( new Anchor(buildQuery('translationadmin','newstrings'),'Translations') );
-            $nav->content( new Anchor(buildQuery('sysadmin','testing'),'Testing') );
+            if( $_SESSION['admin_handler_role'] == 'admin' )
+            {
+                foreach( $CONFIG['system']['admin']['actions'] as $label=>$def )
+                {
+                    if( !class_exists(fq_class_name($def[0])) )
+                        continue;
+                    $nav->content( new Anchor(buildQuery($def[0],$def[1]),$label) );
+                }
+                $nav->content( new Anchor(buildQuery('sysadmin','cache'),'Cache') );
+                $nav->content( new Anchor(buildQuery('sysadmin','phpinfo'),'PHP info') );
+                $nav->content( new Anchor(buildQuery('translationadmin','newstrings'),'Translations') );
+                $nav->content( new Anchor(buildQuery('sysadmin','testing'),'Testing') );
+            }
+            else
+                $nav->content( new Anchor(buildQuery('translationadmin','newstrings'),'Translations') );
+			
             $nav->content( new Anchor(buildQuery('',''),'Back to app') );
             $nav->content( new Anchor(buildQuery('sysadmin','logout'),'Logout', 'logout') );
-			
 			$this->_subnav = parent::content(new Control('div'));
         }
         
@@ -107,7 +136,12 @@ class SysAdmin extends HtmlPage
         $footer->content($copylink);
         
         if( (current_event() == strtolower($CONFIG['system']['default_event'])) && !system_method_exists($this, current_event()) )
-            redirect('sysadmin', 'index');
+        {
+            if( $_SESSION['admin_handler_role'] == 'admin' )
+                redirect('sysadmin', 'index');
+            else
+                redirect('translationadmin', 'newstrings');
+        }
     }
 
 	/**
@@ -152,11 +186,12 @@ class SysAdmin extends HtmlPage
             return;
         }
         
-        if( $username != $CONFIG['system']['admin']['username'] || $password != $CONFIG['system']['admin']['password'] )
-            redirect(get_class_simple($this),'login');
-        
         $_SESSION['admin_handler_username'] = $username;
         $_SESSION['admin_handler_password'] = $password;
+        
+        if( !$this->authenticated() )
+            redirect(get_class_simple($this),'login');
+        
         redirect(get_class_simple($this));
 	}
     

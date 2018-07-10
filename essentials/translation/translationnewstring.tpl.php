@@ -40,8 +40,8 @@
                 <textarea class="<?=$term?>"><?=$default_val?></textarea>
             </td>
             <td>
-                <input class="delete" type="button" value="Delete" data-term="<?=$term?>"/><br/>
-                <input class="create" type="button" value="Create" data-term="<?=$term?>"/>
+                <input class="create" type="button" value="Create" data-term="<?=$term?>"/><br/>
+                <input class="delete" type="button" value="Delete" data-term="<?=$term?>"/>
             </td>
         </tr>
     </tbody>
