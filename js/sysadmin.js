@@ -60,16 +60,48 @@ wdf.ready.add(function()
 			setTimeout(function(){ btn.removeAttr('disabled').val('Save').removeClass('ok err').focus(); },1000);
 		});
     });
-	
-	$('.translations .rename').click( function()
+
+  	$('.translations input.copy').click( function()
     { 
-        wdf.controller.post('Rename',{term:$(this).data('term')});
+        $(this).closest('.tr').find('textarea').val( JSON.parse($(this).data('def')) );
+    });
+
+	$('.translations .rename').not('.activated').addClass('activated').click( function()
+    { 
+        wdf.controller.post('Rename',{term:$(this).data('term')},function(d){ console.log('YO');$('body').append(d); });
     });
 	
-	$('.translations .remove').click( function()
+	$('.translations .remove').not('.activated').addClass('activated').click( function()
     { 
         wdf.controller.post('Remove',{term:$(this).data('term')});
     });
-	
+    
 	wdf.exception.add( function(msg){ alert(msg); } );
+    
+    $.fn.insertAtCaret = function (text) {
+        return this.each(function () {
+            if (document.selection && this.tagName == 'TEXTAREA') {
+                //IE textarea support
+                this.focus();
+                sel = document.selection.createRange();
+                sel.text = text;
+                this.focus();
+            } else if (this.selectionStart || this.selectionStart == '0') {
+                //MOZILLA/NETSCAPE support
+                startPos = this.selectionStart;
+                endPos = this.selectionEnd;
+                scrollTop = this.scrollTop;
+                this.value = this.value.substring(0, startPos) + text + this.value.substring(endPos, this.value.length);
+                this.focus();
+                this.selectionStart = startPos + text.length;
+                this.selectionEnd = startPos + text.length;
+                this.scrollTop = scrollTop;
+            } else {
+                // IE input[type=text] and other browsers
+                this.value += text;
+                this.focus();
+                this.value = this.value; // forces cursor to end
+            }
+        });
+    };
 });

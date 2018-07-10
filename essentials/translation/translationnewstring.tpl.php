@@ -33,6 +33,9 @@
         <tr>
             <td colspan="2">
                 Hits: <?=$hits?>, Last request: <?=$last_hit?>
+<?php if( count($data) > 0 ): echo "<br/>"; foreach( $data as $k=>$v ): ?>
+<span title="Sample: <?=$v?>" class="termdata" onclick="$(this).closest('table').find('textarea').insertAtCaret($(this).text());"><?=$k?></span>
+<?php endforeach; endif; ?>
             </td>
         </tr>
         <tr>

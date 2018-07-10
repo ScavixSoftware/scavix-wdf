@@ -109,7 +109,7 @@ function resourceExists($filename, $return_url = false, $as_local_path = false, 
 		$nc = $conf['append_nc']?$cnc:'';
 		$res = can_nocache()
 			?$conf['url'].$nc.$filename
-			:$conf['url'].$filename."?_nc=".substr($nc,2,-1);
+			:$conf['url'].$filename.(strpos($conf['url'],'?')===false?'?':'&')."_nc=".substr($nc,2,-1);
 		if( !$nocache )
 			cache_set($key, $res);
 		return $return_url?$res:true;

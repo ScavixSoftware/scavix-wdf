@@ -243,6 +243,12 @@ class Template extends Renderable
         return $this->WdfRender();
 	}
 
+    private function isHtmlPageTemplate($tpl)
+    {
+        $tpl = strtolower(str_replace("\\","/",$tpl));
+        return $tpl == strtolower(str_replace("\\","/",WDF_HTMLPAGE_TEMPLATE));
+    }
+    
 	/**
 	 * @override
 	 */
@@ -262,13 +268,13 @@ class Template extends Renderable
 			$$un_common_k_e_y_value = $un_common_v_a_l_value;
 		}
 
-		if( ($this instanceof HtmlPage) && $this->file == WDF_HTMLPAGE_TEMPLATE )
+		if( ($this instanceof HtmlPage) && $this->isHtmlPageTemplate($this->file) )
 		{
 			$__template_file = __autoload__template($this,$this->SubTemplate?$this->SubTemplate:"");
 			if( $__template_file === false )
 				WdfException::Raise("SubTemplate for class '".get_class($this)."' not found: ".$this->file,$this->SubTemplate);
 
-			if( $__template_file != WDF_HTMLPAGE_TEMPLATE )
+			if( !$this->isHtmlPageTemplate($__template_file) )
 			{
 				ob_start();
 				require($__template_file);

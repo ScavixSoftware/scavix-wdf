@@ -54,8 +54,8 @@ abstract class TranslationAdminBase extends SysAdmin
 		foreach( $ds->Query('wdf_unknown_strings')->all() as $row )
         {
 			$ns = Template::Make('translationnewstring');
-			foreach( $row->GetColumnNames() as $col )
-				$ns->set($col,$row->$col);
+            $ns->set_vars($row->AsArray());
+            $ns->set('data',$ds->Query('wdf_unknown_strings_data')->eq('term',$ns->term)->enumerate('value',false,'name'));
             $this->_contentdiv->content($ns);
         }
 		if( !isset($row) )

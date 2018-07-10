@@ -135,12 +135,13 @@ class HtmlPage extends Template implements ICallable
 		{
             if($r === '')
                 continue;
-			$ext = array_first(explode("?",pathinfo($r,PATHINFO_EXTENSION)));
+            $key = get_requested_file($r);
+            $ext = pathinfo($key,PATHINFO_EXTENSION);
 			if( $ext == 'css' || $ext == 'less' )
-				$this->addCss($r);
+				$this->addCss($r,$key);
 			else
             {
-				$this->addjs($r);
+				$this->addjs($r,$key);
             }
 		}
 		$this->js = array_reverse($this->js,true);
@@ -198,11 +199,11 @@ class HtmlPage extends Template implements ICallable
 	 * @param string $src The src attribute
 	 * @return HtmlPage `$this`
 	 */
-	function addJs($src)
+	function addJs($src,$key='')
 	{
 		if( isset($this->js[$src]) )
 			return;
-		$js = "\t<script type='text/javascript' src='$src'></script>\n";
+		$js = "\t<script type='text/javascript' src='$src' data-key='$key'></script>\n";
 		$this->js[$src] = $js;
 		return $this;
 	}
@@ -214,11 +215,11 @@ class HtmlPage extends Template implements ICallable
 	 * @param string $src The src attribute
 	 * @return HtmlPage `$this`
 	 */
-	function addCss($src)
+	function addCss($src,$key='')
 	{
 		if( isset($this->css[$src]) )
 			return;
-		$css = "\t<link rel='stylesheet' type='text/css' href='$src'/>\n";
+		$css = "\t<link rel='stylesheet' type='text/css' href='$src' data-key='$key'/>\n";
 		$this->css[$src] = $css;
 		return $this;
 	}

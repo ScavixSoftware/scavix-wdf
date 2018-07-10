@@ -243,15 +243,30 @@ function translation_add_unknown_strings($unknown_constants)
 			hits INT DEFAULT 0,
 			default_val TEXT,
 			PRIMARY KEY (term))");
+        $ds->ExecuteSql("CREATE TABLE IF NOT EXISTS wdf_unknown_strings_data (
+            `term` VARCHAR(150) NOT NULL,
+            `name` VARCHAR(255) NOT NULL,
+            `value` VARCHAR(255) NOT NULL,
+            PRIMARY KEY (`term`, `name`))");
 
 		$now = $ds->Driver->Now();
 		$sql1 = "INSERT OR IGNORE INTO wdf_unknown_strings(term,last_hit,hits,default_val)VALUES(?,$now,0,?);";
 		$sql2 = "UPDATE wdf_unknown_strings SET last_hit=$now, hits=hits+1 WHERE term=?;";
+		$sql3 = "INSERT OR IGNORE INTO wdf_unknown_strings_data(term,name,value)VALUES(?,?,?)";
 		foreach( $unknown_constants as $uc )
 		{
+            if( is_array($uc) )
+                list($uc,$data) = $uc;
+            else
+                $data = false;
+            
 			$def = cfg_getd('translation','default_strings',$uc,'');
 			$ds->Execute($sql1,array($uc,$def));
 			$ds->Execute($sql2,$uc);
+            
+            if( is_array($data) )
+                foreach( $data as $k=>$v )
+                    $ds->Execute($sql3,[$uc,$k,$v]);
 		}
 	}
 	else
@@ -260,8 +275,6 @@ function translation_add_unknown_strings($unknown_constants)
 
 function __noTranslate_callback($matches)
 {
-	global $__unknown_constants;
-
 	$mod = array_pop($matches);
 	$val = array_pop($matches);
 	if( $mod != "[NT]" )
@@ -421,7 +434,7 @@ function getStringOrig($constant, $arreplace = null, $unbuffered = false, $encod
 		{
 			$res = ReplaceVariables($def, $arreplace);
 			$GLOBALS['translation']['skip_buffering_once'] = true;
-			$GLOBALS['__unknown_constants']["k".$constant] = $constant;
+			$GLOBALS['__unknown_constants']["k".$constant] = [$constant,$arreplace];
 		}
 		else
 		{
@@ -432,7 +445,7 @@ function getStringOrig($constant, $arreplace = null, $unbuffered = false, $encod
 				// if still the same, constant is unknown
 				$res = htmlspecialchars($constant)."?";
 				$GLOBALS['translation']['skip_buffering_once'] = true;
-				$GLOBALS['__unknown_constants']["k".$constant] = $constant;
+				$GLOBALS['__unknown_constants']["k".$constant] = [$constant,$arreplace];
 			}
 		}
     }

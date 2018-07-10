@@ -1339,3 +1339,20 @@ function array_last($array)
     }
     return null;
 }
+
+/**
+ * Returns the last requested file from a given URL.
+ * 
+ * Can handle "?wdf_route=" requests too, so is used in resource-collecting.
+ * 
+ * @param string $url The URL to parse
+ * @return string The file path
+ */
+function get_requested_file($url)
+{
+    if( strpos($url,'?wdf_route=') === false )
+        return parse_url($url,PHP_URL_PATH);
+    
+    parse_str(array_last(explode("?",$url,2)),$res);
+    return $res['wdf_route'];
+}

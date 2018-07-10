@@ -200,8 +200,9 @@ body.sysadmin .translations textarea
 
 body.sysadmin .translations .td:nth-child(1){ width: 10%; }
 body.sysadmin .translations .td:nth-child(2){ width: 10%; }
-body.sysadmin .translations .td:nth-child(3){ width: 70%; }
-body.sysadmin .translations .td:nth-child(4){ width: 10%; }
+body.sysadmin .translations .td:nth-child(3){ text-align: right; }
+body.sysadmin .translations .td:nth-child(4){ width: 60%; }
+body.sysadmin .translations .td:nth-child(5){ width: 10%; }
 
 body.sysadmin .translations textarea
 {
@@ -227,3 +228,10 @@ body.sysadmin .translations .term_action
 }
 
 body.sysadmin .translations .term_action:hover { text-decoration: underline; }
+
+body.sysadmin .termdata
+{
+    color: #484848;
+    cursor: pointer;
+}    
+body.sysadmin .termdata:hover { text-decoration: underline; }

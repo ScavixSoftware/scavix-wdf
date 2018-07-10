@@ -266,8 +266,7 @@ $.ajaxSetup({cache:false});
 									var css = json_result.dep_css[i];
                                     if(css)
                                     {
-                                        var key = css.split("?")[0];
-                                        if( $('link[href^=\''+key+'\']').length == 0 )
+                                        if( $('link[data-key=\''+i+'\']').length == 0 )
                                         {
                                             var fileref = document.createElement("link")
                                             fileref.setAttribute("rel", "stylesheet");
@@ -286,8 +285,7 @@ $.ajaxSetup({cache:false});
 									var js = json_result.dep_js[i];
                                     if(js)
                                     {
-                                        var key = js.split("?")[0];
-                                        if( $('script[src^=\''+key+'\']').length == 0 )
+                                        if( $('script[data-key=\''+i+'\']').length == 0 )
                                         {
                                             var script = document.createElement("script");
                                             script.setAttribute("type", "text/javascript");

@@ -184,14 +184,22 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * </code>
 	 * @param string $property_or_fieldname Property-/Fieldname
 	 * @param bool $distinct If true will <array_unique> the results.
+     * @param string $key_column_name If given uses this column as key for an associative resulting array
 	 * @return array Array of values
 	 */
-	function enumerate($property_or_fieldname, $distinct=true)
+	function enumerate($property_or_fieldname, $distinct=true, $key_column_name=false)
 	{
 		$res = array();
 		foreach( $this as $tmp )
-			if( !$distinct || !in_array($tmp->$property_or_fieldname, $res) )
-				$res[] = $tmp->$property_or_fieldname;
+        {
+			if( $distinct && in_array($tmp->$property_or_fieldname, $res) )
+				continue;
+            
+            if( $key_column_name && is_string($key_column_name) )
+                $res[$tmp->$key_column_name] = $tmp->$property_or_fieldname;
+            else
+                $res[] = $tmp->$property_or_fieldname;
+        }
 		return $res;
 	}
 

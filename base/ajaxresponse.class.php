@@ -106,7 +106,6 @@ class AjaxResponse
 	 */
 	public static function Renderable(Renderable $content, $force_dependency_loading = null)
 	{
-        global $CONFIG;
 		$wrapped = new stdClass();
 
 		$wrapped->html = $content->WdfRenderAsRoot();
@@ -117,11 +116,12 @@ class AjaxResponse
         {
             foreach( $content->__collectResources() as $r )
             {
-                $ext = array_first(explode("?",pathinfo($r,PATHINFO_EXTENSION)));
+                $key = get_requested_file($r);
+                $ext = pathinfo($key,PATHINFO_EXTENSION);
                 if( starts_with($ext,'css') || starts_with($ext,'less') )
-                    $wrapped->dep_css[] = $r;
+                    $wrapped->dep_css[$key] = $r;
                 else
-                    $wrapped->dep_js[] = $r;
+                    $wrapped->dep_js[$key] = $r;
             }
         }
 		$res = AjaxResponse::Json($wrapped);
