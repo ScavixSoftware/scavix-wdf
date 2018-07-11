@@ -192,17 +192,16 @@ body.sysadmin a:visited
     color: #484848;
 }
 
+body.sysadmin .translations
+{
+    border: 1px solid orange;
+}
+
 body.sysadmin .translations .td,
 body.sysadmin .translations textarea
 {
 	vertical-align: top;
 }
-
-body.sysadmin .translations .td:nth-child(1){ width: 10%; }
-body.sysadmin .translations .td:nth-child(2){ width: 10%; }
-body.sysadmin .translations .td:nth-child(3){ text-align: right; }
-body.sysadmin .translations .td:nth-child(4){ width: 60%; }
-body.sysadmin .translations .td:nth-child(5){ width: 10%; }
 
 body.sysadmin .translations textarea
 {
@@ -223,11 +222,25 @@ body.sysadmin .translations .term_action
 {
 	color: gray;
 	cursor: pointer;
-	float: right;
-	margin-right: 10px;
+	display: block;
 }
 
 body.sysadmin .translations .term_action:hover { text-decoration: underline; }
+
+body.sysadmin .translations .tbody .tr:nth-child(odd)
+{
+    background: rgba(255,165,0,0.2);
+}
+
+body.sysadmin .all .td:nth-child(1){ width: 10%; }
+body.sysadmin .all .td:nth-child(2){ width: 10%; }
+body.sysadmin .all .td:nth-child(3){ text-align: right; }
+body.sysadmin .all .td:nth-child(4){ width: 60%; }
+body.sysadmin .all .td:nth-child(5){ width: 10%; }
+
+body.sysadmin .one .td:nth-child(1){ width: 10%; }
+body.sysadmin .one .td:nth-child(2){ width: 80%; }
+body.sysadmin .one .td:nth-child(3){ width: 10%; }
 
 body.sysadmin .termdata
 {

@@ -33,9 +33,21 @@ $.ajaxSetup({cache:false});
 		ajaxError: $.Callbacks('unique'),  // fires with args (XmlHttpRequest object, TextStatus, ResponseText)
 		exception: $.Callbacks('unique'),  // fires with string arg containing the message
 		
-		arg: function (name)
+		arg: function(name,url)
 		{
-			return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
+            if( !url ) url = location.search;
+            url = url.split('?',2).pop();
+            return (new URLSearchParams(url)).get(name);
+		},
+        
+        args: function(url)
+		{
+            if( !url ) url = location.search;
+            url = url.split('?',2).pop();
+            var r = {};
+			for(var i of new URLSearchParams(url) )
+                r[i[0]] = i[1];
+            return r;
 		},
 		
 		validateHref: function(href)
@@ -65,7 +77,7 @@ $.ajaxSetup({cache:false});
 		{
 			// prepare settings object
 			settings.route = location.href.substr(settings.site_root.length);
-			settings.rewrite = !settings.route.match(/^\?wdf_route/);
+			settings.rewrite = wdf.arg('wdf_route')===null;
 			var route = (settings.rewrite ? settings.route : this.arg('wdf_route'));
 			if(route.indexOf("?") != -1)
 				route = route.substr(0, route.indexOf("?"));
@@ -144,6 +156,22 @@ $.ajaxSetup({cache:false});
 			
             this.resetPing();
 			this.setCallbackDefault('exception', function(msg){ alert(msg); });
+            
+            if( !this.settings.rewrite ) // for now only for non-rewrite environments, theoretically this is generic
+            {
+                // Edit GET forms: move args from their actions to hidden inputs
+                $('form[action*="?"]').each(function()
+                {
+                    if( $(this).get(0).method.toLowerCase() == 'post' )
+                        return;
+                    var args = wdf.args($(this).attr('action'));
+                    for(var i in args)
+                        $("<input type='hidden' name='"+i+"'/>").val(args[i]).prependTo(this);
+                    var a = $(this).attr('action').split('?');
+                    $(this).attr('action',a[0]);
+                });
+            }
+            
 			this.ready.fire();
 		},
 		

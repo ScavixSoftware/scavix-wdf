@@ -51,9 +51,9 @@ wdf.ready.add(function()
 	$('.translations input.save').click( function()
     { 
 		var btn = $(this).attr('disabled',true);
-		var lang = $('.translations').data('lang');
+		var lang = btn.data('lang') || $('.translations').data('lang');
         var term = btn.data('term');
-		var text = encodeURIComponent($('textarea.'+term).val()||'');
+		var text = encodeURIComponent( btn.closest('.tr').find('textarea').val()||'');
         wdf.controller.post('SaveString',{lang:lang,term:term,text:text},function()
 		{
 			btn.val('Saved').addClass('ok');

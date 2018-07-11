@@ -139,7 +139,10 @@ class TranslationAdmin extends TranslationAdminBase
             $div->content($cb->CreateLabel($lang->name." ({$lang->code}, {$lang->percentage}% complete)"));
             $div->content("<br/>");
         }
-        $div->AddSubmit("Fetch");
+        $div->AddSubmit("Create translation files");
+        
+        Button::Make('Download as ZIP',"location.href='". buildQuery('translationadmin','download')."/Translations.zip'")
+            ->appendTo($this);
         
         if( !$languages )
             return; 
@@ -149,7 +152,7 @@ class TranslationAdmin extends TranslationAdminBase
             $head[$lang->code] = array('percentage_complete'=>$lang->percentage/100, 'percentage_empty'=>(1-$lang->percentage/100), 'syntax_error_qty'=>0);
 //        $info = "\$GLOBALS['translation']['properties'] = ".var_export($head,true);
         
-        $defaults = $this->fetchTerms($CONFIG['localization']['default_language'],$unkown);
+        $defaults = $this->fetchTerms($CONFIG['localization']['default_language']);
         
         foreach( array_unique($languages) as $lang )
         {
@@ -315,8 +318,8 @@ class TranslationAdmin extends TranslationAdminBase
 		$_SESSION['trans_admin_offset'] = $offset;
 		$_SESSION['trans_admin_search'] = $search;
 		
-		$form = $this->content( new Form() );
-		$form->css('margin-bottom','20px')->action = buildQuery('TranslationAdmin','Translate');				
+		$form = $this->content( new Form() )->attr('method','get');
+		$form->css('margin-bottom','20px')->action = buildQuery('TranslationAdmin','Translate',['test'=>'bla']);				
 		$form->content("Select language: ");
 		$form->content( $this->_languageSelect($lang) )
 			->script("$('#{self}').change(function(){ $('#{$form->id}').submit(); });")
@@ -334,7 +337,7 @@ class TranslationAdmin extends TranslationAdminBase
 			Button::Make("Show untranslated","$('#untranslated').val('1').closest('form').submit();")->appendTo($form);
 		}
 		
-		$tab = Table::Make()->addClass('translations')
+		$tab = Table::Make()->addClass('translations all')
 			->SetHeader('Term','Default','','Content','')
 			->setData('lang',$lang)
 			->appendTo($this);
@@ -343,11 +346,10 @@ class TranslationAdmin extends TranslationAdminBase
 		foreach( $rs as $term )
 		{
 			$def = nl2br(htmlspecialchars($term['def']));
-			$ta = new TextArea($untranslated?'':$term['trans']);
-			$ta->class = $term['id'];
-			$ta->rows = count(explode('<br />', $def)) + 1;
-			$btn = new Button('Save');
-			$btn->addClass('save')->setData('term',$term['id']);
+			$ta = TextArea::Make($untranslated?'':$term['trans'])
+                ->addClass($term['id'])
+                ->attr('rows',count(explode('<br />', $def)) + 1);
+			$btn = Button::Make('Save')->addClass('save')->setData('term',$term['id']);
 			
             $wrap = Control::Make()
                 ->append($ta)
@@ -359,15 +361,13 @@ class TranslationAdmin extends TranslationAdminBase
                 ->setData('term',$term['id'])
                 ->setData('def', json_encode($term['def'],JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT));
                 
-			$tab->AddNewRow($term['id'],$def,$cpy,$wrap,$btn);
-			
-			$c = $tab->GetCurrentRow()->GetCell(4);
-			$c->css('white-space', 'nowrap');
-			$c->content(Control::Make("span"))
-				->addClass('term_action rename')->setData('term', $term['id'])->content('rename');
-			$c->content("&nbsp;");
-			$c->content(Control::Make("span"))
-				->addClass('term_action remove')->setData('term', $term['id'])->content('remove');
+            $one = Control::Make()
+                ->append(Anchor::Make(buildQuery('translationadmin','translateone',['term'=>$term['id']]),$term['id']))
+                ->append(Control::Make("span")->addClass('term_action rename')->setData('term', $term['id'])->append('rename'))
+                ->append(Control::Make("span")->addClass('term_action remove')->setData('term', $term['id'])->append('remove'))
+                ;
+            
+			$tab->AddNewRow($one,$def,$cpy,$wrap,$btn);
 		}
 
 		if($tab->GetCurrentRow())
@@ -385,6 +385,60 @@ class TranslationAdmin extends TranslationAdminBase
 				$this->content(new Anchor(buildQuery('TranslationAdmin','Translate',"lang=$lang&offset=$offset&search=$search&untranslated=".($untranslated?1:0)),"$label"));
 			$this->content("&nbsp;");
 		}
+	}
+    
+    /**
+     * @internal Allow to translate a term in all languages
+     * @attribute[RequestParam('term','string','')]
+     */
+	function TranslateOne($term)
+	{
+        global $CONFIG;
+        $this->content("<h1>Translations for $term</h1>");
+        
+		$tab = Table::Make()->addClass('translations one')
+			->SetHeader('Language','Content','')
+			->appendTo($this);
+        
+        $variables = $this->ds->Query('wdf_unknown_strings_data')->eq('term',$term)->enumerate('value',false,'name');
+        
+        $started = $this->ds->Query('wdf_translations')->all()->enumerate('lang');
+        $languages = array_keys(Localization::get_language_names());
+        sort($languages);
+        $languages = array_merge($started,$languages);
+        array_unshift($languages,$CONFIG['localization']['default_language']); 
+        $languages = array_unique($languages);
+        
+        foreach( Localization::get_language_names() as $lang=>$name )
+        {
+            $dbrow = $this->ds->Query("wdf_translations")->eq('lang',$lang)->eq('id',$term)->current();
+            $row = $dbrow?:['lang'=>$lang,'id'=>$term,'content'=>''];
+            
+            $ta = new TextArea($row['content']);
+			$ta->class = $row['id'];
+			$ta->rows = count(explode('<br />', nl2br($row['content']))) + 1;
+            
+            $btn = new Button('Save');
+			$btn->addClass('save')->setData('term',$row['id'])->setData('lang',$lang);
+            
+            $wrap = Control::Make()
+                ->append($ta)
+                ->append('<br/>');
+            foreach( $variables as $k=>$v )
+                $wrap->append( "<span class='termdata' title='Sample: {$v}' onclick=\"$(this).closest('.td').find('textarea').insertAtCaret($(this).text());\">{$k}</span>" );
+            
+            if( in_array($lang,$started) )
+                $tab->AddNewRow("$name ({$lang})",$wrap,$btn);
+            else
+                $others[] = ["$name ({$lang})",$wrap,$btn];
+        }
+        
+        $this->content("<h1>Other languages</h1>");
+        $tab = Table::Make()->addClass('translations one')
+			->SetHeader('Language','Content','')
+			->appendTo($this);
+        foreach( $others as $row )
+            $tab->NewRow($row);
 	}
 	
 	/**

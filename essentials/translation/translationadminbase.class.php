@@ -41,6 +41,34 @@ abstract class TranslationAdminBase extends SysAdmin
 		$this->subnav('New strings', get_class_simple($this), 'NewStrings');
 		$this->subnav('Fetch strings', get_class_simple($this), 'Fetch');
 	}
+    
+    function Download()
+    {
+        global $CONFIG;
+        
+        log_debug("Start");
+        $zip = new \ZipArchive();
+        $filename = tempnam(sys_get_temp_dir(),'translations_');
+        log_debug("Tempfile: $filename");
+        if( $zip->open($filename, \ZipArchive::CREATE) !== true )
+            die("cannot open <$filename>");
+        foreach( glob("{$CONFIG['translation']['data_path']}*.inc.php") as $fn )
+            $zip->addFile($fn,basename($fn));
+        $zip->close();
+        
+        log_debug("Created");
+        header("Pragma: public");
+        header("Expires: 0");
+        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+        header("Cache-Control: private",false);
+        header("Content-Type: application/zip");
+        header("Content-Disposition: attachment; filename=Translations.zip;" );
+        header("Content-Transfer-Encoding: binary");
+        header("Content-Length: ".filesize($filename));
+        readfile($filename);
+        unlink($filename);
+        die('');
+    }
 	
     /**
 	 * @internal New string page
