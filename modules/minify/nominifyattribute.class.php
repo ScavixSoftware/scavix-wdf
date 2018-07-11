@@ -24,6 +24,9 @@
  */
 namespace ScavixWDF\Reflection;
 
+/**
+ * Used to mark a clas as irrelevant for the minify CSS/JS process.
+ */
 class NoMinifyAttribute extends WdfAttribute
 {
 }

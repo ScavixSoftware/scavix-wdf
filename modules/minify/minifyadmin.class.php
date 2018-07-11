@@ -27,11 +27,15 @@ namespace ScavixWDF\Admin;
 use ScavixWDF\Controls\Form\Form;
 
 /**
+ * SysAdmin module to manage minified JS/CSS.
+ * 
  * @attribute[NoMinify]
  */
 class MinifyAdmin extends SysAdmin
 {
 	/**
+     * @internal Starts the minify process.
+     * 
 	 * @attribute[RequestParam('submitter','bool',false)]
 	 * @attribute[RequestParam('skip_minify','bool',false)]
 	 * @attribute[RequestParam('random_nc','bool',false)]

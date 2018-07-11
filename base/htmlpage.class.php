@@ -197,6 +197,7 @@ class HtmlPage extends Template implements ICallable
 	 * 
 	 * Like this: &lt;script type='text/javascript' src='$src'&gt;&lt;/script&gt;
 	 * @param string $src The src attribute
+	 * @param string $key Optional data-key attribute for the script tag
 	 * @return HtmlPage `$this`
 	 */
 	function addJs($src,$key='')
@@ -213,6 +214,7 @@ class HtmlPage extends Template implements ICallable
 	 * 
 	 * Like this: &lt;link rel='stylesheet' type='text/css' href='$src'/&gt;
 	 * @param string $src The src attribute
+	 * @param string $key Optional data-key attribute for the link tag
 	 * @return HtmlPage `$this`
 	 */
 	function addCss($src,$key='')

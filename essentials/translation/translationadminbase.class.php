@@ -42,6 +42,9 @@ abstract class TranslationAdminBase extends SysAdmin
 		$this->subnav('Fetch strings', get_class_simple($this), 'Fetch');
 	}
     
+    /**
+     * @internal Download all the translation files in a ZIP archive
+     */
     function Download()
     {
         global $CONFIG;
