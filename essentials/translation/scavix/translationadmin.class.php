@@ -177,7 +177,7 @@ class TranslationAdmin extends TranslationAdminBase
         }
 		
 		$ds = model_datasource($GLOBALS['CONFIG']['translation']['sync']['datasource']);
-		$ds->ExecuteSql("TRUNCATE TABLE wdf_unknown_strings");
+		$ds->ExecuteSql("DELETE FROM wdf_unknown_strings");
 		$ds->ExecuteSql("DELETE FROM wdf_unknown_strings_data WHERE term NOT IN(SELECT id FROM wdf_translations)");
 		$this->_contentdiv->content("<div>Cleared the unknown strings tables</div>");
 		
@@ -265,7 +265,7 @@ class TranslationAdmin extends TranslationAdminBase
 
         }
 		
-		$ds->ExecuteSql("TRUNCATE TABLE wdf_unknown_strings");
+		$ds->ExecuteSql("DELETE FROM wdf_unknown_strings");
 		$this->_contentdiv->content("<div>Cleared the unknown strings table</div>");
 		
 		$this->_contentdiv->content("<div>Done!</div>");

@@ -143,7 +143,7 @@ class TranslationAdmin extends TranslationAdminBase
         }
 		
 		$ds = model_datasource($GLOBALS['CONFIG']['translation']['sync']['datasource']);
-		$ds->ExecuteSql("TRUNCATE TABLE wdf_unknown_strings");
+		$ds->ExecuteSql("DELETE FROM wdf_unknown_strings");
 		$this->_contentdiv->content("<div>Cleared the unknown strings table</div>");
 		
 		foreach( cache_list_keys() as $key )
