@@ -109,12 +109,15 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		
 		if( count($this->_data)>1 || $this->_columnDef )
 		{
-            $cols = force_array($this->opt('colors'));
-            foreach( self::$Colors as $k=>$c )
-                if( !is_string($k) )
-                    $cols[] = $c;
-            if( count($cols)>0 )
-                $this->opt('colors',$cols);
+            if(is_array(self::$Colors))
+            {
+                $cols = force_array($this->opt('colors'));
+                foreach( self::$Colors as $k=>$c )
+                    if( !is_string($k) )
+                        $cols[] = $c;
+                if( count($cols)>0 )
+                    $this->opt('colors',$cols);
+            }
             
 			$id = $this->id; $d = "d$id"; $c = "c$id";
             if(isset($this->gvOptions['isStacked']) && isset($this->gvOptions['colors']) && is_array($this->gvOptions['colors']) && (count($this->gvOptions['colors']) > 1))
