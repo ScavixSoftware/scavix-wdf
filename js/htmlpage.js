@@ -299,6 +299,7 @@ $.ajaxSetup({cache:false});
                                             var fileref = document.createElement("link")
                                             fileref.setAttribute("rel", "stylesheet");
                                             fileref.setAttribute("type", "text/css");
+                                            fileref.setAttribute("data-key", i);
                                             fileref.setAttribute("href", css);
                                             head.appendChild(fileref);
                                         }
@@ -318,6 +319,7 @@ $.ajaxSetup({cache:false});
                                             var script = document.createElement("script");
                                             script.setAttribute("type", "text/javascript");
                                             script.setAttribute("ajaxdelayload", "1");
+                                            script.setAttribute("data-key", i);
                                             script.src = js;
                                             var jscallback = function() { this.setAttribute("ajaxdelayload", "0"); };
                                             if (script.addEventListener)
