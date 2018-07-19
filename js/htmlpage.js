@@ -37,6 +37,18 @@ $.ajaxSetup({cache:false});
 		{
             if( !url ) url = location.search;
             url = url.split('?',2).pop();
+            
+            if( typeof(URLSearchParams) === 'undefined' )
+            {
+                var items = url.split("&");
+                for (var i = 0; i < items.length; i++)
+                {
+                    tmp = items[i].split("=",2);
+                    if( tmp[0] == name )
+                        return tmp[1];
+                }
+                return null;
+            }
             return (new URLSearchParams(url)).get(name);
 		},
         
@@ -45,8 +57,22 @@ $.ajaxSetup({cache:false});
             if( !url ) url = location.search;
             url = url.split('?',2).pop();
             var r = {};
-			for(var i of new URLSearchParams(url) )
-                r[i[0]] = i[1];
+            
+            if( typeof(URLSearchParams) === 'undefined' )
+            {
+                var items = url.split("&");
+                for (var i = 0; i < items.length; i++)
+                {
+                    tmp = items[i].split("=",2);
+                    r[tmp[0]] = tmp[1];
+                }
+                return r;
+            }
+            (new URLSearchParams(url)).forEach(function(val,name)
+            {
+                r[name] = val;
+            });
+			    
             return r;
 		},
 		
