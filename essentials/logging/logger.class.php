@@ -85,7 +85,7 @@ class Logger
 		
 		if( isset($this->min_severity) )
 		{
-			$this->min_severity = constant("Logger::".$this->min_severity);
+			$this->min_severity = constant("self::".$this->min_severity);
 			if( $this->min_severity == null )
 				unset($this->min_severity);
 		}
