@@ -39,7 +39,7 @@ wdf.ready.add(function()
         });
     });
     
-    $('table.new_string input.delete').click( function()
+    $('table.new_string input.delete, table.new_string button.delete').click( function()
     { 
         var term = $(this).data('term');
         wdf.controller.post('DeleteString',{term:term},function()
@@ -48,7 +48,7 @@ wdf.ready.add(function()
         });
     });
 	
-	$('.translations input.save').click( function()
+	$('.translations input.save, .translations button.save').click( function()
     { 
 		var btn = $(this).attr('disabled',true);
 		var lang = btn.data('lang') || $('.translations').data('lang');
@@ -61,7 +61,7 @@ wdf.ready.add(function()
 		});
     });
 
-  	$('.translations input.copy').click( function()
+  	$('.translations input.copy, .translations button.copy').click( function()
     { 
         $(this).closest('.tr').find('textarea').val( JSON.parse($(this).data('def')) );
     });

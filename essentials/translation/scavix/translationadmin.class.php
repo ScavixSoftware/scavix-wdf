@@ -139,10 +139,12 @@ class TranslationAdmin extends TranslationAdminBase
             $div->content($cb->CreateLabel($lang->name." ({$lang->code}, {$lang->percentage}% complete)"));
             $div->content("<br/>");
         }
+        $div->content('<br/>');
         $div->AddSubmit("Create translation files");
         
+        $div->content('&nbsp;&nbsp;');
         Button::Make('Download as ZIP',"location.href='". buildQuery('translationadmin','download')."/Translations.zip'")
-            ->appendTo($this);
+            ->appendTo($div);
         
         if( !$languages )
             return; 
@@ -162,6 +164,8 @@ class TranslationAdmin extends TranslationAdminBase
             $head[$lang]['unknown'] = $unkown;
         }
         $info = "\$GLOBALS['translation']['properties'] = ".var_export($head,true);
+        
+        $this->_contentdiv->content('<br/><br/>');
         
         foreach( array_unique($languages) as $lang )
         {
