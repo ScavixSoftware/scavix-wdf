@@ -49,17 +49,15 @@ abstract class TranslationAdminBase extends SysAdmin
     {
         global $CONFIG;
         
-        log_debug("Start");
         $zip = new \ZipArchive();
         $filename = tempnam(sys_get_temp_dir(),'translations_');
-        log_debug("Tempfile: $filename");
+//        log_debug("Tempfile: $filename");
         if( $zip->open($filename, \ZipArchive::CREATE) !== true )
             die("cannot open <$filename>");
         foreach( glob("{$CONFIG['translation']['data_path']}*.inc.php") as $fn )
             $zip->addFile($fn,basename($fn));
         $zip->close();
         
-        log_debug("Created");
         header("Pragma: public");
         header("Expires: 0");
         header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
