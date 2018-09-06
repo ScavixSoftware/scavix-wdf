@@ -242,14 +242,12 @@ function translation_add_unknown_strings($unknown_constants)
 			last_hit DATETIME NOT NULL,
 			hits INT DEFAULT 0,
 			default_val TEXT,
-			PRIMARY KEY (term))
-            COLLATE='utf8_unicode_ci'");
+			PRIMARY KEY (term))");
         $ds->ExecuteSql("CREATE TABLE IF NOT EXISTS wdf_unknown_strings_data (
             `term` VARCHAR(150) NOT NULL,
             `name` VARCHAR(255) NOT NULL,
             `value` VARCHAR(255) NOT NULL,
-            PRIMARY KEY (`term`, `name`))
-            COLLATE='utf8_unicode_ci'");
+            PRIMARY KEY (`term`, `name`))");
 
 		$now = $ds->Driver->Now();
 		$sql1 = "INSERT OR IGNORE INTO wdf_unknown_strings(term,last_hit,hits,default_val)VALUES(?,$now,0,?);";
