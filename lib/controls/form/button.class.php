@@ -46,7 +46,9 @@ class Button extends Input
 	function __initialize( $label, $controller="", $event="", $data="")
 	{
 		parent::__initialize();
-		$this->setType("button")->setValue($label);
+		$this->setType("button");
+        $this->Tag = 'button';
+        $this->content($label);
 
 		if( $controller != "" && strpos($controller,"$") === false && strpos($controller,"?") === false )
 			$query = "wdf.redirect('".buildQuery($controller,$event,$data)."')";

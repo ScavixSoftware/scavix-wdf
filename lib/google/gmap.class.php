@@ -56,6 +56,17 @@ class gMap extends GoogleControl
         if(isset($CONFIG['google']) && isset($CONFIG['google']['maps']) && isset($CONFIG['google']['maps']['apikey'])) 
             $this->gmOptions['key'] = $CONFIG['google']['maps']['apikey'];
 
+        if(!isset($options['language']) || !isset($options['region']))
+        {
+            $ci = \ScavixWDF\Localization\Localization::detectCulture();
+            if($ci)
+            {
+                if(!isset($options['region']))
+                    $options['region'] = $ci->Region->Code;
+                if(!isset($options['language']))
+                    $options['language'] = $ci->ResolveToLanguage()->Code;
+            }
+        }
 		$this->gmOptions = array_merge($this->gmOptions,$options);
 		$this->_loadApi('maps','3',array('other_params'=>http_build_query($this->gmOptions)));
 	}

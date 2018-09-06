@@ -88,6 +88,13 @@ body.sysadmin form.login table
     width: 100%;
 }
 
+body.sysadmin textarea, body.sysadmin button, body.sysadmin input[type="button"], body.sysadmin input[type="submit"], body.sysadmin select
+{
+    font-family: Verdana,Arial,serif;
+    font-size: 12px;
+    font-weight: normal;
+}
+
 /* navigation */
 body.sysadmin div.navigation
 {
@@ -235,7 +242,7 @@ body.sysadmin .translations .tbody .tr:nth-child(odd)
 body.sysadmin .all .td:nth-child(1){ width: 10%; }
 body.sysadmin .all .td:nth-child(2){ width: 10%; }
 body.sysadmin .all .td:nth-child(3){ text-align: right; }
-body.sysadmin .all .td:nth-child(4){ width: 60%; }
+body.sysadmin .all .td:nth-child(4){ width: 60%; word-break: break-word; }
 body.sysadmin .all .td:nth-child(5){ width: 10%; }
 
 body.sysadmin .one .td:nth-child(1){ width: 10%; }
