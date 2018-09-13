@@ -54,7 +54,7 @@ function geoip_init()
 		$CONFIG['geoip']['city_dat_file'] = __DIR__."/geoip/GeoLiteCity.dat";
 	
 	if( !file_exists($CONFIG['geoip']['city_dat_file']) )
-		WdfException::Raise("GeoIP module: missing GeoLiteCity.dat! Get it from http://dev.maxmind.com/geoip/legacy/geolite/");
+		WdfException::Raise("GeoIP module: missing GeoLiteCity.dat (".$CONFIG['geoip']['city_dat_file'].")! Get it from http://dev.maxmind.com/geoip/legacy/geolite/");
 }
 
 /**
