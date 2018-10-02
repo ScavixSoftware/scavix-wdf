@@ -689,12 +689,13 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		if( is_string($value) )
 		{
 			// special handling for NOW() argument
-			if( starts_iwith($value,"now()") )
+			if( starts_iwith($value,"now()") || starts_iwith($value,"current_timestamp()") )
 			{
 				if( $convert_now_to_value )
                 {
                     if( strcasecmp($value,"now()") === 0 )
                         return new DateTimeEx();
+                    // let current_timestamp be processed by DB
 					return new DateTimeEx(DataSource::Get()->ExecuteScalar("SELECT $value"));
                 }
 				return "$value";
