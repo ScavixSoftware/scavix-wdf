@@ -102,7 +102,7 @@ $.ajaxSetup({cache:false});
 		init: function(settings)
 		{
 			// prepare settings object
-			settings.route = location.href.substr(settings.site_root.length);
+			settings.route = location.href.substr(location.href.indexOf(settings.site_root) + settings.site_root.length);
 			settings.rewrite = wdf.arg('wdf_route')===null;
 			var route = (settings.rewrite ? settings.route : this.arg('wdf_route'));
 			if(route.indexOf("?") != -1)
