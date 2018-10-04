@@ -156,6 +156,8 @@ class AjaxResponse
 	public static function Redirect($controller,$event='',$data='')
 	{
 		$q = buildQuery($controller,$event,$data);
+        if(starts_with($q, '//'))
+            $q = $_SERVER['REQUEST_SCHEME'].':'.$q;
 		return AjaxResponse::Js("wdf.redirect('$q');",true);
 	}
 	
