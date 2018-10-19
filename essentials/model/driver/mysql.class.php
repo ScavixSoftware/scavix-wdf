@@ -188,7 +188,7 @@ class MySql implements IDatabaseDriver
 			}
 			
 			$tv = $model->TypedValue($col);
-			if( is_string($tv) && starts_iwith($tv,"now()") )
+			if( is_string($tv) && (starts_iwith($tv,"now()") || starts_iwith($tv,"current_timestamp()")) )
 			{
 				$cols[] = "`$col`=$tv";
 				$all[] = "`$col`";
