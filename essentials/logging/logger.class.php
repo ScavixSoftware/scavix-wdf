@@ -148,11 +148,16 @@ class Logger
 		}
 	}
 	
-	protected function rotate()
+	function RotateNow()
+    {
+        $this->rotate(true);
+    }
+	
+	protected function rotate($force=false)
 	{
 		$this->ensureFile();
 		
-		if( !isset($this->max_filesize) || @filesize($this->filename)<$this->max_filesize )
+		if( !$force && (!isset($this->max_filesize) || @filesize($this->filename)<$this->max_filesize) )
 			return;
 		
 		$ext = pathinfo($this->filename, PATHINFO_EXTENSION);
