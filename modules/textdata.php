@@ -41,18 +41,19 @@ function textdata_init()
  * @param string $delimiter CSV delimiter used
  * @param string $enclosure CSV enclosure string
  * @param string $escape CSV escape string
- * @param string $terminator CSV line terminator
+ * @param string $callback Function to be called for each detected row
  * @return array An array with one entry per line, each beeing an array of fields
  */
-function csv_to_array($csv, $delimiter = false, $enclosure = '"', $escape = '\\')
+function csv_to_array($csv, $delimiter = false, $enclosure = '"', $escape = '\\',$callback=false)
 {
     $csv = str_replace("\r\n","\n",$csv);
     
     if( !$delimiter )
-        $delimiter = csv_detect_delimiter($csv);
+        $delimiter = csv_detect_delimiter(substr($csv,0,1024));
     
     $result = array();
     $rows = explode("\n",trim($csv));
+    $csv = ""; 
     $names = str_getcsv(array_shift($rows),$delimiter,$enclosure,$escape);
     $nc = count($names);
     
@@ -66,7 +67,10 @@ function csv_to_array($csv, $delimiter = false, $enclosure = '"', $escape = '\\'
             if( !$values || count($values) != count($names) )
                 continue;
             $line = "";
-            $result[] = array_combine($names,$values);
+            if( $callback )
+                $callback(array_combine($names,$values));
+            else
+                $result[] = array_combine($names,$values);
         }
 	}
 	return $result;
