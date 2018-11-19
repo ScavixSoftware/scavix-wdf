@@ -304,9 +304,13 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
         
         if( stripos($this->_sql_used, 'SQL_CALC_FOUND_ROWS') !== false )
         {
-            $found_rows = $this->_pdo->query("SELECT FOUND_ROWS()",PDO::FETCH_COLUMN,0)->fetchColumn(0);
-            $key = 'DB_Cache_FoundRows_'.md5($this->_sql_used.serialize($this->_arguments_used));
-            cache_set($key,$found_rows,60,false,true);
+            $qry = $this->_pdo->query("SELECT FOUND_ROWS()",PDO::FETCH_COLUMN,0);
+            if( $qry )
+            {
+                $found_rows = $qry->fetchColumn(0);
+                $key = 'DB_Cache_FoundRows_'.md5($this->_sql_used.serialize($this->_arguments_used));
+                cache_set($key,$found_rows,60,false,true);
+            }
         }
         
 		return $result;

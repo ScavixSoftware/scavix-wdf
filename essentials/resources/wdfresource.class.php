@@ -121,6 +121,8 @@ class WdfResource implements ICallable
                 header('Content-Type: image/jpeg');
             elseif(ends_iwith($res, '.gif'))
                 header('Content-Type: image/gif');
+            elseif(ends_iwith($res, '.svg'))
+                header('Content-Type: image/svg+xml');
             
 			WdfResource::ValidatedCacheResponse($res);
             die( $this->resolveUrls($res) );

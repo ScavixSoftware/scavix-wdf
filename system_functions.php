@@ -27,7 +27,7 @@ use ScavixWDF\WdfException;
 if( !defined('FRAMEWORK_LOADED') || FRAMEWORK_LOADED != 'uSI7hcKMQgPaPKAQDXg5' ) die('');
 
 if( !defined("RESOURCE_EXTENSIONS") )
-    define("RESOURCE_EXTENSIONS",'js|css|less|png|jpg|jpeg|gif|htc|ico|mp3|ogg|woff|woff2|ttf');
+    define("RESOURCE_EXTENSIONS",'js|css|less|png|jpg|jpeg|gif|htc|ico|mp3|ogg|woff|woff2|ttf|svg');
 
 define("HOOK_POST_INIT",1);
 define("HOOK_POST_INITSESSION",2);

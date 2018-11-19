@@ -636,7 +636,7 @@ class Table extends Control
 	protected function RenderPager()
 	{
 		$pages = ceil($this->TotalItems / $this->ItemsPerPage);
-		if( $pages < 2 )
+		if( ($pages < 2) && (!$this->ShowTotalText || ($this->TotalItems == 0)) )
 			return;
 		
         $this->addClass('haspager');
@@ -672,9 +672,8 @@ class Table extends Control
 		}
         
         if( $this->ShowTotalText )
-        {
             $ui->append("<span class='total'>".sprintf($this->ShowTotalText, ($this->Culture !== false ? $this->Culture->FormatInt($this->TotalItems) : $this->TotalItems))."</span>");
-        }
+
 		return $ui;
 	}
 }
