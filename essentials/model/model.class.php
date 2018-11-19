@@ -62,7 +62,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
     public static $SaveDelayed = false;
 	
 	protected static $_schemaCache = array();
-	private static $_typeMap = array();
+	protected static $_typeMap = array();
 	protected $_className = false;
 	protected $_isInherited = false;
 	protected $_cacheKey;
