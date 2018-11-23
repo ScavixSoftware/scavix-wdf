@@ -66,11 +66,11 @@ function csv_to_array($csv, $delimiter = false, $enclosure = '"', $escape = '\\'
             $values = str_getcsv($line,$delimiter,$enclosure,$escape);
             if( !$values || count($values) != count($names) )
                 continue;
-            $line = "";
             if( $callback )
-                $callback(array_combine($names,$values));
+                $callback(array_combine($names,$values),$line);
             else
                 $result[] = array_combine($names,$values);
+            $line = "";
         }
 	}
 	return $result;
