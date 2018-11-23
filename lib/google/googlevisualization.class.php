@@ -571,7 +571,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 					$row[$name] = "";
 				$d[$name] = $this->getTypedValue($row[$name],$type);
                 
-                if( ($this instanceof gvPieChart) && isset(self::$Colors[$d[$name]]) )
+                if( ($this instanceof gvPieChart) && is_array(self::$Colors) && !is_array($d[$name]) && isset(self::$Colors[$d[$name]]) )
                 {
                     $cols = force_array($this->opt('colors'));
                     $cols[] = self::$Colors[$d[$name]];
