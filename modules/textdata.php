@@ -67,7 +67,10 @@ function csv_to_array($csv, $delimiter = false, $enclosure = '"', $escape = '\\'
             if( !$values || count($values) != count($names) )
                 continue;
             if( $callback )
-                $callback(array_combine($names,$values),$line);
+            {
+                if( false === $callback(array_combine($names,$values),$line) )
+                    break;
+            }
             else
                 $result[] = array_combine($names,$values);
             $line = "";
