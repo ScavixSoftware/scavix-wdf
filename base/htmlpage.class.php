@@ -204,7 +204,7 @@ class HtmlPage extends Template implements ICallable
 	{
 		if( isset($this->js[$src]) )
 			return;
-		$js = "\t<script type='text/javascript' src='$src' data-key='$key'></script>\n";
+		$js = "\t<script type='text/javascript' src='$src'".($key != '' ? " data-key='$key'" : '')."></script>\n";
 		$this->js[$src] = $js;
 		return $this;
 	}
@@ -221,7 +221,7 @@ class HtmlPage extends Template implements ICallable
 	{
 		if( isset($this->css[$src]) )
 			return;
-		$css = "\t<link rel='stylesheet' type='text/css' href='$src' data-key='$key'/>\n";
+		$css = "\t<link rel='stylesheet' type='text/css' href='$src'".($key != '' ? " data-key='$key'" : '')."/>\n";
 		$this->css[$src] = $css;
 		return $this;
 	}
