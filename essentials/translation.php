@@ -244,8 +244,8 @@ function translation_add_unknown_strings($unknown_constants)
 			default_val TEXT,
 			PRIMARY KEY (term))");
         $ds->ExecuteSql("CREATE TABLE IF NOT EXISTS wdf_unknown_strings_data (
-            `term` VARCHAR(150) NOT NULL,
-            `name` VARCHAR(200) NOT NULL,
+            `term` VARCHAR(120) NOT NULL,
+            `name` VARCHAR(190) NOT NULL,
             `value` VARCHAR(255) NOT NULL,
             PRIMARY KEY (`term`, `name`))");
 
