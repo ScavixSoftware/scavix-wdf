@@ -204,7 +204,7 @@ class gMap extends GoogleControl
     {
         global $CONFIG;
         if(!isset($CONFIG['google']) || !isset($CONFIG['google']['maps']) || !isset($CONFIG['google']['maps']['apikey']))
-            log_return('mssing Google Maps API KEY for '.__FUNCTION__, false);
+            return log_return('missing Google Maps API KEY for '.__FUNCTION__, false);
         
         $ret = new stdClass();
         $geourl = "https://maps.google.com/maps/api/geocode/xml?key=".$CONFIG['google']['maps']['apikey']."&address=".urlencode($search);
