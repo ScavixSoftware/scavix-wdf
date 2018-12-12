@@ -202,8 +202,12 @@ class gMap extends GoogleControl
      */
     static public function FindGeoLocation($search)
     {
+        global $CONFIG;
+        if(!isset($CONFIG['google']) || !isset($CONFIG['google']['maps']) || !isset($CONFIG['google']['maps']['apikey']))
+            return log_return('missing Google Maps API KEY for '.__FUNCTION__, false);
+        
         $ret = new stdClass();
-        $geourl = "http://maps.google.com/maps/api/geocode/xml?address=".urlencode($search);
+        $geourl = "https://maps.google.com/maps/api/geocode/xml?key=".$CONFIG['google']['maps']['apikey']."&address=".urlencode($search);
         $xmlsrc = utf8_encode(file_get_contents($geourl));
         try {
             $xml = simplexml_load_string($xmlsrc);
