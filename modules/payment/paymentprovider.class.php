@@ -105,24 +105,29 @@ abstract class PaymentProvider
 		}
 	}	
 	
-	protected function Redirect($url)
-	{
-		$q = array();
-		foreach( $this->data as $k=>$v )
-			$q[] = "$k=".urldecode($v);
-		redirect("$url?$q");
-	}
+//	protected function Redirect($url)
+//	{
+//		$q = array();
+//		foreach( $this->data as $k=>$v )
+//			$q[] = "$k=".urldecode($v);
+//		redirect("$url?$q");
+//	}
+//	
+//	protected function CheckoutForm($url)
+//	{
+//		$form = new Form();
+//		$form->action = $url;
+//		$form->method = 'post';
+//		$form->class = 'nocsrf';
+//		foreach( $this->data as $k=>$v )
+//			$form->AddHidden($k,$v);
+//		$form->script("$('#{$form->id}').submit();");
+//		return $form;
+//	}
 	
-	protected function CheckoutForm($url)
+	public function GetCheckoutInputFields()
 	{
-		$form = new Form();
-		$form->action = $url;
-		$form->method = 'post';
-		$form->class = 'nocsrf';
-		foreach( $this->data as $k=>$v )
-			$form->AddHidden($k,$v);
-		$form->script("$('#{$form->id}').submit();");
-		return $form;
+		return [];
 	}
 	
 	/**
