@@ -105,30 +105,42 @@ abstract class PaymentProvider
 		}
 	}	
 	
-//	protected function Redirect($url)
-//	{
-//		$q = array();
-//		foreach( $this->data as $k=>$v )
-//			$q[] = "$k=".urldecode($v);
-//		redirect("$url?$q");
-//	}
-//	
-//	protected function CheckoutForm($url)
-//	{
-//		$form = new Form();
-//		$form->action = $url;
-//		$form->method = 'post';
-//		$form->class = 'nocsrf';
-//		foreach( $this->data as $k=>$v )
-//			$form->AddHidden($k,$v);
-//		$form->script("$('#{$form->id}').submit();");
-//		return $form;
-//	}
+	protected function Redirect($url)
+	{
+		$q = array();
+		foreach( $this->data as $k=>$v )
+			$q[] = "$k=".urldecode($v);
+		redirect("$url?$q");
+	}
 	
-	public function GetCheckoutInputFields()
+	protected function CheckoutForm($url)
+	{
+		$form = new Form();
+		$form->action = $url;
+		$form->method = 'post';
+		$form->class = 'nocsrf';
+		foreach( $this->data as $k=>$v )
+			$form->AddHidden($k,$v);
+		$form->script("$('#{$form->id}').submit();");
+		return $form;
+	}
+	
+    /**
+     * Return any fields that need to be shown in the checkout process before the checkout can be used
+     */
+	public function GetCheckoutInputFields() : array
 	{
 		return [];
 	}
+    
+    /**
+     * Return the renderable object that shows any button, form or qr code to start the checkout process
+     * @return boolean
+     */
+    public function GetStartCheckoutRenderable(IShopOrder $order)
+    {
+        return false;
+    }
 	
 	/**
 	 * Starts the checkout process
