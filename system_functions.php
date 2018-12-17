@@ -1356,3 +1356,19 @@ function get_requested_file($url)
     parse_str(array_last(explode("?",$url,2)),$res);
     return $res['wdf_route'];
 }
+
+
+/**
+ * Fallback function for missing getallheaders in PHP FastCGI FPM or nginx
+ */
+if (!function_exists('getallheaders')) {
+	function getallheaders() {
+		$headers = [];
+		foreach ($_SERVER as $name => $value) {
+			if (substr($name, 0, 5) == 'HTTP_') {
+				$headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+			}
+		}
+		return $headers;
+	}
+}
