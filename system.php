@@ -126,8 +126,11 @@ function system_config_default($reset = true)
 		$_SERVER['REQUEST_SCHEME'] = urlScheme(false);
 	if( !isset($_SERVER['HTTP_HOST']) )
 		$_SERVER['HTTP_HOST'] = '127.0.0.1';
-	
-	$CONFIG['system']['url_root'] = idn_to_utf8("{$_SERVER['REQUEST_SCHEME']}://{$_SERVER['HTTP_HOST']}")."{$path[0]}";
+
+	/**
+	 * Bug in PHP 7.2: INTL_IDNA_VARIANT_2003 is deprecated but used as default value @see: http://php.net/manual/de/migration72.deprecated.php
+	 */
+	$CONFIG['system']['url_root'] = idn_to_utf8("{$_SERVER['REQUEST_SCHEME']}://{$_SERVER['HTTP_HOST']}", IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46)."{$path[0]}";
     $CONFIG['system']['modules'] = array();
     $CONFIG['system']['default_page'] = "HtmlPage";
     $CONFIG['system']['default_event'] = false;
@@ -377,7 +380,7 @@ function system_execute()
 		execute_hooks(HOOK_PING_RECIEVED);
 		die("PONG");
 	}
-	
+
 	// respond to DEBUG requests
 	if( $GLOBALS['CONFIG']['system']['ajax_debug_argument'] )
 	{
@@ -395,27 +398,27 @@ function system_execute()
 	}
 
 	Args::strip_tags();
-	
+
 	global $current_controller,$current_event;
 	list($current_controller,$current_event) = system_parse_request_path();
     execute_hooks(HOOK_PRE_CONSTRUCT,array($current_controller,$current_event));
 
 	$current_controller = system_instanciate_controller($current_controller);
-	if( !(system_method_exists($current_controller,$current_event) || 
+	if( !(system_method_exists($current_controller,$current_event) ||
 		(system_method_exists($current_controller,'__method_exists') && $current_controller->__method_exists($current_event) )) )
 	{
 		$current_event = cfg_get('system','default_event');
 	}
-	
+
 	if( !isset($GLOBALS['wdf_route']) )
 		$GLOBALS['wdf_route'] = array($current_controller,$current_event);
 
-	if( system_method_exists($current_controller,$current_event) || 
+	if( system_method_exists($current_controller,$current_event) ||
 		(system_method_exists($current_controller,'__method_exists') && $current_controller->__method_exists($current_event) ) )
 	{
 		$content = system_invoke_request($current_controller,$current_event,HOOK_PRE_EXECUTE);
 	}else $content = '';
-	
+
 	execute_hooks(HOOK_POST_EXECUTE);
 	@set_time_limit(ini_get('max_execution_time'));
 	system_exit($content,false);
@@ -436,7 +439,7 @@ function system_invoke_request($target_class,$target_event,$pre_execute_hook_typ
 	$ref = WdfReflector::GetInstance($target_class);
 	$params = $ref->GetMethodAttributes($target_event,"RequestParam");
 	$args = array();
-    
+
     if( count($params) > 0 )
     {
         $argscheck = array();
@@ -457,7 +460,7 @@ function system_invoke_request($target_class,$target_event,$pre_execute_hook_typ
         if( count($failedargs) > 0 )
             execute_hooks(HOOK_ARGUMENTS_PARSED, $failedargs);
     }
-    
+
 	execute_hooks($pre_execute_hook_type,array($target_class,$target_event,$args));
 	return call_user_func_array(array(&$target_class,$target_event), $args);
 }
