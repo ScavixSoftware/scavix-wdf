@@ -252,10 +252,11 @@ class DataSource
 
 	/**
 	 * Executes an SQL statement.
-	 * 
+	 *
 	 * @param string $sql SQL statement
 	 * @param array $parameter Arguments
 	 * @return ResultSet The query result
+	 * @throws WdfDbException
 	 */
 	function ExecuteSql($sql,$parameter=array())
 	{
@@ -269,15 +270,17 @@ class DataSource
 		$this->_last_affected_rows_count = $stmt->Count();
 		return $stmt;
 	}
-	
+
 	/**
 	 * Executes a statement and caches the result.
-	 * 
+	 *
 	 * Of course returns the cached result if called again and cached result is still alive.
-	 * @param string $sql SQL statement
-	 * @param array $prms Arguments for the query
-	 * @param int $lifetime Lifetime in seconds
+	 *
+	 * @param string $sql   SQL statement
+	 * @param array $prms   Arguments for the query
+	 * @param int|false $lifetime Lifetime in seconds
 	 * @return ResultSet The ResultSet
+	 * @throws WdfDbException
 	 */
 	function CacheExecuteSql($sql,$prms=array(),$lifetime=false)
 	{

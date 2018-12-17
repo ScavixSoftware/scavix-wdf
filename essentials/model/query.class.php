@@ -37,6 +37,9 @@ use ScavixWDF\WdfDbException;
 class Query
 {
 	var $_object = false;
+	/**
+	 * @var DataSource|false
+	 */
 	var $_ds = false;
 	var $_knownmodels = array();
 
@@ -45,6 +48,10 @@ class Query
 	var $_currentTree = false;
 
 	var $_values = array();
+
+	/**
+	 * @var ResultSet|bool
+	 */
 	var $_statement = false;
 
     function __construct(&$obj,&$datasource,$conditions_separator="WHERE")

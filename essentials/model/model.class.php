@@ -57,7 +57,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * @return string Table name
 	 */
 	abstract function GetTableName();
-	
+
+	/**
+	 * @var DataSource|false
+	 */
 	public static $DefaultDatasource = false;
     public static $SaveDelayed = false;
 	
@@ -66,10 +69,20 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	protected $_className = false;
 	protected $_isInherited = false;
 	protected $_cacheKey;
-	
+
+	/**
+	 * @var DataSource|false
+	 */
     protected $_ds = false;
+
+	/**
+	 * @var TableSchema|false
+	 */
     protected $_tableSchema = false;
 
+	/**
+	 * @var SelectQuery|false
+	 */
 	var $_query = false;
 	protected $_results = false;
 	protected $_index = 0;
@@ -564,6 +577,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	public static function &Make($datasource=null,$pk_value=false)
     {
 		$className = get_called_class();
+		/** @var Model $res */
 		$res = new $className($datasource);
 		if( $pk_value !== false )
 		{
@@ -599,11 +613,12 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * @param DataSource $datasource Optional datasource to assign to the created <Model>
 	 * @param bool $allFields If true, all data is taken to the result, not only that one that are present in the columns of the type
 	 * @param bool $className Optional classname to allow anonymous calls like `Model::MakeFromData`
-	 * @return subclass_of_Model The newly created typed <Model>
+	 * @return Model subclass_of_Model The newly created typed <Model>
 	 */
 	public static function MakeFromData($data,$datasource=null,$allFields=false,$className=false)
 	{
 		$className = $className?$className:get_called_class();
+		/** @var Model $res */
 		$res = new $className($datasource);
 		$pks = $res->GetPrimaryColumns();
         
@@ -1450,14 +1465,16 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		
 		return false;
 	}
-	
+
 	/**
 	 * Saves this model to the database.
-	 * 
+	 *
 	 * New datasets will be inserted, loaded ones will be updated automatically.
 	 * If $columns_to_update is given only those columns will be stored. This may be useful to avoid DB conflicts in multithread scenarios.
-	 * @param array $columns_to_update If given only these fields will be updated. If not Model tries to detect changed columns automatically.
+	 *
+	 * @param array|false $columns_to_update If given only these fields will be updated. If not Model tries to detect changed columns automatically.
 	 * @return boolean In fact always true, WdfDbException will be thrown in error case
+	 * @throws WdfDbException
 	 */
 	public function Save($columns_to_update=false)
 	{
@@ -1480,14 +1497,16 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$this->__init_db_values();
 		return true;
 	}
-	
+
 	/**
 	 * Passes all given arguments as array to the Save method.
-	 * 
+	 *
 	 * Use it like this: `$model->Update('age','last_action');`
 	 * when you want to ensure that only these columns are written.
 	 * See <Model::Save>() for more information.
-	 * @return <Model> `clone $this`
+	 *
+	 * @return Model `clone $this`
+	 * @throws WdfDbException
 	 */
 	public function Update()
 	{
