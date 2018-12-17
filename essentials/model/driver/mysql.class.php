@@ -201,9 +201,12 @@ class MySql implements IDatabaseDriver
 				$all[] = "`$col`";
 				$vals[] = "$argn";
 				$args["$argn"] = $tv;
-			
+
+				/**
+				 * Changed DateTime/Timestamp-Format from ISO8601 to 'Y-m-d H:i:s' because  MySQL 5.7 throws Error on inserting Timestamps in ISO8601 Format
+				 */
 				if( $args["$argn"] instanceof DateTime )
-					$args["$argn"] = $args["$argn"]->format("c");
+					$args["$argn"] = $args["$argn"]->format('Y-m-d H:i:s');
 			}
 		}
 		
