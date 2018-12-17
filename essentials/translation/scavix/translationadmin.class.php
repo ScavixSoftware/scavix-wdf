@@ -60,8 +60,8 @@ class TranslationAdmin extends TranslationAdminBase
 			WdfException::Raise("ScavixTranslations datasource missing!");
 		
 		$this->ds->ExecuteSql("CREATE TABLE IF NOT EXISTS `wdf_translations` (
-				`lang` VARCHAR(10) NULL,
-				`id` VARCHAR(100) NULL,
+				`lang` VARCHAR(10) NOT NULL,
+				`id` VARCHAR(100) NOT NULL,
 				`content` TEXT NULL,
 				PRIMARY KEY (`lang`, `id`) );");
 		
