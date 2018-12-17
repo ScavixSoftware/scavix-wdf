@@ -125,6 +125,23 @@ abstract class PaymentProvider
 		return $form;
 	}
 	
+    /**
+     * Return any fields that need to be shown in the checkout process before the checkout can be used
+     */
+	public function GetCheckoutInputFields() : array
+	{
+		return [];
+	}
+    
+    /**
+     * Return the renderable object that shows any button, form or qr code to start the checkout process
+     * @return boolean
+     */
+    public function GetStartCheckoutRenderable(IShopOrder $order)
+    {
+        return false;
+    }
+	
 	/**
 	 * Starts the checkout process
 	 * 

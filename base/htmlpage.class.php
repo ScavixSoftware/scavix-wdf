@@ -136,7 +136,7 @@ class HtmlPage extends Template implements ICallable
             if($r === '')
                 continue;
             $key = get_requested_file($r);
-            $ext = pathinfo($key,PATHINFO_EXTENSION);
+            $ext = pathinfo(($key == '' ? $r : $key), PATHINFO_EXTENSION);
 			if( $ext == 'css' || $ext == 'less' )
 				$this->addCss($r,$key);
 			else
