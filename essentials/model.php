@@ -171,24 +171,25 @@ function model_build_connection_string($type,$server,$username,$password,$databa
  * To use the DB versioning you must:
  * 1. Create a folder containing SQL scripts '<dbversion>.sql', <dbversion> must be 0-padded to a length of 4 chars ('0001.sql')
  * 2. Call this function like this model_update_db('system',1,'/path/to/sql/scripts');
- * 
+ *
  * SQL scripts can contain line-comments, that may start with '#' or '--' but must not contain leading white-spaces.
  * Script files will be executed directly, so each statement must be terminated with semi-colon (;).
  * Scripts my inlcude other files (like view create/update statements) like this: @include(views/my_view.sql);
  * These include statements must be one-per-line and they must be terminated by semi-colon (;).
  * The path must be relative to the including SQL file.
- * 
+ *
  * Update will stop on error which will be written to the wdf_versions table. You'll then have
  * to correct the script and remove the verions datasen from wdf_versions to let it run again.
- * 
+ *
  * Scripts should always ensure that statements can be executed again without erroring out, to
  * help you with that, you can prepend an @-symbol to each statement. Errors will be ignored and only logged
  * to the error.log. This way you can for example 'ALTER TABLE's with columns that alread exist.
- * 
- * @param mixed $datasource The datasource to be used
- * @param string|int $version Target version
+ *
+ * @param mixed $datasource     The datasource to be used
+ * @param string|int $version   Target version
  * @param string $script_folder Folder with the SQL update scripts
  * @return array Array of results
+ * @throws WdfDbException
  */
 function model_update_db($datasource,$version,$script_folder)
 {
