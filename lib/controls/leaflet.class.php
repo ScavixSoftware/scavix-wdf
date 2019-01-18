@@ -43,6 +43,8 @@ class LeafLet extends Control
     protected $_addresses = [];
     protected $autoZoom = true;
 
+    var $AutoShowHints = false; // useless gMap compat
+    
     var $TileProvider = 'openstreetmap';
     protected static $providers =
     [
@@ -107,10 +109,7 @@ class LeafLet extends Control
         $opts = system_to_json($this->Options);
         $this->script("$('#{self}').data('leaflet',L.map('{self}',$opts));");
         if( $this->autoZoom )
-            $this->script("$map.on('layeradd',function(l){ if( !l._latlng ) return; var b=[]; this.eachLayer(function(l){ if( l._latlng ) b.push(l._latlng); }); if( b.length ) this.fitBounds(b); });");
-        
-        // set default icon image
-        $this->script("L.Icon.Default.prototype.options.iconUrl = '".resFile('images/marker-icon.png')."'");
+            $this->script("$map.on('layeradd',function(e){ if( !e.layer._latlng ) return; var b=[]; this.eachLayer(function(l){ if( l._latlng ) b.push(l._latlng); }); if( b.length ) this.fitBounds(b); });");
         
         // set tileLayer
         $opts = self::$providers[$this->TileProvider];
@@ -231,7 +230,10 @@ class LeafLet extends Control
     
 	function setType($type) { return $this->_voidHint(); }
     
-    function setUiDisabled($disabled=false) { return $this->_voidHint(); }
+    function setUiDisabled($disabled=false)
+    {
+        return $this->opt('zoomControl',!$disabled);
+    }
     
     static public function FindGeoLocation($search)
     {
