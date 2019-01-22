@@ -51,12 +51,12 @@ class LeafLet extends Control
         'openstreetmap' =>
             [
                 'url' => 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                'attribution' => 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                'attribution' => '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
             ],
         'openstreetmap_bw' =>
             [
                 'url' => 'http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png',
-                'attribution' => 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                'attribution' => '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
             ],
         'openstreetmap_hot' =>
             [
@@ -106,10 +106,11 @@ class LeafLet extends Control
     {
         $map = "$('#{self}').data('leaflet')";
         // initialize
+//        $this->Options['zoom'] = $this->Options['zoom'] / 2;
         $opts = system_to_json($this->Options);
         $this->script("$('#{self}').data('leaflet',L.map('{self}',$opts));");
         if( $this->autoZoom )
-            $this->script("$map.on('layeradd',function(e){ if( !e.layer._latlng ) return; var b=[]; this.eachLayer(function(l){ if( l._latlng ) b.push(l._latlng); }); if( b.length ) this.fitBounds(b); });");
+            $this->script("$map.on('layeradd',function(e){ if( !e.layer._latlng ) return; var b=[]; this.eachLayer(function(l){ if( l._latlng ) b.push(l._latlng); }); if( b.length ) { this.fitBounds(b); } if(b.length == 1) { this.setZoom(".$this->Options['zoom']."); } });");
         
         // set tileLayer
         $opts = self::$providers[$this->TileProvider];
