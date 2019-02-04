@@ -48,44 +48,44 @@ class LeafLet extends Control
 
     var $TileProvider = 'openstreetmap';
     protected static $providers =
-        [
-            'openstreetmap' =>
-                [
-                    'url' => 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    'attribution' => '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                ],
-            'openstreetmap_bw' =>
-                [
-                    'url' => 'http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png',
-                    'attribution' => '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                ],
-            'openstreetmap_hot' =>
-                [
-                    'url' => 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
-                    'attribution' => '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, Tiles courtesy of <a href="http://hot.openstreetmap.org/" target="_blank">Humanitarian OpenStreetMap Team</a>',
-                ],
-            'opentopomap' =>
-                [
-                    'url' => 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-                    'attribution' => 'Map data: &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
-                ],
-            'openmapsurfer_roads' =>
-                [
-                    'url' => 'https://korona.geog.uni-heidelberg.de/tiles/roads/x={x}&y={y}&z={z}',
-                    'attribution' => 'Imagery from <a href="http://giscience.uni-hd.de/">GIScience Research Group @ University of Heidelberg</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-                ],
-            'esri_worldstreetmap' =>
-                [
-                    'url' => 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
-                    'attribution' => 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012',
-                ],
-        ];
-
-    function __initialize()
-    {
-        parent::__initialize("div");
-    }
-
+    [
+        'openstreetmap' =>
+            [
+                'url' => 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                'attribution' => '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            ],
+        'openstreetmap_bw' =>
+            [
+                'url' => 'http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png',
+                'attribution' => '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            ],
+        'openstreetmap_hot' =>
+            [
+                'url' => 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+                'attribution' => '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, Tiles courtesy of <a href="http://hot.openstreetmap.org/" target="_blank">Humanitarian OpenStreetMap Team</a>',
+            ],
+        'opentopomap' =>
+            [
+                'url' => 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+                'attribution' => 'Map data: &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
+            ],
+        'openmapsurfer_roads' =>
+            [
+                'url' => 'https://korona.geog.uni-heidelberg.de/tiles/roads/x={x}&y={y}&z={z}',
+                'attribution' => 'Imagery from <a href="http://giscience.uni-hd.de/">GIScience Research Group @ University of Heidelberg</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            ],
+        'esri_worldstreetmap' =>
+            [
+                'url' => 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+                'attribution' => 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012',
+            ],
+    ];
+    
+	function __initialize()
+	{
+		parent::__initialize("div");
+	}
+    
     /**
      * Sets or gets an option
      *
@@ -107,7 +107,6 @@ class LeafLet extends Control
     {
         $map = "$('#{self}').data('leaflet')";
         // initialize
-//        $this->Options['zoom'] = $this->Options['zoom'] / 2;
         $opts = system_to_json($this->Options);
         $this->script("$('#{self}').data('leaflet',L.map('{self}',$opts));");
         if( $this->autoZoom )
