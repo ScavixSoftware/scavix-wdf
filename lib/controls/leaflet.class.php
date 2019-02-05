@@ -258,13 +258,28 @@ class LeafLet extends Control
         $curlinfo = curl_getinfo($curl);
         if($curlinfo['http_code'] === 200){
             $aRes = json_decode($res);
+            $oData = false;
             if($aRes !== false){
-                if(is_array($aRes) && count($aRes) === 1){
+                if(is_array($aRes) && count($aRes) === 1) {
                     $oData = $aRes[0];
+                }elseif(count($aRes) > 1){
+                    /**
+                     * more than 1 place found, check if the is one osm_type "way
+                     */
+                    foreach ($aRes as $oPlace) {
+                        if($oPlace->osm_type === 'way'){
+                            $oData = $oPlace;
+                            break;
+                        }
+                    }
+                }else{
+                    return false;
+                }
+                if($oData !== false){
                     $oRet = new stdClass();
-                    $oRet->formatted_address =  (string) $oData->display_name;
-                    $oRet->latitude =  (string) $oData->lat;
-                    $oRet->longitude = (string) $oData->lon;
+                    $oRet->formatted_address = (string)$oData->display_name;
+                    $oRet->latitude = (string)$oData->lat;
+                    $oRet->longitude = (string)$oData->lon;
                     return $oRet;
                 }else{
                     return false;
