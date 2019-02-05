@@ -55,6 +55,7 @@ function csv_to_array($csv, $delimiter = false, $enclosure = '"', $escape = '\\'
     $rows = explode("\n",trim($csv));
     $csv = ""; 
     $names = str_getcsv(array_shift($rows),$delimiter,$enclosure,$escape);
+	$names = array_map('trim', $names);
     $nc = count($names);
     
     $line = "";
