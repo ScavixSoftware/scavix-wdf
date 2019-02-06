@@ -90,7 +90,7 @@ function downloadData($url, $postdata = false, $request_header = array(), $cache
 	if($postdata)
 	{
 		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postdata));
 		if( is_string($postdata) )
 		{
 			if( !is_array($request_header) )
