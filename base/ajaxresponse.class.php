@@ -140,9 +140,11 @@ class AjaxResponse
 	public static function Error($message,$abort_handling=false)
 	{
 		$data = new stdClass();
-		$data->error = $message;
+		$data->error = __translate($message);
 		$data->abort = $abort_handling;
-		return AjaxResponse::Json($data);
+		$res = AjaxResponse::Json($data);
+		$res->_translated = true;
+		return $res;
 	}
 	
 	/**
@@ -181,10 +183,15 @@ class AjaxResponse
 			$res = system_to_json($this->_data);
 		}
 		elseif( $this->_text )
-			$res = json_encode($this->_text);
+        {
+            $res = !$this->_translated&&system_is_module_loaded("translation")? __translate($this->_text):$this->_text;
+			$res = json_encode($res);
+            $this->_translated = true;
+        }
 		else
 			return '""'; // return an empty string JSON encoded to not kill the app JS side
-		return !$this->_translated&&system_is_module_loaded("translation")?__translate($res):$res;
+//		$res = !$this->_translated&&system_is_module_loaded("translation")? __translate($res):$res;
+        return $res;
 	}
 	
 	/**
