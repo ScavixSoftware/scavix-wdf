@@ -171,25 +171,16 @@ function model_build_connection_string($type,$server,$username,$password,$databa
  * To use the DB versioning you must:
  * 1. Create a folder containing SQL scripts '<dbversion>.sql', <dbversion> must be 0-padded to a length of 4 chars ('0001.sql')
  * 2. Call this function like this model_update_db('system',1,'/path/to/sql/scripts');
- *
- * SQL scripts can contain line-comments, that may start with '#' or '--' but must not contain leading white-spaces.
- * Script files will be executed directly, so each statement must be terminated with semi-colon (;).
- * Scripts my inlcude other files (like view create/update statements) like this: @include(views/my_view.sql);
- * These include statements must be one-per-line and they must be terminated by semi-colon (;).
- * The path must be relative to the including SQL file.
- *
+ * 
+ * SQL scripts are executed using <model_run_script>, please see documentation there for features.
+ * 
  * Update will stop on error which will be written to the wdf_versions table. You'll then have
- * to correct the script and remove the verions datasen from wdf_versions to let it run again.
- *
- * Scripts should always ensure that statements can be executed again without erroring out, to
- * help you with that, you can prepend an @-symbol to each statement. Errors will be ignored and only logged
- * to the error.log. This way you can for example 'ALTER TABLE's with columns that alread exist.
- *
- * @param mixed $datasource     The datasource to be used
- * @param string|int $version   Target version
+ * to correct the script and remove the versions dataset from wdf_versions to let it run again.
+ * 
+ * @param mixed $datasource The datasource to be used
+ * @param string|int $version Target version
  * @param string $script_folder Folder with the SQL update scripts
  * @return array Array of results
- * @throws WdfDbException
  */
 function model_update_db($datasource,$version,$script_folder)
 {
@@ -215,8 +206,12 @@ function model_update_db($datasource,$version,$script_folder)
     sort($files);
     foreach( $files as $file )
     {
-        if( preg_match('/(\d+)\.sql/',$file,$m) === false )
+        if( !preg_match('/(\d+)\.sql/',$file,$m) )
+        {
+            //log_debug("Ignoring file '$file': pattern mismatch");
             continue;
+        }
+        //log_debug("Cheking '$file': ",$m);
         $v = intval($m[1]);
         
         // skip past and future updates
@@ -231,46 +226,7 @@ function model_update_db($datasource,$version,$script_folder)
         try
         {
             log_debug("Upgrading DB to version '$v'");
-            $sql = file_get_contents($file);
-            
-            $sql = preg_replace_callback('/@include\((.*)\);/',function($m)use($file)
-            {
-                $inc = @file_get_contents(dirname($file)."/".$m[1]);
-                if( !$inc )
-                {
-                    log_error("SQL include not found: {$m[1]}");
-                    return '';
-                }
-                return preg_replace_callback('/@include\((.*)\);/',function($circ)use($m)
-                {
-                    log_error("Deep level SQL include detected, ignoring: {$circ[1]} in file {$m[1]}");
-                    return '';
-                },"$inc;");
-            },$sql);
-            
-            $sql = preg_replace("/^(#|--).*$/m", "", $sql);
-            
-            foreach( preg_split('/;[\r\n]+/', $sql) as $statement )
-            {
-                $statement = trim($statement);
-                $ignore = isset($statement[0]) && $statement[0]=='@';
-                $statement = trim($statement,'@ ');    
-                if( $statement )
-                {
-                    try
-                    {
-                        $statement .= ";";
-                        log_debug("-> ",$statement);
-                        $ds->ExecuteSql($statement);
-                    }
-                    catch(Exception $first)
-                    {
-                        if( !$ignore )
-                            throw $first;
-                        log_info("Warning upgrading DB to version '$v'",$first->getMessage());
-                    }
-                }
-            }
+            model_run_script($file);
             $ds->ExecuteSql("UPDATE wdf_versions SET finished=now() WHERE version=?",$v);
             $res[$v] = 'success';
         }
@@ -282,4 +238,76 @@ function model_update_db($datasource,$version,$script_folder)
         }
     }
     return $res;
+}
+
+/**
+ * Run an SQL script from a file.
+ *
+ * SQL scripts can contain line-comments, that may start with '#' or '--' but must not contain leading white-spaces.
+ * Script files will be executed directly, so each statement must be terminated with semi-colon (;).
+ * Scripts my inlcude other files (like view create/update statements) like this: @include(views/my_view.sql);
+ * These include statements must be one-per-line and they must be terminated by semi-colon (;).
+ * The path must be relative to the including SQL file.
+ * 
+ * Scripts should always ensure that statements can be executed without erroring out, to
+ * help you with that, you can prepend an @-symbol to each statement. Errors will be ignored and only logged
+ * to the error.log. This way you can for example 'ALTER TABLE's with columns that alread exist.
+ *
+ * If @ is not used, an Exception will be thrown on SQL errors.
+ * 
+ * @param string $file Script filename
+ * @param mixed $datasource The datasource to be used
+ * @param bool $verbose If true writes some information to the log.
+ * @return void
+ */
+function model_run_script($file,$datasource=false,$verbose=false)
+{
+    //log_debug(__FUNCTION__,$file);
+    $ds = ($datasource instanceof DataSource)
+        ?$datasource
+        :($datasource?model_datasource($datasource):DataSource::Get());
+    
+    $sql = file_get_contents($file);
+            
+    $sql = preg_replace_callback('/@include\((.*)\);/',function($m)use($file)
+    {
+        $inc = @file_get_contents(dirname($file)."/".$m[1]);
+        if( !$inc )
+        {
+            log_error("SQL include not found: {$m[1]}");
+            return '';
+        }
+        return preg_replace_callback('/@include\((.*)\);/',function($circ)use($m)
+        {
+            log_error("Deep level SQL include detected, ignoring: {$circ[1]} in file {$m[1]}");
+            return '';
+        },"$inc;");
+    },$sql);
+
+    $sql = preg_replace("/^(#|--).*$/m", "", $sql);
+
+    foreach( preg_split('/;[\r\n]+/', $sql) as $statement )
+    {
+        $statement = trim($statement);
+        $ignore = isset($statement[0]) && $statement[0]=='@';
+        $statement = trim($statement,'@ ');    
+        if( $statement )
+        {
+            try
+            {
+                if( !ends_with($statement,';') )
+                    $statement .= ";";
+                if( $verbose )
+                    log_debug("Running SQL: ",$statement);
+                $ds->ExecuteSql($statement);
+            }
+            catch(Exception $first)
+            {
+                if( !$ignore )
+                    throw $first;
+                if( $verbose )
+                    log_info("Error: ",$first->getMessage());
+            }
+        }
+    }
 }
