@@ -1341,6 +1341,17 @@ function array_last($array)
 }
 
 /**
+ * Returns part of an array.
+ * 
+ * @param array $array The array
+ * @return mixed Array of keys to return values for
+ */
+function sub_array($array,$keys=[])
+{
+    return array_filter($array,function($k)use($keys){ return in_array($k,$keys); },ARRAY_FILTER_USE_KEY);
+}
+
+/**
  * Returns the last requested file from a given URL.
  * 
  * Can handle "?wdf_route=" requests too, so is used in resource-collecting.
