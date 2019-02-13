@@ -166,6 +166,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 					. "$c.draw($d,$opts);\n"
 					. "$('#$id').data('googlechart', $c).data('chartdata',$d).data('chartoptions',$opts);";
 			}
+            $js .= "wdf_gv_init($c,$d,$opts);";
 			$this->_addLoadCallback('visualization', $js, true);
 		}
 		else
