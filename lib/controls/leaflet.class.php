@@ -110,7 +110,7 @@ class LeafLet extends Control
         $opts = system_to_json($this->Options);
         $this->script("$('#{self}').data('leaflet',L.map('{self}',$opts));");
         if( $this->autoZoom )
-            $this->script("$map.on('layeradd',function(e){ if( !e.layer._latlng ) return; var b=[]; this.eachLayer(function(l){ if( l._latlng ) b.push(l._latlng); }); if( b.length ) { this.fitBounds(b); } if(b.length == 1) { this.setZoom(".$this->Options['zoom']."); } });");
+            $this->script("$map.on('layeradd',function(e){ if( !e.layer._latlng ) return; var b=[]; this.eachLayer(function(l){ if( l._latlng ) b.push(l._latlng); }); if( b.length ) { this.fitBounds(b); if(b.length == 1) { this.setZoom(".$this->Options['zoom']."); }; }; });");
 
         // set tileLayer
         $opts = self::$providers[$this->TileProvider];
@@ -132,9 +132,16 @@ class LeafLet extends Control
         {
             list($address,$title) = $a;
             $prms['q'] = $address;
-            $cb = "L.marker([r[0].lat,r[0].lon],{title:'$title'||r[0].display_name}).bindPopup('$title'||r[0].display_name).addTo($map);";
-            $this->script("wdf.get('$q',".json_encode($prms).",function(r){ $cb });");
+            $cb = "if(r.length > 0) { L.marker([r[0].lat,r[0].lon],{title:'$title'||r[0].display_name}).bindPopup('$title'||r[0].display_name).addTo($map); }";
+            $city = '';
+            if(strpos($address, ', ') !== false)
+                $city = array_last(explode(', ', $address));
+            if($city != '')
+                $cb .= " else { wdf.get('$q',".json_encode(['format'=>'json','limit'=>1,'q' => $city]).",function(r){ $cb }); }";
+            $this->script("wdf.get('$q',".json_encode($prms).",function(r){ $cb; });");
         }
+        
+//        $this->script("if(L.marker.length == 0) { $('#{self}').hide(); };");
 
         parent::PreRender($args);
     }

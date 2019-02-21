@@ -92,6 +92,8 @@ function mail_prepare($recipient,$subject,$message,$plainmessage="",$attachments
 
 	$mail->IsSMTP();
 	$mail->Host     = $CONFIG['mail']['smtp_server'];
+	if( isset($CONFIG['mail']['smtp_port']) && $CONFIG['mail']['smtp_port'] )
+        $mail->Port = $CONFIG['mail']['smtp_port'];
 	if( isset($CONFIG['mail']['smtp_auth']) && $CONFIG['mail']['smtp_auth'] )
 	{
 		$mail->SMTPAuth = true;
@@ -100,9 +102,7 @@ function mail_prepare($recipient,$subject,$message,$plainmessage="",$attachments
 	}
 
 	if( isset($CONFIG['mail']['smtp_tls']) && $CONFIG['mail']['smtp_tls'] == true )
-	{
 		$mail->SMTPSecure = 'tls';
-	}
 
 	$mail->From     = $CONFIG['mail']['from'];
 	$mail->FromName = $CONFIG['mail']['from_name'];
