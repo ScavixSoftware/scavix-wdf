@@ -80,6 +80,9 @@ class Form extends Control
 				if( $value )
 					$inp->value = $value;
 				break;
+			default:
+				$inp = Input::Make()->setType($type)->setName($name)->setValue($value);
+				break;
 		}
 		return $this->content($inp);
 	}
