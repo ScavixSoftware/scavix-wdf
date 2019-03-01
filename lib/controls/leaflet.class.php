@@ -38,6 +38,7 @@ class LeafLet extends Control
         [
             'center' => [52.98, 10.57],
             'zoom' => 7,
+            'scrollWheelZoom' => false
         ];
 
     protected $_markers = [];
@@ -132,7 +133,9 @@ class LeafLet extends Control
         {
             list($address,$title) = $a;
             $prms['q'] = $address;
-            $cb = "if(r.length > 0) { L.marker([r[0].lat,r[0].lon],{title:'$title'||r[0].display_name}).bindPopup('$title'||r[0].display_name).addTo($map); }";
+            $tooltip = html_entity_decode(strip_tags(str_replace(["\r", "\n"], ["\\r", "\\n"], $title)));
+            $popup = str_replace(["\r\n", "\r", "\n"], ["<br/>", "", ""], $title);
+            $cb = "if(r.length > 0) { L.marker([r[0].lat,r[0].lon],{title:'$tooltip'||r[0].display_name}).bindPopup('$popup'||r[0].display_name).addTo($map); }";
             $city = '';
             if(strpos($address, ', ') !== false)
                 $city = array_last(explode(', ', $address));
