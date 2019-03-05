@@ -226,7 +226,7 @@ function model_update_db($datasource,$version,$script_folder)
         try
         {
             log_debug("Upgrading DB to version '$v'");
-            model_run_script($file);
+            model_run_script($file,$ds,true);
             $ds->ExecuteSql("UPDATE wdf_versions SET finished=now() WHERE version=?",$v);
             $res[$v] = 'success';
         }
@@ -290,7 +290,7 @@ function model_run_script($file,$datasource=false,$verbose=false)
     {
         $statement = trim($statement);
         $ignore = isset($statement[0]) && $statement[0]=='@';
-        $statement = trim($statement,'@ ');    
+        $statement = trim($statement,";@ \t\r\n");
         if( $statement )
         {
             try
@@ -298,7 +298,7 @@ function model_run_script($file,$datasource=false,$verbose=false)
                 if( !ends_with($statement,';') )
                     $statement .= ";";
                 if( $verbose )
-                    log_debug("Running SQL: ",$statement);
+                    log_debug("Running SQL: '$statement'");
                 $ds->ExecuteSql($statement);
             }
             catch(Exception $first)
