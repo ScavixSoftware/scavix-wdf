@@ -142,10 +142,6 @@ class TranslationAdmin extends TranslationAdminBase
         $div->content('<br/>');
         $div->AddSubmit("Create translation files");
         
-        $div->content('&nbsp;&nbsp;');
-        Button::Make('Download as ZIP',"location.href='". buildQuery('translationadmin','download')."/Translations.zip'")
-            ->appendTo($div);
-        
         if( !$languages )
             return; 
         
@@ -167,41 +163,78 @@ class TranslationAdmin extends TranslationAdminBase
         
         $this->_contentdiv->content('<br/><br/>');
         
+        $written_languages = [];
         foreach( array_unique($languages) as $lang )
         {
             $unkown = [];
             $lang = strtolower($lang);
             $data = $lang == $CONFIG['localization']['default_language']?$defaults:$this->fetchTerms($lang,$defaults,$unkown);
             $strings = "\$GLOBALS['translation']['strings'] = ".var_export($data,true);
-            file_put_contents(
-                $CONFIG['translation']['data_path'].$lang.'.inc.php', 
-                "<?php\n$info;\n$strings;\n"
+            $filename = $CONFIG['translation']['data_path'].$lang.'.inc.php';
+            $filecontent = "<?php\n$info;\n$strings;\n";
+            $ret = false;
+            set_error_handler(
+                function ($severity, $message, $file, $line) use ($ret) {
+                    $this->_contentdiv->content(\ScavixWDF\JQueryUI\uiMessage::Error($message));
+                    $this->_contentdiv->content("<br/>");
+                    $ret = false;
+                }
             );
-            $this->_contentdiv->content("<div>Created translation file for $lang</div>");
+
+            try {
+                $ret = file_put_contents(
+                    $filename, 
+                    $filecontent
+                );
+            }
+            catch (Exception $e) {
+                echo $e->getMessage();
+            }
+            restore_error_handler();
+
+            if($ret !== false)
+            {
+                if(file_get_contents($filename) !== $filecontent)
+                    $this->_contentdiv->content(\ScavixWDF\JQueryUI\uiMessage::Hint('Content of written file differs ('.$filename.')'));
+                else
+                {
+                    // success
+                    $this->_contentdiv->content("<div style='color: green'>Created translation file for <b>$lang</b> &#10003;</div>");
+                    $written_languages[] = $lang;
+                }
+                $this->_contentdiv->content("<br/>");
+            }
         }
 		
-		$ds = model_datasource($GLOBALS['CONFIG']['translation']['sync']['datasource']);
-		$ds->ExecuteSql("DELETE FROM wdf_unknown_strings");
-		$ds->ExecuteSql("DELETE FROM wdf_unknown_strings_data WHERE term NOT IN(SELECT id FROM wdf_translations)");
-		$this->_contentdiv->content("<div>Cleared the unknown strings tables</div>");
-		
-		foreach( cache_list_keys() as $key )
-		{
-			if( starts_with($key, 'lang_') )
-				cache_del($key);
-		}
-		$this->_contentdiv->content("<div>Cleared the string cache</div>");
-        
-        foreach( array_unique($languages) as $lang )
+        if(count($written_languages) > 0)
         {
-            $lang = strtolower($lang);
-            $fn = $CONFIG['translation']['data_path'].$lang.'.inc.php';
-            $strings = file_get_contents($fn);
-            
-            $fn = "$fn <a style='font-weight:normal' href='javascript:void(0)' onclick='document.getElementById(\"strings_{$lang}\").select(); document.execCommand(\"Copy\");'>copy</a>";
-            
-            $this->_contentdiv->content("<h2>$fn</h2>");
-            $this->_contentdiv->content("<textarea id='strings_{$lang}' style='width: 90%; min-height: 30px'>$strings</textarea>");
+            $ds = model_datasource($GLOBALS['CONFIG']['translation']['sync']['datasource']);
+            $ds->ExecuteSql("DELETE FROM wdf_unknown_strings");
+            $ds->ExecuteSql("DELETE FROM wdf_unknown_strings_data WHERE term NOT IN(SELECT id FROM wdf_translations)");
+            $this->_contentdiv->content("<div>Cleared the unknown strings tables &#10003;</div>");
+		
+            foreach( cache_list_keys() as $key )
+            {
+                if( starts_with($key, 'lang_') )
+                    cache_del($key);
+            }
+            $this->_contentdiv->content("<div>Cleared the string cache &#10003;</div>");
+
+            $this->_contentdiv->content("<br/><br/>");
+            $this->_contentdiv->content(Button::Make('Download as ZIP',"location.href='". buildQuery('translationadmin','download')."/Translations.zip'"));
+        
+            foreach( $written_languages as $lang )
+            {
+                $lang = strtolower($lang);
+                $fn = $CONFIG['translation']['data_path'].$lang.'.inc.php';
+                $strings = file_get_contents($fn);
+
+                $fn = "$fn <a style='font-weight:normal' href='javascript:void(0)' onclick='document.getElementById(\"strings_{$lang}\").select(); document.execCommand(\"Copy\");'>copy</a>";
+
+                $this->_contentdiv->content("<br/><br/>");
+                $this->_contentdiv->content("<b>$fn</b>");
+                $this->_contentdiv->content("<textarea id='strings_{$lang}' style='width: 90%; min-height: 30px'>$strings</textarea>");
+            }
         }
     }
 	
