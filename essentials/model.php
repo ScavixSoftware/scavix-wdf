@@ -182,7 +182,7 @@ function model_build_connection_string($type,$server,$username,$password,$databa
  * @param string $script_folder Folder with the SQL update scripts
  * @return array Array of results
  */
-function model_update_db($datasource,$version,$script_folder)
+function model_update_db($datasource,$version,$script_folder,callable $after_sql_callback = null)
 {
     $ds = ($datasource instanceof DataSource)?$datasource:model_datasource($datasource);
     $ds->ExecuteSql(
@@ -227,6 +227,11 @@ function model_update_db($datasource,$version,$script_folder)
         {
             log_debug("Upgrading DB to version '$v'");
             model_run_script($file,$ds,true);
+            if(!is_null($after_sql_callback))
+            {
+                log_debug("Executing callback function");
+                $after_sql_callback($v);
+            }
             $ds->ExecuteSql("UPDATE wdf_versions SET finished=now() WHERE version=?",$v);
             $res[$v] = 'success';
         }
