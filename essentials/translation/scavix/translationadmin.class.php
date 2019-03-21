@@ -65,8 +65,8 @@ class TranslationAdmin extends TranslationAdminBase
 				`content` TEXT NULL,
 				PRIMARY KEY (`lang`, `id`) );");
 		
-		$this->subnav('Translate', 'TranslationAdmin', 'Translate');
-		$this->subnav('Import', 'TranslationAdmin', 'Import');
+		$this->subnav('Translate', 'TranslationAdmin', 'translate');
+		$this->subnav('Import', 'TranslationAdmin', 'import');
     }
 	
 	private function fetchTerms($lang_code,$defaults = array(),&$unkown=null)
@@ -95,8 +95,12 @@ class TranslationAdmin extends TranslationAdminBase
 		foreach( $this->ds->ExecuteSql("SELECT lang,count(*) as cnt FROM wdf_translations GROUP BY lang") as $row )
 			$counts[$row['lang']] = intval($row['cnt']);
 		$total = max($counts);
+        $def = $GLOBALS['CONFIG']['localization']['default_language'];
+        $allowed = $this->user->getProperty('languages','all');
 		foreach( Localization::get_language_names() as $code=>$name )
 		{
+            if( $allowed!=='all' && $code != $def && !in_array($code,$allowed) )
+                continue;
 			if( isset($counts[$code]) )
 			{
 				$name = "$name ({$counts[$code]})";
@@ -119,6 +123,16 @@ class TranslationAdmin extends TranslationAdminBase
         global $CONFIG;
         
         $this->_contentdiv->content("<h1>Fetch strings</h1>");
+        
+        if( !isDev() )
+        {
+            $this->_contentdiv->content("<h2>This can only be used in DEV system</h2>");
+            $this->_contentdiv->content("<br/><br/>");
+            if( $this->user->hasAccess('translationadmin','download') )
+                $this->_contentdiv->content(Button::Make('Download translation files as ZIP',"location.href='". buildQuery('translationadmin','download')."/Translations.zip'"));
+            return;
+        }
+        
         $db_languages = $this->ds->ExecuteSql("SELECT DISTINCT lang FROM wdf_translations ORDER BY lang")->Enumerate('lang',false);
 		$max = $this->ds->ExecuteScalar("SELECT MAX(cnt) FROM (SELECT count(*) as cnt FROM wdf_translations GROUP BY lang) AS x");
 		foreach( $db_languages as $i=>$lang )
@@ -172,24 +186,19 @@ class TranslationAdmin extends TranslationAdminBase
             $strings = "\$GLOBALS['translation']['strings'] = ".var_export($data,true);
             $filename = $CONFIG['translation']['data_path'].$lang.'.inc.php';
             $filecontent = "<?php\n$info;\n$strings;\n";
-            $ret = false;
+            
+            $ret = true;
             set_error_handler(
-                function ($severity, $message, $file, $line) use ($ret) {
+                function ($severity, $message, $file, $line) use (&$ret) {
                     $this->_contentdiv->content(\ScavixWDF\JQueryUI\uiMessage::Error($message));
                     $this->_contentdiv->content("<br/>");
                     $ret = false;
                 }
             );
-
-            try {
-                $ret = file_put_contents(
-                    $filename, 
-                    $filecontent
-                );
-            }
-            catch (Exception $e) {
-                echo $e->getMessage();
-            }
+            file_put_contents(
+                $filename, 
+                $filecontent
+            );
             restore_error_handler();
 
             if($ret !== false)
@@ -446,8 +455,13 @@ class TranslationAdmin extends TranslationAdminBase
         array_unshift($languages,$CONFIG['localization']['default_language']); 
         $languages = array_unique($languages);
         
+        $def = $GLOBALS['CONFIG']['localization']['default_language'];
+        $allowed = $this->user->getProperty('languages','all');
         foreach( Localization::get_language_names() as $lang=>$name )
         {
+            if( $allowed!=='all' && $lang != $def && !in_array($lang,$allowed) )
+                continue;
+            
             $dbrow = $this->ds->Query("wdf_translations")->eq('lang',$lang)->eq('id',$term)->current();
             $row = $dbrow?:['lang'=>$lang,'id'=>$term,'content'=>''];
             
