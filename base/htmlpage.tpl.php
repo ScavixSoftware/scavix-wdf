@@ -52,8 +52,10 @@ $(function(){
 	wdf.ready.add(function()
 	{
 	<?=implode((isDev() ? "\n" : ""),$docready);?>
-<? if( isset($_SESSION['wdf_translator_mode']) && $_SESSION['wdf_translator_mode'] && isset($GLOBALS['translation']['strings']) ):?>
-    wdf.translations = <?=json_encode(array_combine(array_map(function($k){return $k."[NT]"; },array_keys($GLOBALS['translation']['strings'])),array_values($GLOBALS['translation']['strings'])))?>;
+<? if( isset($_SESSION['wdf_translator_mode']) && $_SESSION['wdf_translator_mode'] && isset($GLOBALS['translation']['strings']) ):
+    $translations = array_combine(array_map(function($k){return $k."[NT]"; },array_keys($GLOBALS['translation']['strings'])),array_map(function($v){return (isset($GLOBALS['translation']['strings'][$v]) ? $v.'[NT]' : $v); },array_values($GLOBALS['translation']['strings'])));
+    ?>
+    wdf.translations = <?=json_encode($translations)?>;
     wdf.translator_hint = $('<div/>').addClass('wdf_translator_hint').appendTo('body');
     $(document).on('mouseover','*',function(e)
     {
@@ -80,7 +82,10 @@ $(function(){
                 }
             }
         }
-        wdf.translator_hint.html(buf.join("")).position({my:'left top', at:'left bottom',of:$(e.target)});
+        if(buf.length > 0)
+            wdf.translator_hint.html(buf.join("")).position({my:'left top', at:'left bottom',of:$(e.target)}).fadeIn();
+        else
+            wdf.translator_hint.fadeOut();
     });
 <? endif;?>
 	});
