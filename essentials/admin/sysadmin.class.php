@@ -64,14 +64,14 @@ class SysAdmin extends HtmlPage
 		unset($CONFIG["use_compiled_css"]);
         
         $this->user = SysAdminUser::GetCurrent();
-        if( $this->user ) $_SESSION['wdf_translator_mode'] = true; else $_SESSION['wdf_translator_mode'] = false;
-        if( current_event(true) != 'login' && !$this->user )
+        $_SESSION['wdf_translator_mode'] = (($this->user !== false) && (current_controller() == '\scavixwdf\translation\translationadmin') && (current_event() == 'translate'));
+        if( current_event() != 'login' && !$this->user )
             redirect('sysadmin','login');
         
         parent::__initialize("SysAdmin - $title", 'sysadmin');
         $this->_translate = false;
         
-        if( current_event(true) != 'login' )
+        if( current_event() != 'login' )
         {
             $nav = parent::content(new Control('div'));
             $nav->class = "navigation";

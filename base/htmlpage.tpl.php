@@ -56,7 +56,7 @@ $(function(){
     $translations = array_combine(array_map(function($k){return $k."[NT]"; },array_keys($GLOBALS['translation']['strings'])),array_map(function($v){return (isset($GLOBALS['translation']['strings'][$v]) ? $v.'[NT]' : $v); },array_values($GLOBALS['translation']['strings'])));
     ?>
     wdf.translations = <?=json_encode($translations)?>;
-    wdf.translator_hint = $('<div/>').addClass('wdf_translator_hint').appendTo('body');
+    wdf.translator_hint = $('<div/>').addClass('wdf_translator_hint').appendTo('body').hide();
     $(document).on('mouseover','*',function(e)
     {
         var texts = [];
