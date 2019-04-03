@@ -52,6 +52,42 @@ $(function(){
 	wdf.ready.add(function()
 	{
 	<?=implode((isDev() ? "\n" : ""),$docready);?>
+<? if( isset($_SESSION['wdf_translator_mode']) && $_SESSION['wdf_translator_mode'] && isset($GLOBALS['translation']['strings']) ):
+    $translations = array_combine(array_map(function($k){return $k."[NT]"; },array_keys($GLOBALS['translation']['strings'])),array_map(function($v){return (isset($GLOBALS['translation']['strings'][$v]) ? $v.'[NT]' : $v); },array_values($GLOBALS['translation']['strings'])));
+    ?>
+    wdf.translations = <?=json_encode($translations)?>;
+    wdf.translator_hint = $('<div/>').addClass('wdf_translator_hint').appendTo('body').hide();
+    $(document).on('mouseover','*',function(e)
+    {
+        var texts = [];
+        $(e.target).find(":not(iframe)").addBack().contents().filter(function()
+        {
+            return this.nodeType == 3;
+        }).each(function(){ texts.push($(this).text()); });
+        texts.push($(e.target).text());
+        var buf = [], matches={};
+        for(var t=0; t<texts.length; t++)
+        {
+            var txt = texts[t], part = txt.substr(0,10);
+            for(var i in wdf.translations) 
+            {
+                if( matches[i] )
+                    continue;
+                var test = wdf.translations[i];
+                if( test==txt || (txt.length > 10 && test.substr(0,part.length)==part) )
+                {
+                    matches[i] = wdf.translations[i];
+                    buf.push("<div>"+i+"</div>");
+                    break;
+                }
+            }
+        }
+        if(buf.length > 0)
+            wdf.translator_hint.html(buf.join("")).position({my:'left top', at:'left bottom',of:$(e.target)}).fadeIn();
+        else
+            wdf.translator_hint.fadeOut();
+    });
+<? endif;?>
 	});
 <?php endif; ?>
 	<?=$wdf_init?>

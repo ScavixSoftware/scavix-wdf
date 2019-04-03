@@ -49,41 +49,9 @@ class SysAdmin extends HtmlPage
     
     protected $_contentdiv = false;
 	protected $_subnav = false;
+    protected $user = false;
     
-    private function authenticated()
-    {
-        global $CONFIG;
-        
-        if( !isset($_SESSION['admin_handler_username']) || !isset($_SESSION['admin_handler_password']) )
-            return false;
-        
-        $CFG = $CONFIG['system']['admin'];
-        
-        if( avail($CFG,'credentials') )
-        {
-            foreach( $CFG['credentials'] as $cred )
-            {
-                if( $_SESSION['admin_handler_username'] == $cred['username']
-                    &&
-                    $_SESSION['admin_handler_password'] == $cred['password'] )
-                {
-                    $_SESSION['admin_handler_role'] = isset($cred['role'])?$cred['role']:'admin';
-                    return true;
-                }
-            }
-            return false;
-        }   
-        if( $_SESSION['admin_handler_username'] == $CFG['username']
-            &&
-            $_SESSION['admin_handler_password'] == $CFG['password'] )
-        {
-            $_SESSION['admin_handler_role'] = 'admin';
-            return true;
-        }
-        return false;
-    }
-	
-	function __initialize($title = "", $body_class = false)
+    function __initialize($title = "", $body_class = false)
     {
         global $CONFIG;
 		
@@ -95,36 +63,46 @@ class SysAdmin extends HtmlPage
 		unset($CONFIG["use_compiled_js"]);
 		unset($CONFIG["use_compiled_css"]);
         
-        if( current_event(true) != 'login' && !$this->authenticated() )
+        $this->user = SysAdminUser::GetCurrent();
+        $_SESSION['wdf_translator_mode'] = (($this->user !== false) && (current_controller() == '\scavixwdf\translation\translationadmin') && (current_event() == 'translate'));
+        if( current_event() != 'login' && !$this->user )
             redirect('sysadmin','login');
         
         parent::__initialize("SysAdmin - $title", 'sysadmin');
         $this->_translate = false;
         
-        if( current_event(true) != 'login' )
+        if( current_event() != 'login' )
         {
             $nav = parent::content(new Control('div'));
             $nav->class = "navigation";
 			
-            if( $_SESSION['admin_handler_role'] == 'admin' )
+            $navdata = $CONFIG['system']['admin']['actions'];
+            $navdata['Cache']        = ['sysadmin','cache'];
+            $navdata['PHP info']     = ['sysadmin','phpinfo'];
+            $navdata['Translations'] = ['translationadmin','newstrings'];
+            $navdata['Testing']      = ['sysadmin','testing'];
+            foreach( $navdata as $label=>$def )
             {
-                foreach( $CONFIG['system']['admin']['actions'] as $label=>$def )
-                {
-                    if( !class_exists(fq_class_name($def[0])) )
-                        continue;
-                    $nav->content( new Anchor(buildQuery($def[0],$def[1]),$label) );
-                }
-                $nav->content( new Anchor(buildQuery('sysadmin','cache'),'Cache') );
-                $nav->content( new Anchor(buildQuery('sysadmin','phpinfo'),'PHP info') );
-                $nav->content( new Anchor(buildQuery('translationadmin','newstrings'),'Translations') );
-                $nav->content( new Anchor(buildQuery('sysadmin','testing'),'Testing') );
+                if( !class_exists(fq_class_name($def[0])) )
+                    continue;
+                if( !$this->user->hasAccess($def[0],$def[1]) )
+                    continue;
+                $nav->content( new Anchor(buildQuery($def[0],$def[1]),$label) );
             }
-            else
-                $nav->content( new Anchor(buildQuery('translationadmin','newstrings'),'Translations') );
 			
             $nav->content( new Anchor(buildQuery('',''),'Back to app') );
             $nav->content( new Anchor(buildQuery('sysadmin','logout'),'Logout', 'logout') );
 			$this->_subnav = parent::content(new Control('div'));
+
+            if( (current_event() == strtolower($CONFIG['system']['default_event'])) && !system_method_exists($this, current_event()) )
+            {
+                if( $this->user->hasAccess('sysadmin', 'index') )
+                    redirect('sysadmin', 'index');
+                else if( $this->user->hasAccess('translationadmin', 'newstrings') )
+                    redirect('translationadmin', 'newstrings');
+                else
+                    die("Invalid user config");
+            }
         }
         
         $this->_contentdiv = parent::content(new Control('div'))->addClass('content');
@@ -135,15 +113,16 @@ class SysAdmin extends HtmlPage
 		$footer->content("<br class='clearer'/>");
         $footer->content($copylink);
         
-        if( (current_event() == strtolower($CONFIG['system']['default_event'])) && !system_method_exists($this, current_event()) )
-        {
-            if( $_SESSION['admin_handler_role'] == 'admin' )
-                redirect('sysadmin', 'index');
-            else
-                redirect('translationadmin', 'newstrings');
-        }
+        if( $this->user && !$this->user->hasAccess(current_controller(), current_event()) )
+            redirect('sysadmin','forbidden');
     }
 
+    function Forbidden()
+    {
+        $this->content("<h1>Error!</h1>");
+		$this->content("<p>You do not have permisison to use this feature.</p>");
+    }
+    
 	/**
 	 * @override Redirects contents to inner content div
 	 */
@@ -154,7 +133,7 @@ class SysAdmin extends HtmlPage
 	
 	protected function subnav($label,$controller,$method)
 	{
-		if( $this->_subnav )
+		if( $this->_subnav && $this->user && $this->user->hasAccess($controller,$method) )
 		{
 			$this->_subnav->content( new Anchor(buildQuery($controller,$method),$label) );
 			$this->_subnav->class = "navigation";
@@ -172,27 +151,24 @@ class SysAdmin extends HtmlPage
 	
     /**
 	 * @internal SysAdmin login page.
-     * @attribute[RequestParam('username','string',false)]
-     * @attribute[RequestParam('password','string',false)]
+     * @attribute[RequestParam('username','string','')]
+     * @attribute[RequestParam('password','string','')]
      */
 	function Login($username,$password)
 	{
-        global $CONFIG;
-        
-        if( $username===false || $password===false )
+        if( !$username || !$password )
         {
             $this->content("<br/><br/>");
             $this->content(Template::Make('sysadminlogin'));
             return;
         }
         
-        $_SESSION['admin_handler_username'] = $username;
-        $_SESSION['admin_handler_password'] = $password;
-        
-        if( !$this->authenticated() )
+        if( SysAdminUser::Login($username,$password) )
+            redirect(get_class_simple($this));
+        else
             redirect(get_class_simple($this),'login');
         
-        redirect(get_class_simple($this));
+        
 	}
     
     /**
@@ -200,8 +176,8 @@ class SysAdmin extends HtmlPage
      */
     function Logout()
     {
-        unset($_SESSION['admin_handler_username']);
-        unset($_SESSION['admin_handler_password']);
+        if( $this->user )
+            $this->user->Logout();
         redirect(get_class_simple($this),'login');
     }
 	

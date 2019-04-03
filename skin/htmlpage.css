@@ -13,3 +13,17 @@
 	height: 32px;
 	clear: both;
 }
+
+.wdf_translator_hint
+{
+    border: 1px dotted black;
+    padding: 3px;
+    font: monospace;
+    position: fixed;
+    left: 0px; top: 0px;
+    display: block;
+    min-height: 50px;
+    min-width: 200px;
+    z-index: 100000;
+    background-color: white;
+}

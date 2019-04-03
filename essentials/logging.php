@@ -97,6 +97,9 @@ function logging_init()
 function logging_mem_ok()
 {
     $val = trim(ini_get('memory_limit'));
+    if( $val === '-1' )
+        return true;
+    
     $last = strtolower($val[strlen($val)-1]);
     $val = preg_replace('/[^0-9]/', '', $val);
     switch($last) {

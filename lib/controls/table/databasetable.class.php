@@ -487,7 +487,7 @@ class DatabaseTable extends Table implements ICallable
 				foreach( $row->Cells() as $cell )
 				{
 					$cc = trim(strip_tags($cell->GetContent()));
-					if( translation_string_exists($cc) )
+//					if( translation_string_exists($cc) )
 						$cc = getString($cc);
 					$line[] = $cc;
 				}

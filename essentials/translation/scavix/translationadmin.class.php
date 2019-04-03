@@ -65,8 +65,8 @@ class TranslationAdmin extends TranslationAdminBase
 				`content` TEXT NULL,
 				PRIMARY KEY (`lang`, `id`) );");
 		
-		$this->subnav('Translate', 'TranslationAdmin', 'Translate');
-		$this->subnav('Import', 'TranslationAdmin', 'Import');
+		$this->subnav('Translate', 'TranslationAdmin', 'translate');
+		$this->subnav('Import', 'TranslationAdmin', 'import');
     }
 	
 	private function fetchTerms($lang_code,$defaults = array(),&$unkown=null)
@@ -95,8 +95,12 @@ class TranslationAdmin extends TranslationAdminBase
 		foreach( $this->ds->ExecuteSql("SELECT lang,count(*) as cnt FROM wdf_translations GROUP BY lang") as $row )
 			$counts[$row['lang']] = intval($row['cnt']);
 		$total = max($counts);
+        $def = $GLOBALS['CONFIG']['localization']['default_language'];
+        $allowed = $this->user->getProperty('languages','all');
 		foreach( Localization::get_language_names() as $code=>$name )
 		{
+            if( $allowed!=='all' && $code != $def && !in_array($code,$allowed) )
+                continue;
 			if( isset($counts[$code]) )
 			{
 				$name = "$name ({$counts[$code]})";
@@ -119,6 +123,16 @@ class TranslationAdmin extends TranslationAdminBase
         global $CONFIG;
         
         $this->_contentdiv->content("<h1>Fetch strings</h1>");
+        
+        if( !isDev() )
+        {
+            $this->_contentdiv->content("<h2>This can only be used in DEV system</h2>");
+            $this->_contentdiv->content("<br/><br/>");
+            if( $this->user->hasAccess('translationadmin','download') )
+                $this->_contentdiv->content(Button::Make('Download translation files as ZIP',"location.href='". buildQuery('translationadmin','download')."/Translations.zip'"));
+            return;
+        }
+        
         $db_languages = $this->ds->ExecuteSql("SELECT DISTINCT lang FROM wdf_translations ORDER BY lang")->Enumerate('lang',false);
 		$max = $this->ds->ExecuteScalar("SELECT MAX(cnt) FROM (SELECT count(*) as cnt FROM wdf_translations GROUP BY lang) AS x");
 		foreach( $db_languages as $i=>$lang )
@@ -142,10 +156,6 @@ class TranslationAdmin extends TranslationAdminBase
         $div->content('<br/>');
         $div->AddSubmit("Create translation files");
         
-        $div->content('&nbsp;&nbsp;');
-        Button::Make('Download as ZIP',"location.href='". buildQuery('translationadmin','download')."/Translations.zip'")
-            ->appendTo($div);
-        
         if( !$languages )
             return; 
         
@@ -167,41 +177,73 @@ class TranslationAdmin extends TranslationAdminBase
         
         $this->_contentdiv->content('<br/><br/>');
         
+        $written_languages = [];
         foreach( array_unique($languages) as $lang )
         {
             $unkown = [];
             $lang = strtolower($lang);
             $data = $lang == $CONFIG['localization']['default_language']?$defaults:$this->fetchTerms($lang,$defaults,$unkown);
             $strings = "\$GLOBALS['translation']['strings'] = ".var_export($data,true);
-            file_put_contents(
-                $CONFIG['translation']['data_path'].$lang.'.inc.php', 
-                "<?php\n$info;\n$strings;\n"
+            $filename = $CONFIG['translation']['data_path'].$lang.'.inc.php';
+            $filecontent = "<?php\n$info;\n$strings;\n";
+            
+            $ret = true;
+            set_error_handler(
+                function ($severity, $message, $file, $line) use (&$ret) {
+                    $this->_contentdiv->content(\ScavixWDF\JQueryUI\uiMessage::Error($message));
+                    $this->_contentdiv->content("<br/>");
+                    $ret = false;
+                }
             );
-            $this->_contentdiv->content("<div>Created translation file for $lang</div>");
+            file_put_contents(
+                $filename, 
+                $filecontent
+            );
+            restore_error_handler();
+
+            if($ret !== false)
+            {
+                if(file_get_contents($filename) !== $filecontent)
+                    $this->_contentdiv->content(\ScavixWDF\JQueryUI\uiMessage::Hint('Content of written file differs ('.$filename.')'));
+                else
+                {
+                    // success
+                    $this->_contentdiv->content("<div style='color: green'>Created translation file for <b>$lang</b> &#10003;</div>");
+                    $written_languages[] = $lang;
+                }
+                $this->_contentdiv->content("<br/>");
+            }
         }
 		
-		$ds = model_datasource($GLOBALS['CONFIG']['translation']['sync']['datasource']);
-		$ds->ExecuteSql("DELETE FROM wdf_unknown_strings");
-		$ds->ExecuteSql("DELETE FROM wdf_unknown_strings_data WHERE term NOT IN(SELECT id FROM wdf_translations)");
-		$this->_contentdiv->content("<div>Cleared the unknown strings tables</div>");
-		
-		foreach( cache_list_keys() as $key )
-		{
-			if( starts_with($key, 'lang_') )
-				cache_del($key);
-		}
-		$this->_contentdiv->content("<div>Cleared the string cache</div>");
-        
-        foreach( array_unique($languages) as $lang )
+        if(count($written_languages) > 0)
         {
-            $lang = strtolower($lang);
-            $fn = $CONFIG['translation']['data_path'].$lang.'.inc.php';
-            $strings = file_get_contents($fn);
-            
-            $fn = "$fn <a style='font-weight:normal' href='javascript:void(0)' onclick='document.getElementById(\"strings_{$lang}\").select(); document.execCommand(\"Copy\");'>copy</a>";
-            
-            $this->_contentdiv->content("<h2>$fn</h2>");
-            $this->_contentdiv->content("<textarea id='strings_{$lang}' style='width: 90%; min-height: 30px'>$strings</textarea>");
+            $ds = model_datasource($GLOBALS['CONFIG']['translation']['sync']['datasource']);
+            $ds->ExecuteSql("DELETE FROM wdf_unknown_strings");
+            $ds->ExecuteSql("DELETE FROM wdf_unknown_strings_data WHERE term NOT IN(SELECT id FROM wdf_translations)");
+            $this->_contentdiv->content("<div>Cleared the unknown strings tables &#10003;</div>");
+		
+            foreach( cache_list_keys() as $key )
+            {
+                if( starts_with($key, 'lang_') )
+                    cache_del($key);
+            }
+            $this->_contentdiv->content("<div>Cleared the string cache &#10003;</div>");
+
+            $this->_contentdiv->content("<br/><br/>");
+            $this->_contentdiv->content(Button::Make('Download as ZIP',"location.href='". buildQuery('translationadmin','download')."/Translations.zip'"));
+        
+            foreach( $written_languages as $lang )
+            {
+                $lang = strtolower($lang);
+                $fn = $CONFIG['translation']['data_path'].$lang.'.inc.php';
+                $strings = file_get_contents($fn);
+
+                $fn = "$fn <a style='font-weight:normal' href='javascript:void(0)' onclick='document.getElementById(\"strings_{$lang}\").select(); document.execCommand(\"Copy\");'>copy</a>";
+
+                $this->_contentdiv->content("<br/><br/>");
+                $this->_contentdiv->content("<b>$fn</b>");
+                $this->_contentdiv->content("<textarea id='strings_{$lang}' style='width: 90%; min-height: 30px'>$strings</textarea>");
+            }
         }
     }
 	
@@ -413,8 +455,13 @@ class TranslationAdmin extends TranslationAdminBase
         array_unshift($languages,$CONFIG['localization']['default_language']); 
         $languages = array_unique($languages);
         
+        $def = $GLOBALS['CONFIG']['localization']['default_language'];
+        $allowed = $this->user->getProperty('languages','all');
         foreach( Localization::get_language_names() as $lang=>$name )
         {
+            if( $allowed!=='all' && $lang != $def && !in_array($lang,$allowed) )
+                continue;
+            
             $dbrow = $this->ds->Query("wdf_translations")->eq('lang',$lang)->eq('id',$term)->current();
             $row = $dbrow?:['lang'=>$lang,'id'=>$term,'content'=>''];
             
@@ -552,7 +599,6 @@ class TranslationAdmin extends TranslationAdminBase
 			return $dlg;
 		}
 		$this->ds->ExecuteSql("UPDATE wdf_translations SET id=? WHERE id=?",array($new_term,$term));
-        $this->ds->LogLastStatement();
 		return AjaxResponse::Redirect('TranslationAdmin','Translate', array(
 			'lang' => $_SESSION['trans_admin_lang'],
 			'offset' => $_SESSION['trans_admin_offset'],
