@@ -599,7 +599,6 @@ class TranslationAdmin extends TranslationAdminBase
 			return $dlg;
 		}
 		$this->ds->ExecuteSql("UPDATE wdf_translations SET id=? WHERE id=?",array($new_term,$term));
-        $this->ds->LogLastStatement();
 		return AjaxResponse::Redirect('TranslationAdmin','Translate', array(
 			'lang' => $_SESSION['trans_admin_lang'],
 			'offset' => $_SESSION['trans_admin_offset'],

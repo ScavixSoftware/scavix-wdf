@@ -72,7 +72,7 @@ class SysAdminUser
 
             $user = new SysAdminUser($cred);
             store_object($user,'sysadmin_user');
-            log_debug("SysAdmin logged in:",$user);
+//            log_debug("SysAdmin logged in:",$user);
             return true;
         }
         return false;
