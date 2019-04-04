@@ -82,7 +82,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	{
 		if( is_array($arguments) )
 			foreach( $arguments as $a )
-				$sql = preg_replace('/\?/', "'".$ds->EscapeArgument($a)."'", $sql, 1);
+				$sql = preg_replace('/\?/', (is_numeric($a) ? $a : "'".$ds->EscapeArgument($a)."'"), $sql, 1);
 		return $sql;
 	}
 	
@@ -248,8 +248,8 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 		if( !$this->_arguments_used )
 			$this->_arguments_used = array();
 		$this->_arguments_used[$parameter] = $value;
-		
-		if( is_null($data_type) )
+
+        if( is_null($data_type) )
 			return $this->_stmt->bindValue($parameter, $value);
 		else
 			return $this->_stmt->bindValue($parameter, $value, $data_type);
