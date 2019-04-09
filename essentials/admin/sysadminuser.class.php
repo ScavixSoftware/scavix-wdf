@@ -100,7 +100,7 @@ class SysAdminUser
         {
             case 'admin': return true;
             case 'translator':
-                if( $controller == 'translationadmin' && is_in($method,'newstrings','translate') )
+                if( $controller == 'translationadmin' && is_in($method,'newstrings','translate','savestring') )
                     return true;
                 break;
         }

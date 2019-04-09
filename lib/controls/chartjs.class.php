@@ -24,7 +24,9 @@
  */
 namespace ScavixWDF\Controls;
 
+use DateTime;
 use ScavixWDF\Base\Control;
+use ScavixWDF\Base\DateTimeEx;
 
 /**
  * Represents a Chartt.js chart
@@ -33,17 +35,30 @@ use ScavixWDF\Base\Control;
  */
 class ChartJS extends Control
 {
-    protected $datasets = [];
+    protected $canvas;
+    protected $series = [];
     protected $config = array();
+
+    public static $COLORS = ['red','green','blue','yellow','brown'];
     
-	function __initialize()
+    public static function TimePoint(DateTime $x,float $y)
+    {
+        return ['x'=>"[jscode]new Date('".$x->format("c")."')", 'y'=>$y];
+    }
+    
+	function __initialize($type='line')
 	{
-		parent::__initialize('canvas');
+		parent::__initialize('div');
+        $this->css('position','relative')->css("width","100%")->css("height","250px");
+        $this->canvas = $this->content(Control::Make('canvas'));
+        
+        $this->setType('line')->opt('responsive',true)->opt('maintainAspectRatio',false);
 	}
     
     function PreRender($args = array())
     {
-        $this->script("wdf.chartjs.init('{$this->id}',".system_to_json($this->config).");");
+        //log_debug("CFG",$this->config);
+        $this->script("wdf.chartjs.init('{$this->canvas->id}',".system_to_json($this->config).");");
         return parent::PreRender($args);
     }
     
@@ -53,39 +68,6 @@ class ChartJS extends Control
 			return $this->config[$part][$name];
 		$this->config[$part][$name] = $value;
 		return $this;
-	}
-    
-    function setType($type)
-    {
-        $this->config['type'] = $type;
-        return $this;
-    }
-    
-	function setXMarkers($marker=[])
-	{
-		return $this->cfg('data','labels',array_values($marker));
-	}
-    
-    public static $COLORS = ['red','green','blue','yellow','brown'];
-    function addDataset($label,$borderColor=false,$fill=false,$spanGaps=true)
-    {
-        if( $borderColor == false )
-            $borderColor = self::$COLORS[ count($this->datasets)%count(self::$COLORS) ];
-        $this->datasets[] = compact('label','borderColor','fill','spanGaps');
-        return $this;
-    }
-
-    function fill($valueCallback)
-	{
-        $data = [];
-        foreach( $this->datasets as $dataset )
-        {
-            $dataset['data'] = [];
-            foreach( $this->cfg('data','labels') as $xmark )
-                $dataset['data'][] = $valueCallback($dataset['label'],$xmark);
-            $data[] = $dataset;
-        }
-		return $this->cfg('data','datasets',$data);
 	}
     
     /**
@@ -99,5 +81,65 @@ class ChartJS extends Control
 	function opt($name,$value=null)
 	{
 		return $this->cfg('options',$name,$value);
+	}
+    
+    function setType($type)
+    {
+        $this->config['type'] = $type;
+        return $this;
+    }
+    
+    function setSeries($seriesNames)
+    {
+        $this->series = [];
+        foreach( $seriesNames as $label )
+        {
+            $borderColor = self::$COLORS[ count($this->series)%count(self::$COLORS) ];
+            $this->series[] = compact('label','borderColor');
+        }
+        return $this;
+    }
+
+    function fill($seriesCallback)
+	{
+        $data = [];
+        foreach( $this->series as $series )
+        {
+            $series['data'] = $seriesCallback($series['label']);
+            $data[] = $series;
+        }
+		return $this->cfg('data','datasets',$data);
+	}
+    
+    public static function MultiSeriesTime($data, $dataset_name='series', $x_name='x', $y_name='y')
+	{
+        $chart = new ChartJS();
+        $series = array_unique(array_map(function($row)use($dataset_name){ return $row[$dataset_name]; },$data));
+        if( count($series)<1 )
+        {
+            log_error("No data series found");
+            return $chart;
+        }
+        $chart->setSeries($series);
+        
+        $chart->opt('scales',['xAxes'=>[['type'=>'time']]]);
+        $d = [];
+        foreach( $chart->series as $series )
+        {
+            $series['data'] = [];
+            foreach( $data as $row )
+            {
+                if( $row[$dataset_name] != $series['label'] )
+                    continue;
+                if( !isset($row[$x_name]) && !isset($row[$y_name]) )
+                {
+                    log_error("No data $x_name/$y_name found");
+                    break;
+                }
+                $series['data'][] = self::TimePoint(DateTimeEx::Make(ifavail($row,$x_name)),ifavail($row,$y_name));
+            }
+            $d[] = $series;
+        }
+		return $chart->cfg('data','datasets',$d);
 	}
 }
