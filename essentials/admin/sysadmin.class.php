@@ -107,7 +107,7 @@ class SysAdmin extends HtmlPage
         
         $this->_contentdiv = parent::content(new Control('div'))->addClass('content');
         
-        $copylink = new Anchor('http://www.scavix.com', '&#169; 2012-'.date('Y').' Scavix&#174; Software Ltd. &amp; Co. KG');
+        $copylink = new Anchor('http://www.scavix.com', '&#169; 2012-'.date('Y').' Scavix&#174; Software GmbH &amp; Co. KG');
         $copylink->target = '_blank';
         $footer = parent::content(new Control('div'))->addClass('footer');
 		$footer->content("<br class='clearer'/>");
