@@ -130,6 +130,6 @@ class RegionSelect extends Select
 		$res = array();
 		foreach($sorted as $code=>$item)
 			$res[] = "<option value='$code'>{$item['name']}</option>";
-		return implode("\n",$res);
+		return \ScavixWDF\Base\AjaxResponse::Text(implode("\n",$res));
 	}
 }
