@@ -1378,6 +1378,16 @@ function current_event()
 }
 
 /**
+ * Returns the current url
+ * 
+ * @return string The current url
+ */
+function current_url()
+{
+	return (isSSL() ? "https" : "http") . "://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+}
+
+/**
  * Returns information about the current request.
  * 
  * If the current request is an AJAX request, it returns info about the last 'normal' call.
