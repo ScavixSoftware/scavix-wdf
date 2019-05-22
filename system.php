@@ -1769,7 +1769,12 @@ function system_process_running($pid)
 function system_get_lock($name,$datasource='internal',$timeout=10)
 {
 	$ds = ($datasource instanceof DataSource)?$datasource:model_datasource($datasource);
-	$ds->ExecuteSql("CREATE TABLE IF NOT EXISTS wdf_locks(lockname VARCHAR(50) NOT NULL, pid INT UNSIGNED NOT NULL, PRIMARY KEY (lockname))");
+	$ds->ExecuteSql("CREATE TABLE IF NOT EXISTS `wdf_locks` (
+        `lockname` VARCHAR(500) NOT NULL,
+        `pid` INT(10) UNSIGNED NOT NULL,
+        `created` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`lockname`)
+        ) ENGINE=MEMORY;");
 	
 	$start = microtime(true);
 	
