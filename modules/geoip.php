@@ -225,20 +225,36 @@ function get_timezone_by_ip($ip = false)
 		return $ret;
     
     $services = [];
-    $services["https://freegeoip.net/xml/$ip"] = function($response)
+// freegeoip is now ipstack.com and doesn't offer timezone information for free anymore
+//    $services["https://freegeoip.net/xml/$ip"] = function($response)
+//    {
+//        if( !preg_match_all('/<TimeZone>([^<]*)<\/TimeZone>/', $response, $zone, PREG_SET_ORDER) )
+//            return false;
+//        $zone = $zone[0];
+//        return ($zone[1] != "")?$zone[1]:false;
+//    };
+  
+    if( isset($CONFIG['geoip']['ip-api']) && isset($CONFIG['geoip']['ip-api']['apikey']) )
     {
-        if( !preg_match_all('/<TimeZone>([^<]*)<\/TimeZone>/', $response, $zone, PREG_SET_ORDER) )
+        $services["https://pro.ip-api.com/php/$ip?key=".$CONFIG['geoip']['ip-api']['apikey']] = function($response)
+        {
+            $data = @unserialize($response);
+            if( $data && $data['status'] == 'success' )
+                return $data['timezone'];
             return false;
-        $zone = $zone[0];
-        return ($zone[1] != "")?$zone[1]:false;
-    };
-    $services["http://ip-api.com/php/$ip"] = function($response)
+        };
+    }
+    else
     {
-        $data = @unserialize($response);
-        if( $data && $data['status'] == 'success' )
-            return $data['timezone'];
-        return false;
-    };
+        // use ip-api free service (limited)
+        $services["http://ip-api.com/php/$ip"] = function($response)
+        {
+            $data = @unserialize($response);
+            if( $data && $data['status'] == 'success' )
+                return $data['timezone'];
+            return false;
+        };
+    }
     if( isset($CONFIG['geoip']['ipinfodb']) && isset($CONFIG['geoip']['ipinfodb']['apikey']) )
     {
         $services["https://api.ipinfodb.com/v3/ip-city/?key={$CONFIG['geoip']['ipinfodb']['apikey']}&ip={$ip}&format=xml"] = function($response)
