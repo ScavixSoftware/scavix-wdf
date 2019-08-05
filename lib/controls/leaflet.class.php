@@ -254,10 +254,14 @@ class LeafLet extends Control
      * @param string $sRef
      * @return bool|stdClass
      */
-    static public function FindGeoLocation($search, $sRef = 'https://www.scavix.com')
+    static public function FindGeoLocation($search, $sRef = false)
     {
+        global $CONFIG;
         $geourl = 'https://nominatim.openstreetmap.org/search?format=json&polygon=1&addressdetails=1&q=' . urlencode($search);
-
+        
+        if($sRef === false)
+            $sRef = $CONFIG['system']['url_root'];
+        
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $geourl);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
