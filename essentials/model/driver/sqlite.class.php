@@ -127,6 +127,7 @@ class SqLite implements IDatabaseDriver
 			WdfDbException::Raise("Table `$tablename` not found!","PDO error info: ",$this->_pdo->errorInfo());
 
 		$res = new TableSchema($this->_ds, $tablename);
+        $res->CreateCode = $tableSql;
 		$sql = 'PRAGMA table_info("'.$tablename.'")';
 		foreach($this->_pdo->query($sql) as $row)
 		{

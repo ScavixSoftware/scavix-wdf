@@ -80,10 +80,11 @@ class SysAdmin extends HtmlPage
             $nav->class = "navigation";
 			
             $navdata = $CONFIG['system']['admin']['actions'];
+            $navdata['Home']         = ['sysadmin','index'];
             $navdata['Cache']        = ['sysadmin','cache'];
             $navdata['PHP info']     = ['sysadmin','phpinfo'];
             $navdata['Translations'] = ['translationadmin','newstrings'];
-            $navdata['Testing']      = ['sysadmin','testing'];
+            $navdata['Database']      = ['sysadmin','database'];
             foreach( $navdata as $label=>$def )
             {
                 if( !class_exists(fq_class_name($def[0])) )
@@ -95,6 +96,7 @@ class SysAdmin extends HtmlPage
 			
             $nav->content( new Anchor(buildQuery('',''),'Back to app') );
             $nav->content( new Anchor(buildQuery('sysadmin','logout'),'Logout', 'logout') );
+            $nav->content("<span>".gethostname()."</span>");
 			$this->_subnav = parent::content(new Control('div'));
 
             if( (current_event() == strtolower($CONFIG['system']['default_event'])) && !system_method_exists($this, current_event()) )
@@ -134,11 +136,11 @@ class SysAdmin extends HtmlPage
 		return $this->_contentdiv->content($content);
 	}
 	
-	protected function subnav($label,$controller,$method)
+	protected function subnav($label,$controller,$method,$data=[])
 	{
 		if( $this->_subnav && $this->user && $this->user->hasAccess($controller,$method) )
 		{
-			$this->_subnav->content( new Anchor(buildQuery($controller,$method),$label) );
+			$this->_subnav->content( new Anchor(buildQuery($controller,$method,$data),$label) );
 			$this->_subnav->class = "navigation";
 		}
 	}
@@ -414,10 +416,63 @@ class SysAdmin extends HtmlPage
 	}
 	
 	/**
-	 * @internal This is just an entry point for testing.
+	 * @internal SysAdmin database info.
+	 * @attribute[RequestParam('name','string',false)]
+	 * @attribute[RequestParam('table','string',false)]
 	 */
-	function Testing()
+	function Database($name,$table)
 	{
-		
+        foreach( $GLOBALS['CONFIG']['model'] as $alias=>$cfg )
+            $this->subnav($alias, 'sysadmin', 'database', ['name'=>$alias]);
+        
+        if( !$name )
+        {
+            $this->content("<h2>Please select a database from the submenu.</h2>");
+            return;
+        }
+        
+        $this->content("<h1>Database '$name'</h1>");
+        
+        $versioning_mode = ifavail($_SESSION,'sysadmin_sql_versioning') == '1';
+        if( $versioning_mode == '1' )
+            \ScavixWDF\Controls\Form\Button::Make("Show plain SQL create statements","wdf.controller.get('togglesqlmode',{on:0})")
+                ->appendTo($this);
+        else
+            \ScavixWDF\Controls\Form\Button::Make("Show versioning-prepared create statements","wdf.controller.get('togglesqlmode',{on:1})")
+                ->appendTo($this);
+        
+        $this->content("<h2>Tables</h2>");
+        $ds = model_datasource($name);
+        foreach( $ds->Driver->listTables() as $tab )
+            \ScavixWDF\Controls\Form\Button::Make($tab)->LinkTo('sysadmin','database',['name'=>$name,'table'=>$tab])
+                ->appendTo($this);
+        
+        if( !$table )
+            return;
+        
+        $this->content("<h2>Table '$table' (".($versioning_mode?'for versioning':'plain').")</h2>");
+        $schema = $ds->Driver->getTableSchema($table);
+        $create = $schema->CreateCode;
+        if( $versioning_mode )
+        {
+            $create = preg_replace('/\sAUTO_INCREMENT=\d+/','',$create);
+            $create .= ";";
+        }
+        $this->content("<pre>$create</pre>");
+        
+        $listing = \ScavixWDF\JQueryUI\uiDatabaseTable::Make($ds,false,$table)
+            ->AddPager()
+            ->appendTo($this);
+        $listing->PagerAtTop = true;
 	}
+    
+    /**
+	 * @internal SysAdmin toggle database info mode.
+	 * @attribute[RequestParam('on','bool',false)]
+	 */
+    function ToggleSqlMode($on)
+    {
+        $_SESSION['sysadmin_sql_versioning'] = $on?1:0;
+        return AjaxResponse::Reload();
+    }
 }

@@ -89,6 +89,7 @@ class MySql implements IDatabaseDriver
         $tableSql = $tableSql[1];
 
 		$res = new TableSchema($this->_ds, $tablename);
+        $res->CreateCode = $tableSql;
 		$sql = "show columns from `$tablename`";
 		foreach($this->_pdo->query($sql) as $row)
 		{

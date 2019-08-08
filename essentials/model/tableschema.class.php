@@ -43,6 +43,7 @@ class TableSchema
 	private $_ds;
 	var $_cacheKey;
 	
+    var $CreateCode;
 	var $Name;
 	var $Columns;
 	
