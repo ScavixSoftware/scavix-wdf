@@ -452,11 +452,25 @@ class SysAdmin extends HtmlPage
         
         $this->content("<h2>Table '$table' (".($versioning_mode?'for versioning':'plain').")</h2>");
         $schema = $ds->Driver->getTableSchema($table);
+        //log_debug($schema);
         $create = $schema->CreateCode;
         if( $versioning_mode )
         {
-            $create = preg_replace('/\sAUTO_INCREMENT=\d+/','',$create);
+            $create = preg_replace('/\sAUTO_INCREMENT=\d+/i','',$create);
             $create .= ";";
+            
+            $create = preg_replace('/CREATE\sALGORITHM.*VIEW/i',"CREATE OR REPLACE VIEW",$create);
+            if( stripos($create,"CREATE OR REPLACE VIEW") !== false )
+            {
+                $create = preg_replace('/(\sAS)\s+(SELECT\s)/i',"$1\n$2",$create);
+                $create = preg_replace('/(,.+\s+AS\s+[^,]+)/iU',"\n\t$1",$create);
+                $create = preg_replace('/\s(FROM\s)/i',"\n$1",$create);
+                $create = preg_replace('/\s(LEFT JOIN\s)/i',"\n$1",$create);
+                $create = preg_replace('/\s(WHERE\s)/i',"\n$1",$create);
+                $create = preg_replace('/\s(GROUP BY\s)/i',"\n$1",$create);
+                
+                $create .= "\n\n<b style='color:red'>NOTE THAT THIS IS A VIEW AND IT SHOULD BE UPDATED FROM SOURCE BECAUSE OF * REFERENCES</b>";
+            }
         }
         $this->content("<pre>$create</pre>");
         
