@@ -140,7 +140,7 @@ class SessionStore extends ObjectStore
 
         }
         
-        if( $res )// update objects last access       
+        if( $res && is_object($res) && isset($res->_storage_id) )// update objects last access       
             $_SESSION[$CONFIG['session']['prefix']."object_access"][$res->_storage_id] = time();
         $this->_stats(__METHOD__,$start);
 		return $res;
