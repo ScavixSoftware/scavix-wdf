@@ -158,12 +158,15 @@ function register_less_variable($name,$value)
  */
 function add_less_import_dir($dir,$key=false)
 {
+    if(!$dir)
+        return;
     if( !isset($_SESSION['resources_less_dirs']) )
         $_SESSION['resources_less_dirs'] = array();
 	if( $key )
         $_SESSION['resources_less_dirs'][$key] = $dir;
     else
         $_SESSION['resources_less_dirs'][] = $dir;
+    $_SESSION['resources_less_dirs'] = array_unique($_SESSION['resources_less_dirs']);
 }
 
 /**
