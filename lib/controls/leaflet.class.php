@@ -121,12 +121,14 @@ class LeafLet extends Control
         $url = $opts['url']; unset($opts['url']);
         $opts = system_to_json($opts);
         $this->script("L.tileLayer('$url',$opts).addTo($map);");
+        $markers = "$('#{self}').data('markers')";
+        $this->script("var markers = new Array();");
 
         // add markers
         foreach( $this->_markers as $m )
         {
             $opts = json_encode($m[2]);
-            $this->script("L.marker([{$m[0]},{$m[1]}],$opts).bindPopup('{$m[2]['title']}').addTo($map);");
+            $this->script("markers.push(L.marker([{$m[0]},{$m[1]}],$opts).bindPopup('{$m[2]['title']}').addTo($map));");
         }
 
         // add addresses
@@ -146,6 +148,8 @@ class LeafLet extends Control
                 $cb .= " else { wdf.get('$q',".json_encode(['format'=>'json','limit'=>1,'q' => $city]).",function(r){ $cb }); }";
             $this->script("wdf.get('$q',".json_encode($prms).",function(r){ $cb; });");
         }
+        
+        $this->script("$('#{self}').data('markers', markers);");
         
 //        $this->script("if(L.marker.length == 0) { $('#{self}').hide(); };");
 
@@ -172,7 +176,6 @@ class LeafLet extends Control
      *
      * @param float $lat Latitute
      * @param float $lng Longitude
-     * @param array $options See https://developers.google.com/maps/documentation/javascript/reference#MarkerOptions
      * @return LeafLet
      */
     function AddMarker($lat, $lng, $options = array())
@@ -189,7 +192,6 @@ class LeafLet extends Control
      * @param float $lat Latitude
      * @param float $lng Longitude
      * @param string $title Marker title
-     * @param array $options See https://developers.google.com/maps/documentation/javascript/reference#MarkerOptions
      * @return LeafLet
      */
     function AddMarkerTitled($lat, $lng, $title, $options = array())
@@ -202,7 +204,7 @@ class LeafLet extends Control
     /**
      * Adds an address to the map.
      *
-     * Will use googles geolocation to resolve the address to a marker.
+     * Will use geolocation API to resolve the address to a marker.
      * @param string $address The address as string
      * @param string|false $title An optional title
      * @return LeafLet
