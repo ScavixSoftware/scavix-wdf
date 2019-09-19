@@ -640,7 +640,8 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	 * @implements <Iterator::rewind>
 	 */
 	public function rewind() {
-		$this->_index = 0;
+		$this->_index = -1;
+        $this->_current = false;
 	}
 
 	/**

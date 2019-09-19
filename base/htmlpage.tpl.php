@@ -56,9 +56,14 @@ $(function(){
 	{
 	<?=implode((isDev() ? "\n" : ""),$docready);?>
 <? if( isset($_SESSION['wdf_translator_mode']) && $_SESSION['wdf_translator_mode'] && isset($GLOBALS['translation']['strings']) ):
-    $translations = array_combine(array_map(function($k){return $k."[NT]"; },array_keys($GLOBALS['translation']['strings'])),array_map(function($v){return (isset($GLOBALS['translation']['strings'][$v]) ? $v.'[NT]' : $v); },array_values($GLOBALS['translation']['strings'])));
+    $translations = cache_get('wdf_translator_strings', false);
+    if(!$translations)
+    {
+        $translations = array_combine(array_map(function($k){return $k."[NT]"; },array_keys($GLOBALS['translation']['strings'])),array_map(function($v){return (isset($GLOBALS['translation']['strings'][$v]) ? $v.'[NT]' : __translate($v)); },array_values($GLOBALS['translation']['strings'])));
+        cache_set('wdf_translator_strings', json_encode($translations));
+    }
     ?>
-    wdf.translations = <?=json_encode($translations)?>;
+    wdf.translations = <?=$translations?>;
     wdf.translator_hint = $('<div/>').addClass('wdf_translator_hint').appendTo('body').hide();
     $(document).on('mouseover','*',function(e)
     {
@@ -69,15 +74,16 @@ $(function(){
         }).each(function(){ texts.push($(this).text()); });
         texts.push($(e.target).text());
         var buf = [], matches={};
+        var testlen = 20;
         for(var t=0; t<texts.length; t++)
         {
-            var txt = texts[t], part = txt.substr(0,10);
+            var txt = texts[t], part = txt.substr(0,testlen);
             for(var i in wdf.translations) 
             {
                 if( matches[i] )
                     continue;
                 var test = wdf.translations[i];
-                if( test==txt || (txt.length > 10 && test.substr(0,part.length)==part) )
+                if( test==txt || (txt.length > testlen && test.substr(0,part.length)==part) )
                 {
                     matches[i] = wdf.translations[i];
                     buf.push("<div>"+i+"</div>");
@@ -86,9 +92,9 @@ $(function(){
             }
         }
         if(buf.length > 0)
-            wdf.translator_hint.html(buf.join("")).position({my:'left top', at:'left bottom',of:$(e.target)}).fadeIn();
+            wdf.translator_hint.html(buf.join("")).position({my:'left top', at:'left bottom',of:$(e.target)}).show();
         else
-            wdf.translator_hint.fadeOut();
+            wdf.translator_hint.hide();
     });
 <? endif;?>
 	});
