@@ -140,7 +140,7 @@ class MySql implements IDatabaseDriver
 		if( !$stmt->execute() )
 			WdfDbException::RaiseStatement($stmt);
 		$row = $stmt->fetch();
-		return count($row)>0;
+		return is_array($row) && count($row)>0;
 	}
 
 	/**
