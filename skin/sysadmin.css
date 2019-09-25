@@ -103,6 +103,14 @@ body.sysadmin div.navigation
 	height: 37px;
 }
 
+body.sysadmin div.navigation span
+{
+    padding: 10px;
+    display: inline-block;
+    float: right;
+    color: #666;
+}
+
 body.sysadmin div.navigation a,
 body.sysadmin div.navigation a:active,
 body.sysadmin div.navigation a:visited

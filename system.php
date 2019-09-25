@@ -3,7 +3,8 @@
  * Scavix Web Development Framework
  *
  * Copyright (c) 2007-2012 PamConsult GmbH
- * Copyright (c) since 2013 Scavix Software Ltd. & Co. KG
+ * Copyright (c) 2013-2019 Scavix Software Ltd. & Co. KG
+ * Copyright (c) since 2019 Scavix Software GmbH & Co. KG
  *
  * This library is free software; you can redistribute it
  * and/or modify it under the terms of the GNU Lesser General
@@ -21,8 +22,10 @@
  *
  * @author PamConsult GmbH http://www.pamconsult.com <info@pamconsult.com>
  * @copyright 2007-2012 PamConsult GmbH
- * @author Scavix Software Ltd. & Co. KG http://www.scavix.com <info@scavix.com>
- * @copyright since 2012 Scavix Software Ltd. & Co. KG
+ * @author Scavix Software Ltd. & Co. KG https://www.scavix.com <info@scavix.com>
+ * @copyright 2012-2019 Scavix Software Ltd. & Co. KG
+ * @author Scavix Software GmbH & Co. KG https://www.scavix.com <info@scavix.com>
+ * @copyright since 2019 Scavix Software GmbH & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
@@ -122,11 +125,12 @@ function system_config_default($reset = true)
 	$CONFIG['system']['header']['X-XSS-Protection'] = "1; mode=block";
 	
     $path = explode("index.php",$_SERVER['PHP_SELF']);
+    if(PHP_SAPI == 'cli')
+        $path = ['/'];
 	if( !isset($_SERVER['REQUEST_SCHEME']) )
 		$_SERVER['REQUEST_SCHEME'] = urlScheme(false);
 	if( !isset($_SERVER['HTTP_HOST']) )
 		$_SERVER['HTTP_HOST'] = '127.0.0.1';
-
 
     if(defined('IDNA_DEFAULT') && defined('INTL_IDNA_VARIANT_UTS46'))
     {
@@ -1375,6 +1379,16 @@ function current_event()
 }
 
 /**
+ * Returns the current url
+ * 
+ * @return string The current url
+ */
+function current_url()
+{
+	return (isSSL() ? "https" : "http") . "://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+}
+
+/**
  * Returns information about the current request.
  * 
  * If the current request is an AJAX request, it returns info about the last 'normal' call.
@@ -1756,7 +1770,12 @@ function system_process_running($pid)
 function system_get_lock($name,$datasource='internal',$timeout=10)
 {
 	$ds = ($datasource instanceof DataSource)?$datasource:model_datasource($datasource);
-	$ds->ExecuteSql("CREATE TABLE IF NOT EXISTS wdf_locks(lockname VARCHAR(50) NOT NULL, pid INT UNSIGNED NOT NULL, PRIMARY KEY (lockname))");
+	$ds->ExecuteSql("CREATE TABLE IF NOT EXISTS `wdf_locks` (
+        `lockname` VARCHAR(500) NOT NULL,
+        `pid` INT(10) UNSIGNED NOT NULL,
+        `created` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`lockname`)
+        ) ENGINE=MEMORY;");
 	
 	$start = microtime(true);
 	

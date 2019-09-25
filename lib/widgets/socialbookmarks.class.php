@@ -3,7 +3,8 @@
  * Scavix Web Development Framework
  *
  * Copyright (c) 2007-2012 PamConsult GmbH
- * Copyright (c) since 2013 Scavix Software Ltd. & Co. KG
+ * Copyright (c) 2013-2019 Scavix Software Ltd. & Co. KG
+ * Copyright (c) since 2019 Scavix Software GmbH & Co. KG
  *
  * This library is free software; you can redistribute it
  * and/or modify it under the terms of the GNU Lesser General
@@ -21,8 +22,10 @@
  *
  * @author PamConsult GmbH http://www.pamconsult.com <info@pamconsult.com>
  * @copyright 2007-2012 PamConsult GmbH
- * @author Scavix Software Ltd. & Co. KG http://www.scavix.com <info@scavix.com>
- * @copyright since 2012 Scavix Software Ltd. & Co. KG
+ * @author Scavix Software Ltd. & Co. KG https://www.scavix.com <info@scavix.com>
+ * @copyright 2012-2019 Scavix Software Ltd. & Co. KG
+ * @author Scavix Software GmbH & Co. KG https://www.scavix.com <info@scavix.com>
+ * @copyright since 2019 Scavix Software GmbH & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 namespace ScavixWDF\Widgets;

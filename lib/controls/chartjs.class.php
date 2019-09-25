@@ -2,7 +2,8 @@
 /**
  * Scavix Web Development Framework
  *
- * Copyright (c) since 2017 Scavix Software Ltd. & Co. KG
+ * Copyright (c) 2017-2019 Scavix Software Ltd. & Co. KG
+ * Copyright (c) since 2019 Scavix Software GmbH & Co. KG
  *
  * This library is free software; you can redistribute it
  * and/or modify it under the terms of the GNU Lesser General
@@ -18,8 +19,10 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library. If not, see <http://www.gnu.org/licenses/>
  *
- * @author Scavix Software Ltd. & Co. KG http://www.scavix.com <info@scavix.com>
- * @copyright since 2017 Scavix Software Ltd. & Co. KG
+ * @author Scavix Software Ltd. & Co. KG https://www.scavix.com <info@scavix.com>
+ * @copyright 2017-2019 Scavix Software Ltd. & Co. KG
+ * @author Scavix Software GmbH & Co. KG https://www.scavix.com <info@scavix.com>
+ * @copyright since 2019 Scavix Software GmbH & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 namespace ScavixWDF\Controls;
@@ -39,6 +42,7 @@ class ChartJS extends Control
     protected $series = [];
     protected $config = array();
 
+    public static $NAMED_COLORS = [];
     public static $COLORS = ['red','green','blue','yellow','brown'];
     
     public static function TimePoint(DateTime $x,float $y)
@@ -94,7 +98,9 @@ class ChartJS extends Control
         $this->series = [];
         foreach( $seriesNames as $label )
         {
-            $borderColor = self::$COLORS[ count($this->series)%count(self::$COLORS) ];
+            $borderColor = isset(self::$NAMED_COLORS[$label])
+                ?self::$NAMED_COLORS[$label]
+                :(self::$COLORS[count($this->series)%count(self::$COLORS)]);
             $this->series[] = compact('label','borderColor');
         }
         return $this;
@@ -108,6 +114,7 @@ class ChartJS extends Control
             $series['data'] = $seriesCallback($series['label']);
             $data[] = $series;
         }
+        $this->series = $data;
 		return $this->cfg('data','datasets',$data);
 	}
     
@@ -123,23 +130,33 @@ class ChartJS extends Control
         $chart->setSeries($series);
         
         $chart->opt('scales',['xAxes'=>[['type'=>'time']]]);
-        $d = [];
-        foreach( $chart->series as $series )
+        return $chart->fill(function($name)use($data,$dataset_name,$x_name,$y_name)
         {
-            $series['data'] = [];
+            $res = [];
             foreach( $data as $row )
             {
-                if( $row[$dataset_name] != $series['label'] )
+                if( $row[$dataset_name] != $name )
                     continue;
                 if( !isset($row[$x_name]) && !isset($row[$y_name]) )
                 {
                     log_error("No data $x_name/$y_name found");
                     break;
                 }
-                $series['data'][] = self::TimePoint(DateTimeEx::Make(ifavail($row,$x_name)),ifavail($row,$y_name));
+                $val = ifavail($row,$y_name)?floatval($row[$y_name]):false;
+                if( $val === false )
+                    continue;
+                $res[] = self::TimePoint(DateTimeEx::Make(ifavail($row,$x_name)),$val);
             }
-            $d[] = $series;
-        }
-		return $chart->cfg('data','datasets',$d);
+            return $res;
+        });
 	}
+    
+    public function eachSeries($callback)
+    {
+        foreach( $this->series as &$series )
+        {
+            $callback($series);
+        }
+        return $this->cfg('data','datasets',$this->series);
+    }
 }

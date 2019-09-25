@@ -2,7 +2,8 @@
 /**
  * Scavix Web Development Framework
  *
- * Copyright (c) since 2017 Scavix Software Ltd. & Co. KG
+ * Copyright (c) 2017-2019 Scavix Software Ltd. & Co. KG
+ * Copyright (c) since 2019 Scavix Software GmbH & Co. KG
  *
  * This library is free software; you can redistribute it
  * and/or modify it under the terms of the GNU Lesser General
@@ -18,8 +19,10 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library. If not, see <http://www.gnu.org/licenses/>
  *
- * @author Scavix Software Ltd. & Co. KG http://www.scavix.com <info@scavix.com>
- * @copyright since 2017 Scavix Software Ltd. & Co. KG
+ * @author Scavix Software Ltd. & Co. KG https://www.scavix.com <info@scavix.com>
+ * @copyright 2017-2019 Scavix Software Ltd. & Co. KG
+ * @author Scavix Software GmbH & Co. KG https://www.scavix.com <info@scavix.com>
+ * @copyright since 2019 Scavix Software GmbH & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 namespace ScavixWDF\Controls;
@@ -118,12 +121,14 @@ class LeafLet extends Control
         $url = $opts['url']; unset($opts['url']);
         $opts = system_to_json($opts);
         $this->script("L.tileLayer('$url',$opts).addTo($map);");
+        $markers = "$('#{self}').data('markers')";
+        $this->script("var markers = new Array();");
 
         // add markers
         foreach( $this->_markers as $m )
         {
             $opts = json_encode($m[2]);
-            $this->script("L.marker([{$m[0]},{$m[1]}],$opts).bindPopup('{$m[2]['title']}').addTo($map);");
+            $this->script("markers.push(L.marker([{$m[0]},{$m[1]}],$opts).bindPopup('{$m[2]['title']}').addTo($map));");
         }
 
         // add addresses
@@ -143,6 +148,8 @@ class LeafLet extends Control
                 $cb .= " else { wdf.get('$q',".json_encode(['format'=>'json','limit'=>1,'q' => $city]).",function(r){ $cb }); }";
             $this->script("wdf.get('$q',".json_encode($prms).",function(r){ $cb; });");
         }
+        
+        $this->script("$('#{self}').data('markers', markers);");
         
 //        $this->script("if(L.marker.length == 0) { $('#{self}').hide(); };");
 
@@ -169,7 +176,6 @@ class LeafLet extends Control
      *
      * @param float $lat Latitute
      * @param float $lng Longitude
-     * @param array $options See https://developers.google.com/maps/documentation/javascript/reference#MarkerOptions
      * @return LeafLet
      */
     function AddMarker($lat, $lng, $options = array())
@@ -186,7 +192,6 @@ class LeafLet extends Control
      * @param float $lat Latitude
      * @param float $lng Longitude
      * @param string $title Marker title
-     * @param array $options See https://developers.google.com/maps/documentation/javascript/reference#MarkerOptions
      * @return LeafLet
      */
     function AddMarkerTitled($lat, $lng, $title, $options = array())
@@ -199,7 +204,7 @@ class LeafLet extends Control
     /**
      * Adds an address to the map.
      *
-     * Will use googles geolocation to resolve the address to a marker.
+     * Will use geolocation API to resolve the address to a marker.
      * @param string $address The address as string
      * @param string|false $title An optional title
      * @return LeafLet
@@ -251,10 +256,14 @@ class LeafLet extends Control
      * @param string $sRef
      * @return bool|stdClass
      */
-    static public function FindGeoLocation($search, $sRef = 'https://www.scavix.com')
+    static public function FindGeoLocation($search, $sRef = false)
     {
+        global $CONFIG;
         $geourl = 'https://nominatim.openstreetmap.org/search?format=json&polygon=1&addressdetails=1&q=' . urlencode($search);
-
+        
+        if($sRef === false)
+            $sRef = $CONFIG['system']['url_root'];
+        
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $geourl);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);

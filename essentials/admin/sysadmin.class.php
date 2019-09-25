@@ -2,7 +2,8 @@
 /**
  * Scavix Web Development Framework
  *
- * Copyright (c) since 2012 Scavix Software Ltd. & Co. KG
+ * Copyright (c) 2012-2019 Scavix Software Ltd. & Co. KG
+ * Copyright (c) since 2019 Scavix Software GmbH & Co. KG
  *
  * This library is free software; you can redistribute it
  * and/or modify it under the terms of the GNU Lesser General
@@ -18,8 +19,10 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library. If not, see <http://www.gnu.org/licenses/>
  *
- * @author Scavix Software Ltd. & Co. KG http://www.scavix.com <info@scavix.com>
- * @copyright since 2012 Scavix Software Ltd. & Co. KG
+ * @author Scavix Software Ltd. & Co. KG https://www.scavix.com <info@scavix.com>
+ * @copyright 2012-2019 Scavix Software Ltd. & Co. KG
+ * @author Scavix Software GmbH & Co. KG https://www.scavix.com <info@scavix.com>
+ * @copyright since 2019 Scavix Software GmbH & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 namespace ScavixWDF\Admin;
@@ -77,10 +80,11 @@ class SysAdmin extends HtmlPage
             $nav->class = "navigation";
 			
             $navdata = $CONFIG['system']['admin']['actions'];
+            $navdata['Home']         = ['sysadmin','index'];
             $navdata['Cache']        = ['sysadmin','cache'];
             $navdata['PHP info']     = ['sysadmin','phpinfo'];
             $navdata['Translations'] = ['translationadmin','newstrings'];
-            $navdata['Testing']      = ['sysadmin','testing'];
+            $navdata['Database']      = ['sysadmin','database'];
             foreach( $navdata as $label=>$def )
             {
                 if( !class_exists(fq_class_name($def[0])) )
@@ -92,6 +96,7 @@ class SysAdmin extends HtmlPage
 			
             $nav->content( new Anchor(buildQuery('',''),'Back to app') );
             $nav->content( new Anchor(buildQuery('sysadmin','logout'),'Logout', 'logout') );
+            $nav->content("<span>".gethostname()."</span>");
 			$this->_subnav = parent::content(new Control('div'));
 
             if( (current_event() == strtolower($CONFIG['system']['default_event'])) && !system_method_exists($this, current_event()) )
@@ -107,7 +112,7 @@ class SysAdmin extends HtmlPage
         
         $this->_contentdiv = parent::content(new Control('div'))->addClass('content');
         
-        $copylink = new Anchor('http://www.scavix.com', '&#169; 2012-'.date('Y').' Scavix&#174; Software Ltd. &amp; Co. KG');
+        $copylink = new Anchor('http://www.scavix.com', '&#169; 2012-'.date('Y').' Scavix&#174; Software GmbH &amp; Co. KG');
         $copylink->target = '_blank';
         $footer = parent::content(new Control('div'))->addClass('footer');
 		$footer->content("<br class='clearer'/>");
@@ -131,11 +136,11 @@ class SysAdmin extends HtmlPage
 		return $this->_contentdiv->content($content);
 	}
 	
-	protected function subnav($label,$controller,$method)
+	protected function subnav($label,$controller,$method,$data=[])
 	{
 		if( $this->_subnav && $this->user && $this->user->hasAccess($controller,$method) )
 		{
-			$this->_subnav->content( new Anchor(buildQuery($controller,$method),$label) );
+			$this->_subnav->content( new Anchor(buildQuery($controller,$method,$data),$label) );
 			$this->_subnav->class = "navigation";
 		}
 	}
@@ -411,10 +416,77 @@ class SysAdmin extends HtmlPage
 	}
 	
 	/**
-	 * @internal This is just an entry point for testing.
+	 * @internal SysAdmin database info.
+	 * @attribute[RequestParam('name','string',false)]
+	 * @attribute[RequestParam('table','string',false)]
 	 */
-	function Testing()
+	function Database($name,$table)
 	{
-		
+        foreach( $GLOBALS['CONFIG']['model'] as $alias=>$cfg )
+            $this->subnav($alias, 'sysadmin', 'database', ['name'=>$alias]);
+        
+        if( !$name )
+        {
+            $this->content("<h2>Please select a database from the submenu.</h2>");
+            return;
+        }
+        
+        $this->content("<h1>Database '$name'</h1>");
+        
+        $versioning_mode = ifavail($_SESSION,'sysadmin_sql_versioning') == '1';
+        if( $versioning_mode == '1' )
+            \ScavixWDF\Controls\Form\Button::Make("Show plain SQL create statements","wdf.controller.get('togglesqlmode',{on:0})")
+                ->appendTo($this);
+        else
+            \ScavixWDF\Controls\Form\Button::Make("Show versioning-prepared create statements","wdf.controller.get('togglesqlmode',{on:1})")
+                ->appendTo($this);
+        
+        $this->content("<h2>Tables</h2>");
+        $ds = model_datasource($name);
+        foreach( $ds->Driver->listTables() as $tab )
+            \ScavixWDF\Controls\Form\Button::Make($tab)->LinkTo('sysadmin','database',['name'=>$name,'table'=>$tab])
+                ->appendTo($this);
+        
+        if( !$table )
+            return;
+        
+        $this->content("<h2>Table '$table' (".($versioning_mode?'for versioning':'plain').")</h2>");
+        $schema = $ds->Driver->getTableSchema($table);
+        //log_debug($schema);
+        $create = $schema->CreateCode;
+        if( $versioning_mode )
+        {
+            $create = preg_replace('/\sAUTO_INCREMENT=\d+/i','',$create);
+            $create .= ";";
+            
+            $create = preg_replace('/CREATE\sALGORITHM.*VIEW/i',"CREATE OR REPLACE VIEW",$create);
+            if( stripos($create,"CREATE OR REPLACE VIEW") !== false )
+            {
+                $create = preg_replace('/(\sAS)\s+(SELECT\s)/i',"$1\n$2",$create);
+                $create = preg_replace('/(,.+\s+AS\s+[^,]+)/iU',"\n\t$1",$create);
+                $create = preg_replace('/\s(FROM\s)/i',"\n$1",$create);
+                $create = preg_replace('/\s(LEFT JOIN\s)/i',"\n$1",$create);
+                $create = preg_replace('/\s(WHERE\s)/i',"\n$1",$create);
+                $create = preg_replace('/\s(GROUP BY\s)/i',"\n$1",$create);
+                
+                $create .= "\n\n<b style='color:red'>NOTE THAT THIS IS A VIEW AND IT SHOULD BE UPDATED FROM SOURCE BECAUSE OF * REFERENCES</b>";
+            }
+        }
+        $this->content("<pre>$create</pre>");
+        
+        $listing = \ScavixWDF\JQueryUI\uiDatabaseTable::Make($ds,false,$table)
+            ->AddPager()
+            ->appendTo($this);
+        $listing->PagerAtTop = true;
 	}
+    
+    /**
+	 * @internal SysAdmin toggle database info mode.
+	 * @attribute[RequestParam('on','bool',false)]
+	 */
+    function ToggleSqlMode($on)
+    {
+        $_SESSION['sysadmin_sql_versioning'] = $on?1:0;
+        return AjaxResponse::Reload();
+    }
 }
