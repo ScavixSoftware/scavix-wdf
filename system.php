@@ -125,11 +125,12 @@ function system_config_default($reset = true)
 	$CONFIG['system']['header']['X-XSS-Protection'] = "1; mode=block";
 	
     $path = explode("index.php",$_SERVER['PHP_SELF']);
+    if(PHP_SAPI == 'cli')
+        $path = ['/'];
 	if( !isset($_SERVER['REQUEST_SCHEME']) )
 		$_SERVER['REQUEST_SCHEME'] = urlScheme(false);
 	if( !isset($_SERVER['HTTP_HOST']) )
 		$_SERVER['HTTP_HOST'] = '127.0.0.1';
-
 
     if(defined('IDNA_DEFAULT') && defined('INTL_IDNA_VARIANT_UTS46'))
     {
