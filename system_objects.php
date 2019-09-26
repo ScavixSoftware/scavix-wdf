@@ -165,6 +165,8 @@ class ToDoException extends WdfException {}
  */
 class WdfDbException extends WdfException
 {
+    public static $DISABLE_LOGGING = false;
+        
     private $statement;
     
     /**
@@ -183,7 +185,8 @@ class WdfDbException extends WdfException
         else
         {
             $msg = 'SQL Error occured. Please contact the technical team and tell them this error ID: '.$errid;
-            log_error("SQL Error", $errid, $statement->ErrorOutput(), $statement->GetMergedSql());
+            if( !self::$DISABLE_LOGGING )
+                log_error("SQL Error", $errid, $statement->ErrorOutput(), $statement->GetMergedSql());
         }
         $ex = new WdfDbException($msg);
         $ex->statement = $statement;
