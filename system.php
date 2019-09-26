@@ -1162,7 +1162,6 @@ function generatePW($len = 8, $case_sensitive=true, $chars='')
 	$res = "";
     if( function_exists('random_int') )
     {
-        log_debug(__FUNCTION__,"random_int");
         while( strlen($res) < $len )
             $res .= $chars[random_int(0,strlen($chars)-1)];
     }
