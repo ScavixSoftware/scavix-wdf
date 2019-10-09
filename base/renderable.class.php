@@ -475,8 +475,22 @@ abstract class Renderable
 	{
         foreach( get_object_vars($this) as $name => $c )
         {
-            if( is_object($c) && ( ($c instanceof $type) || is_subclass_of($c, $type) ) )
-                return true;
+            if( is_object($c) )
+            {
+                if( ($c instanceof $type) || is_subclass_of($c, $type) )
+                   return true;
+            }
+            elseif(is_array($c))
+            {
+                foreach($c as $k => $obj)
+                {
+                    if(is_object($obj) && ($obj instanceof Renderable))
+                    {
+                        if( ($obj instanceof $type) || is_subclass_of($obj, $type) )
+                            return true;
+                    }
+                }
+            }
         }
         return false;
 	}
