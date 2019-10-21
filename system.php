@@ -1661,6 +1661,10 @@ function system_encode_for_output($value,$encode_models_only=false)
 {
 	if( !$encode_models_only && is_string($value) )
 		return htmlentities($value,ENT_COMPAT | ENT_HTML401,"UTF-8",false);
+    
+    if( is_object($value) )
+        $value = clone($value);
+    
 	if( $value instanceof ScavixWDF\Model\Model )
 	{
 		foreach( $value->GetColumnNames() as $col )
