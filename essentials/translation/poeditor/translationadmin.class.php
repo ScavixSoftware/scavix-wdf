@@ -188,4 +188,10 @@ class TranslationAdmin extends TranslationAdminBase
         
         return $this->DeleteString($term);
     }
+
+    public function Import($languages = false, $clearbeforeimport = false): void
+    {
+        parent::Import($languages, $clearbeforeimport);
+    }
+
 }

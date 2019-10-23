@@ -71,20 +71,24 @@ class SysAdmin extends HtmlPage
         if( current_event() != 'login' && !$this->user )
             redirect('sysadmin','login');
         
-        parent::__initialize("SysAdmin - $title", 'sysadmin');
+        parent::__initialize("SysAdmin".($title ? " - $title" : ""), 'sysadmin');
         $this->_translate = false;
         
         if( current_event() != 'login' )
         {
-            $nav = parent::content(new Control('div'));
+            $head = parent::content(new Control('div'));
+            $head->class = "header";
+            $nav = $head->content(new Control('div'));
             $nav->class = "navigation";
 			
-            $navdata = $CONFIG['system']['admin']['actions'];
+            $navdata = [];
             $navdata['Home']         = ['sysadmin','index'];
             $navdata['Cache']        = ['sysadmin','cache'];
             $navdata['PHP info']     = ['sysadmin','phpinfo'];
             $navdata['Translations'] = ['translationadmin','newstrings'];
             $navdata['Database']      = ['sysadmin','database'];
+            $navdata = array_merge($navdata, $CONFIG['system']['admin']['actions']);
+            
             foreach( $navdata as $label=>$def )
             {
                 if( !class_exists(fq_class_name($def[0])) )
@@ -94,10 +98,9 @@ class SysAdmin extends HtmlPage
                 $nav->content( new Anchor(buildQuery($def[0],$def[1]),$label) );
             }
 			
-            $nav->content( new Anchor(buildQuery('',''),'Back to app') );
-            $nav->content( new Anchor(buildQuery('sysadmin','logout'),'Logout', 'logout') );
-            $nav->content("<span>".gethostname()."</span>");
-			$this->_subnav = parent::content(new Control('div'));
+            $nav->content(new Anchor(buildQuery('sysadmin','logout'),'Logout', 'logout'));
+            $nav->content(new Anchor(buildQuery('',''),gethostname(), 'logout'));
+			$this->_subnav = $head->content(new Control('div'));
 
             if( (current_event() == strtolower($CONFIG['system']['default_event'])) && !system_method_exists($this, current_event()) )
             {
@@ -112,7 +115,7 @@ class SysAdmin extends HtmlPage
         
         $this->_contentdiv = parent::content(new Control('div'))->addClass('content');
         
-        $copylink = new Anchor('http://www.scavix.com', '&#169; 2012-'.date('Y').' Scavix&#174; Software GmbH &amp; Co. KG');
+        $copylink = new Anchor('https://www.scavix.com', '&#169; 2012-'.date('Y').' Scavix&#174; Software GmbH &amp; Co. KG');
         $copylink->target = '_blank';
         $footer = parent::content(new Control('div'))->addClass('footer');
 		$footer->content("<br class='clearer'/>");
@@ -141,7 +144,8 @@ class SysAdmin extends HtmlPage
 		if( $this->_subnav && $this->user && $this->user->hasAccess($controller,$method) )
 		{
 			$this->_subnav->content( new Anchor(buildQuery($controller,$method,$data),$label) );
-			$this->_subnav->class = "navigation";
+			$this->_subnav->class = "subnavigation";
+            $this->_contentdiv->addClass('hassubnav');
 		}
 	}
 	

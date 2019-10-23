@@ -401,12 +401,11 @@ class TranslationAdmin extends TranslationAdminBase
 			$btn = Button::Make('Save')->addClass('save')->setData('term',$term['id']);
 			
             $wrap = Control::Make()
-                ->append($ta)
-                ->append('<br/>');
+                ->append($ta);
             foreach( $this->ds->Query('wdf_unknown_strings_data')->eq('term',$term['id'])->enumerate('value',false,'name') as $k=>$v )
                 $wrap->append( "<span class='termdata' title='Sample: {$v}' onclick=\"$(this).closest('.td').find('textarea').insertAtCaret($(this).text());\">{$k}</span>" );
             
-            $cpy = Button::Make('&gt;&gt;')->addClass('copy')
+            $cpy = Button::Make('&raquo;')->addClass('copy')
                 ->setData('term',$term['id'])
                 ->setData('def', json_encode($term['def'],JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT));
                 

@@ -26,11 +26,16 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
  ?>
+<a href="<?=buildQuery('','')?>"/>&laquo; Back to app</a>
+<br/>
+<br/>
+<br/>
+<br/>
 <form action="<?=buildQuery(current_controller(),'Login')?>" method="post" class="login">
     <table>
         <thead>
             <tr>
-                <td colspan="2">Login first</td>
+                <td colspan="2">Login</td>
             </tr>
         </thead>
         <tbody>
@@ -46,7 +51,6 @@
         <tfoot>
             <tr>
                 <td colspan="2" align="right">
-                    <a href="<?=buildQuery('','')?>"/>Back to app</a>
                     <input type="submit" value="Login"/>
                 </td>
             </tr>
