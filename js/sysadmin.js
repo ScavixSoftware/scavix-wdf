@@ -24,9 +24,73 @@
  * @copyright since 2019 Scavix Software GmbH & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
+
+var auto_id = 0;
+
+
+var init_sysadmin = function()
+{
+    wdf.setCallbackDefault('exception', function(msg) 
+    { 
+        MessageBox(msg);
+    });
+    
+    hideLoaderOverlay();
+    
+//	$('input[type="button"], input[type="submit"], input[type="reset"], button:not(.stripe-button-el)').button();
+	$('input,select,textarea','.field').addClass('ui-corner-all');
+        
+//    $('input[type="submit"]:not(.activated), button[type="submit"]:not(.activated):not(.stripe-button-el)').addClass('activated').click( function(e)
+//    {
+//       e.preventDefault();
+//       $(this).button("disable");
+//       $(this).closest('form').submit();
+//    });
+    
+    $('.side-menu .menu a[href^="http"]:not([target])').click( function() { showLoaderOverlay(); } );
+    
+    if(!wdf.orig_redirect)
+    {
+        wdf.orig_redirect = wdf.redirect;
+        wdf.redirect = function(href,data)
+        {
+            showLoaderOverlay();
+            setTimeout(hideLoaderOverlay, 5000);
+            wdf.orig_redirect(href,data);
+        }
+    }
+};
+
 wdf.ready.add(function()
 {
-    $('div.navigation a[href="'+document.location.href+'"]').addClass("current");
+//    $('div.navigation a[href="'+document.location.href+'"]').addClass("current");
+
+    $('#page_header .hamburger').click(function() {
+        if($('.side-menu').is(':visible'))
+            $('.side-menu').slideUp();
+        else
+            $('.side-menu').slideDown();
+    });
+    
+    $('.menu ul li.hassubmenu>a').click(function() 
+    {
+        $li = $(this).closest('li');
+        $ul = $(this).closest('ul');
+        if(!$ul.hasClass('focused'))
+        {
+            $('.arrow', $li).html('<i class="fas fa-angle-down"></i>');
+            $('.dropdown:eq(0)', $li).slideDown( function() {
+                $ul.addClass('focused').addClass('open');
+            });
+        }
+        else
+        {
+            $('.arrow', $li).html('<i class="fas fa-angle-right"></i>');
+            $('.dropdown:eq(0)', $li).slideUp( function() {
+                $ul.removeClass('focused').removeClass('open');
+            });
+        }
+    });
     
     $('table.new_string input.create').click( function()
     { 
@@ -107,4 +171,24 @@ wdf.ready.add(function()
             }
         });
     };
+    
+    init_sysadmin();
 });
+
+wdf.ajaxReady.add(function()
+{
+    init_sysadmin();
+});
+
+
+var showLoaderOverlay = function()
+{
+    if(window.event && window.event.ctrlKey)
+        return;
+    $('#loaderoverlay').fadeIn('fast', function() { setTimeout(hideLoaderOverlay, 15 * 1000) } );
+};
+
+var hideLoaderOverlay = function()
+{
+    $('#loaderoverlay').fadeOut('fast');
+};

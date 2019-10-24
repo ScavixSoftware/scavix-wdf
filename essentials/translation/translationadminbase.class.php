@@ -41,8 +41,6 @@ abstract class TranslationAdminBase extends SysAdmin
 	function __initialize($title = "", $body_class = false)
 	{
 		parent::__initialize($title, $body_class);
-		$this->subnav('New strings', get_class_simple($this), 'NewStrings');
-		$this->subnav('Fetch strings', get_class_simple($this), 'Fetch');
 	}
     
     /**
@@ -79,8 +77,8 @@ abstract class TranslationAdminBase extends SysAdmin
      */
     function NewStrings()
     {
-        $this->_contentdiv->content("<h1>New strings</h1>");
-		$this->_contentdiv->content("<p>Default language is '{$GLOBALS['CONFIG']['localization']['default_language']}', so please create new strings accordingly.</p>");
+        $this->content("<h1>New strings</h1>");
+		$this->content("<p>Default language is '{$GLOBALS['CONFIG']['localization']['default_language']}', so please create new strings accordingly.</p>");
         $ds = model_datasource($GLOBALS['CONFIG']['translation']['sync']['datasource']);
 		translation_add_unknown_strings(array());
 		foreach( $ds->Query('wdf_unknown_strings')->all() as $row )
@@ -88,12 +86,12 @@ abstract class TranslationAdminBase extends SysAdmin
 			$ns = Template::Make('translationnewstring');
             $ns->set_vars($row->AsArray());
             $ns->set('data',$ds->Query('wdf_unknown_strings_data')->eq('term',$ns->term)->enumerate('value',false,'name'));
-            $this->_contentdiv->content($ns);
+            $this->content($ns);
         }
 		if( !isset($row) )
-			$this->_contentdiv->content("<p>no requested strings found</p>");
-		$this->_contentdiv->content("<h1 style='clear:both'>Manually add string</h1>");
-		Template::Make('translationnewstringmanually')->appendTo($this->_contentdiv);
+			$this->content("<p>no requested strings found</p>");
+		$this->content("<h1 style='clear:both'>Manually add string</h1>");
+		Template::Make('translationnewstringmanually')->appendTo($this);
     }
     
     /**

@@ -53,6 +53,8 @@ class SysAdmin extends HtmlPage
     protected $_contentdiv = false;
 	protected $_subnav = false;
     protected $user = false;
+    private $breadcrumbs = [];
+    protected $pagetoolbar = false;
     
     function __initialize($title = "", $body_class = false)
     {
@@ -69,40 +71,58 @@ class SysAdmin extends HtmlPage
 		unset($CONFIG["use_compiled_css"]);
         
         $this->user = SysAdminUser::GetCurrent();
+        $this->set('user', $this->user);
+        $this->set('pagetoolbar', $this->pagetoolbar);
+        
         $_SESSION['wdf_translator_mode'] = (($this->user !== false) && (current_controller() == '\scavixwdf\translation\translationadmin') && (current_event() == 'translate'));
         if( current_event() != 'login' && !$this->user )
             redirect('sysadmin','login');
         
         parent::__initialize("SysAdmin".($title ? " - $title" : ""), 'sysadmin');
         $this->_translate = false;
+        $this->addJs('https://kit.fontawesome.com/5b6a078735.js');
         
         if( current_event() != 'login' )
         {
-            $head = parent::content(new Control('div'));
-            $head->class = "header";
-            $nav = $head->content(new Control('div'));
-            $nav->class = "navigation";
-			
-            $navdata = [];
-            $navdata['Home']         = ['sysadmin','index'];
-            $navdata['Translations'] = ['translationadmin','newstrings'];
-            $navdata = array_merge($navdata, $CONFIG['system']['admin']['actions']);
-            $navdata['Cache']        = ['sysadmin','cache'];
-            $navdata['PHP info']     = ['sysadmin','phpinfo'];
-            $navdata['Database']      = ['sysadmin','database'];
-            
-            foreach( $navdata as $label=>$def )
-            {
-                if( !class_exists(fq_class_name($def[0])) )
-                    continue;
-                if( !$this->user->hasAccess($def[0],$def[1]) )
-                    continue;
-                $nav->content( new Anchor(buildQuery($def[0],$def[1]),$label) );
-            }
-			
-            $nav->content(new Anchor(buildQuery('sysadmin','logout'),'Logout', 'logout'));
-            $nav->content(new Anchor(buildQuery('',''),gethostname(), 'logout'));
-			$this->_subnav = $head->content(new Control('div'));
+            $this->AddNavLink('home', 'Home', 'sysadmin', 'index');
+            $subitems = [
+                ['New Strings', 'translationadmin', 'newstrings'],
+                ['Translate', 'translationadmin', 'translate'],
+                ['Fetch', 'translationadmin', 'fetch'],
+                ['Import', 'translationadmin', 'import'],
+            ];
+            $this->AddNavLink('language', 'Translations', $subitems);
+            foreach($CONFIG['system']['admin']['actions'] as $l => $a)
+                $this->AddNavLink((isset($a[3]) ? $a[3] : 'puzzle-piece'), $l, $a[0], $a[1]);
+            $this->AddNavLink('hdd', 'Cache', 'sysadmin', 'cache');
+            $this->AddNavLink('cogs', 'PHP info', 'sysadmin', 'phpinfo');
+            $this->AddNavLink('database', 'Database', 'sysadmin', 'database');
+                
+//            $head = parent::content(new Control('div'));
+//            $head->class = "header";
+//            $nav = $head->content(new Control('div'));
+//            $nav->class = "navigation";
+//			
+//            $navdata = [];
+//            $navdata['Home']          = ['sysadmin','index'];
+//            $navdata['Translations']  = ['translationadmin','newstrings'];
+//            $navdata = array_merge($navdata, $CONFIG['system']['admin']['actions']);
+//            $navdata['Cache']         = ['sysadmin','cache'];
+//            $navdata['PHP info']      = ['sysadmin','phpinfo'];
+//            $navdata['Database']      = ['sysadmin','database'];
+//            
+//            foreach( $navdata as $label=>$def )
+//            {
+//                if( !class_exists(fq_class_name($def[0])) )
+//                    continue;
+//                if( !$this->user->hasAccess($def[0],$def[1]) )
+//                    continue;
+//                $nav->content( new Anchor(buildQuery($def[0],$def[1]),$label) );
+//            }
+//			
+//            $nav->content(new Anchor(buildQuery('sysadmin','logout'),'Logout', 'logout'));
+//            $nav->content(new Anchor(buildQuery('',''),gethostname(), 'logout'));
+//			$this->_subnav = $head->content(new Control('div'));
 
             if( (current_event() == strtolower($CONFIG['system']['default_event'])) && !system_method_exists($this, current_event()) )
             {
@@ -115,13 +135,13 @@ class SysAdmin extends HtmlPage
             }
         }
         
-        $this->_contentdiv = parent::content(new Control('div'))->addClass('content');
+//        $this->_contentdiv = parent::content(new Control('div'))->addClass('content');
         
-        $copylink = new Anchor('https://www.scavix.com', '&#169; 2012-'.date('Y').' Scavix&#174; Software GmbH &amp; Co. KG');
-        $copylink->target = '_blank';
-        $footer = parent::content(new Control('div'))->addClass('footer');
-		$footer->content("<br class='clearer'/>");
-        $footer->content($copylink);
+//        $copylink = new Anchor('https://www.scavix.com', '&#169; 2012-'.date('Y').' Scavix&#174; Software GmbH &amp; Co. KG');
+//        $copylink->target = '_blank';
+//        $footer = parent::content(new Control('div'))->addClass('footer');
+//		$footer->content("<br class='clearer'/>");
+//        $footer->content($copylink);
         
         if( $this->user && !$this->user->hasAccess(current_controller(), current_event()) )
             redirect('sysadmin','forbidden');
@@ -136,18 +156,18 @@ class SysAdmin extends HtmlPage
 	/**
 	 * @override Redirects contents to inner content div
 	 */
-	function content($content)
-	{
-		return $this->_contentdiv->content($content);
-	}
+//	function content($content)
+//	{
+//		return $this->_contentdiv->content($content);
+//	}
 	
 	protected function subnav($label,$controller,$method,$data=[])
 	{
-		if( $this->_subnav && $this->user && $this->user->hasAccess($controller,$method) )
+		if( $this->user && $this->user->hasAccess($controller,$method) )
 		{
-			$this->_subnav->content( new Anchor(buildQuery($controller,$method,$data),$label) );
-			$this->_subnav->class = "subnavigation";
-            $this->_contentdiv->addClass('hassubnav');
+            $tb = $this->addToolbar();
+//			$tb->content( new Anchor(buildQuery($controller,$method,$data),$label) );
+			$tb->content( new \ScavixWDF\Controls\Form\Button($label, $controller,$method,$data) );
 		}
 	}
 	
@@ -156,8 +176,8 @@ class SysAdmin extends HtmlPage
 	 */
 	function Index()
 	{
-		$this->content("<h1>Welcome,</h1>");
-		$this->content("<p>please select an action from the top menu.</p>");
+		$this->content("<h1>Welcome ".$this->user->username.",</h1>");
+		$this->content("<p>please select an action from the menu.</p>");
 	}
 	
     /**
@@ -493,5 +513,128 @@ class SysAdmin extends HtmlPage
     {
         $_SESSION['sysadmin_sql_versioning'] = $on?1:0;
         return AjaxResponse::Reload();
+    }
+    
+    
+	protected function AddBreadcrumb($caption, $url = false)
+	{
+		if( !isset($this->breadcrumbs[$caption]) )
+			$this->breadcrumbs[$caption] = array('caption' => $caption, 'url' => $url);
+	}
+	
+    protected function GenerateBreadcrumbNavigation()
+	{
+		$ret = '';
+		if(count($this->breadcrumbs) > 1)
+		{
+			$i = 0;
+			$ret .= '<span class="breadcrumbnavbar no-print">';
+			foreach($this->breadcrumbs as $index => $bcrumb)
+			{
+				if($i++ >= count($this->breadcrumbs)-1)
+					break;
+				if($i > 1)
+					$ret .= '&nbsp;/&nbsp;';
+				if($bcrumb['url'] && ($bcrumb['caption'] != ''))
+					$ret .= '<a href="'.$bcrumb['url'].'">'.$bcrumb['caption'].'</a>';
+				else
+					$ret .= $bcrumb['caption'];
+			}
+			$ret .= '</span>';
+            if($ret == '<span class="breadcrumbnavbar no-print">&nbsp;/&nbsp;</span>')
+                $ret = '';
+		}
+		return $ret;
+	}
+	
+	protected function AddNavLink($icon, $label, $page, $event = false)
+	{
+        if($event)
+            $event = strtolower($event);
+		if(is_array($page))
+		{
+			$u = $this->admin;
+			if( 0 == intval(implode("",array_map(function($e)use($u){ return $this->user->hasAccess($e[1], $e[2])?1:0; },$page))) )
+				return;
+			// it has a submenu
+			$link = new Anchor('javascript:void(0)', "");
+		}
+        elseif(starts_with($page, 'http') || starts_with($page, '/'))
+        {
+            $link = new Anchor($page, '', '', ($event ? $event : ''));
+        }
+		else
+		{
+            if(!$this->user->hasAccess($page, $event))
+                return;
+            $link = new Anchor(buildQuery($page, $event), "");
+		}
+		$link->content('<i class="fas fa-'.$icon.' fa-fw"></i>');
+		$link->content("<span class='label'>$label</span>");
+
+		$li = Control::Make('li');
+		$li->content($link);
+		
+		if(is_array($page))
+		{
+			$iscurrent = false;
+            foreach($page as $subitem)
+			{
+                if(!$this->user->hasAccess($subitem[1], isset($subitem[2]) ? $subitem[2] : ''))
+                    continue;
+                $li->addClass('hassubmenu');
+				// set main menu item as current
+                if((current_controller(true) == strtolower($subitem[1])) || ends_iwith(current_controller(true), '\\'.$subitem[1]))
+                {
+					$li->addClass('current');
+					$li->addClass('focused');
+                    $iscurrent = true;
+                }
+			}
+            
+			// it has a submenu
+			$link->content("<span class='arrow'><i class='fas fa-angle-".($iscurrent ? 'down' : 'right')."'></i></span>");
+			$ul = Control::Make('ul')->addClass('dropdown');
+            if($iscurrent)
+                $ul->addClass('open');
+			foreach($page as $subitem)
+			{
+                if(!$this->user->hasAccess($subitem[1], isset($subitem[2]) ? $subitem[2] : ''))
+                    continue;
+				$subli = Control::Make('li');
+				$sublink = new Anchor(buildQuery($subitem[1], isset($subitem[2]) ? $subitem[2] : ''), "");
+				$sublink->content("<span class='label'>&nbsp;&nbsp;".$subitem[0]."</span>");
+				$subli->content($sublink);
+                
+                // set main menu item as current
+                if(((current_controller(true) == strtolower($subitem[1])) || ends_iwith(current_controller(true), '\\'.$subitem[1])) && ((isset($subitem[2]) ? $subitem[2] : 'init') == current_event()))
+					$subli->addClass('current');
+				$ul->content($subli);
+			}
+			$li->content($ul);
+		}
+        else
+        {
+            if((current_controller(true) == strtolower($page)) || ends_iwith(current_controller(true), '\\'.$page))
+            {
+                if(!$event)
+                    $li->addClass('current');
+                elseif($event == current_event())
+                    $li->addClass('current');
+            }
+        }
+
+		$this->add2var('navlinks', $li);
+		return $this;
+	}
+    
+    protected function addToolbar()
+    {
+        if(!$this->pagetoolbar)
+        {
+            $this->pagetoolbar = Control::Make('div')->addClass('pagetoolbar'); //->appendTo($this);
+            $this->set('pagetoolbar', $this->pagetoolbar);
+        }
+        return $this->pagetoolbar;
     }
 }

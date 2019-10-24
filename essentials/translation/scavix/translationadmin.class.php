@@ -68,8 +68,8 @@ class TranslationAdmin extends TranslationAdminBase
 				`content` TEXT NULL,
 				PRIMARY KEY (`lang`, `id`) );");
 		
-		$this->subnav('Translate', 'TranslationAdmin', 'translate');
-		$this->subnav('Import', 'TranslationAdmin', 'import');
+//		$this->subnav('Translate', 'TranslationAdmin', 'translate');
+//		$this->subnav('Import', 'TranslationAdmin', 'import');
     }
 	
 	private function fetchTerms($lang_code,$defaults = array(),&$unkown=null)
@@ -125,14 +125,14 @@ class TranslationAdmin extends TranslationAdminBase
     {
         global $CONFIG;
         
-        $this->_contentdiv->content("<h1>Fetch strings</h1>");
+        $this->content("<h1>Fetch strings</h1>");
         
         if( !isDev() )
         {
-            $this->_contentdiv->content("<h2>This can only be used in DEV system</h2>");
-            $this->_contentdiv->content("<br/><br/>");
+            $this->content("<h2>This can only be used in DEV system</h2>");
+            $this->content("<br/><br/>");
             if( $this->user->hasAccess('translationadmin','download') )
-                $this->_contentdiv->content(Button::Make('Download translation files as ZIP',"location.href='". buildQuery('translationadmin','download')."/Translations.zip'"));
+                $this->content(Button::Make('Download translation files as ZIP',"location.href='". buildQuery('translationadmin','download')."/Translations.zip'"));
             return;
         }
         
@@ -148,7 +148,7 @@ class TranslationAdmin extends TranslationAdminBase
 			$db_languages[$i]->percentage = round($count / $max * 100,0);
 		}
         
-        $div = $this->_contentdiv->content(new Form());
+        $div = $this->content(new Form());
         foreach( $db_languages as $lang )
         {
             $cb = $div->content( CheckBox::Make('languages[]')->setChecked(true) );
@@ -178,7 +178,7 @@ class TranslationAdmin extends TranslationAdminBase
         }
         $info = "\$GLOBALS['translation']['properties'] = ".var_export($head,true);
         
-        $this->_contentdiv->content('<br/><br/>');
+        $this->content('<br/><br/>');
         
         $written_languages = [];
         foreach( array_unique($languages) as $lang )
@@ -193,8 +193,8 @@ class TranslationAdmin extends TranslationAdminBase
             $ret = true;
             set_error_handler(
                 function ($severity, $message, $file, $line) use (&$ret) {
-                    $this->_contentdiv->content(\ScavixWDF\JQueryUI\uiMessage::Error($message));
-                    $this->_contentdiv->content("<br/>");
+                    $this->content(\ScavixWDF\JQueryUI\uiMessage::Error($message));
+                    $this->content("<br/>");
                     $ret = false;
                 }
             );
@@ -207,14 +207,14 @@ class TranslationAdmin extends TranslationAdminBase
             if($ret !== false)
             {
                 if(file_get_contents($filename) !== $filecontent)
-                    $this->_contentdiv->content(\ScavixWDF\JQueryUI\uiMessage::Hint('Content of written file differs ('.$filename.')'));
+                    $this->content(\ScavixWDF\JQueryUI\uiMessage::Hint('Content of written file differs ('.$filename.')'));
                 else
                 {
                     // success
-                    $this->_contentdiv->content("<div style='color: green'>Created translation file for <b>$lang</b> &#10003;</div>");
+                    $this->content("<div style='color: green'>Created translation file for <b>$lang</b> &#10003;</div>");
                     $written_languages[] = $lang;
                 }
-                $this->_contentdiv->content("<br/>");
+                $this->content("<br/>");
             }
         }
 		
@@ -223,17 +223,17 @@ class TranslationAdmin extends TranslationAdminBase
             $ds = model_datasource($GLOBALS['CONFIG']['translation']['sync']['datasource']);
             $ds->ExecuteSql("DELETE FROM wdf_unknown_strings");
             $ds->ExecuteSql("DELETE FROM wdf_unknown_strings_data WHERE term NOT IN(SELECT id FROM wdf_translations)");
-            $this->_contentdiv->content("<div>Cleared the unknown strings tables &#10003;</div>");
+            $this->content("<div>Cleared the unknown strings tables &#10003;</div>");
 		
             foreach( cache_list_keys() as $key )
             {
                 if( starts_with($key, 'lang_') )
                     cache_del($key);
             }
-            $this->_contentdiv->content("<div>Cleared the string cache &#10003;</div>");
+            $this->content("<div>Cleared the string cache &#10003;</div>");
 
-            $this->_contentdiv->content("<br/><br/>");
-            $this->_contentdiv->content(Button::Make('Download as ZIP',"location.href='". buildQuery('translationadmin','download')."/Translations.zip'"));
+            $this->content("<br/><br/>");
+            $this->content(Button::Make('Download as ZIP',"location.href='". buildQuery('translationadmin','download')."/Translations.zip'"));
         
             foreach( $written_languages as $lang )
             {
@@ -243,9 +243,9 @@ class TranslationAdmin extends TranslationAdminBase
 
                 $fn = "$fn <a style='font-weight:normal' href='javascript:void(0)' onclick='document.getElementById(\"strings_{$lang}\").select(); document.execCommand(\"Copy\");'>copy</a>";
 
-                $this->_contentdiv->content("<br/><br/>");
-                $this->_contentdiv->content("<b>$fn</b>");
-                $this->_contentdiv->content("<textarea id='strings_{$lang}' style='width: 90%; min-height: 30px'>$strings</textarea>");
+                $this->content("<br/><br/>");
+                $this->content("<b>$fn</b>");
+                $this->content("<textarea id='strings_{$lang}' style='width: 90%; min-height: 30px'>$strings</textarea>");
             }
         }
     }
@@ -259,12 +259,12 @@ class TranslationAdmin extends TranslationAdminBase
     {
         global $CONFIG;
         
-        $this->_contentdiv->content("<h1>Import strings</h1>");
+        $this->content("<h1>Import strings</h1>");
         
         if( !$languages )
         {
-            $this->_contentdiv->content("<p>Imports strings from XX.inc.php (in ".$CONFIG['translation']['data_path'].") into the database</p>");
-            $div = $this->_contentdiv->content(new Form());
+            $this->content("<p>Imports strings from XX.inc.php (in ".$CONFIG['translation']['data_path'].") into the database</p>");
+            $div = $this->content(new Form());
             foreach( glob($CONFIG['translation']['data_path'].'*.inc.php') as $filename )
             {
                 $lang = str_replace('.inc.php', '', basename($filename));
@@ -307,17 +307,17 @@ class TranslationAdmin extends TranslationAdminBase
                     $ds->ExecuteSql("REPLACE INTO wdf_translations SET lang=?, id=?, content=?", [$lang, $k, $v]);
                     $cnt++;
                 }
-                $this->_contentdiv->content("<p>$cnt strings imported for ".$lang."</p>");
+                $this->content("<p>$cnt strings imported for ".$lang."</p>");
             }
             else
-                $this->_contentdiv->content("<p>No strings found in ".$filename."</p>");
+                $this->content("<p>No strings found in ".$filename."</p>");
 
         }
 		
 		$ds->ExecuteSql("DELETE FROM wdf_unknown_strings");
-		$this->_contentdiv->content("<div>Cleared the unknown strings table</div>");
+		$this->content("<div>Cleared the unknown strings table</div>");
 		
-		$this->_contentdiv->content("<div>Done!</div>");
+		$this->content("<div>Done!</div>");
     }
     
     /**
