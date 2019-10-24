@@ -57,6 +57,8 @@ class SysAdmin extends HtmlPage
     function __initialize($title = "", $body_class = false)
     {
         global $CONFIG;
+        
+        $GLOBALS['APP_VERSION']['nc'] = $GLOBALS['APP_VERSION']['nc'].'01';
 		
 		// sometimes state-/UI-less sites (like APIs) trickout the AJAX detection by setting this.
 		// as we need UI this must be reset here
@@ -83,11 +85,11 @@ class SysAdmin extends HtmlPage
 			
             $navdata = [];
             $navdata['Home']         = ['sysadmin','index'];
+            $navdata['Translations'] = ['translationadmin','newstrings'];
+            $navdata = array_merge($navdata, $CONFIG['system']['admin']['actions']);
             $navdata['Cache']        = ['sysadmin','cache'];
             $navdata['PHP info']     = ['sysadmin','phpinfo'];
-            $navdata['Translations'] = ['translationadmin','newstrings'];
             $navdata['Database']      = ['sysadmin','database'];
-            $navdata = array_merge($navdata, $CONFIG['system']['admin']['actions']);
             
             foreach( $navdata as $label=>$def )
             {
@@ -167,7 +169,6 @@ class SysAdmin extends HtmlPage
 	{
         if( !$username || !$password )
         {
-            $this->content("<br/><br/>");
             $this->content(Template::Make('sysadminlogin'));
             return;
         }
