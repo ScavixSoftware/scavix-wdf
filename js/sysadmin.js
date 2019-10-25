@@ -46,6 +46,11 @@ var init_sysadmin = function()
 //       $(this).button("disable");
 //       $(this).closest('form').submit();
 //    });
+
+    $('form:not(.activated)').addClass('activated').submit(function(e)
+    {
+       showLoaderOverlay();
+    });
     
     $('.side-menu .menu a[href^="http"]:not([target])').click( function() { showLoaderOverlay(); } );
     
@@ -116,7 +121,8 @@ wdf.ready.add(function()
     });
 	
 	$('.translations input.save, .translations button.save').click( function()
-    { 
+    {
+        showLoaderOverlay();
 		var btn = $(this).attr('disabled',true);
 		var lang = btn.data('lang') || $('.translations').data('lang');
         var term = btn.data('term');
@@ -124,6 +130,7 @@ wdf.ready.add(function()
         wdf.controller.post('SaveString',{lang:lang,term:term,text:text},function()
 		{
 			btn.val('Saved').addClass('ok');
+            hideLoaderOverlay();
 			setTimeout(function(){ btn.removeAttr('disabled').val('Save').removeClass('ok err').focus(); },1000);
 		});
     });

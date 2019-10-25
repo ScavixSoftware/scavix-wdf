@@ -73,6 +73,8 @@ class SysAdmin extends HtmlPage
         $this->user = SysAdminUser::GetCurrent();
         $this->set('user', $this->user);
         $this->set('pagetoolbar', $this->pagetoolbar);
+        if( $title )
+			$this->set("page_title", $title);
         
         $_SESSION['wdf_translator_mode'] = (($this->user !== false) && (current_controller() == '\scavixwdf\translation\translationadmin') && (current_event() == 'translate'));
         if( current_event() != 'login' && !$this->user )
@@ -166,7 +168,6 @@ class SysAdmin extends HtmlPage
 		if( $this->user && $this->user->hasAccess($controller,$method) )
 		{
             $tb = $this->addToolbar();
-//			$tb->content( new Anchor(buildQuery($controller,$method,$data),$label) );
 			$tb->content( new \ScavixWDF\Controls\Form\Button($label, $controller,$method,$data) );
 		}
 	}
@@ -176,6 +177,7 @@ class SysAdmin extends HtmlPage
 	 */
 	function Index()
 	{
+        $this->setTitle('Home');
 		$this->content("<h1>Welcome ".$this->user->username.",</h1>");
 		$this->content("<p>please select an action from the menu.</p>");
 	}
@@ -219,7 +221,7 @@ class SysAdmin extends HtmlPage
      */
     function Cache($search,$show_info,$kind)
     {
-		$this->content("<h1>Cache contents</h1>");
+		$this->setTitle('Cache contents');
 		
 		$form = $this->content( new Form() );
 		$form->AddText('search',$search);
@@ -339,6 +341,7 @@ class SysAdmin extends HtmlPage
 	 */
 	function PhpInfo($extension,$search,$dump_server)
 	{
+        $this->setTitle('PHP info');
 		if( $dump_server )
 			$search = $extension = "";
 		if( $search )
@@ -447,12 +450,13 @@ class SysAdmin extends HtmlPage
 	 */
 	function Database($name,$table)
 	{
-        foreach( $GLOBALS['CONFIG']['model'] as $alias=>$cfg )
-            $this->subnav($alias, 'sysadmin', 'database', ['name'=>$alias]);
+        $this->setTitle('Database');
         
         if( !$name )
         {
-            $this->content("<h2>Please select a database from the submenu.</h2>");
+            $this->content("<h2>Please select a database:</h2>");
+            foreach( $GLOBALS['CONFIG']['model'] as $alias=>$cfg )
+                \ScavixWDF\Controls\Form\Button::Make($alias)->LinkTo('sysadmin','database',['name'=>$alias])->appendTo($this);
             return;
         }
         
@@ -636,5 +640,11 @@ class SysAdmin extends HtmlPage
             $this->set('pagetoolbar', $this->pagetoolbar);
         }
         return $this->pagetoolbar;
+    }
+    
+    protected function setTitle($title)
+    {
+        $this->set("page_title",$title);
+        return $this;
     }
 }

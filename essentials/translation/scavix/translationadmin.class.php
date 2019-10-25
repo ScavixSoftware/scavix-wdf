@@ -125,7 +125,7 @@ class TranslationAdmin extends TranslationAdminBase
     {
         global $CONFIG;
         
-        $this->content("<h1>Fetch strings</h1>");
+        $this->setTitle('Fetch strings');
         
         if( !isDev() )
         {
@@ -259,7 +259,7 @@ class TranslationAdmin extends TranslationAdminBase
     {
         global $CONFIG;
         
-        $this->content("<h1>Import strings</h1>");
+        $this->setTitle('Import strings');
         
         if( !$languages )
         {
@@ -366,6 +366,8 @@ class TranslationAdmin extends TranslationAdminBase
 		$_SESSION['trans_admin_lang'] = $lang;
 		$_SESSION['trans_admin_offset'] = $offset;
 		$_SESSION['trans_admin_search'] = $search;
+        
+        $this->setTitle('Translate');
 		
 		$form = $this->content( new Form() )->attr('method','get');
 		$form->css('margin-bottom','20px')->action = buildQuery('TranslationAdmin','Translate',['test'=>'bla']);				
@@ -442,7 +444,7 @@ class TranslationAdmin extends TranslationAdminBase
 	function TranslateOne($term)
 	{
         global $CONFIG;
-        $this->content("<h1>Translations for $term</h1>");
+        $this->setTitle("Translations for $term");
         
 		$tab = Table::Make()->addClass('translations one')
 			->SetHeader('Language','Content','')

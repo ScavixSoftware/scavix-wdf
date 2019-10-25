@@ -77,8 +77,8 @@ abstract class TranslationAdminBase extends SysAdmin
      */
     function NewStrings()
     {
-        $this->content("<h1>New strings</h1>");
-		$this->content("<p>Default language is '{$GLOBALS['CONFIG']['localization']['default_language']}', so please create new strings accordingly.</p>");
+        $this->setTitle('New strings');
+		$this->content("<p>Default language is <b>'{$GLOBALS['CONFIG']['localization']['default_language']}'</b>, so please create new strings accordingly.</p>");
         $ds = model_datasource($GLOBALS['CONFIG']['translation']['sync']['datasource']);
 		translation_add_unknown_strings(array());
 		foreach( $ds->Query('wdf_unknown_strings')->all() as $row )
@@ -89,8 +89,8 @@ abstract class TranslationAdminBase extends SysAdmin
             $this->content($ns);
         }
 		if( !isset($row) )
-			$this->content("<p>no requested strings found</p>");
-		$this->content("<h1 style='clear:both'>Manually add string</h1>");
+			$this->content("<p>No unknown strings found</p>");
+		$this->content("<br/><h1 style='clear:both'>Manually add string</h1>");
 		Template::Make('translationnewstringmanually')->appendTo($this);
     }
     
