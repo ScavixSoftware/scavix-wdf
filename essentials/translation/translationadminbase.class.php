@@ -90,7 +90,7 @@ abstract class TranslationAdminBase extends SysAdmin
         }
 		if( !isset($row) )
 			$this->content("<p>No unknown strings found</p>");
-		$this->content("<br/><h1 style='clear:both'>Manually add string</h1>");
+		$this->content("<br style='clear:both'/><br/><h1>Manually add string</h1>");
 		Template::Make('translationnewstringmanually')->appendTo($this);
     }
     
