@@ -49,8 +49,8 @@ class MinifyAdmin extends SysAdmin
 		
 		if( !$submitter )
 		{
-			$this->_contentdiv->content("<h1>Select what to minify</h1>");
-			$form = $this->_contentdiv->content( new Form() );
+			$this->content("<h1>Select what to minify</h1>");
+			$form = $this->content( new Form() );
 			$form->AddHidden('submitter','1');
 			$form->AddCheckbox('skip_minify','Skip minify (only collect and combine)<br/>');
 			$form->AddCheckbox('random_nc','Generate random name (instead of app version)<br/>');
@@ -58,7 +58,7 @@ class MinifyAdmin extends SysAdmin
 			return;
 		}
 		
-		$this->_contentdiv->content("<h1>Minify DONE</h1>");
+		$this->content("<h1>Minify DONE</h1>");
 		$parts = array_diff($CONFIG['class_path']['order'], array('system','model','content'));
 		$paths = array();
 		foreach( $parts as $part )
