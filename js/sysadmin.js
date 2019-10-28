@@ -32,7 +32,7 @@ var init_sysadmin = function()
 {
     wdf.setCallbackDefault('exception', function(msg) 
     { 
-        MessageBox(msg);
+        alert(msg);
     });
     
     hideLoaderOverlay();

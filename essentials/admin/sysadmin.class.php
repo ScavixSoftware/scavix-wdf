@@ -60,7 +60,7 @@ class SysAdmin extends HtmlPage
     {
         global $CONFIG;
         
-        $GLOBALS['APP_VERSION']['nc'] = $GLOBALS['APP_VERSION']['nc'].'02';
+//        $GLOBALS['APP_VERSION']['nc'] = $GLOBALS['APP_VERSION']['nc'].'02';
 		
 		// sometimes state-/UI-less sites (like APIs) trickout the AJAX detection by setting this.
 		// as we need UI this must be reset here
