@@ -137,7 +137,8 @@ wdf.ready.add(function()
 
   	$('.translations input.copy, .translations button.copy').click( function()
     { 
-        $(this).closest('.tr').find('textarea').val( JSON.parse($(this).data('def')) );
+        var $ta = $(this).closest('.tr').find('textarea');
+        $ta.val( JSON.parse($(this).data('def')) ).height('auto').height($ta[0].scrollHeight);
     });
 
 	$('.translations .rename').not('.activated').addClass('activated').click( function()

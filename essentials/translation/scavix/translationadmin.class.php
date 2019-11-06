@@ -375,6 +375,7 @@ class TranslationAdmin extends TranslationAdminBase
 		$form->content( $this->_languageSelect($lang) )
 			->script("$('#{self}').change(function(){ $('#{$form->id}').submit(); });")
 			->name = 'lang';
+        $form->script("$('textarea', '.table.translations').each( function() { $(this).height('auto').height($(this)[0].scrollHeight); } )");
 		$form->content("&nbsp;&nbsp;&nbsp;And/Or search: ");
 		$form->AddText('search',$search);
 		$form->AddHidden('offset',0);
@@ -399,7 +400,8 @@ class TranslationAdmin extends TranslationAdminBase
 			$def = nl2br(htmlspecialchars($term['def']));
 			$ta = TextArea::Make($untranslated?'':$term['trans'])
                 ->addClass($term['id'])
-                ->attr('rows',count(explode('<br />', $def)) + 1);
+                //->attr('rows',count(explode('<br />', $def)) + 1)
+                ;
 			$btn = Button::Make('Save')->addClass('save')->setData('term',$term['id']);
 			
             $wrap = Control::Make()
