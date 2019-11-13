@@ -149,7 +149,7 @@ function mail_prepare($recipient,$subject,$message,$plainmessage="",$attachments
     $message = str_ireplace("<br/>","<br/>\n",$message);
 	
 	$mail->Body    = $message;
-	$mail->AltBody = strip_tags($plainmessage==""?$message:str_ireplace("<br/>","\n",$plainmessage));
+	$mail->AltBody = strip_tags($plainmessage==""?preg_replace("/<style\\b[^>]*>(.*?)<\\/style>/s", "", $message):str_ireplace("<br/>","\n",$plainmessage));
 
 	if( !is_array($attachments) )
 		$attachments = array($attachments);
