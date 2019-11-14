@@ -102,6 +102,9 @@ class ExcelCulture extends CultureInfo
 				$neg = str_replace('%v', $res, $this->NumberFormat->NegativeFormat);
 				self::$FORMAT_MAP[$f] = "$pos;$neg";
 				break;
+            case 'text':
+				self::$FORMAT_MAP[$f] = PHPExcel_Style_NumberFormat::FORMAT_TEXT;
+                break;
 			default:
 				log_warn("Unknown column format: $f");
 				self::$FORMAT_MAP[$f] = PHPExcel_Style_NumberFormat::FORMAT_GENERAL;

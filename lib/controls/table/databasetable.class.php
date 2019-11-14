@@ -490,8 +490,7 @@ class DatabaseTable extends Table implements ICallable
 				foreach( $row->Cells() as $cell )
 				{
 					$cc = trim(strip_tags($cell->GetContent()));
-//					if( translation_string_exists($cc) )
-						$cc = getString($cc);
+    				$cc = rtrim(getString($cc), '?');       // remove trailing ? in case string doesn't exist
 					$line[] = $cc;
 				}
 			}
