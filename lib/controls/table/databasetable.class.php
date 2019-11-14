@@ -577,6 +577,7 @@ class DatabaseTable extends Table implements ICallable
 					->setFormatCode($ef);
 			}
 		}
+        $sheet->freezePane('A2');
 		
 		if( $format == self::EXPORT_FORMAT_XLS )
 			$xlswriter = PHPExcel_IOFactory::createWriter($xls, 'Excel5');

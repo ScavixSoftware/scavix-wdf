@@ -287,10 +287,12 @@ class PHPExcel_Cell
                     return $this->calculatedValue; // Fallback for calculations referencing external files.
                 }
 //echo 'Calculation Exception: '.$ex->getMessage().PHP_EOL;
-                $result = '#N/A';
-                throw new PHPExcel_Calculation_Exception(
-                    $this->getWorksheet()->getTitle().'!'.$this->getCoordinate().' -> '.$ex->getMessage()
-                );
+//                $result = '#N/A';
+                $result = $this->value;
+                log_error('Exception in '.__FUNCTION__.': '.$this->getWorksheet()->getTitle().'!'.$this->getCoordinate().' -> '.$ex->getMessage());
+//                throw new PHPExcel_Calculation_Exception(
+//                    $this->getWorksheet()->getTitle().'!'.$this->getCoordinate().' -> '.$ex->getMessage()
+//                );
             }
 
             if ($result === '#Not Yet Implemented') {
