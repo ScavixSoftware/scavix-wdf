@@ -82,6 +82,13 @@ class DateTimeEx extends DateTime
 		}
 		return new DateTimeEx();
 	}
+    
+    public static function FromOtherTZ($source, $other_timezone, $format=false)
+    {
+        $other = new DateTime(DateTimeEx::Make($source,$format)->format("Y-m-d H:i:s"),timezone_open($other_timezone));
+        $other->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+        return DateTimeEx::Make($other);
+    }
 	
 	/**
 	 * Returns a new DateTimeEx object representing 'now'.
@@ -140,6 +147,13 @@ class DateTimeEx extends DateTime
 		$dt->sub(new DateInterval('P'.($dt->format('w') > 0 ? $dt->format('w')-1 : 7).'D'));
 		return $dt;
 	}
+    
+    public function ToOtherTZ($other_timezone)
+    {
+        $other = clone $this;
+        $other->setTimezone(new \DateTimeZone($other_timezone));
+        return $other;
+    }
 	
 	/**
 	 * Adds an offset.
