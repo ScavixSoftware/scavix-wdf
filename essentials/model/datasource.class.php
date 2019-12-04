@@ -158,7 +158,7 @@ class DataSource
 	function __wakeup()
 	{
 		global $CONFIG;
-		if( isset($CONFIG['session']) && isset($CONFIG['session']['own_serializer']) && $CONFIG['session']['own_serializer'] )
+		if( isset($CONFIG['session']) )
 		{
 			$name = explode("::",$this->_storage_id,2);
 			if( count($name) < 2 )
