@@ -27,50 +27,125 @@
  */
 namespace ScavixWDF\Controls;
 
-use DateTime;
 use ScavixWDF\Base\Control;
 use ScavixWDF\Base\DateTimeEx;
 
 /**
  * Represents a Chartt.js chart
  * 
- * @attribute[Resource('Chart.bundle.js')]
+ * @attribute[Resource('chart.min.js')]
+ * @attribute[Resource('canvas2svg.js')]
+ * @attribute[Resource('luxon.js')]
+ * @attribute[Resource('chartjs-adapter-luxon.js')]
+ * @attribute[Resource('chartjs-plugin-trendline.min.js')]
+ * @attribute[Resource('chartjs-plugin-stacked100.js')]
  */
 class ChartJS extends Control
 {
-    protected $canvas;
+    protected $chart_title, $canvas;
     protected $series = [];
     protected $config = array();
+    protected $detectedCategories = [];
+    protected $detectedDateseries = false;
 
+    protected static $currentInstance;
+    
     public static $NAMED_COLORS = [];
     public static $COLORS = ['red','green','blue','yellow','brown'];
+    protected $currentColor = 0;
     
-    public static function TimePoint(DateTime $x,float $y)
+    public static $CI = false;
+    
+    public static function TimePoint($x,float $y)
     {
-        return ['x'=>"[jscode]new Date('".$x->format("c")."')", 'y'=>$y];
+        return ['x'=>"[jscode]new Date('".DateTimeEx::Make($x)->format("c")."')", 'y'=>$y];
     }
     
-	function __initialize($type='line')
+    public static function DatePoint($x,float $y,$row=false)
+    {
+        self::$currentInstance->detectedDateseries = true;
+        $dt = DateTimeEx::Make($x);
+        $pt = ['x'=>$dt->format("Y-m-d"), 'y'=>$y];
+        if( $row ) $pt['raw'] = $row;
+        return $pt;
+    }
+
+    public static function StrPoint(string $x,float $y,$row=false)
+    {
+        if( !in_array($x,self::$currentInstance->detectedCategories) )
+            self::$currentInstance->detectedCategories[] = $x;
+        $pt = ['x'=>$x, 'y'=>$y];
+        if( $row ) $pt['raw'] = $row;
+        return $pt;
+    }
+    
+    public static function Line($title='',$height=false) { return new ChartJS($title,'line',$height); }
+    public static function Bar($title='',$height=false) { return new ChartJS($title,'bar',$height); }
+    public static function Pie($title='',$height=false) { return ChartJS::Make($title,'pie',$height)->scaleX('*','display',false); }
+    
+    public static function StackedBar($title='',$height=false) { return ChartJS::Make($title,'bar',$height)->setStacked(); }
+    
+	function __initialize($title='',$type='line',$height=false)
 	{
+        self::$currentInstance = $this;
 		parent::__initialize('div');
-        $this->css('position','relative')->css("width","100%")->css("height","250px");
-        $this->canvas = $this->content(Control::Make('canvas'));
+        //$this->css('position','relative')->css("width","100%")->css("height","250px");
+        $this->chart_title = $this->content(Control::Make('div')->append($title))->addClass('caption');
+        $this->canvas = Control::Make('canvas');
+        $wrap = $this->content($this->canvas->wrap('div'))->addClass('wrap');
         
-        $this->setType('line')->opt('responsive',true)->opt('maintainAspectRatio',false);
+        $this->setType($type)
+            ->opt('responsive',true)
+            ->opt('maintainAspectRatio',false);
+        if( $height )
+            $wrap->css('height',$height);
+        
+        \ScavixWDF\Base\HtmlPage::AddPolyfills('default,Object.assign,Object.is');
+        \ScavixWDF\Base\HtmlPage::AddPolyfills('Number.isNaN,String.prototype.repeat');
+        \ScavixWDF\Base\HtmlPage::AddPolyfills('Math.trunc,Math.sign');
 	}
     
     function PreRender($args = array())
     {
-        //log_debug("CFG",$this->config);
+        if( count($this->detectedCategories)>0 && $this->xLabels()===null )
+            $this->xLabels($this->detectedCategories);
+        
+        $this->scaleX('*',"ticks.maxRotation",0)->scaleX('*','offset',true);
+        if( $this->detectedDateseries )
+            $this->setTimeAxesX();
+
+        if( self::$CI instanceof \ScavixWDF\Localization\CultureInfo )
+        {
+            $lang = self::$CI->ResolveToLanguage()->Code;
+            if( $args[0] instanceof \ScavixWDF\Base\HtmlPage )
+                $args[0]->addDocReady("try{ luxon.Settings.defaultLocale = '$lang'; } catch(ex){ console.log('lucon error',ex); }");
+            else
+                $this->script("luxon.Settings.defaultLocale = '$lang';");
+        }
+        
+        //log_debug(__METHOD__,$this->config);
         $this->script("wdf.chartjs.init('{$this->canvas->id}',".system_to_json($this->config).");");
         return parent::PreRender($args);
     }
     
-    protected function cfg($part,$name,$value=null)
+    protected function conf($name,$value=null)
 	{
-		if( $value === null )
-			return $this->config[$part][$name];
-		$this->config[$part][$name] = $value;
+        $parts = explode(".",$name);
+        if( $value === null )
+        {
+            $cfg = $this->config;
+            foreach( $parts as $n )
+            {
+                if( !isset($cfg[$n]) )
+                    return null;
+                $cfg = $cfg[$n];
+            }
+            return $cfg;
+        }
+        $cfg = &$this->config;
+        foreach($parts as $n)
+            $cfg = &$cfg[$n];
+        $cfg = $value;
 		return $this;
 	}
     
@@ -84,8 +159,67 @@ class ChartJS extends Control
 	 */
 	function opt($name,$value=null)
 	{
-		return $this->cfg('options',$name,$value);
+        return $this->conf("options.$name",$value);
 	}
+    
+    function dataset($index,$name,$value=null)
+	{
+        $all = preg_replace('/[*all-]/','',"$index")=="";
+        if( $all && $value === null )
+            throw new Exception("Cannot get property '$name' of all datasets");
+        
+        foreach( $this->series as $i=>$s )
+        {
+            if( $all || $s['name'] == $index || $index == $i )
+            {
+                if( $value === null )
+                    return $this->conf("data.datasets.$i.$name");
+                $this->conf("data.datasets.$i.$name",$value);
+                if( !$all )
+                    break;
+            }
+        }
+        return $this;
+	}
+    
+    protected function scales($axes,$index,$name,$value=null)
+    {
+        if( $axes!="xAxes" && $axes!="yAxes" )
+            throw new Exception("Invalid axes '$axes'");
+        
+        $all = preg_replace('/[*all-]/','',"$index")=="";
+        if( $all && $value === null )
+            throw new Exception("Cannot get property '$name' of all scales");
+        
+        if( $all )
+        {
+            $ax = $this->opt("scales.$axes")?:[0];
+            foreach( array_keys($ax) as $index )
+                $this->scales($axes, $index, $name, $value);
+            return $this;
+        }
+        return $this->opt("scales.$axes.$index.$name",$value);
+    }
+    
+    function scaleX($index,$name,$value=null)
+    {
+        return $this->scales('xAxes',$index,$name,$value);
+    }
+
+    function scaleY($index,$name,$value=null)
+    {
+        return $this->scales('yAxes',$index,$name,$value);
+    }
+    
+    function xLabels($labels=null)
+    {
+        return $this->conf('data.labels',$labels);
+    }
+    
+    function legend($name,$value=null)
+    {
+        return $this->opt("legend.$name",$value);
+    }
     
     function setType($type)
     {
@@ -93,29 +227,111 @@ class ChartJS extends Control
         return $this;
     }
     
-    function setSeries($seriesNames)
+    function setTitle($text)
     {
-        $this->series = [];
-        foreach( $seriesNames as $label )
+        $this->chart_title->content($text,true);
+        return $this;
+    }
+    
+    function setStacked()
+    {
+        return $this->scaleX('*','stacked',true)->scaleY('*','stacked',true);
+    }
+    
+    function setTimeAxesX()
+    {
+        return $this->scaleX('*','type','time')->scaleX('*','distribution','linear');
+    }
+    
+    protected function getColor($name=false,$label=false)
+    {
+        $col = ifavail(self::$NAMED_COLORS,$name,$label);
+        return $col?$col:(self::$COLORS[($this->currentColor++)%count(self::$COLORS)]);
+    }
+    
+    function setSeries($seriesNames, $append=false)
+    {
+        if( !$append ) $this->series = [];
+        $present = array_map(function($s){ return $s['name']; },$this->series);
+        foreach( $seriesNames as $name=>$label )
         {
-            $borderColor = isset(self::$NAMED_COLORS[$label])
-                ?self::$NAMED_COLORS[$label]
-                :(self::$COLORS[count($this->series)%count(self::$COLORS)]);
-            $this->series[] = compact('label','borderColor');
+            if( is_numeric($name) )
+                $name = $label;
+            if( in_array($name, $present) )
+                continue;
+            $backgroundColor = $borderColor = $this->getColor($name,$label);
+            $this->series[] = compact('name','label','borderColor','backgroundColor');
         }
         return $this;
+    }
+    
+    function setData(iterable $data, string $x_value_row, $pointType="StrPoint")
+    {
+        return $this->fill(function($series)use($data, $x_value_row, $pointType)
+        {
+            $d = []; 
+            foreach( $data as $r ) 
+            {
+                if( is_callable($pointType) )
+                    $d[] = $pointType($r,$series,$x_value_row);
+                else
+                {
+                    $v = isset($r[$series])?$r[$series]:0;
+                    $d[] = ChartJS::$pointType($r[$x_value_row],floatval($v)); 
+                }
+            }
+            //log_debug("SER $series",$d);
+            return $d; 
+        });
+    }
+    
+    function setSeriesData(iterable $data, string $series_row, string $x_value_row, string $y_value_row, $pointType="StrPoint")
+    {   
+        $series = [];
+        foreach( $data as $r )
+            $series[] = $r[$series_row];
+        
+        $this->setSeries(array_filter(array_unique($series)));
+        return $this->fill(function($series)use($data, $series_row, $x_value_row, $y_value_row, $pointType)
+        {
+            $d = []; 
+            foreach( $data as $r ) 
+            {
+                if( ifavail($r,$series_row) != $series )
+                    continue;
+                
+                if( is_callable($pointType) )
+                    $d[] = $pointType($r,$series,$series_row,$x_value_row,$y_value_row);
+                else
+                {
+                    $v = isset($r[$y_value_row])?$r[$y_value_row]:0;
+                    $d[] = ChartJS::$pointType($r[$x_value_row],floatval($v),$r); 
+                }
+            }
+//            log_debug("MULTISER $series",$d);
+            return $d; 
+        });
+    }
+    
+    function setPieData(array $name_value_pairs)
+    {
+        $labels = []; $this->series = [['data'=>[],'backgroundColor'=>[],'borderColor'=>[]]];
+        foreach( $name_value_pairs as $lab=>$val )
+        {
+            $labels[] = $lab;
+            $col = $this->getColor($lab);
+            $this->series[0]['backgroundColor'][] = $col;
+            $this->series[0]['borderColor'][] = $col;
+            $this->series[0]['data'][] = floatval($val);
+        }
+        return $this->xLabels($labels)->conf('data.datasets',$this->series);
     }
 
     function fill($seriesCallback)
 	{
-        $data = [];
-        foreach( $this->series as $series )
-        {
-            $series['data'] = $seriesCallback($series['label']);
-            $data[] = $series;
-        }
-        $this->series = $data;
-		return $this->cfg('data','datasets',$data);
+        foreach( $this->series as &$series )
+            $series['data'] = $seriesCallback($series['name']);
+		return $this->conf('data.datasets',$this->series);
 	}
     
     public static function MultiSeriesTime($data, $dataset_name='series', $x_name='x', $y_name='y')
@@ -129,7 +345,7 @@ class ChartJS extends Control
         }
         $chart->setSeries($series);
         
-        $chart->opt('scales',['xAxes'=>[['type'=>'time']]]);
+        $chart->scaleX('*','type','time');
         return $chart->fill(function($name)use($data,$dataset_name,$x_name,$y_name)
         {
             $res = [];
@@ -157,6 +373,6 @@ class ChartJS extends Control
         {
             $callback($series);
         }
-        return $this->cfg('data','datasets',$this->series);
+        return $this->conf('data.datasets',$this->series);
     }
 }

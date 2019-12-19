@@ -59,6 +59,15 @@ class HtmlPage extends Template implements ICallable
 	 * @var bool|string Templatename or false
 	 */
 	var $SubTemplate = false;
+    
+    public static $POLYFILLS = [];
+    
+    public static function AddPolyfills($pf)
+    {
+        if( is_string($pf) )
+            $pf = explode(",", str_replace([' ','|'],[',',','],$pf));
+        self::$POLYFILLS = array_merge(self::$POLYFILLS,$pf);
+    }
 
 	/**
 	 * @param string $title Page title
@@ -115,6 +124,8 @@ class HtmlPage extends Template implements ICallable
 		$this->set("wdf_init","wdf.init(".json_encode($init_data).");");
 		$this->set("docready",$this->docready);
 		$this->set("plaindocready",$this->plaindocready);
+        
+        $this->set('polyfills',array_filter(array_unique(self::$POLYFILLS)));
 
 		return parent::WdfRenderAsRoot();
 	}
