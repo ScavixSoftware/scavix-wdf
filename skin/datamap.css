@@ -1,0 +1,9 @@
+.wdf-datamap
+{
+    clear: both;
+}
+.wdf-datamap .datamaps-legend
+{
+    position:relative;
+    top:-40px;
+}

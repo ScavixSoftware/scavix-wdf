@@ -47,6 +47,7 @@ class ChartJS extends Control
     protected $config = array();
     protected $detectedCategories = [];
     protected $detectedDateseries = false;
+    protected $colorRange = false;
 
     protected static $currentInstance;
     
@@ -243,8 +244,16 @@ class ChartJS extends Control
         return $this->scaleX('*','type','time')->scaleX('*','distribution','linear');
     }
     
-    protected function getColor($name=false,$label=false)
+    function setColorRange(\ScavixWDF\Base\Color\ColorRange $range)
     {
+        $this->colorRange = $range;
+        return $this;
+    }
+    
+    protected function getColor($name=false,$label=false,$value=false)
+    {
+        if( $value && $this->colorRange )
+            return "".$this->colorRange->fromValue($value);
         $col = ifavail(self::$NAMED_COLORS,$name,$label);
         return $col?$col:(self::$COLORS[($this->currentColor++)%count(self::$COLORS)]);
     }
@@ -319,7 +328,7 @@ class ChartJS extends Control
         foreach( $name_value_pairs as $lab=>$val )
         {
             $labels[] = $lab;
-            $col = $this->getColor($lab);
+            $col = $this->getColor($lab,false,$val);
             $this->series[0]['backgroundColor'][] = $col;
             $this->series[0]['borderColor'][] = $col;
             $this->series[0]['data'][] = floatval($val);
