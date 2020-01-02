@@ -501,6 +501,11 @@ class Localization
 	 * @return string The A2 ISO3166 or false on error
 	 */
 	public static function get_countrycodeA2ISOfromA3($country_code)
+    {
+        return self::convert_countrycode($country_code);
+    }
+    
+	public static function convert_countrycode($country_code)
 	{
 		$ret = array(
 			"ALA" => "AX", "AFG" => "AF", "ALB" => "AL", "DZA" => "DZ", "ASM" => "AS",
@@ -555,7 +560,9 @@ class Localization
 		
 		if(isset($ret[$country_code]))
 			return $ret[$country_code];
-		
+        $flipped = array_flip($ret);
+		if(isset($flipped[$country_code]))
+			return $flipped[$country_code];
 		return false;
 	}
 }
