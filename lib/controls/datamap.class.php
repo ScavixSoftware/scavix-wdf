@@ -38,23 +38,25 @@ class Datamap extends Control
     protected $map_title, $canvas, $colorRange;
     protected $config = [];
     
-	function __initialize($title="",$height='400px')
+	function __initialize($title="",$height=600)
 	{
         parent::__initialize('div');
         $this->class = 'wdf-datamap';
         $this->map_title = Control::Make('div')->append($title)->addClass('caption')->appendTo($this);
         $this->canvas = Control::Make('div')
             ->css('position','relative')
-            ->css('height',$height)
+            ->css("text-align","center")
             ->appendTo($this);
         
         $this->conf('geographyConfig.popupTemplate',"function(geography, data){return '<div class=\"hoverinfo\">'+(data.tooltip||geography.properties.name)+'</div>'; }");
         $this->conf("geographyConfig.highlightOnHover",false);
+        $this->conf("projection","mercator");
+        $this->conf("height",intval($height));
     }
     
     function PreRender($args = array())
     {
-        log_debug(__METHOD__,$this->config);
+        //log_debug(__METHOD__,$this->config);
         $this->config['element'] = "[jscode]document.getElementById('{$this->canvas->id}')";
         if( $this->colorRange )
             $this->script("new Datamap(".system_to_json($this->config).");");
@@ -95,13 +97,14 @@ class Datamap extends Control
     
     function setColorRange(\ScavixWDF\Base\Color\ColorRange $range)
     {
+        $h = intval($this->conf("height"));
         $grad = '<linearGradient id="legend_gradient" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" style="stop-color:'.$range->from.';stop-opacity:1"/>
             <stop offset="100%" style="stop-color:'.$range->to.';stop-opacity:1"/>
         </linearGradient>';
-        $leg  = '<rect x="10" y="370" width="250" height="20" fill="url(#legend_gradient)"></rect>';
-        $leg .= '<text x="10" y="365">'.$range->min.'</text>';
-        $leg .= '<text x="260" y="365" text-anchor="end">'.$range->max.'</text>';
+        $leg  = '<rect x="0" y="'.($h-30).'" width="220" height="20" fill="url(#legend_gradient)"></rect>';
+        $leg .= '<text x="0" y="'.($h-35).'">'.$range->min.'</text>';
+        $leg .= '<text x="220" y="'.($h-35).'" text-anchor="end">'.$range->max.'</text>';
         
         $this->colorRange = $range;
         $done  = "d3.select('#{self} svg').append('defs').html(".json_encode($grad).");";
