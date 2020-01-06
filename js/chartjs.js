@@ -112,11 +112,9 @@
                     this._deepSet(config,'options.tooltips.callbacks',win.wdf.chartjs.stdTooltips(id));
                     break;
             }
-            //try
-            //{
-                this.charts[id] = new Chart(ctx.getContext('2d'),config);
-                console.log(this.charts[id]);
-            //}catch(ex){ console.error(ex); }
+            this.charts[id] = new Chart(ctx.getContext('2d'),config);
+            if( config.options.refresh )
+                win.wdf.chartjs.loadData(id,true);
 		},
 		
 		getChart: function(id)
@@ -214,7 +212,64 @@
                 console.log("Rendered SVG chart ","W="+$wrap.width(),"H="+$wrap.height(),"T="+raw.type);
             }
             this.charts = {};
-        }
+        },
+        
+        refreshAll: function()
+        {
+            for(var p in wdf.chartjs.charts)
+                wdf.chartjs.loadData(p,'now');
+        },
+        
+        loadData: function(id,start)
+        {
+            var chart = wdf.chartjs.getChart(id), 
+                config = $('#'+id).closest('.chartjs').data('raw'),
+                cfg = config.options.refresh || {},
+                int = cfg.interval || false,
+                url = cfg.url || false;
+            if( !url ) return;
+            if( start===true && wdf.chartjs._deepGet(chart,"data.datasets.0.data",[]).length > 0 )
+                return setTimeout(wdf.chartjs.loadData,int?int:1000,id);
+            
+            wdf.get(url,function(data)
+            {
+                wdf.chartjs.updateData(id,data);
+                if( int && start !== 'now' )
+                    setTimeout(wdf.chartjs.loadData,int,id);
+            });
+        },
+        
+        updateData: function(id, data)
+        {
+            var chart = wdf.chartjs.getChart(id);
+            if( wdf.chartjs.dataEquals(chart.data,data) )
+                return;
+            // todo: improve to detect changes only and change only that values -> better animations!
+            chart.data = data;
+            chart.update();
+        },
+        
+        dataEquals: function( x, y )
+        {
+            if ( x === y ) return true;
+            if ( ! ( x instanceof Object ) || ! ( y instanceof Object ) ) return false;
+            if ( x.constructor !== y.constructor ) return false;
+            for ( var p in x )
+            {
+                if( p[0] == '_' ) continue;
+                if ( ! x.hasOwnProperty( p ) ) continue;
+                if ( ! y.hasOwnProperty( p ) ) return false;
+                if ( x[ p ] === y[ p ] ) continue;
+                if ( typeof( x[ p ] ) !== "object" ) return false;
+                if ( ! wdf.chartjs.dataEquals( x[ p ],  y[ p ] ) ) return false;
+            }
+            for ( p in y )
+            {
+                if( p[0] == '_' ) continue;
+                if ( y.hasOwnProperty( p ) && ! x.hasOwnProperty( p ) ) return false;
+            }
+            return true;
+          }
 	};
 	
 })(window,jQuery);

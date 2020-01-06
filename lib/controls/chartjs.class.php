@@ -90,7 +90,7 @@ class ChartJS extends Control
 	{
         self::$currentInstance = $this;
 		parent::__initialize('div');
-        //$this->css('position','relative')->css("width","100%")->css("height","250px");
+
         $this->chart_title = $this->content(Control::Make('div')->append($title))->addClass('caption');
         $this->canvas = Control::Make('canvas');
         $wrap = $this->content($this->canvas->wrap('div'))->addClass('wrap');
@@ -108,6 +108,9 @@ class ChartJS extends Control
     
     function PreRender($args = array())
     {
+        if( $this->_skipRendering )
+            return;
+        
         if( count($this->detectedCategories)>0 && $this->xLabels()===null )
             $this->xLabels($this->detectedCategories);
         
@@ -115,7 +118,7 @@ class ChartJS extends Control
         if( $this->detectedDateseries )
             $this->setTimeAxesX();
 
-        if( self::$CI instanceof \ScavixWDF\Localization\CultureInfo )
+        if( count($args) > 0 && self::$CI instanceof \ScavixWDF\Localization\CultureInfo )
         {
             $lang = self::$CI->ResolveToLanguage()->Code;
             if( $args[0] instanceof \ScavixWDF\Base\HtmlPage )
@@ -126,7 +129,8 @@ class ChartJS extends Control
         
         //log_debug(__METHOD__,$this->config);
         $this->script("wdf.chartjs.init('{$this->canvas->id}',".system_to_json($this->config).");");
-        return parent::PreRender($args);
+        parent::PreRender($args);
+        $this->_skipRendering = true;
     }
     
     protected function conf($name,$value=null)
@@ -383,5 +387,11 @@ class ChartJS extends Control
             $callback($series);
         }
         return $this->conf('data.datasets',$this->series);
+    }
+    
+    public function getAjaxData()
+    {
+        $this->PreRender();
+        return $this->conf('data');
     }
 }
