@@ -48,6 +48,7 @@ class ChartJS extends Control
     protected $detectedCategories = [];
     protected $detectedDateseries = false;
     protected $colorRange = false;
+    protected $xMin = false, $xMax = false;
 
     protected static $currentInstance;
     
@@ -57,15 +58,26 @@ class ChartJS extends Control
     
     public static $CI = false;
     
+    protected function setXMinMax($val)
+    {
+        if( $val instanceof \DateTime )
+            $val = $val->getTimestamp()*1000; // in ms for JS
+        if( !$this->xMin || $val < $this->xMin ) $this->xMin = $val;
+        if( !$this->xMax || $val > $this->xMax ) $this->xMax = $val;
+    }
+    
     public static function TimePoint($x,float $y)
     {
-        return ['x'=>"[jscode]new Date('".DateTimeEx::Make($x)->format("c")."')", 'y'=>$y];
+        $dt = DateTimeEx::Make($x);
+        self::$currentInstance->setXMinMax($dt);
+        return ['x'=>"[jscode]new Date('".$dt->format("c")."')", 'y'=>$y];
     }
     
     public static function DatePoint($x,float $y,$row=false)
     {
         self::$currentInstance->detectedDateseries = true;
         $dt = DateTimeEx::Make($x);
+        self::$currentInstance->setXMinMax($dt);
         $pt = ['x'=>$dt->format("Y-m-d"), 'y'=>$y];
         if( $row ) $pt['raw'] = $row;
         return $pt;
@@ -116,15 +128,21 @@ class ChartJS extends Control
         
         $this->scaleX('*',"ticks.maxRotation",0)->scaleX('*','offset',true);
         if( $this->detectedDateseries )
-            $this->setTimeAxesX();
-
+            $this->setTimeAxesX(($this->xMin !== false && $this->xMin == $this->xMax)?'day':false);
+        
+        if( $this->xMin !== false )
+            $this->scaleX('*',"ticks.min",$this->xMin);
+        if( $this->xMax !== false )
+            $this->scaleX('*',"ticks.max",$this->xMax);
+        
         if( count($args) > 0 && self::$CI instanceof \ScavixWDF\Localization\CultureInfo )
         {
             $lang = self::$CI->ResolveToLanguage()->Code;
+            $script = "try{ luxon.Settings.defaultLocale = '$lang'; } catch(ex){ console.log('lucon error',ex); }";
             if( $args[0] instanceof \ScavixWDF\Base\HtmlPage )
-                $args[0]->addDocReady("try{ luxon.Settings.defaultLocale = '$lang'; } catch(ex){ console.log('lucon error',ex); }");
+                $args[0]->addDocReady($script);
             else
-                $this->script("luxon.Settings.defaultLocale = '$lang';");
+                $this->script($script);
         }
         
         //log_debug(__METHOD__,$this->config);
@@ -243,9 +261,12 @@ class ChartJS extends Control
         return $this->scaleX('*','stacked',true)->scaleY('*','stacked',true);
     }
     
-    function setTimeAxesX()
+    function setTimeAxesX($unit=false)
     {
-        return $this->scaleX('*','type','time')->scaleX('*','distribution','linear');
+        $this->scaleX('*','type','time')->scaleX('*','distribution','linear');
+        if( $unit )
+            $this->scaleX('*',"time.unit",$unit);
+        return $this;
     }
     
     function setColorRange(\ScavixWDF\Base\Color\ColorRange $range)
