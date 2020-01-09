@@ -561,6 +561,12 @@ $.ajaxSetup({cache:false});
 			$(this).width( elem.width() + (add_width||0) ).height( elem.height() + (add_height||0) )
 		});
 	};
+    
+    $.fn.removeDialog = function(selector)
+    {
+        try{ $(this).dialog("close"); }catch(noop){}
+        $(this).remove();
+    };
 
 })(window,jQuery);
 

@@ -68,15 +68,17 @@ class uiDialog extends uiControl
         {
             // remove the dialog on close
             $this->Options = array_merge(array(
-				'close'=>"function(){ $(this).dialog('destroy').remove(); }",
+				'close'=>"function(){ try{ $(this).dialog('destroy'); }catch(noop){} $(this).remove(); }",
 			),$this->Options );
-    		$this->CloseButtonAction = "function(){ $('#{$this->id}').dialog('close'); }";
+    		$this->CloseButtonAction = "function(){ $('#{$this->id}').removeDialog(); }";
         }
         else
         {
             // old behaviour
-            $rem = system_is_ajax_call()?".remove()":'';
-            $this->CloseButtonAction = "function(){ $('#{$this->id}').dialog('close')$rem; }";
+            $rem = system_is_ajax_call()
+                ?"$('#{$this->id}').removeDialog();"
+                :"try{ $('#{$this->id}').dialog('close'); }catch(noop){}";
+            $this->CloseButtonAction = "function(){ $rem }";
         }
 		
 		$this->InitFunctionName = false;
@@ -97,8 +99,9 @@ class uiDialog extends uiControl
 				$this->Buttons = array_merge($this->Buttons, $temp);
 			}
 			
-			$rem = system_is_ajax_call()?".remove()":'';
-			$close_action = "$('#{$this->id}').dialog('close')$rem;";
+            $close_action = system_is_ajax_call()
+                ?"$('#{$this->id}').removeDialog();"
+                :"try{ $('#{$this->id}').dialog('close'); }catch(noop){}";
 			
 			foreach( $this->Buttons as $label=>$action )
 			{

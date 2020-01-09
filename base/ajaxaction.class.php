@@ -128,6 +128,6 @@ class AjaxAction
 	 */
 	public static function CloseConfirmation($text_base)
 	{
-		return "$('.uiconfirmation[data-confirmed=\"{$_SESSION['ajax_confirm'][$text_base]}\"]').dialog('close').remove();";
+		return "$('.uiconfirmation[data-confirmed=\"{$_SESSION['ajax_confirm'][$text_base]}\"]').removeDialog();";
 	}
 }
