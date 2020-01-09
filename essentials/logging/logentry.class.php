@@ -171,7 +171,7 @@ class LogEntry
 			{
 				if( !json_encode($t) )
                 {
-                    $t['args'] = json_decode(json_encode($t,JSON_PARTIAL_OUTPUT_ON_ERROR),true);
+                    $t['args'] = json_decode(json_encode($t['args'],JSON_PARTIAL_OUTPUT_ON_ERROR),true);
                     $t['args'] = $t['args']?[$t['args']]:['**UNRENDERABLE**'];
                 }
 				$res->trace[$i] = $t;
