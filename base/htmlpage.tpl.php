@@ -36,6 +36,10 @@ $doctype = isset($doctype)?$doctype:$GLOBALS['CONFIG']['system']['htmlpage']['do
 echo '<?xml version="1.0" encoding="UTF-8" ?>'."\n$doctype\n";?>
 <html xmlns="http://www.w3.org/1999/xhtml"<?=(isset($languagecode) ? ' lang="'.$languagecode.'"' : '')?>>
 <head>
+<?php
+if( isset($polyfills) && count($polyfills)>0 )
+    echo '<script src="https://polyfill.io/v3/polyfill.js?features='.implode(",",$polyfills).'"></script>';
+?>
 	<title><?=$title?></title>
 <?php if(isset($favicon) && $favicon) { ?>
 	<link rel="shortcut icon" href="<?=$favicon?>" />

@@ -143,7 +143,7 @@ wdf.ready.add(function()
 
 	$('.translations .rename').not('.activated').addClass('activated').click( function()
     { 
-        wdf.controller.post('Rename',{term:$(this).data('term')},function(d){ console.log('YO');$('body').append(d); });
+        wdf.controller.post('Rename',{term:$(this).data('term')},function(d){ $('body').append(d); });
     });
 	
 	$('.translations .remove').not('.activated').addClass('activated').click( function()
