@@ -95,6 +95,11 @@ class DataSource
 		Model::$DefaultDatasource = $ds;
 		return $ds;
 	}
+    
+    function __toString()
+    {
+        return get_class($this)."({$this->_storage_id})";
+    }
 	
     function __construct($alias=false, $dsn=false, $username=false, $password=false)
     {

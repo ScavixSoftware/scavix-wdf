@@ -163,6 +163,12 @@ class Control extends Renderable
 	var $_extender = array();
 
 	var $_skipRendering = false;
+    
+    function __toString()
+    {
+        $r = parent::__toString();
+        return $r." ".$this->__renderStructure([]);
+    }
 	
 	function __getContentVars(){ return array_merge(parent::__getContentVars(),array('_extender')); }
 
@@ -417,13 +423,17 @@ class Control extends Renderable
 		}
 		return $this->WdfRender();
 	}
-
-	/**
-	 * @override
-	 */
-	function WdfRender()
-	{
-		$attr = array();
+    
+    function __renderStructure($content)
+    {
+		if( isset($GLOBALS['html_skip_if_empty'][$this->Tag]) )
+			if( trim(implode(" ",$content)) == "" )
+				return "";
+        $content = count($content)>0?implode("",$content):"";
+        if( !$this->Tag )
+            return "$content";
+        
+        $attr = array();
 		foreach( $this->_attributes as $name=>$value )
 		{
 			if($name{0} != "_")
@@ -432,30 +442,27 @@ class Control extends Renderable
 		foreach( $this->_data_attributes as $name=>$value )
 			$attr[] = "data-$name='".str_replace("'","\\'",$value)."'";
 		
-		$content = system_render_object_tree($this->_content);
-
-		if( isset($GLOBALS['html_skip_if_empty'][$this->Tag]) )
-			if( trim(implode(" ",$content)) == "" )
-				return "";
-
 		$css = array();
 		foreach( $this->_css as $key=>$val )
 			$css[] = "$key:$val;";
 
 		$attr = count($attr)>0?" ".implode(" ",$attr):"";
 		$css = count($css)>0?" style=\"".implode(" ",$css)."\"":"";
-		$content = count($content)>0?implode("",$content):"";
+        
+        if( $content || $this->CloseTagNeeded() )
+            return "<{$this->Tag}{$attr}{$css}>{$content}</{$this->Tag}>";
+        else
+            return "<{$this->Tag}{$attr}{$css}/>";
+    }
 
-		if( $this->Tag )
-		{
-			if( $content || $this->CloseTagNeeded() )
-				$res = "<{$this->Tag}{$attr}{$css}>{$content}</{$this->Tag}>";
-			else
-				$res = "<{$this->Tag}{$attr}{$css}/>";
-		}
-		else
-			$res = "{$content}";
-			
+	/**
+	 * @override
+	 */
+	function WdfRender()
+	{
+		$content = system_render_object_tree($this->_content);
+        $res = $this->__renderStructure($content);
+
 		if( system_is_ajax_call() && count($this->_script)>0 )
         {
             $this->_script[] = "$('#{$this->id}').on('remove',function(){ $('[data-wdf-remove-with=\"{$this->id}\"]').remove(); });";

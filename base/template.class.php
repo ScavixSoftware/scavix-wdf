@@ -43,6 +43,12 @@ class Template extends Renderable
 {
 	var $_data = array();
 	var $file = "";
+    
+    function __toString()
+    {
+        $r = parent::__toString();
+        return $r." ".$this->file;
+    }
 	
 	function __getContentVars(){ return array_merge(parent::__getContentVars(),array('_data')); }
 

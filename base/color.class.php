@@ -140,6 +140,13 @@ class ColorRange
 {
     var $from, $to, $min, $max;
     
+    function __toString()
+    {
+        if( $this->min && $this->max)
+            return "ColorRange {$this->from}->{$this->to} ({$this->min}->{$this->max})";
+        return "ColorRange {$this->from}->{$this->to}";
+    }
+    
     public function __construct(\ScavixWDF\Base\Color $from, \ScavixWDF\Base\Color $to)
     {
         $this->from = $from; 

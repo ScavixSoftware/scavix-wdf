@@ -63,8 +63,17 @@ class LogEntry
 		foreach($stacktrace as $i=>$t0)
 		{
 			if( isset($t0['object']) )
+            {
+                $id = ($t0['object'] instanceof \ScavixWDF\Base\Renderable)
+                    ?$t0['object']->_storage_id
+                    :false;
 				unset($t0['object']);
-			
+            }
+            else $id = false;
+            
+            if( isset($t0['class']) && $id )
+                $t0['class'] .= "($id)";
+            
 			if( isset($t0['file']) )
 			{
 				if( ends_with($t0['file'],"/essentials/logging/logger.class.php") ||
@@ -76,13 +85,13 @@ class LogEntry
 			}
 			else
 				$t0['location'] = "*UNKNOWN*";
-			
+            
 			if( $t0['function'] == 'system_render_object_tree' ||
 				$t0['function'] == 'global_error_handler' ||
 				$t0['function'] == 'WdfRender' ||
 				$t0['function'] == 'WdfRenderAsRoot' )
 				$t0['args'] = array("*TRUNCATED*");
-			
+            
 			$stack[] = $t0;
 			if( count($stack) == $max_trace_depth )
 				break;
@@ -106,8 +115,13 @@ class LogEntry
 		
 		foreach( $stacktrace as $t0 )
 		{
-			if( isset($t0['class']) && isset($t0['type']) )
-				$function = $t0['class'].$t0['type'].$t0['function'];
+            if( isset($t0['class']) && isset($t0['type']) )
+            {
+                $id = (isset($t0['object']) && ($t0['object'] instanceof \ScavixWDF\Base\Renderable))
+                    ?"({$t0['object']->_storage_id})"
+                    :'';
+				$function = $t0['class'].$id.$t0['type'].$t0['function'];
+            }
 			else
 				$function = $t0['function'];
 			
@@ -156,7 +170,10 @@ class LogEntry
 			foreach( $this->trace as $i=>$t )
 			{
 				if( !json_encode($t) )
-					$t['args'] = array('**UNRENDERABLE**');
+                {
+                    $t['args'] = json_decode(json_encode($t,JSON_PARTIAL_OUTPUT_ON_ERROR),true);
+                    $t['args'] = $t['args']?[$t['args']]:['**UNRENDERABLE**'];
+                }
 				$res->trace[$i] = $t;
 			}	
 			$out = json_encode($res);

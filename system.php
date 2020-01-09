@@ -1628,7 +1628,10 @@ function system_render_object_tree($array_of_objects)
 		{
 			if( in_array($val, $GLOBALS['system_render_object_tree_stack'], true) )
 			{
-				log_debug("XREF in object tree! Object already rendered elsewhere:",$val);
+                $info = [];
+                foreach( $GLOBALS['system_render_object_tree_stack'] as $obj )
+                    $info[] = "".$obj;
+				log_debug("XREF in object tree! Object already rendered elsewhere:","$val",$info);
 				continue;
 			}
 			$GLOBALS['system_render_object_tree_stack'][] = $val;

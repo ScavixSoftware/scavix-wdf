@@ -247,6 +247,11 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$this->__ensureResults();
 		$this->_ds->LastStatement->LogDebug();
 	}
+    
+    function __toString()
+    {
+        return get_class($this)." ".json_encode($this->AsArray());
+    }
 
     function __construct($datasource=null)
     {

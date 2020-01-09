@@ -34,14 +34,24 @@ use ScavixWDF\WdfException;
  * Base class for all HTML related stuff.
  * 
  */
-abstract class Renderable 
+abstract class Renderable
 {
 	var $_translate = true;
 	var $_storage_id;
 	var $_parent = false;
 	var $_content = array();
 	var $_script = array();
-
+    
+    function __toString()
+    {
+        $p = is_object($this->_parent)?$this->_parent->_storage_id:'';
+        $c = implode(",",array_map(function($o){ return ($o instanceof Renderable)?$o->_storage_id:"$o"; }, $this->_content));
+        if( strlen($c)>20 )
+            $c = substr($c,0,20)."[...]";
+        $c = str_replace(["\r","\n","\t"],["\\r","\\n","\\t"], $c);
+        return "{$this->_storage_id} [".get_class($this)."](parent=$p, content=$c)";
+    }
+    
     /**
      * @internal Dummy. Can be used in subclasses by overriding.
      */
@@ -80,7 +90,7 @@ abstract class Renderable
         return $this->WdfRender();
     }
     
-	function __getContentVars(){ return array('_content'); }
+    function __getContentVars(){ return array('_content'); }
 	
 	function __collectResources()
 	{
@@ -257,7 +267,11 @@ abstract class Renderable
 	function &content($content,$replace=false)
 	{
 		if( $content instanceof Renderable )
+        {
+            if( $content->_parent == $this )
+                log_debug("Object already added","me={$this}","child={$content}");
 			$content->_parent = $this;
+        }
 		if( !$replace && is_array($content) )
 			foreach( $content as &$c )
 				$this->content($c);

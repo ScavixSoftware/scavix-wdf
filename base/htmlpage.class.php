@@ -68,6 +68,11 @@ class HtmlPage extends Template implements ICallable
             $pf = explode(",", str_replace([' ','|'],[',',','],$pf));
         self::$POLYFILLS = array_merge(self::$POLYFILLS,$pf);
     }
+    
+    function __toString()
+    {
+        return "{$this->_storage_id} [".get_class($this)."]";
+    }
 
 	/**
 	 * @param string $title Page title
