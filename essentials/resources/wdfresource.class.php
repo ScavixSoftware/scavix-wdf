@@ -143,7 +143,7 @@ class WdfResource implements ICallable
 	{
 		$vars = isset($_SESSION['resources_less_variables'])?$_SESSION['resources_less_variables']:array();
         $dirs = isset($_SESSION['resources_less_dirs'])?$_SESSION['resources_less_dirs']:false;
-		$file_key = md5($file.serialize($vars).serialize($dirs));
+		$file_key = md5($file.serialize($vars).serialize($dirs).substr(appendVersion('/'),1));
 		
 		$less = resFile(basename($file),true);
 		$css = sys_get_temp_dir().'/'.$file_key.'.css';
