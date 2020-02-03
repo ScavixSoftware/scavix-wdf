@@ -1386,3 +1386,44 @@ if (!function_exists('getallheaders')) {
 		return $headers;
 	}
 }
+
+/**
+ * Returns the app-specific temp folder. Creates it with 777 if it doesn't exist
+ * 
+ * @param string $subfolder Subfolder under the temp folder
+ * @param bool $appendnc Append the current nc to the folder so that data is gone when nc changes
+ * @return string The full path to the (sub-)folder
+ */
+function system_app_temp_dir($subfolder = '', $appendnc = true)
+{
+    global $CONFIG;
+    if($subfolder)
+    {
+        if(starts_with($subfolder, '/'))
+            $subfolder = substr($subfolder, 1);
+        if(!ends_with($subfolder, '/'))
+            $subfolder .= '/';
+    }
+    $basedir = (avail($CONFIG, 'app_temp') ? $CONFIG['app_temp'] : sys_get_temp_dir().'/'.session_name().'/');
+    if(!ends_with($basedir, '/'))
+        $basedir .= '/';
+    if($appendnc)
+        $basedir .= getAppVersion('nc').'/';
+    $folder = $basedir.($subfolder ?: '');
+    $folder = str_replace('..', '', $folder);
+    $folder = preg_replace('/[^0-9a-zA-Z\/\-\_]/', '', $folder);
+    while(strpos($folder, '//'))
+        $folder = str_replace('//', '/', $folder);
+    if( !file_exists($folder) )
+        if(!mkdir($folder, 0777, true))
+            WdfException::Raise('Unable to create app temp folder: '.$folder);
+            
+    if(!is_writable($folder))
+    {
+        chmod($folder, 0777);
+        if(!is_writable($folder))
+            WdfException::Raise('App temp folder is not writable: '.$folder);
+    }
+    
+    return $folder;
+}

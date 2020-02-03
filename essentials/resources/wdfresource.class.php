@@ -146,8 +146,9 @@ class WdfResource implements ICallable
 		$file_key = md5($file.serialize($vars).serialize($dirs).substr(appendVersion('/'),1));
 		
 		$less = resFile(basename($file),true);
-		$css = sys_get_temp_dir().'/'.$file_key.'.css';
-		$cacheFile = sys_get_temp_dir().'/'.$file_key.'.cache';
+		$tmpfolder = system_app_temp_dir('less');
+		$css = $tmpfolder.$file_key.'.css';
+		$cacheFile = $tmpfolder.$file_key.'.cache';
 		
 		header('Content-Type: text/css');
 		

@@ -73,10 +73,10 @@ class FilesStore extends ObjectStore
         global $CONFIG;
         
         if( !isset($CONFIG['session']['filesstore']['path']) )
-            $CONFIG['session']['filesstore']['path'] = sys_get_temp_dir()."/filesstore/".session_name();
-        if( !file_exists($CONFIG['session']['filesstore']['path']) )
-            if(!mkdir($CONFIG['session']['filesstore']['path'], 0777, true))
-                log_error('unable to create '.$CONFIG['session']['filesstore']['path'], error_get_last());
+            $CONFIG['session']['filesstore']['path'] = system_app_temp_dir("filesstore", false);
+//        if( !file_exists($CONFIG['session']['filesstore']['path']) )
+//            if(!mkdir($CONFIG['session']['filesstore']['path'], 0777, true))
+//                log_error('unable to create '.$CONFIG['session']['filesstore']['path'], error_get_last());
         
         $this->serializer = new Serializer();
         

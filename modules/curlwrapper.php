@@ -201,7 +201,7 @@ function downloadFile($url, $postdata = false, $request_header = array(), $follo
 	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 	
 	if( !$cookie_file && $follow_location )
-		$cookie_file = tempnam(sys_get_temp_dir(), "downloadFile_cookie_");
+		$cookie_file = tempnam(system_app_temp_dir(), "downloadFile_cookie_");
 	
 	if( $cookie_file )
 	{
@@ -214,7 +214,7 @@ function downloadFile($url, $postdata = false, $request_header = array(), $follo
 
 	curl_setopt($ch, CURLOPT_HEADERFUNCTION, 'downloadFile_header');
 
-	$GLOBALS['downloadFile_data']['tmp_name'] = tempnam(sys_get_temp_dir(), 'DOWNLOAD_');
+	$GLOBALS['downloadFile_data']['tmp_name'] = tempnam(system_app_temp_dir(), 'DOWNLOAD_');
 	$tmp_fp = fopen($GLOBALS['downloadFile_data']['tmp_name'],'w');
 	curl_setopt($ch, CURLOPT_FILE, $tmp_fp);
 
