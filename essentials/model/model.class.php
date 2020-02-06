@@ -60,6 +60,13 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * @return string Table name
 	 */
 	abstract function GetTableName();
+    
+	/**
+	 * Derivered classes can override this to create their table.
+	 * 
+	 * @return void
+	 */
+    protected function CreateTable(){}
 
 	/**
 	 * @var DataSource|false
@@ -442,7 +449,25 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		
 		if( !isset(self::$_schemaCache[$this->_cacheKey]) )
 		{
-			self::$_schemaCache[$this->_cacheKey] = $this->_tableSchema = $this->_ds->Driver->getTableSchema($this->GetTableName());
+            $tab = $this->GetTableName();
+            try
+            {
+                self::$_schemaCache[$this->_cacheKey] 
+                    = $this->_tableSchema 
+                    = $this->_ds->Driver->getTableSchema($tab);
+            }
+            catch(\ScavixWDF\WdfDbException $dbex)
+            {
+                if( !$this->_ds->Driver->tableExists($tab) )
+                {
+                    $this->CreateTable();
+                    self::$_schemaCache[$this->_cacheKey] 
+                        = $this->_tableSchema 
+                        = $this->_ds->Driver->getTableSchema($tab);
+                }
+                else
+                    throw $dbex;
+            }
 		}
 		else
 		{

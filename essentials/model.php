@@ -148,7 +148,7 @@ function &model_datasource($name)
  * @param DataSource $ds The datasource
  * @return string the name/alias
  */
-function model_datasource_name(&$ds)
+function model_datasource_name($ds)
 {
 	return $ds->_storage_id;
 }
