@@ -92,6 +92,11 @@ function logging_init()
 	register_shutdown_function('global_fatal_handler');
 }
 
+function logging_add_logger($alias,$conf)
+{
+    $GLOBALS['logging_logger'][$alias] = Logger::Get($conf);
+}
+
 /**
  * Checks if there's enough memory.
  * 
@@ -479,7 +484,7 @@ function logging_render_var($content,&$stack=array(),$indent="")
             if(isDev())
                 $res[] = "in ".$content->getFileEx().":".$content->getLineEx();
 		}
-		elseif( $content instanceof Exception )
+		elseif( ($content instanceof Exception) || ($content instanceof Error) )
 		{
 			$res[] = get_class($content).": ".$content->getMessage();
             if(isDev())

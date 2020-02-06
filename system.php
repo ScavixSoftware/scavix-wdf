@@ -46,9 +46,9 @@ use ScavixWDF\WdfResource;
 // Config handling
 system_config_default( !defined("NO_DEFAULT_CONFIG") );
 if( file_exists("config.php") )
-	include("config.php");
+	system_config("config.php",false);
 elseif( file_exists(__DIR__."/config.php") )
-	include(__DIR__."/config.php");
+	system_config(__DIR__."/config.php",false);
 elseif( !defined("NO_CONFIG_NEEDED") )
 	system_die("No valid configuration found!");
 
@@ -65,6 +65,7 @@ function system_config($filename,$reset_to_defaults=true)
 	global $CONFIG;
 	if( $reset_to_defaults )
 		system_config_default();
+    $GLOBALS['wdf_loaded_config_file'] = $filename;
 	require_once($filename);
 }
 
@@ -247,7 +248,7 @@ function system_init($application_name, $skip_header = false, $logging_category=
 		session_keep_alive();
 
 	// attach more headers here if required
-	if( !$skip_header )
+	if( !$skip_header && php_sapi_name()!='cli' )
 	{
 		try {
 			foreach( $CONFIG['system']['header'] as $k=>$v )
@@ -562,7 +563,15 @@ function system_die($reason,$additional_message='')
     $errid = uniqid();
     log_fatal('Fatal system error (ErrorID: '.$errid.')'."\n".$reason."\n".$additional_message."\n".system_stacktrace_to_string($stacktrace));
     
-    if( system_is_ajax_call() )
+    if( php_sapi_name() == 'cli' )
+    {
+        if(isDev())
+            $res = 'Fatal system error (ErrorID: '.$errid.')'."\n".$reason."\n".$additional_message."\n".system_stacktrace_to_string($stacktrace);
+        else
+            $res = 'Oh no! A fatal system error occured. Please try again. Contact our technical support if this problem occurs again (ErrorID: '.$errid.')';
+		die("$res\n");
+    }
+    elseif( system_is_ajax_call() )
 	{
         if(isDev())
             $res = AjaxResponse::Error('Fatal system error (ErrorID: '.$errid.')'."\n".$reason."\n".$additional_message."\n".system_stacktrace_to_string($stacktrace),true);

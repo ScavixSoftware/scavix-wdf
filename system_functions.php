@@ -1054,7 +1054,7 @@ function get_class_simple($object, $lower_case=false)
  */
 function is_assoc($array)
 {
-  return (bool)count( array_filter(array_keys($array), 'is_string') );
+    return array_keys($array) !== range(0, count($array) - 1);
 }
 
 /**

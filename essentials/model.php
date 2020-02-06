@@ -314,7 +314,7 @@ function model_run_script($file,$datasource=false,$verbose=false)
                 if( !$ignore )
                     throw $first;
                 if( $verbose )
-                    log_info("Error: ",$first->getMessage());
+                    log_debug("Expected (handled) error: ",$first->getMessage());
             }
         }
     }
