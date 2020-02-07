@@ -176,7 +176,7 @@ function add_less_import_dir($dir,$key=false)
  */
 function clear_less_cache()
 {
-    $tmpfolder = system_app_temp_dir('less');
+    $tmpfolder = system_app_temp_dir('less',false);
     foreach( glob($tmpfolder."*.css") as $c )
         @unlink($c);
     foreach( glob($tmpfolder."*.cache") as $c )

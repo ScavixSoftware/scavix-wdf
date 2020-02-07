@@ -641,7 +641,7 @@ function array_val_is($array,$key,$needle)
  */
 function system_is_ajax_call()
 {
-    if( php_sapi_name() == "cli" )
+    if( PHP_SAPI == "cli" )
         $GLOBALS['result_of_system_is_ajax_call'] = false;
 	if( !isset($GLOBALS['result_of_system_is_ajax_call']) )
 	{
@@ -1415,11 +1415,9 @@ function system_app_temp_dir($subfolder = '', $appendnc = true)
     while(strpos($folder, '//'))
         $folder = str_replace('//', '/', $folder);
     if( !file_exists($folder) )
+    {
         if(!mkdir($folder, 0777, true))
             WdfException::Raise('Unable to create app temp folder: '.$folder);
-            
-    if(!is_writable($folder))
-    {
         chmod($folder, 0777);
         if(!is_writable($folder))
             WdfException::Raise('App temp folder is not writable: '.$folder);

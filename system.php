@@ -90,6 +90,7 @@ function system_config_default($reset = true)
 	
 	$CONFIG['class_path']['system'][]  = __DIR__.'/reflection/';
 	$CONFIG['class_path']['system'][]  = __DIR__.'/base/';
+	$CONFIG['class_path']['system'][]  = __DIR__.'/tasks/';
 	$CONFIG['class_path']['content'][] = __DIR__.'/lib/';
 	$CONFIG['class_path']['content'][] = __DIR__.'/lib/controls/';
 	$CONFIG['class_path']['content'][] = __DIR__.'/lib/controls/';
@@ -132,6 +133,7 @@ function system_config_default($reset = true)
 		$_SERVER['REQUEST_SCHEME'] = urlScheme(false);
 	if( !isset($_SERVER['HTTP_HOST']) )
 		$_SERVER['HTTP_HOST'] = '127.0.0.1';
+    
 
     if(defined('IDNA_DEFAULT') && defined('INTL_IDNA_VARIANT_UTS46'))
     {
@@ -228,6 +230,10 @@ function system_init($application_name, $skip_header = false, $logging_category=
 	foreach( system_glob($thispath.'/essentials/*.php') as $essential ) // load all other essentials
 		system_load_module($essential);
 
+    // on posix systems: automatically load cli-module when we are actually in cli
+    if( PHP_SAPI=='cli' && function_exists('posix_isatty') && !function_exists('cli_init') )
+        system_load_module('modules/cli.php');
+    
 	if( $logging_category )
 		logging_add_category($logging_category);
 	logging_set_user(); // works as both (session and logging) are now essentials
@@ -248,7 +254,7 @@ function system_init($application_name, $skip_header = false, $logging_category=
 		session_keep_alive();
 
 	// attach more headers here if required
-	if( !$skip_header && php_sapi_name()!='cli' )
+	if( !$skip_header && PHP_SAPI!='cli' )
 	{
 		try {
 			foreach( $CONFIG['system']['header'] as $k=>$v )
@@ -383,6 +389,12 @@ function system_execute()
 {
 	session_sanitize();
 	execute_hooks(HOOK_POST_INITSESSION);
+    
+    if( PHP_SAPI == 'cli' && function_exists('cli_execute') )
+        cli_execute();
+    
+    if( !is_in(ini_get('short_open_tag'),'on','On','1','true','True','TRUE','ON','oN') )
+        ScavixWDF\WdfException::Raise("PHP setting 'short_open_tag' needs to be enabled");
 
 	// respond to PING requests that are sended to keep the session alive
 	if( Args::request('ping',false) )
@@ -488,6 +500,10 @@ function system_exit($result=null,$die=true)
 	if( !isset($result) || !$result )
 		$result = current_controller(false);
 
+    if( PHP_SAPI == 'cli' )
+    {
+        die("Missing CLI handling, cannot render HTML here\n");
+    }
 	if( system_is_ajax_call() )
 	{
 		if( $result instanceof AjaxResponse )
@@ -563,7 +579,7 @@ function system_die($reason,$additional_message='')
     $errid = uniqid();
     log_fatal('Fatal system error (ErrorID: '.$errid.')'."\n".$reason."\n".$additional_message."\n".system_stacktrace_to_string($stacktrace));
     
-    if( php_sapi_name() == 'cli' )
+    if( PHP_SAPI == 'cli' )
     {
         if(isDev())
             $res = 'Fatal system error (ErrorID: '.$errid.')'."\n".$reason."\n".$additional_message."\n".system_stacktrace_to_string($stacktrace);
@@ -891,7 +907,6 @@ function system_spl_autoload($class_name)
 				$class_name = isset($orig)?$orig:$class_name;
 				if( strtolower($def) != strtolower($class_name) && ends_iwith($def,$class_name) ) // no qualified classname requested but class was defined with namespace
 				{
-
 					log_trace("Aliasing class '$def' to '$class_name'. To avoid this check the use statements or use a qualified classname.");
 					create_class_alias($def,$class_name,true);
 				}
@@ -1702,7 +1717,7 @@ function create_class_alias($original,$alias,$strong=false)
 {
 	if( $strong )
 		class_alias($original,$alias);
-	
+
 	$alias = strtolower($alias);
 	if( isset($GLOBALS['system_class_alias'][$alias]) )
 	{
@@ -1711,6 +1726,8 @@ function create_class_alias($original,$alias,$strong=false)
 		
 		if( !is_array($GLOBALS['system_class_alias'][$alias]) )
 			$GLOBALS['system_class_alias'][$alias] = array($GLOBALS['system_class_alias'][$alias]);
+        elseif( in_array($original,$GLOBALS['system_class_alias'][$alias]) )
+            return;
 		$GLOBALS['system_class_alias'][$alias][] = $original;
 	}
 	else
@@ -1747,6 +1764,10 @@ function fq_class_name($classname)
         case 'apcstore':                  return '\\ScavixWDF\\Session\\APCStore';
         case 'redisstore':                return '\\ScavixWDF\\Session\\RedisStore';
         case 'filesstore':                return '\\ScavixWDF\\Session\\FilesStore';
+        case 'task':                      return '\\ScavixWDF\\Tasks\\Task';
+        case 'dbtask':                    return '\\ScavixWDF\\Tasks\\DbTask';
+        case 'cleartask':                 return '\\ScavixWDF\\Tasks\\ClearTask';
+        case 'taskmodel':                 return '\\ScavixWDF\\Tasks\\TaskModel';
 	}
 	
 	if( isset($GLOBALS['system_class_alias'][$cnl]) )

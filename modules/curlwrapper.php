@@ -29,6 +29,15 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
+function curlwrapper_init()
+{
+    if( !function_exists('curl_init') )
+        ScavixWDF\WdfException::Raise("CURL not found, please install php-curl");
+    
+    classpath_add(__DIR__.'/curlwrapper');
+    create_class_alias(ScavixWDF\Tasks\WebRequest::class,'WebRequest');
+}
+
 /**
  * Sets a proxy for all subsequent downloads.
  * 

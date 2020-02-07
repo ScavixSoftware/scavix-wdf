@@ -362,7 +362,7 @@ class SysAdmin extends HtmlPage
 			->SetCaption("Basic information")
 			->AddNewRow("PHP version",phpversion())
 			->AddNewRow("PHP ini file",php_ini_loaded_file())
-			->AddNewRow("SAPI",php_sapi_name())
+			->AddNewRow("SAPI",PHP_SAPI)
 			->AddNewRow("OS",php_uname());
         if(function_exists('apache_get_version'))
 			$tab->AddNewRow("Apache version",apache_get_version());

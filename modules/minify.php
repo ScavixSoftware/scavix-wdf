@@ -42,7 +42,6 @@ use ScavixWDF\WdfException;
  */
 function minify_init()
 {
-	global $CONFIG;
 	classpath_add(__DIR__."/minify/");
 	admin_register_handler('Minify','MinifyAdmin','Start');
 	
@@ -51,6 +50,8 @@ function minify_init()
 	cfg_check('minify','url','Minify module needs an url');
 	
 	register_hook_function(HOOK_PRE_RENDER, 'minify_pre_render_handler');
+
+    create_class_alias(\ScavixWDF\Tasks\MinifyTask::class,'MinifyTask');
 }
 
 /**
@@ -86,7 +87,7 @@ function minify_pre_render_handler($args)
  */
 function minify_forbidden($classname)
 {
-if( is_string($classname) && strpos($classname, '.') !== false )
+    if( is_string($classname) && strpos($classname, '.') !== false )
 	{
 		$classname = explode('.',$classname);
 		$classname = $classname[0];
@@ -156,18 +157,28 @@ function minify_js($paths,$target_file)
 {
 	require_once(__DIR__."/minify/jsmin.php");
 	$files = minify_collect_files($paths, 'js');
-	log_debug("JS files to minify: ",$files);
+	//log_debug("JS files to minify: ",$files);
 	//die("stopped");
 	$code = "";
+    $results = [];
 	foreach( $files as $f )
 	{
-        if(starts_with($f, "/") && !starts_with($f, "//"))
-            $f = (isSSL() ? "https" : "http")."://{$_SERVER['SERVER_NAME']}".$f;        
-		$js = sendHTTPRequest($f,false,false,$response_header);
+        if( starts_with($f, "/") && !starts_with($f, "//"))
+        {
+            //$f = (isSSL() ? "https" : "http")."://{$_SERVER['SERVER_NAME']}".$f;        
+            $f = $GLOBALS['CONFIG']['system']['url_root'].$f;
+        }
+		$js = sendHTTPRequest($f,false,false,$response_header,[],3);
+        
 		if( mb_detect_encoding($js) != "UTF-8" )
 			$js = mb_convert_encoding($js, "UTF-8");
-		if( stripos($response_header,"404 Not Found") !== false )
-			continue;
+		if( !$js || stripos($response_header,"404 Not Found") !== false )
+        {
+            $results[$f] = "Error loading content";
+            $js = "console.error('Unable to minify $f');";
+        }
+        else
+            $results[$f] = "ok";
 		
 		$js = "/* FILE: $f */\n$js";
 		if( !isset($GLOBALS['nominify']) )
@@ -189,6 +200,7 @@ function minify_js($paths,$target_file)
 		$code .= "$.getScript('$ext', function(){ wdf.debug('external script loaded:','$ext'); });";
 	
 	file_put_contents($target_file, $code);
+    return $results;
 }
 
 /**
@@ -200,21 +212,28 @@ function minify_css($paths,$target_file,$nc_argument=false)
 	global $current_url;
 	$files = minify_collect_files($paths, 'css');
 	$files = array_merge($files,minify_collect_files($paths, 'less'));
-	log_debug("CSS files to minify: ",$files);	
+	//log_debug("CSS files to minify: ",$files);
 	//die("stopped");
 	$code = "";
 	$res = array();
 	$map = array();
 	
-	foreach( $files as $f )
+    $results = [];
+	foreach( $files as $i=>$f )
 	{
 		if( !$f )
 			continue;
-        if(starts_with($f, "/") && !starts_with($f, "//"))
-            $f = (isSSL() ? "https" : "http")."://{$_SERVER['SERVER_NAME']}".$f;
-		$css = sendHTTPRequest($f,false,false,$response_header);
-		if( stripos($response_header,"404 Not Found") !== false )
+        if( starts_with($f, "/") && !starts_with($f, "//"))
+        {
+            $f = $GLOBALS['CONFIG']['system']['url_root'].$f;
+            //$f = (isSSL() ? "https" : "http")."://{$_SERVER['SERVER_NAME']}".$f;
+        }
+		$css = sendHTTPRequest($f,false,false,$response_header,[],3);
+		if( !$css || stripos($response_header,"404 Not Found") !== false )
+        {
+            $results[$f] = "Error loading content";
 			continue;
+        }
 		if( mb_detect_encoding($css) != "UTF-8" )
 			$css = mb_convert_encoding($css, "UTF-8");
 		$current_url = parse_url($f);
@@ -284,10 +303,12 @@ function minify_css($paths,$target_file,$nc_argument=false)
 				}
 			}
 		}
+        $results[$f] = "ok";
 	}
 	foreach( array('0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f') as $c )
 		$code = str_ireplace("#$c$c$c$c$c$c", "#$c$c$c", $code);
 	file_put_contents($target_file, $code);
+    return $results;
 }
 
 /**
@@ -384,16 +405,18 @@ function minify_resolve_dependencies($classname,&$dependency_info,&$res_file_sto
 /**
  * @internal Collects dependencies from a file
  */
-function minify_collect_from_file($kind,$f,$debug_path='')
+function minify_collect_from_file($kind,$f,$classname='')
 {
 	global $dependency_info, $res_file_storage, $ext_resources;
 	
 	if( !$f )
 		return;
-	$classname = fq_class_name(array_first(explode('.',basename($f))) );
+	$classname = $classname?:fq_class_name(array_first(explode('.',basename($f))) );
 	if( isset($res_file_storage[$classname]) || minify_forbidden($classname) )
 		return;
 	
+//    log_debug("Collecting from $f");
+    
 	$order = array('static','inherited','instanciated','self');
 		//:array('self','incontent','instanciated','inherited');
 	
@@ -409,6 +432,44 @@ function minify_collect_from_file($kind,$f,$debug_path='')
 			break;
 		$content = $c2;
 	}while( true );
+    
+    if( preg_match_all('/use\s+([0-9_a-zA-Z\\\\]+);/',$content,$uses) )
+    {
+        $keys = [];
+        $uses = array_map(function($u)use(&$keys)
+        {
+            $keys[] = array_last(explode("\\",$u));
+            return "\\$u";
+        }, $uses[1]);
+        $uses_map = array_combine($keys, $uses);
+    }
+    else $uses_map = [];
+    
+    if( preg_match_all('/namespace\s+([0-9_a-zA-Z\\\\]+);/',$content,$ns) )
+    {
+        $namespace = "\\".array_first($ns[1]);
+    }
+    else $namespace = false;
+    
+    $fq_name = function($n)use($uses_map, $namespace)
+    {
+        if( strpos($n,"\\")!==false )
+            return $n[0]=="\\"?$n:"\\$n";
+        
+//        if( !isset($uses_map[$n]) )
+//        {
+//            if( $namespace )
+//                log_debug("NS MAP $n -> $namespace\\$n");
+//            else
+//                log_debug("NO MAP $n");
+//        }
+//        else
+//            log_debug("USE MAP $n -> ".$uses_map[$n]);
+        
+        return isset($uses_map[$n])
+            ?$uses_map[$n]
+            :($namespace?"{$namespace}\\$n":$n);
+    };
 	
 	foreach( $order as $o )
 	{
@@ -419,11 +480,12 @@ function minify_collect_from_file($kind,$f,$debug_path='')
 				{
 					foreach( $matches as $m )
 					{
+                        $m[1] = $fq_name($m[1]);
 						$file_for_class = __search_file_for_class($m[1]);
 						if( !$file_for_class )
 							continue;
 						$dependency_info[$classname][] = strtolower($m[1]);
-						minify_collect_from_file($kind,$file_for_class,$debug_path.'/'.$classname);
+						minify_collect_from_file($kind,$file_for_class,$m[1]);
 					}
 				}
 				break;
@@ -437,11 +499,12 @@ function minify_collect_from_file($kind,$f,$debug_path='')
 				{
 					foreach( $matches as $m )
 					{
+                        $m[1] = $fq_name($m[1]);
 						$file_for_class = __search_file_for_class($m[1]);
 						if( !$file_for_class )
 							continue;
 						$dependency_info[$classname][] = strtolower($m[1]);
-						minify_collect_from_file($kind,$file_for_class,$debug_path.'/'.$classname);
+						minify_collect_from_file($kind,$file_for_class,$m[1]);
 					}
 				}
 				break;
@@ -465,7 +528,7 @@ function minify_collect_from_file($kind,$f,$debug_path='')
 							$ext_resources[] = $b;
 							continue;
 						}
-						if( !ends_with($b, $kind) )
+						if( !ends_with($resource->Path, $kind) )
 							continue;
 						$b = strtolower($b);
 						if( !in_array($b,$res_file_storage[$classname]) )
