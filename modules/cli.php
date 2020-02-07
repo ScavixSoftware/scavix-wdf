@@ -161,7 +161,7 @@ function cli_execute()
     if( !class_exists($class) )
         $class = fq_class_name("{$simpleclass}task");
     
-    log_debug("Task '$task' resolved to '$class::$method'");
+    //log_debug("Task '$task' resolved to '$class::$method'");
     if( class_exists($class) )
     {
         $task = new $class();

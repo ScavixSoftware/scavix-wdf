@@ -392,9 +392,6 @@ function system_execute()
     
     if( PHP_SAPI == 'cli' && function_exists('cli_execute') )
         cli_execute();
-    
-    if( !is_in(ini_get('short_open_tag'),'on','On','1','true','True','TRUE','ON','oN') )
-        ScavixWDF\WdfException::Raise("PHP setting 'short_open_tag' needs to be enabled");
 
 	// respond to PING requests that are sended to keep the session alive
 	if( Args::request('ping',false) )
@@ -1767,6 +1764,7 @@ function fq_class_name($classname)
         case 'task':                      return '\\ScavixWDF\\Tasks\\Task';
         case 'dbtask':                    return '\\ScavixWDF\\Tasks\\DbTask';
         case 'cleartask':                 return '\\ScavixWDF\\Tasks\\ClearTask';
+        case 'checktask':                 return '\\ScavixWDF\\Tasks\\CheckTask';
         case 'taskmodel':                 return '\\ScavixWDF\\Tasks\\TaskModel';
 	}
 	

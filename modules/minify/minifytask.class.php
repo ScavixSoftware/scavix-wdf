@@ -52,7 +52,7 @@ class MinifyTask extends Task
             foreach( $GLOBALS['CONFIG']['resources'] as $i=>$conf )
                 $GLOBALS['CONFIG']['resources'][$i]['url'] = str_replace($old,$this->base_url, $conf['url']);
 
-            log_debug("Base URL ($old):",$GLOBALS['CONFIG']['system']['url_root'],$GLOBALS['CONFIG']['resources']);
+            log_debug("Base URL:",$GLOBALS['CONFIG']['system']['url_root']);
         }
         
         if( count($args) )
