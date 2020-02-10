@@ -2,7 +2,7 @@
 /**
  * Scavix Web Development Framework
  *
- * Copyright (c) since 2020 Scavix Software GmbH & Co. KG
+ * Copyright (c) since 2019 Scavix Software GmbH & Co. KG
  *
  * This library is free software; you can redistribute it
  * and/or modify it under the terms of the GNU Lesser General
@@ -19,7 +19,7 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>
  *
  * @author Scavix Software GmbH & Co. KG https://www.scavix.com <info@scavix.com>
- * @copyright since 2020 Scavix Software GmbH & Co. KG
+ * @copyright since 2019 Scavix Software GmbH & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 namespace ScavixWDF\CLI;
