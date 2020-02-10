@@ -115,6 +115,7 @@ class HtmlPage extends Template implements ICallable
 		$init_data = $this->wdf_settings;
 		$init_data['request_id'] = request_id();
 		$init_data['site_root']  = cfg_get('system','url_root');
+        $init_data['rewrite'] = can_rewrite();
 		
 		if( cfg_getd('system','attach_session_to_ajax',false) )
 		{
