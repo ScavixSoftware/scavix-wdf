@@ -28,7 +28,7 @@ class ClearTask extends Task
 {
     function Run($args)
     {
-        log_warn("Syntax: clear-(all|logs|cache)");
+        log_warn("Syntax: clear-(all|logs|cache|requests)");
     }
     
     function All()
@@ -48,5 +48,11 @@ class ClearTask extends Task
     {
         cache_clear();
         log_info("Cache cleared");
+    }
+    
+    function Requests()
+    {
+        \ScavixWDF\Logging\RequestLogEntry::Cleanup("4 week");
+        log_info("Old requests removed");
     }
 }

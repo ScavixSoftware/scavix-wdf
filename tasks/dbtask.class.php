@@ -144,15 +144,12 @@ class DbTask extends Task
     
     function ProcessWdfTasks($args)
     {
-//        if( !Model::$DefaultDatasource )
-//            DataSource::SetDefault(array_last(array_keys($GLOBALS['CONFIG']['model'])));
-
         logging_add_category(getmypid());
         $ttl = intval(array_shift($args)?:30)?:30;
         $eol = time() + $ttl;
         TaskModel::FreeOrphans();
         $task = TaskModel::Reserve();
-        log_debug(__METHOD__);
+        //log_debug(__METHOD__);
         while( $task || time()<$eol )
         {
             if( $task )
