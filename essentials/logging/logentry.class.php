@@ -152,6 +152,8 @@ class LogEntry
 	 */
 	function serialize()
 	{
+        if( !function_exists('utf8_encode') )
+            return "missing php-xml";
 		$res = new stdClass();
 		$res->dt = date("c",$this->datetime);
 		$res->cat = array();

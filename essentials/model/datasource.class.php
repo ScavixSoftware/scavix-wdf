@@ -69,7 +69,14 @@ class DataSource
 	public static function Get($name=false)
 	{
 		if( !$name )
-			return Model::$DefaultDatasource;
+        {
+            if( Model::$DefaultDatasource )
+                return Model::$DefaultDatasource;
+            foreach( $GLOBALS['CONFIG']['model'] as $name=>$mod )
+                if( ifavail($mod,'default') )
+                    return model_datasource($name);
+            \ScavixWDF\WdfException::Raise("No default datasource found! Use DataSource::SetDefault or CONFIG");
+        }
 		return model_datasource($name);
 	}
 
@@ -254,7 +261,7 @@ class DataSource
 	{
 		$stmt = $this->_pdo->prepare($sql);
 		if( !$stmt )
-			WdfDbException::Raise("Invalid SQL: $sql");
+			WdfDbException::Raise("Invalid SQL: {$this->_pdo->LastPreparedSqlCode}");
 		return new ResultSet($this,$stmt);
 	}
 

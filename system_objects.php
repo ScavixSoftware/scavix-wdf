@@ -238,6 +238,6 @@ class WdfDbException extends WdfException
     {
         if( $this->statement )
             return $this->statement->ErrorInfo();
-        return [];
+        return ['','',"Error preparing the SQL statement. Most likely there's an error in the SQL syntax."];
     }
 }
