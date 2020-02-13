@@ -56,9 +56,14 @@ class MySql implements IDatabaseDriver
 		$this->_pdo = $pdo;
         if(isset($CONFIG['model'][$datasource->_storage_id]) && isset($CONFIG['model'][$datasource->_storage_id]['bufferedquery']) && $CONFIG['model'][$datasource->_storage_id]['bufferedquery'])
             $this->_pdo->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true); 
-//        if(!isset($CONFIG['model'][$datasource->_storage_id]['forceutf8']) || (isset($CONFIG['model'][$datasource->_storage_id]['forceutf8']) && $CONFIG['model'][$datasource->_storage_id]['forceutf8']))
+
+        $mode = $this->_pdo->query("SELECT @@SESSION.sql_mode; SET CHARACTER SET utf8; SET NAMES utf8;");
+        $mode = $mode->fetchColumn(0);
+        if( stripos($mode,"STRICT_ALL_TABLES")!==false || stripos($mode,"STRICT_TRANS_TABLES")!==false )
         {
-            $this->_pdo->exec("SET CHARACTER SET utf8; SET NAMES utf8");
+            $mode = str_ireplace(["STRICT_ALL_TABLES","STRICT_TRANS_TABLES"], ["",""], $mode);
+            $mode = implode(",",array_filter(explode(",",$mode)));
+            $this->_pdo->exec("SET sql_mode = '$mode';");
         }
         $this->_pdo->Driver = $this;
 	}
