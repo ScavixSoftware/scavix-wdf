@@ -29,7 +29,7 @@ abstract class Task
     var $model;
     var $ds;
     
-    function __construct(TaskModel $model=null)
+    function __construct(WdfTaskModel $model=null)
     {
         $this->model = $model;
         $this->ds = \ScavixWDF\Model\DataSource::Get();
@@ -41,16 +41,16 @@ abstract class Task
         return new $name();
     }
     
-    public static function Async($method='run') : TaskModel
+    public static function Async($method='run') : WdfTaskModel
     {
         $name = get_called_class()."-$method";
-        return TaskModel::Create($name);
+        return WdfTaskModel::Create($name);
     }
     
-    public static function AsyncOnce($method='run') : TaskModel
+    public static function AsyncOnce($method='run') : WdfTaskModel
     {
         $name = get_called_class()."-$method";
-        return TaskModel::CreateOnce($name);
+        return WdfTaskModel::CreateOnce($name);
     }
     
     abstract function Run($args);
@@ -78,5 +78,10 @@ abstract class Task
             $res[$n] = array_shift($args);
         //log_debug($res);
         return $res;
+    }
+    
+    function inner()
+    {
+        log_debug(__METHOD__);
     }
 }

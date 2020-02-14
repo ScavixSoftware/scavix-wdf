@@ -1765,7 +1765,7 @@ function fq_class_name($classname)
         case 'dbtask':                    return '\\ScavixWDF\\Tasks\\DbTask';
         case 'cleartask':                 return '\\ScavixWDF\\Tasks\\ClearTask';
         case 'checktask':                 return '\\ScavixWDF\\Tasks\\CheckTask';
-        case 'taskmodel':                 return '\\ScavixWDF\\Tasks\\TaskModel';
+        case 'wdftaskmodel':              return '\\ScavixWDF\\Tasks\\WdfTaskModel';
 	}
 	
 	if( isset($GLOBALS['system_class_alias'][$cnl]) )

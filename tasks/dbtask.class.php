@@ -168,8 +168,8 @@ class DbTask extends Task
         logging_add_category(getmypid());
         $ttl = intval(array_shift($args)?:30)?:30;
         $eol = time() + $ttl;
-        TaskModel::FreeOrphans();
-        $task = TaskModel::Reserve();
+        WdfTaskModel::FreeOrphans();
+        $task = WdfTaskModel::Reserve();
         //log_debug(__METHOD__);
         while( $task || time()<$eol )
         {
@@ -181,7 +181,7 @@ class DbTask extends Task
             }
             else
                 usleep(10000);
-            $task = TaskModel::Reserve();
+            $task = WdfTaskModel::Reserve();
         }
     }
 }
