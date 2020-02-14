@@ -215,6 +215,11 @@ class DataSource
 
 		return $this->_dsn == $ds->_dsn && $this->_username == $ds->_username && $this->_password == $ds->_password;
 	}
+    
+    function Close()
+    {
+        $this->_pdo = null;
+    }
 	
 	/**
 	 * Returns the DSN

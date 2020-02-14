@@ -127,6 +127,27 @@ class DbTask extends Task
         });
     }
     
+    function Vars($args)
+    {
+        $alias = array_shift($args);
+        $ds = DataSource::Get($alias);
+        if( !$ds )
+        {
+            log_warn("Please specify valid datasource as first argument");
+            return;
+        }
+        $lvars = $ds->ExecuteSql("SHOW VARIABLES")->Enumerate('Value',false,'Variable_name');
+        $gvars = $ds->ExecuteSql("SHOW GLOBAL VARIABLES")->Enumerate('Value',false,'Variable_name');
+        $lines = [];
+        foreach( $lvars as $n=>$v )
+            $lines[] = "$n\t= $v".($v!=$gvars[$n]?"\tGLOBAL: {$gvars[$n]}":"");
+            
+        if( PHP_SAPI == 'cli' )
+            echo "Variables:\n".implode("\n",$lines)."\n";
+        else
+            log_info("Variables:\n".implode("\n",$lines)."\n");
+    }
+    
     function Exec($args)
     {
         $alias = array_shift($args);
