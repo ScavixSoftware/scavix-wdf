@@ -29,7 +29,7 @@ use ScavixWDF\Model\Model;
 use ScavixWDF\WdfDbException;
 use ScavixWDF\Base\DateTimeEx;
 
-class TaskModel extends Model
+class WdfTaskModel extends Model
 {
     private $isVirtual = false;
     public static $PROCESS_FILTER = false;
@@ -91,7 +91,7 @@ class TaskModel extends Model
         //log_debug(__METHOD__,$name,$only_if_not_running,$virtual);
         if( $only_if_not_running )
         {
-            $tn = TaskModel::Make()->eq('name',$name)->current();
+            $tn = WdfTaskModel::Make()->eq('name',$name)->current();
             if( $tn )
             {
                 if( !$tn->enabled && $tn->created->ot_mins(5) )
@@ -105,14 +105,14 @@ class TaskModel extends Model
         }
         if( $virtual )
         {
-            $tn = new TaskModel();
+            $tn = new WdfTaskModel();
             $tn->isVirtual = true;
             $tn->arguments = serialize(array());
             return $tn;
         }
         if( !isset($tn) || !$tn )
         {
-            $tn = new TaskModel();
+            $tn = new WdfTaskModel();
             $tn->created = 'now()';
             $tn->enabled = 0;
             $tn->name = $name;
@@ -139,7 +139,7 @@ class TaskModel extends Model
 	{
 		if( !$task )
 			return $this;
-		if( $task instanceof TaskModel )
+		if( $task instanceof WdfTaskModel )
         {
             $task->Save();
 			$task = ifavail($task,'id');
@@ -167,7 +167,7 @@ class TaskModel extends Model
 	{
         if( !$this->isVirtual )
         {
-            $q = TaskModel::Make()->eq('name',$this->name)->eq('arguments',$this->arguments);
+            $q = WdfTaskModel::Make()->eq('name',$this->name)->eq('arguments',$this->arguments);
             if( isset($this->id) )
                 $q = $q->neq('id',$this->id);
             $other = $q->scalar('id');
@@ -187,12 +187,12 @@ class TaskModel extends Model
                 $this->enabled = 1;
                 $this->Save();
                 if( $depth++ < 10 ) 
-                    foreach( TaskModel::Make()->eq('parent_task',$this->id) as $t )		
+                    foreach( WdfTaskModel::Make()->eq('parent_task',$this->id) as $t )		
                         $t->Go(false,$depth);
             }
         }
 		if( $run_instance )
-			TaskModel::RunInstance();
+			WdfTaskModel::RunInstance();
 		return $this;
 	}
     
@@ -247,7 +247,7 @@ class TaskModel extends Model
                 log_error($ex);
             return false;
         }
-		return TaskModel::Make()->eq('worker_pid',$wpid)->current();
+		return WdfTaskModel::Make()->eq('worker_pid',$wpid)->current();
 	}
 	
 	public function Run($inline=false)
@@ -279,13 +279,13 @@ class TaskModel extends Model
             
             if( $inline )
             {
-                foreach( TaskModel::Make()->eq('parent_task',$this->id)->orderBy('id') as $child )
+                foreach( WdfTaskModel::Make()->eq('parent_task',$this->id)->orderBy('id') as $child )
                     $child->Run(true);
             }
             else
             {
                 // make sure children are enabled if (for whatever reason) they are not
-                foreach( TaskModel::Make()->eq('parent_task',$this->id)->eq('enabled',0) as $t )		
+                foreach( WdfTaskModel::Make()->eq('parent_task',$this->id)->eq('enabled',0) as $t )		
                     $t->Go(false);
             }
 			$this->Delete();
@@ -323,7 +323,7 @@ class TaskModel extends Model
         if( $this->isVirtual )
             return;
         
-		$q = TaskModel::Make()->eq('parent_task',$this->id);
+		$q = WdfTaskModel::Make()->eq('parent_task',$this->id);
 		if( !$complete )
 			$q = $q->eq('follow_deletion',1);
 		foreach( $q as $t )
@@ -343,8 +343,8 @@ class TaskModel extends Model
         if( $args == 'copy' )
             $args = unserialize($this->arguments);
         if( $this->isVirtual )
-            return TaskModel::Create($name,null,$only_if_not_running,true)->SetArgs($args)->DependsOn($this);
-        return TaskModel::Create($name,null,$only_if_not_running)->SetArgs($args)->DependsOn($this);
+            return WdfTaskModel::Create($name,null,$only_if_not_running,true)->SetArgs($args)->DependsOn($this);
+        return WdfTaskModel::Create($name,null,$only_if_not_running)->SetArgs($args)->DependsOn($this);
     }
     
     function CreateChildOnce($name,$args='copy')

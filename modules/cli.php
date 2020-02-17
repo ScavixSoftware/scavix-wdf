@@ -35,7 +35,7 @@
  * php index.php clear logs
  * </code>
  * 
- * See <Task>, <TaskModel>, <ClearTask>, <DbTask>
+ * See <Task>, <WdfTaskModel>, <ClearTask>, <DbTask>
  * 
  * @return void
  */
@@ -51,7 +51,7 @@ function cli_init()
         register_hook_function(HOOK_SYSTEM_DIE, function($args){ die("\n"); });
     }
     
-    ScavixWDF\Tasks\TaskModel::$PROCESS_FILTER = __FILE__;
+    ScavixWDF\Tasks\WdfTaskModel::$PROCESS_FILTER = __FILE__;
 }
 
 /**
@@ -167,6 +167,14 @@ function cli_execute()
         $task = new $class();
         if( !($task instanceof \ScavixWDF\Tasks\Task) )
             \ScavixWDF\WdfException::Raise("Invalid a valid task processor");
+        
+        $ref = new ReflectionMethod($task, $method);
+        if( !$ref )
+            \ScavixWDF\WdfException::Raise("Unreflectable class '$class'");
+        $ref = $ref->getDeclaringClass();
+        if( strcasecmp($ref->getName(),$class)!=0 )
+            \ScavixWDF\WdfException::Raise("Invalid task method '$method'");
+        
         $task->$method($argv);
         die("\n");
     }

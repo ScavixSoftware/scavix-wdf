@@ -26,7 +26,7 @@ namespace ScavixWDF\Tasks;
 
 class WebRequest extends \ScavixWDF\Tasks\Task
 {
-    function __construct(\ScavixWDF\Tasks\TaskModel $model=null)
+    function __construct(\ScavixWDF\Tasks\WdfTaskModel $model=null)
     {
         parent::__construct($model);
     }
@@ -43,7 +43,7 @@ class WebRequest extends \ScavixWDF\Tasks\Task
 
     public static function Trigger($url,$data=false,$header=[])
     {
-        TaskModel::Create(WebRequest::class)
+        WdfTaskModel::Create(WebRequest::class)
             ->SetArgs(compact('url','data','header'))
             ->Go();
     }
