@@ -43,6 +43,33 @@ use ScavixWDF\Reflection\WdfReflector;
 use ScavixWDF\WdfException;
 use ScavixWDF\WdfResource;
 
+// Homebrew CLI args if missing
+// see https://www.php.net/manual/en/ini.core.php#ini.register-argc-argv
+if( !isset($argv) && isset($_SERVER['argv']) )
+{
+    $argv = $_SERVER['argv'];
+    $argc = max(1,count($argv));
+}
+
+// Moved here from cli module to make sure SERVER var is same as in calling (apache env) process. 
+// This is needed to make all dependent configs/modules/... work as expected.
+if( PHP_SAPI == 'cli' )
+{
+    foreach( $argv as $i=>$a )
+    {
+        if( starts_iwith($a,'--wdf-extended-data') )
+        {
+            $datafile = substr($a,19);
+            $data = json_decode(@file_get_contents($datafile),true);
+            if( is_array($data) )
+                $_SERVER = array_merge($_SERVER,$data);
+            @unlink($datafile);
+            unset($argv[$i]);
+            break;
+        }
+    }
+}
+
 // Config handling
 system_config_default( !defined("NO_DEFAULT_CONFIG") );
 if( file_exists("config.php") )
@@ -1761,11 +1788,6 @@ function fq_class_name($classname)
         case 'apcstore':                  return '\\ScavixWDF\\Session\\APCStore';
         case 'redisstore':                return '\\ScavixWDF\\Session\\RedisStore';
         case 'filesstore':                return '\\ScavixWDF\\Session\\FilesStore';
-        case 'task':                      return '\\ScavixWDF\\Tasks\\Task';
-        case 'dbtask':                    return '\\ScavixWDF\\Tasks\\DbTask';
-        case 'cleartask':                 return '\\ScavixWDF\\Tasks\\ClearTask';
-        case 'checktask':                 return '\\ScavixWDF\\Tasks\\CheckTask';
-        case 'wdftaskmodel':              return '\\ScavixWDF\\Tasks\\WdfTaskModel';
 	}
 	
 	if( isset($GLOBALS['system_class_alias'][$cnl]) )

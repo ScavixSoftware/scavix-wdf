@@ -32,7 +32,7 @@
  * 
  * <code>
  * // sample: 
- * php index.php clear logs
+ * php index.php clear-logs
  * </code>
  * 
  * See <Task>, <WdfTaskModel>, <ClearTask>, <DbTask>
@@ -44,14 +44,19 @@ function cli_init()
     if( !function_exists('posix_isatty') )
         ScavixWDF\WdfException::Raise("CLI module cannot run on windows");
     
+    $self = realpath(explode("index.php",$_SERVER['SCRIPT_FILENAME'])[0]."index.php");
+    if( !$self )
+        $self = realpath(explode("index.php",$_SERVER['PHP_SELF'])[0]."index.php");
+    if( !$self && $GLOBALS['argv'] && is_array($GLOBALS['argv']) && count($GLOBALS['argv'])>0 )
+        $self = $GLOBALS['argv'][0];
+    define("CLI_SELF",realpath($self));
+    
     if( defined('STDOUT') && posix_isatty(STDOUT) )
     {
         classpath_add(__DIR__.'/cli');
         logging_add_logger('cli',['class' => \ScavixWDF\CLI\CliLogger::class]);
         register_hook_function(HOOK_SYSTEM_DIE, function($args){ die("\n"); });
     }
-    
-    ScavixWDF\Tasks\WdfTaskModel::$PROCESS_FILTER = __FILE__;
 }
 
 /**
@@ -69,52 +74,45 @@ function cli_init()
  * @param type $args All arguments
  * @return void
  */
-function cli_run_script($php_script_path, $args=[])
+function cli_run_script($php_script_path, $args=[], $extended_data=false)
 {
     $ini = system_app_temp_dir()."php_cli.ini";
     $out = ini_get('error_log');
 
-    if( !file_exists($ini) || filemtime($ini)<time()-3600 ) // TTL for INI files is 1 hour
+    if( php_ini_loaded_file() != $ini && !file_exists($ini) || filemtime($ini)<time()-3600 ) // TTL for INI files is 1 hour
     {
         $inidata = file_get_contents(php_ini_loaded_file());
         $inidata = preg_replace('/^disable_functions/m', ';disable_functions', $inidata);
         file_put_contents($ini, $inidata);
     }
-    $sdata = $_SERVER;
-    $sdata['cli_default_datasource'] = model_datasource_name(\ScavixWDF\Model\DataSource::Get());
-    $data = tempnam(system_app_temp_dir(),"cli_script_data_");
-    file_put_contents($data,serialize($sdata));
-    chmod($data,0777);
     
-    $cmd = "$php_script_path -D{$data}";
-    if( isset($GLOBALS['wdf_loaded_config_file']) && realpath($GLOBALS['wdf_loaded_config_file']) )
-        $cmd .= " -C".realpath($GLOBALS['wdf_loaded_config_file']);
-    if( isset($GLOBALS['CONFIG']['system']['application_name']) )
-        $cmd .= " -A{$GLOBALS['CONFIG']['system']['application_name']}";
+    $cmd = "$php_script_path";
+    if( $extended_data )
+    {
+        $data = tempnam(system_app_temp_dir(),"cli_script_data_");
+        file_put_contents($data,json_encode($extended_data,JSON_PRETTY_PRINT));
+        chmod($data,0777);
+        $cmd .= " --wdf-extended-data{$data}";
+    }
+    
     if( count($args)>0 )
         $cmd .= " ".implode(" ",$args);
         
     log_debug("Starting $cmd");
-    log_debug("INI is $ini");
-    log_debug("Log is $out");
-    log_debug("CFG is ".$GLOBALS['wdf_loaded_config_file']);
-    
     exec("nohup php -c $ini $cmd >>$out 2>&1 &");
 }
 
 /**
  * @internal Runs a PHP process for background task processing
  */
-function cli_run_taskprocessor()
+function cli_run_taskprocessor($runtime_seconds=null)
 {
-    $self = realpath(explode("index.php",$_SERVER['SCRIPT_FILENAME'])[0]."index.php");
-    if( !$self )
-        $self = realpath(explode("index.php",$_SERVER['PHP_SELF'])[0]."index.php");
-    if( !$self && $GLOBALS['argv'] && is_array($GLOBALS['argv']) && count($GLOBALS['argv'])>0 )
-        $self = $GLOBALS['argv'][0];
-    if( !$self )
+    if( !defined("CLI_SELF") || !CLI_SELF )
         ScavixWDF\WdfException::Raise("Cannot run task processor");
-    cli_run_script($self,['dbtask:processwdftasks']);
+    
+    if( !$runtime_seconds ) 
+        $runtime_seconds = intval(cfg_getd('system','cli','taskprocessor_runtime',30));
+    cli_run_script(CLI_SELF,['db:processwdftasks',$runtime_seconds],$_SERVER);
 }
 
 /**
@@ -124,30 +122,12 @@ function cli_run_taskprocessor()
  */
 function cli_execute()
 {
-    global $argv;
+    $argv = isset($GLOBALS['argv'])?$GLOBALS['argv']:(isset($_SERVER['argv'])?$_SERVER['argv']:false);
+    if( !$argv )
+        \ScavixWDF\WdfException::Raise("Missing CLI arguments");
+    
     array_shift($argv);
     logging_add_category('CLI');
-
-    // check for special args given from start by cli_run_script
-    foreach( $argv as $i=>$a )
-    {
-        if( starts_iwith($a,'-D') )
-        {
-            $datafile = substr($a,2);
-            $data = @unserialize(@file_get_contents($datafile));
-            if( is_array($data) )
-                $_SERVER = array_merge($data,$_SERVER);
-            @unlink($datafile);
-            log_debug("Loaded datafile $datafile");
-            unset($argv[$i]);
-        }
-        elseif( starts_iwith($a,'-C') ) 
-        {
-            system_config(substr($a,2),false);
-            log_debug("Loaded config ".substr($a,2));
-            unset($argv[$i]);
-        }
-    }
     
     $task = array_shift($argv);
     if( !$task )
@@ -159,23 +139,38 @@ function cli_execute()
     if( !$method ) $method = 'run';
     $class = fq_class_name($simpleclass);
     if( !class_exists($class) )
+    {
         $class = fq_class_name("{$simpleclass}task");
+        // hardcoded wdf task shortcuts
+        switch( strtolower($class) )
+        {
+            case 'task':         $class = \ScavixWDF\Tasks\Task::class; break;
+            case 'dbtask':       $class = \ScavixWDF\Tasks\DbTask::class; break;
+            case 'cleartask':    $class = \ScavixWDF\Tasks\ClearTask::class; break;
+            case 'checktask':    $class = \ScavixWDF\Tasks\CheckTask::class; break;
+            case 'wdftaskmodel': $class = \ScavixWDF\Tasks\WdfTaskModel::class; break;
+        }
+    }
     
     //log_debug("Task '$task' resolved to '$class::$method'");
     if( class_exists($class) )
     {
         $task = new $class();
         if( !($task instanceof \ScavixWDF\Tasks\Task) )
-            \ScavixWDF\WdfException::Raise("Invalid a valid task processor");
+            \ScavixWDF\WdfException::Raise("Invalid task processor");
         
         $ref = new ReflectionMethod($task, $method);
         if( !$ref )
             \ScavixWDF\WdfException::Raise("Unreflectable class '$class'");
         $ref = $ref->getDeclaringClass();
-        if( strcasecmp($ref->getName(),$class)!=0 )
-            \ScavixWDF\WdfException::Raise("Invalid task method '$method'");
+        if( strcasecmp($method,'run')!=0 && strcasecmp($ref->getName(),$class)!=0 )
+            \ScavixWDF\WdfException::Raise("Invalid task method '$method' ".$ref->getName()."?=$class");
         
+        $exectime = microtime(true);
         $task->$method($argv);
+        $exectime = round((microtime(true) - $exectime) * 1000);
+        $task->Finished($method,$exectime,$exectime);
+        
         die("\n");
     }
     else

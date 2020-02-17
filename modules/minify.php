@@ -42,7 +42,7 @@ use ScavixWDF\WdfException;
  */
 function minify_init()
 {
-	classpath_add(__DIR__."/minify/");
+	classpath_add(__DIR__."/minify/",true,'system');
 	admin_register_handler('Minify','MinifyAdmin','Start');
 	
 	cfg_check('minify','target_path','Minify module needs a target_path');
@@ -109,7 +109,7 @@ function minify_forbidden($classname)
 		}
 		catch (Exception $ex)
 		{
-			WdfException::Log("minify_forbidden($classname)",$ex);
+			WdfException::Log("minify_forbidden($classname)",$ignored);
 			return false;
 		}
 	}

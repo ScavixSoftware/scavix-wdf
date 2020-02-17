@@ -61,7 +61,7 @@ abstract class Task
      * @param type $runtime The total time from creation/start till not in ms
      * @param type $exectime The time in ms needed for actual execution (Run method)
      */
-    public function Finished($runtime, $exectime)
+    public function Finished($method, $runtime, $exectime)
     {
     }
     

@@ -73,7 +73,7 @@ function logging_init()
 	require_once(__DIR__.'/logging/logreport.class.php');
 	require_once(__DIR__.'/logging/logger.class.php');
 	require_once(__DIR__.'/logging/tracelogger.class.php');
-    classpath_add(__DIR__.'/logging');
+    classpath_add(__DIR__.'/logging',true,'system');
 	
 	// default logger if nothing configured uses defined php error_log (see Logger constructor)
 	// no further limits and/or features are enabled, so plain logging is active
@@ -96,6 +96,11 @@ function logging_init()
 function logging_add_logger($alias,$conf)
 {
     $GLOBALS['logging_logger'][$alias] = Logger::Get($conf);
+}
+
+function logging_get_logger($alias)
+{
+    return $GLOBALS['logging_logger'][$alias];
 }
 
 function register_request_logger($classname)
