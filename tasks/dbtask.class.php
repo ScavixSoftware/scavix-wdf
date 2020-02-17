@@ -25,7 +25,6 @@
 namespace ScavixWDF\Tasks;
 
 use ScavixWDF\Model\DataSource;
-use ScavixWDF\Model\Model;
 
 class DbTask extends Task
 {
@@ -33,7 +32,7 @@ class DbTask extends Task
     {
         log_warn("Syntax: db-(info|list|update)");
     }
-    
+        
     private function ensureArgs($args)
     {
         if( count($args) == 0 )
@@ -140,7 +139,7 @@ class DbTask extends Task
         $gvars = $ds->ExecuteSql("SHOW GLOBAL VARIABLES")->Enumerate('Value',false,'Variable_name');
         $lines = [];
         foreach( $lvars as $n=>$v )
-            $lines[] = "$n\t= $v".($v!=$gvars[$n]?"\tGLOBAL: {$gvars[$n]}":"");
+            $lines[] = "$n\t= $v".(isset($gvars[$n])&&$v!=$gvars[$n]?"\tGLOBAL: {$gvars[$n]}":"");
             
         if( PHP_SAPI == 'cli' )
             echo "Variables:\n".implode("\n",$lines)."\n";
@@ -170,7 +169,6 @@ class DbTask extends Task
         $eol = time() + $ttl;
         WdfTaskModel::FreeOrphans();
         $task = WdfTaskModel::Reserve();
-        //log_debug(__METHOD__);
         while( $task || time()<$eol )
         {
             if( $task )

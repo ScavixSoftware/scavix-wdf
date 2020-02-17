@@ -47,11 +47,12 @@ class CheckTask extends Task
     
     private function write($title, $status)
     {
-        log_debug("$title:");
+        $log = logging_get_logger('cli');
+        $log->debug("$title:");
         foreach( $status as $n=>$v )
             if( $v == 'ok' )
-                log_debug(" * ".str_pad("$n",20),$v);
+                $log->debug(" * ".str_pad("$n",20),$v);
             else
-                log_warn(" * ".str_pad("$n",20),$v);
+                $log->warn(" * ".str_pad("$n",20),$v);
     }
 }

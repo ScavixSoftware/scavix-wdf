@@ -32,7 +32,7 @@ use ScavixWDF\Base\DateTimeEx;
 class WdfTaskModel extends Model
 {
     private $isVirtual = false;
-    public static $PROCESS_FILTER = false;
+    public static $PROCESS_FILTER = 'db:processwdftasks';
     public static $MAX_PROCESSES = 5;
     
 	public function GetTableName() { return 'wdf_tasks'; }
@@ -40,6 +40,8 @@ class WdfTaskModel extends Model
     function __construct($datasource = null)
     {
         parent::__construct($datasource);
+        if( !function_exists("cli_run_taskprocessor") )
+            system_load_module('modules/cli.php');
     }
     
     protected function CreateTable()
@@ -71,14 +73,14 @@ class WdfTaskModel extends Model
         return parent::Save($columns_to_update);
     }
     
-	public static function RunInstance()
+	public static function RunInstance($runtime_seconds=null)
 	{
         if( count(self::getRunningProcessors()) < self::$MAX_PROCESSES )
         {
-            if( !function_exists("cli_run_taskprocessor") )
-                system_load_module('modules/cli.php');
-            cli_run_taskprocessor();
+            cli_run_taskprocessor($runtime_seconds);
         }
+        else
+            log_debug("Others running: ". implode(", ", self::getRunningProcessors()));
 	}
 	
     public static function CreateOnce($name)
@@ -198,10 +200,10 @@ class WdfTaskModel extends Model
     
     private static function getRunningProcessors()
     {
-        $filter = self::$PROCESS_FILTER;
+        $filter = preg_quote(CLI_SELF,'/').".*".preg_quote(self::$PROCESS_FILTER,'/');
         $res = array();
         $out = shell_exec("ps -Af");
-        if( preg_match_all('/\n[^\s+]*\s+(\d+)\s+.*'.preg_quote($filter,'/').'/i',$out,$m) )
+        if( preg_match_all('/\n[^\s+]*\s+(\d+)\s+.*'.$filter.'/i',$out,$m) )
         {
             foreach( $m[1] as $p )
                 $res[] = $p;
@@ -274,8 +276,8 @@ class WdfTaskModel extends Model
             $exectime = round((microtime(true) - $exectime) * 1000);
             
             $start = DateTimeEx::Make(ifavail($this,'start','created'));
-            $runtime = round((microtime(true) - $start->getTimestamp()) * 1000);
-            $worker->Finished($runtime,$exectime);
+            $runtime = max($exectime,round((microtime(true) - $start->getTimestamp()) * 1000));
+            $worker->Finished($method,$runtime,$exectime);
             
             if( $inline )
             {
