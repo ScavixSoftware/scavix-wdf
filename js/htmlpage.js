@@ -403,7 +403,7 @@ $.ajaxSetup({cache:false});
 					s.error = function(xhr, st, et)
 					{
 						// Mantis #6390: Sign up error with checkemail
-						if( st=="error" && !et )
+						if( (st=="error" && !et) || et=='abort' )
 							return;
 						wdf.error("ERROR calling " + s.url + ": " + st,xhr.responseText);
 						wdf.ajaxError.fire(xhr,st,xhr.responseText);
