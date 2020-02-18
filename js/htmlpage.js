@@ -106,9 +106,10 @@ $.ajaxSetup({cache:false});
 		{
 			// prepare settings object
 			settings.route = location.href.substr(settings.site_root.length);
-			settings.rewrite = wdf.arg('wdf_route')===null;
-			var route = (settings.rewrite ? settings.route : this.arg('wdf_route'));
-			if(route.indexOf("?") != -1)
+			settings.rewrite = (typeof(settings.rewrite)!='undefined')
+                    ?settings.rewrite:(wdf.arg('wdf_route')===null);
+			var route = (settings.rewrite ? settings.route : this.arg('wdf_route')) || '';
+			if( route.indexOf("?") != -1)
 				route = route.substr(0, route.indexOf("?"));
 			settings.route = route.split("/");
 			settings.controller = settings.route[0] || '~';

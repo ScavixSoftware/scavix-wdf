@@ -268,7 +268,7 @@ abstract class Renderable
 	{
 		if( $content instanceof Renderable )
         {
-            if( $content->_parent == $this )
+            if( ($content->_parent == $this) && !$replace )
                 log_debug("Object already added","me={$this}","child={$content}");
 			$content->_parent = $this;
         }

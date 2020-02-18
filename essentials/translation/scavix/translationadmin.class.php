@@ -145,7 +145,7 @@ class TranslationAdmin extends TranslationAdminBase
 			$db_languages[$i] = new stdClass();
 			$db_languages[$i]->name = Localization::getCultureInfo($lang)->EnglishName;
 			$db_languages[$i]->code = $lang;
-			$db_languages[$i]->percentage = round($count / $max * 100,0);
+			$db_languages[$i]->percentage = round($count / $max * 100,2);
 		}
         
         $div = $this->content(new Form());
@@ -174,7 +174,7 @@ class TranslationAdmin extends TranslationAdminBase
             $unkown = [];
             $lang = strtolower($lang);
             $data = $lang == $CONFIG['localization']['default_language']?$defaults:$this->fetchTerms($lang,$defaults,$unkown);
-            $head[$lang]['unknown'] = $unkown;
+            $head[$lang]['unknown'] = array_values($unkown);
         }
         $info = "\$GLOBALS['translation']['properties'] = ".var_export($head,true);
         

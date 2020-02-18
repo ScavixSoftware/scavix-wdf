@@ -51,7 +51,7 @@ abstract class TranslationAdminBase extends SysAdmin
         global $CONFIG;
         
         $zip = new \ZipArchive();
-        $filename = tempnam(sys_get_temp_dir(),'translations_');
+        $filename = tempnam(system_app_temp_dir(),'translations_');
 //        log_debug("Tempfile: $filename");
         if( $zip->open($filename, \ZipArchive::CREATE) !== true )
             die("cannot open <$filename>");

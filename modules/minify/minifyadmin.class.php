@@ -45,10 +45,14 @@ class MinifyAdmin extends SysAdmin
 	 */
 	function Start($submitter,$skip_minify,$random_nc)
 	{
-		global $CONFIG;
-		
 		if( !$submitter )
 		{
+            if( preg_match('/^PHP\s.*Development Server$/',$_SERVER['SERVER_SOFTWARE']) )
+            {
+                \ScavixWDF\JQueryUI\uiMessage::Error("This page is driven by PHP Develompent Server, that cannot handle PHP self-driven requests. Please use CLI interface to minify files (php index.php minify-all).")
+                    ->appendTo($this);
+                return;
+            }
 			$this->content("<h1>Select what to minify</h1>");
 			$form = $this->content( new Form() );
 			$form->AddHidden('submitter','1');
@@ -59,29 +63,12 @@ class MinifyAdmin extends SysAdmin
 		}
 		
 		$this->content("<h1>Minify DONE</h1>");
-		$parts = array_diff($CONFIG['class_path']['order'], array('system','model','content'));
-		$paths = array();
-		foreach( $parts as $part )
-			$paths = array_merge ($paths,$CONFIG['class_path'][$part]);
-		
-		sort($paths);
-		$root_paths = array();
-		foreach( $paths as $i=>$cp )
-		{
-			$root = true;
-			for($j=0; $j<$i && $root; $j++)
-				if(starts_with($cp, $paths[$j]) )
-					$root = false;
-			if( $root )
-				$root_paths[] = $cp;
-		}
-		
-		if( $skip_minify )
-			$GLOBALS['nominify'] = '1';
-		
-		$target_path = cfg_get('minify','target_path');
-		system_ensure_path_ending($target_path,true);
-		$target = $target_path.cfg_get('minify','base_name');
-		minify_all($root_paths, $target, $random_nc?md5(time()):getAppVersion('nc'));
+        system_load_module('modules/cli.php');
+        
+        $task = \ScavixWDF\Tasks\MinifyTask::Make();
+        
+        $task->All([$GLOBALS['CONFIG']['system']['url_root'],$skip_minify?'n':false,$random_nc?'y':false]);
+        
+        $this->content("<pre>". var_export($task->Results,true)."</pre>");
 	}
 }

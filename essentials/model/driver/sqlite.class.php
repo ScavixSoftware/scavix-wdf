@@ -73,6 +73,7 @@ class SqLite implements IDatabaseDriver
 	{
 		$this->_ds = $datasource;
 		$this->_pdo = $pdo;
+        $this->_pdo->Driver = $this;
 	}
 
 	/**
@@ -82,7 +83,7 @@ class SqLite implements IDatabaseDriver
 	{
 		$sql = 'SELECT tbl_name FROM sqlite_master WHERE type="table" ORDER BY tbl_name';
 		$tables = array();
-		foreach($this->_pdo->query() as $row)
+		foreach($this->_pdo->query($sql) as $row)
 			$tables[] = $row['tbl_name'];
 		return $tables;
 	}
@@ -338,6 +339,7 @@ class SqLite implements IDatabaseDriver
 	 */
     function PreprocessSql($sql)
     {
-        return $sql;
+        $sql = preg_replace('/isnull\(([^\)]+)\)/i',"($1 IS NULL)", $sql);
+        return str_ireplace("now()", "datetime('now')", $sql);
     }
 }

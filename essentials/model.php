@@ -148,7 +148,7 @@ function &model_datasource($name)
  * @param DataSource $ds The datasource
  * @return string the name/alias
  */
-function model_datasource_name(&$ds)
+function model_datasource_name($ds)
 {
 	return $ds->_storage_id;
 }
@@ -314,7 +314,7 @@ function model_run_script($file,$datasource=false,$verbose=false)
                 if( !$ignore )
                     throw $first;
                 if( $verbose )
-                    log_info("Error: ",$first->getMessage());
+                    log_debug("Expected (handled) error: ",$first->getMessage());
             }
         }
     }
