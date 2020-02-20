@@ -178,7 +178,10 @@ function __translate_callback($matches)
 	}
 
 	if( isset($__unknown_constants["k".$val]) )
-		return $val."?";
+    {
+        $def = cfg_get('translation','default_strings',$val);
+		return $def?:$val."?";
+    }
 	$trans = getString($val,null,$unbuffered);
 	if( isset($__unknown_constants["k".$val]) )
 		return $trans;
