@@ -114,14 +114,22 @@ function translation_do_includes()
 		}
 		else
 		{
-			log_warn("No translations found!",$CONFIG['translation']['data_path'].$CONFIG['localization']['default_language'].".inc.php");
+            if( !isDev() )
+                log_warn("No translations found!",$CONFIG['translation']['data_path'].$CONFIG['localization']['default_language'].".inc.php");
 			$GLOBALS['translation']['properties'] = array();
 			$GLOBALS['translation']['strings'] = array();
 		}
 	}
 	
-	// remove those default strings that are now defined
-	$CONFIG['translation']['default_strings'] = array_diff_key($CONFIG['translation']['default_strings'],$GLOBALS['translation']['strings']);
+    if( $CONFIG['translation']['sync']['datasource'] && isDev() )
+    {
+        $ds = model_datasource($CONFIG['translation']['sync']['datasource']);
+        $CONFIG['translation']['default_strings'] = 
+            $ds->ExecuteSql("SELECT term,default_val from wdf_unknown_strings")
+                ->Enumerate('default_val',false,'term');
+    }
+    else // remove those default strings that are now defined
+        $CONFIG['translation']['default_strings'] = array_diff_key($CONFIG['translation']['default_strings'],$GLOBALS['translation']['strings']);
 }
 
 /**
@@ -228,18 +236,33 @@ function __translate($text)
 	if( ends_with($text, '[NT]') )
 		$text = substr($text, 0, -4);
 
-	if( count($__unknown_constants) > 0 )
-		translation_add_unknown_strings($__unknown_constants);
-
 	return $text;
 }
 
 /**
  * @internal Used to add some new/unknown strings to the translation system
  */
-function translation_add_unknown_strings($unknown_constants)
+function translation_add_unknown_strings($unknown_constants=false)
 {
 	global $CONFIG;
+    
+    if( !$unknown_constants ) $unknown_constants = $GLOBALS['__unknown_constants'];
+    if( count($unknown_constants)<1 )
+    {
+        if( isDev() ) // update default values
+        {
+            $defs = cfg_getd('translation','default_strings',[]);
+            if( $CONFIG['translation']['sync']['datasource'] && count($defs)>0 )
+            {
+                $ds = model_datasource($CONFIG['translation']['sync']['datasource']);
+                $sql = "UPDATE wdf_unknown_strings SET default_val=? WHERE term=? AND default_val!=?;";
+                foreach( $defs as $c=>$d )
+                    $ds->Execute($sql,[$d,$c,$d]);
+            }
+        }
+        return;
+    }
+    
 	if( $CONFIG['translation']['sync']['datasource'] )
 	{
 		$ds = model_datasource($CONFIG['translation']['sync']['datasource']);
@@ -258,6 +281,7 @@ function translation_add_unknown_strings($unknown_constants)
 		$now = $ds->Driver->Now();
 		$sql1 = "INSERT OR IGNORE INTO wdf_unknown_strings(term,last_hit,hits,default_val)VALUES(?,$now,0,?);";
 		$sql2 = "UPDATE wdf_unknown_strings SET last_hit=$now, hits=hits+1 WHERE term=?;";
+		$sql2a = "UPDATE wdf_unknown_strings SET last_hit=$now, hits=hits+1, default_val=? WHERE term=?;";
 		$sql3 = "INSERT OR IGNORE INTO wdf_unknown_strings_data(term,name,value)VALUES(?,?,?)";
 		foreach( $unknown_constants as $uc )
 		{
@@ -267,8 +291,11 @@ function translation_add_unknown_strings($unknown_constants)
                 $data = false;
             
 			$def = cfg_getd('translation','default_strings',$uc,'');
-			$ds->Execute($sql1,array($uc,$def));
-			$ds->Execute($sql2,$uc);
+			$ds->Execute($sql1,[$uc,$def]);
+            if( $def )
+                $ds->Execute($sql2a,[$def,$uc]);
+            else
+                $ds->Execute($sql2,[$uc]);
             
             if( is_array($data) )
                 foreach( $data as $k=>$v )
