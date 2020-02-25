@@ -125,7 +125,7 @@ function translation_do_includes()
     {
         $ds = model_datasource($CONFIG['translation']['sync']['datasource']);
         $CONFIG['translation']['default_strings'] = 
-            $ds->ExecuteSql("SELECT term,default_val from wdf_unknown_strings")
+            $ds->ExecuteSql("SELECT term,default_val from wdf_unknown_strings WHERE ifnull(default_val,'')!=''")
                 ->Enumerate('default_val',false,'term');
     }
     else // remove those default strings that are now defined
@@ -248,20 +248,7 @@ function translation_add_unknown_strings($unknown_constants=false)
     
     if( !$unknown_constants ) $unknown_constants = $GLOBALS['__unknown_constants'];
     if( count($unknown_constants)<1 )
-    {
-        if( isDev() ) // update default values
-        {
-            $defs = cfg_getd('translation','default_strings',[]);
-            if( $CONFIG['translation']['sync']['datasource'] && count($defs)>0 )
-            {
-                $ds = model_datasource($CONFIG['translation']['sync']['datasource']);
-                $sql = "UPDATE wdf_unknown_strings SET default_val=? WHERE term=? AND default_val!=?;";
-                foreach( $defs as $c=>$d )
-                    $ds->Execute($sql,[$d,$c,$d]);
-            }
-        }
         return;
-    }
     
 	if( $CONFIG['translation']['sync']['datasource'] )
 	{
@@ -674,6 +661,17 @@ function translation_ensure_nt($text_potentially_named_like_a_constant)
 function default_string($constant,$text)
 {
 	cfg_set('translation','default_strings',$constant,$text);
+    if( $text && isDev() ) // persist defaults in DB 
+    {
+        global $CONFIG;
+        if( $CONFIG['translation']['sync']['datasource'] )
+        {
+            $ds = model_datasource($CONFIG['translation']['sync']['datasource']);
+            $sql = "UPDATE wdf_unknown_strings SET default_val=? WHERE term=? AND default_val!=?;";
+            if( $ds->Execute($sql,[$text,$constant,$text])->Count() )
+                log_debug(__FUNCTION__,$_SESSION['request_id'],"updated $constant -> $text");
+        }
+    }
 	return $constant;
 }
 
