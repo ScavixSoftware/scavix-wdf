@@ -508,6 +508,13 @@ function ReplaceVariables($text, $arreplace = null)
         return "<a href='$l'>$n</a>";
     },$text);
     
+    $text = preg_replace_callback('/{offsite\s*([^}]*)}(.*){\/offsite}/U',function($m)
+    {
+        list($o,$l,$n) = $m;
+        $l = buildQuery(trim($l)?:$n);
+        return "<a href='$l' target='_blank'>$n</a>";
+    },$text);
+    
 	return $text;
 }
 
