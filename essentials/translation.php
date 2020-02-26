@@ -668,8 +668,7 @@ function default_string($constant,$text)
         {
             $ds = model_datasource($CONFIG['translation']['sync']['datasource']);
             $sql = "UPDATE wdf_unknown_strings SET default_val=? WHERE term=? AND default_val!=?;";
-            if( $ds->Execute($sql,[$text,$constant,$text])->Count() )
-                log_debug(__FUNCTION__,$_SESSION['request_id'],"updated $constant -> $text");
+            $ds->Execute($sql,[$text,$constant,$text]);
         }
     }
 	return $constant;
