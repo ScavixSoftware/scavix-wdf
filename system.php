@@ -466,7 +466,6 @@ function system_execute()
 		$content = system_invoke_request($current_controller,$current_event,HOOK_PRE_EXECUTE);
 	}else $content = '';
 
-	execute_hooks(HOOK_POST_EXECUTE);
 	@set_time_limit(ini_get('max_execution_time'));
 	system_exit($content,false);
 }
@@ -521,6 +520,8 @@ function system_invoke_request($target_class,$target_event,$pre_execute_hook_typ
  */
 function system_exit($result=null,$die=true)
 {
+    execute_hooks(HOOK_POST_EXECUTE);
+    
 	if( !isset($result) || !$result )
 		$result = current_controller(false);
 
