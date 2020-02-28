@@ -1046,6 +1046,14 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$res->_query->orX($count);
 		return $res;
 	}
+    
+    function if($condition)
+	{
+		$res = clone $this;
+		$res->__ensureSelect();
+		$res->_query->if($condition);
+		return $res;
+	}
 
 	/**
 	 * Adds a HAVING statement.
@@ -1237,7 +1245,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
 		$res = clone $this;
 		$res->__ensureSelect();
-		if( $values !== null && count($values)>0 )
+		if( $values !== null && $values !== false && count($values)>0 )
 			$res->_query->in($this->__ensureFieldname($property),$values);
 		else
 			$res->_query->sql("0=1"); // false condition if there's nothing in the values
