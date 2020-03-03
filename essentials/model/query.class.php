@@ -409,10 +409,10 @@ class ConditionTree
 			return "";
         if( $this->_operator == "IF" )
         {
-            if( !$this->_firstToken )
-                return "";
             if( count($sql) != 1 )
                 \ScavixWDF\WdfException::Raise("Cannot handle more that 1 conditions in matched 'if' tree, use andX/orX/...");
+            if( !$this->_firstToken )
+                return "((1=1)OR({$sql[0]}))";
             return "({$sql[0]})";
         }
 			
