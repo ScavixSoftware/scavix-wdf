@@ -53,6 +53,15 @@ abstract class Task
         return WdfTaskModel::CreateOnce($name);
     }
     
+    public function Fork($args=[],$method='run')
+    {
+        if( !function_exists("cli_run_taskprocessor") )
+            system_load_module('modules/cli.php');
+        
+        array_unshift($args,get_called_class()."-{$method}");
+        cli_run_script(CLI_SELF,$args,$_SERVER);
+    }
+
     abstract function Run($args);
     
     /**
@@ -78,10 +87,5 @@ abstract class Task
             $res[$n] = array_shift($args);
         //log_debug($res);
         return $res;
-    }
-    
-    function inner()
-    {
-        log_debug(__METHOD__);
     }
 }
