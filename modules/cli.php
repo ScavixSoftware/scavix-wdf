@@ -74,7 +74,7 @@ function cli_init()
  * @param type $args All arguments
  * @return void
  */
-function cli_run_script($php_script_path, $args=[], $extended_data=false)
+function cli_run_script($php_script_path, $args=[], $extended_data=false, $return_cmdline=false)
 {
     $ini = system_app_temp_dir()."php_cli.ini";
     $out = ini_get('error_log');
@@ -98,8 +98,10 @@ function cli_run_script($php_script_path, $args=[], $extended_data=false)
     if( count($args)>0 )
         $cmd .= " ".implode(" ",$args);
         
-    //log_debug("Starting $cmd");
-    exec("nohup php -c $ini $cmd >>$out 2>&1 &");
+    $cmdline = "nohup php -c $ini $cmd >>$out 2>&1 &";
+    if( $return_cmdline )
+        return $cmdline;
+    exec($cmdline);
 }
 
 /**
