@@ -1517,8 +1517,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * @return boolean In fact always true, WdfDbException will be thrown in error case
 	 * @throws WdfDbException
 	 */
-	public function Save($columns_to_update=false)
+	public function Save($columns_to_update=false, &$changed=null)
 	{
+        if( $changed !== null )
+            $buf = $this->GetChanges();
 		$args = array();
 		$stmt = $this->_ds->Driver->getSaveStatement($this,$args,$columns_to_update);
 
@@ -1534,6 +1536,15 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			$id = $pkcols[0];
 			if( !isset($this->$id) )
 				$this->$id = $this->_ds->LastInsertId();
+            
+            if( isset($buf) && count($args)>0 )
+            {
+                $this->Load("{$pkcols[0]}=?",[$this->$id]);
+                $changed = [];
+                foreach( $buf as $i=>list($o,$n) )
+                    $changed[$i] = [$o,$this->$i];
+                return true;
+            }
 		}
 		$this->__init_db_values();
 		return true;
