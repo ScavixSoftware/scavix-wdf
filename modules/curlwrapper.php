@@ -144,7 +144,30 @@ function downloadData($url, $postdata = false, $request_header = array(), $cache
 	curl_close($ch);
 
     if($response_header !== false)
-        $response_header = substr($result, 0, $info['header_size']);
+    {
+        $headers = substr($result, 0, $info['header_size']);
+        if(is_array($response_header))
+        {
+            $headers = explode("\r\n", $headers);
+            $response_header = [];
+            foreach($headers as $h)
+            {
+                if( preg_match( "#HTTP/[0-9\.]+\s+([0-9]+)#", $h, $out ) )
+                {
+                    $response_header['status'] = $h;
+                    $response_header['response_code'] = intval($out[1]);
+                }
+                else
+                {
+                    $hk = explode(':', $h, 2);
+                    if(isset($hk[1]))
+                        $response_header[trim($hk[0])] = trim($hk[1]);
+                }
+            }
+        }
+        else
+            $response_header = $headers;
+    }
 	$result = substr($result, $info['header_size']);
 
 	if($cacheTTLsec)
