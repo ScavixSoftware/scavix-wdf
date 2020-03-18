@@ -24,7 +24,38 @@
  * @copyright since 2019 Scavix Software GmbH & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-$.ajaxSetup({cache:false});
+
+(function wdf_setup_ajax($) {
+    var originalXhr = $.ajaxSettings.xhr;
+    $.ajaxSetup(
+    {
+        cache:false,
+        progress: function() { },
+        progressUpload: function() { },
+        xhr: function()
+        {
+            var req = originalXhr(), that = this;
+            if( req )
+            {
+                if( req.addEventListener )
+                {
+                    req.addEventListener("progress", function(evt)
+                    {
+                        that.progress(evt);
+                    },false);
+                }
+                if( req.upload.addEventListener)
+                {
+                    req.upload.addEventListener("progress", function(evt)
+                    {
+                        that.progressUpload(evt);
+                    },false);
+                }
+            }
+            return req;
+        }
+    });
+})(jQuery);
 
 (function(win,$,undefined)
 {
