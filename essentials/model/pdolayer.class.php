@@ -40,7 +40,7 @@ use PDO;
 class PdoLayer extends PDO
 {
     var $Driver = false;
-    
+    var $LastPreparedSqlCode = false;
 	/**
 	 * Overrides parent to perform preparations
 	 * 
@@ -69,6 +69,8 @@ class PdoLayer extends PDO
         
         if( $this->Driver )
             $statement = $this->Driver->PreprocessSql($statement);
+        
+        $this->LastPreparedSqlCode = $statement;
 		if( is_null($driver_options) )
 			return parent::prepare($statement);
 		return parent::prepare($statement, $driver_options);

@@ -29,6 +29,15 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
+function curlwrapper_init()
+{
+    if( !function_exists('curl_init') )
+        ScavixWDF\WdfException::Raise("CURL not found, please install php-curl");
+    
+    classpath_add(__DIR__.'/curlwrapper');
+    create_class_alias(ScavixWDF\Tasks\WebRequest::class,'WebRequest');
+}
+
 /**
  * Sets a proxy for all subsequent downloads.
  * 
@@ -135,7 +144,30 @@ function downloadData($url, $postdata = false, $request_header = array(), $cache
 	curl_close($ch);
 
     if($response_header !== false)
-        $response_header = substr($result, 0, $info['header_size']);
+    {
+        $headers = substr($result, 0, $info['header_size']);
+        if(is_array($response_header))
+        {
+            $headers = explode("\r\n", $headers);
+            $response_header = [];
+            foreach($headers as $h)
+            {
+                if( preg_match( "#HTTP/[0-9\.]+\s+([0-9]+)#", $h, $out ) )
+                {
+                    $response_header['status'] = $h;
+                    $response_header['response_code'] = intval($out[1]);
+                }
+                else
+                {
+                    $hk = explode(':', $h, 2);
+                    if(isset($hk[1]))
+                        $response_header[trim($hk[0])] = trim($hk[1]);
+                }
+            }
+        }
+        else
+            $response_header = $headers;
+    }
 	$result = substr($result, $info['header_size']);
 
 	if($cacheTTLsec)
@@ -201,7 +233,7 @@ function downloadFile($url, $postdata = false, $request_header = array(), $follo
 	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 	
 	if( !$cookie_file && $follow_location )
-		$cookie_file = tempnam(sys_get_temp_dir(), "downloadFile_cookie_");
+		$cookie_file = tempnam(system_app_temp_dir(), "downloadFile_cookie_");
 	
 	if( $cookie_file )
 	{
@@ -214,7 +246,7 @@ function downloadFile($url, $postdata = false, $request_header = array(), $follo
 
 	curl_setopt($ch, CURLOPT_HEADERFUNCTION, 'downloadFile_header');
 
-	$GLOBALS['downloadFile_data']['tmp_name'] = tempnam(sys_get_temp_dir(), 'DOWNLOAD_');
+	$GLOBALS['downloadFile_data']['tmp_name'] = tempnam(system_app_temp_dir(), 'DOWNLOAD_');
 	$tmp_fp = fopen($GLOBALS['downloadFile_data']['tmp_name'],'w');
 	curl_setopt($ch, CURLOPT_FILE, $tmp_fp);
 

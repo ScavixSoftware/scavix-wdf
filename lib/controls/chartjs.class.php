@@ -49,7 +49,7 @@ class ChartJS extends Control
     protected $detectedDateseries = false;
     protected $colorRange = false;
     protected $xMin = false, $xMax = false;
-
+    
     protected static $currentInstance;
     
     public static $NAMED_COLORS = [];
@@ -64,21 +64,22 @@ class ChartJS extends Control
             $val = $val->getTimestamp()*1000; // in ms for JS
         if( !$this->xMin || $val < $this->xMin ) $this->xMin = $val;
         if( !$this->xMax || $val > $this->xMax ) $this->xMax = $val;
+        return $val;
     }
     
     public static function TimePoint($x,float $y)
     {
         $dt = DateTimeEx::Make($x);
-        self::$currentInstance->setXMinMax($dt);
-        return ['x'=>"[jscode]new Date('".$dt->format("c")."')", 'y'=>$y];
+        $xval = self::$currentInstance->setXMinMax($dt);
+        return ['x'=>"[jscode]new Date('".$dt->format("c")."')", 'y'=>$y, 'xval'=>$xval];
     }
     
     public static function DatePoint($x,float $y,$row=false)
     {
         self::$currentInstance->detectedDateseries = true;
         $dt = DateTimeEx::Make($x);
-        self::$currentInstance->setXMinMax($dt);
-        $pt = ['x'=>$dt->format("Y-m-d"), 'y'=>$y];
+        $xval = self::$currentInstance->setXMinMax($dt);
+        $pt = ['x'=>$dt->format("Y-m-d"), 'y'=>$y, 'xval'=>$xval];
         if( $row ) $pt['raw'] = $row;
         return $pt;
     }
@@ -143,6 +144,16 @@ class ChartJS extends Control
                 $args[0]->addDocReady($script);
             else
                 $this->script($script);
+        }
+        
+        foreach( $this->series as $i=>$series )
+        {
+            if( count($series['data']) < 100 )
+                continue;
+            $this->dataset($i,'type','line');
+            $this->dataset($i,'fill',false);
+            $this->dataset($i,'pointRadius',0);
+            $this->dataset($i,'lineTension',0);
         }
         
         //log_debug(__METHOD__,$this->config);

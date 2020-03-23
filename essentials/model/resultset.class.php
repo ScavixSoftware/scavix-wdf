@@ -194,7 +194,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	 */
     function unserialize($data)
 	{
-        log_debug(__METHOD__,$data);
+        //log_debug(__METHOD__,$data);
 		$buf = unserialize($data);
 		$this->_ds = model_datasource($buf['ds']);
 		$this->_sql_used = $buf['sql'];

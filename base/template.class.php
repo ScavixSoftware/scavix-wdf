@@ -297,12 +297,17 @@ class Template extends Renderable
 		if( $__template_file === false )
 			WdfException::Raise("Template for class '".get_class($this)."' not found: ".$this->file);
 
+        if( isset($GLOBALS['current_rendering_template']) )
+            $current_rendering_template = $GLOBALS['current_rendering_template'];
         $GLOBALS['current_rendering_template'] = $this;
 		ob_start();
 		require($__template_file);
 		$contents = ob_get_contents();
 		ob_end_clean();
-        unset($GLOBALS['current_rendering_template']);
+        if( isset($current_rendering_template) )
+            $GLOBALS['current_rendering_template'] = $current_rendering_template;
+        else
+            unset($GLOBALS['current_rendering_template']);
 
 		foreach( $tempvars as $un_common_k_e_y_value=>&$un_common_v_a_l_value )
 			unset($$un_common_k_e_y_value);

@@ -149,7 +149,7 @@ function globalcache_initialize()
 				if(isset($CONFIG['model']['ado_cache']))
 					$cache_dir = $CONFIG['model']['ado_cache'];
 				else
-					$cache_dir = sys_get_temp_dir ()."/".$_SERVER["HTTP_HOST"]."/";
+					$cache_dir = system_app_temp_dir('globalcache');
 
 				if(!is_dir($cache_dir))
 					@mkdir($cache_dir);

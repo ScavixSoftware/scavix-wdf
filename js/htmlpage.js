@@ -24,7 +24,38 @@
  * @copyright since 2019 Scavix Software GmbH & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-$.ajaxSetup({cache:false});
+
+(function wdf_setup_ajax($) {
+    var originalXhr = $.ajaxSettings.xhr;
+    $.ajaxSetup(
+    {
+        cache:false,
+        progress: function() { },
+        progressUpload: function() { },
+        xhr: function()
+        {
+            var req = originalXhr(), that = this;
+            if( req )
+            {
+                if( req.addEventListener )
+                {
+                    req.addEventListener("progress", function(evt)
+                    {
+                        that.progress(evt);
+                    },false);
+                }
+                if( req.upload.addEventListener)
+                {
+                    req.upload.addEventListener("progress", function(evt)
+                    {
+                        that.progressUpload(evt);
+                    },false);
+                }
+            }
+            return req;
+        }
+    });
+})(jQuery);
 
 (function(win,$,undefined)
 {
@@ -106,9 +137,10 @@ $.ajaxSetup({cache:false});
 		{
 			// prepare settings object
 			settings.route = location.href.substr(settings.site_root.length);
-			settings.rewrite = wdf.arg('wdf_route')===null;
-			var route = (settings.rewrite ? settings.route : this.arg('wdf_route'));
-			if(route.indexOf("?") != -1)
+			settings.rewrite = (typeof(settings.rewrite)!='undefined')
+                    ?settings.rewrite:(wdf.arg('wdf_route')===null);
+			var route = (settings.rewrite ? settings.route : this.arg('wdf_route')) || '';
+			if( route.indexOf("?") != -1)
 				route = route.substr(0, route.indexOf("?"));
 			settings.route = route.split("/");
 			settings.controller = settings.route[0] || '~';
@@ -403,7 +435,7 @@ $.ajaxSetup({cache:false});
 					s.error = function(xhr, st, et)
 					{
 						// Mantis #6390: Sign up error with checkemail
-						if( st=="error" && !et )
+						if( (st=="error" && !et) || et=='abort' )
 							return;
 						wdf.error("ERROR calling " + s.url + ": " + st,xhr.responseText);
 						wdf.ajaxError.fire(xhr,st,xhr.responseText);

@@ -60,6 +60,13 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * @return string Table name
 	 */
 	abstract function GetTableName();
+    
+	/**
+	 * Derivered classes can override this to create their table.
+	 * 
+	 * @return void
+	 */
+    protected function CreateTable(){}
 
 	/**
 	 * @var DataSource|false
@@ -442,7 +449,25 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		
 		if( !isset(self::$_schemaCache[$this->_cacheKey]) )
 		{
-			self::$_schemaCache[$this->_cacheKey] = $this->_tableSchema = $this->_ds->Driver->getTableSchema($this->GetTableName());
+            $tab = $this->GetTableName();
+            try
+            {
+                self::$_schemaCache[$this->_cacheKey] 
+                    = $this->_tableSchema 
+                    = $this->_ds->Driver->getTableSchema($tab);
+            }
+            catch(\ScavixWDF\WdfDbException $dbex)
+            {
+                if( !$this->_ds->Driver->tableExists($tab) )
+                {
+                    $this->CreateTable();
+                    self::$_schemaCache[$this->_cacheKey] 
+                        = $this->_tableSchema 
+                        = $this->_ds->Driver->getTableSchema($tab);
+                }
+                else
+                    throw $dbex;
+            }
 		}
 		else
 		{
@@ -1021,6 +1046,14 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$res->_query->orX($count);
 		return $res;
 	}
+    
+    function if($condition)
+	{
+		$res = clone $this;
+		$res->__ensureSelect();
+		$res->_query->if($condition);
+		return $res;
+	}
 
 	/**
 	 * Adds a HAVING statement.
@@ -1212,7 +1245,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
 		$res = clone $this;
 		$res->__ensureSelect();
-		if( $values !== null && count($values)>0 )
+		if( $values !== null && $values !== false && count($values)>0 )
 			$res->_query->in($this->__ensureFieldname($property),$values);
 		else
 			$res->_query->sql("0=1"); // false condition if there's nothing in the values
@@ -1484,8 +1517,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * @return boolean In fact always true, WdfDbException will be thrown in error case
 	 * @throws WdfDbException
 	 */
-	public function Save($columns_to_update=false)
+	public function Save($columns_to_update=false, &$changed=null)
 	{
+        if( $changed !== null )
+            $buf = $this->GetChanges();
 		$args = array();
 		$stmt = $this->_ds->Driver->getSaveStatement($this,$args,$columns_to_update);
 
@@ -1501,6 +1536,15 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			$id = $pkcols[0];
 			if( !isset($this->$id) )
 				$this->$id = $this->_ds->LastInsertId();
+            
+            if( isset($buf) && count($args)>0 )
+            {
+                $this->Load("{$pkcols[0]}=?",[$this->$id]);
+                $changed = [];
+                foreach( $buf as $i=>list($o,$n) )
+                    $changed[$i] = [$o,$this->$i];
+                return true;
+            }
 		}
 		$this->__init_db_values();
 		return true;

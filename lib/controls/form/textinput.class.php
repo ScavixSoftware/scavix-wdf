@@ -48,4 +48,17 @@ class TextInput extends Input
 		if( $class )
 			$this->class = $class;
 	}
+    
+    function setAutoSubmit($delay=500)
+    {
+        if( $delay )
+        {
+            $s = 'var l = e.data("lastvalue")||""; console.log(e.val(),l,e.data()); if( e.val() == l ) return; e.data("lastvalue",e.val()); e.closest("form").submit();';
+            $s = "var e = $(this); clearTimeout(wdf.{$this->id}_keyup); wdf.{$this->id}_keyup = setTimeout(function(){ $s },$delay);";
+            $this->attr("onkeyup","$s");
+        }
+        else
+            $this->attr("onkeyup","");
+        return $this;
+    }
 }

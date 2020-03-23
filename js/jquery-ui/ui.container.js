@@ -25,7 +25,6 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 (function($) {
-}
 
 $.widget("ui.container", {
 	options: {
