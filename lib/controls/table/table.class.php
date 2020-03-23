@@ -654,8 +654,8 @@ class Table extends Control
             $ui->content( new Anchor("javascript: $('#$this->id').gotoPage(1)","1") );
 		elseif( $start > 1 )
 		{
-			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage(1)","1 &lt;&lt;") );
-			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage(".($this->CurrentPage-1).")","&lt;") );
+			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage(1)","1 &laquo;") );
+			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage(".($this->CurrentPage-1).")","&lsaquo;") );
 		}
         
 		for( $i=$start; $i<=$pages && $i<($start+$this->MaxPagesToShow); $i++ )
@@ -670,8 +670,8 @@ class Table extends Control
             $ui->content(new Anchor("javascript: $('#$this->id').gotoPage($i)", ($this->Culture !== false ? $this->Culture->FormatInt($i) : $i)));
         elseif( $i < $pages )
 		{
-			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage(".($this->CurrentPage+1).")","&gt;") );
-			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage($pages)","&gt;&gt; ".($this->Culture !== false ? $this->Culture->FormatInt($pages) : $pages)) );
+			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage(".($this->CurrentPage+1).")","&rsaquo;") );
+			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage($pages)","&raquo; ".($this->Culture !== false ? $this->Culture->FormatInt($pages) : $pages)) );
 		}
         
         if( $this->ShowTotalText )
