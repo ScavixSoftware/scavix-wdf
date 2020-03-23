@@ -172,13 +172,13 @@ $.ajaxSetup({cache:false});
                     if( location.hash && $('a[name="'+location.hash.replace(/#/,'')+'"]').length > 0 )
                     {
                         var anchor = $("a[name='"+location.hash.replace(/#/,'')+"']");
-                        var input = anchor.parentsUntil('*:has(input:text)').parent().find('input:text:first');
+                        var input = anchor.parentsUntil('*:has(input:text)').parent().filter(':not([readonly])').find('input:text:first');
                         if( input.length > 0 && anchor.position().top < input.position().top )
                             input.focus().select();
                     }
                     else
                     {
-                        $('form').find('input[type="text"]:not(.hasDatepicker),input[type="email"],input[type="password"],textarea,select').filter(':visible:first').focus().select();
+                        $('form').find('input[type="text"]:not(.hasDatepicker),input[type="email"],input[type="password"],textarea,select').filter(':not([readonly])').filter(':visible:first').focus().select();
                     }
                 });
 			}
