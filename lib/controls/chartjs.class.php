@@ -129,7 +129,8 @@ class ChartJS extends Control
         
         $this->scaleX('*',"ticks.maxRotation",0)->scaleX('*','offset',true);
         if( $this->detectedDateseries )
-            $this->setTimeAxesX(($this->xMin !== false && $this->xMin == $this->xMax)?'day':false);
+            $this->setTimeAxesX('day');
+//            $this->setTimeAxesX(($this->xMin !== false && $this->xMin == $this->xMax)?'day':false);
         
         if( $this->xMin !== false )
             $this->scaleX('*',"ticks.min",$this->xMin);
@@ -277,6 +278,8 @@ class ChartJS extends Control
         $this->scaleX('*','type','time')->scaleX('*','distribution','linear');
         if( $unit )
             $this->scaleX('*',"time.unit",$unit);
+        if($unit == 'hour')
+            $this->scaleX('*',"time.stepSize",2);
         return $this;
     }
     
