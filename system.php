@@ -643,10 +643,10 @@ function system_die($reason,$additional_message='')
  * @param string $handler_method name of function to call
  * @return void
  */
-function register_hook_function($type,$handler_method)
+function register_hook_function($type,$handler_method,$prepend=false)
 {
 	$dummy = false;
-	register_hook($type,$dummy,$handler_method);
+	register_hook($type,$dummy,$handler_method,$prepend);
 }
 
 /**
@@ -658,15 +658,16 @@ function register_hook_function($type,$handler_method)
  * @param string $handler_method name of method to call
  * @return void
  */
-function register_hook($type,&$handler_obj,$handler_method)
+function register_hook($type,&$handler_obj,$handler_method,$prepend=false)
 {
 	if( !isset($GLOBALS['system']['hooks'][$type]) )
 		$GLOBALS['system']['hooks'][$type] = array();
 
 	is_valid_hook_type($type);
-	$GLOBALS['system']['hooks'][$type][] = array(
-		$handler_obj, $handler_method
-	);
+    if( $prepend )
+        array_unshift($GLOBALS['system']['hooks'][$type],[$handler_obj, $handler_method]);
+	else
+        $GLOBALS['system']['hooks'][$type][] = [$handler_obj, $handler_method];
 }
 
 /**
@@ -703,11 +704,11 @@ function execute_hooks($type,$arguments = array())
 
 	$GLOBALS['system']['hooks']['fired'][$type] = $type;
 	if( !isset($GLOBALS['system']['hooks'][$type]) )
-		return;
-
+    	return;
+    
 	is_valid_hook_type($type);
 
-	$loghooks = ( $CONFIG['system']['hook_logging']);
+	$loghooks = $CONFIG['system']['hook_logging'];
 	
 	if( $loghooks )
 		log_debug("BEGIN ".hook_type_to_string($type));
@@ -727,7 +728,10 @@ function execute_hooks($type,$arguments = array())
 		else
 		{
 			if( $loghooks )
-				log_debug( "Executing '".$hook1."(...)'",hook_type_to_string($type) );
+                if( is_string($hook1) )
+                    log_debug( "Executing '".$hook1."(...)'",hook_type_to_string($type) );
+                else
+                    log_debug( "Executing 'Closure(...)'",hook_type_to_string($type) );
             $res = $hook1($arguments);
 		}
 

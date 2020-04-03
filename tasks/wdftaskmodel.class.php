@@ -76,11 +76,7 @@ class WdfTaskModel extends Model
 	public static function RunInstance($runtime_seconds=null)
 	{
         if( count(self::getRunningProcessors()) < self::$MAX_PROCESSES )
-        {
             cli_run_taskprocessor($runtime_seconds);
-        }
-        else
-            log_debug("Others running: ". implode(", ", self::getRunningProcessors()));
 	}
 	
     public static function CreateOnce($name)
