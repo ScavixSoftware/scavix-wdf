@@ -114,7 +114,16 @@ function cli_run_taskprocessor($runtime_seconds=null)
     
     if( !$runtime_seconds ) 
         $runtime_seconds = intval(cfg_getd('system','cli','taskprocessor_runtime',30));
-    cli_run_script(CLI_SELF,['db:processwdftasks',$runtime_seconds],$_SERVER);
+    
+    if( PHP_SAPI == 'cli' )
+    {
+        $ex = [];
+        if( can_rewrite() ) $ex['WDF_FEATURES_REWRITE'] = 'on';
+        if( can_nocache() ) $ex['WDF_FEATURES_NOCACHE'] = 'on';
+        cli_run_script(CLI_SELF,['db:processwdftasks',$runtime_seconds],count($ex)?$ex:false);
+    }
+    else
+        cli_run_script(CLI_SELF,['db:processwdftasks',$runtime_seconds],$_SERVER);
 }
 
 function cli_get_processes($filter=false, $test_myself=false)
