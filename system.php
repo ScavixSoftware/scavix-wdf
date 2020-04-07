@@ -603,7 +603,10 @@ function system_die($reason,$additional_message='')
 	}
 
     $errid = uniqid();
-    log_fatal('Fatal system error (ErrorID: '.$errid.')'."\n".$reason."\n".$additional_message."\n".system_stacktrace_to_string($stacktrace));
+    if( function_exists('log_fatal') )
+        log_fatal('Fatal system error (ErrorID: '.$errid.')'."\n".$reason."\n".$additional_message."\n".system_stacktrace_to_string($stacktrace));
+    else
+        error_log('Fatal system error (ErrorID: '.$errid.')'."\n".$reason."\n".$additional_message."\n".system_stacktrace_to_string($stacktrace));
     
     if( PHP_SAPI == 'cli' )
     {

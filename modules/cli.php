@@ -97,6 +97,9 @@ function cli_run_script($php_script_path, $args=[], $extended_data=false, $retur
     
     if( count($args)>0 )
         $cmd .= " ".implode(" ",$args);
+    
+    if( file_exists($out) && !is_writable($out) )
+        $out = system_app_temp_dir()."cli-bash.log";
         
     $cmdline = "nohup php -c $ini $cmd >>$out 2>&1 &";
     if( $return_cmdline )
