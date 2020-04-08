@@ -84,6 +84,7 @@ function cli_run_script($php_script_path, $args=[], $extended_data=false, $retur
         $inidata = file_get_contents(php_ini_loaded_file());
         $inidata = preg_replace('/^disable_functions/m', ';disable_functions', $inidata);
         file_put_contents($ini, $inidata);
+        chmod($ini, 0777);
     }
     
     $cmd = "$php_script_path";
