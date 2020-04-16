@@ -83,12 +83,12 @@ class WdfTaskModel extends Model
             log_debug("Others running: ". implode(", ", self::getRunningProcessors()));
 	}
 	
-    public static function CreateOnce($name)
+    public static function CreateOnce($name, $return_original=false)
     {
-        return self::Create($name,true);
+        return self::Create($name,true,false,$return_original);
     }
     
-	public static function Create($name,$only_if_not_running=false,$virtual=false)
+	public static function Create($name,$only_if_not_running=false,$virtual=false,$return_original=false)
 	{
         //log_debug(__METHOD__,$name,$only_if_not_running,$virtual);
         if( $only_if_not_running )
@@ -101,6 +101,8 @@ class WdfTaskModel extends Model
                     $tn->DeleteChildren(true,true);
                     $tn = false;
                 }
+                elseif( $return_original )
+                    return $tn;
                 else
                     $virtual = true;
             }
