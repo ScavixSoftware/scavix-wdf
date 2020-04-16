@@ -153,7 +153,7 @@ class Query
 		$this->_where = new ConditionTree(-1,$defaultOperator);
 		$this->_currentTree = $this->_where;
 	}
-
+    
 	function andAll()
 	{
 		$this->__conditionTree()->SetOperator("AND");
@@ -174,6 +174,11 @@ class Query
 		$this->__conditionTree()->Nest($count,"OR");
 	}
 	
+    function if($condition)
+	{
+		$this->__conditionTree()->Nest(1,"IF",!!$condition);
+	}
+
 	function sql($sql,$args=array())
 	{
 		$this->__conditionTree()->Add($sql);
@@ -402,6 +407,14 @@ class ConditionTree
 		}
 		if( count($sql) == 0 )
 			return "";
+        if( $this->_operator == "IF" )
+        {
+            if( count($sql) != 1 )
+                \ScavixWDF\WdfException::Raise("Cannot handle more that 1 conditions in matched 'if' tree, use andX/orX/...");
+            if( !$this->_firstToken )
+                return "((1=1)OR({$sql[0]}))";
+            return "({$sql[0]})";
+        }
 			
 		if( $this->_parent )
 			$sql = "(".implode(" {$this->_operator} ",$sql).")";
@@ -431,10 +444,10 @@ class ConditionTree
 		$this->__ensureClose();
 	}
 
-	function Nest($conditionCount,$operator = "AND")
+	function Nest($conditionCount,$operator = "AND",$firstToken = "WHERE")
 	{
 		$mem = $this->_current;
-		$this->_current->_conditions[] = new ConditionTree($conditionCount,$operator);
+		$this->_current->_conditions[] = new ConditionTree($conditionCount,$operator,$firstToken);
 		$this->_current = $this->_current->_conditions[count($this->_current->_conditions)-1];
 		$this->_current->_parent = $mem;
 	}

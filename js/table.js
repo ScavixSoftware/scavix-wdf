@@ -125,12 +125,14 @@ $.fn.showLoadingOverlay = function()
         $pt = $tab.prev('.pager'), $pb = $tab.next('.pager')
         $offsetParent = $tab;
    
-    var $ol = $("<div data-lc='"+loadingClass+"' data-for='"+self.attr('id')+"' />").appendTo('body')
+    var $ol = $("<div data-lc='"+loadingClass+"' data-for='"+self.attr('id')+"' />")
+            .appendTo('body')
             .width($tab.width())
             .css('display','none')
             .css('cursor','wait')
             .css('background-color','black')
-            .css('opacity','0.2'),
+            .css('opacity','0.2')
+            .css('position','absolute'),
         wait = function(ol,par)
         {
             if(!jQuery.contains(document, ol[0]))

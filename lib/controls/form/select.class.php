@@ -207,4 +207,13 @@ class Select extends Control
             $res->AddOption($k,$v);
         return $res;
     }
+    
+    function setAutoSubmit($on=true)
+    {
+        if( $on )
+            $this->attr("onchange","$(this).closest('form').submit()");
+        else
+            $this->attr("onchange","");
+        return $this;
+    }
 }

@@ -92,8 +92,8 @@ class RequestLogEntry extends \ScavixWDF\Model\Model
             {
                 $this->id = $id.$i;
                 $this->Save();
-                register_hook(HOOK_PRE_FINISH,$this,'_done');
-                register_hook(HOOK_SYSTEM_DIE,$this,'_died');
+                register_hook(HOOK_PRE_FINISH,$this,'_done',true);
+                register_hook(HOOK_SYSTEM_DIE,$this,'_died',true);
                 RequestLogEntry::$Current = $this;
                 return true;
             }
