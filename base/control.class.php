@@ -436,8 +436,9 @@ class Control extends Renderable
         $attr = array();
 		foreach( $this->_attributes as $name=>$value )
 		{
-			if($name{0} != "_")
-				$attr[] = "$name=\"".str_replace("\"","&#34;",$value)."\"";
+            if( $name{0} == "_" || ($name == "class" && $value=="") )
+                continue;
+    		$attr[] = "$name=\"".str_replace("\"","&#34;",$value)."\"";
 		}
 		foreach( $this->_data_attributes as $name=>$value )
 			$attr[] = "data-$name='".str_replace("'","\\'",$value)."'";
@@ -495,7 +496,8 @@ class Control extends Renderable
 	 */
 	function addClass($class)
 	{
-        $class = array_merge(explode(" ",$this->class),explode(" ",$class));
+        $class = is_array($class)?$class:explode(" ",$class);
+        $class = array_merge(explode(" ",$this->class),$class);
 		$this->class = trim(implode(" ",array_unique($class)));
 		return $this;
 	}

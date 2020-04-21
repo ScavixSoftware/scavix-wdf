@@ -47,12 +47,21 @@ abstract class Task
         return WdfTaskModel::Create($name);
     }
     
-    public static function AsyncOnce($method='run') : WdfTaskModel
+    public static function AsyncOnce($method='run', $return_original=false) : WdfTaskModel
     {
         $name = get_called_class()."-$method";
-        return WdfTaskModel::CreateOnce($name);
+        return WdfTaskModel::CreateOnce($name, $return_original);
     }
     
+    public function Fork($args=[],$method='run',$return_cmdline=false)
+    {
+        if( !function_exists("cli_run_taskprocessor") )
+            system_load_module('modules/cli.php');
+        
+        array_unshift($args,get_called_class()."-{$method}");
+        return cli_run_script(CLI_SELF,$args,$_SERVER,$return_cmdline);
+    }
+
     abstract function Run($args);
     
     /**
@@ -78,10 +87,5 @@ abstract class Task
             $res[$n] = array_shift($args);
         //log_debug($res);
         return $res;
-    }
-    
-    function inner()
-    {
-        log_debug(__METHOD__);
     }
 }

@@ -32,7 +32,7 @@ use ScavixWDF\Base\DateTimeEx;
 class WdfTaskModel extends Model
 {
     private $isVirtual = false;
-    public static $PROCESS_FILTER = 'db:processwdftasks';
+    public static $PROCESS_FILTER = 'db-processwdftasks';
     public static $MAX_PROCESSES = 5;
     
 	public function GetTableName() { return 'wdf_tasks'; }
@@ -76,19 +76,15 @@ class WdfTaskModel extends Model
 	public static function RunInstance($runtime_seconds=null)
 	{
         if( count(self::getRunningProcessors()) < self::$MAX_PROCESSES )
-        {
             cli_run_taskprocessor($runtime_seconds);
-        }
-        else
-            log_debug("Others running: ". implode(", ", self::getRunningProcessors()));
 	}
 	
-    public static function CreateOnce($name)
+    public static function CreateOnce($name, $return_original=false)
     {
-        return self::Create($name,true);
+        return self::Create($name,true,false,$return_original);
     }
     
-	public static function Create($name,$only_if_not_running=false,$virtual=false)
+	public static function Create($name,$only_if_not_running=false,$virtual=false,$return_original=false)
 	{
         //log_debug(__METHOD__,$name,$only_if_not_running,$virtual);
         if( $only_if_not_running )
@@ -101,6 +97,8 @@ class WdfTaskModel extends Model
                     $tn->DeleteChildren(true,true);
                     $tn = false;
                 }
+                elseif( $return_original )
+                    return $tn;
                 else
                     $virtual = true;
             }
@@ -136,7 +134,18 @@ class WdfTaskModel extends Model
         $this->arguments = serialize($arguments);
 		return $this;
     }
-	
+    
+    public function GetArg($name,$default=false)
+    {
+        $args = unserialize($this->arguments);
+        return isset($args[$name])?$args[$name]:$default;
+    }
+
+    public function GetArgs()
+    {
+        return unserialize($this->arguments);
+    }
+    
 	public function DependsOn($task,$follow_deletion=true)
 	{
 		if( !$task )
@@ -161,7 +170,7 @@ class WdfTaskModel extends Model
     
     public function SetStart($start)
 	{
-		$this->start = ScavixWDF\Base\DateTimeEx::Make($start);
+		$this->start = \ScavixWDF\Base\DateTimeEx::Make($start);
 		return $this;
 	}
 	

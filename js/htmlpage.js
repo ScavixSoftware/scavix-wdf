@@ -24,7 +24,38 @@
  * @copyright since 2019 Scavix Software GmbH & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-$.ajaxSetup({cache:false});
+
+(function wdf_setup_ajax($) {
+    var originalXhr = $.ajaxSettings.xhr;
+    $.ajaxSetup(
+    {
+        cache:false,
+        progress: function() { },
+        progressUpload: function() { },
+        xhr: function()
+        {
+            var req = originalXhr(), that = this;
+            if( req )
+            {
+                if( req.addEventListener )
+                {
+                    req.addEventListener("progress", function(evt)
+                    {
+                        that.progress(evt);
+                    },false);
+                }
+                if( req.upload.addEventListener)
+                {
+                    req.upload.addEventListener("progress", function(evt)
+                    {
+                        that.progressUpload(evt);
+                    },false);
+                }
+            }
+            return req;
+        }
+    });
+})(jQuery);
 
 (function(win,$,undefined)
 {
@@ -173,13 +204,13 @@ $.ajaxSetup({cache:false});
                     if( location.hash && $('a[name="'+location.hash.replace(/#/,'')+'"]').length > 0 )
                     {
                         var anchor = $("a[name='"+location.hash.replace(/#/,'')+"']");
-                        var input = anchor.parentsUntil('*:has(input:text)').parent().find('input:text:first');
+                        var input = anchor.parentsUntil('*:has(input:text)').parent().filter(':not([readonly])').find('input:text:first');
                         if( input.length > 0 && anchor.position().top < input.position().top )
                             input.focus().select();
                     }
                     else
                     {
-                        $('form').find('input[type="text"]:not(.hasDatepicker),input[type="email"],input[type="password"],textarea,select').filter(':visible:first').focus().select();
+                        $('form').find('input[type="text"]:not(.hasDatepicker),input[type="email"],input[type="password"],textarea,select').filter(':not([readonly])').filter(':visible:first').focus().select();
                     }
                 });
 			}
