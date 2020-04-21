@@ -1120,7 +1120,7 @@ function buildQuery($controller,$event="",$data="", $url_root=false)
 	{
 		$route .= $event;
 		if( '#' != substr($event, 0, 1) )
-				$route .= '/';			
+			$route .= '/';			
 	}
 
 	/**
