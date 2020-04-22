@@ -44,12 +44,18 @@ function cli_init()
     if( !function_exists('posix_isatty') )
         ScavixWDF\WdfException::Raise("CLI module cannot run on windows");
     
-    $self = realpath(explode("index.php",$_SERVER['SCRIPT_FILENAME'])[0]."index.php");
-    if( !$self )
-        $self = realpath(explode("index.php",$_SERVER['PHP_SELF'])[0]."index.php");
-    if( !$self && $GLOBALS['argv'] && is_array($GLOBALS['argv']) && count($GLOBALS['argv'])>0 )
-        $self = $GLOBALS['argv'][0];
-    define("CLI_SELF",realpath($self));
+    if(!defined("CLI_SELF"))
+    {
+        $self = realpath(explode("index.php",$_SERVER['SCRIPT_FILENAME'])[0]."index.php");
+        if( !$self )
+            $self = realpath(explode("index.php",$_SERVER['PHP_SELF'])[0]."index.php");
+        if( !$self && $GLOBALS['argv'] && is_array($GLOBALS['argv']) && count($GLOBALS['argv'])>0 )
+            $self = $GLOBALS['argv'][0];
+        define("CLI_SELF",realpath($self));
+//        log_debug("setting ".realpath($self));
+    }
+//    else
+//        log_debug('is set: '.CLI_SELF);
     
     if( defined('STDOUT') && posix_isatty(STDOUT) )
     {
@@ -124,10 +130,10 @@ function cli_run_taskprocessor($runtime_seconds=null)
         $ex = [];
         if( can_rewrite() ) $ex['WDF_FEATURES_REWRITE'] = 'on';
         if( can_nocache() ) $ex['WDF_FEATURES_NOCACHE'] = 'on';
-        cli_run_script(CLI_SELF,['db:processwdftasks',$runtime_seconds],count($ex)?$ex:false);
+        cli_run_script(CLI_SELF,['db-processwdftasks',$runtime_seconds],count($ex)?$ex:false);
     }
     else
-        cli_run_script(CLI_SELF,['db:processwdftasks',$runtime_seconds],$_SERVER);
+        cli_run_script(CLI_SELF,['db-processwdftasks',$runtime_seconds],$_SERVER);
 }
 
 function cli_get_processes($filter=false, $test_myself=false)

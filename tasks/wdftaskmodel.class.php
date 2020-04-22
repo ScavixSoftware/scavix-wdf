@@ -212,6 +212,7 @@ class WdfTaskModel extends Model
         $filter = preg_quote(CLI_SELF,'/').".*".preg_quote(self::$PROCESS_FILTER,'/');
         $res = array();
         $out = shell_exec("ps -Af");
+//        log_debug($out, $filter);
         if( preg_match_all('/\n[^\s+]*\s+(\d+)\s+.*'.$filter.'/i',$out,$m) )
         {
             foreach( $m[1] as $p )
@@ -223,8 +224,9 @@ class WdfTaskModel extends Model
     public static function FreeOrphans()
     {
         $ds = DataSource::Get();
-        $test = $ds->ExecuteSql("SELECT DISTINCT worker_pid FROM wdf_tasks")->Enumerate('worker_pid');
+        $test = $ds->ExecuteSql("SELECT DISTINCT worker_pid FROM wdf_tasks WHERE worker_pid IS NOT NULL")->Enumerate('worker_pid');
         $tasks = self::getRunningProcessors();
+//        log_debug($tasks, $test);
         $pids = implode(",",array_filter(array_diff($test,$tasks)));
         if( $pids )
         {

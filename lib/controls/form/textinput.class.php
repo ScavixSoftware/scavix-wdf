@@ -53,7 +53,7 @@ class TextInput extends Input
     {
         if( $delay )
         {
-            $s = 'var l = e.data("lastvalue")||""; console.log(e.val(),l,e.data()); if( e.val() == l ) return; e.data("lastvalue",e.val()); e.closest("form").submit();';
+            $s = 'var l = e.data("lastvalue")||""; if( e.val() == l ) return; e.data("lastvalue",e.val()); e.closest("form").submit();';
             $s = "var e = $(this); clearTimeout(wdf.{$this->id}_keyup); wdf.{$this->id}_keyup = setTimeout(function(){ $s },$delay);";
             $this->attr("onkeyup","$s");
         }
