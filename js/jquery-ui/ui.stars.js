@@ -195,7 +195,7 @@ $.widget("ui.stars",
       if(index != -1) {
         var addClass = hover ? o.starHoverClass : o.starOnClass;
         var remClass = hover ? o.starOnClass    : o.starHoverClass;
-        self.$stars.eq(index).prevAll("." + o.starClass).andSelf().removeClass(remClass).addClass(addClass);
+        self.$stars.eq(index).prevAll("." + o.starClass).addBack().removeClass(remClass).addClass(addClass);
         self.$stars.eq(index).nextAll("." + o.starClass).removeClass(o.starHoverClass + " " + o.starOnClass);
         self._showCap(o.id2title[index]);
       }
