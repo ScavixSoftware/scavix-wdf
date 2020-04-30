@@ -135,7 +135,7 @@ $GLOBALS['html_attributes'] = array(
  * Tags that need a closing tag wether there's content or not.
  */
 $GLOBALS['html_close_tag_needed'] = array(
-	'span','textarea','div','td','select','audio','iframe','i','video'
+	'span','textarea','div','td','select','audio','iframe','i','video','button'
 );
 $GLOBALS['html_close_tag_needed'] = array_combine($GLOBALS['html_close_tag_needed'], $GLOBALS['html_close_tag_needed']);
 
