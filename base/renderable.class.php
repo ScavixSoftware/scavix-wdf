@@ -34,13 +34,40 @@ use ScavixWDF\WdfException;
  * Base class for all HTML related stuff.
  * 
  */
-abstract class Renderable
+abstract class Renderable implements \JsonSerializable
 {
 	var $_translate = true;
 	var $_storage_id;
 	var $_parent = false;
 	var $_content = array();
 	var $_script = array();
+    
+    public static $SLIM_SERIALIZER = false;
+    public static $SLIM_SERIALIZER_RUN = 0;
+    private $serialized = false;
+    public static function StartSlimSerialize()
+    {
+        if( self::$SLIM_SERIALIZER )
+            return false;
+        self::$SLIM_SERIALIZER = true;
+        self::$SLIM_SERIALIZER_RUN++;
+        return true;
+    }
+    public static function StopSlimSerialize()
+    {
+        self::$SLIM_SERIALIZER = false;
+    }
+    
+    public function jsonSerialize()
+    {
+        if( !self::$SLIM_SERIALIZER )
+            return $this;
+        
+        if( $this->serialized === self::$SLIM_SERIALIZER_RUN )
+            return ['ref_id'=>$this->_storage_id];
+        $this->serialized = self::$SLIM_SERIALIZER_RUN;
+        return ['class'=> get_class($this),'id'=>$this->_storage_id,'parent'=>$this->_parent,'content'=>$this->content];
+    }
     
     function __toString()
     {
