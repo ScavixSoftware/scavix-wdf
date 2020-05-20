@@ -153,7 +153,7 @@ class WdfResource implements ICallable
 		header('Content-Type: text/css');
 		
 		if( file_exists($css) && file_exists($cacheFile) )
-			$cache = unserialize(file_get_contents($cacheFile));
+			$cache = unserialize(file_get_contents($cacheFile))?:$less;
 		else
 			$cache = $less;
 		
