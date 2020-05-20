@@ -81,7 +81,7 @@ $.simplyScroll = function(el,o) {
 	} else {
 		//wait for load before completing setup
 		//webkit issue on sizing - how do I test for webkit?!
-		$(window).load(function() { self.init(); });
+		$(window).on('load', function() { self.init(); });
 	}
 		
 };

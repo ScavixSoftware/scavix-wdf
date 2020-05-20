@@ -42,7 +42,7 @@ class RequestLogEntry extends \ScavixWDF\Model\Model
                 `created` DATETIME NULL DEFAULT NULL,
                 `ms` FLOAT NULL DEFAULT NULL,
                 `session_id` VARCHAR(50) NULL DEFAULT NULL,
-                `ip` VARCHAR(16) NOT NULL,
+                `ip` VARCHAR(50) NOT NULL,
                 `url` VARCHAR(255) NULL DEFAULT NULL,
                 `post` TEXT NULL DEFAULT NULL,
                 `result` TEXT NULL DEFAULT NULL,
