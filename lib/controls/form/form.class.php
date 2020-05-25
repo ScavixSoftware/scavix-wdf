@@ -71,8 +71,8 @@ class Form extends Control
 			case "hidden":
                 if( is_array($value) )
                 {
-                    foreach( $value as $v )
-                        $inp = HiddenInput::Make($v, "{$name}[]")->appendTo($this);
+                    foreach( $value as $i=>$v )
+                        $inp = HiddenInput::Make($v, "{$name}[{$i}]")->appendTo($this);
                     return $inp;
                 }       
 				$inp = new HiddenInput($value, $name);
