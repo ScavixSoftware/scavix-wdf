@@ -117,14 +117,12 @@ class AjaxResponse
 		
         if($force_dependency_loading !== false)
         {
-            foreach( $content->__collectResources() as $r )
+            foreach( Renderable::CategorizeResources(Renderable::__getLazyResources(),$content->__collectResources()) as $r )
             {
-                $key = get_requested_file($r);
-                $ext = pathinfo($key,PATHINFO_EXTENSION);
-                if( starts_with($ext,'css') || starts_with($ext,'less') )
-                    $wrapped->dep_css[$key] = $r;
+                if( starts_with($r['ext'],'css') || starts_with($r['ext'],'less') )
+                    $wrapped->dep_css[$r['key']] = $r['url'];
                 else
-                    $wrapped->dep_js[$key] = $r;
+                    $wrapped->dep_js[$r['key']] = $r['url'];
             }
         }
 		$res = AjaxResponse::Json($wrapped);

@@ -33,127 +33,125 @@ namespace ScavixWDF\Base;
 use ScavixWDF\WdfException;
 
 /**
- * These are unsiversal HTML attributes.
- * Each (1st dimension) array key represents an attribute and the value (array) contains
- * all tags it is allowed to be used in.
- */
-$GLOBALS['html_universals'] = array(
-	'class' => array('base', 'basefont', 'head', 'html', 'meta', 'param', 'script', 'style', 'title'),
-	'id' => array('base', 'head', 'html', 'meta', 'script', 'style', 'title'),
-	'style' => array('base', 'basefont', 'head', 'html', 'meta', 'param', 'script', 'style', 'title'),
-	'title' => array('base', 'basefont', 'head', 'html', 'meta', 'param', 'script', 'style', 'title'),
-	'dir' => array('applet', 'base', 'basefont', 'br', 'frame', 'frameset', 'hr', 'iframe', 'param', 'script'),
-	'lang' => array('applet', 'base', 'basefont', 'br', 'frame', 'frameset', 'hr', 'iframe', 'meta', 'param', 'script'),
-	'onclick' => array('applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'),
-	'ondblclick' => array('applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'),
-	'onmousedown' => array('applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'),
-	'onmouseup' => array('applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'),
-	'onmouseover' => array('applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'),
-	'onmousemove' => array('applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'),
-	'onmouseout' => array('applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'),
-	'onkeypress' => array('applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'),
-	'onkeydown' => array('applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'),
-	'onkeyup' => array('applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'),
-	'contextmenu' => array()
-);
-/**
- * These are HTML tags.
- * Each (1st dimension) array key represents a tag and the value (array) contains
- * all attributes that are allowed to use with it.
- */
-$GLOBALS['html_attributes'] = array(
-	'a' => array('Bedeutung','Attribut','accesskey','charset','coords','href','hreflang','name','onblur','onfocus','rel','rev','shape','tabindex','target','type'),
-	'applet' => array('align','alt','archive','code','codebase','height','hspace','name','object','vspace','width'),
-	'area' => array('alt','accesskey','coords','href','nohref','onblur','onfocus','shape','tabindex','target'),
-	'base' => array('href','target'),
-	'basefont' => array('color','face','size'),
-	'bdo' => array('dir'),
-	'blockquote' => array('cite'),
-	'body' => array('alink','background','bgcolor','link','onload','onunload','text','vlink'),
-	'br' => array('clear'),
-	'button' => array('accesskey','disabled','name','onblur','onfocus','tabindex','type','value'),
-	'caption' => array('align'),
-	'col' => array('align','char','charoff','span','valign','width'),
-	'colgroup' => array('align','char','charoff','span','valign','width'),
-	'del' => array('cite','datetime'),
-	'dir' => array('compact'),
-	'div' => array('align'),
-	'dl' => array('compact'),
-	'font' => array('color','face','size'),
-	'form' => array('action','accept','accept-charset','enctype','method','name','onreset','onsubmit','target'),
-	'frame' => array('frameborder','longdesc','marginwidth','marginheight','name','noresize','scrolling','src'),
-	'frameset' => array('cols','onload','onunload','rows'),
-	'h1' => array('align'),
-	'h2' => array('align'),
-	'h3' => array('align'),
-	'h4' => array('align'),
-	'h5' => array('align'),
-	'h6' => array('align'),
-	'head' => array('profile'),
-	'hr' => array('align','noshade','size','width'),
-	'html' => array('version'),
-	'iframe' => array('align','frameborder','height','longdesc','marginwidth','marginheight','name','scrolling','src','width','type'),
-	'img' => array('align','alt','border','height','hspace','ismap','longdesc','name','src','usemap','vspace','width','onload'),
-	'input' => array('accept','accesskey','align','alt','checked','disabled','ismap','maxlength','name','onblur','onchange','onfocus','onselect','readonly','size','src','tabindex','type','usemap','value','placeholder','autocomplete'),
-	'ins' => array('cite','datetime'),
-	'isindex' => array('prompt'),
-	'label' => array('accesskey','for','onblur','onfocus'),
-	'legend' => array('accesskey','align'),
-	'li' => array('type','value'),
-	'link' => array('charset','href','hreflang','media','rel','rev','target','type'),
-	'map' => array('name'),
-	'menu' => array('compact'),
-	'meta' => array('name','content','http-equiv','scheme'),
-	'object' => array('align','archive','border','classid','codebase','codetype','data','declare','height','hspace','name','standby','tabindex','type','usemap','vspace','width'),
-	'ol' => array('compact','start','type'),
-	'optgroup' => array('disabled','label'),
-	'option' => array('disabled','label','selected','value'),
-	'p' => array('align'),
-	'param' => array('id','name','value','valuetype','type'),
-	'pre' => array('width'),
-	'q' => array('cite'),
-	'script' => array('charset','defer','event','language','for','src','type'),
-	'select' => array('disabled','multiple','name','onblur','onchange','onfocus','size','tabindex','title'),
-	'style' => array('media','title','type'),
-	'table' => array('align','border','bgcolor','cellpadding','cellspacing','frame','rules','summary','width'),
-	'tbody' => array('align','char','charoff','valign'),
-	'td' => array('abbr','align','axis','bgcolor','class','char','charoff','colspan','headers','height','nowrap','rowspan','scope','valign','width'),
-	'textarea' => array('accesskey','cols','disabled','name','onblur','onchange','onfocus','onselect','readonly','rows','tabindex','value'),
-	'tfoot' => array('align','char','charoff','valign'),
-	'th' => array('abbr','align','axis','bgcolor','char','charoff','colspan','headers','height','nowrap','rowspan','scope','valign','width'),
-	'thead' => array('align','char','charoff','valign'),
-	'tr' => array('align','bgcolor','char','charoff','valign'),
-	'ul' => array('compact','type'),
-	'menu' => array('type'),
-	'menuitem' => array('label'),
-	'audio' => array('controls','autoplay','loop','preload','src','onload'),
-	'video' => array('controls','autoplay','loop','preload','src','onload','width','height'),
-	'source' => array('src','type','onload'),
-);
-
-/**
- * Tags that need a closing tag wether there's content or not.
- */
-$GLOBALS['html_close_tag_needed'] = array(
-	'span','textarea','div','td','select','audio','iframe','i','video','button'
-);
-$GLOBALS['html_close_tag_needed'] = array_combine($GLOBALS['html_close_tag_needed'], $GLOBALS['html_close_tag_needed']);
-
-/**
- * Tags that will NOT be echoed when there's no content
- */
-$GLOBALS['html_skip_if_empty'] = array(
-	'tbody','thead','tfoot','tr'
-);
-$GLOBALS['html_skip_if_empty'] = array_combine($GLOBALS['html_skip_if_empty'], $GLOBALS['html_skip_if_empty']);
-
-/**
  * Base class for interactive webpage content like AJAX TextInputs.
  * 
  * @attribute[Resource('jquery.js')]
  */
 class Control extends Renderable
 {
+    /**
+     * Tags that need a closing tag wether there's content or not.
+     */
+    protected static $html_close_tag_needed = ['span'=>1,'textarea'=>1,'div'=>1,'td'=>1,'select'=>1,'audio'=>1,'iframe'=>1,'i'=>1,'video'=>1,'button'=>1];
+
+    /**
+     * Tags that will NOT be echoed when there's no content
+     */
+    protected static $html_skip_if_empty = ['tbody'=>1,'thead'=>1,'tfoot'=>1,'tr'=>1];
+    
+    /**
+     * These are unsiversal HTML attributes.
+     * Each (1st dimension) array key represents an attribute and the value (array) contains
+     * all tags it is allowed to be used in.
+     */
+    protected static $html_universals = array(
+        'class' => array('base', 'basefont', 'head', 'html', 'meta', 'param', 'script', 'style', 'title'),
+        'id' => array('base', 'head', 'html', 'meta', 'script', 'style', 'title'),
+        'style' => array('base', 'basefont', 'head', 'html', 'meta', 'param', 'script', 'style', 'title'),
+        'title' => array('base', 'basefont', 'head', 'html', 'meta', 'param', 'script', 'style', 'title'),
+        'dir' => array('applet', 'base', 'basefont', 'br', 'frame', 'frameset', 'hr', 'iframe', 'param', 'script'),
+        'lang' => array('applet', 'base', 'basefont', 'br', 'frame', 'frameset', 'hr', 'iframe', 'meta', 'param', 'script'),
+        'onclick' => array('applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'),
+        'ondblclick' => array('applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'),
+        'onmousedown' => array('applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'),
+        'onmouseup' => array('applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'),
+        'onmouseover' => array('applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'),
+        'onmousemove' => array('applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'),
+        'onmouseout' => array('applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'),
+        'onkeypress' => array('applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'),
+        'onkeydown' => array('applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'),
+        'onkeyup' => array('applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'),
+        'contextmenu' => array()
+    );
+    
+    /**
+     * These are HTML tags.
+     * Each (1st dimension) array key represents a tag and the value (array) contains
+     * all attributes that are allowed to use with it.
+     */
+    protected static $html_attributes = array(
+        'a' => array('accesskey','charset','coords','href','hreflang','name','onblur','onfocus','rel','rev','shape','tabindex','target','type'),
+        'applet' => array('align','alt','archive','code','codebase','height','hspace','name','object','vspace','width'),
+        'area' => array('alt','accesskey','coords','href','nohref','onblur','onfocus','shape','tabindex','target'),
+        'base' => array('href','target'),
+        'basefont' => array('color','face','size'),
+        'bdo' => array('dir'),
+        'blockquote' => array('cite'),
+        'body' => array('alink','background','bgcolor','link','onload','onunload','text','vlink'),
+        'br' => array('clear'),
+        'button' => array('accesskey','disabled','name','onblur','onfocus','tabindex','type','value'),
+        'caption' => array('align'),
+        'col' => array('align','char','charoff','span','valign','width'),
+        'colgroup' => array('align','char','charoff','span','valign','width'),
+        'del' => array('cite','datetime'),
+        'dir' => array('compact'),
+        'div' => array('align'),
+        'dl' => array('compact'),
+        'font' => array('color','face','size'),
+        'form' => array('action','accept','accept-charset','enctype','method','name','onreset','onsubmit','target'),
+        'frame' => array('frameborder','longdesc','marginwidth','marginheight','name','noresize','scrolling','src'),
+        'frameset' => array('cols','onload','onunload','rows'),
+        'h1' => array('align'),
+        'h2' => array('align'),
+        'h3' => array('align'),
+        'h4' => array('align'),
+        'h5' => array('align'),
+        'h6' => array('align'),
+        'head' => array('profile'),
+        'hr' => array('align','noshade','size','width'),
+        'html' => array('version'),
+        'iframe' => array('align','frameborder','height','longdesc','marginwidth','marginheight','name','scrolling','src','width','type'),
+        'img' => array('align','alt','border','height','hspace','ismap','longdesc','name','src','usemap','vspace','width','onload'),
+        'input' => array('accept','accesskey','align','alt','checked','disabled','ismap','maxlength','name','onblur','onchange','onfocus','onselect','readonly','size','src','tabindex','type','usemap','value','placeholder','autocomplete'),
+        'ins' => array('cite','datetime'),
+        'isindex' => array('prompt'),
+        'label' => array('accesskey','for','onblur','onfocus'),
+        'legend' => array('accesskey','align'),
+        'li' => array('type','value'),
+        'link' => array('charset','href','hreflang','media','rel','rev','target','type'),
+        'map' => array('name'),
+        'menu' => array('compact'),
+        'meta' => array('name','content','http-equiv','scheme'),
+        'object' => array('align','archive','border','classid','codebase','codetype','data','declare','height','hspace','name','standby','tabindex','type','usemap','vspace','width'),
+        'ol' => array('compact','start','type'),
+        'optgroup' => array('disabled','label'),
+        'option' => array('disabled','label','selected','value'),
+        'p' => array('align'),
+        'param' => array('id','name','value','valuetype','type'),
+        'pre' => array('width'),
+        'q' => array('cite'),
+        'script' => array('charset','defer','event','language','for','src','type'),
+        'select' => array('disabled','multiple','name','onblur','onchange','onfocus','size','tabindex','title'),
+        'style' => array('media','title','type'),
+        'table' => array('align','border','bgcolor','cellpadding','cellspacing','frame','rules','summary','width'),
+        'tbody' => array('align','char','charoff','valign'),
+        'td' => array('abbr','align','axis','bgcolor','class','char','charoff','colspan','headers','height','nowrap','rowspan','scope','valign','width'),
+        'textarea' => array('accesskey','cols','disabled','name','onblur','onchange','onfocus','onselect','readonly','rows','tabindex','value'),
+        'tfoot' => array('align','char','charoff','valign'),
+        'th' => array('abbr','align','axis','bgcolor','char','charoff','colspan','headers','height','nowrap','rowspan','scope','valign','width'),
+        'thead' => array('align','char','charoff','valign'),
+        'tr' => array('align','bgcolor','char','charoff','valign'),
+        'ul' => array('compact','type'),
+        'menu' => array('type'),
+        'menuitem' => array('label'),
+        'audio' => array('controls','autoplay','loop','preload','src','onload'),
+        'video' => array('controls','autoplay','loop','preload','src','onload','width','height'),
+        'source' => array('src','type','onload'),
+    );
+    
+    protected static $html_universals_keys = [];
+    protected static $html_attributes_keys = [];
+    
 	var $Tag = "";
 	
 	var $_css = array();
@@ -352,7 +350,7 @@ class Control extends Renderable
 	 */
 	protected function CloseTagNeeded()
 	{
-		return (isset($GLOBALS['html_close_tag_needed'][$this->Tag]) || (count($this->_content) > 0));
+		return (isset(Control::$html_close_tag_needed[$this->Tag]) || (count($this->_content) > 0));
 	}
 
 	/**
@@ -364,18 +362,18 @@ class Control extends Renderable
 	protected function IsAllowedAttribute($attr)
 	{
 		$attr = strtolower($attr);
-		$isattr = isset($GLOBALS['html_attributes'][$this->Tag]);
-		if( $isattr && !isset($GLOBALS['html_attributes-keys'][$this->Tag]))
-			$GLOBALS['html_attributes-keys'][$this->Tag] = array_flip($GLOBALS['html_attributes'][$this->Tag]);
-		if($isattr && isset($GLOBALS['html_attributes-keys'][$this->Tag][$attr]) )
+		$isattr = isset(Control::$html_attributes[$this->Tag]);
+		if( $isattr && !isset(Control::$html_attributes_keys[$this->Tag]))
+			Control::$html_attributes_keys[$this->Tag] = array_flip(Control::$html_attributes[$this->Tag]);
+		if($isattr && isset(Control::$html_attributes_keys[$this->Tag][$attr]) )
 			return true;
 		else
 		{
-			if( isset($GLOBALS['html_universals'][$attr]) )
+			if( isset(Control::$html_universals[$attr]) )
 			{
-				if(!isset($GLOBALS['html_universals-keys'][$attr]))
-					$GLOBALS['html_universals-keys'][$attr] = array_flip($GLOBALS['html_universals'][$attr]);
-				if(!isset($GLOBALS['html_universals-keys'][$attr][$this->Tag]))
+				if(!isset(Control::$html_universals_keys[$attr]))
+					Control::$html_universals_keys[$attr] = array_flip(Control::$html_universals[$attr]);
+				if(!isset(Control::$html_universals_keys[$attr][$this->Tag]))
 					return true;
 			}
 		}
@@ -416,6 +414,7 @@ class Control extends Renderable
 	 */
 	function WdfRenderAsRoot()
 	{
+        self::$_renderingRoot = $this;
 		if( !hook_already_fired(HOOK_PRE_RENDER) )
 		{
 			$this->_skipRendering = true;
@@ -426,7 +425,7 @@ class Control extends Renderable
     
     function __renderStructure($content)
     {
-		if( isset($GLOBALS['html_skip_if_empty'][$this->Tag]) )
+		if( isset(Control::$html_skip_if_empty[$this->Tag]) )
 			if( trim(implode(" ",$content)) == "" )
 				return "";
         $content = count($content)>0?implode("",$content):"";
@@ -475,6 +474,7 @@ class Control extends Renderable
 	/**
 	 * Extends this control with additional functionality.
 	 * 
+     * @deprecated since may 2020
 	 * @param object $extender Object that shall extend this
 	 * @return Control `$this`
 	 */
