@@ -58,6 +58,39 @@ abstract class Renderable implements \JsonSerializable
         self::$SLIM_SERIALIZER = false;
     }
     
+    protected static $_renderingRoot = false;
+    public static function GetRenderingRoot()
+    {
+        return self::$_renderingRoot;
+    }
+    public static function HasRenderingRoot()
+    {
+        return self::$_renderingRoot instanceof Renderable;
+    }
+    
+    protected static $_renderingStack = [];
+    public static function PushRenderer(Renderable $r)
+    {
+        $GLOBALS['current_rendering_template'] = $r; // compat
+        self::$_renderingStack[] = $r;
+    }
+    public static function PopRenderer()
+    {
+        array_pop(self::$_renderingStack);
+        if( self::HasCurrentRenderer() )  // compat
+            $GLOBALS['current_rendering_template'] = self::GetCurrentRenderer();
+        else
+            unset($GLOBALS['current_rendering_template']);
+    }
+    public static function HasCurrentRenderer()
+    {
+        return count(self::$_renderingStack)>0;
+    }
+    public static function GetCurrentRenderer()
+    {
+        return array_last(self::$_renderingStack);
+    }
+    
     public function jsonSerialize()
     {
         if( !self::$SLIM_SERIALIZER )
@@ -107,12 +140,13 @@ abstract class Renderable implements \JsonSerializable
      */
     function WdfRenderInline()
     {
-        if( isset($GLOBALS['current_rendering_template']) )
-            $this->_parent = $GLOBALS['current_rendering_template'];
+        $this->_parent = Renderable::GetCurrentRenderer();
         $this->PreRender(array(current_controller(false)));
         
-        if( isset($GLOBALS['current_rendering_template']) )
-            $GLOBALS['current_rendering_template']->script($this->_script);
+        Renderable::addLazyResources($this->__collectResourcesInternal($this));
+        
+        if( Renderable::HasCurrentRenderer() )
+            Renderable::GetCurrentRenderer()->script($this->_script);
 
         return $this->WdfRender();
     }
@@ -243,6 +277,37 @@ abstract class Renderable implements \JsonSerializable
 		}
 		return array_unique($res);
 	}
+    
+    protected static $_lazy_resources = [];
+    protected static function addLazyResources($res)
+	{
+        self::$_lazy_resources = array_merge(
+            array_reverse(force_array($res)),
+            self::$_lazy_resources
+        );
+	}
+    
+    public static function __getLazyResources()
+    {
+        return self::$_lazy_resources;
+    }
+    
+    public static function CategorizeResources()
+    {
+        $res = [];
+        foreach( func_get_args() as $a )
+            $res = array_merge($res, force_array($a));
+        
+        $ret = [];
+        foreach( $res as $url )
+		{
+            if( $url === '') continue;
+            $key = get_requested_file($url);
+            $ext = pathinfo(($key == '' ? $url : $key), PATHINFO_EXTENSION);
+			$ret[] = compact('ext','key','url');
+		}
+        return $ret;
+    }
 	
 	/**
 	 * Adds JavaScript-Code to the <Renderable> object.
