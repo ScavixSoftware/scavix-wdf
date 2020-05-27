@@ -44,12 +44,18 @@ function cli_init()
     if( !function_exists('posix_isatty') )
         ScavixWDF\WdfException::Raise("CLI module cannot run on windows");
     
-    $self = realpath(explode("index.php",$_SERVER['SCRIPT_FILENAME'])[0]."index.php");
-    if( !$self )
-        $self = realpath(explode("index.php",$_SERVER['PHP_SELF'])[0]."index.php");
-    if( !$self && $GLOBALS['argv'] && is_array($GLOBALS['argv']) && count($GLOBALS['argv'])>0 )
-        $self = $GLOBALS['argv'][0];
-    define("CLI_SELF",realpath($self));
+    if(!defined("CLI_SELF"))
+    {
+        $self = realpath(explode("index.php",$_SERVER['SCRIPT_FILENAME'])[0]."index.php");
+        if( !$self )
+            $self = realpath(explode("index.php",$_SERVER['PHP_SELF'])[0]."index.php");
+        if( !$self && $GLOBALS['argv'] && is_array($GLOBALS['argv']) && count($GLOBALS['argv'])>0 )
+            $self = $GLOBALS['argv'][0];
+        define("CLI_SELF",realpath($self));
+//        log_debug("setting ".realpath($self));
+    }
+//    else
+//        log_debug('is set: '.CLI_SELF);
     
     if( defined('STDOUT') && posix_isatty(STDOUT) )
     {
@@ -84,6 +90,7 @@ function cli_run_script($php_script_path, $args=[], $extended_data=false, $retur
         $inidata = file_get_contents(php_ini_loaded_file());
         $inidata = preg_replace('/^disable_functions/m', ';disable_functions', $inidata);
         file_put_contents($ini, $inidata);
+        chmod($ini, 0777);
     }
     
     $cmd = "$php_script_path";
@@ -97,6 +104,9 @@ function cli_run_script($php_script_path, $args=[], $extended_data=false, $retur
     
     if( count($args)>0 )
         $cmd .= " ".implode(" ",$args);
+    
+    if( file_exists($out) && !is_writable($out) )
+        $out = system_app_temp_dir()."cli-bash.log";
         
     $cmdline = "nohup php -c $ini $cmd >>$out 2>&1 &";
     if( $return_cmdline )
@@ -114,7 +124,16 @@ function cli_run_taskprocessor($runtime_seconds=null)
     
     if( !$runtime_seconds ) 
         $runtime_seconds = intval(cfg_getd('system','cli','taskprocessor_runtime',30));
-    cli_run_script(CLI_SELF,['db:processwdftasks',$runtime_seconds],$_SERVER);
+    
+    if( PHP_SAPI == 'cli' )
+    {
+        $ex = [];
+        if( can_rewrite() ) $ex['WDF_FEATURES_REWRITE'] = 'on';
+        if( can_nocache() ) $ex['WDF_FEATURES_NOCACHE'] = 'on';
+        cli_run_script(CLI_SELF,['db-processwdftasks',$runtime_seconds],count($ex)?$ex:false);
+    }
+    else
+        cli_run_script(CLI_SELF,['db-processwdftasks',$runtime_seconds],$_SERVER);
 }
 
 function cli_get_processes($filter=false, $test_myself=false)

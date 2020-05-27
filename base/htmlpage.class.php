@@ -110,6 +110,7 @@ class HtmlPage extends Template implements ICallable
 	 */
 	function WdfRenderAsRoot()
 	{
+        self::$_renderingRoot = $this;
 		execute_hooks(HOOK_PRE_RENDER,array($this));
 
 		$init_data = $this->wdf_settings;
@@ -151,18 +152,12 @@ class HtmlPage extends Template implements ICallable
 		
 		$res = $this->__collectResources();
 		$this->js = array_reverse($this->js,true);
-		foreach( array_reverse($res) as $r )
+		foreach( Renderable::CategorizeResources(array_reverse($res)) as $r )
 		{
-            if($r === '')
-                continue;
-            $key = get_requested_file($r);
-            $ext = pathinfo(($key == '' ? $r : $key), PATHINFO_EXTENSION);
-			if( $ext == 'css' || $ext == 'less' )
-				$this->addCss($r,$key);
+			if( $r['ext'] == 'css' || $r['ext'] == 'less' )
+				$this->addCss($r['url'],$r['key']);
 			else
-            {
-				$this->addjs($r,$key);
-            }
+				$this->addjs($r['url'],$r['key']);
 		}
 		$this->js = array_reverse($this->js,true);
 		
@@ -172,7 +167,7 @@ class HtmlPage extends Template implements ICallable
 		$this->set("content",$this->_content);
 		$this->set("inlineheaderpre",$this->inlineheaderpre);
 		$this->set("inlineheader",$this->inlineheader);
-		
+        
 		return parent::WdfRender();
 	}
 

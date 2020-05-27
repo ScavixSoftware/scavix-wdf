@@ -115,11 +115,19 @@ class DbTask extends Task
         log_debug("Items =",$lines);
     }
     
-    function Update()
+    function Update($args)
     {
         if( !defined("DATABASE_VERSION") || !defined("DATABASE_FOLDER") )
             \ScavixWDF\WdfException::Raise("You need to define DATABASE_VERSION and DATABASE_FOLDER");
         $ds = DataSource::Get();
+        
+        $v = intval(array_shift($args));
+        if( $v )
+        {
+            log_info(__METHOD__,"Preparing to replay version $v");
+            $ds->ExecuteSql("DELETE FROM wdf_versions WHERE `version`=$v");
+        }
+        
         model_update_db($ds, DATABASE_VERSION, DATABASE_FOLDER, function($v)
         {
             log_info(__METHOD__,"Updated to version $v");

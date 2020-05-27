@@ -102,13 +102,17 @@ function downloadData($url, $postdata = false, $request_header = array(), $cache
 	if($postdata)
 	{
 		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postdata));
 		if( is_string($postdata) )
 		{
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
 			if( !is_array($request_header) )
 				$request_header = array();
 			$request_header[] = "Content-Length: ".strlen($postdata);
-		}	
+            if( starts_with($postdata,"{") || starts_with($postdata,"[") )
+                $request_header[] = "Content-Type: application/json";
+        }
+        else
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postdata));
 	}
 	curl_setopt($ch, CURLOPT_HEADER, 1);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);

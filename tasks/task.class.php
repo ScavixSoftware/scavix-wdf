@@ -47,10 +47,10 @@ abstract class Task
         return WdfTaskModel::Create($name);
     }
     
-    public static function AsyncOnce($method='run') : WdfTaskModel
+    public static function AsyncOnce($method='run', $return_original=false) : WdfTaskModel
     {
         $name = get_called_class()."-$method";
-        return WdfTaskModel::CreateOnce($name);
+        return WdfTaskModel::CreateOnce($name, $return_original);
     }
     
     public function Fork($args=[],$method='run',$return_cmdline=false)

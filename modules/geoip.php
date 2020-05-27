@@ -244,17 +244,26 @@ function get_timezone_by_ip($ip = false)
             return false;
         };
     }
-    else
+    
+    // use geobytes free service (limited). Free API key is 7c756203dbb38590a66e01a5a3e1ad96
+    $apikey = (isset($CONFIG['geoip']['geobytes']) && isset($CONFIG['geoip']['geobytes']['apikey'])) ? $CONFIG['geoip']['geobytes']['apikey'] : '7c756203dbb38590a66e01a5a3e1ad96';
+    $services["https://secure.geobytes.com/GetCityDetails?key=".$apikey."&fqcn=$ip"] = function($response)
     {
-        // use ip-api free service (limited)
-        $services["http://ip-api.com/php/$ip"] = function($response)
-        {
-            $data = @unserialize($response);
-            if( $data && $data['status'] == 'success' )
-                return $data['timezone'];
-            return false;
-        };
-    }
+        $data = @unserialize($response);
+        if( $data && $data['geobytestimezone'] )
+            return $data['geobytestimezone'];
+        return false;
+    };
+    
+    // use ip-api free service (limited)
+    $services["http://ip-api.com/php/$ip"] = function($response)
+    {
+        $data = @unserialize($response);
+        if( $data && $data['status'] == 'success' )
+            return $data['timezone'];
+        return false;
+    };
+    
     if( isset($CONFIG['geoip']['ipinfodb']) && isset($CONFIG['geoip']['ipinfodb']['apikey']) )
     {
         $services["https://api.ipinfodb.com/v3/ip-city/?key={$CONFIG['geoip']['ipinfodb']['apikey']}&ip={$ip}&format=xml"] = function($response)

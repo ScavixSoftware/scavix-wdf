@@ -42,7 +42,7 @@ class RequestLogEntry extends \ScavixWDF\Model\Model
                 `created` DATETIME NULL DEFAULT NULL,
                 `ms` FLOAT NULL DEFAULT NULL,
                 `session_id` VARCHAR(50) NULL DEFAULT NULL,
-                `ip` VARCHAR(16) NOT NULL,
+                `ip` VARCHAR(50) NOT NULL,
                 `url` VARCHAR(255) NULL DEFAULT NULL,
                 `post` TEXT NULL DEFAULT NULL,
                 `result` TEXT NULL DEFAULT NULL,
@@ -92,8 +92,8 @@ class RequestLogEntry extends \ScavixWDF\Model\Model
             {
                 $this->id = $id.$i;
                 $this->Save();
-                register_hook(HOOK_PRE_FINISH,$this,'_done');
-                register_hook(HOOK_SYSTEM_DIE,$this,'_died');
+                register_hook(HOOK_PRE_FINISH,$this,'_done',true);
+                register_hook(HOOK_SYSTEM_DIE,$this,'_died',true);
                 RequestLogEntry::$Current = $this;
                 return true;
             }

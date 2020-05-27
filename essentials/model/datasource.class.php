@@ -255,6 +255,16 @@ class DataSource
 	{
 		return $this->_pdo->quote($value);
 	}
+    
+    function BuildInContraint($field, $values)
+    {
+        if( !is_array($values) || count($values)==0 )
+            return "(0=1)";
+        $r = [];
+        foreach( $values as $v )
+            $r[] = $this->QuoteArgument($v);
+        return "(`$field` IN(".implode(',',$r)."))";
+    }
 
 	/**
 	 * Prepares a statement

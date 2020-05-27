@@ -120,6 +120,20 @@ class Color
         return new Color\ColorRange($from,$to);
     }
     
+    public static function random($min=false,$max=false)
+    {
+        if( $min && !($min instanceof Color) ) $min = Color::hex($min);
+        if( $max && !($max instanceof Color) ) $max = Color::hex($max);
+        if( !$min ) $min = Color::rgba(0, 0, 0);
+        if( !$max ) $max = Color::rgba(255, 255, 255);
+        
+        $parts = [];
+        foreach( ['r','g','b'] as $p )
+            $parts[$p] = random_int($min->$p,$max->$p);
+        extract($parts);
+        return Color::rgba($r,$g,$b);
+    }
+    
     public function __toString()
     {
         $t = "{$this->r},{$this->g},{$this->b},{$this->a}";
