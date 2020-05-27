@@ -547,6 +547,16 @@
                 else
                     window.setTimeout(arguments.callee, 10);
             }, 10);
+        },
+        
+        getScrollParent: function(node)
+        {
+            if( node == null )
+                return null;
+            if( node.scrollHeight > node.clientHeight )
+                return node;
+            else
+                return wdf.getScrollParent(node.parentNode);
         }
 	};
 	
@@ -615,14 +625,29 @@
                 if( !elem.data('resize_wdf_overlay') )
                     return;
                 var e = elem.get(0).getBoundingClientRect(),
+                    offset = elem.offsetParent().offset(),
                     tl = topleft.get(0).getBoundingClientRect(),
-                    br = bottomright.get(0).getBoundingClientRect();
-                ol.css({
-                    left: tl.left + pageXOffset, 
-                    top: tl.top + pageYOffset,
-                    width: Math.max(e.right,tl.right,br.right) - Math.min(e.left,tl.left,br.left),
-                    height: Math.max(e.bottom,tl.bottom,br.bottom) - Math.min(e.top,tl.top,br.top)
-                });
+                    br = bottomright.get(0).getBoundingClientRect(),
+                    rect = {
+                        left: tl.left + pageXOffset - offset.left, 
+                        top: tl.top + pageYOffset - offset.top,
+                        width: Math.max(e.right,tl.right,br.right) - Math.min(e.left,tl.left,br.left),
+                        height: Math.max(e.bottom,tl.bottom,br.bottom) - Math.min(e.top,tl.top,br.top)
+                    };
+                if( rect.top < 0 )
+                {
+                    rect.height += rect.top;
+                    rect.top = 0;
+                    rect.height = Math.min(rect.height,$(window).height());
+                }
+                if( rect.left < 0 )
+                {
+                    rect.width += rect.left;
+                    rect.left = 0;
+                    rect.width = Math.min(rect.width,$(window).width());
+                }
+                
+                ol.css(rect);
                 setTimeout(resizer,100);
             };
             elem.data('resize_wdf_overlay',true);
