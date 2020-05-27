@@ -162,9 +162,7 @@ function __translate_callback($matches)
 {
 	$mod = array_pop($matches);
 	$val = array_pop($matches);
-	$as_attribute = false;
-	$do_js = false;
-	$unbuffered = false;
+	$as_attribute = $do_js = $unbuffered = $lowercase = $uppercase = false;
 	switch( $mod )
 	{
 		case '[NT]':
@@ -177,6 +175,12 @@ function __translate_callback($matches)
 			break;
 		case '[AT]':
 			$as_attribute = true;
+			break;
+		case '[LC]':
+			$lowercase = true;
+			break;
+		case '[UC]':
+			$uppercase = true;
 			break;
 		default:
 			if( preg_match('/^\[.*\]$/', $mod) )
@@ -199,6 +203,10 @@ function __translate_callback($matches)
 		return substr(json_encode($trans),1,-1);
 	if( $as_attribute )
 		return htmlentities($trans,ENT_QUOTES,'UTF-8',false);
+    if($lowercase)
+        return strtolower($trans);
+    if($uppercase)
+        return strtoupper($trans);
 	return $trans;
 }
 
