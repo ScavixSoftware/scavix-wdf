@@ -38,9 +38,6 @@ function resources_init()
 {
 	global $CONFIG;
 
-	$GLOBALS["loaded_modules"]['skins'] = __FILE__;
-	$GLOBALS["loaded_modules"]['javascript'] = __FILE__;
-	
 	if( !isset($CONFIG['resources']) )
 		$CONFIG['resources'] = array();
 	

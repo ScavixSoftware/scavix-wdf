@@ -175,7 +175,7 @@ class RedisStore extends ObjectStore
         $content = $this->serializer->Serialize($obj);
         
         $this->set($id,$content);
-        $GLOBALS['object_storage'][$id] = $obj;
+        ObjectStore::$buffer[$id] = $obj;
         $this->_stats(__METHOD__,$start);
     }
     
@@ -188,8 +188,8 @@ class RedisStore extends ObjectStore
 		if( is_object($id) && isset($id->_storage_id) )
 			$id = $id->_storage_id;
         
-        if( isset($GLOBALS['object_storage'][$id]) )
-            unset($GLOBALS['object_storage'][$id]);
+        if( isset(ObjectStore::$buffer[$id]) )
+            unset(ObjectStore::$buffer[$id]);
 		$this->del($id);
         $this->_stats(__METHOD__,$start);
     }
@@ -203,7 +203,7 @@ class RedisStore extends ObjectStore
 		if( is_object($id) && isset($id->_storage_id) )
 			$id = $id->_storage_id;
 		$id = strtolower($id);
-		if( isset($GLOBALS['object_storage'][$id]) )
+		if( isset(ObjectStore::$buffer[$id]) )
             $res = true;
         else
             $res = $this->exec('exists',[$this->_key($id)]);
@@ -219,13 +219,13 @@ class RedisStore extends ObjectStore
         $start = microtime(true);
 		$id = strtolower($id);
 
-		if( isset($GLOBALS['object_storage'][$id]) )
-			$res = $GLOBALS['object_storage'][$id];
+		if( isset(ObjectStore::$buffer[$id]) )
+			$res = ObjectStore::$buffer[$id];
         else
         {
             $data = $this->get($id);
             $res = $this->serializer->Unserialize($data);
-            $GLOBALS['object_storage'][$id] = $res;
+            ObjectStore::$buffer[$id] = $res;
         }
         $this->_stats(__METHOD__,$start);
 		return $res;
@@ -264,7 +264,7 @@ class RedisStore extends ObjectStore
         if( $classname )
         {
             $classname = strtolower($classname);
-            foreach( $GLOBALS['object_storage'] as $id=>&$obj )
+            foreach( ObjectStore::$buffer as $id=>&$obj )
             {
                 if( get_class_simple($obj,true) == $classname )
                     $this->Delete($id);
@@ -286,7 +286,7 @@ class RedisStore extends ObjectStore
         if( $keep_alive )
             $ids = $this->exec('keys',[session_id()."_*"]);
         else
-            $ids = array_keys($GLOBALS['object_storage']);
+            $ids = array_keys(ObjectStore::$buffer);
 
         foreach( $ids as $id )
             $this->expire($id);

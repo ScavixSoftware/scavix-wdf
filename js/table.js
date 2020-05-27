@@ -45,11 +45,11 @@ $.fn.table = function(opts)
 			$('.ui-table-actions .ui-icon',self)
 				.click(function()
 				{
-                    self.showLoadingOverlay();
+                    self.overlay();
 					wdf.post(self.attr('id')+'/onactionclicked',{action:$(this).data('action'),row:current_row.attr('id')},function(d)
                     {
                         $('body').append(d);
-                        self.hideLoadingOverlay();
+                        self.overlay('remove');
                     });
 				});
 
@@ -73,7 +73,7 @@ $.fn.table = function(opts)
 		}
 		
 		$('.pager',self).each( function(){ $(this).width(self.width());});
-        $('.thead a',self).click(self.showLoadingOverlay);
+        $('.thead a',self).click(self.overlay);
         $(this).placePager(opts);
 	});
 };
@@ -81,11 +81,11 @@ $.fn.table = function(opts)
 $.fn.updateTable = function(html)
 {
     var self = this;
-    self.hideLoadingOverlay( function() {
+    self.overlay('remove', function() {
         self.prev('.pager').remove(); 
         self.next('.pager').remove();
         self.replaceWith(html); 
-        $('.thead a',self).click(self.showLoadingOverlay);
+        $('.thead a',self).click(self.overlay);
         self.placePager(self.opts);
     });
 };
@@ -93,7 +93,7 @@ $.fn.updateTable = function(html)
 $.fn.gotoPage = function(n)
 {
 	var self = this;
-    self.showLoadingOverlay();
+    self.overlay();
 	wdf.post(self.attr('id')+'/gotopage',{number:n},function(d){ self.updateTable(d); });
 };
 
@@ -113,63 +113,16 @@ $.fn.placePager = function(opts)
     }
 };
 
-var table_loading_counter = 0;
 $.fn.showLoadingOverlay = function()
 {
-    var self = $(this);
-    if( !self.is('.table') )
-        self = self.closest('.table');
-    
-    var loadingClass = 'loading_'+(table_loading_counter++),
-        $tab = self.addClass(loadingClass),
-        $pt = $tab.prev('.pager'), $pb = $tab.next('.pager')
-        $offsetParent = $tab;
-   
-    var $ol = $("<div data-lc='"+loadingClass+"' data-for='"+self.attr('id')+"' />")
-            .appendTo('body')
-            .width($tab.width())
-            .css('display','none')
-            .css('cursor','wait')
-            .css('background-color','black')
-            .css('opacity','0.2')
-            .css('position','absolute'),
-        wait = function(ol,par)
-        {
-            if(!jQuery.contains(document, ol[0]))
-                return;
-            ol.position({my:'left top',at:'left top',of:par});
-            setTimeout(function(){ wait(ol,par); },10);
-        };
-    $tab.data('overlay',$ol);
-    $tab.data('overlay_id',loadingClass);
-    
-    if( $pt.length && $pb.length )
-    {
-        $ol.height( $pb.position().top + $pb.height() - $pt.position().top );
-        $offsetParent = $pt;
-    }
-    else if( $pt.length )
-    {
-        $ol.height( $tab.position().top + $tab.height() - $pt.position().top );
-        $offsetParent = $pt;
-    }
-    else if( $pb.length )
-        $ol.height( $pb.position().top + $pb.height() - $tab.position().top );
-    else
-        $ol.height( $tab.height() );
-    
-    $ol.fadeIn('fast');
-    wait($ol,$offsetParent);
+    wdf.debug("$.showLoadingOverlay is deprecated, use $.overlay() instead");
+    return $(this).overlay();
 };
 
 $.fn.hideLoadingOverlay = function(callback)
 {
-    var self = $(this);
-    if( !self.is('.table') )
-        self = self.closest('.table');
-    $ol = $('div[data-lc][data-for="' + self.attr('id') + '"]');
-    if($ol.length > 0)
-        $ol.fadeOut('fast', function() { $ol.remove(); if(callback) { callback(); wdf.ajaxReady.fire(); } });
+    wdf.debug("$.hideLoadingOverlay is deprecated, use $.overlay('remove') instead");
+    return $(this).overlay('remove',callback);
 };
 
 })(jQuery);

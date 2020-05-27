@@ -53,6 +53,9 @@ class HtmlPage extends Template implements ICallable
 	var $inlineheader = false;
 	var $plaindocready = array();
 	var $wdf_settings = array('focus_first_input'=>true);
+    
+    public static $RENDER_NOSCRIPT = true;
+    public static $DOCTYPE = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 
 	/**
 	 * Setting this to a filename (relative to class) will load it as subtemplate
@@ -110,6 +113,11 @@ class HtmlPage extends Template implements ICallable
 	 */
 	function WdfRenderAsRoot()
 	{
+        if( isset($GLOBALS['CONFIG']['system']['htmlpage']['doctype']) )
+            log_warn('"doctype" config is deprecated, use HtmlPage::$DOCTYPE instead');
+        if( isset($GLOBALS['CONFIG']['system']['htmlpage']['render_noscript']) )
+            log_warn('"render_noscript" config is deprecated, use HtmlPage::$RENDER_NOSCRIPT instead');
+        
         self::$_renderingRoot = $this;
 		execute_hooks(HOOK_PRE_RENDER,array($this));
 

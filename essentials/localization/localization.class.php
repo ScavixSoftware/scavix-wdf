@@ -40,7 +40,7 @@ class Localization
 	const USE_DEFAULT = 0x00;
 	const USE_IP = 0x01;
 	const USE_BROWSER = 0x02;
-
+    
 	/**
 	 * Gets a <CultureInfo> object representing a language.
 	 * 
@@ -222,7 +222,8 @@ class Localization
 	 */
 	public static function getCultureInfo($code)
 	{
-		global $arBufferedCultures, $CONFIG;
+		global $CONFIG;
+        static $arBufferedCultures = [];
 
 		if(isset($arBufferedCultures["C".$code]))
 			return clone $arBufferedCultures["C".$code];

@@ -30,7 +30,9 @@
  */
 
 use ScavixWDF\Session\Serializer;
+use ScavixWDF\Wdf;
 use ScavixWDF\WdfException;
+use ScavixWDF\WdfResource;
 
 require_once(__DIR__.'/session/serializer.class.php');
 
@@ -43,8 +45,7 @@ function session_init()
 {
 	global $CONFIG;
 
-	$CONFIG['class_path']['system'][]   = __DIR__.'/session/';
-	$GLOBALS['object_storage'] = array();
+	$CONFIG['class_path']['system'][] = __DIR__.'/session/';
 
 	if( !isset($CONFIG['session']['session_name']) )
 		$CONFIG['session']['session_name'] = isset($CONFIG['system']['application_name'])?$CONFIG['system']['application_name']:'WDF_SESSION';
@@ -90,10 +91,8 @@ function session_run()
 	$CONFIG['session']['handler'] = fq_class_name($CONFIG['session']['handler']);
 	$CONFIG['session']['object_store'] = fq_class_name($CONFIG['session']['object_store']);
     
-	$GLOBALS['fw_session_handler'] = new $CONFIG['session']['handler']();
-    $GLOBALS['fw_session_handler']->store = 
-        $GLOBALS['fw_object_store'] = 
-        new $CONFIG['session']['object_store']();
+    Wdf::$SessionHandler = new $CONFIG['session']['handler']();
+    Wdf::$SessionHandler->store = Wdf::$ObjectStore = new $CONFIG['session']['object_store']();
     
     if( !isset($_SESSION[$GLOBALS['CONFIG']['session']['prefix']."object_access"]) )
         $_SESSION[$GLOBALS['CONFIG']['session']['prefix']."object_access"] = array();
@@ -106,7 +105,7 @@ function session_run()
  */
 function unserializer_active()
 {
-	return isset($GLOBALS['unserializing_level']) && $GLOBALS['unserializing_level'] > 0;
+    return Serializer::$unserializing_level > 0;
 }
 
 /**
@@ -152,7 +151,7 @@ function equals(&$o1, &$o2, $compare_classes=true)
  */
 function session_sanitize()
 {
-	return $GLOBALS['fw_session_handler']->Sanitize();
+	return Wdf::$SessionHandler->Sanitize();
 }
 
 /**
@@ -162,7 +161,7 @@ function session_sanitize()
  */
 function session_kill_all()
 {
-	$GLOBALS['fw_session_handler']->KillAll();
+	Wdf::$SessionHandler->KillAll();
 }
 
 /**
@@ -170,7 +169,7 @@ function session_kill_all()
  */
 function session_keep_alive($request_key='PING')
 {
-	return $GLOBALS['fw_session_handler']->KeepAlive($request_key);
+	return Wdf::$SessionHandler->KeepAlive($request_key);
 }
 
 /**
@@ -178,15 +177,18 @@ function session_keep_alive($request_key='PING')
  */
 function session_update($keep_alive=false)
 {
-    if( isset($GLOBALS['session_update_done']) )
+    static $session_update_done = false;
+    if( $session_update_done ) return;
+    $session_update_done = true;
+    
+    if( current_controller(false) instanceof WdfResource )
         return;
-    $GLOBALS['session_update_done'] = true;
     
     if( !system_is_ajax_call() )
-        $GLOBALS['fw_object_store']->Cleanup();
+        Wdf::$ObjectStore->Cleanup();
 
-    $GLOBALS['fw_object_store']->Update($keep_alive);
-    return $GLOBALS['fw_session_handler']->Update();
+    Wdf::$ObjectStore->Update($keep_alive);
+    return Wdf::$SessionHandler->Update();
 }
 
 /**
@@ -194,7 +196,7 @@ function session_update($keep_alive=false)
  */
 function request_id()
 {
-	return $GLOBALS['fw_session_handler']->RequestId();
+	return Wdf::$SessionHandler->RequestId();
 }
 
 /**
@@ -202,9 +204,9 @@ function request_id()
  */
 function store_object(&$obj,$id="")
 {
-    if( !isset($GLOBALS['fw_object_store']) )
+    if( !isset(Wdf::$ObjectStore) )
 		return false;
-	$res = $GLOBALS['fw_object_store']->Store($obj,$id);
+	$res = Wdf::$ObjectStore->Store($obj,$id);
     return $res;
 }
 
@@ -213,9 +215,9 @@ function store_object(&$obj,$id="")
  */
 function delete_object($id)
 {
-    if( !isset($GLOBALS['fw_object_store']) )
+    if( !isset(Wdf::$ObjectStore) )
 		return false;
-	return $GLOBALS['fw_object_store']->Delete($id);
+	return Wdf::$ObjectStore->Delete($id);
 }
 
 /**
@@ -223,9 +225,9 @@ function delete_object($id)
  */
 function in_object_storage($id)
 {
-	if( !isset($GLOBALS['fw_object_store']) )
+	if( !isset(Wdf::$ObjectStore) )
 		return false;
-	return $GLOBALS['fw_object_store']->Exists($id);
+	return Wdf::$ObjectStore->Exists($id);
 }
 
 /**
@@ -233,7 +235,7 @@ function in_object_storage($id)
  */
 function &restore_object($id)
 {
-	$res = $GLOBALS['fw_object_store']->Restore($id);
+	$res = Wdf::$ObjectStore->Restore($id);
     return $res;
 }
 
@@ -242,8 +244,8 @@ function &restore_object($id)
  */
 function create_storage_id(&$obj)
 {
-	if( isset($GLOBALS['fw_object_store']) && is_object($GLOBALS['fw_object_store']) )
-		return $GLOBALS['fw_object_store']->CreateId($obj);
+	if( isset(Wdf::$ObjectStore) && is_object(Wdf::$ObjectStore) )
+		return Wdf::$ObjectStore->CreateId($obj);
 	return false;
 }
 
@@ -252,7 +254,7 @@ function create_storage_id(&$obj)
  */
 function regenerate_session_id()
 {
-	return $GLOBALS['fw_session_handler']->RegenerateId();
+	return Wdf::$SessionHandler->RegenerateId();
 }
 
 /**
@@ -260,7 +262,7 @@ function regenerate_session_id()
  */
 function generate_session_id()
 {
-	return $GLOBALS['fw_session_handler']->GenerateSessionId();
+	return Wdf::$SessionHandler->GenerateSessionId();
 }
 
 /**

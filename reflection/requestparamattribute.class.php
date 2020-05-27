@@ -29,7 +29,9 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 namespace ScavixWDF\Reflection;
+
 use ScavixWDF\Localization\Localization;
+use ScavixWDF\Wdf;
 
 /**
  * Allows to automatically pass REQUEST parameters to methods arguments.
@@ -99,10 +101,10 @@ class RequestParamAttribute extends WdfAttribute
 		else
 			$name = $this->Name;
 
-		if( isset($GLOBALS['routing_args']) && count($GLOBALS['routing_args'])>0 && !isset($data[$name]) )
+		if( isset(Wdf::$Request->RouteArgs) && count(Wdf::$Request->RouteArgs)>0 && !isset($data[$name]) )
 			$data[$name] = $is_last
-                ?implode("/",$GLOBALS['routing_args'])
-                :array_shift($GLOBALS['routing_args']);
+                ?implode("/",Wdf::$Request->RouteArgs)
+                :array_shift(Wdf::$Request->RouteArgs);
 
         if( !isset($data[$name]) )
 		{
@@ -115,14 +117,14 @@ class RequestParamAttribute extends WdfAttribute
 			return 'missing';
 		}
 
-		if( !isset($GLOBALS['request_param_detected_ci']) )
-		{
+		static $ci = false;
+        if( $ci === false )
+        {
 			if( isset($CONFIG['requestparam']['ci_detection_func']) && function_exists($CONFIG['requestparam']['ci_detection_func']) )
-				$GLOBALS['request_param_detected_ci'] = $CONFIG['requestparam']['ci_detection_func']();
+				$ci = $CONFIG['requestparam']['ci_detection_func']();
 			else
-				$GLOBALS['request_param_detected_ci'] = Localization::detectCulture();
-		}
-		$ci = $GLOBALS['request_param_detected_ci'];
+				$ci = Localization::detectCulture();
+        }
 
 		if( !is_null($this->Type) )
 		{

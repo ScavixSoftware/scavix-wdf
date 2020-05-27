@@ -31,6 +31,22 @@ use Exception;
 
 if( !defined('FRAMEWORK_LOADED') || FRAMEWORK_LOADED != 'uSI7hcKMQgPaPKAQDXg5' ) die('');
 
+class Wdf
+{
+    public static $Logger = [];
+    public static $Timer = [];
+    public static $DataSources = [];
+    public static $Hooks = [];
+    public static $Modules = [];
+    public static $ClassAliases = [];
+    
+    public static $Request;
+    public static $ClientIP;
+    public static $SessionHandler;
+    public static $ObjectStore;
+    public static $Translation;
+}
+
 /**
  * We use this to test access to controllers.
  * All controllers must implement this interface
