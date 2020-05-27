@@ -43,6 +43,9 @@ use ScavixWDF\WdfException;
 abstract class SessionBase
 {
     var $store;
+    var $I;
+    
+    protected static $session_request_id = false;
     
 	/**
 	 * Implement to perform sanitations like checking if users IP has changed.
@@ -249,13 +252,13 @@ abstract class SessionBase
 	 */
 	function RequestId()
 	{
-		if( !isset($GLOBALS['session_request_id']) )
+		if( !self::$session_request_id )
 		{
 			$p = current_controller();
 			$e = current_event();
-			$GLOBALS['session_request_id'] = md5($p.$e.microtime());
+			self::$session_request_id = md5($p.$e.microtime());
 		}
-		return $GLOBALS['session_request_id'];
+		return self::$session_request_id;
 	}
 
 	/**
@@ -279,20 +282,20 @@ abstract class SessionBase
 		}
 
 		$cn = strtolower(get_class_simple($obj));
-		if( !isset($GLOBALS['object_ids'][$cn]) )
+		if( !isset(ObjectStore::$ids[$cn]) )
 		{
 			$i = 1;
 			while(isset($_SESSION[$CONFIG['session']['prefix']."session"][$cn.$i]))
 				$i++;
-			$GLOBALS['object_ids'][$cn] = $i;
+			ObjectStore::$ids[$cn] = $i;
 		}
 		else
-			$GLOBALS['object_ids'][$cn]++;
+			ObjectStore::$ids[$cn]++;
 
-		$obj->_storage_id = $cn.$GLOBALS['object_ids'][$cn];
+		$obj->_storage_id = $cn.ObjectStore::$ids[$cn];
 
 		if( session_id() )
-			$_SESSION['object_id_storage'] = $GLOBALS['object_ids'];
+			$_SESSION['object_id_storage'] = ObjectStore::$ids;
 
 		return $obj->_storage_id;
 	}

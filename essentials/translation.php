@@ -32,6 +32,7 @@
 use ScavixWDF\Localization\CultureInfo;
 use ScavixWDF\Localization\Localization;
 use ScavixWDF\Model\Model;
+use ScavixWDF\Wdf;
  
 /**
  * Initializes the translation essential.
@@ -41,8 +42,10 @@ use ScavixWDF\Model\Model;
 function translation_init()
 {
 	global $CONFIG;
-	$GLOBALS['__unknown_constants'] = array();
-	$GLOBALS['__translate_functions'] = array();
+    
+    Wdf::$Translation = new stdClass();
+    Wdf::$Translation->unknown_constants = [];
+    Wdf::$Translation->translate_functions = [];
 
 	if( !isset($CONFIG['translation']['data_path']) )
 	{
@@ -86,9 +89,9 @@ function translation_init()
 	foreach( $CONFIG['translation']['searchpatterns'] as $pat )
 		$reg[] = '('.$pat.'[a-zA-Z0-9_-]+)(\[[^\]]+\])*';
 	$reg = "/".implode("|",$reg)."/";
-	$GLOBALS['__translate_regpattern'] = $reg;
+	Wdf::$Translation->translate_regpattern = $reg;
     
-	$GLOBALS['translation']['data'] = array();
+	Wdf::$Translation->data = [];
 	
     system_ensure_path_ending($CONFIG['translation']['data_path']);
 }
@@ -149,7 +152,7 @@ function translation_do_includes()
  */
 function translation_add_function($func)
 {
-	$GLOBALS['__translate_functions'][] = $func;
+	Wdf::$Translation->translate_functions[] = $func;
 }
 
 /**
@@ -157,8 +160,6 @@ function translation_add_function($func)
  */
 function __translate_callback($matches)
 {
-	global $__unknown_constants;
-
 	$mod = array_pop($matches);
 	$val = array_pop($matches);
 	$as_attribute = $do_js = $unbuffered = $lowercase = $uppercase = false;
@@ -189,13 +190,13 @@ function __translate_callback($matches)
 			break;
 	}
 
-	if( isset($__unknown_constants["k".$val]) )
+	if( isset(Wdf::$Translation->unknown_constants["k".$val]) )
     {
         $def = cfg_get('translation','default_strings',$val);
 		return $def?:$val."?";
     }
 	$trans = getString($val,null,$unbuffered);
-	if( isset($__unknown_constants["k".$val]) )
+	if( isset(Wdf::$Translation->unknown_constants["k".$val]) )
 		return $trans;
 
 	if( $do_js )
@@ -218,24 +219,24 @@ function __translate_sort_constants($a,$b)
 
 function __translate($text)
 {
-	global $CONFIG, $__unknown_constants;
+	global $CONFIG;
 	
 	// TODO: reactivate loop regarding unknown constants and thos that shall not be translated
-	//while( preg_match($GLOBALS['__translate_regpattern'], $text) )
+	//while( preg_match(Wdf::$Translation->translate_regpattern, $text) )
 	{
 		if(!is_string($text))
 			return $text;
         
-        if(count($GLOBALS['translation']['data']) > 0)
+        if(count(Wdf::$Translation->data) > 0)
         {
             $repl = [];
-            foreach( $GLOBALS['translation']['data'] as $k=>$v )
+            foreach( Wdf::$Translation->data as $k=>$v )
                 if( $k[0] == '{' ) $repl[$k] = $v; else $repl['{'.$k.'}'] = $v;
             $text = ReplaceVariables($text, $repl);
         }
 
 		$text = preg_replace_callback(
-			$GLOBALS['__translate_regpattern'],
+			Wdf::$Translation->translate_regpattern,
 			'__translate_callback',
 			$text
 		);
@@ -254,7 +255,7 @@ function translation_add_unknown_strings($unknown_constants=false)
 {
 	global $CONFIG;
     
-    if( !$unknown_constants ) $unknown_constants = $GLOBALS['__unknown_constants'];
+    if( !$unknown_constants ) $unknown_constants = Wdf::$Translation->unknown_constants;
     if( count($unknown_constants)<1 )
         return;
     
@@ -321,7 +322,7 @@ function __noTranslate_callback($matches)
 function noTranslate($content)
 {
 	$res = preg_replace_callback(
-		$GLOBALS['__translate_regpattern'],
+		Wdf::$Translation->translate_regpattern,
 		'__noTranslate_callback',
 		$content
 	);
@@ -402,12 +403,12 @@ function getString($constant, $arreplace = null, $unbuffered = false, $encoding 
 {
 	if( $arreplace instanceof Model )
 		$arreplace = $arreplace->AsArray();
-	if( count($GLOBALS['translation']['data'])>0 )
+	if( count(Wdf::$Translation->data)>0 )
 	{
 		if( $arreplace )
-			$arreplace = array_merge($GLOBALS['translation']['data'],$arreplace);
+			$arreplace = array_merge(Wdf::$Translation->data,$arreplace);
 		else
-			$arreplace = $GLOBALS['translation']['data'];
+			$arreplace = Wdf::$Translation->data;
 	}
     
 	if( !$arreplace )
@@ -462,7 +463,7 @@ function getStringOrig($constant, $arreplace = null, $unbuffered = false, $encod
 		{
 			$res = ReplaceVariables($def, $arreplace);
 			$GLOBALS['translation']['skip_buffering_once'] = true;
-			$GLOBALS['__unknown_constants']["k".$constant] = [$constant,$arreplace];
+			Wdf::$Translation->unknown_constants["k".$constant] = [$constant,$arreplace];
 		}
 		else
 		{
@@ -473,7 +474,7 @@ function getStringOrig($constant, $arreplace = null, $unbuffered = false, $encod
 				// if still the same, constant is unknown
 				$res = htmlspecialchars($constant)."?";
 				$GLOBALS['translation']['skip_buffering_once'] = true;
-				$GLOBALS['__unknown_constants']["k".$constant] = [$constant,$arreplace];
+				Wdf::$Translation->unknown_constants["k".$constant] = [$constant,$arreplace];
 			}
 		}
     }
@@ -481,7 +482,7 @@ function getStringOrig($constant, $arreplace = null, $unbuffered = false, $encod
 	if(!is_null($encoding))
         $res = iconv("UTF-8", $encoding."//IGNORE", $res);
 	
-	if( !$GLOBALS['translation']['skip_buffering_once'] && preg_match_all($GLOBALS['__translate_regpattern'], $res, $m) )
+	if( !$GLOBALS['translation']['skip_buffering_once'] && preg_match_all(Wdf::$Translation->translate_regpattern, $res, $m) )
 		$res = __translate($res);
 	
 	if( isset($key) && !$GLOBALS['translation']['skip_buffering_once'] )
@@ -506,7 +507,7 @@ function ReplaceVariables($text, $arreplace = null)
 {
 	if(!is_null($arreplace))
 		$text = str_replace(array_keys($arreplace), array_values($arreplace), $text);
-	foreach( $GLOBALS['__translate_functions'] as &$func )
+	foreach( Wdf::$Translation->translate_functions as &$func )
 		$text = call_user_func($func, $text);
     
     $text = preg_replace_callback('/{link\s*([^}]*)}(.*){\/link}/U',function($m)
@@ -647,7 +648,7 @@ function translation_string_exists($constant)
 function translation_is_valid_constant($constant)
 {
 	$text = preg_replace(
-		$GLOBALS['__translate_regpattern'],
+		Wdf::$Translation->translate_regpattern,
         '',
         $constant
     );
@@ -742,7 +743,7 @@ function add_trans_data($name,$data,$depth=0)
 		if( !isset($GLOBALS['current_language']) )
 			detect_language();
 		$ci = Localization::getCultureInfo($GLOBALS['current_language']);
-		$GLOBALS['translation']['data'][$name."_asdate"] = $ci->FormatDate($data);
+		Wdf::$Translation->data[$name."_asdate"] = $ci->FormatDate($data);
 		$data = $ci->FormatDateTime($data);
 	}
 	if( is_object($data) )
@@ -753,7 +754,7 @@ function add_trans_data($name,$data,$depth=0)
 			add_trans_data("{".$name.".".$k."}",$v,$depth+1);
 		return;
 	}
-	$GLOBALS['translation']['data'][$name] = $data;
+	Wdf::$Translation->data[$name] = $data;
 }
 
 /**
@@ -763,5 +764,5 @@ function add_trans_data($name,$data,$depth=0)
  */
 function clear_trans_data()
 {
-	$GLOBALS['translation']['data'] = array();
+	Wdf::$Translation->data = array();
 }

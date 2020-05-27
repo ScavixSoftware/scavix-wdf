@@ -104,7 +104,7 @@ class PhpSession extends SessionBase
 		$serializer = new Serializer();
 		$content = $serializer->Serialize($obj);
 		$_SESSION[$CONFIG['session']['prefix']."session"][$id] = $content;
-		$GLOBALS['object_storage'][$id] = $obj;
+		ObjectStore::$buffer[$id] = $obj;
 	}
 
 	/**
@@ -118,7 +118,7 @@ class PhpSession extends SessionBase
 		$id = strtolower($id);
 		if(isset($_SESSION[$CONFIG['session']['prefix']."session"][$id]))
 			unset($_SESSION[$CONFIG['session']['prefix']."session"][$id]);
-		unset($GLOBALS['object_storage'][$id]);
+		unset(ObjectStore::$buffer[$id]);
 	}
 
 	/**
@@ -130,7 +130,7 @@ class PhpSession extends SessionBase
 		if( is_object($id) && isset($id->_storage_id) )
 			$id = $id->_storage_id;
 		$id = strtolower($id);
-		if( isset($GLOBALS['object_storage'][$id]) )
+		if( isset(ObjectStore::$buffer[$id]) )
 			return true;
 
 		return isset($_SESSION[$CONFIG['session']['prefix']."session"][$id]);
@@ -144,8 +144,8 @@ class PhpSession extends SessionBase
 		global $CONFIG;
 		$id = strtolower($id);
 
-		if( isset($GLOBALS['object_storage'][$id]) )
-			return $GLOBALS['object_storage'][$id];
+		if( isset(ObjectStore::$buffer[$id]) )
+			return ObjectStore::$buffer[$id];
 
 		if(!isset($_SESSION[$CONFIG['session']['prefix']."session"][$id]))
 		{
@@ -156,7 +156,7 @@ class PhpSession extends SessionBase
 
 		$serializer = new Serializer();
 		$res = $serializer->Unserialize($data);
-		$GLOBALS['object_storage'][$id] = $res;
-		return $GLOBALS['object_storage'][$id];
+		ObjectStore::$buffer[$id] = $res;
+		return ObjectStore::$buffer[$id];
 	}
 }

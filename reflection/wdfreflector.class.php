@@ -45,12 +45,11 @@ class WdfReflector extends ReflectionClass
 {
 	protected $Instance = false;
 	protected $Classname = false;
+    
+    protected static $cache = [];
 
 	public function __construct($classname)
 	{
-		if( !isset($GLOBALS['reflector_cache']) )
-			$GLOBALS['reflector_cache'] = array();
-
 		parent::__construct($classname);
 	}
     
@@ -70,9 +69,9 @@ class WdfReflector extends ReflectionClass
 		}
 		$classnamel = strtolower($classname);
 
-		if( isset($GLOBALS['reflector_cache']) && isset($GLOBALS['reflector_cache'][$classnamel]) )
+		if( isset(self::$cache[$classnamel]) )
 		{
-			$res = $GLOBALS['reflector_cache'][$classnamel];
+			$res = self::$cache[$classnamel];
 			if( isset($inst) )
 				$res->Instance = $inst;
 			return $res;
@@ -93,7 +92,7 @@ class WdfReflector extends ReflectionClass
 			cache_set("filemtime_$fn",$ftime);
 		}
 
-		$GLOBALS['reflector_cache'][$classnamel] = $res;
+		self::$cache[$classnamel] = $res;
 		return $res;
 	}
 

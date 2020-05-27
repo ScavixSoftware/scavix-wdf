@@ -97,7 +97,7 @@ class DbSession extends SessionBase
 			SET last_access=NOW() WHERE id=? AND (request_id=? OR auto_load=1)", array($CONFIG['session']['prefix'].session_id(), $rid)
 		);
 
-		$GLOBALS['session_request_id'] = $rid;
+        self::$session_request_id = $rid;
 	}
 
 	/**
@@ -127,7 +127,7 @@ class DbSession extends SessionBase
 			array($CONFIG['session']['prefix'].session_id(),request_id(),$id,$content)
 		);
 
-		$GLOBALS['object_storage'][strtolower($id)] = $obj;
+		ObjectStore::$buffer[strtolower($id)] = $obj;
 	}
 
 	/**
@@ -143,7 +143,7 @@ class DbSession extends SessionBase
 			"DELETE FROM ".$CONFIG['session']['table']."
 			WHERE id=? AND storage_id=?",array($CONFIG['session']['prefix'].session_id(),$id)
 		);
-		unset($GLOBALS['object_storage'][strtolower($id)]);
+		unset(ObjectStore::$buffer[strtolower($id)]);
 	}
 
 	/**
@@ -155,7 +155,7 @@ class DbSession extends SessionBase
 		if( is_object($id) && isset($id->_storage_id) )
 			$id = $id->_storage_id;
 
-		if( isset($GLOBALS['object_storage'][strtolower($id)]) )
+		if( isset(ObjectStore::$buffer[strtolower($id)]) )
 			return true;
 
 		$rs = $this->ds->ExecuteSql(
@@ -172,8 +172,8 @@ class DbSession extends SessionBase
 	{
 		global $CONFIG;
 
-		if( isset($GLOBALS['object_storage'][strtolower($id)]) )
-			return $GLOBALS['object_storage'][strtolower($id)];
+		if( isset(ObjectStore::$buffer[strtolower($id)]) )
+			return ObjectStore::$buffer[strtolower($id)];
 
 		$rs = $this->ds->ExecuteSql(
 			"SELECT content FROM ".$CONFIG['session']['table']."
@@ -189,7 +189,7 @@ class DbSession extends SessionBase
 
 		$serializer = new Serializer();
 		$res = $serializer->Unserialize($data);
-		$GLOBALS['object_storage'][strtolower($id)] = $res;
-		return $GLOBALS['object_storage'][strtolower($id)];
+		ObjectStore::$buffer[strtolower($id)] = $res;
+		return ObjectStore::$buffer[strtolower($id)];
 	}
 }

@@ -114,7 +114,9 @@
 		{
 			if( this.settings.rewrite || typeof href != 'string' || href.match(/\?wdf_route/) )
 				return href;
-			
+            if( this.settings.site_root != href.substr(0,this.settings.site_root.length) )
+                return href;
+            
 			href = href.substr(this.settings.site_root.length);
 			var parts = href.split("/");
 			var url_path = this.settings.site_root + '?wdf_route='+encodeURIComponent((parts[0]||'')+"/"+(parts[1]||'')+"/");
@@ -563,29 +565,80 @@
 		return attr;
 	};
 	
-	$.fn.overlay = function(method)
+	$.fn.overlay = function(method,callback)
 	{
 		return this.each(function()
 		{
-			if( method == 'remove' )
+            if( !callback && typeof method == 'function' )
+            {
+                callback = method;
+                method = false;
+            }
+            var elem = $(this);
+            
+			if( method === 'remove' )
 			{
-				$('.wdf_overlay, .wdf_overlay_anim',this).remove();
+                elem.removeData('resize_wdf_overlay');
+                var ol = $('.wdf_overlay',this);
+				ol.fadeOut('fast',function()
+                {
+                    if( typeof callback == 'function' )
+                        callback();
+                    ol.remove();
+                });
 				return;
 			}
-			var elem = $(this), overlay = $('<div class="wdf_overlay"/>')
+			var isTab = elem.is('.table'),
+                topleft = elem, bottomright = elem;
+                
+            if( isTab )
+            {
+                if( elem.prev('.pager').length>0 )
+                    topleft = elem.prev('.pager');
+                if( elem.next('.pager').length>0 )
+                    bottomright = elem.next('.pager');
+            }
+            
+            var ol = $('<div class="wdf_overlay"/>')
+                .append('<div class="lds-ripple"><div></div><div></div></div>')
 				.appendTo(elem).show()
-				.sizeFrom(elem,0,$('.caption',elem).height())
-				.css('position','absolute')
-				.position({my:'left top',at:'left top',of:elem});
-			$('<div class="wdf_overlay_anim"/>')
-				.appendTo(elem).show()
-				.sizeFrom(overlay)
-				.css('position','absolute')
-				.position({my:'left top',at:'left top',of:elem})
-				.click( function(){ return false;} );
+                .css({display:'none'})
+            	.click( function(e){ e.preventDefault(); e.stopPropagation(); return false;} )
+                .fadeIn('fast',function()
+                {
+                    if( typeof callback == 'function' )
+                        callback();
+                });
+            
+            var resizer = function()
+            {
+                if( !elem.data('resize_wdf_overlay') )
+                    return;
+                var e = elem.get(0).getBoundingClientRect(),
+                    tl = topleft.get(0).getBoundingClientRect(),
+                    br = bottomright.get(0).getBoundingClientRect();
+                ol.css({
+                    left: tl.left + pageXOffset, 
+                    top: tl.top + pageYOffset,
+                    width: Math.max(e.right,tl.right,br.right) - Math.min(e.left,tl.left,br.left),
+                    height: Math.max(e.bottom,tl.bottom,br.bottom) - Math.min(e.top,tl.top,br.top)
+                });
+                setTimeout(resizer,100);
+            };
+            elem.data('resize_wdf_overlay',true);
+            resizer();
 		});
 	};
 	
+    $.fn.posFrom = function(elem,xOffset,yOffset)
+	{
+        var e = $(elem).get(0), r = e?e.getBoundingClientRect():{left:0,top:0};
+		return this.each(function()
+		{
+			$(this).css({left: r.left+pageXOffset+(xOffset||0), top: r.top+pageYOffset+(yOffset||0)})
+		});
+	};
+    
 	$.fn.sizeFrom = function(elem,add_width,add_height)
 	{
 		return this.each(function()

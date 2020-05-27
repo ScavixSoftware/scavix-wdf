@@ -39,7 +39,7 @@ class ClearTask extends Task
     
     function Logs()
     {
-        foreach( $GLOBALS['logging_logger'] as $l )
+        foreach( \ScavixWDF\Wdf::$Logger as $l )
             $l->RotateNow();
         log_info("Logs rotated");
     }

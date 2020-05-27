@@ -33,15 +33,16 @@ namespace ScavixWDF\Session;
 class APCStore extends ObjectStore
 {
     private $serializer;
+    public static $apcstore_key_prefix = 'wdf_apcstore_';
     
     public function __construct()
     {
         global $CONFIG;
         $servername = isset($_SERVER['SERVER_NAME'])?$_SERVER['SERVER_NAME']:"SCAVIX_WDF_SERVER";
-        if(isset($CONFIG['apcstore']['key_prefix']))
-            $GLOBALS['apcstore_key_prefix'] = "apcstore_".md5($servername."-".$CONFIG['apcstore']['key_prefix']."-".getAppVersion('nc')).'_';
+        if( isset($CONFIG['apcstore']['key_prefix']) )
+            APCStore::$apcstore_key_prefix = "apcstore_".md5($servername."-".$CONFIG['apcstore']['key_prefix']."-".getAppVersion('nc')).'_';
         else
-            $GLOBALS["apcstore_key_prefix"] = "apcstore_".md5($servername."-".session_name()."-".getAppVersion('nc')).'_';
+            APCStore::$apcstore_key_prefix = "apcstore_".md5($servername."-".session_name()."-".getAppVersion('nc')).'_';
 
         $this->serializer = new Serializer();
         
@@ -67,9 +68,9 @@ class APCStore extends ObjectStore
         
         $content = $this->serializer->Serialize($obj);
         
-        apc_store($GLOBALS["apcstore_key_prefix"].session_id().'_'.$id, $content, (ini_get('session.gc_maxlifetime')?:300));
+        apc_store(APCStore::$apcstore_key_prefix.session_id().'_'.$id, $content, (ini_get('session.gc_maxlifetime')?:300));
 
-        $GLOBALS['object_storage'][$id] = $obj;
+        ObjectStore::$buffer[$id] = $obj;
         $this->_stats(__METHOD__,$start);
     }
     
@@ -82,10 +83,10 @@ class APCStore extends ObjectStore
 		if( is_object($id) && isset($id->_storage_id) )
 			$id = $id->_storage_id;
         
-        if( isset($GLOBALS['object_storage'][$id]) )
-            unset($GLOBALS['object_storage'][$id]);
+        if( isset(ObjectStore::$buffer[$id]) )
+            unset(ObjectStore::$buffer[$id]);
         
-		apc_delete($GLOBALS["apcstore_key_prefix"].session_id().'_'.$id);
+		apc_delete(APCStore::$apcstore_key_prefix.session_id().'_'.$id);
         
         $this->_stats(__METHOD__,$start);
     }
@@ -99,10 +100,10 @@ class APCStore extends ObjectStore
 		if( is_object($id) && isset($id->_storage_id) )
 			$id = $id->_storage_id;
 		$id = strtolower($id);
-		if( isset($GLOBALS['object_storage'][$id]) )
+		if( isset(ObjectStore::$buffer[$id]) )
             $res = true;
         else
-            $res = (apc_exists($GLOBALS["apcstore_key_prefix"].session_id().'_'.$id) === true);
+            $res = (apc_exists(APCStore::$apcstore_key_prefix.session_id().'_'.$id) === true);
         $this->_stats(__METHOD__,$start);
 		return $res;
     }
@@ -115,13 +116,13 @@ class APCStore extends ObjectStore
         $start = microtime(true);
 		$id = strtolower($id);
 
-		if( isset($GLOBALS['object_storage'][$id]) )
-			$res = $GLOBALS['object_storage'][$id];
+		if( isset(ObjectStore::$buffer[$id]) )
+			$res = ObjectStore::$buffer[$id];
         else
         {
-            $data = apc_fetch($GLOBALS["apcstore_key_prefix"].session_id().'_'.$id);
+            $data = apc_fetch(APCStore::$apcstore_key_prefix.session_id().'_'.$id);
             $res = $this->serializer->Unserialize($data);
-            $GLOBALS['object_storage'][$id] = $res;
+            ObjectStore::$buffer[$id] = $res;
 
         }
         $this->_stats(__METHOD__,$start);
@@ -174,7 +175,7 @@ class APCStore extends ObjectStore
             {
                 foreach($data['cache_list'] as $entry)
                 {
-                    if(starts_with($entry['info'], $GLOBALS["apcstore_key_prefix"].session_id().'_'))
+                    if(starts_with($entry['info'], APCStore::$apcstore_key_prefix.session_id().'_'))
                         apc_store($entry['info'], apc_fetch($entry['info']), (ini_get('session.gc_maxlifetime')?:300));
                 }
                 return;
@@ -184,7 +185,7 @@ class APCStore extends ObjectStore
         }
         
         $sql = [];
-        foreach( $GLOBALS['object_storage'] as $id=>$obj )
+        foreach( ObjectStore::$buffer as $id=>$obj )
 		{
 			try
 			{
@@ -210,9 +211,9 @@ class APCStore extends ObjectStore
         {
             foreach($data['cache_list'] as $entry)
             {
-                if(starts_with($entry['info'], $GLOBALS["apcstore_key_prefix"].$old_session_id.'_'))
+                if(starts_with($entry['info'], APCStore::$apcstore_key_prefix.$old_session_id.'_'))
                 {
-                    apc_store(str_replace($GLOBALS["apcstore_key_prefix"].$old_session_id.'_', $GLOBALS["apcstore_key_prefix"].$new_session_id.'_', $entry['info']), apc_fetch($entry['info']), (ini_get('session.gc_maxlifetime')?:300));
+                    apc_store(str_replace(APCStore::$apcstore_key_prefix.$old_session_id.'_', APCStore::$apcstore_key_prefix.$new_session_id.'_', $entry['info']), apc_fetch($entry['info']), (ini_get('session.gc_maxlifetime')?:300));
                 }
             }
         }

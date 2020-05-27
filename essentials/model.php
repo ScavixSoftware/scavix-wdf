@@ -32,6 +32,7 @@
 
 use ScavixWDF\Model\DataSource;
 use ScavixWDF\WdfDbException;
+use ScavixWDF\Wdf;
 
 /**
  * Initializes the model essential.
@@ -50,9 +51,6 @@ function model_init()
     require_once(__DIR__.'/model/resultset.class.php');
     require_once(__DIR__.'/model/driver/idatabasedriver.class.php');
     require_once(__DIR__.'/model/datasource.class.php');
-
-	$GLOBALS['MODEL_DATABASES'] = array();
-	$GLOBALS['MODEL_REGISTER'] = array();
 
 	if( !is_array($CONFIG['model']) )
 		WdfDbException::Raise("Please configure at least one DB in CONFIG['model']");
@@ -85,9 +83,7 @@ function model_init()
  */
 function model_init_db($name,$constr,$dstype='DataSource')
 {
-	global $MODEL_DATABASES;
-	
-	$MODEL_DATABASES[$name] = array($dstype,$constr);
+	Wdf::$DataSources[$name] = array($dstype,$constr);
 }
 
 /**
@@ -95,8 +91,7 @@ function model_init_db($name,$constr,$dstype='DataSource')
  */
 function model_store()
 {
-	global $MODEL_DATABASES;
-	foreach( $MODEL_DATABASES as $dbname=>$db )
+	foreach( Wdf::$DataSources as $dbname=>$db )
 		if( !is_array($db) )
 			store_object($db,$dbname);
 }
@@ -109,15 +104,13 @@ function model_store()
  */
 function &model_datasource($name)
 {
-	global $MODEL_DATABASES;
-
 	if( strpos($name,"DataSource::") !== false )
 	{
 		$name = explode("::",$name);
 		$name = $name[1];
 	}
 
-	if( !isset($MODEL_DATABASES[$name]) )
+	if( !isset(Wdf::$DataSources[$name]) )
 	{
 		if( function_exists('model_on_unknown_datasource') )
 		{
@@ -129,17 +122,17 @@ function &model_datasource($name)
 		return $res;
 	}
 
-	if( is_array($MODEL_DATABASES[$name]) )
+	if( is_array(Wdf::$DataSources[$name]) )
 	{
-		list($dstype,$constr) = $MODEL_DATABASES[$name];
+		list($dstype,$constr) = Wdf::$DataSources[$name];
 		$dstype = fq_class_name($dstype);
 		$model_db = new $dstype($name,$constr);
 		if( !$model_db )
 			WdfDbException::Raise("Unable to connect to database '$name'.");
-		$MODEL_DATABASES[$name] = $model_db;
+		Wdf::$DataSources[$name] = $model_db;
 	}
 
-	return $MODEL_DATABASES[$name];
+	return Wdf::$DataSources[$name];
 }
 
 /**

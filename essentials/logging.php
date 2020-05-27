@@ -31,12 +31,8 @@
 
 use ScavixWDF\Logging\Logger;
 use ScavixWDF\Logging\LogReport;
+use ScavixWDF\Wdf;
 use ScavixWDF\WdfException;
-
-$GLOBALS['LOGGING_ERROR_NAMES'] = array(
-	'ERROR','WARNING','PARSE','NOTICE','CORE_ERROR','CORE_WARNING','COMPILE_ERROR',
-	'COMPILE_WARNING','USER_ERROR','USER_WARNING','USER_NOTICE','STRICT',
-	'RECOVERABLE_ERROR','DEPRECATED','USER_DEPRECATED','ALL');
 
 /**
  * Initializes the logging mechanism.
@@ -67,7 +63,6 @@ function logging_init()
 	// remove error module from module-auto-load config and fake that it has been loaded
         if( isset($CONFIG['system']['modules']) && is_array($CONFIG['system']['modules']) )
             $CONFIG['system']['modules'] = array_diff($CONFIG['system']['modules'],array('error'));
-	$GLOBALS["loaded_modules"]['error'] = __FILE__;
 	
 	require_once(__DIR__.'/logging/logentry.class.php');
 	require_once(__DIR__.'/logging/logreport.class.php');
@@ -80,9 +75,8 @@ function logging_init()
 	if( !isset($CONFIG['system']['logging']) )
 		$CONFIG['system']['logging'] = array('default' => array());
 	
-	$GLOBALS['logging_logger'] = array();
 	foreach( $CONFIG['system']['logging'] as $alias=>$conf )
-		$GLOBALS['logging_logger'][$alias] = Logger::Get($conf);
+		Wdf::$Logger[$alias] = Logger::Get($conf);
 	
 	ini_set("display_errors", 0);
 	ini_set("log_errors", 1);
@@ -95,12 +89,12 @@ function logging_init()
 
 function logging_add_logger($alias,$conf)
 {
-    $GLOBALS['logging_logger'][$alias] = Logger::Get($conf);
+    Wdf::$Logger[$alias] = Logger::Get($conf);
 }
 
 function logging_get_logger($alias)
 {
-    return $GLOBALS['logging_logger'][$alias];
+    return Wdf::$Logger[$alias];
 }
 
 function register_request_logger($classname)
@@ -138,7 +132,11 @@ function logging_mem_ok()
  */
 function global_error_handler($errno, $errstr, $errfile, $errline)
 {
-	global $LOGGING_ERROR_NAMES;
+    static $error_names = [
+        'E_ERROR','E_WARNING','E_PARSE','E_NOTICE','E_CORE_ERROR','E_CORE_WARNING','E_COMPILE_ERROR',
+        'E_COMPILE_WARNING','E_USER_ERROR','E_USER_WARNING','E_USER_NOTICE','E_STRICT',
+        'E_RECOVERABLE_ERROR','E_DEPRECATED','E_USER_DEPRECATED','E_ALL'
+    ];
 
 	// Use error_reporting() to check if @ operator is in use.
 	// This works as we set error_reporting(E_ALL|E_STRICT) in logging_init().
@@ -153,17 +151,16 @@ function global_error_handler($errno, $errstr, $errfile, $errline)
         return true;
     
     $sev = 'NOTICE';
-	foreach( $LOGGING_ERROR_NAMES as $n )
+	foreach( $error_names as $n )
     {
-		if( constant("E_$n") == $errno )
+		if( constant($n) == $errno )
 		{
-			$sev = $n;
-			$sev = explode("_",$sev); // to break *_* severity from global handler that uses PHP error codes like USER_NOTICE, CORE_ERROR,...
+			$sev = explode("_",$n); // to break *_* severity from global handler that uses PHP error codes like USER_NOTICE, CORE_ERROR,...
 			$sev = $sev[count($sev)-1];
 			break;
 		}
     }
-	foreach( $GLOBALS['logging_logger'] as $l )
+	foreach( Wdf::$Logger as $l )
 	{
 		$l->addCategory("GLOBAL");
 		$l->write($sev,true,"[$errno] $errstr in $errfile:$errline");
@@ -180,13 +177,13 @@ function global_exception_handler($ex)
 	{
 		// system_die will handle logging itself. perhaps restructure that to
 		// keep things in place and let that function only handle the exception
-		foreach( $GLOBALS['logging_logger'] as $l )
+		foreach( Wdf::$Logger as $l )
 			$l->fatal($ex);
 		system_die($ex);
 	}
 	catch(Exception $fatal)
 	{
-		foreach( $GLOBALS['logging_logger'] as $l )
+		foreach( Wdf::$Logger as $l )
 		{
 			$l->addCategory("NESTED_EXCEPTION");
 			$l->fatal($fatal);
@@ -211,13 +208,13 @@ function global_fatal_handler()
 	{
 		// system_die will handle logging itself. perhaps restructure that to
 		// keep things in place and let that function only handle the exception
-		foreach( $GLOBALS['logging_logger'] as $l )
+		foreach( Wdf::$Logger as $l )
 			$l->fatal($ex);
 		system_die($ex, var_export($error, true));
 	}
 	catch(Exception $fatal)
 	{
-		foreach( $GLOBALS['logging_logger'] as $l )
+		foreach( Wdf::$Logger as $l )
 		{
 			$l->addCategory("NESTED_EXCEPTION");
 			$l->fatal($fatal);
@@ -248,8 +245,8 @@ function global_fatal_handler()
  */
 function logging_extend_logger($alias,$key,$value)
 {
-	if( isset($GLOBALS['logging_logger'][$alias]) )
-		$GLOBALS['logging_logger'][$alias]->extend($key,$value);
+	if( isset(Wdf::$Logger[$alias]) )
+		Wdf::$Logger[$alias]->extend($key,$value);
 }
 
 /**
@@ -260,7 +257,7 @@ function logging_extend_logger($alias,$key,$value)
  */
 function logging_add_category($name)
 {
-    foreach( $GLOBALS['logging_logger'] as $l )
+    foreach( Wdf::$Logger as $l )
 		$l->addCategory($name);
 }
 
@@ -272,7 +269,7 @@ function logging_add_category($name)
  */
 function logging_remove_category($name)
 {
-    foreach( $GLOBALS['logging_logger'] as $l )
+    foreach( Wdf::$Logger as $l )
 		$l->removeCategory($name);
 }
 
@@ -284,7 +281,7 @@ function logging_remove_category($name)
  */
 function logging_set_level($min_severity = "INFO")
 {
-	foreach( $GLOBALS['logging_logger'] as $l )
+	foreach( Wdf::$Logger as $l )
 		$l->min_severity = $min_severity;
 }
 
@@ -314,7 +311,7 @@ function logging_set_user($object_storage_id='user',$fieldname='username')
  */
 function log_write($severity,$a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)
 {
-	foreach( $GLOBALS['logging_logger'] as $l )
+	foreach( Wdf::$Logger as $l )
 		$l->write(strtoupper($severity),false,$a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10);
 }
 
@@ -323,7 +320,7 @@ function log_write($severity,$a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=nu
  */
 function log_trace($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)
 {
-	foreach( $GLOBALS['logging_logger'] as $l )
+	foreach( Wdf::$Logger as $l )
 		$l->trace($a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10);
 }
 
@@ -332,7 +329,7 @@ function log_trace($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=nul
  */
 function log_debug($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)
 {
-	foreach( $GLOBALS['logging_logger'] as $l )
+	foreach( Wdf::$Logger as $l )
 		$l->debug($a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10);
 }
 
@@ -341,7 +338,7 @@ function log_debug($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=nul
  */
 function log_info($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)
 {
-	foreach( $GLOBALS['logging_logger'] as $l )
+	foreach( Wdf::$Logger as $l )
 		$l->info($a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10);
 }
 
@@ -350,7 +347,7 @@ function log_info($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null
  */
 function log_warn($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)
 {
-	foreach( $GLOBALS['logging_logger'] as $l )
+	foreach( Wdf::$Logger as $l )
 		$l->warn($a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10);
 }
 
@@ -359,7 +356,7 @@ function log_warn($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null
  */
 function log_error($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)
 {
-	foreach( $GLOBALS['logging_logger'] as $l )
+	foreach( Wdf::$Logger as $l )
 		$l->error($a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10);
 }
 
@@ -368,7 +365,7 @@ function log_error($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=nul
  */
 function log_fatal($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)
 {
-	foreach( $GLOBALS['logging_logger'] as $l )
+	foreach( Wdf::$Logger as $l )
 		$l->fatal($a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10);
 }
 
@@ -452,7 +449,7 @@ function log_start_report($name)
  */
 function log_report(LogReport $report, $severity="TRACE")
 {
-	foreach( $GLOBALS['logging_logger'] as $l )
+	foreach( Wdf::$Logger as $l )
 		$l->report($report,$severity);
 }
 
@@ -547,7 +544,7 @@ function render_var($content)
 function start_timer($name)
 {
     $id = uniqid();
-    $GLOBALS['logging_timers'][$id] = [ [$name,microtime(true),0] ];
+    Wdf::$Timer[$id] = [ [$name,microtime(true),0] ];
     return $id;
 }
 
@@ -560,10 +557,10 @@ function start_timer($name)
  */
 function hit_timer($id,$label='(no label)')
 {
-    if( !isset($GLOBALS['logging_timers'][$id]) )
+    if( !isset(Wdf::$Timer[$id]) )
         return;
-    list($name,$start,$dur) = array_last($GLOBALS['logging_timers'][$id]);
-    $GLOBALS['logging_timers'][$id][] = [$label,microtime(true),round((microtime(true)-$start)*1000)];
+    list($name,$start,$dur) = array_last(Wdf::$Timer[$id]);
+    Wdf::$Timer[$id][] = [$label,microtime(true),round((microtime(true)-$start)*1000)];
 }
 
 /**
@@ -575,11 +572,11 @@ function hit_timer($id,$label='(no label)')
  */
 function finish_timer($id,$min_ms = false)
 {
-    if( !isset($GLOBALS['logging_timers'][$id]) )
+    if( !isset(Wdf::$Timer[$id]) )
         return;
-    $trace = $GLOBALS['logging_timers'][$id];
+    $trace = Wdf::$Timer[$id];
     list($name,$start,$dur) = array_shift($trace);
-    unset($GLOBALS['logging_timers'][$id]);
+    unset(Wdf::$Timer[$id]);
     
     $ms = round((microtime(true)-$start)*1000);
     if( !$min_ms || $ms >= $min_ms )

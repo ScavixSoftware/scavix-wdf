@@ -37,7 +37,11 @@ namespace ScavixWDF\Session;
  */
 abstract class ObjectStore
 {
+    public static $buffer = [];
+    public static $ids = [];
+    
     var $Statistics = [];
+    
     protected function _stats($name,$started)
     {
         if(!isDev())

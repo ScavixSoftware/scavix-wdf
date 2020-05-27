@@ -55,6 +55,8 @@ class Serializer
 	var $clsmap;
 	var $sleepmap;
 	var $Lines;
+    
+    public static $unserializing_level = 0;
 
     private static function prepareSerialization($data,$stack=null)
     {
@@ -134,7 +136,6 @@ class Serializer
             if( strpos($data,"\n") === false )
                 return "s:". $data ."\n";
 			return "S:". json_encode($data) ."\n";
-//			return "s:". str_replace("\n", "\\n", $data) ."\n";     // old DEPRECATED
 		}
 		elseif( is_int($data) )
 		{
@@ -225,16 +226,14 @@ class Serializer
 	 */
 	function Unserialize($data)
 	{
-		if( !isset($GLOBALS['unserializing_level']) )
-			$GLOBALS['unserializing_level'] = 0;
-		$GLOBALS['unserializing_level']++;
+		self::$unserializing_level++;
         
 		$this->Index = 0;
 		$this->Lines = explode("\n",trim($data));
 		$this->Stack = array();
 		$res = $this->Unser_Inner();
         
-		$GLOBALS['unserializing_level']--;
+		self::$unserializing_level--;
 		return $res;
 	}
     

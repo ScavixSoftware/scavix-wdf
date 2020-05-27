@@ -32,8 +32,6 @@ namespace ScavixWDF\Controls\Table;
 
 use ScavixWDF\Base\Control;
 
-$GLOBALS['TR_CURRENTLY_ODD'] = false;
-
 /**
  * A table row written as div.
  * 
@@ -44,6 +42,8 @@ class Tr extends Control
     var $options = false;
     var $current_cell = false;
 	var $model = false;
+    
+    public static $CURRENTLY_ODD = false;
 
 	/**
 	 * @param array $options Currently none
@@ -60,8 +60,8 @@ class Tr extends Control
 			{
 				if( !isset($options['hidden']) || !$options['hidden'] )
 				{
-//					$this->class = $GLOBALS['TR_CURRENTLY_ODD']?$options['oddclass']:$options['evenclass'];
-//					$GLOBALS['TR_CURRENTLY_ODD'] = !$GLOBALS['TR_CURRENTLY_ODD'];
+//					$this->class = Tr::$CURRENTLY_ODD?$options['oddclass']:$options['evenclass'];
+//					Tr::$CURRENTLY_ODD = !Tr::$CURRENTLY_ODD;
 				}
 			}
 			if( isset($options['tr_class']) )
@@ -161,8 +161,8 @@ class Tr extends Control
 		{
 			if( !isset($this->_css['display']) || $this->_css['display'] != "none" )
 			{
-				$this->class = $GLOBALS['TR_CURRENTLY_ODD']?$this->options['oddclass']:$this->options['evenclass'];
-				$GLOBALS['TR_CURRENTLY_ODD'] = !$GLOBALS['TR_CURRENTLY_ODD'];
+				$this->class = Tr::$CURRENTLY_ODD?$this->options['oddclass']:$this->options['evenclass'];
+				Tr::$CURRENTLY_ODD = !Tr::$CURRENTLY_ODD;
 			}
 		}
 

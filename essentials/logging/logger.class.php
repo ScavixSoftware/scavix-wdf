@@ -30,15 +30,6 @@
  */
 namespace ScavixWDF\Logging;
 
-$GLOBALS['logger_severity_map'] = array
-(
-	'NOTICE'     => 'DEBUG',
-	'DEPRECATED' => 'INFO',
-	'WARNING'    => 'WARN',
-	'STRICT'     => 'WARN',
-	'PARSE'      => 'FATAL'
-);
-
 /**
  * Base class for logging.
  * 
@@ -48,6 +39,15 @@ $GLOBALS['logger_severity_map'] = array
  */
 class Logger
 {
+    public static $severity_map =
+    [
+        'NOTICE'     => 'DEBUG',
+        'DEPRECATED' => 'INFO',
+        'WARNING'    => 'WARN',
+        'STRICT'     => 'WARN',
+        'PARSE'      => 'FATAL'
+    ];
+    
 	const TRACE = 1;
 	const DEBUG = 2;
 	const INFO = 4;
@@ -203,8 +203,8 @@ class Logger
 	protected function prepare($severity=false,$log_trace=false,$a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)
 	{
 		// translate PHP severities like NOTICE,... to our own
-		if( isset($GLOBALS['logger_severity_map'][$severity]))
-			$severity = $GLOBALS['logger_severity_map'][$severity];
+		if( isset(Logger::$severity_map[$severity]))
+			$severity = Logger::$severity_map[$severity];
 		
 		if( isset($this->min_severity) )
 		{

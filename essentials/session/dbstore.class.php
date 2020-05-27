@@ -105,7 +105,7 @@ class DbStore extends ObjectStore
 //        $sql = "INSERT DELAYED INTO wdf_objects(session_id,id,classname,no,created,last_access,data)VALUES $sql ON DUPLICATE KEY UPDATE last_access	= now(),data = VALUES(data)";
 //        $this->exec($sql);
 
-        $GLOBALS['object_storage'][$id] = $obj;
+        ObjectStore::$buffer[$id] = $obj;
         $this->_stats(__METHOD__,$start);
     }
     
@@ -118,8 +118,8 @@ class DbStore extends ObjectStore
 		if( is_object($id) && isset($id->_storage_id) )
 			$id = $id->_storage_id;
         
-        if( isset($GLOBALS['object_storage'][$id]) )
-            unset($GLOBALS['object_storage'][$id]);
+        if( isset(ObjectStore::$buffer[$id]) )
+            unset(ObjectStore::$buffer[$id]);
 		$this->exec("DELETE FROM wdf_objects WHERE session_id=? AND id=?", [session_id(),$id]);
         $this->_stats(__METHOD__,$start);
     }
@@ -133,7 +133,7 @@ class DbStore extends ObjectStore
 		if( is_object($id) && isset($id->_storage_id) )
 			$id = $id->_storage_id;
 		$id = strtolower($id);
-		if( isset($GLOBALS['object_storage'][$id]) )
+		if( isset(ObjectStore::$buffer[$id]) )
             $res = true;
         else
             $res = $this->exec("SELECT id FROM wdf_objects WHERE session_id=? AND id=?", [session_id(),$id])->Count()>0;
@@ -149,15 +149,15 @@ class DbStore extends ObjectStore
         $start = microtime(true);
 		$id = strtolower($id);
 
-		if( isset($GLOBALS['object_storage'][$id]) )
-			$res = $GLOBALS['object_storage'][$id];
+		if( isset(ObjectStore::$buffer[$id]) )
+			$res = ObjectStore::$buffer[$id];
         else
         {
             $row = $this->exec("SELECT data FROM wdf_objects WHERE session_id=? AND id=?", [session_id(),$id])->current();
             $data = $row['data'];
 
             $res = $this->serializer->Unserialize($data);
-            $GLOBALS['object_storage'][$id] = $res;
+            ObjectStore::$buffer[$id] = $res;
 
         }
         $this->_stats(__METHOD__,$start);
@@ -197,7 +197,7 @@ class DbStore extends ObjectStore
         if( $classname )
         {
             $classname = strtolower($classname);
-            foreach( $GLOBALS['object_storage'] as $id=>&$obj )
+            foreach( ObjectStore::$buffer as $id=>&$obj )
             {
                 if( get_class_simple($obj,true) == $classname )
                     $this->Delete($id);
@@ -230,7 +230,7 @@ class DbStore extends ObjectStore
         }
         
         $sql = [];
-        foreach( $GLOBALS['object_storage'] as $id=>$obj )
+        foreach( ObjectStore::$buffer as $id=>$obj )
 		{
 			try
 			{

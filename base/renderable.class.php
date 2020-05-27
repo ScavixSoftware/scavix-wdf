@@ -71,16 +71,11 @@ abstract class Renderable implements \JsonSerializable
     protected static $_renderingStack = [];
     public static function PushRenderer(Renderable $r)
     {
-        $GLOBALS['current_rendering_template'] = $r; // compat
         self::$_renderingStack[] = $r;
     }
     public static function PopRenderer()
     {
         array_pop(self::$_renderingStack);
-        if( self::HasCurrentRenderer() )  // compat
-            $GLOBALS['current_rendering_template'] = self::GetCurrentRenderer();
-        else
-            unset($GLOBALS['current_rendering_template']);
     }
     public static function HasCurrentRenderer()
     {

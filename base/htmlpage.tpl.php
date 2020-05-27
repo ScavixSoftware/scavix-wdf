@@ -30,8 +30,8 @@
  */
 
 $js_cookie_error = '<div style="display: block !important; font-weight:bold; text-align: center;"><br/>ERR_JAVASCRIPT_AND_COOKIES_REQUIRED</div>';
-$render_noscript_block = isset($render_noscript_block)?$render_noscript_block:$GLOBALS['CONFIG']['system']['htmlpage']['render_noscript'];
-$doctype = isset($doctype)?$doctype:$GLOBALS['CONFIG']['system']['htmlpage']['doctype'];
+$render_noscript_block = isset($render_noscript_block)?$render_noscript_block:ScavixWDF\Base\HtmlPage::$RENDER_NOSCRIPT;
+$doctype = isset($doctype)?$doctype:ScavixWDF\Base\HtmlPage::$DOCTYPE;
 
 echo '<?xml version="1.0" encoding="UTF-8" ?>'."\n$doctype\n";?>
 <html xmlns="http://www.w3.org/1999/xhtml"<?=(isset($languagecode) ? ' lang="'.$languagecode.'"' : '')?>>

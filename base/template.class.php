@@ -267,17 +267,6 @@ class Template extends Renderable
 		$tempvars = system_render_object_tree($this->get_vars());
         $scriptcnt = count($this->_script);
 
-		foreach( $GLOBALS as $un_common_k_e_y_value=>&$un_common_v_a_l_value )
-			$$un_common_k_e_y_value = $un_common_v_a_l_value;
-
-		$buf = array();
-		foreach( $tempvars as $un_common_k_e_y_value=>&$un_common_v_a_l_value )
-		{
-			if( isset($$un_common_k_e_y_value) )
-				$buf[$un_common_k_e_y_value] = $$un_common_k_e_y_value;
-			$$un_common_k_e_y_value = $un_common_v_a_l_value;
-		}
-        
         $render_in_context = function($file,$variables)
         {
             extract($GLOBALS);
