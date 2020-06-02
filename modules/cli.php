@@ -210,6 +210,16 @@ function cli_execute()
         if( strcasecmp($method,'run')!=0 && strcasecmp($ref->getName(),$class)!=0 )
             \ScavixWDF\WdfException::Raise("Invalid task method '$method' ".$ref->getName()."?=$class");
         
+        foreach( $argv as $i=>$arg )
+        {
+            if( is_numeric($i) && strpos($arg,"=") )
+            {
+                list($k,$v) = explode("=",$arg,2);
+                if( !isset($argv[$k]) )
+                    $argv[$k] = $v;
+            }
+        }
+        
         $exectime = microtime(true);
         $task->$method($argv);
         $exectime = round((microtime(true) - $exectime) * 1000);
