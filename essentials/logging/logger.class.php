@@ -217,8 +217,13 @@ class Logger
 			$this->ensureFile();
 		if( !file_exists($this->filename) )
 			touch($this->filename);
-		if( fileperms($this->filename) != 0777 )
+		if( (fileperms($this->filename) & 0777) != 0777 )
+        {
+            $um = umask(0);
 			@chmod($this->filename, 0777);
+            
+            umask($um);
+        }
 		
 		$parts = array();
 		if( !is_null( $a1) ) $parts[] = $this->render( $a1);
