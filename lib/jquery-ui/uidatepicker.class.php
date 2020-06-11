@@ -138,11 +138,10 @@ class uiDatePicker extends uiControl
 		$format = str_replace("M4", "MM", $format);
 		$format = str_replace("M", "m", $format);
 
-		$format = str_replace("yyyy", "y4", $format);
 		$format = str_replace("y1", "y", $format);
-		$format = str_replace("y2", "y", $format);
+		$format = str_replace("y2", "yy", $format);
 		$format = str_replace("y3", "yy", $format);
-		$format = str_replace("y4", "yy", $format);
+		$format = str_replace("y4", "yyyy", $format);
 		
         $this->Options['firstDay'] = $cultureInfo->DateTimeFormat->FirstDayOfWeek;
         
