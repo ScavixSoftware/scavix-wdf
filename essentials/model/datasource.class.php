@@ -614,4 +614,16 @@ class DataSource
 		if( $this->LastStatement )
             $this->LastStatement->LogDebug($label);
 	}
+    
+    public function getLock($name,$timeout=10)
+    {
+        $lock = (strlen($name)<500)?$name:sha1($name);
+        return system_get_lock($lock,$this,$timeout);
+    }
+    
+    public function releaseLock($name)
+    {
+        $lock = (strlen($name)<500)?$name:sha1($name);
+        system_release_lock($lock,$this);
+    }
 }

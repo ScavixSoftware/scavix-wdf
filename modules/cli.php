@@ -107,8 +107,12 @@ function cli_run_script($php_script_path, $args=[], $extended_data=false, $retur
     
     if( file_exists($out) && !is_writable($out) )
         $out = system_app_temp_dir()."cli-bash.log";
+    
+    $grep = shell_exec("which grep");
+    if( $grep ) $grep = "| ".trim($grep)." . ";
         
-    $cmdline = "nohup php -c $ini $cmd >>$out 2>&1 &";
+    $cmdline = "nohup php -c $ini $cmd $grep>>$out 2>&1 &";
+    
     if( $return_cmdline )
         return $cmdline;
     exec($cmdline);
@@ -209,6 +213,16 @@ function cli_execute()
         $ref = $ref->getDeclaringClass();
         if( strcasecmp($method,'run')!=0 && strcasecmp($ref->getName(),$class)!=0 )
             \ScavixWDF\WdfException::Raise("Invalid task method '$method' ".$ref->getName()."?=$class");
+        
+        foreach( $argv as $i=>$arg )
+        {
+            if( is_numeric($i) && strpos($arg,"=") )
+            {
+                list($k,$v) = explode("=",$arg,2);
+                if( !isset($argv[$k]) )
+                    $argv[$k] = $v;
+            }
+        }
         
         $exectime = microtime(true);
         $task->$method($argv);

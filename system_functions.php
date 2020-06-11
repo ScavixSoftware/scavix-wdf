@@ -1175,7 +1175,7 @@ function ifavail()
 	$data = array_shift($args);
 	
 	if( count($args) == 0 )
-		ScavixWDF\WdfException::Raise("ifavail needs at one argument");
+		ScavixWDF\WdfException::Raise("ifavail needs at least one argument");
 	
 	if( is_array($data) )
 		$data = (object)$data;
