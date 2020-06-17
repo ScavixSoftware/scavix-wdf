@@ -267,14 +267,16 @@ class Template extends Renderable
 		$tempvars = system_render_object_tree($this->get_vars());
         $scriptcnt = count($this->_script);
 
-        $render_in_context = function($file,$variables)
+        /* parameters are $file and $variables, keeping them anonymous to avoid conflicts with named variables */
+        $render_in_context = function()
         {
-            extract($GLOBALS);
-            extract($variables);
             Renderable::PushRenderer($this);
             
+            extract($GLOBALS);
+            extract(func_get_arg(1));
+            
             ob_start();
-            require($file);
+            require(func_get_arg(0));
             $result = ob_get_contents();
             ob_end_clean();
             
