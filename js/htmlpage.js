@@ -509,7 +509,7 @@
 
 			var scroll_handler = function(e)
 			{
-                if( $(window).scrollTop() + $(window).height() < trigger.position().top )
+                if( ($(window).scrollTop() + $(window).height()) < (trigger.position().top + trigger.height()) )
 					return;
 				
 				wdf.showScrollListLoadAnim();
@@ -518,12 +518,13 @@
 				{
 					if( typeof(result) != 'string' || result == "" )
 						return;
+                    
 					wdf.scrollListLoaderOffset++;
 					$(wdf.scrollListLoaderContainer).append(result);
-					$(window).bind('scroll.loadMoreContent', scroll_handler);
+					$(window).unbind('scroll.loadMoreContent', scroll_handler).bind('scroll.loadMoreContent', scroll_handler);
 					
-					if( $(window).scrollTop() + $(window).height() >= trigger.position().top )
-						scroll_handler();		// keep loading until it fills the page
+                    if( ($(window).scrollTop() + $(window).height()) >= (trigger.position().top + trigger.height()) )
+                        scroll_handler();		// keep loading until it fills the page
 				});
             }
 			$(window).bind('scroll.loadMoreContent', scroll_handler);
