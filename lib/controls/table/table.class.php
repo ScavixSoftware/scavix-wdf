@@ -570,12 +570,17 @@ class Table extends Control
 	 * @param int $max_pages_to_show Maximum links to pages to be shown
 	 * @return DatabaseTable `$this`
 	 */
-	function AddPager($total_items, $items_per_page = 15, $current_page=1, $max_pages_to_show=10)
+	function AddPager($total_items, $items_per_page = 15, $current_page=false, $max_pages_to_show=10)
 	{
 		$this->TotalItems = $total_items;
 		$this->ItemsPerPage = $items_per_page;
-		$this->CurrentPage = $current_page;
-		$this->MaxPagesToShow = $max_pages_to_show;
+        if($current_page !== false)
+            $this->CurrentPage = $current_page;
+        elseif( $this->PersistName && avail($_SESSION, "table_persist_{$this->PersistName}_page"))
+            $this->CurrentPage = intval(max(1, $_SESSION["table_persist_{$this->PersistName}_page"]));
+        elseif(!$this->CurrentPage)
+            $this->CurrentPage = 1;
+        $this->MaxPagesToShow = $max_pages_to_show;
 		store_object($this);
 		return $this;
 	}
