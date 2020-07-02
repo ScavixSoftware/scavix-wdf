@@ -45,6 +45,64 @@ class Wdf
     public static $SessionHandler;
     public static $ObjectStore;
     public static $Translation;
+    
+    protected static $buffers = [];
+    public static function HasBuffer($name)
+    {
+        return isset(self::$buffers[$name]);
+    }
+    
+    public static function GetBuffer($name,$initial_data=[])
+    {
+        if( !isset(self::$buffers[$name]) )
+            self::$buffers[$name] = new WdfBuffer($initial_data);
+        return self::$buffers[$name];
+    }
+    
+}
+
+class WdfBuffer
+{
+    protected $data = [];
+    
+    function __construct($initial_data=[])
+    {
+        if( is_callable($initial_data) )
+        {
+            $this->data = $initial_data();
+            log_debug("Initial buffer data: ",$this->data);
+        }
+        else
+            $this->data = is_array($initial_data)?$initial_data:[];
+    }
+    
+    function dump()
+    {
+        return $this->data;
+    }
+    
+    function set($name, $value)
+    {
+        $this->data[$name] = $value;
+        return $value;
+    }
+
+    function del($name)
+    {
+        if( isset($this->data[$name]) )
+        {
+            $r = $this->data[$name];
+            unset($this->data[$name]);
+        }
+        return isset($r)?$r:null;
+    }
+
+    function get($name, $default=null)
+    {
+        if( isset($this->data[$name]) )
+            return $this->data[$name];
+        return (is_callable($default))?$default($name):$default;
+    }
 }
 
 /**

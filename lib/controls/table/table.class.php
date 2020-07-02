@@ -69,6 +69,8 @@ class Table extends Control
     
     var $PersistName = false;
     var $force_ajax_dependenciesloading = false;
+    
+    var $OnPageChanged = false;
 	
 	function __initialize()
 	{
@@ -77,6 +79,15 @@ class Table extends Control
         if(system_is_ajax_call())
             $this->force_ajax_dependenciesloading = true;
 	}
+    
+    protected function TriggerOnPageChanged()
+    {
+        if( $this->OnPageChanged )
+        {
+            $f = $this->OnPageChanged;
+            $f("table_persist_{$this->PersistName}_page",$this->CurrentPage);
+        }
+    }
     
     function __collectResourcesInternal($template)
 	{
@@ -597,7 +608,10 @@ class Table extends Control
         if( isset($_SESSION["table_persist_{$name}_page"]) )
             $this->CurrentPage = intval(max(1, $_SESSION["table_persist_{$name}_page"]));
         else
+        {
             $_SESSION["table_persist_{$name}_page"] = $this->CurrentPage;
+            $this->TriggerOnPageChanged();
+        }
         store_object($this);
         return $this;
     }
@@ -612,7 +626,10 @@ class Table extends Control
         if( $this->ItemsPerPage )
            $this->CurrentPage = 1;
         if( $this->PersistName )
+        {
             unset($_SESSION["table_persist_{$this->PersistName}_page"]);
+            $this->TriggerOnPageChanged();
+        }
         return $this;
     }
 	
@@ -638,7 +655,10 @@ class Table extends Control
 	{
         $this->CurrentPage = $number;
         if( $this->PersistName )
-             $_SESSION["table_persist_{$this->PersistName}_page"] = $this->CurrentPage;
+        {
+            $_SESSION["table_persist_{$this->PersistName}_page"] = $this->CurrentPage;
+            $this->TriggerOnPageChanged();
+        }
 	}
 	
 	protected function RenderPager()
