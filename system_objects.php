@@ -68,10 +68,7 @@ class WdfBuffer
     function __construct($initial_data=[])
     {
         if( is_callable($initial_data) )
-        {
             $this->data = $initial_data();
-            log_debug("Initial buffer data: ",$this->data);
-        }
         else
             $this->data = is_array($initial_data)?$initial_data:[];
     }
