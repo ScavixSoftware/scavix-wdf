@@ -105,7 +105,7 @@ class FilesStore extends ObjectStore
 //        $this->_stats(__METHOD__.'/SER',$start);
 //        $start = microtime(true);
 //        file_put_contents($this->getFile($id), $content);
-        $GLOBALS['object_storage'][$id] = $obj;
+        ObjectStore::$buffer[$id] = $obj;
         $this->_stats(__METHOD__,$start);
     }
     
@@ -118,8 +118,8 @@ class FilesStore extends ObjectStore
 		if( is_object($id) && isset($id->_storage_id) )
 			$id = $id->_storage_id;
         
-        if( isset($GLOBALS['object_storage'][$id]) )
-            unset($GLOBALS['object_storage'][$id]);
+        if( isset(ObjectStore::$buffer[$id]) )
+            unset(ObjectStore::$buffer[$id]);
 		@unlink($this->getFile($id));
         $this->_stats(__METHOD__,$start);
     }
@@ -133,7 +133,7 @@ class FilesStore extends ObjectStore
 		if( is_object($id) && isset($id->_storage_id) )
 			$id = $id->_storage_id;
 		$id = strtolower($id);
-		if( isset($GLOBALS['object_storage'][$id]) )
+		if( isset(ObjectStore::$buffer[$id]) )
             $res = true;
         else
             $res = file_exists($this->getFile($id));
@@ -149,19 +149,24 @@ class FilesStore extends ObjectStore
         $start = microtime(true);
 		$id = strtolower($id);
 
-		if( isset($GLOBALS['object_storage'][$id]) )
+		if( isset(ObjectStore::$buffer[$id]) )
         {
-			$res = $GLOBALS['object_storage'][$id];
+			$res = ObjectStore::$buffer[$id];
             $this->_stats(__METHOD__,$start);
         }
         else
         {
-            $data = file_get_contents($this->getFile($id));
-            $this->_stats(__METHOD__,$start);
-            $start = microtime(true);
-            $res = $this->serializer->Unserialize($data);
-            $GLOBALS['object_storage'][$id] = $res;
-            $this->_stats(__METHOD__.'/UNSER',$start);
+            $data = @file_get_contents($this->getFile($id));
+            if( $data )
+            {
+                $this->_stats(__METHOD__,$start);
+                $start = microtime(true);
+                $res = $this->serializer->Unserialize($data);
+                ObjectStore::$buffer[$id] = $res;
+                $this->_stats(__METHOD__.'/UNSER',$start);
+            }
+            else
+                $res = null;
         }
 		return $res;
     }
@@ -199,7 +204,7 @@ class FilesStore extends ObjectStore
         if( $classname )
         {
             $classname = strtolower($classname);
-            foreach( $GLOBALS['object_storage'] as $id=>&$obj )
+            foreach( ObjectStore::$buffer as $id=>&$obj )
             {
                 if( get_class_simple($obj,true) == $classname )
                     $this->Delete($id);
@@ -250,7 +255,7 @@ class FilesStore extends ObjectStore
         }
 
         /* Update is guaranteed to be called (see register_shutdown_function), so perform storage here once the script is ready */
-        foreach( $GLOBALS['object_storage'] as $id=>$obj )
+        foreach( ObjectStore::$buffer as $id=>$obj )
         {
             $content = $this->serializer->Serialize($obj);
             file_put_contents($this->getFile($id), $content);

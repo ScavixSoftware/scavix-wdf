@@ -226,13 +226,16 @@ class WdfTaskModel extends Model
         $ds = DataSource::Get();
         $test = $ds->ExecuteSql("SELECT DISTINCT worker_pid FROM wdf_tasks WHERE worker_pid IS NOT NULL")->Enumerate('worker_pid');
         $tasks = self::getRunningProcessors();
-//        log_debug($tasks, $test);
+
         $pids = implode(",",array_filter(array_diff($test,$tasks)));
         if( $pids )
         {
-            $rs = $ds->ExecuteSql("UPDATE wdf_tasks SET worker_pid=null, assigned=null WHERE worker_pid IN($pids)");
+            $rs = $ds->ExecuteSql(
+                "UPDATE wdf_tasks SET worker_pid=null, assigned=null WHERE 
+                 (assigned>NOW()+INTERVAL 5 SECOND) AND worker_pid IN($pids)"
+                );
             if( $rs && $rs->Count() )
-                log_debug("Restarted ".$rs->Count()." tasks whose workers did not exist anymore");
+                log_debug("Restarted ".$rs->Count()." tasks whose workers ($pids) did not exist anymore");
             
             $rs = $ds->ExecuteSql("UPDATE wdf_tasks SET assigned=null WHERE isnull(worker_pid)");
             if( $rs && $rs->Count() )

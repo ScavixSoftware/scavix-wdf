@@ -40,9 +40,9 @@ class SessionStore extends ObjectStore
     public function __construct()
     {
         if( isset($_SESSION['object_id_storage']) )
-    		$GLOBALS['object_ids'] = $_SESSION['object_id_storage'];
+    		ObjectStore::$ids = $_SESSION['object_id_storage'];
         else
-            $GLOBALS['object_ids'] = [];
+            ObjectStore::$ids = [];
         
         $this->serializer = new Serializer();
     }
@@ -67,7 +67,7 @@ class SessionStore extends ObjectStore
         $content = $this->serializer->Serialize($obj);
         $_SESSION[$CONFIG['session']['prefix']."session"][$id] = $content;
         
-		$GLOBALS['object_storage'][$id] = $obj;
+		ObjectStore::$buffer[$id] = $obj;
         
         $_SESSION[$CONFIG['session']['prefix']."object_access"][$obj->_storage_id] = time();
         $this->_stats(__METHOD__,$start);
@@ -88,13 +88,13 @@ class SessionStore extends ObjectStore
             unset($_SESSION[$CONFIG['session']['prefix']."object_access"][$id]);
         if( isset($_SESSION['object_id_storage'][$id]) )
             unset($_SESSION['object_id_storage'][$id]);
-        if( isset($GLOBALS['object_ids'][$id]) )
-            unset($GLOBALS['object_ids'][$id]);
+        if( isset(ObjectStore::$ids[$id]) )
+            unset(ObjectStore::$ids[$id]);
         
 		$id = strtolower($id);
 		if(isset($_SESSION[$CONFIG['session']['prefix']."session"][$id]))
 			unset($_SESSION[$CONFIG['session']['prefix']."session"][$id]);
-		unset($GLOBALS['object_storage'][$id]);
+		unset(ObjectStore::$buffer[$id]);
         $this->_stats(__METHOD__,$start);
     }
     
@@ -109,7 +109,7 @@ class SessionStore extends ObjectStore
 		if( is_object($id) && isset($id->_storage_id) )
 			$id = $id->_storage_id;
 		$id = strtolower($id);
-		if( isset($GLOBALS['object_storage'][$id]) )
+		if( isset(ObjectStore::$buffer[$id]) )
 			$res = true;
         else
             $res = isset($_SESSION[$CONFIG['session']['prefix']."session"][$id]);
@@ -126,8 +126,8 @@ class SessionStore extends ObjectStore
         $start = microtime(true);
 		$id = strtolower($id);
 
-		if( isset($GLOBALS['object_storage'][$id]) )
-			$res = $GLOBALS['object_storage'][$id];
+		if( isset(ObjectStore::$buffer[$id]) )
+			$res = ObjectStore::$buffer[$id];
         else
         {
             if(!isset($_SESSION[$CONFIG['session']['prefix']."session"][$id]))
@@ -136,7 +136,7 @@ class SessionStore extends ObjectStore
             $data = $_SESSION[$CONFIG['session']['prefix']."session"][$id];
 
             $res = $this->serializer->Unserialize($data);
-            $GLOBALS['object_storage'][$id] = $res;
+            ObjectStore::$buffer[$id] = $res;
 
         }
         
@@ -162,20 +162,20 @@ class SessionStore extends ObjectStore
 		}
 
 		$cn = strtolower(get_class_simple($obj));
-		if( !isset($GLOBALS['object_ids'][$cn]) )
+		if( !isset(ObjectStore::$ids[$cn]) )
 		{
 			$i = 1;
 			while(isset($_SESSION[$CONFIG['session']['prefix']."session"][$cn.$i]))
 				$i++;
-			$GLOBALS['object_ids'][$cn] = $i;
+			ObjectStore::$ids[$cn] = $i;
 		}
 		else
-			$GLOBALS['object_ids'][$cn]++;
+			ObjectStore::$ids[$cn]++;
 
-		$obj->_storage_id = $cn.$GLOBALS['object_ids'][$cn];
+		$obj->_storage_id = $cn.ObjectStore::$ids[$cn];
 
 		if( session_id() )
-			$_SESSION['object_id_storage'] = $GLOBALS['object_ids'];
+			$_SESSION['object_id_storage'] = ObjectStore::$ids;
 
         $this->_stats(__METHOD__,$start);
 		return $obj->_storage_id;
@@ -192,7 +192,7 @@ class SessionStore extends ObjectStore
         if( $classname )
         {
             $classname = strtolower($classname);
-            foreach( $GLOBALS['object_storage'] as $id=>&$obj )
+            foreach( ObjectStore::$buffer as $id=>&$obj )
             {
                 if( get_class_simple($obj,true) == $classname )
                     $this->Delete($id);
@@ -205,7 +205,7 @@ class SessionStore extends ObjectStore
         {
             foreach( $_SESSION[$CONFIG['session']['prefix']."object_access"] as $id=>$time )
             {
-                if( isset($GLOBALS['object_storage'][$id]) || $time + 60 > time() )
+                if( isset(ObjectStore::$buffer[$id]) || $time + 60 > time() )
                     continue;
                 delete_object($id);
             }
@@ -228,7 +228,7 @@ class SessionStore extends ObjectStore
             return;
         }
         
-        foreach( $GLOBALS['object_storage'] as $id=>&$obj )
+        foreach( ObjectStore::$buffer as $id=>&$obj )
 		{
 			try
 			{

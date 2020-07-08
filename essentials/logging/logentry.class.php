@@ -53,7 +53,7 @@ class LogEntry
         $this->trace = $trace?$this->cleanupTrace($trace,$max_trace_depth):false;
         $this->message = substr($message,0,1024*50);
     }
-	
+    
 	private function cleanupTrace($stacktrace,$max_trace_depth)
 	{
 		$args = array();
@@ -154,6 +154,9 @@ class LogEntry
 	{
         if( !function_exists('utf8_encode') )
             return "missing php-xml";
+        
+        $mss = \ScavixWDF\Base\Renderable::StartSlimSerialize();
+        
 		$res = new stdClass();
 		$res->dt = date("c",$this->datetime);
 		$res->cat = array();
@@ -180,6 +183,9 @@ class LogEntry
 			}	
 			$out = json_encode($res);
 		}
+        
+        if( $mss )
+            \ScavixWDF\Base\Renderable::StopSlimSerialize();
 		return $out;
 	}
 }

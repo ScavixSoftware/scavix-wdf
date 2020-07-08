@@ -28,7 +28,8 @@
  * @copyright since 2019 Scavix Software GmbH & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
- 
+
+use ScavixWDF\Wdf;
 use ScavixWDF\WdfException;
 
 /**
@@ -50,8 +51,8 @@ function geoip_init()
 	if( !system_is_module_loaded('curlwrapper') )
 		WdfException::Raise("Missing module: curlwrapper!");
 		
-	if( !isset($GLOBALS['current_ip_addr']) )
-		$GLOBALS['current_ip_addr'] = get_ip_address();
+	if( !Wdf::$ClientIP )
+		Wdf::$ClientIP = get_ip_address();
 	
 	if( !isset($CONFIG['geoip']['city_dat_file']) )
 		$CONFIG['geoip']['city_dat_file'] = __DIR__."/geoip/GeoLiteCity.dat";
@@ -69,7 +70,7 @@ function geoip_init()
 function get_geo_location_by_ip($ip_address=null)
 {
 	if( is_null($ip_address) ) 
-		$ip_address = $GLOBALS['current_ip_addr'];
+		$ip_address = Wdf::$ClientIP;
 
 	// local ips throw an error, so ignore them:
 	if(starts_with($ip_address, "192.168."))
@@ -97,13 +98,13 @@ function get_geo_region()
 	if( function_exists('geoip_open') )
 	{
 		$gi = geoip_open($GLOBALS['CONFIG']['geoip']['city_dat_file'],GEOIP_STANDARD);
-		$location = geoip_record_by_addr($gi,$GLOBALS['current_ip_addr']);
+		$location = geoip_record_by_addr($gi,Wdf::$ClientIP);
 		geoip_close($gi);
 		if(!isset($GEOIP_REGION_NAME[$location->country_code]))
 			return "";
 	}
 	else
-		$location = (object) geoip_record_by_name($GLOBALS['current_ip_addr']);
+		$location = (object) geoip_record_by_name(Wdf::$ClientIP);
 	return $GEOIP_REGION_NAME[$location->country_code][$location->region];
 }
 
@@ -117,7 +118,7 @@ function get_coordinates_by_ip($ip = false)
 {
 	// ip could be something like "1.1 ironportweb01.gouda.lok:80 (IronPort-WSA/7.1.1-038)" from proxies
 	if($ip === false)
-		$ip = $GLOBALS['current_ip_addr'];
+		$ip = Wdf::$ClientIP;
 	if(starts_with($ip, "1.1 ") || starts_with($ip, "192.168."))
 		return false;
 	
@@ -152,7 +153,11 @@ function get_coordinates_by_ip($ip = false)
 function get_countrycode_by_ip($ipaddr = false)
 {
 	if($ipaddr === false)
-		$ipaddr = $GLOBALS['current_ip_addr'];
+		$ipaddr = Wdf::$ClientIP;
+    
+    if(!filter_var($ipaddr, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4))
+        return false;
+            
 	if( isset($_SESSION['geoip_countrycode_by_ip_'.$ipaddr]) && $_SESSION['geoip_countrycode_by_ip_'.$ipaddr] != "" )
 		return $_SESSION['geoip_countrycode_by_ip_'.$ipaddr];
 
@@ -164,8 +169,8 @@ function get_countrycode_by_ip($ipaddr = false)
 	}
 	else
 		$country_code = geoip_country_code_by_name($ipaddr);
-	
-	if($country_code == "")
+
+	if(!$country_code)
 	{
 		if(isDev() && starts_with($ipaddr, '192.168.'))
 			$country_code = 'DE';
@@ -195,11 +200,11 @@ function get_countryname_by_ip()
 	if( function_exists('geoip_open') )
 	{
 		$gi = geoip_open($GLOBALS['CONFIG']['geoip']['city_dat_file'],GEOIP_STANDARD);
-		$country_name = geoip_country_name_by_name($gi,$GLOBALS['current_ip_addr']);
+		$country_name = geoip_country_name_by_name($gi,Wdf::$ClientIP);
 		geoip_close($gi);
 	}
 	else
-		$country_name = geoip_country_name_by_name($GLOBALS['current_ip_addr']);
+		$country_name = geoip_country_name_by_name(Wdf::$ClientIP);
 
 	return $country_name;
 }
@@ -214,7 +219,7 @@ function get_timezone_by_ip($ip = false)
 {
     global $CONFIG;
 	if($ip === false)
-		$ip = $GLOBALS['current_ip_addr'];
+		$ip = Wdf::$ClientIP;
 
 	if( starts_with($ip, "1.1 ") || starts_with($ip, "192.168.") )
 		return false;
@@ -244,17 +249,26 @@ function get_timezone_by_ip($ip = false)
             return false;
         };
     }
-    else
+    
+    // use geobytes free service (limited). Free API key is 7c756203dbb38590a66e01a5a3e1ad96
+    $apikey = (isset($CONFIG['geoip']['geobytes']) && isset($CONFIG['geoip']['geobytes']['apikey'])) ? $CONFIG['geoip']['geobytes']['apikey'] : '7c756203dbb38590a66e01a5a3e1ad96';
+    $services["https://secure.geobytes.com/GetCityDetails?key=".$apikey."&fqcn=$ip"] = function($response)
     {
-        // use ip-api free service (limited)
-        $services["http://ip-api.com/php/$ip"] = function($response)
-        {
-            $data = @unserialize($response);
-            if( $data && $data['status'] == 'success' )
-                return $data['timezone'];
-            return false;
-        };
-    }
+        $data = @unserialize($response);
+        if( $data && $data['geobytestimezone'] )
+            return $data['geobytestimezone'];
+        return false;
+    };
+    
+    // use ip-api free service (limited)
+    $services["http://ip-api.com/php/$ip"] = function($response)
+    {
+        $data = @unserialize($response);
+        if( $data && $data['status'] == 'success' )
+            return $data['timezone'];
+        return false;
+    };
+    
     if( isset($CONFIG['geoip']['ipinfodb']) && isset($CONFIG['geoip']['ipinfodb']['apikey']) )
     {
         $services["https://api.ipinfodb.com/v3/ip-city/?key={$CONFIG['geoip']['ipinfodb']['apikey']}&ip={$ip}&format=xml"] = function($response)

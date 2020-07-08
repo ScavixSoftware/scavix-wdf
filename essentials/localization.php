@@ -52,7 +52,6 @@ function localization_init()
 	if( !isset($CONFIG['localization']['detection_order']) )
 		$CONFIG['localization']['detection_order'] = array(Localization::USE_BROWSER,Localization::USE_IP);
 
-	$GLOBALS['arBufferedCultures'] = array();
 	require_once($p.'cultureinfo.inc.php');
 }
 

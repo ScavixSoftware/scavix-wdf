@@ -828,9 +828,9 @@ function get_ip_address()
 //		return "95.220.134.145";	// N/A
 //		return "194.126.108.2";	// Tallinn/Estonia (Skype static IP)
 
-	global $DETECTED_CLIENT_IP;
+	static $DETECTED_CLIENT_IP = 'undefined';
 
-	if( isset($DETECTED_CLIENT_IP) )
+	if( $DETECTED_CLIENT_IP !== 'undefined' )
 		return $DETECTED_CLIENT_IP;
 
 	$proxy_headers = array(
@@ -1175,7 +1175,7 @@ function ifavail()
 	$data = array_shift($args);
 	
 	if( count($args) == 0 )
-		ScavixWDF\WdfException::Raise("ifavail needs at one argument");
+		ScavixWDF\WdfException::Raise("ifavail needs at least one argument");
 	
 	if( is_array($data) )
 		$data = (object)$data;
@@ -1410,8 +1410,10 @@ function system_app_temp_dir($subfolder = '', $appendnc = true)
     if($appendnc)
         $basedir .= getAppVersion('nc').'/';
     $folder = $basedir.($subfolder ?: '');
-    $folder = str_replace('..', '', $folder);
-    $folder = preg_replace('/[^0-9a-zA-Z\/\-\_]/', '', $folder);
+    $folder = str_replace(['..'], [''], $folder);
+    $folder = (stripos(PHP_OS, 'WIN') === 0)
+        ?preg_replace('/[^0-9a-zA-Z\/\-\_\\\\:]/', '', $folder) // accept \ and : on windows
+        :preg_replace('/[^0-9a-zA-Z\/\-\_]/', '', $folder);
     while(strpos($folder, '//'))
         $folder = str_replace('//', '/', $folder);
     if( !file_exists($folder) )

@@ -635,7 +635,7 @@ class DatabaseTable extends Table implements ICallable
 	/**
 	 * @override <Table::AddPager> and hides $total_items argument
 	 */
-	function AddPager($items_per_page = 15, $current_page=1, $max_pages_to_show=10)
+	function AddPager($items_per_page = 15, $current_page=false, $max_pages_to_show=10)
 	{
 		return parent::AddPager(0,$items_per_page,$current_page,$max_pages_to_show);
 	}

@@ -46,6 +46,7 @@ class LeafLet extends Control
 
     protected $_markers = [];
     protected $_addresses = [];
+    protected $_polygons = [];
     protected $autoZoom = true;
 
     var $AutoShowHints = false; // useless gMap compat
@@ -114,7 +115,7 @@ class LeafLet extends Control
         $opts = system_to_json($this->Options);
         $this->script("$('#{self}').data('leaflet',L.map('{self}',$opts));");
         if( $this->autoZoom )
-            $this->script("$map.on('layeradd',function(e){ if( !e.layer._latlng ) return; var b=[]; this.eachLayer(function(l){ if( l._latlng ) b.push(l._latlng); }); if( b.length ) { this.fitBounds(b); if(b.length == 1) { this.setZoom(".$this->Options['zoom']."); }; }; });");
+            $this->script("$map.on('layeradd',function(e){ if( !e.layer._latlng && !e.layer._latlngs )return; var b=[]; this.eachLayer(function(l){ if( l._latlng ) b.push(l._latlng); for(var i in l._latlngs||{}) b = b.concat(l._latlngs[i]); }); if( b.length ) { this.fitBounds(b); if(b.length == 1) { this.setZoom(".$this->Options['zoom']."); }; }; });");
 
         // set tileLayer
         $opts = self::$providers[$this->TileProvider];
@@ -124,6 +125,25 @@ class LeafLet extends Control
         $markers = "$('#{self}').data('markers')";
         $this->script("var markers = new Array();");
 
+        // add polygons
+        foreach( $this->_polygons as $polygon )
+        {
+            $points = [];
+            foreach( $polygon['points'] as $point )
+            {
+                $lat = ifavail($point,'lat','latitude','Latitude','Lat');
+                $lng = ifavail($point,'lng','longitude','Longitude','Lng');
+                if( !$lat )
+                    $lat = array_shift($point);
+                if( !$lng )
+                    $lng = array_shift($point);
+                $points[] = [$lat,$lng];
+            }
+            $points = json_encode($points);
+            $this->script("p = new L.polygon($points,{color:'{$polygon['color']}'}).addTo($map);");
+            //$this->script("$map.fitBounds(p.getBounds());");
+        }
+        
         // add markers
         foreach( $this->_markers as $m )
         {
@@ -212,6 +232,12 @@ class LeafLet extends Control
     function AddAddress($address,$title=false)
     {
         $this->_addresses[] = [$address,$title?:''];
+        return $this;
+    }
+    
+    function AddPolygon($color,$points)
+    {
+        $this->_polygons[] = ['color'=>$color, 'points'=>$points];
         return $this;
     }
 

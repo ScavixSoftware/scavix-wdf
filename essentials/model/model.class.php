@@ -30,14 +30,21 @@
  */
 namespace ScavixWDF\Model;
 
-use Iterator;
 use ArrayAccess;
 use Countable;
 use DateTime;
 use Exception;
+use Iterator;
 use ScavixWDF\Base\DateTimeEx;
+use ScavixWDF\Wdf;
 use ScavixWDF\WdfDbException;
 use ScavixWDF\WdfException;
+use function force_array;
+use function log_error;
+use function log_trace;
+use function model_datasource;
+use function starts_iwith;
+use function unserializer_active;
 
 
 /**
@@ -268,7 +275,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		{
 			if( !self::$DefaultDatasource )
 			{
-				$aliases = array_keys($GLOBALS['MODEL_DATABASES']);
+				$aliases = array_keys(Wdf::$DataSources);
 				self::$DefaultDatasource = model_datasource(array_pop($aliases));
 			}
 			if( self::$DefaultDatasource )

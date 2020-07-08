@@ -40,6 +40,7 @@ use ScavixWDF\Base\Renderable;
 use ScavixWDF\ICallable;
 use ScavixWDF\Model\DataSource;
 use ScavixWDF\Reflection\WdfReflector;
+use ScavixWDF\Wdf;
 use ScavixWDF\WdfException;
 use ScavixWDF\WdfResource;
 
@@ -92,7 +93,6 @@ function system_config($filename,$reset_to_defaults=true)
 	global $CONFIG;
 	if( $reset_to_defaults )
 		system_config_default();
-    $GLOBALS['wdf_loaded_config_file'] = $filename;
 	require_once($filename);
 }
 
@@ -180,8 +180,9 @@ function system_config_default($reset = true)
 	$CONFIG['system']['admin']['username'] = false;
 	$CONFIG['system']['admin']['password'] = false;
 	
-	$CONFIG['system']['htmlpage']['doctype'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
-	$CONFIG['system']['htmlpage']['render_noscript'] = true;
+    // deprecated: Use HtmlPage static properties instead!
+//	$CONFIG['system']['htmlpage']['doctype'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
+//	$CONFIG['system']['htmlpage']['render_noscript'] = true;
 }
 
 /**
@@ -209,19 +210,19 @@ function system_load_module($path_to_module)
 	execute_hooks(HOOK_POST_MODULE_INIT,array($mod));
 
 	// mark module loaded:
-	$GLOBALS["loaded_modules"][$mod] = $path_to_module;
+	Wdf::$Modules[$mod] = $path_to_module;
 }
 
 /**
  * Checks if a module is already loaded.
  * 
- * Looks into `$GLOBALS["loaded_modules"]` if there's a key named `$mod`.
+ * Looks into `Wdf::$Modules` if there's a key named `$mod`.
  * @param string $mod The name of the module (not the path!)
  * @return bool true or false
  */
 function system_is_module_loaded($mod)
 {
-	return isset($GLOBALS["loaded_modules"][$mod]);
+	return isset(Wdf::$Modules[$mod]);
 }
 
 /**
@@ -318,7 +319,8 @@ function system_parse_request_path()
 		// test for *.less request -> need to compile that to css
 		if( ends_iwith($_REQUEST['wdf_route'],".less") )
 		{
-			$GLOBALS['routing_args'] = array($_REQUEST['wdf_route']);
+            Wdf::$Request->RouteArgs = array($_REQUEST['wdf_route']);
+			$GLOBALS['routing_args'] = array($_REQUEST['wdf_route']); // compat
 			unset($_REQUEST['wdf_route']);
 			unset($_GET['wdf_route']);
 			return array('ScavixWDF\WdfResource','CompileLess');
@@ -332,7 +334,8 @@ function system_parse_request_path()
         }
         else
             $path = explode("/",$_REQUEST['wdf_route']);
-		$GLOBALS['wdf_route'] = $path;
+        Wdf::$Request->Route = $path;
+		$GLOBALS['wdf_route'] = $path; // compat
 		unset($_REQUEST['wdf_route']);
 		unset($_GET['wdf_route']);
 
@@ -355,7 +358,10 @@ function system_parse_request_path()
 					{
 						foreach( array_slice($path,$offset) as $ra )
                             if( $ra !== '' )
-                                $GLOBALS['routing_args'][] = $ra;
+                            {
+                                Wdf::$Request->RouteArgs[] = $ra;
+                                $GLOBALS['routing_args'][] = $ra; // compat
+                            }
 					}
 				}
 			}
@@ -446,20 +452,29 @@ function system_execute()
 
 	Args::strip_tags();
 
-	global $current_controller,$current_event;
+    Wdf::$Request = new stdClass();
 	list($current_controller,$current_event) = system_parse_request_path();
+    Wdf::$Request->CurrentController = $current_controller;
+    Wdf::$Request->CurrentEvent = $current_event;
+    
     execute_hooks(HOOK_PRE_CONSTRUCT,array($current_controller,$current_event));
 
-	$current_controller = system_instanciate_controller($current_controller);
+	Wdf::$Request->CurrentController = $current_controller 
+        = system_instanciate_controller($current_controller);
+    
 	if( !(system_method_exists($current_controller,$current_event) ||
 		(system_method_exists($current_controller,'__method_exists') && $current_controller->__method_exists($current_event) )) )
 	{
-		$current_event = cfg_get('system','default_event');
+		Wdf::$Request->CurrentEvent = $current_event 
+            = cfg_get('system','default_event');
 	}
 
-	if( !isset($GLOBALS['wdf_route']) )
-		$GLOBALS['wdf_route'] = array($current_controller,$current_event);
-
+	if( !isset($GLOBALS['wdf_route']) ) // compat
+		$GLOBALS['wdf_route'] = array($current_controller,$current_event); // compat
+    
+    if( !isset(Wdf::$Request->Route) )
+        Wdf::$Request->Route = array($current_controller,$current_event);
+    
 	if( system_method_exists($current_controller,$current_event) ||
 		(system_method_exists($current_controller,'__method_exists') && $current_controller->__method_exists($current_event) ) )
 	{
@@ -594,7 +609,7 @@ function system_die($reason,$additional_message='')
 	if( !isset($stacktrace) )
 		$stacktrace = debug_backtrace();
 
-	if( isset($GLOBALS['system']['hooks'][HOOK_SYSTEM_DIE]) && count($GLOBALS['system']['hooks'][HOOK_SYSTEM_DIE]) > 0 )
+	if( isset(Wdf::$Hooks[HOOK_SYSTEM_DIE]) && count(Wdf::$Hooks[HOOK_SYSTEM_DIE]) > 0 )
 	{
 		execute_hooks(HOOK_SYSTEM_DIE,array(
 			$reason,
@@ -663,14 +678,14 @@ function register_hook_function($type,$handler_method,$prepend=false)
  */
 function register_hook($type,&$handler_obj,$handler_method,$prepend=false)
 {
-	if( !isset($GLOBALS['system']['hooks'][$type]) )
-		$GLOBALS['system']['hooks'][$type] = array();
+	if( !isset(Wdf::$Hooks[$type]) )
+		Wdf::$Hooks[$type] = array();
 
 	is_valid_hook_type($type);
     if( $prepend )
-        array_unshift($GLOBALS['system']['hooks'][$type],[$handler_obj, $handler_method]);
+        array_unshift(Wdf::$Hooks[$type],[$handler_obj, $handler_method]);
 	else
-        $GLOBALS['system']['hooks'][$type][] = [$handler_obj, $handler_method];
+        Wdf::$Hooks[$type][] = [$handler_obj, $handler_method];
 }
 
 /**
@@ -683,13 +698,13 @@ function register_hook($type,&$handler_obj,$handler_method,$prepend=false)
  */
 function release_hooks($handler_obj)
 {
-	foreach( $GLOBALS['system']['hooks'] as $type=>$stack )
+	foreach( Wdf::$Hooks as $type=>$stack )
 		foreach( $stack as $i=>$def )
 			if( $def[0] == $handler_obj )
-				unset( $GLOBALS['system']['hooks'][$type][$i] );
+				unset( Wdf::$Hooks[$type][$i] );
 			
-	foreach( $GLOBALS['system']['hooks'] as $type=>$stack )
-		$GLOBALS['system']['hooks'][$type] = array_values($stack);
+	foreach( Wdf::$Hooks as $type=>$stack )
+		Wdf::$Hooks[$type] = array_values($stack);
 }
 
 /**
@@ -705,8 +720,8 @@ function execute_hooks($type,$arguments = array())
 {
 	global $CONFIG;
 
-	$GLOBALS['system']['hooks']['fired'][$type] = $type;
-	if( !isset($GLOBALS['system']['hooks'][$type]) )
+	Wdf::$Hooks['fired'][$type] = $type;
+	if( !isset(Wdf::$Hooks[$type]) )
     	return;
     
 	is_valid_hook_type($type);
@@ -717,9 +732,9 @@ function execute_hooks($type,$arguments = array())
 		log_debug("BEGIN ".hook_type_to_string($type));
 	
 	// note: as hooks may be added to the chain do not remove the count(...) here: it may grow!
-	for($i=0; $i<count($GLOBALS['system']['hooks'][$type]); $i++)
+	for($i=0; $i<count(Wdf::$Hooks[$type]); $i++)
 	{
-		list($hook0,$hook1) = $GLOBALS['system']['hooks'][$type][$i];
+		list($hook0,$hook1) = Wdf::$Hooks[$type][$i];
 		if( is_object($hook0) )
 		{
 			if( $loghooks )
@@ -810,7 +825,7 @@ function hook_type_to_string($type)
  */
 function hook_already_fired($type)
 {
-	if( isset($GLOBALS['system']['hooks']['fired']) && isset($GLOBALS['system']['hooks']['fired'][$type]) )
+	if( isset(Wdf::$Hooks['fired']) && isset(Wdf::$Hooks['fired'][$type]) )
 		return true;
 	return false;
 }
@@ -824,7 +839,7 @@ function hook_already_fired($type)
  */
 function hook_bound($type)
 {
-	return isset($GLOBALS['system']['hooks'][$type]) && count($GLOBALS['system']['hooks'][$type]) > 0;
+	return isset(Wdf::$Hooks[$type]) && count(Wdf::$Hooks[$type]) > 0;
 }
 
 /**
@@ -1425,11 +1440,15 @@ function cache_list_keys($global_cache=true, $session_cache=true)
  */
 function current_controller($as_string=true)
 {
-	if( !isset($GLOBALS['current_controller']) )
+	if( !isset(Wdf::$Request->CurrentController) )
 		return $as_string?'':null;
 	if( $as_string )
-		return strtolower(is_object($GLOBALS['current_controller'])?get_class_simple($GLOBALS['current_controller']):$GLOBALS['current_controller']);
-	return $GLOBALS['current_controller'];
+		return strtolower(
+            is_object(Wdf::$Request->CurrentController)
+                ?get_class_simple(Wdf::$Request->CurrentController)
+                :Wdf::$Request->CurrentController
+            );
+	return Wdf::$Request->CurrentController;
 }
 
 /**
@@ -1440,7 +1459,7 @@ function current_controller($as_string=true)
  */
 function current_event()
 {
-	return isset($GLOBALS['current_event'])?strtolower($GLOBALS['current_event']):'';
+	return isset(Wdf::$Request->CurrentEvent)?strtolower(Wdf::$Request->CurrentEvent):'';
 }
 
 /**
@@ -1753,19 +1772,19 @@ function create_class_alias($original,$alias,$strong=false)
 		class_alias($original,$alias);
 
 	$alias = strtolower($alias);
-	if( isset($GLOBALS['system_class_alias'][$alias]) )
+	if( isset(Wdf::$ClassAliases[$alias]) )
 	{
-		if( $GLOBALS['system_class_alias'][$alias] == $original )
+		if( Wdf::$ClassAliases[$alias] == $original )
 			return;
 		
-		if( !is_array($GLOBALS['system_class_alias'][$alias]) )
-			$GLOBALS['system_class_alias'][$alias] = array($GLOBALS['system_class_alias'][$alias]);
-        elseif( in_array($original,$GLOBALS['system_class_alias'][$alias]) )
+		if( !is_array(Wdf::$ClassAliases[$alias]) )
+			Wdf::$ClassAliases[$alias] = array(Wdf::$ClassAliases[$alias]);
+        elseif( in_array($original,Wdf::$ClassAliases[$alias]) )
             return;
-		$GLOBALS['system_class_alias'][$alias][] = $original;
+		Wdf::$ClassAliases[$alias][] = $original;
 	}
 	else
-		$GLOBALS['system_class_alias'][$alias] = $original;
+		Wdf::$ClassAliases[$alias] = $original;
 }
 
 /**
@@ -1800,11 +1819,11 @@ function fq_class_name($classname)
         case 'filesstore':                return '\\ScavixWDF\\Session\\FilesStore';
 	}
 	
-	if( isset($GLOBALS['system_class_alias'][$cnl]) )
+	if( isset(Wdf::$ClassAliases[$cnl]) )
 	{
-		if( is_array($GLOBALS['system_class_alias'][$cnl]) )
-			WdfException::Raise("Ambigous classname: $classname",$GLOBALS['system_class_alias'][$cnl]);
-		return $GLOBALS['system_class_alias'][$cnl];
+		if( is_array(Wdf::$ClassAliases[$cnl]) )
+			WdfException::Raise("Ambigous classname: $classname",Wdf::$ClassAliases[$cnl]);
+		return Wdf::$ClassAliases[$cnl];
 	}
 	return $classname;
 }

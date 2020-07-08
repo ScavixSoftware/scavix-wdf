@@ -232,7 +232,7 @@ class DateTimeEx extends DateTime
 	 */
 	public function youngerThan($value,$interval)
 	{
-		$other = new DateTime("-$value $interval");
+		$other = new DateTime("-".intval($value)." $interval");
 		return $this > $other;
 	}
 	
@@ -251,7 +251,7 @@ class DateTimeEx extends DateTime
 	 */
 	public function olderThan($value,$interval)
 	{
-		$other = new DateTime("-$value $interval");
+		$other = new DateTime("-".intval($value)." $interval");
 		return $this < $other;
 	}
 	

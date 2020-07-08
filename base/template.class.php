@@ -247,6 +247,7 @@ class Template extends Renderable
 	 */
 	function WdfRenderAsRoot()
 	{
+        self::$_renderingRoot = $this;
 		if( !hook_already_fired(HOOK_PRE_RENDER) )
 			execute_hooks(HOOK_PRE_RENDER,array($this));
         return $this->WdfRender();
@@ -266,16 +267,22 @@ class Template extends Renderable
 		$tempvars = system_render_object_tree($this->get_vars());
         $scriptcnt = count($this->_script);
 
-		foreach( $GLOBALS as $un_common_k_e_y_value=>&$un_common_v_a_l_value )
-			$$un_common_k_e_y_value = $un_common_v_a_l_value;
-
-		$buf = array();
-		foreach( $tempvars as $un_common_k_e_y_value=>&$un_common_v_a_l_value )
-		{
-			if( isset($$un_common_k_e_y_value) )
-				$buf[$un_common_k_e_y_value] = $$un_common_k_e_y_value;
-			$$un_common_k_e_y_value = $un_common_v_a_l_value;
-		}
+        /* parameters are $file and $variables, keeping them anonymous to avoid conflicts with named variables */
+        $render_in_context = function()
+        {
+            Renderable::PushRenderer($this);
+            
+            extract($GLOBALS);
+            extract(func_get_arg(1));
+            
+            ob_start();
+            require(func_get_arg(0));
+            $result = ob_get_contents();
+            ob_end_clean();
+            
+            Renderable::PopRenderer();
+            return $result;
+        };
 
 		if( ($this instanceof HtmlPage) && $this->isHtmlPageTemplate($this->file) )
 		{
@@ -285,10 +292,18 @@ class Template extends Renderable
 
 			if( !$this->isHtmlPageTemplate($__template_file) )
 			{
-				ob_start();
-				require($__template_file);
-				$sub_template_content = ob_get_contents();
-				ob_end_clean();
+                $tempvars['sub_template_content'] = $render_in_context($__template_file,$tempvars);
+                
+                foreach( Renderable::CategorizeResources(Renderable::__getLazyResources()) as $r )
+                {
+                    if( $r['ext'] == 'css' || $r['ext'] == 'less' )
+                        $this->addCss($r['url'],$r['key']);
+                    else
+                        $this->addjs($r['url'],$r['key']);
+                }                
+                $tempvars['meta'] = $this->meta;
+                $tempvars['css'] = $this->css;
+                $tempvars['js'] = $this->js;
 			}
 			$this->file = WDF_HTMLPAGE_TEMPLATE;
 		}
@@ -297,23 +312,8 @@ class Template extends Renderable
 		if( $__template_file === false )
 			WdfException::Raise("Template for class '".get_class($this)."' not found: ".$this->file);
 
-        if( isset($GLOBALS['current_rendering_template']) )
-            $current_rendering_template = $GLOBALS['current_rendering_template'];
-        $GLOBALS['current_rendering_template'] = $this;
-		ob_start();
-		require($__template_file);
-		$contents = ob_get_contents();
-		ob_end_clean();
-        if( isset($current_rendering_template) )
-            $GLOBALS['current_rendering_template'] = $current_rendering_template;
-        else
-            unset($GLOBALS['current_rendering_template']);
-
-		foreach( $tempvars as $un_common_k_e_y_value=>&$un_common_v_a_l_value )
-			unset($$un_common_k_e_y_value);
-		foreach( $buf as $un_common_k_e_y_value=>&$un_common_v_a_l_value )
-			$$un_common_k_e_y_value = $un_common_v_a_l_value;
-		
+        $contents = $render_in_context($__template_file,$tempvars);
+        
         $script = '';
 		if( system_is_ajax_call() )
         {

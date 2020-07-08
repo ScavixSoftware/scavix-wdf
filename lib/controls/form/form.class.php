@@ -69,6 +69,17 @@ class Form extends Control
 				$inp = new PasswordInput($name);
 				break;
 			case "hidden":
+                if( is_array($value) )
+                {
+                    if(count($value))
+                    {
+                        foreach( $value as $i=>$v )
+                            $inp = HiddenInput::Make($v, "{$name}[{$i}]")->appendTo($this);
+                    }
+                    else
+                        $inp = new HiddenInput('', $name);
+                    return $inp;
+                }       
 				$inp = new HiddenInput($value, $name);
 				break;
 			case "select":
@@ -93,22 +104,22 @@ class Form extends Control
 	/**
 	 * @shortcut <Form::AddInput>('text',$name,$value)
 	 */
-	function AddText($name, $value){ return $this->AddInput('text', $name, $value); }
+	function AddText($name, $value=''){ return $this->AddInput('text', $name, $value); }
 	
 	/**
 	 * @shortcut <Form::AddInput>('textarea',$name,$value)
 	 */
-	function AddTextArea($name, $value){ return $this->AddInput('textarea', $name, $value); }
+	function AddTextArea($name, $value=''){ return $this->AddInput('textarea', $name, $value); }
 	
 	/**
 	 * @shortcut <Form::AddInput>('password',$name,$value)
 	 */
-	function AddPassword($name, $value){ return $this->AddInput('password', $name, $value); }
+	function AddPassword($name, $value=''){ return $this->AddInput('password', $name, $value); }
 	
 	/**
 	 * @shortcut <Form::AddInput>('hidden',$name,$value)
 	 */
-	function AddHidden($name, $value){ return $this->AddInput('hidden', $name, $value); }
+	function AddHidden($name, $value=''){ return $this->AddInput('hidden', $name, $value); }
 	
 	/**
 	 * @shortcut <Form::AddInput>('file',$name,$value)
@@ -155,5 +166,17 @@ class Form extends Control
 		$s = AjaxAction::Post($controller,$event,"$(this).serializeArray()");
 		$this->script("$('#{self}').submit( function(){ $s return false; } );");
 		return $this;
+	}
+    
+    function addHiddenData($data)
+    {
+        foreach( $data as $k=>$v )
+            $this->AddHidden($k, $v);
+        return $this;
+    }
+    
+    function setAction($controller,$event='',$data='')
+	{
+		return $this->attr('action', buildQuery($controller,$event,$data));
 	}
 }
