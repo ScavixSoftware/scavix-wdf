@@ -130,7 +130,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	public function LogDebug($label='')
 	{
         if( $label ) $label = "$label\n";
-        if( count($this->_arguments_used) )
+        if( $this->_arguments_used && count($this->_arguments_used) )
             log_debug("{$label}SQL   : ".$this->_sql_used."\nARGS  : ".json_encode($this->_arguments_used)."\nMERGED: ".ResultSet::MergeSql($this->_ds,$this->_sql_used,$this->_arguments_used));
         else
             log_debug("{$label}SQL: ".$this->_sql_used);
