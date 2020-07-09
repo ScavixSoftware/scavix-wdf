@@ -88,6 +88,7 @@ class uiDatePicker extends uiControl
 			else
 				$this->Options['defaultDate'] = $value;
 		}
+        $this->attr('autocomplete', 'off');
         
         if( self::$DefaultCI )
             $this->SetCulture(self::$DefaultCI);
