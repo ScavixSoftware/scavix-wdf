@@ -50,11 +50,6 @@ function mail_init()
 //		$CONFIG['mail']['dev_whitelist'] = array("");
 }
 
-function mail_smtp_debug_log($str, $level)
-{
-    log_debug("[MAIL][$level]",$str);
-}
-
 /**
  * Prepares an email.
  * 
@@ -95,7 +90,10 @@ function mail_prepare($recipient,$subject,$message,$plainmessage="",$attachments
 	}
 
 	$mail = new PHPMailer(true);
-    $mail->Debugoutput = 'mail_smtp_debug_log';
+    $mail->Debugoutput = function($str, $level)use(&$mail)
+    {
+        $mail->debug_lines[] = "[MAIL][$level]\t{$str}";
+    };
     
 	$mail->SetLanguage("en", __DIR__."/mail/language/");
 	$mail->CharSet = "utf-8";
@@ -196,6 +194,7 @@ function mail_send($recipient,$subject="",$message="",$plainmessage="",$attachme
 	if( !$res )
 	{
 		log_trace("mail_send($subject,$message): " . $mail->ErrorInfo, $recipient);
+        log_debug("Detailed mail log:\n",$mail->debug_lines);
 		return $mail->ErrorInfo;
 	}
 	return true;

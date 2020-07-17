@@ -558,6 +558,15 @@
                 return node;
             else
                 return wdf.getScrollParent(node.parentNode);
+        },
+        
+        isScrolledIntoView: function (elem)
+        {
+            var $e = $(elem);
+            var docViewTop = $e.offsetParent().scrollTop();
+            var docViewBottom = docViewTop + $e.offsetParent().height();
+            var elemTop = $e.offset().top;
+            return ((elemTop <= docViewBottom) && (elemTop >= docViewTop));
         }
 	};
 	
