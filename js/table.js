@@ -78,7 +78,7 @@ $.fn.table = function(opts)
 	});
 };
 
-$.fn.updateTable = function(html)
+$.fn.updateTable = function(html, callbackwhendone)
 {
     var self = this;
     self.overlay('remove', function() {
@@ -87,6 +87,8 @@ $.fn.updateTable = function(html)
         self.replaceWith(html); 
         $('.thead a',self).click(self.overlay);
         self.placePager(self.opts);
+        if(typeof callbackwhendone == 'function')
+            callbackwhendone();
     });
 };
 
