@@ -73,7 +73,7 @@ $.fn.table = function(opts)
 		}
 		
 		$('.pager',self).each( function(){ $(this).width(self.width());});
-        $('.thead a',self).click( function() { self.overlay(); });
+        $('.thead a[data-sort]',self).click( function(e) { self.overlay(); });
         $(this).placePager(opts);
 	});
 };

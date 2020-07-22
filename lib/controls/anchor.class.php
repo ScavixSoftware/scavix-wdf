@@ -60,6 +60,11 @@ class Anchor extends Control
             $this->class = $class;
 		$this->CloseTagNeeded();
 	}
+    
+    public static function Void($label)
+    {
+        return new Anchor("javascript:void(0)",$label);
+    }
 	
 	/**
 	 * @override Ensures that there's a valid href attribute, if not adds "#" to it.
