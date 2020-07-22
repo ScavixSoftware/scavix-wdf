@@ -323,8 +323,9 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$this->_dbValues = array();
 		if( !$this->_tableSchema )
 			$this->__ensureTableSchema();
-		foreach( $this->_tableSchema->ColumnNames() as $col )
+		foreach( $this->_tableSchema->Columns as $column )
 		{
+            $col = $column->Name;
 			if( $known_as_empty )
 			{
 				$this->$col = null;
@@ -333,7 +334,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			else
 			{
 				$this->$col = !isset($this->$col)?null:$this->__typedValue($col); // do not use $this->TypedValue because may be overridden
-				$this->_dbValues[$col] = $this->$col;
+                if( $column->Type == 'json' && (is_object($this->$col) || is_array($this->$col)) )
+                    $this->_dbValues[$col] = json_decode(json_encode($this->$col));
+                else
+                    $this->_dbValues[$col] = $this->$col;
 			}
 		}
 	}
@@ -393,6 +397,8 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 					WdfException::Log("date/time error with value (".gettype($value).")$value",$ex);
 				}
 				break;
+            case 'json':
+                return @json_decode($value)?:$value;
 		}
 		return $value;
 	}
@@ -434,6 +440,8 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 					WdfException::Log("date/time error with value (".gettype($value).")$value",$ex);
 				}
 				break;
+            case 'json':
+                return is_null($value)?null:json_encode($value);
 		}
 		return $value;
 	}
@@ -809,8 +817,9 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		
 		$res = array();
 		//$cols = array_diff(array_keys(get_object_vars($this)), array_keys(get_class_vars(get_class($this))));
-		foreach( $this->__ensureTableSchema()->ColumnNames() as $col )
+		foreach( $this->__ensureTableSchema()->Columns as $column )
 		{
+            $col = $column->Name;
 			if( isset($this->$col) )
 			{
 				if( !isset($this->_dbValues[$col]) )
@@ -825,6 +834,12 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 					if( $v2 instanceof DateTime )
 						$v2 = $v2->format('U');
 					
+                    if( $column->Type == 'json' )
+                    {
+                        $v1 = @json_encode($v1);
+                        $v2 = @json_encode($v2);
+                    }               
+                    
 					if( $v1 != $v2 )
 						$res[] = $col;
 				}
@@ -851,15 +866,21 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$res = array();
 		foreach( $this->GetColumnNames(true) as $col )
 		{
+            $type = $this->TypeOf($col);
+            
             $v1 = $this->__typedValue($col);
             if( $v1 instanceof DateTime )
                 $v1 = $v1->format('U');
+            elseif( $type=='json' )
+                $v1 = @json_encode($v1);
 
             if( isset($this->_dbValues[$col]) )
             {
                 $v2 = $this->__toTypedValue($col,$this->_dbValues[$col]);
                 if( $v2 instanceof DateTime )
                     $v2 = $v2->format('U');
+                elseif( $type=='json' )
+                    $v2 = @json_encode($v2);
             }
             else
                 $v2 = null;
@@ -1528,12 +1549,13 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
         if( $changed !== null )
             $buf = $this->GetChanges();
+        
 		$args = array();
 		$stmt = $this->_ds->Driver->getSaveStatement($this,$args,$columns_to_update);
 
 		if( !$stmt )
 			return true; // nothing to save
-				
+
 		if( !$stmt->execute($args) )
 			WdfDbException::RaiseStatement($stmt);
 

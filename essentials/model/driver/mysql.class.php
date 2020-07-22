@@ -120,6 +120,9 @@ class MySql implements IDatabaseDriver
 			$col->Default = $row['Default'];
 			$col->Extra = $row['Extra'];
 			$res->Columns[] = $col;
+            
+            if( $col->Type == 'longtext' && stripos($tableSql,"json_valid(`{$col->Name}`)")!==false )
+                $col->Type = 'json';
 		}
 
 		return $res;
@@ -220,6 +223,8 @@ class MySql implements IDatabaseDriver
 				 */
 				if( $args["$argn"] instanceof DateTime )
 					$args["$argn"] = $args["$argn"]->format('Y-m-d H:i:s');
+				elseif( is_object($args["$argn"]) || is_array($args["$argn"]) )
+					$args["$argn"] = @json_encode($args["$argn"]);
 			}
 		}
 		
