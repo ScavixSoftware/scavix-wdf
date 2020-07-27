@@ -443,7 +443,7 @@ class Table extends Control
             $args = $args[0];
 		foreach( $args as $i=>$f )
 		{
-			if( $f == "" )
+			if( !$f )
 				continue;
 			$this->SetColFormat($i, $f);
 		}

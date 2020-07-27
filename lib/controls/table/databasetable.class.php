@@ -403,12 +403,12 @@ class DatabaseTable extends Table implements ICallable
                 return $this->contentNoData;
             }
 			
-			if( !$this->header )
+			if( !$this->header || $this->header->length()==0 )
 				if( $this->OnAddHeader )
 					$this->OnAddHeader[0]->{$this->OnAddHeader[1]}($this, array());
 				else
 					$this->AddHeader(array());
-			
+                
 			if( !$this->footer )
 				if( $this->OnAddFooter )
 					$this->OnAddFooter[0]->{$this->OnAddFooter[1]}($this, array());
@@ -424,12 +424,12 @@ class DatabaseTable extends Table implements ICallable
             {
 				$row = $this->_preProcessData($raw_row);
 
-                if( !$this->header )
+                if( !$this->header || $this->header->length()==0 )
                     if( $this->OnAddHeader )
 						$this->OnAddHeader[0]->{$this->OnAddHeader[1]}($this, array_keys($row));
                     else
                         $this->AddHeader(array_keys($row));
-
+                
                 $cnt = $this->current_row_group?$this->current_row_group->length():0;
                 if( $this->OnAddRow )
                     $this->OnAddRow[0]->{$this->OnAddRow[1]}($this, $row, $raw_row);

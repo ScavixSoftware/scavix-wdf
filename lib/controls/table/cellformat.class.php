@@ -144,6 +144,11 @@ class CellFormat
 			if(!is_array($options))
 				$options = array($options);
 		}
+        elseif(is_callable($this->format) )
+        {
+            $cb = $this->format;
+            return $cb($full_content);
+        }
 		else
 			$format = strtolower($this->format);
 
