@@ -98,6 +98,7 @@ class DatabaseTable extends Table implements ICallable
     function __sleep()
     {
         $res = get_object_vars($this);
+        unset($res['persistance_storage']);
         if( $this->SlimSerialization )
         {
             unset($res['header']);

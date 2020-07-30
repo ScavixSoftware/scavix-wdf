@@ -80,12 +80,46 @@ class Table extends Control
             $this->force_ajax_dependenciesloading = true;
 	}
     
+    protected $persistance_storage;
+    protected function storage()
+    {
+        if( !$this->persistance_storage )
+            $this->persistance_storage = \ScavixWDF\Wdf::GetBuffer("table_storage")->mapToSession("table_storage");
+        return $this->persistance_storage;
+    }
+    
+    protected function getSetting($name,$default=false)
+    {
+        if( !$this->PersistName )
+            return $default;
+        return $this->storage()->get("{$this->PersistName}_{$name}", $default);
+    }
+    
+    protected function hasSetting($name)
+    {
+        if( !$this->PersistName )
+            return false;
+        return $this->storage()->has("{$this->PersistName}_{$name}");
+    }
+    
+    protected function setSetting($name,$value)
+    {
+        if( $this->PersistName )
+            $this->storage()->set("{$this->PersistName}_{$name}", $value);
+    }
+    
+    protected function delSetting($name)
+    {
+        if( $this->PersistName )
+            $this->storage()->del("{$this->PersistName}_{$name}");
+    }
+    
     protected function TriggerOnPageChanged()
     {
         if( $this->OnPageChanged )
         {
             $f = $this->OnPageChanged;
-            $f("table_persist_{$this->PersistName}_page",$this->CurrentPage);
+            $f("{$this->PersistName}_page",$this->CurrentPage);
         }
     }
     
@@ -587,8 +621,8 @@ class Table extends Control
 		$this->ItemsPerPage = $items_per_page;
         if($current_page !== false)
             $this->CurrentPage = $current_page;
-        elseif( $this->PersistName && avail($_SESSION, "table_persist_{$this->PersistName}_page"))
-            $this->CurrentPage = intval(max(1, $_SESSION["table_persist_{$this->PersistName}_page"]));
+        elseif( $this->hasSetting('page') )
+            $this->CurrentPage = intval(max(1,$this->getSetting('page')));
         elseif(!$this->CurrentPage)
             $this->CurrentPage = 1;
         $this->MaxPagesToShow = $max_pages_to_show;
@@ -602,18 +636,24 @@ class Table extends Control
      * @param string $name A (session-)unique name for the table
      * @return $this
      */
-    function Persist($name)
+    function Persist($name, \ScavixWDF\WdfBuffer $storage=null)
     {
+        $this->persistance_storage = $storage;
         $this->PersistName = $name;
-        if( isset($_SESSION["table_persist_{$name}_page"]) )
-            $this->CurrentPage = intval(max(1, $_SESSION["table_persist_{$name}_page"]));
+        if( $this->hasSetting('page') )
+            $this->CurrentPage = intval(max(1, $this->getSetting('page')));
         else
         {
-            $_SESSION["table_persist_{$name}_page"] = $this->CurrentPage;
+            $this->setSetting('page',$this->CurrentPage);
             $this->TriggerOnPageChanged();
         }
         store_object($this);
         return $this;
+    }
+    
+    function SetStorage(\ScavixWDF\WdfBuffer $storage)
+    {
+        $this->persistance_storage = $storage;
     }
     
     /**
@@ -625,11 +665,8 @@ class Table extends Control
     {
         if( $this->ItemsPerPage )
            $this->CurrentPage = 1;
-        if( $this->PersistName )
-        {
-            unset($_SESSION["table_persist_{$this->PersistName}_page"]);
-            $this->TriggerOnPageChanged();
-        }
+        $this->delSetting('page');
+        $this->TriggerOnPageChanged();
         return $this;
     }
 	
@@ -654,11 +691,8 @@ class Table extends Control
 	function GotoPage($number)
 	{
         $this->CurrentPage = $number;
-        if( $this->PersistName )
-        {
-            $_SESSION["table_persist_{$this->PersistName}_page"] = $this->CurrentPage;
-            $this->TriggerOnPageChanged();
-        }
+        $this->setSetting('page', $this->CurrentPage);
+        $this->TriggerOnPageChanged();
 	}
 	
 	protected function RenderPager()
