@@ -144,7 +144,7 @@ class CellFormat
 			if(!is_array($options))
 				$options = array($options);
 		}
-        elseif(is_callable($this->format) )
+        elseif(is_callable($this->format) && !in_array($this->format, ['duration', 'fixed', 'pre', 'preformatted', 'date', 'time', 'datetime', 'curreny', 'int', 'integer', 'percent', 'float', 'double']))
         {
             $cb = $this->format;
             return $cb($full_content);
