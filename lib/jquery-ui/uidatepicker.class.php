@@ -80,7 +80,10 @@ class uiDatePicker extends uiControl
                     ];
         }
         if( !$inline )
+        {
             $this->type = 'text';
+            $this->attr('autocomplete', 'off');
+        }
 		if( $value )
 		{
 			if( !$inline )
@@ -88,7 +91,6 @@ class uiDatePicker extends uiControl
 			else
 				$this->Options['defaultDate'] = $value;
 		}
-        $this->attr('autocomplete', 'off');
         
         if( self::$DefaultCI )
             $this->SetCulture(self::$DefaultCI);
