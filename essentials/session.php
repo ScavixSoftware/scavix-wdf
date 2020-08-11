@@ -184,11 +184,16 @@ function session_update($keep_alive=false)
     if( current_controller(false) instanceof WdfResource )
         return;
     
-    if( !system_is_ajax_call() )
-        Wdf::$ObjectStore->Cleanup();
+    if(Wdf::$ObjectStore)
+    {
+        if( !system_is_ajax_call() )
+            Wdf::$ObjectStore->Cleanup();
 
-    Wdf::$ObjectStore->Update($keep_alive);
-    return Wdf::$SessionHandler->Update();
+        Wdf::$ObjectStore->Update($keep_alive);
+    }
+    if(Wdf::$SessionHandler)
+        return Wdf::$SessionHandler->Update();
+    return false;
 }
 
 /**
@@ -270,8 +275,18 @@ function generate_session_id()
  */
 function session_serialize($value)
 {
-	$s = new Serializer();
-	return $s->Serialize($value);
+    try
+    {
+        if(class_exists('ScavixWDF\Session\Serializer'))
+        {
+            $s = new Serializer();
+            return $s->Serialize($value);
+        }
+    } catch(Exception $exc)
+    {
+        error_log($exc->getTraceAsString());
+    }
+    return false;
 }
 
 /**

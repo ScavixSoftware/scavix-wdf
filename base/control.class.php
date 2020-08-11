@@ -435,7 +435,7 @@ class Control extends Renderable
         $attr = array();
 		foreach( $this->_attributes as $name=>$value )
 		{
-            if( $name{0} == "_" || ($name == "class" && $value=="") )
+            if( $name[0] == "_" || ($name == "class" && $value=="") )
                 continue;
     		$attr[] = "$name=\"".str_replace("\"","&#34;",$value)."\"";
 		}

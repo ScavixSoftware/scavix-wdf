@@ -913,7 +913,7 @@ function __set_classpath_order($class_path_order)
  */
 function system_spl_autoload($class_name)
 {
-	if(($class_name == "") || ($class_name{0} == "<"))
+	if(($class_name == "") || ($class_name[0] == "<"))
 		return;  // it's html
     try
     {
