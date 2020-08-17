@@ -440,7 +440,8 @@ class Control extends Renderable
     		$attr[] = "$name=\"".str_replace("\"","&#34;",$value)."\"";
 		}
 		foreach( $this->_data_attributes as $name=>$value )
-			$attr[] = "data-$name='".str_replace("'","\\'",$value)."'";
+			$attr[] = "data-$name=\"".str_replace("\"","&#34;",$value)."\"";
+//			$attr[] = "data-$name='".str_replace("'","\\'",$value)."'";
 		
 		$css = array();
 		foreach( $this->_css as $key=>$val )
