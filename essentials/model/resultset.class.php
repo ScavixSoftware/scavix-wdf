@@ -577,6 +577,11 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 		}
 		return $this->_rowCount;
 	}
+    
+    function closeCursor()
+	{
+        $this->_stmt->closeCursor();
+    }
 
 	/**
 	 * @implements <ArrayAccess::offsetExists>

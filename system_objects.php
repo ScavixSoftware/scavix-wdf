@@ -290,6 +290,9 @@ class WdfDbException extends WdfException
     public static function RaiseStatement($statement, $use_extended_info = false)
 	{
         $errid = uniqid();
+        if(!($statement instanceof Model\ResultSet))
+            $statement = new Model\ResultSet($statement->_ds, $statement);
+        
         if(isDev())
         {
             if( $use_extended_info )
