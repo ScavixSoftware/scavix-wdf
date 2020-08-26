@@ -311,6 +311,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
             if( $qry )
             {
                 $found_rows = $qry->fetchColumn(0);
+                $qry->closeCursor();
                 $key = 'DB_Cache_FoundRows_'.md5($this->_sql_used.serialize($this->_arguments_used));
                 cache_set($key,$found_rows,60,false,true);
             }
@@ -572,7 +573,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 			{
 				$stmt = $this->_pdo->prepare("SELECT count(*) FROM( {$this->_sql_used} ) as x");
 				$stmt->execute($this->_arguments_used);
-				$this->_rowCount = $stmt->fetchColumn();
+				$this->_rowCount = $stmt->finishScalar();
 			}
 		}
 		return $this->_rowCount;
@@ -580,7 +581,8 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
     
     function closeCursor()
 	{
-        $this->_stmt->closeCursor();
+        if( $this->_stmt )
+            $this->_stmt->closeCursor();
     }
 
 	/**
@@ -671,4 +673,18 @@ class WdfPdoStatement extends PDOStatement
 		$this->_ds = $datasource;
 		$this->_pdo = $pdo;
 	}
+    
+    function finishAll()
+    {
+        $res = $this->fetchAll();
+        $this->closeCursor();
+        return $res;
+    }
+    
+    function finishScalar($column_index=0)
+    {
+        $res = $this->fetchColumn($column_index);
+        $this->closeCursor();
+        return $res;
+    }
 }
