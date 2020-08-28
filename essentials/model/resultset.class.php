@@ -131,9 +131,9 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	{
         if( $label ) $label = "$label\n";
         if( $this->_arguments_used && count($this->_arguments_used) )
-            log_debug("{$label}SQL   : ".$this->_sql_used."\nARGS  : ".json_encode($this->_arguments_used)."\nMERGED: ".ResultSet::MergeSql($this->_ds,$this->_sql_used,$this->_arguments_used));
+            log_debug("{$label}SQL   : ".$this->_sql_used."\nARGS  : ".json_encode($this->_arguments_used)."\nMERGED: ".SqlFormatter::format(ResultSet::MergeSql($this->_ds,$this->_sql_used,$this->_arguments_used),false));
         else
-            log_debug("{$label}SQL: ".$this->_sql_used);
+            log_debug("{$label}SQL: ".SqlFormatter::format($this->_sql_used, false));
 	}
 	
 	/**
