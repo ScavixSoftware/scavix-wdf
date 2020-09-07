@@ -84,8 +84,14 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	public static function MergeSql($ds,$sql,$arguments)
 	{
 		if( is_array($arguments) )
-			foreach( $arguments as $a )
-				$sql = preg_replace('/\?/', (is_numeric($a) ? $a : "'".$ds->EscapeArgument($a)."'"), $sql, 1);
+        {
+            if( stripos($sql,"?") !== false )
+                foreach( $arguments as $a )
+                    $sql = preg_replace('/\?/', (is_numeric($a) ? $a : "'".$ds->EscapeArgument($a)."'"), $sql, 1);
+            else
+                foreach( $arguments as $n=>$a )
+                    $sql = str_replace("$n", (is_numeric($a) ? $a : "'".$ds->EscapeArgument($a)."'"), $sql);
+        }
 		return $sql;
 	}
 	
@@ -142,7 +148,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	 */
 	public function GetSql()
 	{
-		return $this->_sql_used;
+		return $this->_sql_used?:$this->_stmt->queryString;
 	}
 
 	/**
@@ -160,7 +166,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	 */
 	public function GetMergedSql()
 	{
-		return ResultSet::MergeSql($this->_ds,$this->_sql_used,$this->_arguments_used);
+		return ResultSet::MergeSql($this->_ds,$this->GetSql(),$this->_arguments_used);
 	}
 
 	/**
