@@ -1550,12 +1550,15 @@ abstract class Model implements Iterator, Countable, ArrayAccess
         if( $changed !== null )
             $buf = $this->GetChanges();
         
+        if( $columns_to_update !== false && !is_array($columns_to_update) )
+            WdfException::Raise("Please specify 'columns_to_update' as array");
+        
 		$args = array();
 		$stmt = $this->_ds->Driver->getSaveStatement($this,$args,$columns_to_update);
 
 		if( !$stmt )
 			return true; // nothing to save
-
+        
 		if( !$stmt->execute($args) )
 			WdfDbException::RaiseStatement($stmt);
 
