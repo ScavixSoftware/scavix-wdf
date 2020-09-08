@@ -120,8 +120,13 @@ class MySql implements IDatabaseDriver
 			$col->Extra = $row['Extra'];
 			$res->Columns[] = $col;
             
-            if( $col->Type == 'longtext' && stripos($tableSql,"json_valid(`{$col->Name}`)")!==false )
-                $col->Type = 'json';
+            if( $col->Type == 'longtext' )
+            {
+                $db = $this->_ds->Database();
+                $sql = "SELECT 1 FROM information_schema.CHECK_CONSTRAINTS cc WHERE cc.CONSTRAINT_SCHEMA='$db' AND cc.TABLE_NAME='$tablename' AND cc.CHECK_CLAUSE LIKE 'json_valid(%'";
+                if( $this->_pdo->query($sql)->finishScalar() )
+                    $col->Type = 'json';
+            }
 		}
 
 		return $res;
