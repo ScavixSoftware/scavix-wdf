@@ -133,8 +133,6 @@ class HtmlPage extends Template implements ICallable
 		}
 		if(isDevOrBeta() && !isset($init_data['log_to_console']) )
 			$init_data['log_to_console'] = true;
-		if( $GLOBALS['CONFIG']['system']['ajax_debug_argument'] ) 
-			$init_data['log_to_server'] = $GLOBALS['CONFIG']['system']['ajax_debug_argument'];
 		
 		$this->set("wdf_init","wdf.init(".json_encode($init_data).");");
 		$this->set("docready",$this->docready);
