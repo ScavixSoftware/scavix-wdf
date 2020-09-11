@@ -404,12 +404,16 @@
                             var param = json_result ? (json_result.html ? json_result.html : json_result) : null;
                             if( s.original_success || param )
                             {
+                                var wp = ajax_obj.wait();
                                 Promise.all(loading).finally(()=>
                                 {
                                     if( s.original_success )
                                         s.original_success(param, status, ajax_obj);
                                     else if( param )
                                         $('body').append(param);
+                                    
+                                    if( s.waitPromiseCounter == 1 )
+                                        wp.done();
                                 });
                             }
                         };
@@ -432,6 +436,7 @@
                                 s.waitPromise = wdf.wait();
                                 s.waitPromise.finally(wdf.ajaxReady.fire);
                             }
+                            s.waitPromiseCounter = s.waitPromiseCounter?(s.waitPromiseCounter+1):1;
                             return s.waitPromise;
                         };
                         return ajax_obj;
