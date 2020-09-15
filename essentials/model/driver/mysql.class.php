@@ -164,7 +164,6 @@ class MySql implements IDatabaseDriver
 			WdfDbException::RaiseStatement($stmt);
 		$row = $stmt->fetch();
         $stmt->closeCursor();
-        log_debug($tablename, $row);
 		$ret = is_array($row) && count($row)>0;
         $this->_tableexistbuffer[$tablename] = $ret;
         return $ret;
