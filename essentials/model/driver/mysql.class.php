@@ -45,6 +45,7 @@ use ScavixWDF\WdfDbException;
 class MySql implements IDatabaseDriver
 {
 	private $_pdo;
+    private $_tableexistbuffer = [];
 
 	/**
 	 * @implements <IDatabaseDriver::initDriver>
@@ -80,7 +81,10 @@ class MySql implements IDatabaseDriver
 		$sql = 'SHOW TABLES';
 		$tables = array();
 		foreach($this->_pdo->query($sql)->finishAll() as $row)
+        {
 			$tables[] = $row[0];
+            $this->_tableexistbuffer[$row[0]] = true;
+        }
 		return $tables;
 	}
 
@@ -149,7 +153,24 @@ class MySql implements IDatabaseDriver
 	 */
 	function tableExists($tablename)
 	{
-        return $this->_pdo->exec("'SHOW TABLES LIKE ".$this->_pdo->quote($tablename)) > 0;
+        if(isset($this->_tableexistbuffer[$tablename]))
+            return $this->_tableexistbuffer[$tablename];
+        
+        $sql = 'SHOW TABLES LIKE ?';
+		$stmt = $this->_pdo->prepare($sql);
+		$stmt->setFetchMode(PDO::FETCH_NUM);
+		$stmt->bindValue(1,$tablename);
+		if( !$stmt->execute() )
+			WdfDbException::RaiseStatement($stmt);
+		$row = $stmt->fetch();
+        $stmt->closeCursor();
+        log_debug($tablename, $row);
+		$ret = is_array($row) && count($row)>0;
+        $this->_tableexistbuffer[$tablename] = $ret;
+        return $ret;
+        
+//        $sql = 'SHOW TABLES LIKE '.$this->_pdo->quote($tablename).';';
+//        return $this->_pdo->exec($sql) > 0;
 	}
 
 	/**
@@ -240,7 +261,7 @@ class MySql implements IDatabaseDriver
 			if( count($all) == 0 )
 				$sql = (\ScavixWDF\Model\Model::$SaveDelayed?"INSERT DELAYED INTO `":"INSERT INTO `").$model->GetTableName()."`";
 			else
-				$sql  = (\ScavixWDF\Model\Model::$SaveDelayed?"INSERT DELAYED INTO `":"INSERT INTO `").$model->GetTableName()."`(".implode(",",$all).")VALUES(".implode(',',$vals).")";
+				$sql = (\ScavixWDF\Model\Model::$SaveDelayed?"INSERT DELAYED INTO `":"INSERT INTO `").$model->GetTableName()."`(".implode(",",$all).")VALUES(".implode(',',$vals).")";
 		}
 		return new ResultSet($this->_ds, $this->_pdo->prepare($sql));
 	}
@@ -328,6 +349,8 @@ class MySql implements IDatabaseDriver
 	 */
 	function Now($seconds_to_add=0)
 	{
+        if($seconds_to_add == 0)
+            return 'NOW()';
 		return "(NOW() + INTERVAL $seconds_to_add SECOND)";
 	}
     
