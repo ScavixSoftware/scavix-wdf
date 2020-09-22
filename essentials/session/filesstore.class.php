@@ -156,12 +156,17 @@ class FilesStore extends ObjectStore
         }
         else
         {
-            $data = file_get_contents($this->getFile($id));
-            $this->_stats(__METHOD__,$start);
-            $start = microtime(true);
-            $res = $this->serializer->Unserialize($data);
-            ObjectStore::$buffer[$id] = $res;
-            $this->_stats(__METHOD__.'/UNSER',$start);
+            $data = @file_get_contents($this->getFile($id));
+            if( $data )
+            {
+                $this->_stats(__METHOD__,$start);
+                $start = microtime(true);
+                $res = $this->serializer->Unserialize($data);
+                ObjectStore::$buffer[$id] = $res;
+                $this->_stats(__METHOD__.'/UNSER',$start);
+            }
+            else
+                $res = null;
         }
 		return $res;
     }

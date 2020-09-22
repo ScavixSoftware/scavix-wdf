@@ -127,9 +127,10 @@ function translation_do_includes()
     if( $CONFIG['translation']['sync']['datasource'] && isDev() )
     {
         $ds = model_datasource($CONFIG['translation']['sync']['datasource']);
-        $CONFIG['translation']['default_strings'] = 
-            $ds->ExecuteSql("SELECT term,default_val from wdf_unknown_strings WHERE ifnull(default_val,'')!=''")
-                ->Enumerate('default_val',false,'term');
+        if( $ds->TableExists('wdf_unknown_strings') )
+            $CONFIG['translation']['default_strings'] = 
+                $ds->ExecuteSql("SELECT term,default_val from wdf_unknown_strings WHERE ifnull(default_val,'')!=''")
+                    ->Enumerate('default_val',false,'term');
     }
     else // remove those default strings that are now defined
         $CONFIG['translation']['default_strings'] = array_diff_key($CONFIG['translation']['default_strings'],$GLOBALS['translation']['strings']);
@@ -683,8 +684,11 @@ function default_string($constant,$text)
         if( $CONFIG['translation']['sync']['datasource'] )
         {
             $ds = model_datasource($CONFIG['translation']['sync']['datasource']);
-            $sql = "UPDATE wdf_unknown_strings SET default_val=? WHERE term=? AND default_val!=?;";
-            $ds->Execute($sql,[$text,$constant,$text]);
+            if( $ds->TableExists('wdf_unknown_strings') )
+            {
+                $sql = "UPDATE wdf_unknown_strings SET default_val=? WHERE term=? AND default_val!=?;";
+                $ds->Execute($sql,[$text,$constant,$text]);
+            }
         }
     }
 	return $constant;

@@ -90,7 +90,7 @@ function cli_run_script($php_script_path, $args=[], $extended_data=false, $retur
         $inidata = file_get_contents(php_ini_loaded_file());
         $inidata = preg_replace('/^disable_functions/m', ';disable_functions', $inidata);
         file_put_contents($ini, $inidata);
-        chmod($ini, 0777);
+        @chmod($ini, 0777);
     }
     
     $cmd = "$php_script_path";
@@ -98,7 +98,7 @@ function cli_run_script($php_script_path, $args=[], $extended_data=false, $retur
     {
         $data = tempnam(system_app_temp_dir(),"cli_script_data_");
         file_put_contents($data,json_encode($extended_data,JSON_PRETTY_PRINT));
-        chmod($data,0777);
+        @chmod($data,0777);
         $cmd .= " --wdf-extended-data{$data}";
     }
     

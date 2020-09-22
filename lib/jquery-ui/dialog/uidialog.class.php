@@ -109,7 +109,7 @@ class uiDialog extends uiControl
 					$action = "function(){ $action }";
 				$this->Buttons[$label] = str_replace("{close_action}", $close_action, $action);
 			}
-						
+
 			$this->Options['buttons'] = $this->Buttons;
 			$tmp = $this->_script;
 			$this->_script = array();
@@ -135,11 +135,15 @@ class uiDialog extends uiControl
 	 * @param string $action JS code for button click event
 	 * @return uiDialog `$this`
 	 */
-	function AddButton($label,$action)
+	function AddButton($label,$action,$prepend=false)
 	{
 		if( !starts_with($action, '[jscode]') && !starts_with($action, 'function') )
 			$action = "function(){ $action }";
-		$this->Buttons[$label] = $action;
+        
+        if( $prepend )
+            $this->Buttons = array_merge([$label=>$action],$this->Buttons);
+        else
+            $this->Buttons[$label] = $action;
 		return $this;
 	}
 	

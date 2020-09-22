@@ -288,7 +288,7 @@ class DataSource
 	 * @return ResultSet The query result
 	 * @throws WdfDbException
 	 */
-	function ExecuteSql($sql,$parameter=array())
+	function ExecuteSql($sql, $parameter=[])
 	{
 		if( !is_array($parameter) )
 			$parameter = array($parameter);
@@ -546,7 +546,7 @@ class DataSource
 	 */
 	function Affected_Rows()
 	{
-		return $this->_last_affected_rows_count;
+		return $this->getAffectedRowsCount();
 	}
 	
 	/**

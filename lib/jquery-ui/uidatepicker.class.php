@@ -80,7 +80,10 @@ class uiDatePicker extends uiControl
                     ];
         }
         if( !$inline )
+        {
             $this->type = 'text';
+            $this->attr('autocomplete', 'off');
+        }
 		if( $value )
 		{
 			if( !$inline )
@@ -125,7 +128,8 @@ class uiDatePicker extends uiControl
 			$cultureInfo = $cultureInfo->DefaultRegion()->DefaultCulture();
 
 		$this->CultureInfo = $cultureInfo;
-		$format = $cultureInfo->DateTimeFormat->ShortDatePattern;
+        
+        $format = $cultureInfo->DateTimeFormat->ShortDatePattern;
 		$format = str_replace("d1", "d", $format);
 		$format = str_replace("d2", "dd", $format);
 		$format = str_replace("d3", "D", $format);
@@ -138,10 +142,11 @@ class uiDatePicker extends uiControl
 		$format = str_replace("M4", "MM", $format);
 		$format = str_replace("M", "m", $format);
 
+		$format = str_replace("yyyy", "yy", $format);
 		$format = str_replace("y1", "y", $format);
 		$format = str_replace("y2", "yy", $format);
 		$format = str_replace("y3", "yy", $format);
-		$format = str_replace("y4", "yyyy", $format);
+		$format = str_replace("y4", "yy", $format);
 		
         $this->Options['firstDay'] = $cultureInfo->DateTimeFormat->FirstDayOfWeek;
         
@@ -152,6 +157,19 @@ class uiDatePicker extends uiControl
 		$this->Options['monthNames'] = $cultureInfo->DateTimeFormat->MonthNames;
 		$this->Options['monthNamesShort'] = $cultureInfo->DateTimeFormat->ShortMonthNames;
 		$this->Options['dateFormat'] = $format;
+        
+        if(get_class_simple($this) == "uiDateTimePicker")
+        {
+            $format = $cultureInfo->DateTimeFormat->ShortTimePattern;
+            
+            $format = str_replace(['h1', 'h2', 'h3', 'h4', 'H1', 'H2'], ['h', 'hh', 'hh', 'hh', 'H', 'HH'], $format);
+            $format = str_replace(['m1', 'm2', 'm3', 'm4'], ['m', 'mm', 'mm', 'mm'], $format);
+            $format = str_replace(['t2'], ['tt'], $format);
+            
+            $this->Options['timeFormat'] = $format;
+            if(strpos($format, 'tt') !== false)
+                $this->Options['ampm'] = true;
+        }
 		
 		return $this;
 	}

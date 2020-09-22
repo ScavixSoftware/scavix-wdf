@@ -112,7 +112,20 @@ function downloadData($url, $postdata = false, $request_header = array(), $cache
                 $request_header[] = "Content-Type: application/json";
         }
         else
-            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postdata));
+        {
+            $contains_file = false;
+            foreach( $postdata as $k=>$v )
+            {
+                if( is_string($v) && starts_with($v,"@") && file_exists(substr($v,1)) )
+                    $contains_file = true;
+                if( $v instanceof CURLFile )
+                    $contains_file = true;
+            }
+            if( $contains_file )
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
+            else
+                curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postdata));
+        }
 	}
 	curl_setopt($ch, CURLOPT_HEADER, 1);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);

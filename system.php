@@ -148,7 +148,6 @@ function system_config_default($reset = true)
 
 	$CONFIG['system']['hook_logging'] = false;
 	$CONFIG['system']['attach_session_to_ajax'] = false;
-	$CONFIG['system']['ajax_debug_argument'] = false;
 	
 	$CONFIG['system']['header']['Content-Type'] = "text/html; charset=utf-8";
 	$CONFIG['system']['header']['X-XSS-Protection'] = "1; mode=block";
@@ -432,22 +431,6 @@ function system_execute()
         session_update(true);
 		execute_hooks(HOOK_PING_RECIEVED);
 		die("PONG");
-	}
-
-	// respond to DEBUG requests
-	if( $GLOBALS['CONFIG']['system']['ajax_debug_argument'] )
-	{
-		$data = Args::request($GLOBALS['CONFIG']['system']['ajax_debug_argument'],false);
-		if( $data )
-		{
-			logging_add_category("JS");
-			$data = json_decode($data,true);
-			if( is_array($data) && count($data)>0 )
-				log_write(Args::request('sev',''),array_shift($data),$data);
-			else
-				log_write(Args::request('sev',''),$data);
-			die('"OK"');
-		}
 	}
 
 	Args::strip_tags();
@@ -913,7 +896,7 @@ function __set_classpath_order($class_path_order)
  */
 function system_spl_autoload($class_name)
 {
-	if(($class_name == "") || ($class_name{0} == "<"))
+	if(($class_name == "") || ($class_name[0] == "<"))
 		return;  // it's html
     try
     {

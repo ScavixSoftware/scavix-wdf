@@ -24,105 +24,112 @@
  * @copyright since 2019 Scavix Software GmbH & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-(function($) {
+(function(win,$) {
 
-$.fn.table = function(opts)
-{
-    this.opts = $.extend({bottom_pager:false,top_pager:false},opts||{});
-            
-	return this.each( function()
-	{
-		var self = $(this), current_row;
+var wdf = win.wdf;
 
-		var actions = $('.ui-table-actions .ui-icon',self);
-		if( actions.length > 0 )
-		{
-			var w = 0;
-			$('.ui-table-actions > div',self)
-				.hover( function(){ $(this).toggleClass('ui-state-hover'); } )
-				.each(function(){ w+=$(this).width(); });
+    $.fn.table = function(opts)
+    {
+        this.opts = $.extend({bottom_pager:false,top_pager:false},opts||{});
 
-			$('.ui-table-actions .ui-icon',self)
-				.click(function()
-				{
-                    self.overlay();
-					wdf.post(self.attr('id')+'/onactionclicked',{action:$(this).data('action'),row:current_row.attr('id')},function(d)
+        return this.each( function()
+        {
+            var self = $(this), current_row;
+
+            var actions = $('.ui-table-actions .ui-icon',self);
+            if( actions.length > 0 )
+            {
+                var w = 0;
+                $('.ui-table-actions > div',self)
+                    .hover( function(){ $(this).toggleClass('ui-state-hover'); } )
+                    .each(function(){ w+=$(this).width(); });
+
+                $('.ui-table-actions .ui-icon',self)
+                    .click(function()
                     {
-                        $('body').append(d);
-                        self.overlay('remove');
+                        self.overlay();
+                        wdf.post(self.attr('id')+'/onactionclicked',{action:$(this).data('action'),row:current_row.attr('id')},function(d)
+                        {
+                            $('body').append(d);
+                            self.overlay('remove');
+                        });
                     });
-				});
 
-			$('.ui-table-actions',self).width(w);
+                $('.ui-table-actions',self).width(w);
 
-			var on = function()
-			{
-				if( $('.ui-table-actions.sorting',self).length>0 )
-					return;
-				current_row = $(this); 
-				$('.ui-table-actions',self).show()
-					.position({my:'right center',at:'right-1 center',of:current_row});
-			};
-			var off = function(){ $('.ui-table-actions',self).hide(); };
+                var on = function()
+                {
+                    if( $('.ui-table-actions.sorting',self).length>0 )
+                        return;
+                    current_row = $(this); 
+                    $('.ui-table-actions',self).show()
+                        .position({my:'right center',at:'right-1 center',of:current_row});
+                };
+                var off = function(){ $('.ui-table-actions',self).hide(); };
 
-			$('.tbody .tr',self).bind('mouseenter click',on);
-			$('.caption, .thead, .tfoot',self).bind('mouseenter',off);
-			self.bind('mouseleave',off);
+                $('.tbody .tr',self).bind('mouseenter click',on);
+                $('.caption, .thead, .tfoot',self).bind('mouseenter',off);
+                self.bind('mouseleave',off);
 
-			$('.tbody .tr .td:last-child, .thead .tr .td:last-child, .tfoot .tr .td:last-child',self).css('padding-right',w+10);
-		}
-		
-		$('.pager',self).each( function(){ $(this).width(self.width());});
-        $('.thead a',self).click( function() { self.overlay(); });
-        $(this).placePager(opts);
-	});
-};
+                $('.tbody .tr .td:last-child, .thead .tr .td:last-child, .tfoot .tr .td:last-child',self).css('padding-right',w+10);
+            }
 
-$.fn.updateTable = function(html)
-{
-    var self = this;
-    self.overlay('remove', function() {
-        self.prev('.pager').remove(); 
-        self.next('.pager').remove();
-        self.replaceWith(html); 
-        $('.thead a',self).click(self.overlay);
-        self.placePager(self.opts);
-    });
-};
+            $('.pager',self).each( function(){ $(this).width(self.width());});
+            $('.thead a[data-sort]',self).click( function(e) { self.overlay(); });
+            $(this).placePager(opts);
+        });
+    };
 
-$.fn.gotoPage = function(n)
-{
-	var self = this;
-    self.overlay();
-	wdf.post(self.attr('id')+'/gotopage',{number:n},function(d){ self.updateTable(d); });
-};
-
-$.fn.placePager = function(opts)
-{
-    var $p = $('.pager',this).remove();
-    
-    if( opts && opts.top_pager )
+    $.fn.updateTable = function(html, callbackwhendone)
     {
-        $(this).addClass('pager_top');
-        $p = $p.insertBefore(this).css('display','inline').clone(true);
-    }
-    if( opts && opts.bottom_pager )
+        var self = this;
+        self.overlay('remove', function() {
+            self.prev('.pager').remove(); 
+            self.next('.pager').remove();
+            self.replaceWith(html); 
+            $('.thead a',self).click(self.overlay);
+            self.placePager(self.opts);
+            wdf.processCallback(callbackwhendone);
+        });
+    };
+
+    $.fn.gotoPage = function(n)
     {
-        $(this).addClass('pager_bottom');
-        $p.insertAfter(this).css('display','inline');
-    }
-};
+        var self = this;
+        self.overlay();
 
-$.fn.showLoadingOverlay = function()
-{
-    wdf.debug("$.showLoadingOverlay is deprecated, use $.overlay() instead");
-    return $(this).overlay();
-};
+        wdf.post(self.attr('id')+'/gotopage',{number:n},function(d,s,p)
+        {
+            self.updateTable(d,p.wait());
+        });
+    };
 
-$.fn.hideLoadingOverlay = function(callback)
-{
-    wdf.debug("$.hideLoadingOverlay is deprecated, use $.overlay('remove') instead");
-    return $(this).overlay('remove',callback);
-};
+    $.fn.placePager = function(opts)
+    {
+        var $p = $('.pager',this).remove();
 
-})(jQuery);
+        if( opts && opts.top_pager )
+        {
+            $(this).addClass('pager_top');
+            $p = $p.insertBefore(this).css('display','inline').clone(true);
+        }
+        if( opts && opts.bottom_pager )
+        {
+            $(this).addClass('pager_bottom');
+            $p.insertAfter(this).css('display','inline');
+        }
+    };
+
+    $.fn.showLoadingOverlay = function()
+    {
+        wdf.debug("$.showLoadingOverlay is deprecated, use $.overlay() instead");
+        return $(this).overlay();
+    };
+
+    $.fn.hideLoadingOverlay = function(callback)
+    {
+        wdf.debug("$.hideLoadingOverlay is deprecated, use $.overlay('remove') instead");
+        return $(this).overlay('remove',callback);
+    };
+
+})(window,jQuery);

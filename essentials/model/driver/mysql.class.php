@@ -45,6 +45,7 @@ use ScavixWDF\WdfDbException;
 class MySql implements IDatabaseDriver
 {
 	private $_pdo;
+    private $_tableexistbuffer = [];
 
 	/**
 	 * @implements <IDatabaseDriver::initDriver>
@@ -56,9 +57,13 @@ class MySql implements IDatabaseDriver
 		$this->_pdo = $pdo;
         if(isset($CONFIG['model'][$datasource->_storage_id]) && isset($CONFIG['model'][$datasource->_storage_id]['bufferedquery']) && $CONFIG['model'][$datasource->_storage_id]['bufferedquery'])
             $this->_pdo->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true); 
-
-        $mode = $this->_pdo->query("SELECT @@SESSION.sql_mode; SET CHARACTER SET utf8; SET NAMES utf8;");
-        $mode = $mode->fetchColumn(0);
+        
+        $charset = 'utf8';
+        if(isset($CONFIG['model'][$datasource->_storage_id]) && isset($CONFIG['model'][$datasource->_storage_id]['charset']) && $CONFIG['model'][$datasource->_storage_id]['charset'])
+            $charset = $CONFIG['model'][$datasource->_storage_id]['charset'];
+        
+        $mode = $this->_pdo->query("SELECT @@SESSION.sql_mode; SET CHARACTER SET $charset; SET NAMES $charset;")
+            ->finishScalar();
         if( stripos($mode,"STRICT_ALL_TABLES")!==false || stripos($mode,"STRICT_TRANS_TABLES")!==false )
         {
             $mode = str_ireplace(["STRICT_ALL_TABLES","STRICT_TRANS_TABLES"], ["",""], $mode);
@@ -75,8 +80,11 @@ class MySql implements IDatabaseDriver
 	{
 		$sql = 'SHOW TABLES';
 		$tables = array();
-		foreach($this->_pdo->query($sql) as $row)
+		foreach($this->_pdo->query($sql)->finishAll() as $row)
+        {
 			$tables[] = $row[0];
+            $this->_tableexistbuffer[$row[0]] = true;
+        }
 		return $tables;
 	}
 
@@ -90,13 +98,12 @@ class MySql implements IDatabaseDriver
 		if( !$tableSql )
 			WdfDbException::Raise("Table `$tablename` not found!","PDO error info: ",$this->_pdo->errorInfo());
 
-        $tableSql = $tableSql->fetch();
-        $tableSql = $tableSql[1];
+        $tableSql = $tableSql->finishScalar(1);
 
 		$res = new TableSchema($this->_ds, $tablename);
         $res->CreateCode = $tableSql;
 		$sql = "show columns from `$tablename`";
-		foreach($this->_pdo->query($sql) as $row)
+		foreach($this->_pdo->query($sql)->finishAll() as $row)
 		{
 			
 			$size = false;
@@ -116,6 +123,14 @@ class MySql implements IDatabaseDriver
 			$col->Default = $row['Default'];
 			$col->Extra = $row['Extra'];
 			$res->Columns[] = $col;
+            
+            if( $col->Type == 'longtext' )
+            {
+                $db = $this->_ds->Database();
+                $sql = "SELECT 1 FROM information_schema.CHECK_CONSTRAINTS cc WHERE cc.CONSTRAINT_SCHEMA='$db' AND cc.TABLE_NAME='$tablename' AND cc.CHECK_CLAUSE LIKE 'json_valid(%'";
+                if( $this->_pdo->query($sql)->finishScalar() )
+                    $col->Type = 'json';
+            }
 		}
 
 		return $res;
@@ -128,7 +143,7 @@ class MySql implements IDatabaseDriver
 	{
 		$sql = 'SHOW COLUMNS FROM `'.$tablename.'`';
 		$cols = array();
-		foreach($this->_pdo->query($sql) as $row)
+		foreach($this->_pdo->query($sql)->finishAll() as $row)
 			$cols[] = $row[0];
 		return $cols;
 	}
@@ -138,14 +153,23 @@ class MySql implements IDatabaseDriver
 	 */
 	function tableExists($tablename)
 	{
-		$sql = 'SHOW TABLES LIKE ?';
-		$stmt = $this->_pdo->prepare($sql);//,array(PDO::ATTR_CURSOR=>PDO::CURSOR_SCROLL));
+        if(isset($this->_tableexistbuffer[$tablename]))
+            return $this->_tableexistbuffer[$tablename];
+        
+        $sql = 'SHOW TABLES LIKE ?';
+		$stmt = $this->_pdo->prepare($sql);
 		$stmt->setFetchMode(PDO::FETCH_NUM);
 		$stmt->bindValue(1,$tablename);
 		if( !$stmt->execute() )
 			WdfDbException::RaiseStatement($stmt);
 		$row = $stmt->fetch();
-		return is_array($row) && count($row)>0;
+        $stmt->closeCursor();
+		$ret = is_array($row) && count($row)>0;
+        $this->_tableexistbuffer[$tablename] = $ret;
+        return $ret;
+        
+//        $sql = 'SHOW TABLES LIKE '.$this->_pdo->quote($tablename).';';
+//        return $this->_pdo->exec($sql) > 0;
 	}
 
 	/**
@@ -216,6 +240,8 @@ class MySql implements IDatabaseDriver
 				 */
 				if( $args["$argn"] instanceof DateTime )
 					$args["$argn"] = $args["$argn"]->format('Y-m-d H:i:s');
+				elseif( is_object($args["$argn"]) || is_array($args["$argn"]) )
+					$args["$argn"] = @json_encode($args["$argn"]);
 			}
 		}
 		
@@ -234,7 +260,7 @@ class MySql implements IDatabaseDriver
 			if( count($all) == 0 )
 				$sql = (\ScavixWDF\Model\Model::$SaveDelayed?"INSERT DELAYED INTO `":"INSERT INTO `").$model->GetTableName()."`";
 			else
-				$sql  = (\ScavixWDF\Model\Model::$SaveDelayed?"INSERT DELAYED INTO `":"INSERT INTO `").$model->GetTableName()."`(".implode(",",$all).")VALUES(".implode(',',$vals).")";
+				$sql = (\ScavixWDF\Model\Model::$SaveDelayed?"INSERT DELAYED INTO `":"INSERT INTO `").$model->GetTableName()."`(".implode(",",$all).")VALUES(".implode(',',$vals).")";
 		}
 		return new ResultSet($this->_ds, $this->_pdo->prepare($sql));
 	}
@@ -322,6 +348,8 @@ class MySql implements IDatabaseDriver
 	 */
 	function Now($seconds_to_add=0)
 	{
+        if($seconds_to_add == 0)
+            return 'NOW()';
 		return "(NOW() + INTERVAL $seconds_to_add SECOND)";
 	}
     

@@ -453,21 +453,21 @@ function globalcache_info()
 			$ret .= "Cumulative number of retrieval requests: ".$status ["cmd_get"]."\r\n";
 			$ret .= "Cumulative number of storage requests: ".$status ["cmd_set"]."\r\n";
 
-			if((real) $status ["cmd_get"] > 0)
+			if((float) $status ["cmd_get"] > 0)
 			{
-				$percCacheHit=((real)$status ["get_hits"]/ (real)$status ["cmd_get"] *100);
+				$percCacheHit=((float)$status ["get_hits"]/ (float)$status ["cmd_get"] *100);
 				$percCacheHit=round($percCacheHit,3);
 				$percCacheMiss=100-$percCacheHit;
 
 				$ret .= "Number of keys that have been requested and found present: ".$status ["get_hits"]." ($percCacheHit%)\r\n";
 				$ret .= "Number of items that have been requested and not found: ".$status ["get_misses"]."($percCacheMiss%)\r\n";
 			}
-			$MBRead= (real)$status["bytes_read"]/(1024*1024);
+			$MBRead= (float)$status["bytes_read"]/(1024*1024);
 
 			$ret .= "Total number of bytes read by this server from network: ".$MBRead." Mega Bytes\r\n";
-			$MBWrite=(real) $status["bytes_written"]/(1024*1024) ;
+			$MBWrite=(float) $status["bytes_written"]/(1024*1024) ;
 			$ret .= "Total number of bytes sent by this server to network: ".$MBWrite." Mega Bytes\r\n";
-			$MBSize=(real) $status["limit_maxbytes"]/(1024*1024) ;
+			$MBSize=(float) $status["limit_maxbytes"]/(1024*1024) ;
 			$ret .= "Number of bytes this server is allowed to use for storage: ".$MBSize." Mega Bytes\r\n";
 			$ret .= "Number of valid items removed from cache to free memory for new items: ".$status ["evictions"]."\r\n";
 			break;

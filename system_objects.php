@@ -45,6 +45,105 @@ class Wdf
     public static $SessionHandler;
     public static $ObjectStore;
     public static $Translation;
+    
+    protected static $buffers = [];
+    public static function HasBuffer($name)
+    {
+        return isset(self::$buffers[$name]);
+    }
+    
+    public static function GetBuffer($name,$initial_data=[])
+    {
+        if( !isset(self::$buffers[$name]) )
+            self::$buffers[$name] = new WdfBuffer($initial_data);
+        return self::$buffers[$name];
+    }
+    
+}
+
+class WdfBuffer
+{
+    protected $changed = false;
+    protected $data = [];
+    protected $session_name = false;
+    
+    function __construct($initial_data=[])
+    {
+        if( is_callable($initial_data) )
+            $this->data = $initial_data();
+        else
+            $this->data = is_array($initial_data)?$initial_data:[];
+    }
+    
+    function mapToSession($name=false)
+    {
+        if( !$this->session_name )
+            $this->session_name = $name;
+        return $this;
+    }
+    
+    function dump()
+    {
+        if( $this->session_name && isset($_SESSION[$this->session_name]) )
+            return array_merge($_SESSION[$this->session_name],$this->data);
+        return $this->data;
+    }
+    
+    function hasChanged()
+    {
+        return $this->changed;
+    }
+    
+    function keys()
+    {
+        $keys = array_keys($this->data);
+        if( $this->session_name && isset($_SESSION[$this->session_name]) )
+            $keys = array_unique(array_merge($keys,array_keys($_SESSION[$this->session_name])));
+        return $keys;
+    }
+    
+    function has($name)
+    {
+        return isset($this->data[$name])
+            || ($this->session_name && isset($_SESSION[$this->session_name][$name]));
+    }
+    
+    function set($name, $value)
+    {
+        if( !$this->changed )
+            $prev = $this->get($name,null);    
+        $this->data[$name] = $value;
+        if( $this->session_name )
+            $_SESSION[$this->session_name][$name] = $value;
+        if( !$this->changed ) 
+            $this->changed = ($prev !== $value);
+        return $value;
+    }
+
+    function del($name)
+    {
+        if( isset($this->data[$name]) )
+        {
+            $r = $this->data[$name];
+            unset($this->data[$name]);
+            $this->changed = true;
+        }
+        if( $this->session_name && isset($_SESSION[$this->session_name][$name]) )
+        {
+            unset($_SESSION[$this->session_name][$name]);
+            $this->changed = true;
+        }
+        return isset($r)?$r:null;
+    }
+
+    function get($name, $default=null)
+    {
+        if( !isset($this->data[$name]) && $this->session_name && isset($_SESSION[$this->session_name][$name]) )
+            $this->data[$name] = $_SESSION[$this->session_name][$name];
+        if( isset($this->data[$name]) )
+            return $this->data[$name];
+        return (is_callable($default))?$default($name):$default;
+    }
 }
 
 /**
@@ -191,6 +290,9 @@ class WdfDbException extends WdfException
     public static function RaiseStatement($statement, $use_extended_info = false)
 	{
         $errid = uniqid();
+        if(!($statement instanceof Model\ResultSet))
+            $statement = new Model\ResultSet($statement->_ds, $statement);
+        
         if(isDev())
         {
             if( $use_extended_info )

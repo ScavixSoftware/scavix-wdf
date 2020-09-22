@@ -51,7 +51,7 @@ function geoip_init()
 	if( !system_is_module_loaded('curlwrapper') )
 		WdfException::Raise("Missing module: curlwrapper!");
 		
-	if( Wdf::$ClientIP )
+	if( !Wdf::$ClientIP )
 		Wdf::$ClientIP = get_ip_address();
 	
 	if( !isset($CONFIG['geoip']['city_dat_file']) )
@@ -154,6 +154,10 @@ function get_countrycode_by_ip($ipaddr = false)
 {
 	if($ipaddr === false)
 		$ipaddr = Wdf::$ClientIP;
+    
+    if(!filter_var($ipaddr, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4))
+        return false;
+            
 	if( isset($_SESSION['geoip_countrycode_by_ip_'.$ipaddr]) && $_SESSION['geoip_countrycode_by_ip_'.$ipaddr] != "" )
 		return $_SESSION['geoip_countrycode_by_ip_'.$ipaddr];
 
@@ -165,8 +169,8 @@ function get_countrycode_by_ip($ipaddr = false)
 	}
 	else
 		$country_code = geoip_country_code_by_name($ipaddr);
-	
-	if($country_code == "")
+
+	if(!$country_code)
 	{
 		if(isDev() && starts_with($ipaddr, '192.168.'))
 			$country_code = 'DE';

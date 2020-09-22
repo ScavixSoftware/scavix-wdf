@@ -84,8 +84,14 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	public static function MergeSql($ds,$sql,$arguments)
 	{
 		if( is_array($arguments) )
-			foreach( $arguments as $a )
-				$sql = preg_replace('/\?/', (is_numeric($a) ? $a : "'".$ds->EscapeArgument($a)."'"), $sql, 1);
+        {
+            if( stripos($sql,"?") !== false )
+                foreach( $arguments as $a )
+                    $sql = preg_replace('/\?/', (is_numeric($a) ? $a : "'".$ds->EscapeArgument($a)."'"), $sql, 1);
+            else
+                foreach( $arguments as $n=>$a )
+                    $sql = str_replace("$n", (is_numeric($a) ? $a : "'".$ds->EscapeArgument($a)."'"), $sql);
+        }
 		return $sql;
 	}
 	
@@ -130,10 +136,10 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	public function LogDebug($label='')
 	{
         if( $label ) $label = "$label\n";
-        if( count($this->_arguments_used) )
-            log_debug("{$label}SQL   : ".$this->_sql_used."\nARGS  : ".json_encode($this->_arguments_used)."\nMERGED: ".ResultSet::MergeSql($this->_ds,$this->_sql_used,$this->_arguments_used));
+        if( $this->_arguments_used && count($this->_arguments_used) )
+            log_debug("{$label}SQL   : ".$this->_sql_used."\nARGS  : ".json_encode($this->_arguments_used)."\nMERGED: ".SqlFormatter::format(ResultSet::MergeSql($this->_ds,$this->_sql_used,$this->_arguments_used),false));
         else
-            log_debug("{$label}SQL: ".$this->_sql_used);
+            log_debug("{$label}SQL: ".SqlFormatter::format($this->_sql_used, false));
 	}
 	
 	/**
@@ -142,7 +148,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	 */
 	public function GetSql()
 	{
-		return $this->_sql_used;
+		return $this->_sql_used?:$this->_stmt->queryString;
 	}
 
 	/**
@@ -160,7 +166,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	 */
 	public function GetMergedSql()
 	{
-		return ResultSet::MergeSql($this->_ds,$this->_sql_used,$this->_arguments_used);
+		return ResultSet::MergeSql($this->_ds,$this->GetSql(),$this->_arguments_used);
 	}
 
 	/**
@@ -311,6 +317,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
             if( $qry )
             {
                 $found_rows = $qry->fetchColumn(0);
+                $qry->closeCursor();
                 $key = 'DB_Cache_FoundRows_'.md5($this->_sql_used.serialize($this->_arguments_used));
                 cache_set($key,$found_rows,60,false,true);
             }
@@ -572,11 +579,17 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 			{
 				$stmt = $this->_pdo->prepare("SELECT count(*) FROM( {$this->_sql_used} ) as x");
 				$stmt->execute($this->_arguments_used);
-				$this->_rowCount = $stmt->fetchColumn();
+				$this->_rowCount = $stmt->finishScalar();
 			}
 		}
 		return $this->_rowCount;
 	}
+    
+    function closeCursor()
+	{
+        if( $this->_stmt )
+            $this->_stmt->closeCursor();
+    }
 
 	/**
 	 * @implements <ArrayAccess::offsetExists>
@@ -666,4 +679,18 @@ class WdfPdoStatement extends PDOStatement
 		$this->_ds = $datasource;
 		$this->_pdo = $pdo;
 	}
+    
+    function finishAll()
+    {
+        $res = $this->fetchAll();
+        $this->closeCursor();
+        return $res;
+    }
+    
+    function finishScalar($column_index=0)
+    {
+        $res = $this->fetchColumn($column_index);
+        $this->closeCursor();
+        return $res;
+    }
 }

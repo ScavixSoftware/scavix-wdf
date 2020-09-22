@@ -243,15 +243,15 @@ class Serializer
 		$orig_line = $this->Lines[$this->Index++];
 		if( $orig_line == "" )
 			return null;
-		$type = $orig_line{0};
+		$type = $orig_line[0];
 		$line = substr($orig_line, 2);
 
         // backwards compatibility!
         if( $type == 'k' || $type == 'f' || $type == 'v')
 		{
-            if( isset($line{1}) && $line{1}==':' )
+            if( isset($line[1]) && $line[1]==':' )
             {
-                $type = $line{0};
+            $type = $line[0];
                 $line = substr($line, 2);
             }
 		}

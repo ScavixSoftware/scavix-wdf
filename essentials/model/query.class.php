@@ -181,8 +181,8 @@ class Query
 
 	function sql($sql,$args=array())
 	{
-		$this->__conditionTree()->Add($sql);
-		foreach( $args as $v ) $this->_values[] = $v;
+		if( $this->__conditionTree()->Add($sql) )
+            foreach( $args as $v ) $this->_values[] = $v;
 	}
 
 	function equal($property,$value,$value_is_sql=false)
@@ -192,8 +192,8 @@ class Query
 			$this->__conditionTree()->Add(new Condition("=",$property,$value));
 		else
 		{
-			$this->__conditionTree()->Add(new Condition("=",$property));
-			$this->_values[] = $value;
+			if( $this->__conditionTree()->Add(new Condition("=",$property)) )
+                $this->_values[] = $value;
 		}			
 	}
 	
@@ -204,8 +204,8 @@ class Query
 			$this->__conditionTree()->Add(new Condition("!=",$property,$value));
 		else
 		{
-			$this->__conditionTree()->Add(new Condition("!=",$property));
-			$this->_values[] = $value;
+			if( $this->__conditionTree()->Add(new Condition("!=",$property)) )
+                $this->_values[] = $value;
 		}			
 	}
 	
@@ -216,8 +216,8 @@ class Query
 			$this->__conditionTree()->Add(new Condition(">",$property,$value));
 		else
 		{
-			$this->__conditionTree()->Add(new Condition(">",$property));
-			$this->_values[] = $value;
+			if( $this->__conditionTree()->Add(new Condition(">",$property)) )
+                $this->_values[] = $value;
 		}			
 	}
 	
@@ -228,8 +228,8 @@ class Query
 			$this->__conditionTree()->Add(new Condition(">=",$property,$value));
 		else
 		{
-			$this->__conditionTree()->Add(new Condition(">=",$property));
-			$this->_values[] = $value;
+			if( $this->__conditionTree()->Add(new Condition(">=",$property)) )
+                $this->_values[] = $value;
 		}			
 	}
 	
@@ -240,8 +240,8 @@ class Query
 			$this->__conditionTree()->Add(new Condition("<",$property,$value));
 		else
 		{
-			$this->__conditionTree()->Add(new Condition("<",$property));
-			$this->_values[] = $value;
+			if( $this->__conditionTree()->Add(new Condition("<",$property))) 
+                $this->_values[] = $value;
 		}			
 	}
 	
@@ -252,8 +252,8 @@ class Query
 			$this->__conditionTree()->Add(new Condition("<=",$property,$value));
 		else
 		{
-			$this->__conditionTree()->Add(new Condition("<=",$property));
-			$this->_values[] = $value;
+			if( $this->__conditionTree()->Add(new Condition("<=",$property)) )
+                $this->_values[] = $value;
 		}			
 	}
 	
@@ -264,8 +264,8 @@ class Query
 			$this->__conditionTree()->Add(new Condition("=",$property,$value,"BINARY "));
 		else
 		{
-			$this->__conditionTree()->Add(new Condition("=",$property,"?","BINARY "));
-			$this->_values[] = $value;
+			if( $this->__conditionTree()->Add(new Condition("=",$property,"?","BINARY ")) )
+                $this->_values[] = $value;
 		}			
 	}
 
@@ -277,13 +277,13 @@ class Query
 		{
 			if( $flipped )
 			{
-				$this->__conditionTree()->Add(new Condition("LIKE","?",$value));
-				$this->_values[] = $property;
+				if( $this->__conditionTree()->Add(new Condition("LIKE","?",$value)) )
+                    $this->_values[] = $property;
 			}
 			else
 			{
-				$this->__conditionTree()->Add(new Condition("LIKE",$property));
-				$this->_values[] = $value;
+				if( $this->__conditionTree()->Add(new Condition("LIKE",$property)) )
+                    $this->_values[] = $value;
 			}
 		}			
 	}
@@ -296,13 +296,13 @@ class Query
 		{
 			if( $flipped )
 			{
-				$this->__conditionTree()->Add(new Condition("RLIKE","?",$value));
-				$this->_values[] = $property;
+				if( $this->__conditionTree()->Add(new Condition("RLIKE","?",$value)) ) 
+                    $this->_values[] = $property;
 			}
 			else
 			{
-				$this->__conditionTree()->Add(new Condition("RLIKE",$property));
-				$this->_values[] = $value;
+				if( $this->__conditionTree()->Add(new Condition("RLIKE",$property)) )
+                    $this->_values[] = $value;
 			}
 		}
 	}
@@ -314,9 +314,9 @@ class Query
 
 		if( !is_array($values) )
 			$values = array($values);
-		$this->__conditionTree()->Add(new Condition("IN",$property,array_fill(0,count($values),"?")));
-		foreach( $values as $value )
-			$this->_values[] = $value;
+		if( $this->__conditionTree()->Add(new Condition("IN",$property,array_fill(0,count($values),"?"))) )
+            foreach( $values as $value )
+                $this->_values[] = $value;
 	}
 	
 	public function notIn($property,$values)
@@ -326,9 +326,9 @@ class Query
 
 		if( !is_array($values) )
 			$values = array($values);
-		$this->__conditionTree()->Add(new Condition("NOT IN",$property,array_fill(0,count($values),"?")));
-		foreach( $values as $value )
-			$this->_values[] = $value;
+		if( $this->__conditionTree()->Add(new Condition("NOT IN",$property,array_fill(0,count($values),"?"))) ) 
+            foreach( $values as $value )
+                $this->_values[] = $value;
 	}
 
 	public function isNull($property)
@@ -343,21 +343,23 @@ class Query
 	
 	public function newerThan($property,$value,$interval)
 	{
-		$this->__conditionTree()->Add(new Condition(">",$property,"NOW() - INTERVAL ? $interval"));
-		$this->_values[] = $value;
+		if( $this->__conditionTree()->Add(new Condition(">",$property,"NOW() - INTERVAL ? $interval")) )
+            $this->_values[] = $value;
 	}
 	
 	public function olderThan($property,$value,$interval)
 	{
-		$this->__conditionTree()->Add(new Condition("<",$property,"NOW() - INTERVAL ? $interval"));
-		$this->_values[] = $value;
+		if( $this->__conditionTree()->Add(new Condition("<",$property,"NOW() - INTERVAL ? $interval")) ) 
+            $this->_values[] = $value;
 	}
 	
 	public function noop()
 	{
-		$this->__conditionTree()->Add(new Condition("=","?","?"));
-		$this->_values[] = 1;
-		$this->_values[] = 1;
+		if( $this->__conditionTree()->Add(new Condition("=","?","?")) )
+        {
+            $this->_values[] = 1;
+            $this->_values[] = 1;
+        }
 	}
 }
 
@@ -412,7 +414,7 @@ class ConditionTree
             if( count($sql) != 1 )
                 \ScavixWDF\WdfException::Raise("Cannot handle more that 1 conditions in matched 'if' tree, use andX/orX/...");
             if( !$this->_firstToken )
-                return "((1=1)OR({$sql[0]}))";
+                return "";
             return "({$sql[0]})";
         }
 			
@@ -440,8 +442,15 @@ class ConditionTree
 
 	function Add($condition)
 	{
+        if( $this->_current->_operator == "IF" && !$this->_current->_firstToken )
+        {
+            $this->_current->_conditions[] = "";
+            $this->__ensureClose();
+            return false;
+        }
 		$this->_current->_conditions[] = $condition;
 		$this->__ensureClose();
+        return true;
 	}
 
 	function Nest($conditionCount,$operator = "AND",$firstToken = "WHERE")

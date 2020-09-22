@@ -98,6 +98,7 @@ class DatabaseTable extends Table implements ICallable
     function __sleep()
     {
         $res = get_object_vars($this);
+        unset($res['persistance_storage']);
         if( $this->SlimSerialization )
         {
             unset($res['header']);
@@ -403,12 +404,12 @@ class DatabaseTable extends Table implements ICallable
                 return $this->contentNoData;
             }
 			
-			if( !$this->header )
+			if( !$this->header || $this->header->length()==0 )
 				if( $this->OnAddHeader )
 					$this->OnAddHeader[0]->{$this->OnAddHeader[1]}($this, array());
 				else
 					$this->AddHeader(array());
-			
+                
 			if( !$this->footer )
 				if( $this->OnAddFooter )
 					$this->OnAddFooter[0]->{$this->OnAddFooter[1]}($this, array());
@@ -424,12 +425,12 @@ class DatabaseTable extends Table implements ICallable
             {
 				$row = $this->_preProcessData($raw_row);
 
-                if( !$this->header )
+                if( !$this->header || $this->header->length()==0 )
                     if( $this->OnAddHeader )
 						$this->OnAddHeader[0]->{$this->OnAddHeader[1]}($this, array_keys($row));
                     else
                         $this->AddHeader(array_keys($row));
-
+                
                 $cnt = $this->current_row_group?$this->current_row_group->length():0;
                 if( $this->OnAddRow )
                     $this->OnAddRow[0]->{$this->OnAddRow[1]}($this, $row, $raw_row);
@@ -635,7 +636,7 @@ class DatabaseTable extends Table implements ICallable
 	/**
 	 * @override <Table::AddPager> and hides $total_items argument
 	 */
-	function AddPager($items_per_page = 15, $current_page=1, $max_pages_to_show=10)
+	function AddPager($items_per_page = 15, $current_page=false, $max_pages_to_show=10)
 	{
 		return parent::AddPager(0,$items_per_page,$current_page,$max_pages_to_show);
 	}
