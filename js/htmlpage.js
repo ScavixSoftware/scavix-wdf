@@ -405,7 +405,7 @@
                             if( s.original_success || param )
                             {
                                 var wp = ajax_obj.wait();
-                                Promise.all(loading).finally(()=>
+                                Promise.all(loading || []).finally(()=>
                                 {
                                     if( s.original_success )
                                         s.original_success(param, status, ajax_obj);
