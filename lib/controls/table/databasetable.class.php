@@ -512,7 +512,7 @@ class DatabaseTable extends Table implements ICallable
 		$copy->ResultSet->FetchMode = PDO::FETCH_ASSOC;
         $cols = [];
         if(!$this->Columns && $this->Sql)
-            $this->Columns = array_keys($copy->ResultSet->fetchRow());
+            $this->Columns = array_keys($copy->ResultSet->fetchRow()?:[]);
         foreach( $this->Columns as $c )
             $cols[] = trim($c,"`");
 		foreach( $copy->ResultSet as $row )
