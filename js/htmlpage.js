@@ -607,15 +607,12 @@
             if( !callback ) return;
             if( typeof callback == 'function' )
             {
-                console.log("is function");
                 return callback(args);
             }
             if( (callback instanceof Promise) && (typeof callback.done == 'function') )
             {
-                console.log("is promise");
                 return callback.done(args);
             }
-            console.log("is",callback);
         }
 	};
 	

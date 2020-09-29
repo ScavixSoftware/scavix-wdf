@@ -232,7 +232,7 @@ class WdfTaskModel extends Model
         {
             $rs = $ds->ExecuteSql(
                 "UPDATE wdf_tasks SET worker_pid=null, assigned=null WHERE 
-                 (assigned>NOW()+INTERVAL 5 SECOND) AND worker_pid IN($pids)"
+                 (assigned<NOW()-INTERVAL 5 SECOND) AND worker_pid IN($pids)"
                 );
             if( $rs && $rs->Count() )
                 log_debug("Restarted ".$rs->Count()." tasks whose workers ($pids) did not exist anymore");
