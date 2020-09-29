@@ -109,6 +109,12 @@ function &model_datasource($name)
 		$name = explode("::",$name);
 		$name = $name[1];
 	}
+    elseif( strpos($name, "://") !== false )
+    {
+        $cstr = $name;
+        $name = md5($name); 
+        model_init_db($name, $cstr);
+    }
 
 	if( !isset(Wdf::$DataSources[$name]) )
 	{
@@ -117,6 +123,7 @@ function &model_datasource($name)
 			$res = model_on_unknown_datasource($name);
 			return $res;
 		}
+        
 		log_fatal("Unknown datasource '$name'!");
 		$res = null;
 		return $res;

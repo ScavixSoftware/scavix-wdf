@@ -118,9 +118,9 @@ class DataSource
 		{
 			if( $username || $password )
 				log_warn("Oldschool DSN overrides username and/or password given");
-			$dsn = "{$test['scheme']}:host={$test['host']};dbname=".trim($test['path'],' /').";";
-			$username = $test['user'];
-			$password = $test['pass'];
+			$dsn = "{$test['scheme']}:host={$test['host']};dbname=".trim(ifavail($test,'path'),' /').";";
+			$username = ifavail($test,'user');
+			$password = ifavail($test,'pass');
 		}
 		
         $this->_storage_id = $alias;

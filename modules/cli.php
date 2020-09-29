@@ -41,9 +41,6 @@
  */
 function cli_init()
 {
-    if( !function_exists('posix_isatty') )
-        ScavixWDF\WdfException::Raise("CLI module cannot run on windows");
-    
     if(!defined("CLI_SELF"))
     {
         $self = realpath(explode("index.php",$_SERVER['SCRIPT_FILENAME'])[0]."index.php");
@@ -57,7 +54,7 @@ function cli_init()
 //    else
 //        log_debug('is set: '.CLI_SELF);
     
-    if( defined('STDOUT') && posix_isatty(STDOUT) )
+    if( defined('STDOUT') && (!function_exists('posix_isatty') || posix_isatty(STDOUT)) )
     {
         classpath_add(__DIR__.'/cli');
         logging_add_logger('cli',['class' => \ScavixWDF\CLI\CliLogger::class]);
@@ -82,6 +79,9 @@ function cli_init()
  */
 function cli_run_script($php_script_path, $args=[], $extended_data=false, $return_cmdline=false)
 {
+    if( !function_exists('posix_isatty') )
+        ScavixWDF\WdfException::Raise("CLI module cannot run on windows");
+    
     $ini = system_app_temp_dir()."php_cli.ini";
     $out = ini_get('error_log');
 
@@ -123,6 +123,9 @@ function cli_run_script($php_script_path, $args=[], $extended_data=false, $retur
  */
 function cli_run_taskprocessor($runtime_seconds=null)
 {
+    if( !function_exists('posix_isatty') )
+        ScavixWDF\WdfException::Raise("CLI module cannot run on windows");
+    
     if( !defined("CLI_SELF") || !CLI_SELF )
         ScavixWDF\WdfException::Raise("Cannot run task processor");
     
@@ -142,6 +145,9 @@ function cli_run_taskprocessor($runtime_seconds=null)
 
 function cli_get_processes($filter=false, $test_myself=false)
 {
+    if( !function_exists('posix_isatty') )
+        ScavixWDF\WdfException::Raise("CLI module cannot run on windows");
+    
     $ini = preg_quote(system_app_temp_dir('',false),"/");
     $filter = "\-c\s+{$ini}".($filter?(".*".preg_quote($filter,"/").".*"):'');
     

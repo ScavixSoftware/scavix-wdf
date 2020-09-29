@@ -171,7 +171,7 @@ function system_config_default($reset = true)
     else
         $CONFIG['system']['url_root'] = idn_to_utf8("{$_SERVER['REQUEST_SCHEME']}://{$_SERVER['HTTP_HOST']}")."{$path[0]}";
     $CONFIG['system']['modules'] = array();
-    $CONFIG['system']['default_page'] = "HtmlPage";
+    $CONFIG['system']['default_page'] = \ScavixWDF\Base\HtmlPage::class;
     $CONFIG['system']['default_event'] = false;
 	$CONFIG['system']['tpl_ext'] = array("tpl.php");
 	
@@ -258,7 +258,7 @@ function system_init($application_name, $skip_header = false, $logging_category=
 		system_load_module($essential);
 
     // on posix systems: automatically load cli-module when we are actually in cli
-    if( PHP_SAPI=='cli' && function_exists('posix_isatty') && !function_exists('cli_init') )
+    if( PHP_SAPI=='cli' && !function_exists('cli_init') )
         system_load_module('modules/cli.php');
     
 	if( $logging_category )
