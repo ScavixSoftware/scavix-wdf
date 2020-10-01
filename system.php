@@ -30,6 +30,7 @@
  */
 
 define('FRAMEWORK_LOADED','uSI7hcKMQgPaPKAQDXg5');
+define('__SCAVIXWDF__',__DIR__);
 date_default_timezone_set("Europe/Berlin");
 require_once(__DIR__.'/system_objects.php');
 require_once(__DIR__.'/system_functions.php');

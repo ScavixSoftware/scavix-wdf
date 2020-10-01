@@ -52,6 +52,14 @@ class Wdf
         return isset(self::$buffers[$name]);
     }
     
+    /**
+     * Creates a buffer that can be used instead of $GLOBALS variable.
+     * Optionally, buffers can be mapped to a SESSION variable.
+     * 
+     * @param string $name Buffer identifier
+     * @param array|Callable $initial_data Array with initial data or callback returning this initial data
+     * @return ScavixWDF\WdfBuffer
+     */
     public static function GetBuffer($name,$initial_data=[])
     {
         if( !isset(self::$buffers[$name]) )
