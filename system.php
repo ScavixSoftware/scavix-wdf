@@ -684,7 +684,7 @@ function release_hooks($handler_obj)
 {
 	foreach( Wdf::$Hooks as $type=>$stack )
 		foreach( $stack as $i=>$def )
-			if( $def[0] == $handler_obj )
+			if( is_array($def) && ($def[0] == $handler_obj) )
 				unset( Wdf::$Hooks[$type][$i] );
 			
 	foreach( Wdf::$Hooks as $type=>$stack )

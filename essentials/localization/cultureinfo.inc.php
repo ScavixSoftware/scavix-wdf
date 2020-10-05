@@ -3712,6 +3712,7 @@ function internal_getCultureCodeFromRegion($region)
 		case 'ME': return array('sr-Cyrl-ME','sr-Latn-ME');
 		case 'TJ': return array('tg-Cyrl-TJ');
 	}
+    return false;
 }
 
 /**
