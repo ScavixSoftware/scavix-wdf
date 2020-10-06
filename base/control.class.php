@@ -147,6 +147,7 @@ class Control extends Renderable
         'audio' => array('controls','autoplay','loop','preload','src','onload'),
         'video' => array('controls','autoplay','loop','preload','src','onload','width','height'),
         'source' => array('src','type','onload'),
+        'track' => array('default','kind','label','src','srclang'),
     );
     
     protected static $html_universals_keys = [];
