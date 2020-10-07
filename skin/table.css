@@ -31,10 +31,15 @@
 
 .table.haspager.pager_top { margin-top: 6px; }
 
-.pager a, 
-.pager a:link, 
-.pager a:visited, 
-.pager a:active
+.pager, .pager > *
+{
+    display: inline;
+}
+
+.pager > a, 
+.pager > a:link, 
+.pager > a:visited, 
+.pager > a:active
 {
 	text-decoration: none;
 	border: 1px solid #cccccc;
@@ -45,7 +50,7 @@
     margin-right: 2px;
 }
 
-.pager a:hover
+.pager > a:hover
 {
 	border: 1px solid #666666;
 }

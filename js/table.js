@@ -74,7 +74,7 @@ var wdf = win.wdf;
                 $('.tbody .tr .td:last-child, .thead .tr .td:last-child, .tfoot .tr .td:last-child',self).css('padding-right',w+10);
             }
 
-            $('.pager',self).each( function(){ $(this).width(self.width());});
+//            $('.pager',self).each( function(){ $(this).width(self.width());});
             $('.thead a[data-sort]',self).click( function(e) { self.overlay(); });
             $(this).placePager(opts);
         });
@@ -111,12 +111,12 @@ var wdf = win.wdf;
         if( opts && opts.top_pager )
         {
             $(this).addClass('pager_top');
-            $p = $p.insertBefore(this).css('display','inline').clone(true);
+            $p = $p.insertBefore(this).clone(true);
         }
         if( opts && opts.bottom_pager )
         {
             $(this).addClass('pager_bottom');
-            $p.insertAfter(this).css('display','inline');
+            $p.insertAfter(this);
         }
     };
 

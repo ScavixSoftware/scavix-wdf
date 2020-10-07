@@ -695,6 +695,7 @@ class Table extends Control
         $this->TriggerOnPageChanged();
 	}
 	
+    var $PagerPrefix = false;
 	protected function RenderPager()
 	{
 		$pages = ceil($this->TotalItems / $this->ItemsPerPage);
@@ -704,6 +705,9 @@ class Table extends Control
         $this->addClass('haspager');
 		$ui = new Control('div');
 		$ui->addClass("pager");
+        
+        if( $this->PagerPrefix )
+            $ui->content($this->PagerPrefix);
 
 		$start = 1;
 		while( $pages > $this->MaxPagesToShow && $this->CurrentPage > $start + $this->MaxPagesToShow / 2 )

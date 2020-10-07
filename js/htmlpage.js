@@ -30,8 +30,8 @@
 
 (function(win,$,undefined)
 { 
-    var location = win.location, 
-        document = win.document, 
+    var document = win.document, 
+        location = document.location, 
         console = win.console, 
         Promise = win.Promise,
         URLSearchParams = win.URLSearchParams,
@@ -272,6 +272,7 @@
             {
                 if(location.hash && (location.hash != '#'))
                     location.hash = '';
+                console.log("href change from "+location.href,"to "+href);
 				location.href = href;
                 if(location.hash && (location.hash != '#'))
                     location.reload();
