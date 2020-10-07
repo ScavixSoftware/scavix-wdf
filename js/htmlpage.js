@@ -639,6 +639,11 @@
             callback = method;
             method = false;
         }
+        if( this.length == 0)
+        {
+            wdf.processCallback(callback);
+            return this;
+        }
 		return this.each(function()
 		{
             var elem = $(this);
@@ -647,11 +652,14 @@
 			{
                 elem.removeData('resize_wdf_overlay');
                 var ol = $('.wdf_overlay',this);
-				ol.fadeOut('fast',function()
-                {
+                if( ol.length == 0)
                     wdf.processCallback(callback);
-                    ol.remove();
-                });
+                else
+                    ol.fadeOut('fast',function()
+                    {
+                        wdf.processCallback(callback);
+                        ol.remove();
+                    });
 				return;
 			}
 			var isTab = elem.is('.table'),
