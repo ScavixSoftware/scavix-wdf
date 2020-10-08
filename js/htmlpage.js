@@ -614,6 +614,29 @@
             {
                 return callback.done(args);
             }
+        },
+        
+        getProp: function (obj, props, def)
+        {
+            var isar = Object.prototype.toString.call(obj) == "[object Array]";
+
+            if (typeof props === "string")
+                props = props.split(".");
+            else if (typeof props === "number")
+                props = [props];
+            
+            if( isar )
+                props = props.map(function(p){ return parseInt(p); });
+            
+            var get = function(obj, pa, def)
+            {
+                if (obj === undefined || obj === null)
+                    return def;
+                if (pa.length === 0)
+                    return obj;
+                return get(obj[pa[0]], pa.slice(1), def);
+            };
+            return get(obj, props, def);
         }
 	};
 	
