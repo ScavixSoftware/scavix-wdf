@@ -498,6 +498,10 @@ function logging_render_var($content,&$stack=array(),$indent="")
             if(isDev())
                 $res[] = "in ".$content->getFile().":".$content->getLine();
 		}
+        elseif($content instanceof ScavixWDF\Base\DateTimeEx)
+        {
+            $res[] = get_class($content).": ".(var_export((array) $content, true));
+        }
 		else
 		{
 			$is_renderable = $content instanceof ScavixWDF\Base\Renderable;
