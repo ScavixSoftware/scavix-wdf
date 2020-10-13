@@ -148,6 +148,8 @@ class Control extends Renderable
         'video' => array('controls','autoplay','loop','preload','src','onload','width','height'),
         'source' => array('src','type','onload'),
         'track' => array('default','kind','label','src','srclang'),
+        'svg' => array('width','height','viewbox','preserveaspectratio'),
+        'rect' => array('x','y','width','height','id'),
     );
     
     protected static $html_universals_keys = [];
