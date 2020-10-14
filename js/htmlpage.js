@@ -614,6 +614,29 @@
             {
                 return callback.done(args);
             }
+        },
+        
+        getProp: function (obj, props, def)
+        {
+            var isar = Object.prototype.toString.call(obj) == "[object Array]";
+
+            if (typeof props === "string")
+                props = props.split(".");
+            else if (typeof props === "number")
+                props = [props];
+            
+            if( isar )
+                props = props.map(function(p){ return parseInt(p); });
+            
+            var get = function(obj, pa, def)
+            {
+                if (obj === undefined || obj === null)
+                    return def;
+                if (pa.length === 0)
+                    return obj;
+                return get(obj[pa[0]], pa.slice(1), def);
+            };
+            return get(obj, props, def);
         }
 	};
 	
@@ -639,6 +662,11 @@
             callback = method;
             method = false;
         }
+        if( this.length == 0)
+        {
+            wdf.processCallback(callback);
+            return this;
+        }
 		return this.each(function()
 		{
             var elem = $(this);
@@ -647,11 +675,14 @@
 			{
                 elem.removeData('resize_wdf_overlay');
                 var ol = $('.wdf_overlay',this);
-				ol.fadeOut('fast',function()
-                {
+                if( ol.length == 0)
                     wdf.processCallback(callback);
-                    ol.remove();
-                });
+                else
+                    ol.fadeOut('fast',function()
+                    {
+                        wdf.processCallback(callback);
+                        ol.remove();
+                    });
 				return;
 			}
 			var isTab = elem.is('.table'),

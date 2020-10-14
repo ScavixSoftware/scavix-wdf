@@ -699,7 +699,9 @@ class Table extends Control
 	protected function RenderPager()
 	{
 		$pages = ceil($this->TotalItems / $this->ItemsPerPage);
-		if( ($pages < 2) && (!$this->ShowTotalText || ($this->TotalItems == 0)) )
+        $hidden = ($pages < 2) && (!$this->ShowTotalText || ($this->TotalItems == 0));
+        
+		if( $hidden && !$this->PagerPrefix )
 			return;
 		
         $this->addClass('haspager');
@@ -708,6 +710,8 @@ class Table extends Control
         
         if( $this->PagerPrefix )
             $ui->content($this->PagerPrefix);
+        if( $hidden )
+            return $ui;
 
 		$start = 1;
 		while( $pages > $this->MaxPagesToShow && $this->CurrentPage > $start + $this->MaxPagesToShow / 2 )
