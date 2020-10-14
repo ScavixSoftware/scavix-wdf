@@ -29,6 +29,8 @@ namespace ScavixWDF\CLI;
  */
 class CliLogger extends \ScavixWDF\Logging\Logger
 {
+	public static $LOG_SEVERITY = true;
+	
     private static $COLORS = 
         [
             'TRACE' => '1;30',
@@ -48,14 +50,15 @@ class CliLogger extends \ScavixWDF\Logging\Logger
 	 */
     public function write($severity=false,$log_trace=false,$a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)
 	{
+		$s = self::$LOG_SEVERITY?"[$severity]\t":"";
         $log_trace = $severity == 'FATAL';
         
 		$entry = $this->prepare($severity,$log_trace,$a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10);
 		if( !$entry ) return;
         
         if( isset(self::$COLORS[$severity]))
-            echo "\033[".self::$COLORS[$severity]."m[$severity]\t{$entry->message}\033[0m\n";
+            echo "\033[".self::$COLORS[$severity]."m{$s}{$entry->message}\033[0m\n";
 		else
-            echo "[$severity]\t{$entry->message}\n";
+            echo "{$s}{$entry->message}\n";
 	}
 }

@@ -118,7 +118,11 @@ class DataSource
 		{
 			if( $username || $password )
 				log_warn("Oldschool DSN overrides username and/or password given");
-			$dsn = "{$test['scheme']}:host={$test['host']};dbname=".trim(ifavail($test,'path'),' /').";";
+			
+			if( $test['scheme'] == 'sqlite' )
+				$dsn = str_replace("://",":",$dsn);
+			else
+				$dsn = "{$test['scheme']}:host={$test['host']};dbname=".trim(ifavail($test,'path'),' /').";";
 			$username = ifavail($test,'user');
 			$password = ifavail($test,'pass');
 		}
