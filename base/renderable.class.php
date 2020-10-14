@@ -45,6 +45,10 @@ abstract class Renderable implements \JsonSerializable
     public static $SLIM_SERIALIZER = false;
     public static $SLIM_SERIALIZER_RUN = 0;
     private $serialized = false;
+    
+    /**
+     * @internal Starts slim serialization mode (see <Renderable::jsonSerialize>)
+     */
     public static function StartSlimSerialize()
     {
         if( self::$SLIM_SERIALIZER )
@@ -53,39 +57,73 @@ abstract class Renderable implements \JsonSerializable
         self::$SLIM_SERIALIZER_RUN++;
         return true;
     }
+    /**
+     * @internal Stops slim serialization mode (see <Renderable::jsonSerialize>)
+     */
     public static function StopSlimSerialize()
     {
         self::$SLIM_SERIALIZER = false;
     }
     
     protected static $_renderingRoot = false;
+    
+    /**
+     * @internal Gets the current rendering root object
+     */
     public static function GetRenderingRoot()
     {
         return self::$_renderingRoot;
     }
+    
+    /**
+     * @internal Checks if there's a current rendering root object
+     */
     public static function HasRenderingRoot()
     {
         return self::$_renderingRoot instanceof Renderable;
     }
     
     protected static $_renderingStack = [];
+    
+    /**
+     * @internal Adds an object to the rendering stack.
+     */
     public static function PushRenderer(Renderable $r)
     {
         self::$_renderingStack[] = $r;
     }
+    
+    /**
+     * @internal Removes an object from the rendering stack.
+     */
     public static function PopRenderer()
     {
         array_pop(self::$_renderingStack);
     }
+    
+    /**
+     * @internal Checks if the rendering stack is empty
+     */
     public static function HasCurrentRenderer()
     {
         return count(self::$_renderingStack)>0;
     }
+    
+    /**
+     * @internal Returns the current rendering object.
+     */
     public static function GetCurrentRenderer()
     {
         return array_last(self::$_renderingStack);
     }
     
+    /**
+     * Returns all data needed for serializing this object into JSON.
+     * 
+     * Note: This does _not_ return a string, but an object to be serialized.
+     * @see <Renderable::StartSlimSerialize>
+     * @return object|array If SlimSerialisation is active, returns an array, else returns $this
+     */
     public function jsonSerialize()
     {
         if( !self::$SLIM_SERIALIZER )
@@ -287,6 +325,9 @@ abstract class Renderable implements \JsonSerializable
         return self::$_lazy_resources;
     }
     
+    /**
+     * @internal Prepares given resources to be processed
+     */
     public static function CategorizeResources()
     {
         $res = [];

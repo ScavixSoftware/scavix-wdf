@@ -56,6 +56,9 @@ class CanvasGauge extends Control
             ;
 	}
     
+    /**
+     * @shortcut <Control::setData>
+     */
     function opt($name,$value)
     {
         return $this->setData($name, $value);

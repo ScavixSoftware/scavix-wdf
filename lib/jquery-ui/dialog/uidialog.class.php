@@ -133,6 +133,7 @@ class uiDialog extends uiControl
 	 * 
 	 * @param string $label Button text
 	 * @param string $action JS code for button click event
+	 * @param string $prepend If true will prepend the button, else append
 	 * @return uiDialog `$this`
 	 */
 	function AddButton($label,$action,$prepend=false)

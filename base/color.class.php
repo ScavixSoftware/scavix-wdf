@@ -44,6 +44,12 @@ class Color
             \ScavixWDF\WdfException::Raise("Invalid alpha '{$this->a}': must be 0-1");
     }
     
+    /**
+     * Composes a Color object from a valid HTML color string.
+     * 
+     * @param string $hex_string Valid HTML color string
+     * @return Color
+     */
     public static function hex($hex_string)
     {
         static $named = [
@@ -107,12 +113,28 @@ class Color
         $parts = array_map('hexdec', str_split($hex,2));
         return new Color($parts,true);
     }
-    
+
+    /**
+     * Composes a <Color> object from RGBA values.
+     * 
+     * @param int $r Red component (0-255)
+     * @param int $g Green component (0-255)
+     * @param int $b Blue component (0-255)
+     * @param float $a Alpha (0-1)
+     * @return \ScavixWDF\Base\Color
+     */
     public static function rgba($r,$g,$b,$a=1)
     {
         return new Color([$r,$g,$b,$a]);
     }
     
+    /**
+     * Composes a <ColorRange> object.
+     * 
+     * @param mixed $from Optional string or <Color> defining the start
+     * @param mixed $to Optional string or <Color> defining the end
+     * @return \ScavixWDF\Base\Color\ColorRange
+     */
     public static function range($from,$to)
     {
         $from = $from instanceof Color?$from:Color::hex($from);
@@ -120,6 +142,13 @@ class Color
         return new Color\ColorRange($from,$to);
     }
     
+    /**
+     * Composes a random <Color>.
+     * 
+     * @param mixed $min Optional string or <Color> defining the minimum
+     * @param mixed $max Optional string or <Color> defining the maximum
+     * @return \ScavixWDF\Base\Color
+     */
     public static function random($min=false,$max=false)
     {
         if( $min && !($min instanceof Color) ) $min = Color::hex($min);
@@ -150,6 +179,12 @@ class Color
 
 namespace ScavixWDF\Base\Color;
 
+/**
+ * Represents a color range.
+ * 
+ * Never construct a ColorRange directly, but use <Color::range>, 
+ * otherwise the classloader may fail.
+ */
 class ColorRange
 {
     var $from, $to, $min, $max;
@@ -167,6 +202,13 @@ class ColorRange
         $this->to = $to;
     }
     
+    /**
+     * Sets values that act as min and max when querying data.
+     * 
+     * @param int|float $min Minimum value
+     * @param int|float $max Maximum value
+     * @return ColorRange $this
+     */
     public function setMinMax($min,$max)
     {
         $this->min = min($min,$max);
@@ -174,6 +216,12 @@ class ColorRange
         return $this;
     }
     
+    /**
+     * Return the color corresponding to a value in the range.
+     * 
+     * @param int|float $value The value (between min and max) to get the color for
+     * @return Color
+     */
     public function fromValue($value)
     {
         $t = max($this->max-$this->min,0.00000001);
@@ -181,6 +229,12 @@ class ColorRange
         return $this->fromPercent($v / $t * 100);
     }
     
+    /**
+     * Return the color corresponding to percent in the range.
+     * 
+     * @param int|float $percent The percent (0-100) to get the color for
+     * @return Color
+     */
     public function fromPercent($percent)
     {
         $parts = [];

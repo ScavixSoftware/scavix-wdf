@@ -49,6 +49,14 @@ class TextInput extends Input
 			$this->class = $class;
 	}
     
+    /**
+     * Enables form auto-submission on value change.
+     * 
+     * This is done by submitting `$(this).closest('form')`
+     * 
+     * @param int $delay Delay in milliseconds
+     * @return TextInput $this
+     */
     function setAutoSubmit($delay=500)
     {
         if( $delay )

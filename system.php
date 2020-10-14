@@ -643,6 +643,7 @@ function system_die($reason,$additional_message='')
  * Note that this registers a function! If you want an objects method to be executed, see `register_hook()`.
  * @param int $type Valid hook type (see the HOOK_* constants)
  * @param string $handler_method name of function to call
+ * @param bool $prepend If true will prepend, else will append
  * @return void
  */
 function register_hook_function($type,$handler_method,$prepend=false)
@@ -658,6 +659,7 @@ function register_hook_function($type,$handler_method,$prepend=false)
  * @param int $type Valid hook type (see the HOOK_* constants)
  * @param object $handler_obj The object containig the handler method
  * @param string $handler_method name of method to call
+ * @param bool $prepend If true will prepend, else will append
  * @return void
  */
 function register_hook($type,&$handler_obj,$handler_method,$prepend=false)

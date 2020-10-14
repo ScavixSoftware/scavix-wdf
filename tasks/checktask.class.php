@@ -24,6 +24,9 @@
  */
 namespace ScavixWDF\Tasks;
 
+/**
+ * @internal CLI only Task run `php index.php check` for info
+ */
 class CheckTask extends Task
 {
     function Run($args)

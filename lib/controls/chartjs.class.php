@@ -67,6 +67,9 @@ class ChartJS extends Control
         return $val;
     }
     
+    /**
+     * @internal Handler for points of type Time
+     */
     public static function TimePoint($x,float $y)
     {
         $dt = DateTimeEx::Make($x);
@@ -74,6 +77,9 @@ class ChartJS extends Control
         return ['x'=>"[jscode]new Date('".$dt->format("c")."')", 'y'=>$y, 'xval'=>$xval];
     }
     
+    /**
+     * @internal Handler for points of type Date
+     */
     public static function DatePoint($x,float $y,$row=false)
     {
         self::$currentInstance->detectedDateseries = true;
@@ -84,6 +90,9 @@ class ChartJS extends Control
         return $pt;
     }
 
+    /**
+     * @internal Handler for points of type String
+     */
     public static function StrPoint(string $x,float $y,$row=false)
     {
         if( !in_array($x,self::$currentInstance->detectedCategories) )
@@ -93,10 +102,22 @@ class ChartJS extends Control
         return $pt;
     }
     
+    /**
+     * @shortcut Create a Line chart
+     */
     public static function Line($title='',$height=false) { return new ChartJS($title,'line',$height); }
+    /**
+     * @shortcut Create a Bar chart
+     */
     public static function Bar($title='',$height=false) { return new ChartJS($title,'bar',$height); }
+    /**
+     * @shortcut Create a Pie chart
+     */
     public static function Pie($title='',$height=false) { return ChartJS::Make($title,'pie',$height)->scaleX('*','display',false); }
     
+    /**
+     * @shortcut Create a Stacked-Bar chart
+     */
     public static function StackedBar($title='',$height=false) { return ChartJS::Make($title,'bar',$height)->setStacked(); }
     
 	function __initialize($title='',$type='line',$height=false)
@@ -119,6 +140,9 @@ class ChartJS extends Control
         \ScavixWDF\Base\HtmlPage::AddPolyfills('Math.trunc,Math.sign');
 	}
     
+    /**
+     * @override
+     */
     function PreRender($args = array())
     {
         if( $this->_skipRendering )
@@ -197,6 +221,15 @@ class ChartJS extends Control
         return $this->conf("options.$name",$value);
 	}
     
+    /**
+     * Get/Set dataset related configuration.
+     * 
+     * @param int $index Datase index
+     * @param string $name Config name
+     * @param mixed $value Optional value
+     * @return mixed Returns $this is value is given, else the data requested
+     * @throws Exception
+     */
     function dataset($index,$name,$value=null)
 	{
         $all = preg_replace('/[*all-]/','',"$index")=="";
@@ -217,6 +250,16 @@ class ChartJS extends Control
         return $this;
 	}
     
+    /**
+     * Get/Set scale related configuration.
+     * 
+     * @param string $axes Axes name
+     * @param int $index Axes index
+     * @param string $name Config name
+     * @param mixed $value Optional value
+     * @return mixed Returns $this is value is given, else the data requested
+     * @throws Exception
+     */
     protected function scales($axes,$index,$name,$value=null)
     {
         if( $axes!="xAxes" && $axes!="yAxes" )
@@ -236,43 +279,85 @@ class ChartJS extends Control
         return $this->opt("scales.$axes.$index.$name",$value);
     }
     
+    /**
+     * @shortcut <ChartJS::scales>
+     */
     function scaleX($index,$name,$value=null)
     {
         return $this->scales('xAxes',$index,$name,$value);
     }
 
+    /**
+     * @shortcut <ChartJS::scales>
+     */
     function scaleY($index,$name,$value=null)
     {
         return $this->scales('yAxes',$index,$name,$value);
     }
     
+    /**
+     * Gets/Sets X-Axes labels.
+     * 
+     * @param array $labels Optional labels as array
+     * @return mixed $this is lables is given, else the data requested
+     */
     function xLabels($labels=null)
     {
         return $this->conf('data.labels',$labels);
     }
     
+    /**
+     * Gets/Sets the legend.
+     * 
+     * @param string $name Name
+     * @param mixed $value Optional value
+     * @return mixed Returns $this is value is given, else the data requested
+     */
     function legend($name,$value=null)
     {
         return $this->opt("legend.$name",$value);
     }
     
+    /**
+     * Sets the chart type.
+     * 
+     * @param string $type The type name
+     * @return $this
+     */
     function setType($type)
     {
         $this->config['type'] = $type;
         return $this;
     }
     
+    /**
+     * Sets the chart title.
+     * 
+     * @param string $text Title
+     * @return $this
+     */
     function setTitle($text)
     {
         $this->chart_title->content($text,true);
         return $this;
     }
     
+    /**
+     * Sets this chart to be stacked.
+     * 
+     * @return $this
+     */
     function setStacked()
     {
         return $this->scaleX('*','stacked',true)->scaleY('*','stacked',true);
     }
     
+    /**
+     * Sets the xAxes to be a time-scale.
+     * 
+     * @param string $unit OPtional unit specifier
+     * @return $this
+     */
     function setTimeAxesX($unit=false)
     {
         $this->scaleX('*','type','time')->scaleX('*','distribution','linear');
@@ -283,6 +368,12 @@ class ChartJS extends Control
         return $this;
     }
     
+    /**
+     * Sets a <ColorRange> for the chart.
+     * 
+     * @param ColorRange $range Range of colors
+     * @return $this
+     */
     function setColorRange(\ScavixWDF\Base\Color\ColorRange $range)
     {
         $this->colorRange = $range;
@@ -297,6 +388,13 @@ class ChartJS extends Control
         return $col?$col:(self::$COLORS[($this->currentColor++)%count(self::$COLORS)]);
     }
     
+    /**
+     * Sets series names.
+     * 
+     * @param string $seriesNames Series names
+     * @param bool $append If true, series will be appended, else existing will be replaced
+     * @return $this
+     */
     function setSeries($seriesNames, $append=false)
     {
         if( !$append ) $this->series = [];
@@ -313,6 +411,14 @@ class ChartJS extends Control
         return $this;
     }
     
+    /**
+     * Sets data.
+     * 
+     * @param iterable $data The actual data
+     * @param string $x_value_row Name of the field that represents the series name
+     * @param string $pointType Optional classname of the Point handler
+     * @return $this
+     */
     function setData(iterable $data, string $x_value_row, $pointType="StrPoint")
     {
         return $this->fill(function($series)use($data, $x_value_row, $pointType)
@@ -333,6 +439,16 @@ class ChartJS extends Control
         });
     }
     
+    /**
+     * Sets series data.
+     * 
+     * @param iterable $data The actual data
+     * @param string $series_row Name of the field with the series name
+     * @param string $x_value_row Name of the field with the x-values
+     * @param string $y_value_row Name of the field with the y-values
+     * @param string $pointType Optional classname of the Point handler
+     * @return $this
+     */
     function setSeriesData(iterable $data, string $series_row, string $x_value_row, string $y_value_row, $pointType="StrPoint")
     {   
         $series = [];
@@ -361,6 +477,12 @@ class ChartJS extends Control
         });
     }
     
+    /**
+     * Sets data for a Pie chart.
+     * 
+     * @param array $name_value_pairs key-value pairs of data
+     * @return $this
+     */
     function setPieData(array $name_value_pairs)
     {
         $labels = []; $this->series = [['data'=>[],'backgroundColor'=>[],'borderColor'=>[]]];
@@ -375,6 +497,12 @@ class ChartJS extends Control
         return $this->xLabels($labels)->conf('data.datasets',$this->series);
     }
 
+    /**
+     * Fill the chart with data using a callback.
+     * 
+     * @param callable $seriesCallback Callback that will receive the series name and must return an array with data
+     * @return $this
+     */
     function fill($seriesCallback)
 	{
         foreach( $this->series as &$series )
@@ -382,6 +510,9 @@ class ChartJS extends Control
 		return $this->conf('data.datasets',$this->series);
 	}
     
+    /**
+     * @shortcut Create a multi-series time chart
+     */
     public static function MultiSeriesTime($data, $dataset_name='series', $x_name='x', $y_name='y')
 	{
         $chart = new ChartJS();
@@ -415,6 +546,12 @@ class ChartJS extends Control
         });
 	}
     
+    /**
+     * Iterates series.
+     * 
+     * @param callable $callback Callback that received each searies
+     * @return $this
+     */
     public function eachSeries($callback)
     {
         foreach( $this->series as &$series )
@@ -424,6 +561,11 @@ class ChartJS extends Control
         return $this->conf('data.datasets',$this->series);
     }
     
+    /**
+     * Prepare the data to be ajax usable.
+     * 
+     * @return array The data
+     */
     public function getAjaxData()
     {
         $this->PreRender();

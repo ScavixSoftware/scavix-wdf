@@ -24,6 +24,17 @@
  */
 namespace ScavixWDF\Tasks;
 
+/**
+ * Represents some work to be done.
+ * 
+ * Processes defined in Task class can be run from different SAPI.
+ * You may create and run the directly:
+ * `MyTask::Make()->DoMyWork()`
+ * You may delay them using <WdfTaskModel> and the WDF cli backend:
+ * `MyTask::Async('DoMyWork')->Go()`
+ * You may execute them from command line:
+ * `php index.php mytask-domywork`
+ */
 abstract class Task
 {
     var $model;
@@ -35,24 +46,53 @@ abstract class Task
         $this->ds = \ScavixWDF\Model\DataSource::Get();
     }
     
+    /**
+     * Generic static construction method that can be called on subclasses.
+     * 
+     * Sample: `MyTask::Make()->DoWork();`
+     * 
+     * @return \ScavixWDF\Tasks\Task
+     */
     public static function Make() : Task
     {
         $name = get_called_class();
         return new $name();
     }
     
+    /**
+     * Creates a WdfTaskModel for async processing.
+     * 
+     * @param string $method Optional method name to be started.
+     * @return \ScavixWDF\Tasks\WdfTaskModel
+     */
     public static function Async($method='run') : WdfTaskModel
     {
         $name = get_called_class()."-$method";
         return WdfTaskModel::Create($name);
     }
     
+    /**
+     * Creates a WdfTaskModel for async processing if it not already exists.
+     * 
+     * @param string $method Optional method name to be started.
+     * @param bool $return_original If true and there's already another task present, return that one, else return a dummy if there's another one
+     * @return \ScavixWDF\Tasks\WdfTaskModel The new task or a dummy if already present or the one already present
+     */
     public static function AsyncOnce($method='run', $return_original=false) : WdfTaskModel
     {
         $name = get_called_class()."-$method";
         return WdfTaskModel::CreateOnce($name, $return_original);
     }
     
+    /**
+     * Runs this task in another (CLI) process.
+     * 
+     * @see <cli_run_script>
+     * @param array $args Arguments
+     * @param string $method Optional method name
+     * @param bool $return_cmdline If true, process will not be started, but it's commandline is returned.
+     * @return void|string
+     */
     public function Fork($args=[],$method='run',$return_cmdline=false)
     {
         if( !function_exists("cli_run_taskprocessor") )
@@ -62,13 +102,20 @@ abstract class Task
         return cli_run_script(CLI_SELF,$args,$_SERVER,$return_cmdline);
     }
 
+    /**
+     * Central processing method. Subclasses must implement this.
+     * @param array $args Array with arguments
+     * @return void
+     */
     abstract function Run($args);
     
     /**
      * Called once the Task finished processing.
      * 
-     * @param type $runtime The total time from creation/start till not in ms
-     * @param type $exectime The time in ms needed for actual execution (Run method)
+     * @param string $method The method processed
+     * @param int $runtime The total time from creation/start till not in ms
+     * @param int $exectime The time in ms needed for actual execution (Run method)
+     * @return void
      */
     public function Finished($method, $runtime, $exectime)
     {

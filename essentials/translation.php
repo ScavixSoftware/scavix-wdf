@@ -646,6 +646,12 @@ function translation_string_exists($constant)
 	return in_array($constant, $known);
 }
 
+/**
+ * Checks if the given text is a valid constant according to the translation regex pattern.
+ * 
+ * @param string $constant Text to be tested
+ * @return bool
+ */
 function translation_is_valid_constant($constant)
 {
 	$text = preg_replace(

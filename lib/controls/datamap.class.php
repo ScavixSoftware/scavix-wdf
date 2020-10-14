@@ -54,6 +54,9 @@ class Datamap extends Control
         $this->conf("height",intval($height));
     }
     
+    /**
+     * @override
+     */
     function PreRender($args = array())
     {
         //log_debug(__METHOD__,$this->config);
@@ -65,6 +68,13 @@ class Datamap extends Control
         return parent::PreRender($args);
     }
     
+    /**
+     * Get/Set configuration.
+     * 
+     * @param string $name config key
+     * @param mixed $value Optional value
+     * @return $this If value is given, return $this, else returns the data for 'key'
+     */
     function conf($name,$value=null)
 	{
         $parts = explode(".",$name);
@@ -86,6 +96,14 @@ class Datamap extends Control
 		return $this;
 	}
     
+    /**
+     * Sets the color for a country.
+     * 
+     * @param string $country_code Country code (US, DE,...)
+     * @param string $color HTML color
+     * @param string $tooltip Optional tooltip
+     * @return $this
+     */
     function setColor($country_code, $color, $tooltip=false)
     {
         $code = \ScavixWDF\Localization\Localization::convert_countrycode($country_code);
@@ -95,6 +113,12 @@ class Datamap extends Control
             ->conf("fills.$code","".$color);
     }
     
+    /**
+     * Sets a color range for the datamap.
+     * 
+     * @param ColorRange $range The <ColorRange>
+     * @return $this
+     */
     function setColorRange(\ScavixWDF\Base\Color\ColorRange $range)
     {
         $h = intval($this->conf("height"));
@@ -114,6 +138,16 @@ class Datamap extends Control
         return $this;
     }
     
+    /**
+     * Sets the value for a country.
+     * 
+     * Note: This can only be used if a color range has been set with <Datamap::setColorRange>
+     * 
+     * @param string $country_code Country Code
+     * @param int|float $value The value, see <ColorRange::fromValue>
+     * @param string $tooltip Optional tooltip
+     * @return $this
+     */
     function setValue($country_code, $value, $tooltip=false)
     {
         if( !$this->colorRange )

@@ -183,6 +183,7 @@ function model_build_connection_string($type,$server,$username,$password,$databa
  * @param mixed $datasource The datasource to be used
  * @param string|int $version Target version
  * @param string $script_folder Folder with the SQL update scripts
+ * @param callable $after_sql_callback Optional callback that get hit after every version step and receives this version as only argument
  * @return array Array of results
  */
 function model_update_db($datasource,$version,$script_folder,callable $after_sql_callback = null)

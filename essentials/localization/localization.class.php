@@ -506,9 +506,15 @@ class Localization
         return self::convert_countrycode($country_code);
     }
     
+    /**
+     * Converts 2-letter to 3-letter country codes and vice-versa.
+     * 
+     * @param string $country_code country code.
+     * @return boolean|string Returns 2-letter if 3-letter was given, or vice-versa, or false if invalid
+     */
 	public static function convert_countrycode($country_code)
 	{
-		$ret = array(
+		static $ret = array(
 			"ALA" => "AX", "AFG" => "AF", "ALB" => "AL", "DZA" => "DZ", "ASM" => "AS",
 			"AND" => "AD", "AGO" => "AO", "AIA" => "AI", "ATA" => "AQ", "ATG" => "AG",
 			"ARG" => "AR", "ARM" => "AM", "ABW" => "AW", "AUS" => "AU", "AUT" => "AT",

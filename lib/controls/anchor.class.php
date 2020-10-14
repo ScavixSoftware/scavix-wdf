@@ -61,6 +61,12 @@ class Anchor extends Control
 		$this->CloseTagNeeded();
 	}
     
+    /**
+     * Creates an <Anchor> with 'href="javascript:void(0)"'.
+     * 
+     * @param mixed $label Initial content
+     * @return Anchor
+     */
     public static function Void($label)
     {
         return new Anchor("javascript:void(0)",$label);

@@ -24,23 +24,49 @@
  */
 namespace ScavixWDF\Tasks;
 
-class WebRequest extends \ScavixWDF\Tasks\Task
+/**
+ * Task to perform webrequests.
+ */
+class WebRequest extends Task
 {
-    function __construct(\ScavixWDF\Tasks\WdfTaskModel $model=null)
+    function __construct(WdfTaskModel $model=null)
     {
         parent::__construct($model);
     }
 
+    /**
+     * Perform a GET request.
+     * 
+     * @param string $url URL to get from
+     * @param array $header Headers to send
+     * @return string The response as text
+     */
     public static function Get($url,$header=[])
     {
         return downloadData($url, false, $header, false, 30);
     }
 
+    /**
+     * Perform a POST request.
+     * 
+     * @param string $url URL to get from
+     * @param array $data Data to send
+     * @param array $header Headers to send
+     * @return string The response as text
+     */
     public static function Post($url,$data=[],$header=[])
     {
         return downloadData($url, $data, $header, false, 30);
     }
 
+    /**
+     * Triggers a web request to be run async.
+     * 
+     * @param string $url URL to get from
+     * @param array $data Data to send
+     * @param array $header Headers to send
+     * @return void
+     */
     public static function Trigger($url,$data=false,$header=[])
     {
         WdfTaskModel::Create(WebRequest::class)
@@ -48,6 +74,9 @@ class WebRequest extends \ScavixWDF\Tasks\Task
             ->Go();
     }
 
+    /**
+     * @override
+     */
     function Run($args)
     {
         if( PHP_SAPI == 'cli' )

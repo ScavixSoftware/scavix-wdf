@@ -147,6 +147,9 @@ class SysAdmin extends HtmlPage
             redirect('sysadmin','forbidden');
     }
 
+    /**
+     * @internal SysAdmin forbidden page.
+     */
     function Forbidden()
     {
         $this->content("<h1>Error!</h1>");

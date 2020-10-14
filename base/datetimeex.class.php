@@ -83,6 +83,14 @@ class DateTimeEx extends DateTime
 		return new DateTimeEx();
 	}
     
+    /**
+     * Returns a new DateTimeEx from datamatching another Timzone.
+     * 
+     * @param mixed $source <DateTimeEx::Make> compatible creation data
+     * @param string $other_timezone The timezone $source is from
+     * @param string $format Optional Format, see <DateTimeEx::Make>
+     * @return DateTimeEx
+     */
     public static function FromOtherTZ($source, $other_timezone, $format=false)
     {
         $other = new DateTime(DateTimeEx::Make($source,$format)->format("Y-m-d H:i:s"),timezone_open($other_timezone));
@@ -148,6 +156,12 @@ class DateTimeEx extends DateTime
 		return $dt;
 	}
     
+    /**
+     * Returns this as seem in another timezone.
+     * 
+     * @param string $other_timezone Target timzone
+     * @return DateTimeEx
+     */
     public function ToOtherTZ($other_timezone)
     {
         $other = clone $this;

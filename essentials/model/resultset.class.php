@@ -585,6 +585,9 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 		return $this->_rowCount;
 	}
     
+    /**
+     * @internal Closes the inner statements cursor if present
+     */
     function closeCursor()
 	{
         if( $this->_stmt )

@@ -75,6 +75,8 @@ function cli_init()
  * 
  * @param type $php_script_path The script path
  * @param type $args All arguments
+ * @param array $extended_data Optional additional data to pass to the process
+ * @param bool $return_cmdline If true will not execute, but just return the commandline
  * @return void
  */
 function cli_run_script($php_script_path, $args=[], $extended_data=false, $return_cmdline=false)
@@ -143,6 +145,9 @@ function cli_run_taskprocessor($runtime_seconds=null)
         cli_run_script(CLI_SELF,['db-processwdftasks',$runtime_seconds],$_SERVER);
 }
 
+/**
+ * @internal Used to check if processes are already active
+ */
 function cli_get_processes($filter=false, $test_myself=false)
 {
     if( !function_exists('posix_isatty') )

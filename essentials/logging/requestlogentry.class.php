@@ -23,15 +23,24 @@
  */
 namespace ScavixWDF\Logging;
 
+use ScavixWDF\Base\Renderable;
+use ScavixWDF\JQueryUI\uiMessage;
+use ScavixWDF\Model\DataSource;
+use ScavixWDF\Model\Model;
+use Swoole\MySQL\Exception;
+
 /**
  * Represents an entry in the wdf_requests table.
  */
-class RequestLogEntry extends \ScavixWDF\Model\Model
+class RequestLogEntry extends Model
 {
     protected $started;
     protected $handled = false;
     protected static $Current = false;
         
+    /**
+     * @implements <Model::GetTableName()>
+     */
     public function GetTableName(): string { return "wdf_requests"; }
 
     protected function CreateTable()
@@ -63,6 +72,9 @@ class RequestLogEntry extends \ScavixWDF\Model\Model
         return stripos($this->url,"wdfresource")!== false;
     }
     
+    /**
+     * @internal Starts a new request
+     */
     public static function Start()
     {
         $entry = new RequestLogEntry();
@@ -136,15 +148,24 @@ class RequestLogEntry extends \ScavixWDF\Model\Model
         );
     }
     
+    /**
+     * @internal Finishes a previously started request
+     */
     public static function Finish($result)
     {
         if( self::$Current )
             self::$Current->_done([$result]);
     }
     
+    /**
+     * Cleans up entries older than a given age.
+     * 
+     * @param string $maxage Age string like '30 day' or '1 year'
+     * @return void
+     */
     public static function Cleanup($maxage)
     {
-        \ScavixWDF\Model\DataSource::Get()->ExecuteSql(
+        DataSource::Get()->ExecuteSql(
             "DELETE FROM wdf_requests WHERE created<now()-interval $maxage"
         );
     }

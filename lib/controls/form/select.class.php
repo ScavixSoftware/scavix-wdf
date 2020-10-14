@@ -208,6 +208,14 @@ class Select extends Control
         return $res;
     }
     
+    /**
+     * Enables form auto-submission on value change.
+     * 
+     * This is done by submitting `$(this).closest('form')`
+     * 
+     * @param bool $on if true, activates, else stops
+     * @return Select $this
+     */
     function setAutoSubmit($on=true)
     {
         if( $on )

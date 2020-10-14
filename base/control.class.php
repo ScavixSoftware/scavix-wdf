@@ -319,7 +319,7 @@ class Control extends Renderable
 	 * Control::Make('div')->content('Doh!');
 	 * TextInput::Make()->css('width','300px');
 	 * </code>
-	 * @param string|false $tag HTML tag name (like div, span, a, img,...)
+	 * @param string $tag Optional HTML tag name (like div, span, a, img,...)
 	 * @return static The created control
 	 */
 	public static function Make($tag=false)

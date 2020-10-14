@@ -87,16 +87,36 @@ function logging_init()
 	register_shutdown_function('global_fatal_handler');
 }
 
+/**
+ * Add a logger.
+ * 
+ * @param string $alias Name for the logger
+ * @param array $conf Configuration as described in <loggin_init>
+ * @return void
+ */
 function logging_add_logger($alias,$conf)
 {
     Wdf::$Logger[$alias] = Logger::Get($conf);
 }
 
+/**
+ * Returns a logger.
+ * 
+ * @param string $alias Name of the logger to get
+ * @return Logger
+ */
 function logging_get_logger($alias)
 {
     return Wdf::$Logger[$alias];
 }
 
+/**
+ * Registers a class to act as request logger.
+ * 
+ * @see <RequestLogEntry>
+ * @param string $classname Classname of the handler, must be subclass of <RequestLogEntry>
+ * @return void
+ */
 function register_request_logger($classname)
 {
     register_hook_function(HOOK_PRE_CONSTRUCT,"{$classname}::Start");

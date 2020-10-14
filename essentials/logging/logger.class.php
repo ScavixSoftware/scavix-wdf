@@ -151,6 +151,10 @@ class Logger
 		}
 	}
 	
+    /**
+     * Forces log rotation.
+     * @return void
+     */
 	function RotateNow()
     {
         $this->rotate(true);

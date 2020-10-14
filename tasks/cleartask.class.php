@@ -24,6 +24,9 @@
  */
 namespace ScavixWDF\Tasks;
 
+/**
+ * @internal CLI only Task run `php index.php clear` for info
+ */
 class ClearTask extends Task
 {
     function Run($args)

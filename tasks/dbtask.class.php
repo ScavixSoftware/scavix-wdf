@@ -26,6 +26,9 @@ namespace ScavixWDF\Tasks;
 
 use ScavixWDF\Model\DataSource;
 
+/**
+ * @internal CLI only Task run `php index.php db` for info
+ */
 class DbTask extends Task
 {
     function Run($args)

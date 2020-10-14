@@ -108,6 +108,9 @@ class LeafLet extends Control
         return $this;
     }
 
+    /**
+     * @override
+     */
     function PreRender($args = array())
     {
         $map = "$('#{self}').data('leaflet')";
@@ -176,6 +179,12 @@ class LeafLet extends Control
         parent::PreRender($args);
     }
 
+    /**
+     * Sets the tile provider.
+     * 
+     * @param string $name The provider name
+     * @return $this
+     */
     function setTileProvider($name)
     {
         if( !isset(self::$providers[$name]) )
@@ -185,6 +194,12 @@ class LeafLet extends Control
         return $this;
     }
 
+    /**
+     * En-/Disables auto zooming.
+     * 
+     * @param bool $on If true on, else off
+     * @return $this
+     */
     function setAutoZoom($on)
     {
         $this->autoZoom = $on;
@@ -196,6 +211,7 @@ class LeafLet extends Control
      *
      * @param float $lat Latitute
      * @param float $lng Longitude
+     * @param array $options Optional options
      * @return LeafLet
      */
     function AddMarker($lat, $lng, $options = array())
@@ -212,6 +228,7 @@ class LeafLet extends Control
      * @param float $lat Latitude
      * @param float $lng Longitude
      * @param string $title Marker title
+     * @param array $options Optional options
      * @return LeafLet
      */
     function AddMarkerTitled($lat, $lng, $title, $options = array())
@@ -226,7 +243,7 @@ class LeafLet extends Control
      *
      * Will use geolocation API to resolve the address to a marker.
      * @param string $address The address as string
-     * @param string|false $title An optional title
+     * @param string $title An optional title
      * @return LeafLet
      */
     function AddAddress($address,$title=false)
@@ -235,6 +252,13 @@ class LeafLet extends Control
         return $this;
     }
     
+    /**
+     * Add a polygon.
+     * 
+     * @param string $color HTML color
+     * @param array $points Array of points
+     * @return $this
+     */
     function AddPolygon($color,$points)
     {
         $this->_polygons[] = ['color'=>$color, 'points'=>$points];
@@ -270,16 +294,27 @@ class LeafLet extends Control
         return $this;
     }
 
+    /**
+     * @deprecated
+     */
     function setType($type) { return $this->_voidHint(); }
 
+    /**
+     * Disables UI controls.
+     * 
+     * @param bool $disabled If true disabled, else not
+     * @return $this
+     */
     function setUiDisabled($disabled=false)
     {
         return $this->opt('zoomControl',!$disabled);
     }
 
     /**
-     * @param $search
-     * @param string $sRef
+     * Find a location using the OpenStreetMap API.
+     * 
+     * @param string $search Search text
+     * @param string $sRef Optional referrer string to send with the query
      * @return bool|stdClass
      */
     static public function FindGeoLocation($search, $sRef = false)

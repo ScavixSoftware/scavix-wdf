@@ -65,6 +65,15 @@ class HtmlPage extends Template implements ICallable
     
     public static $POLYFILLS = [];
     
+    /**
+     * Adds polyfill to the rendered HTML page.
+     * 
+     * This feature uses https://polyfill.io to magically make your
+     * website work in nearly every browser.
+     * 
+     * @param string|array $pf Requested polyfills
+     * @return void
+     */
     public static function AddPolyfills($pf)
     {
         if( is_string($pf) )

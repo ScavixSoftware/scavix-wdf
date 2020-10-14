@@ -634,7 +634,8 @@ class Table extends Control
      * Store this tables current page in the Session.
      * 
      * @param string $name A (session-)unique name for the table
-     * @return $this
+     * @param WdfBuffer $storage Optional external Buffer to use a storage container
+     * @return Table $this
      */
     function Persist($name, \ScavixWDF\WdfBuffer $storage=null)
     {
@@ -651,6 +652,12 @@ class Table extends Control
         return $this;
     }
     
+    /**
+     * Sets the storage container.
+     * 
+     * @param WdfBuffer $storage Buffer to be used as storage
+     * @return void
+     */
     function SetStorage(\ScavixWDF\WdfBuffer $storage)
     {
         $this->persistance_storage = $storage;

@@ -31,6 +31,9 @@ use Exception;
 
 if( !defined('FRAMEWORK_LOADED') || FRAMEWORK_LOADED != 'uSI7hcKMQgPaPKAQDXg5' ) die('');
 
+/**
+ * WDF internal replacement for $GLOBALS usage.
+ */
 class Wdf
 {
     public static $Logger = [];
@@ -47,6 +50,13 @@ class Wdf
     public static $Translation;
     
     protected static $buffers = [];
+	
+    /**
+     * Checks if there's a buffer present.
+     * 
+     * @param string $name Buffer identifier
+     * @return bool True if present, else false
+     */
     public static function HasBuffer($name)
     {
         return isset(self::$buffers[$name]);
@@ -57,7 +67,7 @@ class Wdf
      * Optionally, buffers can be mapped to a SESSION variable.
      * 
      * @param string $name Buffer identifier
-     * @param array|Callable $initial_data Array with initial data or callback returning this initial data
+     * @param array|callable $initial_data Array with initial data or callback returning this initial data
      * @return ScavixWDF\WdfBuffer
      */
     public static function GetBuffer($name,$initial_data=[])
@@ -69,6 +79,9 @@ class Wdf
     
 }
 
+/**
+ * Implements buffering methods.
+ */
 class WdfBuffer
 {
     protected $changed = false;
@@ -83,6 +96,15 @@ class WdfBuffer
             $this->data = is_array($initial_data)?$initial_data:[];
     }
     
+	/**
+     * Maps this buffer to a $_SESSION variable.
+	 * 
+	 * Mapping to the session means that from now on all data will be stored
+	 * into $_SESSION[$name] and that getting data will transparently use that variable too.
+     * 
+     * @param string $name Name of session variable
+     * @return ScavixWDF\WdfBuffer
+     */
     function mapToSession($name=false)
     {
         if( !$this->session_name )
@@ -90,6 +112,11 @@ class WdfBuffer
         return $this;
     }
     
+	/**
+     * Returns all data as assiciative array.
+	 * 
+     * @return array
+     */
     function dump()
     {
         if( $this->session_name && isset($_SESSION[$this->session_name]) )
@@ -97,11 +124,24 @@ class WdfBuffer
         return $this->data;
     }
     
+	/**
+     * Returns true if some data has been changed.
+	 * 
+	 * This is true, if <WdfBuffer::set> or <WdfBuffer::set> have been used
+	 * and if they effectively did something.
+	 * 
+     * @return bool
+     */
     function hasChanged()
     {
         return $this->changed;
     }
     
+	/**
+     * Returns an array of data keys.
+	 * 
+     * @return array
+     */
     function keys()
     {
         $keys = array_keys($this->data);
@@ -110,12 +150,25 @@ class WdfBuffer
         return $keys;
     }
     
+    /**
+     * Returns true, if there's data stored with the given name.
+	 * 
+	 * @param string $name The key for the data
+     * @return bool
+     */
     function has($name)
     {
         return isset($this->data[$name])
             || ($this->session_name && isset($_SESSION[$this->session_name][$name]));
     }
     
+	/**
+     * Stores data in the buffer.
+	 * 
+	 * @param string $name The key for the data
+	 * @param mixed $value The data to store
+     * @return mixed The value given
+     */
     function set($name, $value)
     {
         if( !$this->changed )
@@ -128,6 +181,12 @@ class WdfBuffer
         return $value;
     }
 
+	/**
+     * Removes data from the buffer.
+	 * 
+	 * @param string $name The key for the data
+     * @return mixed The removed value if present, else null
+     */
     function del($name)
     {
         if( isset($this->data[$name]) )
@@ -144,6 +203,13 @@ class WdfBuffer
         return isset($r)?$r:null;
     }
 
+	/**
+     * Returns data from the buffer.
+	 * 
+	 * @param string $name The key for the data
+	 * @param mixed $default A default value, can be a callable too that will get the name and must return the value;
+     * @return mixed The removed value if present, else null
+     */
     function get($name, $default=null)
     {
         if( !isset($this->data[$name]) && $this->session_name && isset($_SESSION[$this->session_name][$name]) )

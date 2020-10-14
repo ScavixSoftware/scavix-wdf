@@ -130,6 +130,7 @@ abstract class PaymentProvider
 	
     /**
      * Return any fields that need to be shown in the checkout process before the checkout can be used
+     * @return array
      */
 	public function GetCheckoutInputFields() : array
 	{
@@ -138,6 +139,8 @@ abstract class PaymentProvider
     
     /**
      * Return the renderable object that shows any button, form or qr code to start the checkout process
+     * 
+     * @param IShopOrder $order The order to get UI for
      * @return boolean
      */
     public function GetStartCheckoutRenderable(IShopOrder $order)

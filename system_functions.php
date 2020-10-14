@@ -1352,6 +1352,7 @@ function array_last($array)
  * Returns part of an array.
  * 
  * @param array $array The array
+ * @param array $keys Array of keys you want to get
  * @return mixed Array of keys to return values for
  */
 function sub_array($array,$keys=[])
@@ -1380,8 +1381,13 @@ function get_requested_file($url)
 /**
  * Fallback function for missing getallheaders in PHP FastCGI FPM or nginx
  */
-if (!function_exists('getallheaders')) {
-	function getallheaders() {
+if( !function_exists('getallheaders') )
+{
+	/**
+	 * @internal Polyfill for https://www.php.net/manual/de/function.getallheaders.php
+	 */
+	function getallheaders()
+	{
 		$headers = [];
 		foreach ($_SERVER as $name => $value) {
 			if (substr($name, 0, 5) == 'HTTP_') {

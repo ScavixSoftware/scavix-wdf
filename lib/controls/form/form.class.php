@@ -168,6 +168,12 @@ class Form extends Control
 		return $this;
 	}
     
+    /**
+     * Creates a set of hidden inputs from data.
+     * 
+     * @param array $data name-value pairs of data
+     * @return Form $this
+     */
     function addHiddenData($data)
     {
         foreach( $data as $k=>$v )
@@ -175,6 +181,9 @@ class Form extends Control
         return $this;
     }
     
+    /**
+     * @shortcut <Control::attr>
+     */
     function setAction($controller,$event='',$data='')
 	{
 		return $this->attr('action', buildQuery($controller,$event,$data));

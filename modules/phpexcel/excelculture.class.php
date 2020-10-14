@@ -4,8 +4,7 @@ use ScavixWDF\Localization\CultureInfo;
 use ScavixWDF\Localization\Localization;
 
 /**
- * Overrides some methods for Excel compatibility.
- * 
+ * @internal Overrides some methods for Excel compatibility.
  */
 class ExcelCulture extends CultureInfo
 {

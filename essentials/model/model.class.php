@@ -1541,7 +1541,8 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * New datasets will be inserted, loaded ones will be updated automatically.
 	 * If $columns_to_update is given only those columns will be stored. This may be useful to avoid DB conflicts in multithread scenarios.
 	 *
-	 * @param array|false $columns_to_update If given only these fields will be updated. If not Model tries to detect changed columns automatically.
+	 * @param array $columns_to_update (Optional) If given only these fields will be updated. If not Model tries to detect changed columns automatically.
+	 * @param array $changed (Optional) Save will fill this array with all changes in the form ['name'=>['old','new'],...]
 	 * @return boolean In fact always true, WdfDbException will be thrown in error case
 	 * @throws WdfDbException
 	 */

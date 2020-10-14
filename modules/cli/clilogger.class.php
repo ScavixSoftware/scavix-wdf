@@ -24,10 +24,12 @@
  */
 namespace ScavixWDF\CLI;
 
+use ScavixWDF\Logging\Logger;
+
 /**
  * Logs to stdpout.
  */
-class CliLogger extends \ScavixWDF\Logging\Logger
+class CliLogger extends Logger
 {
 	public static $LOG_SEVERITY = true;
 	

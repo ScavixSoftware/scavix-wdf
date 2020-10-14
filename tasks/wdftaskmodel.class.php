@@ -29,6 +29,9 @@ use ScavixWDF\Model\Model;
 use ScavixWDF\WdfDbException;
 use ScavixWDF\Base\DateTimeEx;
 
+/**
+ * @internal Model class representing tasks that can be handled asynchronously
+ */
 class WdfTaskModel extends Model
 {
     private $isVirtual = false;
@@ -316,6 +319,9 @@ class WdfTaskModel extends Model
 		}
 	}
 	
+    /**
+     * @override <Model::Delete>
+     */
 	function Delete()
 	{
         if( $this->isVirtual )
@@ -334,6 +340,13 @@ class WdfTaskModel extends Model
 		return true;
 	}
 	
+    /**
+     * Deletes all children of this WdfTaskModel.
+     * 
+     * @param bool $delete_self Delete itself too?
+     * @param bool $complete If true deletes tasks that are marked to follow deletion of this one
+     * @return void
+     */
 	function DeleteChildren($delete_self=false,$complete=false)
 	{
         if( $this->isVirtual )
@@ -348,12 +361,29 @@ class WdfTaskModel extends Model
 			$this->Delete();
 	}
     
+    /**
+     * Adds a child task.
+     * 
+     * If no arguments are given, will copy arguments of this task to the child.
+     * 
+     * @param string $name Task name
+     * @param array $args Optional arguments.
+     * @return WdfTaskModel $this
+     */
     function AddChild($name,$args='copy')
     {
         $this->CreateChild($name,$args);
         return $this;
     }
     
+    /**
+     * Creates a child task and returns it.
+     * 
+     * @param string $name Task name
+     * @param array $args Optional arguments.
+     * @param bool $only_if_not_running Creates a virtual dummy child, if there's already another task with the same name.
+     * @return WdfTaskModel The child task
+     */
     function CreateChild($name,$args='copy',$only_if_not_running=false)
     {
         if( $args == 'copy' )
@@ -363,6 +393,9 @@ class WdfTaskModel extends Model
         return WdfTaskModel::Create($name,null,$only_if_not_running)->SetArgs($args)->DependsOn($this);
     }
     
+    /**
+     * @shortcut <WdfTaskModel::CreateChildOnce> with `$only_if_not_running=true`
+     */
     function CreateChildOnce($name,$args='copy')
     {
         return $this->CreateChild($name, $args, true);

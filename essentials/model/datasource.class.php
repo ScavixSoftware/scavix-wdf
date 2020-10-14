@@ -220,6 +220,11 @@ class DataSource
 		return $this->_dsn == $ds->_dsn && $this->_username == $ds->_username && $this->_password == $ds->_password;
 	}
     
+    /**
+     * Closes this datasource.
+     * 
+     * @return void
+     */
     function Close()
     {
         $this->_pdo = null;
@@ -260,6 +265,15 @@ class DataSource
 		return $this->_pdo->quote($value);
 	}
     
+    /**
+     * Helper to create a valid 'column IN(0,1,2)' sting.
+     * 
+     * If given value is not an array or if it is empty will return '(0=1)' as valid SQL string.
+     * 
+     * @param string $field Column name
+     * @param mixed $values Values or null or false
+     * @return string Valid constraint string
+     */
     function BuildInContraint($field, $values)
     {
         if( !is_array($values) || count($values)==0 )
@@ -312,7 +326,7 @@ class DataSource
 	 *
 	 * @param string $sql   SQL statement
 	 * @param array $prms   Arguments for the query
-	 * @param int|false $lifetime Lifetime in seconds
+	 * @param int $lifetime Optional Lifetime in seconds
 	 * @return ResultSet The ResultSet
 	 * @throws WdfDbException
 	 */
@@ -619,12 +633,18 @@ class DataSource
             $this->LastStatement->LogDebug($label);
 	}
     
+    /**
+     * @shortcut <system_get_lock>
+     */
     public function getLock($name,$timeout=10)
     {
         $lock = (strlen($name)<500)?$name:sha1($name);
         return system_get_lock($lock,$this,$timeout);
     }
     
+    /**
+     * @shortcut <system_release_lock>
+     */
     public function releaseLock($name)
     {
         $lock = (strlen($name)<500)?$name:sha1($name);

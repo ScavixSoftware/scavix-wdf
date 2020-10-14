@@ -28,11 +28,9 @@
 namespace ScavixWDF\Admin;
 
 /**
- * ScavixWDF sysadmin page
+ * Represents a user logged into <SysAdmin>.
  * 
- * This is a tweak mechanism that allows you to manage your application.
- * For example you can create strings, manage the cache and check the PHP configuration.
- * @attribute[NoMinify]
+ * @internal Has methods to login/logout/...
  */
 class SysAdminUser 
 {

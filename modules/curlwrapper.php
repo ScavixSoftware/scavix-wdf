@@ -29,6 +29,9 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
+/**
+ * @internal Just init
+ */
 function curlwrapper_init()
 {
     if( !function_exists('curl_init') )
