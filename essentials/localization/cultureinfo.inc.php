@@ -3135,6 +3135,14 @@ function internal_getCultureInfo($cultureCode)
 					return internal_getCultureInfo($codes[0]);
 				else
 				{
+                    $a = explode('-', $cultureCode);
+                    if(count($a) == 2)
+                    {
+                        // it could be something like "en-BE", so BE is the region to try
+                        $codes = internal_getCultureCodeFromRegion($a[1]);
+                        if($codes !== false)
+                            return internal_getCultureInfo($codes[0]);
+                    }
 					log_trace("unknown culture: $cultureCode");
 					return false;
 				} 

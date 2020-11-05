@@ -230,6 +230,8 @@ function get_timezone_by_ip($ip = false)
 		return $ret;
     
     $services = [];
+    $triedurls = [];
+    
 // freegeoip is now ipstack.com and doesn't offer timezone information for free anymore
 //    $services["https://freegeoip.net/xml/$ip"] = function($response)
 //    {
@@ -254,7 +256,7 @@ function get_timezone_by_ip($ip = false)
     $apikey = (isset($CONFIG['geoip']['geobytes']) && isset($CONFIG['geoip']['geobytes']['apikey'])) ? $CONFIG['geoip']['geobytes']['apikey'] : '7c756203dbb38590a66e01a5a3e1ad96';
     $services["https://secure.geobytes.com/GetCityDetails?key=".$apikey."&fqcn=$ip"] = function($response)
     {
-        $data = @unserialize($response);
+        $data = json_decode($response, true);
         if( $data && $data['geobytestimezone'] )
             return $data['geobytestimezone'];
         return false;
@@ -284,6 +286,7 @@ function get_timezone_by_ip($ip = false)
     
     foreach( $services as $url=>$cb )
     {
+        $triedurls[] = $url;
         if( $url == 'geo' ) // prepare geo search inline to only have overhead when we reach that case
         {
             $coords = get_coordinates_by_ip($ip);
@@ -311,7 +314,7 @@ function get_timezone_by_ip($ip = false)
     $zone = isset($CONFIG['geoip']['default_timezone'])
         ?$CONFIG['geoip']['default_timezone']
         :date_default_timezone_get();
-    log_debug("No timezone found for $ip, falling back to $zone");
+    log_debug("No timezone found for $ip, falling back to $zone. Tried: ".join(', ', $triedurls));
     cache_set($key, $zone, 60 * 60); // keep that in cache for an hour
 	return $zone;
 }
