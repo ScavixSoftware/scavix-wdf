@@ -25,18 +25,18 @@
 
 /**
  * Initializes the CLI module.
- * 
+ *
  * This is a semi-automatic module that provides you with the ability to process
  * application logik defined in <Task> subclasses from the commandline.
  * You may even delay them to be processed in the background later.
- * 
+ *
  * <code>
- * // sample: 
+ * // sample:
  * php index.php clear-logs
  * </code>
- * 
+ *
  * See <Task>, <WdfTaskModel>, <ClearTask>, <DbTask>
- * 
+ *
  * @return void
  */
 function cli_init()
@@ -53,7 +53,7 @@ function cli_init()
     }
 //    else
 //        log_debug('is set: '.CLI_SELF);
-    
+
     if( defined('STDOUT') && (!function_exists('posix_isatty') || posix_isatty(STDOUT)) )
     {
         classpath_add(__DIR__.'/cli');
@@ -64,15 +64,15 @@ function cli_init()
 
 /**
  * Runs a PHP script with given arguments in CLI.
- * 
+ *
  * Note that WDF generates a temporary php.ini file with the current loaded
  * INI settings and uses it for the php commandline (php -c). The script
- * will be run in background using `nohup` and stdout/stderr is redirected to current 
+ * will be run in background using `nohup` and stdout/stderr is redirected to current
  * error_log. There will be some special arguments generated and passed to the script:
  * -D&lt;path_to_datafile&gt; Path to a file containing the serialized $_SERVER vairable
  * -C&lt;path_to_configfile&gt; Path to the currently loaded WDF config.php file
  * -A&lt;appname&gt; The name of the current WDF application (see <system_init>).
- * 
+ *
  * @param type $php_script_path The script path
  * @param type $args All arguments
  * @param array $extended_data Optional additional data to pass to the process
@@ -83,7 +83,7 @@ function cli_run_script($php_script_path, $args=[], $extended_data=false, $retur
 {
     if( !function_exists('posix_isatty') )
         ScavixWDF\WdfException::Raise("CLI module cannot run on windows");
-    
+
     $ini = system_app_temp_dir()."php_cli.ini";
     $out = ini_get('error_log');
 
@@ -94,7 +94,7 @@ function cli_run_script($php_script_path, $args=[], $extended_data=false, $retur
         file_put_contents($ini, $inidata);
         @chmod($ini, 0777);
     }
-    
+
     $cmd = "$php_script_path";
     if( $extended_data )
     {
@@ -103,18 +103,18 @@ function cli_run_script($php_script_path, $args=[], $extended_data=false, $retur
         @chmod($data,0777);
         $cmd .= " --wdf-extended-data{$data}";
     }
-    
+
     if( count($args)>0 )
         $cmd .= " ".implode(" ",$args);
-    
+
     if( file_exists($out) && !is_writable($out) )
         $out = system_app_temp_dir()."cli-bash.log";
-    
+
     $grep = shell_exec("which grep");
     if( $grep ) $grep = "| ".trim($grep)." . ";
-        
+
     $cmdline = "nohup php -c $ini $cmd $grep>>$out 2>&1 &";
-    
+
     if( $return_cmdline )
         return $cmdline;
     exec($cmdline);
@@ -127,13 +127,13 @@ function cli_run_taskprocessor($runtime_seconds=null)
 {
     if( !function_exists('posix_isatty') )
         ScavixWDF\WdfException::Raise("CLI module cannot run on windows");
-    
+
     if( !defined("CLI_SELF") || !CLI_SELF )
         ScavixWDF\WdfException::Raise("Cannot run task processor");
-    
-    if( !$runtime_seconds ) 
+
+    if( !$runtime_seconds )
         $runtime_seconds = intval(cfg_getd('system','cli','taskprocessor_runtime',30));
-    
+
     if( PHP_SAPI == 'cli' )
     {
         $ex = [];
@@ -152,10 +152,10 @@ function cli_get_processes($filter=false, $test_myself=false)
 {
     if( !function_exists('posix_isatty') )
         ScavixWDF\WdfException::Raise("CLI module cannot run on windows");
-    
+
     $ini = preg_quote(system_app_temp_dir('',false),"/");
     $filter = "\-c\s+{$ini}".($filter?(".*".preg_quote($filter,"/").".*"):'');
-    
+
     $res = array();
     $out = shell_exec("ps -Af");
     //log_debug("$filter",$out);
@@ -174,7 +174,7 @@ function cli_get_processes($filter=false, $test_myself=false)
 
 /**
  * @internal Processes CLI arguments including doing work on detected Tasks
- * 
+ *
  * @return void
  */
 function cli_execute()
@@ -182,18 +182,18 @@ function cli_execute()
     $argv = isset($GLOBALS['argv'])?$GLOBALS['argv']:(isset($_SERVER['argv'])?$_SERVER['argv']:false);
     if( !$argv )
         \ScavixWDF\WdfException::Raise("Missing CLI arguments");
-    
+
     array_shift($argv);
     logging_add_category('CLI');
     logging_add_category(getmypid());
     logging_add_category(get_current_user());
-    
+
     $task = array_shift($argv);
     if( !$task )
         \ScavixWDF\WdfException::Raise("Missing arguments");
-    
+
     $task = str_replace(['::',':','/','.','--'],['-','-','-','-','-'],$task);
-    
+
     list($simpleclass,$method) = explode("-","{$task}-run");
     if( !$method ) $method = 'run';
     $class = fq_class_name($simpleclass);
@@ -207,24 +207,25 @@ function cli_execute()
             case 'dbtask':       $class = \ScavixWDF\Tasks\DbTask::class; break;
             case 'cleartask':    $class = \ScavixWDF\Tasks\ClearTask::class; break;
             case 'checktask':    $class = \ScavixWDF\Tasks\CheckTask::class; break;
+            case 'createtask':    $class = \ScavixWDF\Tasks\CreateTask::class; break;
             case 'wdftaskmodel': $class = \ScavixWDF\Tasks\WdfTaskModel::class; break;
         }
     }
-    
+
     //log_debug("Task '$task' resolved to '$class::$method'");
     if( class_exists($class) )
     {
         $task = new $class();
         if( !($task instanceof \ScavixWDF\Tasks\Task) )
             \ScavixWDF\WdfException::Raise("Invalid task processor");
-        
+
         $ref = new ReflectionMethod($task, $method);
         if( !$ref )
             \ScavixWDF\WdfException::Raise("Unreflectable class '$class'");
         $ref = $ref->getDeclaringClass();
         if( strcasecmp($method,'run')!=0 && strcasecmp($ref->getName(),$class)!=0 )
             \ScavixWDF\WdfException::Raise("Invalid task method '$method' ".$ref->getName()."?=$class");
-        
+
         foreach( $argv as $i=>$arg )
         {
             if( is_numeric($i) && strpos($arg,"=") )
@@ -234,12 +235,12 @@ function cli_execute()
                     $argv[$k] = $v;
             }
         }
-        
+
         $exectime = microtime(true);
         $task->$method($argv);
         $exectime = round((microtime(true) - $exectime) * 1000);
         $task->Finished($method,$exectime,$exectime);
-        
+
         die("\n");
     }
     else
