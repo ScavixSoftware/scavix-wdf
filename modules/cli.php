@@ -60,6 +60,11 @@ function cli_init()
         logging_add_logger('cli',['class' => \ScavixWDF\CLI\CliLogger::class]);
         register_hook_function(HOOK_SYSTEM_DIE, function($args){ die("\n"); });
     }
+
+    create_class_alias(\ScavixWDF\Tasks\CheckTask::class,'checktask');
+    create_class_alias(\ScavixWDF\Tasks\ClearTask::class,'cleartask');
+    create_class_alias(\ScavixWDF\Tasks\CreateTask::class,'createtask');
+    create_class_alias(\ScavixWDF\Tasks\DbTask::class,'dbtask');
 }
 
 /**

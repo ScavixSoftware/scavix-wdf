@@ -23,7 +23,16 @@ class HelpTask extends \ScavixWDF\Tasks\Task
 		$method = array_shift($args);
 		if( $cls )
 		{
-			$ref = \ScavixWDF\Reflection\WdfReflector::GetInstance($cls);
+			$fqcls = fq_class_name($cls);
+			if( !class_exists($fqcls) )
+			{
+				if( !ends_iwith($cls,'task') ) 
+					$fqcls = fq_class_name("{$cls}task");
+				if( !class_exists($fqcls) )
+					return log_error("Unknown object: $cls");
+			}
+			
+			$ref = \ScavixWDF\Reflection\WdfReflector::GetInstance($fqcls);
 			if( $method )
 				$method = $ref->getMethod($method);
 			
@@ -61,7 +70,11 @@ class HelpTask extends \ScavixWDF\Tasks\Task
 			}
 		}
 		else
+		{
 			log_info("Syntax: php scavix-wdf.phar (help|search|<cmd> [<args>])");
+			log_info("\nCommand syntax: help [classname [methodname]]");
+			log_info("Command syntax: search");
+		}
 	}
 }
 
@@ -73,15 +86,11 @@ class SearchTask extends \ScavixWDF\Tasks\Task
 	function Run($args)
 	{
 		log_info("Searching for tasks in current folder...");
-		$fqcns = array();
-		$dir = new RecursiveDirectoryIterator(getcwd());
-		$it = new RecursiveIteratorIterator($dir);
-		$regit = new RegexIterator($it, '/^.+\.php$/i', RecursiveRegexIterator::GET_MATCH);
-		foreach( $regit as $phpFile )
+		$fqcns = [];
+		$processClassFile = function($file)use(&$fqcns)
 		{
-			$file = $phpFile[0];
 			$content = file_get_contents($file);
-			$tokens = token_get_all($content);
+			$tokens = @token_get_all($content);
 			$namespace = '';
 			for ($index = 0; isset($tokens[$index]); $index++)
 			{
@@ -100,17 +109,32 @@ class SearchTask extends \ScavixWDF\Tasks\Task
 				{
 					$index += 2;
 					$fqcns[] = $namespace.'\\'.$tokens[$index][1];
-					//break;
 				}
 			}
-		}
+		};
+		
+		$dir = new RecursiveDirectoryIterator(getcwd());
+		$it = new RecursiveIteratorIterator($dir);
+		$regit = new RegexIterator($it, '/^.+\.php$/i', RecursiveRegexIterator::GET_MATCH);
+		foreach( $regit as $phpFile )
+			$processClassFile($phpFile[0]);
+		
+		$dir = new RecursiveDirectoryIterator(__DIR__,FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS);
+		$it = new RecursiveIteratorIterator($dir);
+		$regit = new RegexIterator($it, '/^.+\.php$/i', RecursiveRegexIterator::GET_MATCH);
+		foreach( $regit as $phpFile )
+			$processClassFile($phpFile[0]);
+		
+		$in_phar = (stripos(__DIR__,"phar://") !== false);
+		$reflector = $in_phar?str_replace("phar://","",__DIR__):__FILE__;
 		$tasks = [];
 		foreach( array_chunk($fqcns,20) as $chunk )
 		{
 			try
 			{
 				$cls = implode(" ",$chunk);
-				$test = shell_exec("php ".str_replace("phar://","",__DIR__)." search-reflect $cls");
+			
+				$test = shell_exec("php $reflector search-reflect $cls");
 				if( !preg_match_all('/^ok:(.*)$/im',$test,$matches) )
 					continue;
 				foreach( $matches[1] as $m )
@@ -122,7 +146,7 @@ class SearchTask extends \ScavixWDF\Tasks\Task
 		{
 			$ref = \ScavixWDF\Reflection\WdfReflector::GetInstance($cls);
 			$comment = $ref->getCommentObject();
-			$md = $comment?$comment->RenderAsMD():'';
+			$md = trim($comment?$comment->RenderAsMD():'');
 			$name = strtolower(str_ireplace("task","",array_last(explode("\\",$cls))));
 			log_info("\nCommand    : {$name}\nDescription: {$md}");
 		}
@@ -134,6 +158,7 @@ class SearchTask extends \ScavixWDF\Tasks\Task
 		error_reporting(0);
 		while( count($args)>0 )
 		{
+			$ref = false;
 			$cls = array_shift($args);
 			try
 			{
