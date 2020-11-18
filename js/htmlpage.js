@@ -649,7 +649,8 @@
                 'padding': '10px 20px',
                 'margin': 'auto',
                 'border-radius': '5px',
-                'font-weight': '1em'
+                'font-weight': '1em',
+                'z-index': '1000'
             };
             
             var $toast = $('<div/>').append(text).appendTo('body').css(css);
@@ -670,15 +671,19 @@
                 },
                 top: function()
                 {
-                    return $toast.position({my:'center top',at:'center top+150px',of:document}).hide().go();
+                    return $toast.position({my:'center top',at:'center top+150px',of:window}).hide().go();
                 },
                 bottom: function()
                 {
-                    return $toast.position({my:'center bottom',at:'center bottom-50px',of:document}).hide().go();
+                    return $toast.position({my:'center bottom',at:'center bottom-50px',of:window}).hide().go();
                 },
                 below: function(element)
                 {
                     return $toast.position({my:'left top',at:'left bottom+5px',of:element}).hide().go();
+                },
+                rightOf: function(element)
+                {
+                    return $toast.position({my:'left center',at:'right+5px center',of:element}).hide().go();
                 },
                 colorize: function(backgroundColor,fontColor)
                 {
@@ -690,7 +695,6 @@
                         g = parseInt(backgroundColor.substr(2,2), 16),
                         b = parseInt(backgroundColor.substr(4,2), 16);
                     var rgb = [r,g,b].join(",");
-                    wdf.debug("RGB",rgb);
                     return $toast.css({
                         'background-color': 'rgba('+rgb+',0.7)',
                         'box-shadow': 'rgba('+rgb+',1) 0px 0px 3px 3px',
