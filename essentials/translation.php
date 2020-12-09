@@ -693,7 +693,10 @@ function default_string($constant,$text)
             if( $ds->TableExists('wdf_unknown_strings') )
             {
                 $sql = "UPDATE wdf_unknown_strings SET default_val=? WHERE term=? AND default_val!=?;";
-                $ds->Execute($sql,[$text,$constant,$text]);
+                try
+                {
+                    $ds->Execute($sql,[$text,$constant,$text]);
+                } catch (\ScavixWDF\WdfDbException $ex) {}
             }
         }
     }
