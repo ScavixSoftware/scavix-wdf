@@ -1868,6 +1868,8 @@ var safari = !chrome && userAgentContains('safari');
 
 var phantom = userAgentContains('phantom');
 
+var puppeteer = userAgentContains('puppeteer');
+
 // @property opera12: Boolean
 // `true` for the Opera browser supporting CSS transforms (version 12 or later).
 var opera12 = 'OTransition' in style$1;
@@ -1886,7 +1888,7 @@ var gecko3d = 'MozPerspective' in style$1;
 
 // @property any3d: Boolean
 // `true` for all browsers supporting CSS transforms.
-var any3d = !window.L_DISABLE_3D && (ie3d || webkit3d || gecko3d) && !opera12 && !phantom;
+var any3d = !window.L_DISABLE_3D && (ie3d || webkit3d || gecko3d) && !opera12 && !phantom && !puppeteer;
 
 // @property mobile: Boolean; `true` for all browsers running in a mobile device.
 var mobile = typeof orientation !== 'undefined' || userAgentContains('mobile');
@@ -1972,6 +1974,7 @@ var Browser = (Object.freeze || Object)({
 	gecko: gecko,
 	safari: safari,
 	phantom: phantom,
+	puppeteer: puppeteer,
 	opera12: opera12,
 	win: win,
 	ie3d: ie3d,
