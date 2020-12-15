@@ -216,7 +216,9 @@ class WdfBuffer
             $this->data[$name] = $_SESSION[$this->session_name][$name];
         if( isset($this->data[$name]) )
             return $this->data[$name];
-        return (is_callable($default))?$default($name):$default;
+        if( is_callable($default) )
+            return $this->set($name,$default($name));
+        return $default;
     }
 }
 
