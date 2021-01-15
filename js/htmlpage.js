@@ -560,15 +560,32 @@
             {
                 var wait = function()
                 {
-                    if( res._isDone ) 
+                    if( !res.terminate )
+                        setTimeout(wait, 50);
+                    else if( res.terminate == 1 ) 
                         return resolve();
-                    setTimeout(wait, 50);
                 };
                 setTimeout(wait, 50);
             });
-            res.done = function(){ res._isDone = true; }
+            res.done = function(){ res.terminate = 1; }
+            res.cancel = function(){ res.terminate = 2;  }
             if( timeout )
                 setTimeout(res.done,timeout);
+
+            res.orig = [];
+            ['then','catch','finally'].forEach(function(i)
+            {
+                res.orig[i] = res[i];
+                res[i] = function()
+                {
+                    var prms = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
+                    var result = res.orig[i].apply(res,prms);
+                    result.done = res.done;
+                    result.cancel = res.cancel;
+                    return result;
+                }
+            });
+            
             return res;
         },
         
