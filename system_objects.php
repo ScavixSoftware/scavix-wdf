@@ -202,6 +202,23 @@ class WdfBuffer
         }
         return isset($r)?$r:null;
     }
+    
+    /**
+     * Removes all data from the buffer.
+     * 
+     * @return void
+     */
+    function clear()
+    {
+        $this->changed = count($this->data)>0;
+        $this->data = [];
+        
+        if( $this->session_name && isset($_SESSION[$this->session_name]) )
+        {
+            $this->changed |= count($_SESSION[$this->session_name])>0;
+            $_SESSION[$this->session_name] = [];
+        }
+    }
 
 	/**
      * Returns data from the buffer.
