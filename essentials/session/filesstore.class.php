@@ -43,24 +43,25 @@ class FilesStore extends ObjectStore
     protected function getPath($sid=false)
     {
         if( $sid )
-            return $GLOBALS['CONFIG']['session']['filesstore']['path']."/$sid";
-        if( !$this->path )
+            $directory = $GLOBALS['CONFIG']['session']['filesstore']['path'].$sid;
+        elseif($this->path)
+            return $this->path;     // already checked/created
+        else
+            $directory = $this->path = $GLOBALS['CONFIG']['session']['filesstore']['path'].session_id();
+        
+        if( is_file($directory) )
+            unlink($directory);
+        if( !file_exists($directory) )
         {
-            $this->path = $GLOBALS['CONFIG']['session']['filesstore']['path']."/".session_id();
-			if( is_file($this->path) )
-				unlink($this->path);
-            if( !file_exists($this->path) )
-            {
-                if(!mkdir($this->path, 0777, true))
-                    log_error('unable to create '.$this->path, error_get_last());
+            if(!mkdir($directory, 0777, true))
+                log_error('unable to create '.$directory, error_get_last());
         }
-        }
-        return $this->path;
+        return $directory;
     }
     
     protected function getFile($id)
     {
-        return $this->getPath()."/$id";
+        return $this->getPath().$id;
     }
     
     protected function _key($key)
@@ -74,9 +75,6 @@ class FilesStore extends ObjectStore
         
         if( !isset($CONFIG['session']['filesstore']['path']) )
             $CONFIG['session']['filesstore']['path'] = system_app_temp_dir("filesstore", false);
-//        if( !file_exists($CONFIG['session']['filesstore']['path']) )
-//            if(!mkdir($CONFIG['session']['filesstore']['path'], 0777, true))
-//                log_error('unable to create '.$CONFIG['session']['filesstore']['path'], error_get_last());
         
         $this->serializer = new Serializer();
         
@@ -214,9 +212,9 @@ class FilesStore extends ObjectStore
         }
         clearstatcache();
         $p = $GLOBALS['CONFIG']['session']['filesstore']['path'];
-        foreach( glob($p.'/*',GLOB_ONLYDIR) as $d )
+        foreach( glob($p.'*',GLOB_ONLYDIR) as $d )
         {
-            if( $d == "$p/." || $d == "$p/.." )
+            if( $d == "$p." || $d == "$p.." )
                 continue;
             $time = @filemtime($d);
             if( !$time || (time() - $time <= 300) )
