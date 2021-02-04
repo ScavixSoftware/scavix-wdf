@@ -82,7 +82,7 @@ class Wdf
 /**
  * Implements buffering methods.
  */
-class WdfBuffer
+class WdfBuffer implements \Iterator
 {
     protected $changed = false;
     protected $data = [];
@@ -236,6 +236,31 @@ class WdfBuffer
         if( is_callable($default) )
             return $this->set($name,$default($name));
         return $default;
+    }
+    
+    public function rewind()
+    {
+        $this->position = 0;
+    }
+
+    public function current()
+    {
+        return $this->get($this->key());
+    }
+
+    public function key()
+    {
+        return $this->keys()[$this->position];
+    }
+
+    public function next()
+    {
+        $this->position++;
+    }
+
+    public function valid()
+    {
+        return isset($this->keys()[$this->position]);
     }
 }
 

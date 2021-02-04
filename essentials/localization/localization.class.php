@@ -369,9 +369,14 @@ class Localization
 		$regions = internal_getAllRegionCodes();
 		$res = array();
 
-		foreach( $regions as $reg )
+		foreach( $regions as $oreg )
 		{
-			$reg = internal_getRegion($reg);
+			$reg = internal_getRegion($oreg);
+            if( !$reg )
+            {
+                log_debug("Missing region definition for code '$oreg'");
+                continue;
+            }
 			if( !$culture_filter )
 			{
 				$res[$reg->Code] = $reg->EnglishName;
