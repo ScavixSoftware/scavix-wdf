@@ -437,6 +437,8 @@ function system_execute()
 	Args::strip_tags();
 
     Wdf::$Request = new stdClass();
+    if( isset($_SERVER['REQUEST_URI']) )
+        Wdf::$Request->URL = $GLOBALS['CONFIG']['system']['url_root'].ltrim($_SERVER['REQUEST_URI'],"/");
 	list($current_controller,$current_event) = system_parse_request_path();
     Wdf::$Request->CurrentController = $current_controller;
     Wdf::$Request->CurrentEvent = $current_event;
@@ -1128,7 +1130,7 @@ function buildQuery($controller,$event="",$data="", $url_root=false)
 	{
 		$route .= $event;
 		if( '#' != substr($event, 0, 1) )
-			$route .= '/';			
+			$route .= '/';
 	}
 
 	/**
@@ -1168,7 +1170,7 @@ function buildQuery($controller,$event="",$data="", $url_root=false)
  */
 function samePage($data="")
 {
-	return buildQuery(current_controller(),current_event(),$data);
+	return ifavail(Wdf::$Request,'URL')?:buildQuery(current_controller(),current_event(),$data);
 }
 
 /**
