@@ -1179,7 +1179,7 @@ function samePage($data="")
             return Wdf::$Request->URL;
         if( is_array($data) )
             $data = http_build_query($data);
-        return Wdf::$Request->URL."?{$data}";
+        return array_first(explode("?",Wdf::$Request->URL))."?{$data}";
     }
 	return buildQuery(current_controller(),current_event(),$data);
 }
