@@ -132,7 +132,7 @@ abstract class Renderable implements \JsonSerializable
         if( $this->serialized === self::$SLIM_SERIALIZER_RUN )
             return ['ref_id'=>$this->_storage_id];
         $this->serialized = self::$SLIM_SERIALIZER_RUN;
-        return ['class'=> get_class($this),'id'=>$this->_storage_id,'parent'=>$this->_parent,'content'=>$this->content];
+        return ['class'=> get_class($this),'id'=>$this->_storage_id,'parent'=>$this->_parent,'content'=>isset($this->content)?$this->content:null];
     }
     
     function __toString()

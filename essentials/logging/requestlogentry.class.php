@@ -87,7 +87,7 @@ class RequestLogEntry extends Model
         $this->created = 'now()';
         $this->session_id = session_id();
         $this->ip = get_ip_address();
-        $this->url = system_current_request(true);
+        $this->url = ifavail(\ScavixWDF\Wdf::$Request,'URL')?:system_current_request(true);
         $this->post = json_encode($_POST);
         $id = md5($this->ip.'-'.$this->url.'-'.$this->post.'-'.$this->started);
         
