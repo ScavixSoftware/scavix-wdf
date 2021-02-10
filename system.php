@@ -160,6 +160,8 @@ function system_config_default($reset = true)
 		$_SERVER['REQUEST_SCHEME'] = urlScheme(false);
 	if( !isset($_SERVER['HTTP_HOST']) )
 		$_SERVER['HTTP_HOST'] = '127.0.0.1';
+	if( !isset($_SERVER['REQUEST_URI']) )
+		$_SERVER['REQUEST_URI'] = '';
     
 
     if(defined('IDNA_DEFAULT') && defined('INTL_IDNA_VARIANT_UTS46'))
