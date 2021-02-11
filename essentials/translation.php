@@ -53,16 +53,13 @@ function translation_init()
 		$CONFIG['translation']['data_path'] = __DIR__.'/UNDEFINED/';
 	}
 
-    if( isset($CONFIG['translation']['sync']['provider']) && $CONFIG['translation']['sync']['provider'] )
-    {
-        if( !isset($CONFIG['translation']['sync']['datasource']) )
-            $CONFIG['translation']['sync']['datasource'] = 'internal';
-        
-        $CONFIG['class_path']['system'][] = __DIR__.'/translation/';
-        $CONFIG['class_path']['system'][] = __DIR__.'/translation/'.strtolower($CONFIG['translation']['sync']['provider']).'/';
-    }
-    else
-        $CONFIG['translation']['sync']['datasource'] = false;
+    if( !isset($CONFIG['translation']['sync']['provider']) || !$CONFIG['translation']['sync']['provider'] )
+        $CONFIG['translation']['sync']['provider'] = 'scavix';
+    if( !isset($CONFIG['translation']['sync']['datasource']) )
+        $CONFIG['translation']['sync']['datasource'] = 'default';
+
+    $CONFIG['class_path']['system'][] = __DIR__.'/translation/';
+    $CONFIG['class_path']['system'][] = __DIR__.'/translation/'.strtolower($CONFIG['translation']['sync']['provider']).'/';
     
 	if( !isset($CONFIG['translation']['searchpatterns']) )
 		$CONFIG['translation']['searchpatterns'] = array();
