@@ -160,6 +160,8 @@ function system_config_default($reset = true)
 		$_SERVER['REQUEST_SCHEME'] = urlScheme(false);
 	if( !isset($_SERVER['HTTP_HOST']) )
 		$_SERVER['HTTP_HOST'] = '127.0.0.1';
+	if( !isset($_SERVER['REQUEST_URI']) )
+		$_SERVER['REQUEST_URI'] = '';
     
 
     if(defined('IDNA_DEFAULT') && defined('INTL_IDNA_VARIANT_UTS46'))
@@ -168,9 +170,13 @@ function system_config_default($reset = true)
          * Bug in PHP 7.2: INTL_IDNA_VARIANT_2003 is deprecated but used as default value @see: http://php.net/manual/de/migration72.deprecated.php
          */
         $CONFIG['system']['url_root'] = idn_to_utf8("{$_SERVER['REQUEST_SCHEME']}://{$_SERVER['HTTP_HOST']}", IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46)."{$path[0]}";
+        $CONFIG['system']['same_page'] = idn_to_utf8("{$_SERVER['REQUEST_SCHEME']}://{$_SERVER['HTTP_HOST']}", IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46)."{$_SERVER['REQUEST_URI']}";
     }
     else
+    {
         $CONFIG['system']['url_root'] = idn_to_utf8("{$_SERVER['REQUEST_SCHEME']}://{$_SERVER['HTTP_HOST']}")."{$path[0]}";
+        $CONFIG['system']['same_page'] = idn_to_utf8("{$_SERVER['REQUEST_SCHEME']}://{$_SERVER['HTTP_HOST']}")."{$_SERVER['REQUEST_URI']}";
+    }
     $CONFIG['system']['modules'] = array();
     $CONFIG['system']['default_page'] = \ScavixWDF\Base\HtmlPage::class;
     $CONFIG['system']['default_event'] = false;
@@ -437,6 +443,7 @@ function system_execute()
 	Args::strip_tags();
 
     Wdf::$Request = new stdClass();
+    Wdf::$Request->URL = $GLOBALS['CONFIG']['system']['same_page'];
 	list($current_controller,$current_event) = system_parse_request_path();
     Wdf::$Request->CurrentController = $current_controller;
     Wdf::$Request->CurrentEvent = $current_event;
@@ -1128,7 +1135,7 @@ function buildQuery($controller,$event="",$data="", $url_root=false)
 	{
 		$route .= $event;
 		if( '#' != substr($event, 0, 1) )
-			$route .= '/';			
+			$route .= '/';
 	}
 
 	/**
@@ -1168,6 +1175,14 @@ function buildQuery($controller,$event="",$data="", $url_root=false)
  */
 function samePage($data="")
 {
+    if( avail(Wdf::$Request,'URL') )
+    {
+        if( !$data )
+            return Wdf::$Request->URL;
+        if( is_array($data) )
+            $data = http_build_query($data);
+        return array_first(explode("?",Wdf::$Request->URL))."?{$data}";
+    }
 	return buildQuery(current_controller(),current_event(),$data);
 }
 

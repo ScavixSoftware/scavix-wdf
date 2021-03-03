@@ -213,5 +213,7 @@ class AjaxResponse
 			$this->_data->script = force_array($script);
 		else
 			$this->_data->script = array_merge($this->_data->script,force_array($script));
+        
+        return $this;
 	}
 }

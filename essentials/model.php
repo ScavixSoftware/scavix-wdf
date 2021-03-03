@@ -118,6 +118,11 @@ function &model_datasource($name)
 
 	if( !isset(Wdf::$DataSources[$name]) )
 	{
+        if( $name === 'default' )
+        {
+            $res = DataSource::Get();
+            return $res;
+        }
 		if( function_exists('model_on_unknown_datasource') )
 		{
 			$res = model_on_unknown_datasource($name);

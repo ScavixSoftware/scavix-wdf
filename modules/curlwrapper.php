@@ -93,7 +93,7 @@ function downloadData($url, $postdata = false, $request_header = array(), $cache
 	if( $cacheTTLsec )
 	{
 		$hash = md5($url."|".($postdata ? serialize($postdata) : "").'|'.serialize($request_header));
-		$ret = cache_get("CURL_$hash");
+		$ret = cache_get("CURL_$hash", false, true, false);
 		if($ret !== false)
 			return $ret;
 	}
@@ -191,7 +191,7 @@ function downloadData($url, $postdata = false, $request_header = array(), $cache
 	$result = substr($result, $info['header_size']);
 
 	if($cacheTTLsec)
-		cache_set("CURL_$hash", $result, $cacheTTLsec);
+		cache_set("CURL_$hash", $result, $cacheTTLsec, true, false);
 	
 	return $result;
 }

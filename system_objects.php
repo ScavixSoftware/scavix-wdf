@@ -82,7 +82,7 @@ class Wdf
 /**
  * Implements buffering methods.
  */
-class WdfBuffer
+class WdfBuffer implements \Iterator
 {
     protected $changed = false;
     protected $data = [];
@@ -202,6 +202,23 @@ class WdfBuffer
         }
         return isset($r)?$r:null;
     }
+    
+    /**
+     * Removes all data from the buffer.
+     * 
+     * @return void
+     */
+    function clear()
+    {
+        $this->changed = count($this->data)>0;
+        $this->data = [];
+        
+        if( $this->session_name && isset($_SESSION[$this->session_name]) )
+        {
+            $this->changed |= count($_SESSION[$this->session_name])>0;
+            $_SESSION[$this->session_name] = [];
+        }
+    }
 
 	/**
      * Returns data from the buffer.
@@ -216,7 +233,34 @@ class WdfBuffer
             $this->data[$name] = $_SESSION[$this->session_name][$name];
         if( isset($this->data[$name]) )
             return $this->data[$name];
-        return (is_callable($default))?$default($name):$default;
+        if( is_callable($default) )
+            return $this->set($name,$default($name));
+        return $default;
+    }
+    
+    public function rewind()
+    {
+        $this->position = 0;
+    }
+
+    public function current()
+    {
+        return $this->get($this->key());
+    }
+
+    public function key()
+    {
+        return $this->keys()[$this->position];
+    }
+
+    public function next()
+    {
+        $this->position++;
+    }
+
+    public function valid()
+    {
+        return isset($this->keys()[$this->position]);
     }
 }
 

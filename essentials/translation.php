@@ -53,16 +53,13 @@ function translation_init()
 		$CONFIG['translation']['data_path'] = __DIR__.'/UNDEFINED/';
 	}
 
-    if( isset($CONFIG['translation']['sync']['provider']) && $CONFIG['translation']['sync']['provider'] )
-    {
-        if( !isset($CONFIG['translation']['sync']['datasource']) )
-            $CONFIG['translation']['sync']['datasource'] = 'internal';
-        
-        $CONFIG['class_path']['system'][] = __DIR__.'/translation/';
-        $CONFIG['class_path']['system'][] = __DIR__.'/translation/'.strtolower($CONFIG['translation']['sync']['provider']).'/';
-    }
-    else
-        $CONFIG['translation']['sync']['datasource'] = false;
+    if( !isset($CONFIG['translation']['sync']['provider']) || !$CONFIG['translation']['sync']['provider'] )
+        $CONFIG['translation']['sync']['provider'] = 'scavix';
+    if( !isset($CONFIG['translation']['sync']['datasource']) )
+        $CONFIG['translation']['sync']['datasource'] = 'default';
+
+    $CONFIG['class_path']['system'][] = __DIR__.'/translation/';
+    $CONFIG['class_path']['system'][] = __DIR__.'/translation/'.strtolower($CONFIG['translation']['sync']['provider']).'/';
     
 	if( !isset($CONFIG['translation']['searchpatterns']) )
 		$CONFIG['translation']['searchpatterns'] = array();
@@ -693,7 +690,10 @@ function default_string($constant,$text)
             if( $ds->TableExists('wdf_unknown_strings') )
             {
                 $sql = "UPDATE wdf_unknown_strings SET default_val=? WHERE term=? AND default_val!=?;";
-                $ds->Execute($sql,[$text,$constant,$text]);
+                try
+                {
+                    $ds->Execute($sql,[$text,$constant,$text]);
+                } catch (\ScavixWDF\WdfDbException $ex) {}
             }
         }
     }

@@ -209,15 +209,12 @@ class Template extends Renderable
 	 */
 	function set_vars($vars, $clear = false)
 	{
-		if($clear) {
-			$this->_data = $vars;
-		}
-		else {
-			if(is_array($vars))
-				$this->_data = array_merge($this->_data, $vars);
-			else
-				$this->_data[] = $vars;
-		}
+		if( $clear )
+        	$this->_data = [];
+        
+        foreach( force_array($vars) as $name=>$value )
+            $this->set($name,$value);
+        
 		return $this;
 	}
 	

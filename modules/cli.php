@@ -110,7 +110,18 @@ function cli_run_script($php_script_path, $args=[], $extended_data=false, $retur
     }
 
     if( count($args)>0 )
-        $cmd .= " ".implode(" ",$args);
+    {
+        $merged = [];
+        foreach( $args as $k=>$v )
+        {
+            if( is_numeric($k) )
+                $merged[] = $v;
+            else
+                $merged[] = "{$k}={$v}";
+        }
+        
+        $cmd .= " ".implode(" ", array_unique($merged));
+    }
 
     if( file_exists($out) && !is_writable($out) )
         $out = system_app_temp_dir()."cli-bash.log";

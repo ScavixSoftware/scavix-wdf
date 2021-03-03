@@ -560,15 +560,32 @@
             {
                 var wait = function()
                 {
-                    if( res._isDone ) 
+                    if( !res.terminate )
+                        setTimeout(wait, 50);
+                    else if( res.terminate == 1 ) 
                         return resolve();
-                    setTimeout(wait, 50);
                 };
                 setTimeout(wait, 50);
             });
-            res.done = function(){ res._isDone = true; }
+            res.done = function(){ res.terminate = 1; }
+            res.cancel = function(){ res.terminate = 2;  }
             if( timeout )
                 setTimeout(res.done,timeout);
+
+            res.orig = [];
+            ['then','catch','finally'].forEach(function(i)
+            {
+                res.orig[i] = res[i];
+                res[i] = function()
+                {
+                    var prms = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
+                    var result = res.orig[i].apply(res,prms);
+                    result.done = res.done;
+                    result.cancel = res.cancel;
+                    return result;
+                }
+            });
+            
             return res;
         },
         
@@ -637,6 +654,84 @@
                 return get(obj[pa[0]], pa.slice(1), def);
             };
             return get(obj, props, def);
+        },
+        
+        toast: function(text,duration,speed)
+        {
+            var s = speed || 400, dur = duration || 3000;
+            var css = {
+                'position': 'fixed',
+                'display': 'inline-block',
+                'min-width': '200px',
+                'padding': '10px 20px',
+                'margin': 'auto',
+                'border-radius': '5px',
+                'font-weight': '1em',
+                'z-index': '1000'
+            };
+            
+            var $toast = $('<div/>').append(text).appendTo('body').css(css);
+            $.extend($toast,
+            {
+                go: function()
+                {
+                    return $toast.stop().fadeIn(s,function()
+                    {
+                        setTimeout(function()
+                        {
+                            $toast.fadeOut(s,function()
+                            {
+                                $toast.remove();
+                            });
+                        },dur);
+                    })
+                },
+                top: function()
+                {
+                    return $toast.position({my:'center top',at:'center top+150px',of:window}).hide().go();
+                },
+                bottom: function()
+                {
+                    return $toast.position({my:'center bottom',at:'center bottom-50px',of:window}).hide().go();
+                },
+                below: function(element)
+                {
+                    return $toast.position({my:'left top',at:'left bottom+5px',of:element}).hide().go();
+                },
+                rightOf: function(element)
+                {
+                    return $toast.position({my:'left center',at:'right+5px center',of:element}).hide().go();
+                },
+                colorize: function(backgroundColor,fontColor)
+                {
+                    if( backgroundColor[0] == '#' ) 
+                        backgroundColor = backgroundColor.substr(1);
+                    if( backgroundColor.length == 3)
+                        backgroundColor = backgroundColor.replace(/(.)(.)(.)/,'$1$1$2$2$3$3');
+                    var r = parseInt(backgroundColor.substr(0,2), 16),
+                        g = parseInt(backgroundColor.substr(2,2), 16),
+                        b = parseInt(backgroundColor.substr(4,2), 16);
+                    var rgb = [r,g,b].join(",");
+                    return $toast.css({
+                        'background-color': 'rgba('+rgb+',0.7)',
+                        'box-shadow': 'rgba('+rgb+',1) 0px 0px 3px 3px',
+                        'color': fontColor
+                    }); 
+                },
+                red: function()
+                { 
+                    return $toast.colorize('#f4351f','#000');
+                },
+                yellow: function()
+                { 
+                    return $toast.colorize('#dad55e','#000');
+                },
+                green: function()
+                { 
+                    return $toast.colorize('#60d124','#000');
+                }
+            });
+            return $toast.colorize('#444','#fff').bottom();
         }
 	};
 	
