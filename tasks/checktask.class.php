@@ -116,8 +116,12 @@ class CheckTask extends Task
         
         $used = [];
         foreach( $ids as $i )
+        {
             if( strpos("$i","TXT_COUNTRY_") === 0 )
                 $used[] = $i;
+            elseif( strpos("$i","TXT_PAYMENTPROVIDER_") === 0 )
+                $used[] = $i;
+        }
         $ids = array_diff($ids,$used);
         log_debug("...found ".count($used)." IDs",$used);
         
