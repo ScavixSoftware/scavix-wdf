@@ -111,8 +111,8 @@ class WdfResource implements ICallable
 	 */
 	function skin($res)
 	{
-		$res = array_first(explode("?",$res));
-        $res = resFile($res,true);
+		$url = array_first(explode("?",$res));
+		$res = resFile($res,true);
 
 		if( $res )
 		{
@@ -128,7 +128,7 @@ class WdfResource implements ICallable
                 header('Content-Type: image/svg+xml');
             
 			WdfResource::ValidatedCacheResponse($res);
-            die( $this->resolveUrls($res) );
+            die( $this->resolveUrls($res,dirname($url)) );
 		}
 		else
 			header("HTTP/1.0 404 Not Found");
@@ -173,12 +173,27 @@ class WdfResource implements ICallable
         die( $this->resolveUrls($css) );
 	}
     
-    private function resolveUrls($file)
+    private function resolveUrls($file,$base='')
     {
-        return preg_replace_callback("/url\s*\(['\"]*resfile\/(.*)['\"]*\)/siU",function($match)
+		$res = file_get_contents($file);
+		$base = trim(trim($base,"."));
+		
+        $res = preg_replace_callback("/url\s*\(['\"]*resfile\/(.*)['\"]*\)/siU",function($match)
         {
             $url = trim($match[1],"\"' ");
             return "url('".resFile($url)."')";
-        }, file_get_contents($file));
+        }, $res);
+
+		if( $base )
+			$res = preg_replace_callback("/url\s*\(['\"]*([^'\")]*)['\"]*\)/si",function($match)use($base)
+			{
+				if( stripos($match[1],"data:") === 0 )
+					return $match[0];
+				if( $match[1][0] === '/' )
+					return $match[0];
+				return "url('".resFile("{$base}/{$match[1]}")."')";
+			},$res);
+		
+		return $res;
     }
 }
