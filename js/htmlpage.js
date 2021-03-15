@@ -732,7 +732,25 @@
                 }
             });
             return $toast.colorize('#444','#fff').bottom();
-        }
+        },
+		getText: function(name,data)
+		{
+			if( wdf.settings.texts && wdf.settings.texts[name] )
+			{
+				if( !data )
+					return wdf.settings.texts[name];
+				
+				var t = wdf.settings.texts[name];
+				Object.keys(data).forEach(function(n)
+				{
+					var re = new RegExp(n, "g");
+					t = t.replace(re,data[n]);
+				});
+				return t;
+			}
+			wdf.debug("Missing text "+name);
+			return name;
+		}
 	};
 	
 	if( typeof win.Debug != "function" )
