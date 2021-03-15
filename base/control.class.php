@@ -399,7 +399,7 @@ class Control extends Renderable
 			if( !$this->_parent )
 				return;// log_debug("Skipping ready-script addition for control without parent",$this);
 			$controller = $args[0];
-			if( $controller instanceof HtmlPage )
+			if( method_exists($controller,'addDocReady') )
 				$controller->addDocReady(implode("\n",$this->_script));
 		}
 	}
