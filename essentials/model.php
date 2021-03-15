@@ -262,6 +262,7 @@ function model_update_db($datasource,$version,$script_folder,callable $after_sql
  * Scripts my inlcude other files (like view create/update statements) like this: @include(views/my_view.sql);
  * These include statements must be one-per-line and they must be terminated by semi-colon (;).
  * The path must be relative to the including SQL file.
+ * Note that includes may contain filename placeholders: @include(data/autogen_*.sql);
  * 
  * Scripts should always ensure that statements can be executed without erroring out, to
  * help you with that, you can prepend an @-symbol to each statement. Errors will be ignored and only logged
@@ -282,21 +283,35 @@ function model_run_script($file,$datasource=false,$verbose=false)
         :($datasource?model_datasource($datasource):DataSource::Get());
     
     $sql = file_get_contents($file);
+    $stack = [realpath($file)];
             
-    $sql = preg_replace_callback('/@include\((.*)\);/',function($m)use($file)
+    while( strpos($sql,'@include') !== false )
     {
-        $inc = @file_get_contents(dirname($file)."/".$m[1]);
-        if( !$inc )
+        $check = $sql;
+        $sql = preg_replace_callback('/@include\((.*)\);/',function($m)use($file,&$stack)
         {
-            log_error("SQL include not found: {$m[1]}");
-            return '';
-        }
-        return preg_replace_callback('/@include\((.*)\);/',function($circ)use($m)
-        {
-            log_error("Deep level SQL include detected, ignoring: {$circ[1]} in file {$m[1]}");
-            return '';
-        },"$inc;");
-    },$sql);
+            $res = [];
+            $pattern = dirname($file)."/".$m[1];
+            foreach( glob($pattern) as $f )
+            {
+                $f = realpath($f);
+                if( in_array($f, $stack) )
+                {
+                    log_warn("File already processed, ignoring $f");
+                    continue;
+                }
+                $stack[] = $f;
+                $inc = @file_get_contents("$f");
+                $res[] = $inc;
+                if( !$inc )
+                    log_error("SQL include not found: {$m[1]}");
+            }
+            return implode("\n", array_filter($res));
+        },$sql);
+        
+        if( $check == $sql )
+            break;
+    }
 
     $sql = preg_replace("/^(#|--).*$/m", "", $sql);
 
