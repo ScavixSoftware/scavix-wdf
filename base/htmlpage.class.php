@@ -167,6 +167,13 @@ class HtmlPage extends Template implements ICallable
 		if(isDevOrBeta() && !isset($init_data['log_to_console']) )
 			$init_data['log_to_console'] = true;
 		
+		if( isset($init_data['texts']) )
+		{
+			$buffer = \ScavixWDF\Wdf::GetBuffer('wdf_js_strings')->mapToSession('wdf_js_strings');
+			foreach( $init_data['texts'] as $id=>$txt )
+				$buffer->set(str_replace("[NT]","",$id),$txt);
+		}
+		
 		$this->set("wdf_init","wdf.init(".json_encode($init_data).");");
 		$this->set("docready",$this->docready);
 		$this->set("plaindocready",$this->plaindocready);
