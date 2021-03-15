@@ -1073,21 +1073,6 @@ function internal_getCultureInfo($cultureCode)
 			$ci->Region = internal_getRegion('GB');
 			$ci->Parent = internal_getLanguage('en');
 			return $ci;
-		case 'es-mx':
-			$ci = new CultureInfo('es-MX','es','es','Spanish (Mexico)','Español (México)','0');
-			$dtf = internal_getDateTimeFormat($cultureCode);
-			$dtf->MonthNames = array('enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre','');
-			$dtf->ShortMonthNames = array('ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic','');
-			$dtf->GenitiveMonthNames = array('enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre','');
-			$dtf->DayNames = array('domingo','lunes','martes','miércoles','jueves','viernes','sábado');
-			$dtf->ShortDayNames = array('do','lu','ma','mi','ju','vi','sá');
-			$ci->DateTimeFormat = $dtf;
-			$ci->CurrencyFormat = new CurrencyFormat('2','.',',','$','MXN','$%v','-$%v','Mexican Peso','Peso');
-			$ci->NumberFormat = new NumberFormat('2','.',',','-%v');
-			$ci->PercentFormat = new PercentFormat('2','.',',','%v %','-%v%');
-			$ci->Region = internal_getRegion('MX');
-			$ci->Parent = internal_getLanguage('es');
-			return $ci;
 		case 'fr-be':
 			$ci = new CultureInfo('fr-BE','fr','fr','French (Belgium)','Français (Belgique)','0');
 			$dtf = internal_getDateTimeFormat($cultureCode);
@@ -1311,6 +1296,21 @@ function internal_getCultureInfo($cultureCode)
 			$ci->NumberFormat = new NumberFormat('2',',','.','-%v');
 			$ci->PercentFormat = new PercentFormat('2',',','.','% %v','-%v%');
 			$ci->Region = internal_getRegion('ES');
+			$ci->Parent = internal_getLanguage('es');
+			return $ci;
+		case 'es-mx':
+			$ci = new CultureInfo('es-MX','es','es','Spanish (Mexico)','Español (México)','0');
+			$dtf = internal_getDateTimeFormat($cultureCode);
+			$dtf->MonthNames = array('enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre','');
+			$dtf->ShortMonthNames = array('ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic','');
+			$dtf->GenitiveMonthNames = array('enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre','');
+			$dtf->DayNames = array('domingo','lunes','martes','miércoles','jueves','viernes','sábado');
+			$dtf->ShortDayNames = array('do','lu','ma','mi','ju','vi','sá');
+			$ci->DateTimeFormat = $dtf;
+			$ci->CurrencyFormat = new CurrencyFormat('2','.',',','$','MXN','$%v','-$%v','Mexican Peso','Peso');
+			$ci->NumberFormat = new NumberFormat('2','.',',','-%v');
+			$ci->PercentFormat = new PercentFormat('2','.',',','%v %','-%v%');
+			$ci->Region = internal_getRegion('MX');
 			$ci->Parent = internal_getLanguage('es');
 			return $ci;
 		case 'fr-ca':
@@ -3732,7 +3732,7 @@ function internal_getRegion($code)
 	{
 		case 'sa': return new RegionInfo('SA','Saudi Arabia','المملكة العربية السعودية',array('ar-SA'));
 		case 'bg': return new RegionInfo('BG','Bulgaria','България',array('bg-BG'));
-		case 'es': return new RegionInfo('ES','Spain','Espanya',array('ca-ES','eu-ES','gl-ES','es-ES'));
+		case 'es': return new RegionInfo('ES','Spain','Espanya',array('es-ES','ca-ES','eu-ES','gl-ES'));
 		case 'tw': return new RegionInfo('TW','Taiwan','台灣',array('zh-TW'));
 		case 'cz': return new RegionInfo('CZ','Czech Republic','Česká republika',array('cs-CZ'));
 		case 'dk': return new RegionInfo('DK','Denmark','Danmark',array('da-DK'));
@@ -3934,7 +3934,7 @@ function internal_getRegionsForLanguage($code)
 		case 'syr': return array(internal_getRegion('SY'));
 		case 'dv': return array(internal_getRegion('MV'));
 		case 'zh-chs': return array(internal_getRegion('CN'),internal_getRegion('SG'));
-		case 'es': return array(internal_getRegion('MX'),internal_getRegion('ES'),internal_getRegion('GT'),internal_getRegion('CR'),internal_getRegion('PA'),internal_getRegion('DO'),internal_getRegion('VE'),internal_getRegion('CO'),internal_getRegion('PE'),internal_getRegion('AR'),internal_getRegion('EC'),internal_getRegion('CL'),internal_getRegion('UY'),internal_getRegion('PY'),internal_getRegion('BO'),internal_getRegion('SV'),internal_getRegion('HN'),internal_getRegion('NI'),internal_getRegion('PR'),internal_getRegion('US'));
+		case 'es': return array(internal_getRegion('ES'),internal_getRegion('MX'),internal_getRegion('GT'),internal_getRegion('CR'),internal_getRegion('PA'),internal_getRegion('DO'),internal_getRegion('VE'),internal_getRegion('CO'),internal_getRegion('PE'),internal_getRegion('AR'),internal_getRegion('EC'),internal_getRegion('CL'),internal_getRegion('UY'),internal_getRegion('PY'),internal_getRegion('BO'),internal_getRegion('SV'),internal_getRegion('HN'),internal_getRegion('NI'),internal_getRegion('PR'),internal_getRegion('US'));
 		case 'sr': return array(internal_getRegion('CS'));
 	}
     return false;
