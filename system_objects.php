@@ -82,7 +82,7 @@ class Wdf
 /**
  * Implements buffering methods.
  */
-class WdfBuffer implements \Iterator
+class WdfBuffer implements \Iterator, \JsonSerializable
 {
     protected $changed = false;
     protected $data = [];
@@ -94,6 +94,14 @@ class WdfBuffer implements \Iterator
             $this->data = $initial_data();
         else
             $this->data = is_array($initial_data)?$initial_data:[];
+    }
+	
+	/**
+	 * @internal see <JsonSerializable>
+	 */
+	public function jsonSerialize()
+	{
+        return $this->dump();
     }
     
 	/**

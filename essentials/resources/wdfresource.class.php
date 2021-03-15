@@ -172,6 +172,32 @@ class WdfResource implements ICallable
 		WdfResource::ValidatedCacheResponse($less);
         die( $this->resolveUrls($css) );
 	}
+	
+	/**
+	 * @internal Returns a JS file containing all for JS-usage registered texts
+	 * @attribute[RequestParam('file','string')]
+	 */
+	function Texts()
+	{
+		$buffer = \ScavixWDF\Wdf::GetBuffer('wdf_js_strings')
+			->mapToSession('wdf_js_strings');
+		
+		$data = [];
+		foreach( $buffer->dump() as $id=>$text )
+			$data[$id] = _text($text);
+		$data = json_encode($data);
+		$fn = system_app_temp_dir('js_strings',false).md5($data).".js";
+		if( file_exists($fn) )
+			$js = file_get_contents($fn);
+		else
+		{
+			$js = "wdf.ready.add(function(){ wdf.settings.texts = ".$data."; });";
+			file_put_contents($fn, $js);
+		}
+        header('Content-Type: text/javascript');
+		self::ValidatedCacheResponse($fn);
+		die( $js );
+	}
     
     private function resolveUrls($file,$base='')
     {
