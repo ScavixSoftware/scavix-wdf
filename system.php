@@ -1406,6 +1406,8 @@ function cache_clear($global_cache=true, $session_cache=true)
     if( $session_cache )
 		$_SESSION["system_internal_cache"] = array();
     
+    unset($_SESSION['js_strings_version']); // force JS string regeneration
+        
     if( $global_cache && system_is_module_loaded('globalcache') )
 		globalcache_clear();
     clear_less_cache();

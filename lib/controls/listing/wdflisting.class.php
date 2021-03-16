@@ -367,10 +367,12 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
     
     function addJoin($j)
     {
-        if( $this->table->Join )
-            $this->table->Join .= " LEFT JOIN $j";
-        else
-            $this->table->Join = $j;
+        if( !preg_match('/^(LEFT|INNER|RIGHT|\s+)+JOIN\s+/',$j) )
+            $j = "LEFT JOIN $j";
+        
+        if( !$this->table->Join )
+            $this->table->Join = "";
+        $this->table->Join .= " ".trim($j);
         return $this;
     }
     
