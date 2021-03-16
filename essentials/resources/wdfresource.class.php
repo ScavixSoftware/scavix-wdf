@@ -191,7 +191,7 @@ class WdfResource implements ICallable
 			$js = file_get_contents($fn);
 		else
 		{
-			$js = "wdf.ready.add(function(){ wdf.settings.texts = ".$data."; });";
+			$js = "window.wdf_texts = ".$data.";";
 			file_put_contents($fn, $js);
 		}
         header('Content-Type: text/javascript');

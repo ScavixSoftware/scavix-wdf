@@ -735,28 +735,33 @@
         },
 		getText: function(name,data)
 		{
-			if( wdf.settings && wdf.settings.texts && wdf.settings.texts[name] )
-			{
-				if( !data )
-					return wdf.settings.texts[name];
-				
-				var t = wdf.settings.texts[name];
-				Object.keys(data).forEach(function(n)
-				{
-					var re = new RegExp(n, "g");
-					t = t.replace(re,data[n]);
-				});
-				return t;
-			}
-			wdf.controller.get('wdfgettext',{id:name},function(d)
-			{
-				if( !wdf.settings ) wdf.settings = {};
-				if( !wdf.settings.texts ) wdf.settings.texts = {};
-				Object.keys(d).forEach(function(k)
-				{
-					wdf.settings.texts[k] = d[k];
-				});
-			});
+            if( win.wdf_texts )
+            {
+                if( win.wdf_texts[name] )
+                {
+                    if( !data )
+                        return win.wdf_texts[name];
+
+                    var t = win.wdf_texts[name];
+                    Object.keys(data).forEach(function(n)
+                    {
+                        var re = new RegExp(n, "g");
+                        t = t.replace(re,data[n]);
+                    });
+                    return t;
+                }
+            
+                if( wdf.controller )
+                {
+                    wdf.controller.get('wdfgettext',{id:name},function(d)
+                    {
+                        Object.keys(d).forEach(function(k)
+                        {
+                            win.wdf_texts[k] = d[k];
+                        });
+                    });
+                }
+            }
 			wdf.debug("Missing text "+name);
 			return name;
 		}

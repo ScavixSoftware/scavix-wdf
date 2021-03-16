@@ -242,6 +242,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
     {
         if( count($this->summary) > 0 && !$this->extended )
         {
+            $this->extended = true;
             $sums = array_filter(
                 array_map(
                     function($n){ return $this->isVisible($n)?"sum(`$n`) as '{$n}'":false; }, 
@@ -383,7 +384,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
     function addField($sql,$arguments=[])
     {
         if( !$this->table->Columns )
-            $this->table->Columns = "*";
+            $this->table->Columns = "`{$this->table->DataTable}`.*";
         
         foreach( $arguments as $a )
             $sql = preg_replace('/\?/', (is_numeric($a) ? $a : "'".$this->ds->EscapeArgument($a)."'"), $sql, 1);
@@ -606,6 +607,12 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             $this->table->OrderBy = $orderby;
 //            $this->setSetting('sort',$orderby);
         }
+        return $this;
+    }
+    
+    function setGroupBy($groupby)
+    {
+        $this->table->GroupBy = $groupby;
         return $this;
     }
     
@@ -870,13 +877,13 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
     
     public function addRowCallback($callback)
     {
-        $this->rowCallbacks[] = new WdfClosure($callback);
+        $this->rowCallbacks[] = new \ScavixWDF\Base\WdfClosure($callback);
         return $this;
     }
     
     public function addRowDataCallback($callback)
     {
-        $this->rowDataCallbacks[] = new WdfClosure($callback);
+        $this->rowDataCallbacks[] = new \ScavixWDF\Base\WdfClosure($callback);
         return $this;
     }
     
@@ -884,7 +891,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
     {
         $colnames = force_array($colnames);
         foreach($colnames as $colname)
-            $this->columnCallbacks[$colname] = is_string($callback)?$callback:new WdfClosure($callback);
+            $this->columnCallbacks[$colname] = is_string($callback)?$callback:new \ScavixWDF\Base\WdfClosure($callback);
         return $this;
     }
     
