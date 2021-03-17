@@ -247,18 +247,17 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
         if( count($this->summary) > 0 && !$this->extended )
         {
             $this->extended = true;
-            $sums = array_filter(
+            $sumcols = array_filter(
                 array_map(
-                    function($n){ return $this->isVisible($n)?"sum(`$n`) as '{$n}'":false; }, 
+                    function($n){ return $this->isVisible($n)?$n:false; }, 
                     array_keys($this->summary)
                 )
             );
             $sql = str_replace(" SQL_CALC_FOUND_ROWS "," ",$this->table->Sql?:$this->table->GetSQL());
-            if( count($sums)> 0 )
+            if( count($sumcols)> 0 )
             {
-                $sums = $this->ds->ExecuteSql("SELECT ".implode(",",$sums)." FROM( {$sql} )as x")->current();
-//                $this->ds->LogLastStatement();
-//                log_debug($sums);
+                $sql = str_replace('SELECT * ', 'SELECT '.implode(',', array_map(function($c) { return "`$c`"; }, $sumcols)).' ', $sql);
+                $sums = $this->ds->ExecuteSql("SELECT ".implode(",", array_map(function($c) { return "sum(`$c`) as '{$c}'"; }, $sumcols))." FROM( {$sql} )as x")->current();
 
                 $footer = $this->table->Footer();
                 $cols = $this->visibleColumns();
@@ -686,7 +685,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
                     break;
             }
         }
-        $wrap = Control::Make()->append(array_pop($links));
+        $wrap = Control::Make()->append(array_pop($links))->append('&nbsp;');
         Anchor::Void("<span class='ui-icon ui-icon-gear'></span>")->setData('column-state', $columns)->appendTo($wrap);
         
         $links[] = $wrap;
