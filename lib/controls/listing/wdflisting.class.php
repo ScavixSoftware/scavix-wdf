@@ -681,7 +681,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
                     break;
             }
         }
-        $wrap = Control::Make()->append(array_pop($links));
+        $wrap = Control::Make()->append(array_pop($links))->append('&nbsp;');
         Anchor::Void("<span class='ui-icon ui-icon-gear'></span>")->setData('column-state', $columns)->appendTo($wrap);
         
         $links[] = $wrap;

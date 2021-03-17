@@ -10,8 +10,6 @@ var listing_rowclick = function(evt, url)
     }
     else
     {
-        if( $(evt.target).is('.handle') || $(evt.target).closest('.handle').length )
-            return;
         wdf.redirect(url);
     }
 }
@@ -58,6 +56,8 @@ function init_listings()
                 enabled = 0;
             for(var i=0; i<columns.length; i++)
             {
+                if((columns[i].label == '') && (i == columns.length-1))
+                    continue;
                 if( columns[i].visible ) enabled++;
                 $('<div style="display:flex; align-items:center"/>').appendTo($d).data('column',columns[i])
                     .append( (columns[i].visible)?listing_geticon('col-visible'):listing_geticon('col-hidden'))
@@ -164,10 +164,13 @@ $.fn.reload = function()
 	var self = $(this), tab = self.find('.table');
     var prevPos = self.css('position');
     self.css('position', 'relative');
+    tab.addClass('blurred');
+    tab.overlay();
     
     wdf.get(self.attr('id')+'/reload',(d,s,p) =>
     {
         tab.updateTable(d,p.wait());
+        tab.removeClass('blurred');
         self.css('position', prevPos);
     });
 };
@@ -183,7 +186,7 @@ $.fn.gotoPage = function(n)
     wdf.post(self.attr('id')+'/gotopage',{number:n},(d,s,p) =>
     {
         tab.updateTable(d,p.wait());
-        tab.removeClass('blurred');
+//        tab.removeClass('blurred');
         self.css('position', prevPos);
     });
 

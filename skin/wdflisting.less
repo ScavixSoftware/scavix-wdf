@@ -13,9 +13,13 @@
     justify-content: flex-end;
     font-size: 13px;
     
-    select, input
+    select
     {
-        padding: 2px 6px;
+        padding: 2px 4px;
+    }
+    input:not([type="checkbox"])
+    {
+        padding: 3px 4px;
     }
     
     @media (min-width: 500px)
@@ -41,6 +45,22 @@
         border-color: @wdf_highlight_border;
     }
     
+    .field
+    {
+        label
+        {
+            font-weight: normal !important;
+            margin-bottom: 0px;
+            font-size: 12px;
+        }
+        
+        input:not([type="checkbox"]), textarea, select
+        {
+            margin-top: 0px;
+            font-size: 12px;
+        }
+    }
+    
     > div.notitle:last-child
     {
         margin-right: unset;
@@ -50,9 +70,11 @@
         
         > *
         {
-            height: 29px;
-            width: 29px;
-            padding: 5px 0px;
+            height: 24px;
+            width: 24px;
+            padding: 2px 0px;
+            margin-bottom: 16px;
+            border-radius: 5px;
         }
     }
     @media (max-width: 500px)
@@ -77,6 +99,15 @@
 
 .listing
 {
+    &.blurred, .blurred
+    {
+        filter:blur(6px);
+        -o-filter:blur(6px);
+        -ms-filter:blur(6px);
+        -moz-filter:blur(6px);
+        -webkit-filter:blur(6px);
+        transition: filter .1s;
+    }
     .table
     {
         font-family: unset;
