@@ -104,6 +104,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
 		$this->datatable = $table;
 		$this->table->DataTable = $table;
 		$this->table->Sql = '';
+        $this->table->Columns = "`{$this->table->DataTable}`.*";
 		return $this->initDataChanged();
 	}
 	
@@ -147,6 +148,9 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             ->appendTo($this);
         $this->table->ParsingBehaviour = \ScavixWDF\Controls\Table\DatabaseTable::PB_NOPROCESSING;
         $this->table->SlimSerialization = true;
+        
+        if( $table )
+            $this->table->Columns = "`{$table}`.*";
         
 		if( isset($GLOBALS['CI']) )
 			$this->setCulture($GLOBALS['CI']);
