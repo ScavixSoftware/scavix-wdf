@@ -33,7 +33,8 @@
 
 .pager, .pager > *
 {
-    display: inline;
+    display: inline-block;
+    white-space: nowrap;
 }
 
 .pager > a, 
