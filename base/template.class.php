@@ -146,7 +146,7 @@ class Template extends Renderable
 		if( count($args) > 0 && count($this->_script) > 0 )
 		{
 			$controller = $args[0];
-            if( !$this->isChildOf($controller) )
+            if( $this != $controller && !$this->isChildOf($controller) )
                 return;
 			if( method_exists($controller,'addDocReady') )
 				$controller->addDocReady(implode("\n",$this->_script)."\n");
