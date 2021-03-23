@@ -115,6 +115,30 @@ class HtmlPage extends Template implements ICallable
 		
 		// set up correct display on mobile devices: http://stackoverflow.com/questions/8220267/jquery-detect-scroll-at-bottom
 		$this->addMeta("viewport","width=device-width, height=device-height, initial-scale=1.0");
+		
+		if( !avail($_SESSION,'js_strings_version') )
+		{
+			$buffer = \ScavixWDF\Wdf::GetBuffer('wdf_js_strings')->mapToSession('wdf_js_strings');
+			foreach( $this->getJsRegisteredStrings() as $id=>$txt )
+			{
+				if( is_numeric($id) )
+					$id = $txt;
+				$buffer->set($id,$txt);
+			}
+			$_SESSION['js_strings_version'] = time();
+		}
+		$this->addJs(buildQuery('wdfresource','texts').$_SESSION['js_strings_version'].".js");
+	}
+	
+	/**
+	 * Override this method to register texts for usage in JavaScript.
+	 *
+	 * Note that this will only be called once in a session.
+	 * @return array Key-Value pairs of string-constants and their values
+	 */
+	function getJsRegisteredStrings()
+	{
+		return [];
 	}
 
 	/**
@@ -142,6 +166,13 @@ class HtmlPage extends Template implements ICallable
 		}
 		if(isDevOrBeta() && !isset($init_data['log_to_console']) )
 			$init_data['log_to_console'] = true;
+		
+		if( isset($init_data['texts']) )
+		{
+			$buffer = \ScavixWDF\Wdf::GetBuffer('wdf_js_strings')->mapToSession('wdf_js_strings');
+			foreach( $init_data['texts'] as $id=>$txt )
+				$buffer->set(str_replace("[NT]","",$id),$txt);
+		}
 		
 		$this->set("wdf_init","wdf.init(".json_encode($init_data).");");
 		$this->set("docready",$this->docready);
@@ -347,5 +378,16 @@ class HtmlPage extends Template implements ICallable
 			return;
 		$this->addMeta('msapplication-task',"name=$name; action-uri=$url; icon-uri=$icon_url; window-type=$window_type");
 		return $this;
+	}
+	
+	/**
+	 * @attribute[RequestParam('id','string','')]
+	 */
+	function WdfGetText($id)
+	{
+		$buffer = \ScavixWDF\Wdf::GetBuffer('wdf_js_strings')->mapToSession('wdf_js_strings');
+		$buffer->set($id,$id);
+		$_SESSION['js_strings_version'] = time();
+		return AjaxResponse::Json([$id=>_text($id)]);
 	}
 }

@@ -58,4 +58,103 @@ class CheckTask extends Task
             else
                 $log->warn(" * ".str_pad("$n",20),$v);
     }
+    
+    function Strings($args)
+    {
+        $dir = realpath(ifavail($args,'dir'));
+        if( !$dir )
+            return log_info("Syntax: check-strings dir=<base-folder>");
+        
+        translation_known_constants(); // just to init everything
+        
+        $ds = model_datasource($GLOBALS['CONFIG']['translation']['sync']['datasource']);
+        $ids = $ds->ExecuteSql("SELECT DISTINCT id FROM wdf_translations")->Enumerate('id');
+        
+        $multifind = function($id,$content,$replace,$prefix,$suffix=['"',"'"])
+        {
+            foreach( $suffix as $s )
+            {
+                if( $replace )
+                {
+                    if( strpos($content,str_replace($replace,$prefix.$s,$id).$s) !== false ) 
+                        return true;
+                }
+                else
+                {
+                    if( strpos($content,$prefix.$s.$id.$s) !== false ) 
+                        return true;
+                }
+            }
+            return false;
+        };
+        $processfile = function($file)use(&$ids,$multifind)
+        {
+            $c = file_get_contents($file);
+            $used = [];
+            foreach( $ids as $i )
+            {
+                if( strpos($c,$i) !== false )
+                {
+                    $used[] = $i;
+                    continue;
+                }
+                $pre = array_first(explode("_",$i));
+                if( is_in($pre,'TITLE','TXT') )
+                {
+                    if( $multifind($i,$c,"{$pre}_","::Confirm(") )
+                    {
+                        $used[] = $i;
+                        log_debug("Found DLG $i");
+                        continue;
+                    }
+                }
+            }
+            $ids = array_diff($ids,$used);
+        };
+        
+        log_debug("Preprocessing");
+        
+        $used = [];
+        foreach( $ids as $i )
+        {
+            if( strpos("$i","TXT_COUNTRY_") === 0 )
+                $used[] = $i;
+            elseif( strpos("$i","TXT_PAYMENTPROVIDER_") === 0 )
+                $used[] = $i;
+        }
+        $ids = array_diff($ids,$used);
+        log_debug("...found ".count($used)." IDs",$used);
+        
+        log_debug("Processing translation recursion");
+        $used = [];
+        foreach( $GLOBALS['translation']['strings'] as $id=>$value )
+        foreach( $ids as $i )
+            if( strpos($value,$i) )
+                $used[] = $i;
+        $ids = array_diff($ids,$used);
+        log_debug("...found ".count($used)." IDs",$used);
+        
+        $datapath = realpath($GLOBALS['CONFIG']['translation']['data_path']);
+        log_debug("Processing files in folder $dir");
+        foreach( ['*.php','*.js'] as $pattern )
+        foreach( system_glob_rec($dir, $pattern) as $file )
+        {
+            if( 0 === stripos(realpath($file), $datapath) )
+                continue;
+            $processfile($file);
+            if( count($ids)==0 )
+                break 2;
+        }
+        
+        log_debug("Unused",array_values($ids));
+        
+        if( avail($args,'remove') || in_array('remove',$args) )
+        {
+            foreach( $ids as $i )
+            {
+                $ds->ExecuteSql("DELETE FROM wdf_translations WHERE id=?",$i);
+                log_debug("Removed $i");
+            }
+        }
+    }
 }

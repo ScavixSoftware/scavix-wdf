@@ -538,6 +538,21 @@ abstract class Renderable implements \JsonSerializable
             return $this->_parent;
         return $this->_parent->closest($classname);
     }
+    
+    /**
+     * Check if this is part of another objects tree.
+     * 
+     * @param Renderable $object Root object to test
+     * @return bool True if this is child of object, else false
+     */
+    function isChildOf(Renderable $object)
+    {
+        if( !$this->_parent )
+            return false;
+        if( $this->_parent == $object )
+            return true;
+        return $this->_parent->isChildOf($object);
+    }
 	
 	/**
 	 * Appends content to this Renderable.
