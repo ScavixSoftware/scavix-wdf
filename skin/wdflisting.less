@@ -2,7 +2,7 @@
 @wdf_listing_background: white;
 @wdf_listing_border: #c0c0c0;
 @wdf_highlight_border: black;
-@wdf_listing_even: @eee;
+@wdf_listing_even: #f9f9f9;
 @wdf_listing_hover: #d0d0d0;
 
 .listingfilter
@@ -151,22 +151,22 @@
         &:after
         {
             content: ' ';
-            background-size: cover;
+            background-repeat: no-repeat;
             display: inline-block;
             width: 16px;
             height: 16px;
             opacity: 0.6;
             margin-left: 5px;
-            margin-bottom: -3px;
+            margin-bottom: -4px;
         }
         
         &.asc::after
         {
-            background-image: url('resfile/listing/sort_asc.png');
+            background-image: url('resfile/listing/sort_asc.svg');
         }
         &.desc::after
         {
-            background-image: url('resfile/listing/sort_desc.png');
+            background-image: url('resfile/listing/sort_desc.svg');
         }
     }
     .multi-actions
