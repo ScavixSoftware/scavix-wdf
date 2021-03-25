@@ -300,7 +300,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
 	function PreRender($args=[])
 	{
 		if( $this->sortable )
-			$this->script("$('#{$this->id} a[data-sort]').click(function(e){ e.preventDefault(); wdf.post('{$this->id}/sort',{name:$(this).data('sort')},function(d){ if(d) $('#{$this->table->id}').updateTable(d); }); });");
+			$this->script("$(document).on('click', '#{$this->id} a[data-sort]', function(e){ e.preventDefault(); wdf.post('{$this->id}/sort',{name:$(this).data('sort')},function(d){ if(d) $('#{$this->table->id}').updateTable(d); }); });");
 		return parent::PreRender($args);
 	}
     
@@ -608,10 +608,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
         if( $this->sortable && $this->hasSetting('sort') )
             $this->table->OrderBy = $this->getSetting('sort');
         else
-        {
             $this->table->OrderBy = $orderby;
-//            $this->setSetting('sort',$orderby);
-        }
         return $this;
     }
     
@@ -625,7 +622,6 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
     {
         if(!$this->table->ResultSet)
             $this->table->GetData();
-        $this->logSql();
         return $this->table->ResultSet->Count();
     }
     
@@ -645,9 +641,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
     
     function OnAddHeader($table, $row)
     {
-        $this->logSql();
-            
-        $links = array(); $columns = [];
+        $links = $columns = [];
         
         foreach( $this->columns as $name=>$label )
         {
@@ -758,13 +752,12 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
         if( !$name || !isset($this->columns[$name]) ) 
             return AjaxResponse::None();
         
-        if($this->table->OrderBy == ' ORDER BY `'.$name.'` DESC')
-            $this->table->OrderBy = ($this->default_order ? 'ORDER BY '.$this->default_order : '');
+        if(preg_match('/ORDER\sBY[\s\'"`]+'.$name.'[\s\'"`]+DESC/i',$this->table->OrderBy))
+            $this->table->OrderBy = ($this->default_order ? ' ORDER BY '.str_replace(' DESC', '', $this->default_order) : '');
         else
-            $this->table->OrderBy = ' ORDER BY `'.$name.'`'.($this->table->OrderBy==' ORDER BY `'.$name.'`'?' DESC':'');
+            $this->table->OrderBy = ' ORDER BY `'.$name.'`'.(preg_match('/ORDER\sBY[\s\'"`]+'.$name.'[\s\'"`]*$/i',$this->table->OrderBy)?' DESC':'');
         $this->table->Sql = "";//preg_replace('/ORDER BY(.*)/i', $this->table->OrderBy, $this->table->Sql);
-        //$this->table->Sql = str_ireplace('ORDER BY ORDER BY',"ORDER BY", $this->table->Sql);
-
+        
         $this->table->Clear()->ResetPager();
         $this->table->header = false;
         
