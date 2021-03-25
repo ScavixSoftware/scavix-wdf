@@ -238,10 +238,12 @@ function cli_execute()
         $ref = new ReflectionMethod($task, $method);
         if( !$ref )
             \ScavixWDF\WdfException::Raise("Unreflectable class '$class'");
-        $ref = $ref->getDeclaringClass();
-        if( strcasecmp($method,'run')!=0 && strcasecmp($ref->getName(),$class)!=0 )
-            \ScavixWDF\WdfException::Raise("Invalid task method '$method' ".$ref->getName()."?=$class");
-
+        if( !$ref->isFinal() )
+        {
+            $ref = $ref->getDeclaringClass();
+            if( strcasecmp($method,'run')!=0 && strcasecmp($ref->getName(),$class)!=0 )
+                \ScavixWDF\WdfException::Raise("Invalid task method '$method' ".$ref->getName()."?=$class");
+        }
         foreach( $argv as $i=>$arg )
         {
             if( is_numeric($i) && strpos($arg,"=") )
