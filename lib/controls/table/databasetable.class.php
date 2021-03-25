@@ -160,10 +160,10 @@ class DatabaseTable extends Table implements ICallable
 	 */
 	final function GetData()
 	{
-        //log_debug(__METHOD__,$this->Sql,$this);
+//        log_debug(__METHOD__,$this->Sql,$this);
 		if( !$this->Sql )
 			$this->Sql = $this->GetSQL();
-        $this->Sql = str_ireplace('ORDER BY ORDER BY',"ORDER BY", $this->Sql);
+//        $this->Sql = str_ireplace('ORDER BY ORDER BY',"ORDER BY", $this->Sql);
         
 		$this->Clear();
 		$this->ExecuteSql($this->Sql);
@@ -215,12 +215,12 @@ class DatabaseTable extends Table implements ICallable
         $this->GroupBy = $this->GroupBy?$this->GroupBy:"";
         $this->OrderBy = $this->OrderBy?$this->OrderBy:"";
 
-        if( $this->Where && !preg_match('/^\s+WHERE\s+/',$this->Where) ) $this->Where = " WHERE ".$this->Where;
-        if( $this->Join && !preg_match('/^(LEFT|INNER|RIGHT|\s+)+JOIN\s+/',$this->Join) ) $this->Join = " LEFT JOIN ".$this->Join;
-        if( $this->GroupBy && !preg_match('/^\s+GROUP\sBY\s+/',$this->GroupBy) ) $this->GroupBy = " GROUP BY ".$this->GroupBy;
-        if( $this->Having && !preg_match('/^\s+HAVING\s+/',$this->Having) ) $this->Having = " HAVING ".$this->Having;
-        if( $this->OrderBy && !preg_match('/^\s+ORDER\sBY\s+/',$this->OrderBy) ) $this->OrderBy = " ORDER BY ".$this->OrderBy;
-        if( $this->Limit && !preg_match('/^\s+LIMIT\s+/',$this->Limit) ) $this->Limit = " LIMIT ".$this->Limit;
+        if( $this->Where && !preg_match('/^\s*WHERE\s+/',$this->Where) ) $this->Where = " WHERE ".$this->Where;
+        if( $this->Join && !preg_match('/^(LEFT|INNER|RIGHT|\s*)+JOIN\s+/',$this->Join) ) $this->Join = " LEFT JOIN ".$this->Join;
+        if( $this->GroupBy && !preg_match('/^\s*GROUP\sBY\s+/',$this->GroupBy) ) $this->GroupBy = " GROUP BY ".$this->GroupBy;
+        if( $this->Having && !preg_match('/^\s*HAVING\s+/',$this->Having) ) $this->Having = " HAVING ".$this->Having;
+        if( $this->OrderBy && !preg_match('/^\s*ORDER\sBY\s+/',$this->OrderBy) ) $this->OrderBy = " ORDER BY ".$this->OrderBy;
+        if( $this->Limit && !preg_match('/^\s*LIMIT\s+/',$this->Limit) ) $this->Limit = " LIMIT ".$this->Limit;
 
         if( $this->ItemsPerPage && !$this->HidePager )
             $sql = "SELECT SQL_CALC_FOUND_ROWS @fields@ FROM @table@@join@@where@@groupby@@having@@orderby@@limit@";
