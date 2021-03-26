@@ -283,6 +283,16 @@ class DataSource
             $r[] = $this->QuoteArgument($v);
         return "(`$field` IN(".implode(',',$r)."))";
     }
+    
+    function BuildNotInContraint($field, $values)
+    {
+        if( !is_array($values) || count($values)==0 )
+            return "(1=1)";
+        $r = [];
+        foreach( $values as $v )
+            $r[] = $this->QuoteArgument($v);
+        return "(`$field` NOT IN(".implode(',',$r)."))";
+    }
 
 	/**
 	 * Prepares a statement
