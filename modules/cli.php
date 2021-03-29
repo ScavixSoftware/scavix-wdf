@@ -60,6 +60,11 @@ function cli_init()
         logging_add_logger('cli',['class' => \ScavixWDF\CLI\CliLogger::class]);
         register_hook_function(HOOK_SYSTEM_DIE, function($args){ die("\n"); });
     }
+
+    create_class_alias(\ScavixWDF\Tasks\CheckTask::class,'checktask');
+    create_class_alias(\ScavixWDF\Tasks\ClearTask::class,'cleartask');
+    create_class_alias(\ScavixWDF\Tasks\CreateTask::class,'createtask');
+    create_class_alias(\ScavixWDF\Tasks\DbTask::class,'dbtask');
 }
 
 /**
@@ -233,10 +238,12 @@ function cli_execute()
         $ref = new ReflectionMethod($task, $method);
         if( !$ref )
             \ScavixWDF\WdfException::Raise("Unreflectable class '$class'");
-        $ref = $ref->getDeclaringClass();
-        if( strcasecmp($method,'run')!=0 && strcasecmp($ref->getName(),$class)!=0 )
-            \ScavixWDF\WdfException::Raise("Invalid task method '$method' ".$ref->getName()."?=$class");
-
+        if( !$ref->isFinal() )
+        {
+            $ref = $ref->getDeclaringClass();
+            if( strcasecmp($method,'run')!=0 && strcasecmp($ref->getName(),$class)!=0 )
+                \ScavixWDF\WdfException::Raise("Invalid task method '$method' ".$ref->getName()."?=$class");
+        }
         foreach( $argv as $i=>$arg )
         {
             if( is_numeric($i) && strpos($arg,"=") )

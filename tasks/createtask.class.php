@@ -29,11 +29,20 @@ namespace ScavixWDF\Tasks;
  */
 class CreateTask extends Task
 {
+    /**
+     * @ovderride <Task::Run>
+     */
     function Run($args)
     {
         log_warn("Syntax: create-app name=<appname> root=<folder>");
     }
 
+    /**
+     * Creates a application stub to start development.
+     *
+     * @param array $args commandline arguments
+     * @return void
+     */
     function App($args)
     {
         $name = ifavail($args,'name');
@@ -41,13 +50,15 @@ class CreateTask extends Task
         if( !$name || !$root )
             return $this->Run($args);
 
-        if( !file_exists($root) )
+        $rp_root = realpath($root);
+        if( !file_exists($rp_root) )
             return log_error("Root folder does not exist: '$root'");
-        if( !is_dir($root) )
+        if( !is_dir($rp_root) )
             return log_error("Root is not a folder: '$root'");
-        if( !is_writable($root) )
+        if( !is_writable($rp_root) )
             return log_error("Root folder is not writable: '$root'");
 
+        $root = $rp_root;
         $basename = ucwords($name)."Base";
 
         $docroot = "$root/docroot";
@@ -61,7 +72,13 @@ class CreateTask extends Task
                 return log_error("Cannot create folder: '$f'");
             $f = realpath($f);
         }
-        $sys = realpath(__DIR__."/../system.php");
+        if( count(glob("$docroot/*.*"))>0 )
+            return log_error("DocRoot is not empty, terminating");
+
+        $in_phar = (stripos(__DIR__,"phar://") !== false);
+        $sys = $in_phar
+            ?dirname(__DIR__)."/system.php"
+            :realpath(__DIR__."/../system.php");
 
         file_put_contents("$docroot/.htaccess","<IfModule mod_rewrite.c>
 	RewriteEngine On
@@ -72,7 +89,7 @@ class CreateTask extends Task
 
 	# redirect inexistant requests to index.php
 	SetEnv WDF_FEATURES_REWRITE on
-   RewriteCond %{REQUEST_FILENAME} .*\.less$ [NC,OR]
+    RewriteCond %{REQUEST_FILENAME} .*\.less$ [NC,OR]
 	RewriteCond %{REQUEST_FILENAME} !-f
 	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteCond %{REQUEST_URI} !index.php

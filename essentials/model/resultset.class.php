@@ -87,10 +87,16 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
         {
             if( stripos($sql,"?") !== false )
                 foreach( $arguments as $a )
-                    $sql = preg_replace('/\?/', (is_numeric($a) ? $a : "'".$ds->EscapeArgument($a)."'"), $sql, 1);
+                {
+                    $a = is_null($a)?"null":(is_numeric($a)?"$a":"'".$ds->EscapeArgument($a)."'");
+                    $sql = preg_replace('/\?/', $a, $sql, 1);
+                }
             else
                 foreach( $arguments as $n=>$a )
-                    $sql = str_replace("$n", (is_numeric($a) ? $a : "'".$ds->EscapeArgument($a)."'"), $sql);
+                {
+                    $a = is_null($a)?"null":(is_numeric($a)?"$a":"'".$ds->EscapeArgument($a)."'");
+                    $sql = str_replace("$n", $a, $sql);
+                }
         }
 		return $sql;
 	}

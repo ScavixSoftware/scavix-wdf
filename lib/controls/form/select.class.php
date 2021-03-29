@@ -66,17 +66,25 @@ class Select extends Control
 	}
 	
 	/**
-	 * Sets the current value.
+	 * Sets the value attribute.
 	 * 
-	 * @param mixed $value The current value
-	 * @return Select `$this`
+	 * @param string $value The value
+	 * @return Input `$this`
 	 */
-	function SetCurrentValue($value)
+	function setValue($value)
 	{
 		$this->_current = $value;
         if(count($this->_content) > 0)
             $this->_setval($this->_content, $value);
 		return $this;
+	}
+	
+	/**
+	 * @deprecated Use <Select::setValue> instead
+	 */
+	function SetCurrentValue($value)
+	{
+		return $this->setValue($value);
 	}
     
     /**

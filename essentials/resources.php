@@ -67,7 +67,7 @@ function resources_init()
 	);
 	$CONFIG['resources'][] = array
 	(
-		'ext' => 'css|png|jpg|jpeg|gif|htc|ico|less',
+		'ext' => 'css|png|jpg|jpeg|gif|svg|htc|ico|less',
 		'path' => realpath(__DIR__.'/../skin/'),
 		'url' => $CONFIG['resources_system_url_root'].'skin/',
 		'append_nc' => true,

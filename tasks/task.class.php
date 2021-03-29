@@ -135,4 +135,12 @@ abstract class Task
         //log_debug($res);
         return $res;
     }
+    
+    protected function getArg($args,...$aliases)
+    {
+        foreach( $aliases as $a )
+            if( isset($args[$a]) )
+                return $args[$a];
+        return null;
+    }
 }
