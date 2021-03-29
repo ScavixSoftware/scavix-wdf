@@ -179,3 +179,10 @@ function clear_less_cache()
     foreach( glob($tmpfolder."*.cache") as $c )
         @unlink($c);
 }
+
+function compile_less_code($less)
+{
+    require_once(__DIR__.'/resources/lessphp/lessc.inc.php');
+    $compiler = new \lessc();
+    return $compiler->compile($less,__FUNCTION__);
+}
