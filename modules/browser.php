@@ -109,7 +109,7 @@ function browserDetails()
 {
 	global $__BROWSERINFO__CACHE;
 
-	if( isset($__BROWSERINFO__CACHE) )
+	if( false && isset($__BROWSERINFO__CACHE) )
 		return $__BROWSERINFO__CACHE;
 
 	$agent = $_SERVER['HTTP_USER_AGENT'];
@@ -121,21 +121,21 @@ function browserDetails()
     $bd['agent']    = $agent;
 
     // find operating system
-    if (false !== stripos("win", $agent))
+    if (false !== stripos($agent,"win"))
         $bd['platform'] = "Windows";
-    elseif (false !== stripos("mac", $agent))
+    elseif (false !== stripos($agent, "mac"))
         $bd['platform'] = "MacIntosh";
-    elseif (false !== stripos("linux", $agent))
+    elseif (false !== stripos($agent, "linux" ))
         $bd['platform'] = "Linux";
-    elseif (false !== stripos("OS/2", $agent))
+    elseif (false !== stripos($agent, "OS/2"))
         $bd['platform'] = "OS/2";
-    elseif (false !== stripos("BeOS", $agent))
+    elseif (false !== stripos($agent, "BeOS"))
         $bd['platform'] = "BeOS";
 
     // test for Opera
-    if (false !== stripos("opera",$agent)){
+    if (false !== stripos($agent, "opera")){
         $val = stristr($agent, "opera");
-        if (false !== stripos("/", $val)){
+        if (false !== stripos($agent, "/")){
             $val = explode("/",$val);
             $bd['browser'] = $val[0];
             $val = explode(" ",$val[1]);
@@ -147,13 +147,13 @@ function browserDetails()
         }
 
     // test for WebTV
-    }elseif(false !== stripos("webtv",$agent)){
+    }elseif(false !== stripos($agent, "webtv")){
         $val = explode("/",stristr($agent,"webtv"));
         $bd['browser'] = $val[0];
         $bd['version'] = $val[1];
 
     // test for MS Internet Explorer version 1
-    }elseif(false !== stripos("microsoft internet explorer", $agent)){
+    }elseif(false !== stripos($agent, "microsoft internet explorer")){
         $bd['browser'] = "MSIE";
         $bd['version'] = "1.0";
         $var = stristr($agent, "/");
@@ -162,24 +162,24 @@ function browserDetails()
         }
 
     // test for NetPositive
-    }elseif(false !== stripos("NetPositive", $agent)){
+    }elseif(false !== stripos($agent, "NetPositive")){
         $val = explode("/",stristr($agent,"NetPositive"));
         $bd['platform'] = "BeOS";
         $bd['browser'] = $val[0];
         $bd['version'] = $val[1];
 
     // test for MS Internet Explorer
-    }elseif(false !== stripos("msie",$agent) && !false !== stripos("opera",$agent)){
+    }elseif(false !== stripos($agent, "msie") && !false !== stripos($agent, "opera")){
         $val = explode(" ",stristr($agent,"msie"));
         $bd['browser'] = $val[0];
         $bd['version'] = $val[1];
 
     // test for MS Pocket Internet Explorer
-    }elseif(false !== stripos("mspie",$agent) || false !== stripos('pocket', $agent)){
+    }elseif(false !== stripos($agent, "mspie") || false !== stripos($agent, 'pocket')){
         $val = explode(" ",stristr($agent,"mspie"));
         $bd['browser'] = "MSPIE";
         $bd['platform'] = "WindowsCE";
-        if (false !== stripos("mspie", $agent))
+        if (false !== stripos($agent, "mspie"))
             $bd['version'] = $val[1];
         else {
             $val = explode("/",$agent);
@@ -187,70 +187,70 @@ function browserDetails()
         }
 
     // test for Galeon
-    }elseif(false !== stripos("galeon",$agent)){
+    }elseif(false !== stripos($agent, "galeon")){
         $val = explode(" ",stristr($agent,"galeon"));
         $val = explode("/",$val[0]);
         $bd['browser'] = $val[0];
         $bd['version'] = $val[1];
 
     // test for Konqueror
-    }elseif(false !== stripos("Konqueror",$agent)){
+    }elseif(false !== stripos($agent, "Konqueror")){
         $val = explode(" ",stristr($agent,"Konqueror"));
         $val = explode("/",$val[0]);
         $bd['browser'] = $val[0];
         $bd['version'] = $val[1];
 
     // test for iCab
-    }elseif(false !== stripos("icab",$agent)){
+    }elseif(false !== stripos($agent, "icab")){
         $val = explode(" ",stristr($agent,"icab"));
         $bd['browser'] = $val[0];
         $bd['version'] = $val[1];
 
     // test for OmniWeb
-    }elseif(false !== stripos("omniweb",$agent)){
+    }elseif(false !== stripos($agent, "omniweb")){
         $val = explode("/",stristr($agent,"omniweb"));
         $bd['browser'] = $val[0];
         $bd['version'] = $val[1];
 
     // test for Phoenix
-    }elseif(false !== stripos("Phoenix", $agent)){
+    }elseif(false !== stripos($agent, "Phoenix")){
         $bd['browser'] = "Phoenix";
         $val = explode("/", stristr($agent,"Phoenix/"));
         $bd['version'] = $val[1];
 
     // test for Firebird
-    }elseif(false !== stripos("firebird", $agent)){
+    }elseif(false !== stripos($agent, "firebird")){
         $bd['browser']="Firebird";
         $val = stristr($agent, "Firebird");
         $val = explode("/",$val);
         $bd['version'] = $val[1];
 
     // test for Firefox
-    }elseif(false !== stripos("Firefox", $agent)){
+    }elseif(false !== stripos($agent, "Firefox")){
         $bd['browser']="Firefox";
         $val = stristr($agent, "Firefox");
         $val = explode("/",$val);
         $bd['version'] = $val[1];
 
   // test for Mozilla Alpha/Beta Versions
-    }elseif(false !== stripos("mozilla",$agent) &&
-        preg_match("/rv:[0-9].[0-9][a-b]/",$agent) && !false !== stripos("netscape",$agent)){
+    }elseif(false !== stripos($agent, "mozilla") &&
+        preg_match("/rv:[0-9].[0-9][a-b]/",$agent) && !false !== stripos($agent, "netscape")){
         $bd['browser'] = "Mozilla";
         $val = explode(" ",stristr($agent,"rv:"));
         preg_match("/rv:[0-9].[0-9][a-b]/",$agent,$val);
         $bd['version'] = str_replace("rv:","",$val[0]);
 
     // test for Mozilla Stable Versions
-    }elseif(false !== stripos("mozilla",$agent) &&
-        preg_match("/rv:[0-9]\.[0-9]/",$agent) && !false !== stripos("netscape",$agent)){
+    }elseif(false !== stripos($agent, "mozilla") &&
+        preg_match("/rv:[0-9]\.[0-9]/",$agent) && !false !== stripos($agent, "netscape")){
         $bd['browser'] = "Mozilla";
         $val = explode(" ",stristr($agent,"rv:"));
         preg_match("/rv:[0-9]\.[0-9]\.[0-9]/",$agent,$val);
         $bd['version'] = str_replace("rv:","",$val[0]);
 
     // test for Lynx & Amaya
-    }elseif(false !== stripos("libwww", $agent)){
-        if (false !== stripos("amaya", $agent)){
+    }elseif(false !== stripos($agent, "libwww")){
+        if (false !== stripos($agent, "amaya")){
             $val = explode("/",stristr($agent,"amaya"));
             $bd['browser'] = "Amaya";
             $val = explode(" ", $val[1]);
@@ -262,17 +262,17 @@ function browserDetails()
         }
 
     // test for Safari
-    }elseif(false !== stripos("safari", $agent)){
+    }elseif(false !== stripos($agent, "safari")){
         $bd['browser'] = "Safari";
         $bd['version'] = "";
 
     // remaining two tests are for Netscape
-    }elseif(false !== stripos("netscape",$agent)){
+    }elseif(false !== stripos($agent, "netscape")){
         $val = explode(" ",stristr($agent,"netscape"));
         $val = explode("/",$val[0]);
         $bd['browser'] = $val[0];
         $bd['version'] = $val[1];
-    }elseif(false !== stripos("mozilla",$agent) && !preg_match("/rv:[0-9]\.[0-9]\.[0-9]/",$agent)){
+    }elseif(false !== stripos($agent, "mozilla") && !preg_match("/rv:[0-9]\.[0-9]\.[0-9]/",$agent)){
         $val = explode(" ",stristr($agent,"mozilla"));
         $val = explode("/",$val[0]);
         $bd['browser'] = "Netscape";
@@ -285,7 +285,7 @@ function browserDetails()
     $bd['version'] = preg_replace("/[^0-9,.,a-z,A-Z]/", "", $bd['version']);
 
     // check for AOL
-    if (false !== stripos("AOL", $agent)){
+    if (false !== stripos($agent, "AOL")){
         $var = stristr($agent, "AOL");
         $var = explode(" ", $var);
         $bd['aol'] = ereg_replace("[^0-9,.,a-z,A-Z]", "", $var[1]);
@@ -294,5 +294,6 @@ function browserDetails()
 	$bd['browser_id'] = strtoupper($bd['browser']);
 	$bd['major_version'] = intval($bd['version']);
 	$__BROWSERINFO__CACHE = $bd;
+    log_debug(__FUNCTION__,$bd);
     return $bd;
 }
