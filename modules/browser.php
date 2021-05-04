@@ -294,6 +294,5 @@ function browserDetails()
 	$bd['browser_id'] = strtoupper($bd['browser']);
 	$bd['major_version'] = intval($bd['version']);
 	$__BROWSERINFO__CACHE = $bd;
-    log_debug(__FUNCTION__,$bd);
     return $bd;
 }
