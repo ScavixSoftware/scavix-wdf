@@ -160,6 +160,8 @@ function global_error_handler($errno, $errstr, $errfile, $errline)
 
 	// Use error_reporting() to check if @ operator is in use.
 	// This works as we set error_reporting(E_ALL|E_STRICT) in logging_init().
+    // Note: According to the PHP 8.0 migration guide, @ will not zero fatal errors anymore, but workaround is implemented below
+    //       https://www.php.net/manual/de/migration80.incompatible.php
 	if ( error_reporting() == 0 )
         return;
 	
@@ -167,8 +169,9 @@ function global_error_handler($errno, $errstr, $errfile, $errline)
 	if ( ($errno & error_reporting()) == 0 || $errno == E_STRICT )
         return;
 	
-    if( strpos($errstr, 'Declaration of') === 0 && strpos($errstr,'should be compatible with') !== false )
-        return true;
+    // PHP 8.0 will throw Exceptions on LSP violations, so log and hunt them
+//    if( strpos($errstr, 'Declaration of') === 0 && strpos($errstr,'should be compatible with') !== false )
+//        return true;
     
     $sev = 'NOTICE';
 	foreach( $error_names as $n )

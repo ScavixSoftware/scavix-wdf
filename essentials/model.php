@@ -315,6 +315,7 @@ function model_run_script($file,$datasource=false,$verbose=false)
 
     $sql = preg_replace("/^(#|--).*$/m", "", $sql);
 
+	WdfDbException::$DISABLE_LOGGING = true;
     foreach( preg_split('/;[\r\n]+/', $sql) as $statement )
     {
         $statement = trim($statement);

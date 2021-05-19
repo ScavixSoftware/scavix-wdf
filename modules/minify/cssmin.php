@@ -2217,6 +2217,8 @@ class CssMin
 	 */
 	public static function initialise()
 		{
+        /* SCAVIX: NO NEED FOR AUTOLOADING AS THIS IS A ONE-FILE SYSTEM
+         * 
 		// Create the class index for autoloading or including
 		$paths = array(dirname(__FILE__));
 		while (list($i, $path) = each($paths))
@@ -2257,6 +2259,7 @@ class CssMin
 					}
 				}
 			}
+         */
 		}
 	/**
 	 * Minifies CSS source.

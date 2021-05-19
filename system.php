@@ -1565,7 +1565,7 @@ function name_from_constant($class_name,$constant_value,$prefix=false)
 function system_to_json($value)
 {
 	$res = json_encode($value);
-    if(defined('PHP_VERSION_ID') && PHP_VERSION_ID > 50300)
+    if( defined('PHP_VERSION_ID') && PHP_VERSION_ID > 50300 )
     {
         $res = preg_replace_callback('/\"\[jscode\](.*)\"([,\]\}])/U',
             function($m)
