@@ -37,9 +37,9 @@ class gvAreaChart extends GoogleVisualization
 	/**
 	 * @override
 	 */
-	function __initialize($options=array(),$query=false,$ds=false)
+	function __construct($options=array(),$query=false,$ds=false)
 	{
-		parent::__initialize('AreaChart',$options,$query,$ds);
+		parent::__construct('AreaChart',$options,$query,$ds);
 		$this->_loadPackage('corechart');
 	}
 }

@@ -86,9 +86,9 @@ class LeafLet extends Control
             ],
     ];
     
-	function __initialize()
+	function __construct()
 	{
-		parent::__initialize("div");
+		parent::__construct("div");
 	}
     
     /**

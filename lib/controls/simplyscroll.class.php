@@ -47,9 +47,9 @@ class SimplyScroll extends Control
 	/**
 	 * @param type $options SimplyScroll options (see http://logicbox.net/jquery/simplyscroll)
 	 */
-	function __initialize($options=array())
+	function __construct($options=array())
 	{
-		parent::__initialize("ul");
+		parent::__construct("ul");
 		if( !isset($options['autoMode']) ) $options['autoMode'] = 'loop';
 
 		$this->Options = $options;

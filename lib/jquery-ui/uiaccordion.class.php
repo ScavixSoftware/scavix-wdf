@@ -41,9 +41,9 @@ class uiAccordion extends uiControl
 	/**
 	 * @param array $options See http://api.jqueryui.com/accordion/
 	 */
-    function __initialize($options = array())
+    function __construct($options = array())
 	{
-		parent::__initialize("div");
+		parent::__construct("div");
 		$this->Options = array_merge(array
 			(
 				"animate" => false,

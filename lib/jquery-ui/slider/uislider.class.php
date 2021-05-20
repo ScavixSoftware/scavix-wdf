@@ -36,9 +36,9 @@ use ScavixWDF\JQueryUI\uiControl;
  */
 class uiSlider extends uiControl
 {
-	function __initialize()
+	function __construct()
 	{
-		parent::__initialize("div");
+		parent::__construct("div");
 		$this->opt('min', 1)->opt('max', 100)->opt('value', 1);
 	}
 

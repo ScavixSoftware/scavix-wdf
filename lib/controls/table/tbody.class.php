@@ -57,9 +57,9 @@ class TBody extends Control
 	 * @param string $class Classname
 	 * @param Table $parent_table The parent table this belongs to
 	 */
-	function __initialize($options,$class="tbody",&$parent_table=false)
+	function __construct($options,$class="tbody",&$parent_table=false)
 	{
-		parent::__initialize("div");
+		parent::__construct("div");
 		$this->class = $class;
         $this->options = $options;
 		$this->table = $parent_table;

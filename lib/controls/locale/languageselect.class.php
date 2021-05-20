@@ -44,9 +44,9 @@ class LanguageSelect extends Select
 	/**
 	 * @param mixed $current_language_code Currently selected language
 	 */
-	function __initialize($current_language_code=false)
+	function __construct($current_language_code=false)
 	{
-		parent::__initialize();
+		parent::__construct();
 		$this->script("Locale_Settings_Init();");
 		$this->setData('role', 'language');
 		

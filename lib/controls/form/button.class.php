@@ -46,9 +46,9 @@ class Button extends Input
 	 * @param string $event Event for click redirect
 	 * @param mixed $data Data for click redirect
 	 */
-	function __initialize( $label, $controller="", $event="", $data="")
+	function __construct( $label, $controller="", $event="", $data="")
 	{
-		parent::__initialize();
+		parent::__construct();
 		$this->setType("button");
         $this->Tag = 'button';
         $this->content($label);

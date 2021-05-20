@@ -111,6 +111,11 @@ class RequestLogEntry extends Model
             }
             catch(Exception $ex)
             {
+				if( preg_match("/Table '.*wdf_requests' doesn't exist/i", $ex->getMessage(), $dummy) !== false )
+				{
+					$this->CreateTable();
+					continue;
+				}else log_debug("MSG: ",$ex->getMessage());
                 if( preg_match("/Duplicate entry '.*' for key 'id'/i", $ex->getMessage(), $dummy) === false )
                     throw $ex;
             }

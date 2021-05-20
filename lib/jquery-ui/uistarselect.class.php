@@ -58,9 +58,9 @@ class uiStarSelect extends uiControl
 	/**
 	 * @param array $options See http://plugins.jquery.com/project/Star_Rating_widget
 	 */
-    function __initialize( $options=array() )
+    function __construct( $options=array() )
 	{
-		parent::__initialize("div");
+		parent::__construct("div");
 		
 		$this->Options = force_array($options);
 		$this->Options['inputType'] = 'select';

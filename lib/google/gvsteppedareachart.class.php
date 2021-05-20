@@ -37,9 +37,9 @@ class gvSteppedAreaChart extends GoogleVisualization
 	/**
 	 * @override
 	 */
-	function __initialize($options=array(),$query=false,$ds=false)
+	function __construct($options=array(),$query=false,$ds=false)
 	{
-		parent::__initialize('SteppedAreaChart',$options,$query,$ds);
+		parent::__construct('SteppedAreaChart',$options,$query,$ds);
 		$this->_loadPackage('corechart');
 	}
 }

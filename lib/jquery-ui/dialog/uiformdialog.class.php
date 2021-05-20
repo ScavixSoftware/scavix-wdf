@@ -37,7 +37,7 @@ class uiFormDialog extends uiDialog
 {
     var $form;
     
-	function __initialize($title,$width = 450, $height = 300)
+	function __construct($title,$width = 450, $height = 300)
     {
         $options = [
             'width' => $width,
@@ -46,7 +46,7 @@ class uiFormDialog extends uiDialog
             'show' => ['effect' => 'fade', 'duration' => 300], 
             'hide' => ['effect' => 'fade', 'duration' => 300]
         ];
-        parent::__initialize($title, $options);
+        parent::__construct($title, $options);
         $this->form = $this->content(\ScavixWDF\Controls\Form\Form::Make());
         $this->AddButton("BTN_OK", "$(this).closest('.ui-dialog').find('form').submit({$this->CloseButtonAction}).submit();");
         $this->AddButton("BTN_CANCEL",$this->CloseButtonAction);

@@ -40,9 +40,9 @@ class uiTimeInput extends uiControl
 	 * @param int $defvalue Initial value (seconds)
 	 * @param string $onchange onChange JS code
 	 */
-	function __initialize($defvalue=0, $onchange = "", $name=false)
+	function __construct($defvalue=0, $onchange = "", $name=false)
 	{
-		parent::__initialize("div");
+		parent::__construct("div");
 		$this->InitFunctionName = false;
 
 		$defvalue = intval($defvalue);

@@ -39,9 +39,9 @@ class SubmitButton extends Input
 	/**
 	 * @param string $label A text as label
 	 */
-	function __initialize( $label=false )
+	function __construct( $label=false )
 	{
-		parent::__initialize("input");
+		parent::__construct("input");
 		$this->setType("submit")->setValue($label);
 	}
 }

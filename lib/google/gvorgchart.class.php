@@ -37,9 +37,9 @@ class gvOrgChart extends GoogleVisualization
 	/**
 	 * @override
 	 */
-	function __initialize($options=array(),$query=false,$ds=false)
+	function __construct($options=array(),$query=false,$ds=false)
 	{
-		parent::__initialize('OrgChart',$options,$query,$ds);
+		parent::__construct('OrgChart',$options,$query,$ds);
 		$this->_loadPackage('orgchart');
 	}
 }

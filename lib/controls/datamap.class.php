@@ -38,9 +38,9 @@ class Datamap extends Control
     protected $map_title, $canvas, $colorRange;
     protected $config = [];
     
-	function __initialize($title="",$height=600)
+	function __construct($title="",$height=600)
 	{
-        parent::__initialize('div');
+        parent::__construct('div');
         $this->class = 'wdf-datamap';
         $this->map_title = Control::Make('div')->append($title)->addClass('caption')->appendTo($this);
         $this->canvas = Control::Make('div')

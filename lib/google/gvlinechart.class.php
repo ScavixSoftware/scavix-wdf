@@ -37,9 +37,9 @@ class gvLineChart extends GoogleVisualization
 	/**
 	 * @override
 	 */
-	function __initialize($options=array(),$query=false,$ds=false)
+	function __construct($options=array(),$query=false,$ds=false)
 	{
-		parent::__initialize('LineChart',$options,$query,$ds);
+		parent::__construct('LineChart',$options,$query,$ds);
 		$this->_loadPackage('corechart');
 	}
 }

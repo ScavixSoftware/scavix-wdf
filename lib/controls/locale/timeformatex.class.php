@@ -53,9 +53,9 @@ class TimeFormatEx extends Control
 	 * @param string $timezone Currently chosen timezone
 	 * @param bool $append_timezone If true timezome will be appended
 	 */
-	function __initialize($culture_code, $date_format, $time_format, $timezone=false, $append_timezone=false)
+	function __construct($culture_code, $date_format, $time_format, $timezone=false, $append_timezone=false)
 	{
-		parent::__initialize();
+		parent::__construct();
 		$this->script("Locale_Settings_Init();");
 		store_object($this);
 		

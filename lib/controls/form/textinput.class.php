@@ -41,9 +41,9 @@ class TextInput extends Input
 	 * @param string $name An optional name
 	 * @param string $class An optional CSS class
 	 */
-    function __initialize($value=false,$name=false,$class=false)
+    function __construct($value=false,$name=false,$class=false)
 	{
-		parent::__initialize();
+		parent::__construct();
 		$this->setType("text")->setValue($value)->setName($name);
 		if( $class )
 			$this->class = $class;

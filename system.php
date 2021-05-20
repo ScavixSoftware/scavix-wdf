@@ -514,7 +514,7 @@ function system_invoke_request($target_class,$target_event,$pre_execute_hook_typ
     }
 
 	execute_hooks($pre_execute_hook_type,array($target_class,$target_event,$args));
-	return call_user_func_array(array(&$target_class,$target_event), $args);
+	return call_user_func_array(array(&$target_class,$target_event), array_values($args));
 }
 
 /**

@@ -279,15 +279,15 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 				self::$DefaultDatasource = model_datasource(array_pop($aliases));
 			}
 			if( self::$DefaultDatasource )
-				$this->__initialize(self::$DefaultDatasource);
+				$this->__constructed(self::$DefaultDatasource);
 			else
-				$this->__initialize();
+				$this->__constructed();
 		}
 		else
-			$this->__initialize($datasource);
+			$this->__constructed($datasource);
 	}
 	
-	function __initialize($datasource=null)
+	function __constructed($datasource=null)
 	{
 		if( $datasource && !($datasource instanceof DataSource) )
 			WdfDbException::Raise("Invalid argument. Object of type DataSource expected",$datasource);
@@ -464,6 +464,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		
 		if( !isset(self::$_schemaCache[$this->_cacheKey]) )
 		{
+			$dbex = false;
             $tab = $this->GetTableName();
             try
             {
@@ -471,7 +472,9 @@ abstract class Model implements Iterator, Countable, ArrayAccess
                     = $this->_tableSchema 
                     = $this->_ds->Driver->getTableSchema($tab);
             }
-            catch(\ScavixWDF\WdfDbException $dbex)
+            catch(\PDOException $dbex){}
+            catch(\ScavixWDF\WdfDbException $dbex){}
+			if( $dbex )
             {
                 if( !$this->_ds->Driver->tableExists($tab) )
                 {

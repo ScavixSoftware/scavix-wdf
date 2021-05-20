@@ -48,9 +48,9 @@ class Tr extends Control
 	/**
 	 * @param array $options Currently none
 	 */
-	function __initialize($options=false)
+	function __construct($options=false)
 	{
-		parent::__initialize("div");
+		parent::__construct("div");
 		$this->class = "tr";
         $this->options = $options;
 
@@ -83,7 +83,7 @@ class Tr extends Control
 	 * Creates a new cell.
 	 * 
 	 * @param mixed $content Contents for it
-	 * @param array $options See <Td::__initialize> for options
+	 * @param array $options See <Td::__construct> for options
 	 * @return Td The created cell
 	 */
     function &NewCell($content=false,$options=false)

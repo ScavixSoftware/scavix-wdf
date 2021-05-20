@@ -90,38 +90,28 @@ class Template extends Renderable
 	}
 	
 	/**
-	 * The one and only constructor for all subclasses.
-	 * 
-	 * These must not implement a constructor but the __initialize method.
+	 * Constructs a Template
 	 */
-	function __construct()
+	function __construct($file = "")
 	{
-		if( !hook_already_fired(HOOK_PRE_RENDER) )
+		$this->__constructed();
+		
+		$this->file = $file;
+        create_storage_id($this);
+        $this->set('id',$this->_storage_id);
+	}
+    
+    function __constructed()
+    {
+        if( !hook_already_fired(HOOK_PRE_RENDER) )
 			register_hook(HOOK_PRE_RENDER,$this,"PreRender");
 		elseif( !hook_already_fired(HOOK_POST_EXECUTE) )
 			register_hook(HOOK_POST_EXECUTE,$this,"PreRender");
-		
-		if( !unserializer_active() )
-		{
-			$args = func_get_args();
-			system_call_user_func_array_byref($this, '__initialize' ,$args);
-		}
-	}
+    }
 
-	/**
-	 * Override this method instead of writing a constructor.
-	 * 
-	 * @param string $file Template file for this class. Usually '' (empty string)
-	 */
 	function __initialize($file = "")
 	{
-		$this->file = $file;
-
-		if( !unserializer_active() )
-		{
-			create_storage_id($this);
-			$this->set('id',$this->_storage_id);
-		}
+		WdfException::Raise(get_class($this)," calling obsolete __initialize, please implement constructor!");
 	}
 	
 	/**

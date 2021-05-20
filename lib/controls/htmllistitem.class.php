@@ -41,9 +41,9 @@ class HtmlListItem extends Control
 	 * @param mixed $content Some content to add
 	 * @param string $id an optional id
 	 */
-	function __initialize($content,$id = "")
+	function __construct($content,$id = "")
 	{
-		parent::__initialize("li");
+		parent::__construct("li");
 		if(!empty($id))
 			$this->id = $id;
 		

@@ -41,9 +41,9 @@ class ImageButton extends Control
 	 * @param string $label A label text
 	 * @param string $src Source for the image
 	 */
-    function __initialize($label,$src)
+    function __construct($label,$src)
 	{
-		parent::__initialize("button");
+		parent::__construct("button");
 		$img = new Image($src,$label);
 		$this->content($img);
 		$this->CloseTagNeeded();

@@ -37,9 +37,9 @@ class gvGeoChart extends GoogleVisualization
 	/**
 	 * @override
 	 */
-	function __initialize($options=array(),$query=false,$ds=false)
+	function __construct($options=array(),$query=false,$ds=false)
 	{
-		parent::__initialize('GeoChart',$options,$query,$ds);
+		parent::__construct('GeoChart',$options,$query,$ds);
 		$this->_loadPackage('geochart');
 	}
 	

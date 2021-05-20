@@ -37,9 +37,9 @@ class gvWordTree extends GoogleVisualization
 	/**
 	 * @override
 	 */
-	function __initialize($options=array(),$query=false,$ds=false)
+	function __construct($options=array(),$query=false,$ds=false)
 	{
-		parent::__initialize('WordTree',$options,$query,$ds);
+		parent::__construct('WordTree',$options,$query,$ds);
 		$this->_loadPackage('wordtree');
 	}
 }

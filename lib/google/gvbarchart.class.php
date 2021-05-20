@@ -37,16 +37,16 @@ class gvBarChart extends GoogleVisualization
 	/**
 	 * @override
 	 */
-	function __initialize($options=array(),$query=false,$ds=false)
+	function __construct($options=array(),$query=false,$ds=false)
 	{
 		if( GoogleVisualization::$UseMaterialDesign )
 		{
-			parent::__initialize('Bar',$options,$query,$ds);
+			parent::__construct('Bar',$options,$query,$ds);
 			$this->_loadPackage('bar');
 		}
 		else
 		{
-			parent::__initialize('BarChart',$options,$query,$ds);
+			parent::__construct('BarChart',$options,$query,$ds);
 			$this->_loadPackage('corechart');
 		}
 	}

@@ -41,9 +41,9 @@ class uiPercentageInput extends uiControl
 	 * @param string $onchange onChange JS code
 	 * @param string $decimal_point Deciaml separator char
 	 */
-	function __initialize($defvalue=0, $onchange="",$decimal_point=',')
+	function __construct($defvalue=0, $onchange="",$decimal_point=',')
 	{
-		parent::__initialize("div");
+		parent::__construct("div");
 		$this->InitFunctionName = false;
 
 		$defvalue = floatval(str_replace(",",".",$defvalue));

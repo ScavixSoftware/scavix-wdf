@@ -52,9 +52,9 @@ class TranslationAdmin extends TranslationAdminBase
 {
 	var $ds;
 	
-	function __initialize($title = "", $body_class = false)
+	function __construct($title = "", $body_class = false)
     {
-        parent::__initialize($title, $body_class);
+        parent::__construct($title, $body_class);
         if( isset($GLOBALS['CONFIG']['translation']['sync']['scavix_datasource']) && $GLOBALS['CONFIG']['translation']['sync']['scavix_datasource'] )
 			$this->ds = model_datasource($GLOBALS['CONFIG']['translation']['sync']['scavix_datasource']);
 		elseif( isset($GLOBALS['CONFIG']['translation']['sync']['datasource']) && $GLOBALS['CONFIG']['translation']['sync']['datasource'] )

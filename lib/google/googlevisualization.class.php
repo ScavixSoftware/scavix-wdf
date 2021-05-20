@@ -79,9 +79,9 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	 * @param string $query A valid google query string. See [queryobjects](https://developers.google.com/chart/interactive/docs/reference#queryobjects)
 	 * @param DataSource $ds DataSource to use, will fall back to GoogleVisualization::$DefaultDatasource or (if that is not set) to <model_datasource>('internal')
 	 */
-	function __initialize($type=false,$options=array(),$query=false,$ds=false)
+	function __construct($type=false,$options=array(),$query=false,$ds=false)
 	{
-		parent::__initialize();
+		parent::__construct();
 		$this->addClass('google_vis');
 		
 		$this->_ds = $ds?$ds:(self::$DefaultDatasource?self::$DefaultDatasource:DataSource::Get());

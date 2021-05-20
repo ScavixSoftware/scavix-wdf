@@ -50,9 +50,9 @@ class ContextMenu extends Control
         'itemHoverStyle'=>"border: '1px solid #0a246a', backgroundColor: '#b6bdd2'"
     );
 	
-    function __initialize()
+    function __construct()
 	{
-		parent::__initialize("div");
+		parent::__construct("div");
 	}
 
 	/**

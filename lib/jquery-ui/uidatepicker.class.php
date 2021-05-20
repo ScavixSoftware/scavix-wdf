@@ -57,9 +57,9 @@ class uiDatePicker extends uiControl
 	 * @param mixed $value The default value
 	 * @param bool $inline If true will be displayed inline
 	 */
-	function __initialize($value = false, $inline = false)
+	function __construct($value = false, $inline = false)
 	{		
-		parent::__initialize($inline?"div":"input");
+		parent::__construct($inline?"div":"input");
 		$this->Options = array(
 			'nextText' => 'BTN_DP_NEXT',
 			'prevText' => 'BTN_DP_PREV',

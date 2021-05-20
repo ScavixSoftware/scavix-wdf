@@ -48,9 +48,9 @@ class uiDialog extends uiControl
 	 * @param string $title The dialogs title
 	 * @param array $options See http://api.jqueryui.com/dialog/
 	 */
-	function __initialize($title="TITLE_DIALOG", $options=array())
+	function __construct($title="TITLE_DIALOG", $options=array())
 	{
-		parent::__initialize("div");
+		parent::__construct("div");
 		$this->title = $title;
 		$tit_script = $this->title?"":"$(this).parent().find('.ui-dialog-titlebar').hide();";
 

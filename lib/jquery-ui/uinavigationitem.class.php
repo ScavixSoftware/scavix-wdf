@@ -35,9 +35,9 @@ use ScavixWDF\Controls\Anchor;
  */
 class uiNavigationItem extends Control
 {
-	function __initialize($is_sub_item=false)
+	function __construct($is_sub_item=false)
 	{
-		parent::__initialize("li");
+		parent::__construct("li");
 	}
 
 	function &AddItem($label, $href=false)

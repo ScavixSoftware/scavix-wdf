@@ -127,9 +127,9 @@ class uiControl extends Control
 	protected $Options = array();
 	var $InitFunctionName;
 	
-	function __initialize($tag = "")
+	function __construct($tag = "")
 	{
-		parent::__initialize($tag);
+		parent::__construct($tag);
 		$this->InitFunctionName = strtolower(preg_replace('/^ui/', '', get_class_simple($this)));
 	}
 	

@@ -40,9 +40,9 @@ class uiCurrencyInput extends uiControl
 	 * @param float $defvalue Initial value
 	 * @param string $onchange onChange JS code
 	 */
-	function __initialize($defvalue=0, $onchange="")
+	function __construct($defvalue=0, $onchange="")
 	{
-		parent::__initialize("div");
+		parent::__construct("div");
 		$this->InitFunctionName = false;
 
 		$defvalue = floatval(str_replace(",",".",$defvalue));

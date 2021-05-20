@@ -48,9 +48,9 @@ class Anchor extends Control
 	 * @param string $target The target attribute
 	 * @return void
 	 */
-	function __initialize($href="", $label="", $class="",$target="")
+	function __construct($href="", $label="", $class="",$target="")
 	{
-		parent::__initialize("a");
+		parent::__construct("a");
 		$href = str_replace("&","&amp;",$href);
 		$this->href = $href;
 		if($target != "")

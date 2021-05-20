@@ -34,9 +34,9 @@ use ScavixWDF\Base\Control;
  */
 class CanvasGauge extends Control
 {
-	function __initialize()
+	function __construct()
 	{
-		parent::__initialize('canvas');
+		parent::__construct('canvas');
         $this->setData('type','radial-gauge')
             ->opt('value-int',0)
             ->opt('value-dec',0)

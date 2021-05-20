@@ -42,9 +42,9 @@ class Label extends Control
 	 * @param string $name The actual text
 	 * @param mixed $for Can be <Control> or string holding an id
 	 */
-    function __initialize($name,$for = "")
+    function __construct($name,$for = "")
 	{
-		parent::__initialize("label");
+		parent::__construct("label");
 		$this->content($name);
 		$this->for = ($for instanceof Control)?$for->id:$for;
 	}

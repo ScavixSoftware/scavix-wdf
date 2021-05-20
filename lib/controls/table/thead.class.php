@@ -37,10 +37,10 @@ namespace ScavixWDF\Controls\Table;
 class THead extends TBody
 {
 	/**
-	 * @param array $options See <TBody::__initialize>
+	 * @param array $options See <TBody::__construct>
 	 */
-	function __initialize($options=false)
+	function __construct($options=false)
 	{
-		parent::__initialize($options,"thead");
+		parent::__construct($options,"thead");
 	}
 }

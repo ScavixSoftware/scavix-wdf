@@ -82,9 +82,9 @@ class DatabaseTable extends Table implements ICallable
 	 * @param string $datatype Datatype to be rendered
 	 * @param string $datatable Data tyble to be rendered
 	 */
-	function __initialize($datasource,$datatype=false,$datatable=false)
+	function __construct($datasource,$datatype=false,$datatable=false)
 	{
-		parent::__initialize();
+		parent::__construct();
 		$this->DataSource = $datasource;
 		
 		if( $datatype )
@@ -633,14 +633,6 @@ class DatabaseTable extends Table implements ICallable
 		header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
 		header("Cache-Control: private",false);
 		die($csv);
-	}
-	
-	/**
-	 * @override <Table::AddPager> and hides $total_items argument
-	 */
-	function AddPager($items_per_page = 15, $current_page=false, $max_pages_to_show=10)
-	{
-		return parent::AddPager(0,$items_per_page,$current_page,$max_pages_to_show);
 	}
 	
 	protected function RenderPager()

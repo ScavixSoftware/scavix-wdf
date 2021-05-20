@@ -40,9 +40,9 @@ class HiddenInput extends Input
 	 * @param string $value The value
 	 * @param string $name The name
 	 */
-    function __initialize($value=false,$name=false)
+    function __construct($value=false,$name=false)
 	{
-		parent::__initialize();
+		parent::__construct();
 		$this->setType("hidden")->setValue($value)->setName($name);
 	}
 }

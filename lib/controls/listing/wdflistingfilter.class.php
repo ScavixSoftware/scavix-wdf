@@ -35,9 +35,9 @@ class WdfListingFilter extends Template
     var $sql_builders = [];
     var $listings = [];
 
-    function __initialize($controller,$method='',$object=false)
+    function __construct($controller,$method='',$object=false)
     {
-        parent::__initialize();
+        parent::__construct();
 
         $this->prefix = "lstfilter_{$controller}{$method}";
         if( $object )

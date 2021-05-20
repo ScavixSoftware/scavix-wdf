@@ -44,9 +44,9 @@ class CurrencyFormatSelect extends Select
 	 * @param string $currency_code A valid currency code
 	 * @param mixed $selected_format The currently selected format
 	 */
-	function __initialize($currency_code, $selected_format=false)
+	function __construct($currency_code, $selected_format=false)
 	{
-		parent::__initialize();
+		parent::__construct();
 		$this->script("Locale_Settings_Init();");
 		$this->setData('role', 'currenyformat');
 		$this->setData('controller', buildQuery($this->id));

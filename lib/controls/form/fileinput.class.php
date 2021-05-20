@@ -39,9 +39,9 @@ class FileInput extends Input
 	/**
 	 * @param string $name The name
 	 */
-    function __initialize($name=false)
+    function __construct($name=false)
 	{
-		parent::__initialize();
+		parent::__construct();
 		$this->setType("file")->setName($name);
 	}
 }

@@ -90,12 +90,12 @@ class HtmlPage extends Template implements ICallable
 	 * @param string $title Page title
 	 * @param string $body_class Optional value for the class attribute of the &lt;body&gt; element
 	 */
-	function __initialize($title="", $body_class=false)
+	function __construct($title="", $body_class=false)
 	{
 		// this makes HtmlPage.tpl.php the 'one and only' template
 		// for all derivered classes, unless they override it after
-		// parent::__initialize with $this->file = X
-		parent::__initialize(WDF_HTMLPAGE_TEMPLATE);
+		// parent::__construct with $this->file = X
+		parent::__construct(WDF_HTMLPAGE_TEMPLATE);
 
 		$this->set("title",$title);
 		$this->set("meta",$this->meta);

@@ -120,10 +120,10 @@ class ChartJS extends Control
      */
     public static function StackedBar($title='',$height=false) { return ChartJS::Make($title,'bar',$height)->setStacked(); }
     
-	function __initialize($title='',$type='line',$height=false)
+	function __construct($title='',$type='line',$height=false)
 	{
         self::$currentInstance = $this;
-		parent::__initialize('div');
+		parent::__construct('div');
 
         $this->chart_title = $this->content(Control::Make('div')->append($title))->addClass('caption');
         $this->canvas = Control::Make('canvas');

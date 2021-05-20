@@ -44,9 +44,9 @@ class uiTableLayoutDialog extends uiDialog
 	 * @param string $title Dialog title
 	 * @param array $options Options as in <uiDialog>
 	 */
-	function __initialize($title="TITLE_DIALOG", $options=array())
+	function __construct($title="TITLE_DIALOG", $options=array())
 	{
-		parent::__initialize($title,$options);
+		parent::__construct($title,$options);
 		$this->_table = $this->content( new Table() );
 	}
 	

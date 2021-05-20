@@ -42,9 +42,9 @@ class TranslationAdmin extends TranslationAdminBase
 {
 	var $Lasterror = "";
 	
-    function __initialize($title = "", $body_class = false)
+    function __construct($title = "", $body_class = false)
     {
-        parent::__initialize($title, $body_class);
+        parent::__construct($title, $body_class);
         if( !isset($GLOBALS['CONFIG']['translation']['sync']['poeditor_api_key']) || !$GLOBALS['CONFIG']['translation']['sync']['poeditor_api_key'] )
             WdfException::Raise("POEditor API key missing!");
         if( !isset($GLOBALS['CONFIG']['translation']['sync']['poeditor_project_id']) || !$GLOBALS['CONFIG']['translation']['sync']['poeditor_project_id'] )

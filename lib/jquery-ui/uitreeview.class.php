@@ -48,9 +48,9 @@ class uiTreeView extends uiControl
 	 * @param string $url Optional URL to load data from
 	 * @param string $nodeSelected JS callback function to call when a node has been selected
 	 */
-    function __initialize($url=false,$nodeSelected=false)
+    function __construct($url=false,$nodeSelected=false)
 	{
-		parent::__initialize("");
+		parent::__construct("");
 		$this->Url = $url;
 		$this->NodeSelected = $nodeSelected;
 	}
@@ -104,9 +104,9 @@ class uiTreeNode extends Control
 	 * No need to call this manually, use <uiTreeView::AddRootNode>() instead.
 	 * @param string $text Node label text
 	 */
-	function __initialize($text)
+	function __construct($text)
 	{
-		parent::__initialize("li");
+		parent::__construct("li");
 		$this->class = "ui-treeview-node";
 		$this->content($text);
 	}

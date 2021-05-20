@@ -41,9 +41,9 @@ class Input extends Control
 {
 	var $Label = false;
 	
-	function __initialize()
+	function __construct()
 	{
-		parent::__initialize("input");
+		parent::__construct("input");
 	}
 	
 	/**

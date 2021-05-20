@@ -419,7 +419,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 			$cnt = count($this->_rowbuffer);
 			for( $i=0; $i<$cnt; $i++ )
 			{
-				$this->_rowbuffer[$i]->__initialize($this->_ds);
+				$this->_rowbuffer[$i]->__constructed($this->_ds);
 				$this->_rowbuffer[$i]->__init_db_values();
 			}
 			

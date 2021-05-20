@@ -297,7 +297,14 @@ class Serializer
 					list($id,$len,$type,$alias) = explode(':',$line);
 					$datasource = $alias?model_datasource($alias):null;
 
-					$this->Stack[$id] = new $type($datasource);
+                    if( $alias )
+                        $this->Stack[$id] = new $type($datasource);
+                    else
+                    {
+                        $this->Stack[$id] = WdfReflector::GetInstance($type)->newInstanceWithoutConstructor();
+                        if( system_method_exists($this->Stack[$id],'__constructed') )
+                            $this->Stack[$id]->__constructed();
+                    }
 					for($i=0; $i<$len; $i++)
 					{
 						$field = $this->Unser_Inner();

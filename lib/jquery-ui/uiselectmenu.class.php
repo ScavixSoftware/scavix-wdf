@@ -43,9 +43,9 @@ class uiSelectMenu extends uiControl
 	/**
 	 * @param array $options See http://www.filamentgroup.com/lab/jquery_ui_selectmenu_an_aria_accessible_plugin_for_styling_a_html_select/
 	 */
-    function __initialize($options = array())
+    function __construct($options = array())
 	{
-		parent::__initialize("select");
+		parent::__construct("select");
 	}
 
 	private function addIcon($path)

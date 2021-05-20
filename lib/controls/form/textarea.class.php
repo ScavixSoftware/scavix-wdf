@@ -43,9 +43,9 @@ class TextArea extends Control
 	 * @param string $name The name
 	 * @param string $cid 
 	 */
-    function __initialize($value='',$name=false)
+    function __construct($value='',$name=false)
 	{
-		parent::__initialize("textarea");
+		parent::__construct("textarea");
 		if( $name )
 			$this->name = $name;
 		$this->content($value);

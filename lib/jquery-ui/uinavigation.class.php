@@ -41,10 +41,10 @@ class uiNavigation extends uiControl
 	/**
 	 * @param bool $is_sub_navigation If true acts as submenu
 	 */
-	function __initialize($is_sub_navigation=false)
+	function __construct($is_sub_navigation=false)
 	{
 		global $CONFIG;
-		parent::__initialize("ul");
+		parent::__construct("ul");
 		$this->InitFunctionName = false;
 		if( !$is_sub_navigation )
 			$this->script("$('#".$this->id."').navigation({root_uri:'".$CONFIG['system']['console_uri']."',item_width:130});");

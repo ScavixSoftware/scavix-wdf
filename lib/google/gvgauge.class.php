@@ -37,9 +37,9 @@ class gvGauge extends GoogleVisualization
 	/**
 	 * @override
 	 */
-	function __initialize($options=array(),$query=false,$ds=false)
+	function __construct($options=array(),$query=false,$ds=false)
 	{
-		parent::__initialize('Gauge',$options,$query,$ds);
+		parent::__construct('Gauge',$options,$query,$ds);
 		$this->_loadPackage('gauge');
 	}
 }

@@ -39,9 +39,9 @@ use ScavixWDF\Base\Control;
  */
 class Form extends Control
 {
-    function __initialize()
+    function __construct()
 	{
-		parent::__initialize("form");
+		parent::__construct("form");
 		$this->method = 'post';
 	}
 	

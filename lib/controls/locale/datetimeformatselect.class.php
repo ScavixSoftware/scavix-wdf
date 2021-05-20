@@ -50,9 +50,9 @@ class DateTimeFormatSelect extends Select
 	 * @param mixed $selected_time_format The currently selected time format or false
 	 * @param string $timezone Timezone identifier or false
 	 */
-	function __initialize($culture_code, $selected_date_format=false, $selected_time_format=false, $timezone=false)
+	function __construct($culture_code, $selected_date_format=false, $selected_time_format=false, $timezone=false)
 	{
-		parent::__initialize();
+		parent::__construct();
 		$this->script("Locale_Settings_Init();");
 		$this->setData('role', 'datetimeformat');
 		$this->setData('controller', buildQuery($this->id));

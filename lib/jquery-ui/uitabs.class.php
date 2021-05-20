@@ -42,9 +42,9 @@ class uiTabs extends uiControl
 	/**
 	 * @param array $options See http://api.jqueryui.com/tabs/
 	 */
-    function __initialize($options=array())
+    function __construct($options=array())
 	{
-		parent::__initialize('div');
+		parent::__construct('div');
 		$this->Options = force_array($options);
 		$this->list = $this->content(new Control('ul'));
 	}

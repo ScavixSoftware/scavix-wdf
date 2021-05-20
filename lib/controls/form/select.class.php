@@ -45,9 +45,9 @@ class Select extends Control
 	/**
 	 * @param string $name The name
 	 */
-    function __initialize($name=false)
+    function __construct($name=false)
 	{
-		parent::__initialize("select");
+		parent::__construct("select");
         if( $name )
             $this->name = $name;
 	}

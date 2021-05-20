@@ -40,9 +40,9 @@ class uiButton extends uiControl
 	 * @param string $text Label
 	 * @param string $icon Valid <uiControl::Icon>
 	 */
-	function __initialize($text,$icon=false)
+	function __construct($text,$icon=false)
 	{
-		parent::__initialize("button");
+		parent::__construct("button");
 		if( $icon )
 			$this->_icon = self::Icon($icon);
 		

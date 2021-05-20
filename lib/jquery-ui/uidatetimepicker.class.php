@@ -40,8 +40,8 @@ class uiDateTimePicker extends uiDatePicker
 	 * @param string $value Current value
 	 * @param bool $inline If true will be displayed inline
 	 */
-	function __initialize($value = false, $inline = false)
+	function __construct($value = false, $inline = false)
 	{
-		parent::__initialize($value,$inline);
+		parent::__construct($value,$inline);
 	}
 }

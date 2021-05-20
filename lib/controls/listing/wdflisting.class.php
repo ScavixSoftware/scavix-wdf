@@ -81,15 +81,24 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
 	 */
     var $table;
 	
-	public static function Make($datatype=false, $table=false)
+	public static function Make(...$args)
 	{
-		$a = func_get_args();
-		if( count($a)>2 )
+        $controller = $datatype = $table = false;
+		if( count($args)>2 )
 		{
-			$table = $a[2];
-			$controller = $a[1];
+			$datatype = $args[0];
+			$controller = $args[1];
+			$table = $args[2];
 		}
-		else $controller = false;
+        elseif( count($args)>1 )
+        {
+			$datatype = $args[0];
+			$table = $args[1];
+        }
+        elseif( count($args)>0 )
+        {
+			$datatype = $args[0];
+        }
 		return parent::Make($datatype,$controller,$table);
 	}
 	
@@ -130,9 +139,9 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
 		return $this->store();
 	}
     
-	function __initialize($datatype=false, $controller=false, $table=false, $persistkeyextra = false, $sortable=true, $pager_items = 25)
+	function __construct($datatype=false, $controller=false, $table=false, $persistkeyextra = false, $sortable=true, $pager_items = 25)
 	{
-        parent::__initialize("div");
+        parent::__construct("div");
         $this->class = 'listing';
         
         $this->datatype = $datatype?:\ScavixWDF\Model\CommonModel::class;

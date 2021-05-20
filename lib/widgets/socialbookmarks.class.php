@@ -40,9 +40,9 @@ use ScavixWDF\Controls\Image;
  */
 class SocialBookmarks extends Template
 {
-	function __initialize()
+	function __construct()
 	{
-		parent::__initialize();
+		parent::__construct();
 
 		$links = array();
 		$links[] = $this->CreateLink("TwitThis",

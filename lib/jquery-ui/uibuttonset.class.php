@@ -39,9 +39,9 @@ class uiButtonSet extends uiControl
 {
 	var $buttons = array();
 
-	function __initialize()
+	function __construct()
 	{
-		parent::__initialize("div");
+		parent::__construct("div");
 	}
 
 	/**

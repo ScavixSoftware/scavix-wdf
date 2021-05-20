@@ -46,9 +46,9 @@ class Td extends Control
 	/**
 	 * @param array $options No valid options defined yet
 	 */
-	function __initialize($options=false)
+	function __construct($options=false)
 	{
-		parent::__initialize("div");
+		parent::__construct("div");
 		$this->class = "td";
         $this->options = $options;
 	}

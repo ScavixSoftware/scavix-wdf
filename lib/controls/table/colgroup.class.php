@@ -40,9 +40,9 @@ class ColGroup extends Control
 {
     var $current_col = false;
 
-	function __initialize()
+	function __construct()
 	{
-		parent::__initialize("div");
+		parent::__construct("div");
 		$this->class = "colgroup";
 	}
 

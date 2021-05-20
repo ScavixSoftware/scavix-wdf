@@ -53,7 +53,7 @@ class uiConfirmation extends uiDialog
 	 * @param string $ok_callback JS code to be executed when the positive button is clicked (OK, YES)
 	 * @param int $button_mode uiConfirmation::OK_CANCEL or uiConfirmation::YES_NO
 	 */
-	function __initialize($text_base='CONFIRMATION',$ok_callback=false,$button_mode=self::OK_CANCEL)
+	function __construct($text_base='CONFIRMATION',$ok_callback=false,$button_mode=self::OK_CANCEL)
 	{
 		$options = array(
 			'autoOpen'=>true,
@@ -78,7 +78,7 @@ $(\'<div />\', {
 		$title = "TITLE_$text_base";
 		$text  = "TXT_$text_base";
 		
-		parent::__initialize($title,$options);
+		parent::__construct($title,$options);
 		switch( $button_mode )
 		{
 			case self::OK_CANCEL:

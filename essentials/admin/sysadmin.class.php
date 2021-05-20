@@ -56,7 +56,7 @@ class SysAdmin extends HtmlPage
     private $breadcrumbs = [];
     protected $pagetoolbar = false;
     
-    function __initialize($title = "", $body_class = false)
+    function __construct($title = "", $body_class = false)
     {
         global $CONFIG;
         
@@ -78,7 +78,7 @@ class SysAdmin extends HtmlPage
         if( current_event() != 'login' && !$this->user )
             redirect('sysadmin','login');
         
-        parent::__initialize("SysAdmin".($title ? " - $title" : ""), 'sysadmin');
+        parent::__construct("SysAdmin".($title ? " - $title" : ""), 'sysadmin');
         $this->_translate = false;
         $this->addJs('https://kit.fontawesome.com/5b6a078735.js');
         

@@ -46,9 +46,9 @@ class CurrencySelect extends Select
 	 * @param string $current_currency_code Currently selected currency
 	 * @param array $supported_currencies Array of supported currencies or false
 	 */
-	function __initialize($current_currency_code=false, $supported_currencies = false)
+	function __construct($current_currency_code=false, $supported_currencies = false)
 	{
-		parent::__initialize();
+		parent::__construct();
 		$this->script("Locale_Settings_Init();");
 		$this->setData('role', 'currency');
 		

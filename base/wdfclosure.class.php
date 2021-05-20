@@ -32,27 +32,17 @@ class WdfClosure
 	public $code = NULL;
 	public $used_variables = array();
 
-	public function __construct()
+	public function __construct($function=null)
     {
-        if( !unserializer_active() )
-		{
-			$args = func_get_args();
-			if( count($args)!=1 || $args[0]!=='Make is calling so skip __initialize call')
-				system_call_user_func_array_byref($this, '__initialize', $args);
-		}
-    }
-    
-    function __initialize($function)
-	{
-		if ( !$function instanceOf \Closure )
+        if ( !$function instanceOf \Closure )
 			throw new \InvalidArgumentException();
 
 		$this->closure = $function;
 		$this->reflection = new \ReflectionFunction($function);
 		$this->code = $this->_fetchCode();
 		$this->used_variables = $this->_fetchUsedVariables();
-	}
-
+    }
+    
 	public function __invoke()
 	{
 		$args = func_get_args();

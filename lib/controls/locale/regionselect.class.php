@@ -46,9 +46,9 @@ class RegionSelect extends Select
 	 * @param mixed $current_language_code Currently selected language
 	 * @param type $current_region_code Currently selected region
 	 */
-	function __initialize($current_language_code=false, $current_region_code=false)
+	function __construct($current_language_code=false, $current_region_code=false)
 	{
-		parent::__initialize();
+		parent::__construct();
 		$this->script("Locale_Settings_Init();");
 		$this->setData('role', 'region');
 		$this->setData('controller', buildQuery($this->id));

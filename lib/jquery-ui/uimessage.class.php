@@ -40,9 +40,9 @@ class uiMessage extends uiControl
 	var $sub;
     var $messages = array();
 	
-	function __initialize($message,$type='highlight',$closeable=true)
+	function __construct($message,$type='highlight',$closeable=true)
 	{
-		parent::__initialize('div');
+		parent::__construct('div');
 		$this->class = "ui-widget ui-message";
 		
 		if( function_exists('translation_string_exists') && translation_string_exists($message) )

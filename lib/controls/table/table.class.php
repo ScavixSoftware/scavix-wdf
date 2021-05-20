@@ -72,9 +72,9 @@ class Table extends Control
     
     var $OnPageChanged = false;
 	
-	function __initialize()
+	function __construct()
 	{
-		parent::__initialize("div");
+		parent::__construct("div");
 		$this->class = 'table';
         if(system_is_ajax_call())
             $this->force_ajax_dependenciesloading = true;
@@ -123,11 +123,11 @@ class Table extends Control
         }
     }
     
-    function __collectResourcesInternal($template)
+    function __collectResourcesInternal($template,&$static_stack = array())
 	{
         if(system_is_ajax_call() && !$this->force_ajax_dependenciesloading)
             return [];
-        return parent::__collectResourcesInternal($template);
+        return parent::__collectResourcesInternal($template,$static_stack);
     }
 	
 	/**
@@ -609,15 +609,16 @@ class Table extends Control
 	 * 
 	 * Will be displayed in the tables footer. See <Table::SetDataCallback> for details how to
 	 * add data to a paged table.
-	 * @param int $total_items Total number of items
 	 * @param int $items_per_page Items per page to be displayed
 	 * @param int $current_page One (1) based index of current page
 	 * @param int $max_pages_to_show Maximum links to pages to be shown
 	 * @return DatabaseTable `$this`
 	 */
-	function AddPager($total_items, $items_per_page = 15, $current_page=false, $max_pages_to_show=10)
+	function AddPager($items_per_page = 15, $current_page=false, $max_pages_to_show=10)
 	{
-		$this->TotalItems = $total_items;
+        if( func_num_args() > 3 )
+            WdfException::Raise("Use of obsolete method signature");
+		$this->TotalItems = 0;
 		$this->ItemsPerPage = $items_per_page;
         if($current_page !== false)
             $this->CurrentPage = $current_page;

@@ -157,4 +157,116 @@ class CheckTask extends Task
             }
         }
     }
+    
+    private function pureCode($file,&$contains_at)
+    {
+        $res = '';
+        $commentTokens = array(T_COMMENT);
+        if (defined('T_DOC_COMMENT'))
+            $commentTokens[] = T_DOC_COMMENT; // PHP 5
+        if (defined('T_ML_COMMENT'))
+            $commentTokens[] = T_ML_COMMENT;  // PHP 4
+
+        $cnts = $cntd = 0;
+        foreach( token_get_all(file_get_contents($file)) as $token )
+        {    
+            if(is_array($token))
+            {
+                if (in_array($token[0], $commentTokens))
+                    continue;
+                $token = $token[1];
+            }
+            if( $token == "'" )
+                $cnts++;
+            elseif( $token == '"' )
+                $cntd++;
+            elseif( $token == '@' && ($cnts%2) == 0 && ($cntd%2) == 0 )
+                $contains_at = true;
+            
+            $res .= $token;
+        }
+        return $res;
+    }
+    
+    function php8($args)
+    {
+        $dir = realpath(ifavail($args,'dir'));
+        if( !$dir )
+            return log_info("Syntax: check-php8 dir=<base-folder>");
+        
+        $removed_functions = [
+            // according to https://www.php.net/manual/de/migration80.incompatible.php
+            'create_function','imap_header',
+            'hebrevc','convert_cyr_string','money_format','ezmlm_hash','restore_include_path',
+            'get_magic_quotes_gpc','get_magic_quotes_runtime','fgetss',
+            // internal
+            '__initialize',
+        ];
+        $res_to_obj = [
+            // according to https://www.php.net/manual/de/migration80.incompatible.php
+            'curl_init','curl_multi_init','curl_share_init','enchant_broker_init','enchant_broker_request_dict','enchant_broker_request_pwl_dict',
+            'imagecreate','openssl_x509_read','openssl_csr_sign','openssl_csr_new','openssl_pkey_new','shmop_open',
+            'socket_create','socket_create_listen','socket_accept','socket_import_stream','socket_addrinfo_connect','socket_addrinfo_bind',
+            'socket_wsaprotocol_info_import','socket_addrinfo_lookup','msg_get_queue','sem_get','shm_attach','xml_parser_create',
+            'xml_parser_create_ns','xmlwriter_','inflate_init','deflate_init'
+        ];
+        $removed_classes = [
+            // according to https://www.php.net/manual/de/migration80.incompatible.php
+            'DOMNameList', 'DomImplementationList', 'DOMConfiguration', 'DomError', 'DomErrorHandler',
+            'DOMImplementationSource', 'DOMLocator', 'DOMUserDataHandler', 'DOMTypeInfo'
+        ];
+        
+        foreach( system_glob_rec($dir,"*.php") as $file )
+        {
+            if( 0 === stripos(realpath($file), __SCAVIXWDF__) )
+                continue;
+//            if( basename($file) == 'checktask.class.php' )
+//                continue;
+            
+            $relfile = trim(str_replace($dir,"", $file),"/");
+            $findings = [];
+            $contains_at = false;
+            $code = $this->pureCode($file,$contains_at);
+            
+            if( $contains_at )
+                $findings[] = "(I) The @ operator will no longer silence fatal errors";
+            if( strpos($code,"call_user_func_array") !== false )
+                $findings[] = "(I) 'call_user_func_array': array keys will now be interpreted as parameter names, instead of being silently ignored";
+            if( strpos($code, "final private function") !== false )
+                $findings[] = "(W) Private methods cannot be final as they are never overridden by other classes";
+            
+            if( strpos($code,"#[") !== false && strpos($code,"preg_") === false )
+                $findings[] = "(F) Comment is now interpreted as attribute: '#[' ";
+            
+            if( strpos($code,"function __autoload(") !== false )
+                $findings[] = "(F) The ability to specify an autoloader using an __autoload() function has been removed";
+            
+            if( preg_match('/([^a-z0-9-_\.]each[\(\s])/i', $code, $m) !== false && count($m) )
+                $findings[] = "(F) 'each()' has been removed, foreach or ArrayIterator should be used instead";
+            
+            foreach( $removed_functions as $f )
+                if( strpos($code, $f) !== false )
+                    $findings[] = "(F) Removed function found: '$f'";
+                
+            foreach( $removed_classes as $c )
+                if( strpos($code, $c) !== false )
+                    $findings[] = "(F) Removed class found: '$c'";
+            
+            if( strpos($code,"is_resource") !== false )
+                foreach( $res_to_obj as $rto )
+                    if( strpos($code, $rto) !== false )
+                        $findings[] = "(E) '$rto': Several Ressources have been migrated to Objekts, return value checks using is_resource() should be replaced with checks for false";
+                            
+            if( strpos($code,"mktime()") ) 
+                $findings[] = "(E) 'mktime()' now require at least one argument";
+            if( strpos($code,"gmmktime()") ) 
+                $findings[] = "(E) 'gmmktime()' now require at least one argument";
+            
+            if( count($findings) )
+            {
+                $findings = implode("\n  - ",$findings);
+                log_info("$file\n  - $findings");
+            }
+        }
+    }
 }

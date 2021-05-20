@@ -43,9 +43,9 @@ class ImageLink extends Control
 	 * @param string $link value for the href attribute
 	 * @param string $margin Value for the margin (css)
 	 */
-	function __initialize($src, $title, $link="", $margin="")
+	function __construct($src, $title, $link="", $margin="")
 	{
-		parent::__initialize('a');
+		parent::__construct('a');
 		$this->href = $link;
 		$this->css("text-decoration","none");
 		if( $margin != "" )

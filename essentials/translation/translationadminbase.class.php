@@ -38,9 +38,9 @@ use ScavixWDF\Base\Template;
  */
 abstract class TranslationAdminBase extends SysAdmin
 {
-	function __initialize($title = "", $body_class = false)
+	function __construct($title = "", $body_class = false)
 	{
-		parent::__initialize($title, $body_class);
+		parent::__construct($title, $body_class);
 	}
     
     /**

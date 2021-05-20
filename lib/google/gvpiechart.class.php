@@ -37,9 +37,9 @@ class gvPieChart extends GoogleVisualization
 	/**
 	 * @override
 	 */
-	function __initialize($options=array(),$query=false,$ds=false)
+	function __construct($options=array(),$query=false,$ds=false)
 	{
-		parent::__initialize('PieChart',$options,$query,$ds);
+		parent::__construct('PieChart',$options,$query,$ds);
 		$this->_loadPackage('corechart');
 	}
 }

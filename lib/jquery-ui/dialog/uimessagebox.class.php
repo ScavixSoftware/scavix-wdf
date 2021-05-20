@@ -40,7 +40,7 @@ class uiMessageBox extends uiDialog
 	 * @param string $type Defines the css class, so you may use this to style different kinds of messages
 	 * @param string $title A title
 	 */
-    function __initialize($message_text,$type='hint',$title='TITLE_WARNING')
+    function __construct($message_text,$type='hint',$title='TITLE_WARNING')
 	{
 		$options = array(
 			'autoOpen'=>true,
@@ -49,7 +49,7 @@ class uiMessageBox extends uiDialog
 			'height'=>300
 
 		);
-		parent::__initialize($title,$options);
+		parent::__construct($title,$options);
 		$this->class = $type;
 
 		$this->content($message_text);

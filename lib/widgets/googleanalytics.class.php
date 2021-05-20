@@ -44,9 +44,9 @@ class GoogleAnalytics extends Template
 	 * @param bool $track_immediately If true calls _trackPageview() instantly
 	 * @param string $track_prefix Prefix for tracked events
 	 */
-	function __initialize($account_code,$js_varname="pageTracker",$track_immediately=true,$track_prefix="")
+	function __construct($account_code,$js_varname="pageTracker",$track_immediately=true,$track_prefix="")
 	{
-		parent::__initialize();
+		parent::__construct();
 
 		$this->set("account_code",$account_code);
 		$this->set("js_varname",$js_varname);

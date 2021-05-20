@@ -43,9 +43,9 @@ class TimezoneSelect extends Select
 	/**
 	 * @param string $current_timezone Currently selected timezone
 	 */
-	function __initialize($current_timezone=false)
+	function __construct($current_timezone=false)
 	{
-		parent::__initialize();
+		parent::__construct();
 		$this->script("Locale_Settings_Init();");
 		$this->setData('role', 'timezone');
 		

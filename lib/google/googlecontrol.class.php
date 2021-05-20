@@ -49,9 +49,9 @@ class GoogleControl extends Control
 	/**
 	 * @param string $tag Allows to specify another tag for the wrapper control, default for google controls is &lt;span&gt;
 	 */
-	function __initialize($tag='span', $frozen = true, $gchartsversion = 'current')
+	function __construct($tag='span', $frozen = true, $gchartsversion = 'current')
 	{
-		parent::__initialize($tag);
+		parent::__construct($tag);
 		$this->frozen = $frozen;
         $this->gchartsversion = $gchartsversion;
 	}

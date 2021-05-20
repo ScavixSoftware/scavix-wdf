@@ -230,17 +230,10 @@ class PayPal extends PaymentProvider
 		$header = ""; 
 		// Read the post from PayPal and add 'cmd' 
 		$req = 'cmd=_notify-validate'; 
-		if(function_exists('get_magic_quotes_gpc')) 
-			$get_magic_quotes_exists = true;
 		
 		foreach ($ipndata as $key => $value) 
 		{  
-			// Handle escape characters, which depends on setting of magic quotes 
-			if($get_magic_quotes_exists == true && get_magic_quotes_gpc() == 1)
-				$value = urlencode(stripslashes($value)); 
-			else
-				$value = urlencode($value); 
-		 
+			$value = urlencode($value); 
 			$req .= "&$key=$value"; 
 		} 
 		// Post back to PayPal to validate 

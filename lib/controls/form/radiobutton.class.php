@@ -40,9 +40,9 @@ class RadioButton extends Input
 	 * @param string $value A value
 	 * @param string $name The name
 	 */
-    function __initialize($value = false,$name=false)
+    function __construct($value = false,$name=false)
 	{
-		parent::__initialize();
+		parent::__construct();
 		$this->setType('radio')->setName($name)->setValue($value);
 	}
 }

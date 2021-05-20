@@ -174,43 +174,37 @@ class Control extends Renderable
 	function __getContentVars(){ return array_merge(parent::__getContentVars(),array('_extender')); }
 
 	/**
-	 * The one and only constructor for all subclasses.
-	 * 
-	 * These must not implement a constructor but the __initialize method.
-	 */
-	function __construct()
-	{
-		if( !hook_already_fired(HOOK_PRE_RENDER) )
-		{
-			register_hook(HOOK_PRE_RENDER,$this,"PreRender");
-		}
-		else
-			if( !hook_already_fired(HOOK_POST_EXECUTE) )
-			{
-				register_hook(HOOK_POST_EXECUTE,$this,"PreRender");
-			}
-
-		if( !unserializer_active() )
-		{
-			create_storage_id($this);
-			$args = func_get_args();
-			if( count($args)!=1 || $args[0]!=='Make is calling so skip __initialize call')
-				system_call_user_func_array_byref($this, '__initialize', $args);
-		}
-	}
-
-	/**
-	 * Override this method instead of writing a constructor.
+	 * Constructs a Control
 	 * 
 	 * @param string $tag The HTML Tag of this control. Default ""
 	 */
-	function __initialize($tag = "")
+	function __construct($tag = "")
 	{
-		$this->Tag = strtolower($tag);
+		$this->__constructed();
+
+        create_storage_id($this);
+        $this->Tag = strtolower($tag);
         $class = strtolower(get_class_simple($this));
 
         if( $class != $this->Tag && $class != "control" )
             $this->class = $class;
+	}
+    
+    function __constructed()
+    {
+        if( !hook_already_fired(HOOK_PRE_RENDER) )
+		{
+			register_hook(HOOK_PRE_RENDER,$this,"PreRender");
+		}
+		elseif( !hook_already_fired(HOOK_POST_EXECUTE) )
+        {
+            register_hook(HOOK_POST_EXECUTE,$this,"PreRender");
+        }
+    }
+
+	function __initialize($tag = "")
+	{
+		WdfException::Raise(get_class($this)," calling obsolete __initialize, please implement constructor!");
 	}
 
 	/**
@@ -322,12 +316,10 @@ class Control extends Renderable
 	 * @param string $tag Optional HTML tag name (like div, span, a, img,...)
 	 * @return static The created control
 	 */
-	public static function Make($tag=false)
+	public static function Make(...$args)
     {
 		$className = get_called_class();
-		$res = new $className('Make is calling so skip __initialize call');
-		$args = func_get_args();
-		system_call_user_func_array_byref($res, '__initialize', $args);
+		$res = new $className(...$args);
 		return $res;
 	}
 

@@ -45,12 +45,12 @@ class HtmlList extends Control
 	 * @param string $id Id to be set
 	 * @param string $listType Type of list (ol|ul)
 	 */
-	function __initialize($id = "",$listType = "ul")
+	function __construct($id = "",$listType = "ul")
 	{
 		if($listType != "ul" || $listType != "ol")
 			$listType = "ul";
 		
-		parent::__initialize($listType);
+		parent::__construct($listType);
 		
 		if(!empty($id))
 			$this->id = $id;

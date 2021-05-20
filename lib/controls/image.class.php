@@ -45,9 +45,9 @@ class Image extends Control
 	 * @param string $style value for the style attribute
 	 * @param string $id optional value for the id attribute
 	 */
-	function __initialize($src=null, $title="", $border="0", $style="", $id=false)
+	function __construct($src=null, $title="", $border="0", $style="", $id=false)
 	{
-		parent::__initialize("img");
+		parent::__construct("img");
 		if( $src != null )
 		{
 			$this->src = $src;

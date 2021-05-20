@@ -52,10 +52,10 @@ class gMap extends GoogleControl
 	/**
 	 * @param array $options See https://developers.google.com/maps/documentation/javascript/tutorial#MapOptions
 	 */
-	function __initialize($options=array())
+	function __construct($options=array())
 	{
         global $CONFIG;
-		parent::__initialize('div',false);
+		parent::__construct('div',false);
         if(isset($CONFIG['google']) && isset($CONFIG['google']['maps']) && isset($CONFIG['google']['maps']['apikey'])) 
             $this->gmOptions['key'] = $CONFIG['google']['maps']['apikey'];
 

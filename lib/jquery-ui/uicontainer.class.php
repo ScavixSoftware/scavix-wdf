@@ -43,9 +43,9 @@ class uiContainer extends uiControl
 	 * @param string $title Title for header section
 	 * @param options $options
 	 */
-	function __initialize($title="TXT_UNKNOWN",$options=array())
+	function __construct($title="TXT_UNKNOWN",$options=array())
 	{
-		parent::__initialize("div");
+		parent::__construct("div");
 		$this->Options = $options;
 		$this->title = $title;
 	}

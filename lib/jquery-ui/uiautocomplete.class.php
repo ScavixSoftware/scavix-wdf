@@ -42,9 +42,9 @@ class uiAutocomplete extends uiControl
 	/**
 	 * @param array $options See http://api.jqueryui.com/autocomplete/
 	 */
-	function __initialize($options=array())
+	function __construct($options=array())
 	{		
-		parent::__initialize("input");
+		parent::__construct("input");
 		$this->type = "text";
 		$this->Options = $options;
 	}

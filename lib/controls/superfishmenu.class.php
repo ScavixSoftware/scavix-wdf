@@ -39,9 +39,9 @@ use ScavixWDF\Base\Control;
  */
 class SuperfishMenu extends Control
 {
-    function __initialize()
+    function __construct()
 	{
-		parent::__initialize("ul");
+		parent::__construct("ul");
 		$this->class = "sf-menu sf-navbar";
 		$this->script('$("#'.$this->id.'").superfish();');
 	}
@@ -156,9 +156,9 @@ class SuperfishMenuItem extends Control
 	 * @param string $event Handler method
 	 * @param mixed $data Array or urlencoded string containing additional data to be passed
 	 */
-	function __initialize($label,$controller,$event="",$data=array())
+	function __construct($label,$controller,$event="",$data=array())
 	{
-		parent::__initialize("li");
+		parent::__construct("li");
 		$this->class = "";
 		if( $event == '$is_link$' )
 			$this->content(new Anchor($controller, $label));
