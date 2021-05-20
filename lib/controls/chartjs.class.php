@@ -419,7 +419,7 @@ class ChartJS extends Control
      * @param string $pointType Optional classname of the Point handler
      * @return $this
      */
-    function setData(iterable $data, string $x_value_row, $pointType="StrPoint")
+    function setChartData(iterable $data, string $x_value_row, $pointType="StrPoint")
     {
         return $this->fill(function($series)use($data, $x_value_row, $pointType)
         {

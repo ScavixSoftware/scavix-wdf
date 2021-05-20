@@ -521,6 +521,9 @@ class Control extends Renderable
 	 */
 	function setData($name,$value)
 	{
+        if( !is_string($name) && $this instanceof \ScavixWDF\Controls\ChartJS )
+            WdfException::Raise("ChartJS::setData is obsolete, use setChartData instead");
+        
 		if( is_array($value) || is_object($value) )
 			$this->_data_attributes[$name] = system_to_json($value);
 		else
