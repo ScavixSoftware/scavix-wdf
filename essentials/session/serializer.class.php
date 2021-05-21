@@ -237,6 +237,8 @@ class Serializer
 		return $res;
 	}
     
+    private $existsBuffer = [];
+    
 	private function Unser_Inner()
 	{
         $start = microtime(true);
@@ -302,7 +304,9 @@ class Serializer
                     else
                     {
                         $this->Stack[$id] = WdfReflector::GetInstance($type)->newInstanceWithoutConstructor();
-                        if( system_method_exists($this->Stack[$id],'__constructed') )
+                        if( !isset($this->existsBuffer["$type::__constructed"]) )
+                            $this->existsBuffer["$type::__constructed"] = method_exists($type,'__constructed');
+                        if( $this->existsBuffer["$type::__constructed"] )
                             $this->Stack[$id]->__constructed();
                     }
 					for($i=0; $i<$len; $i++)
@@ -313,7 +317,9 @@ class Serializer
 						$this->Stack[$id]->$field = $this->Unser_Inner();
 					}
 
-					if( system_method_exists($this->Stack[$id],'__wakeup') )
+                    if( !isset($this->existsBuffer["$type::__wakeup"]) )
+                        $this->existsBuffer["$type::__wakeup"] = method_exists($type,'__wakeup');
+                    if( $this->existsBuffer["$type::__wakeup"] )
 						$this->Stack[$id]->__wakeup();
 
 					return $this->Stack[$id];
