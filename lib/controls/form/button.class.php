@@ -65,11 +65,30 @@ class Button extends Input
 	/**
 	 * Overrides <Control::Make> with own logic.
 	 * 
+     * @deprecated This hides the parent Make method and should not be used anymore
 	 * @param string $label Label
 	 * @param string $onclick OnClick JS code
 	 * @return Button The new button
 	 */
-	static function Make($label,$onclick=false)
+	static function Make(...$args)
+	{
+        log_debug(__METHOD__,"Deprecated. Use Button::Textual instead");
+        $label = isset($args[0])?$args[0]:'';
+        $onclick = isset($args[1])?$args[1]:'';
+        
+		$res = new Button($label);
+		if( $onclick ) $res->onclick = $onclick;
+		return $res;
+	}
+    
+    /**
+	 * Button creation shortcut
+	 * 
+	 * @param string $label Label
+	 * @param string $onclick OnClick JS code
+	 * @return Button The new button
+	 */
+	static function Textual($label, $onclick = false)
 	{
 		$res = new Button($label);
 		if( $onclick ) $res->onclick = $onclick;
