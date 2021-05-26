@@ -86,7 +86,7 @@ class uiMessage extends uiControl
     /**
      * @override
      */
-	function content($content, $replace = false)
+	function &content($content, $replace = false)
 	{
 		if( $this->sub )
 		{
