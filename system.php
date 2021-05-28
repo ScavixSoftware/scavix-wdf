@@ -1115,7 +1115,13 @@ function buildQuery($controller,$event="",$data="", $url_root=false)
 	global $CONFIG;
 
 	if( $controller instanceof Renderable )
+    {
+        if( empty($controller->_storage_id) )
+            log_warn("Trying to buildQuery for ".get_class($controller)." without id. Did you call before parent::__construct?");
+        elseif( !in_object_storage($controller->_storage_id) )
+            store_object($controller);
 		$controller = $controller->_storage_id;
+    }
 	
     if(substr($controller, 0, 4) == "http")
         return $controller;
