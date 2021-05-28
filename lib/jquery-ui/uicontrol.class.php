@@ -169,6 +169,12 @@ class uiControl extends Control
 	 */
 	function opt($name,$value=null)
 	{
+        if( is_array($name) )
+        {
+            foreach( $name as $k=>$v )
+                $this->opt($k,$v);
+            return $this;
+        }
 		if( $value === null )
 			return $this->Options[$name];
 		//log_trace($this->id.': '.$name.' > ',$value);
