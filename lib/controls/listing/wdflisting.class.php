@@ -631,6 +631,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
     {
         if(!$this->table->ResultSet)
             $this->table->GetData();
+        $this->logSql();
         return $this->table->ResultSet->Count();
     }
     
@@ -650,6 +651,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
     
     function OnAddHeader($table, $row)
     {
+        $this->logSql();
         $links = $columns = [];
         
         foreach( $this->columns as $name=>$label )
