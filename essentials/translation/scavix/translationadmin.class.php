@@ -132,7 +132,7 @@ class TranslationAdmin extends TranslationAdminBase
             $this->content("<h2>This can only be used in DEV system</h2>");
             $this->content("<br/><br/>");
             if( $this->user->hasAccess('translationadmin','download') )
-                $this->content(Button::Make('Download translation files as ZIP',"location.href='". buildQuery('translationadmin','download')."/Translations.zip'"));
+                $this->content(Button::Textual('Download translation files as ZIP',"location.href='". buildQuery('translationadmin','download')."/Translations.zip'"));
             return;
         }
         
@@ -233,7 +233,7 @@ class TranslationAdmin extends TranslationAdminBase
             $this->content("<div>Cleared the string cache &#10003;</div>");
 
             $this->content("<br/><br/>");
-            $this->content(Button::Make('Download as ZIP',"location.href='". buildQuery('translationadmin','download')."/Translations.zip'"));
+            $this->content(Button::Textual('Download as ZIP',"location.href='". buildQuery('translationadmin','download')."/Translations.zip'"));
         
             foreach( $written_languages as $lang )
             {
@@ -386,7 +386,7 @@ class TranslationAdmin extends TranslationAdminBase
 		{
 			$form->content("&nbsp;&nbsp;&nbsp;Or ");
 		    $form->AddHidden('untranslated',0)->id = 'untranslated';
-			Button::Make("Show untranslated","$('#untranslated').val('1').closest('form').submit();")->appendTo($form);
+			Button::Textual("Show untranslated","$('#untranslated').val('1').closest('form').submit();")->appendTo($form);
 		}
 		
 		$tab = Table::Make()->addClass('translations all')
@@ -402,14 +402,14 @@ class TranslationAdmin extends TranslationAdminBase
                 ->addClass($term['id'])
                 //->attr('rows',count(explode('<br />', $def)) + 1)
                 ;
-			$btn = Button::Make('Save')->addClass('save')->setData('term',$term['id']);
+			$btn = Button::Textual('Save')->addClass('save')->setData('term',$term['id']);
 			
             $wrap = Control::Make()
                 ->append($ta);
             foreach( $this->ds->Query('wdf_unknown_strings_data')->eq('term',$term['id'])->enumerate('value',false,'name') as $k=>$v )
                 $wrap->append( "<span class='termdata' title='Sample: {$v}' onclick=\"$(this).closest('.td').find('textarea').insertAtCaret($(this).text());\">{$k}</span>" );
             
-            $cpy = Button::Make('&raquo;')->addClass('copy')
+            $cpy = Button::Textual('&raquo;')->addClass('copy')
                 ->setData('term',$term['id'])
                 ->setData('def', json_encode($term['def'],JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT));
                 

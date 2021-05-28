@@ -457,7 +457,7 @@ class SysAdmin extends HtmlPage
         {
             $this->content("<h2>Please select a database:</h2>");
             foreach( $GLOBALS['CONFIG']['model'] as $alias=>$cfg )
-                \ScavixWDF\Controls\Form\Button::Make($alias)->LinkTo('sysadmin','database',['name'=>$alias])->appendTo($this);
+                \ScavixWDF\Controls\Form\Button::Textual($alias)->LinkTo('sysadmin','database',['name'=>$alias])->appendTo($this);
             return;
         }
         
@@ -465,16 +465,16 @@ class SysAdmin extends HtmlPage
         
         $versioning_mode = ifavail($_SESSION,'sysadmin_sql_versioning') == '1';
         if( $versioning_mode == '1' )
-            \ScavixWDF\Controls\Form\Button::Make("Show plain SQL create statements","wdf.controller.get('togglesqlmode',{on:0})")
+            \ScavixWDF\Controls\Form\Button::Textual("Show plain SQL create statements","wdf.controller.get('togglesqlmode',{on:0})")
                 ->appendTo($this);
         else
-            \ScavixWDF\Controls\Form\Button::Make("Show versioning-prepared create statements","wdf.controller.get('togglesqlmode',{on:1})")
+            \ScavixWDF\Controls\Form\Button::Textual("Show versioning-prepared create statements","wdf.controller.get('togglesqlmode',{on:1})")
                 ->appendTo($this);
         
         $this->content("<h2>Tables</h2>");
         $ds = model_datasource($name);
         foreach( $ds->Driver->listTables() as $tab )
-            \ScavixWDF\Controls\Form\Button::Make($tab)->LinkTo('sysadmin','database',['name'=>$name,'table'=>$tab])
+            \ScavixWDF\Controls\Form\Button::Textual($tab)->LinkTo('sysadmin','database',['name'=>$name,'table'=>$tab])
                 ->appendTo($this);
         
         if( !$table )
@@ -487,9 +487,16 @@ class SysAdmin extends HtmlPage
         if( $versioning_mode )
         {
             $create = preg_replace('/\sAUTO_INCREMENT=\d+/i','',$create);
+            $create = preg_replace('/\sCOLLATE\s[^\s]+\s/i',' ',$create);
+            $create = preg_replace('/\sENGINE=[^\s]+\s/i',' ',$create);
+            $create = preg_replace('/\sDEFAULT\sCHARSET=[^\s]+\s/i',' ',$create);
+            $create = preg_replace('/\sCOLLATE=[^\s]+(\s*)/i','$1',$create);
+            
             $create .= ";";
             
             $create = preg_replace('/CREATE\sALGORITHM.*VIEW/i',"CREATE OR REPLACE VIEW",$create);
+            $create = preg_replace('/CREATE TABLE `/i','CREATE TABLE IF NOT EXISTS `',$create);
+            
             if( stripos($create,"CREATE OR REPLACE VIEW") !== false )
             {
                 $create = preg_replace('/(\sAS)\s+(SELECT\s)/i',"$1\n$2",$create);
