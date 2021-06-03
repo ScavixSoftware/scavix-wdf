@@ -48,14 +48,31 @@ class TimezoneSelect extends Select
 		parent::__initialize();
 		$this->script("Locale_Settings_Init();");
 		$this->setData('role', 'timezone');
-		
 		if( !$current_timezone )
 			$current_timezone = Localization::getTimeZone();
-		$this->SetCurrentValue($current_timezone);
-		foreach(Localization::GetAllTimeZones() as $tz )
+		
+        $sel = false;
+        $alltimezones = Localization::GetAllTimeZones();
+		foreach($alltimezones as $tz )
 		{
-			$this->AddOption($tz, str_replace("_"," ",$tz));
+            $selit = false;
+            if(!$sel)
+                $selit = $sel = ($tz == $current_timezone);
+			$this->AddOption($tz, str_replace("_"," ",$tz), $selit);
 		}
+        if(!$sel && (strpos($current_timezone, ':')))
+        {
+            $isDst = date('I');
+            list($hours, $minutes) = explode(':', $current_timezone);
+            $seconds = $hours * 60 * 60 + $minutes * 60;
+            // Get timezone name from seconds
+            $tz = timezone_name_from_abbr('', $seconds, $isDst);
+            // Workaround for bug #44780
+            if($tz === false) 
+                $tz = timezone_name_from_abbr('', $seconds, ($isDst ? 0 : 1));
+            if($tz)
+                $this->SetCurrentValue($tz);
+        }
 	}
 }
 
