@@ -149,7 +149,10 @@ class Template extends Renderable
             if( $this != $controller && !$this->isChildOf($controller) )
                 return;
 			if( method_exists($controller,'addDocReady') )
+            {
 				$controller->addDocReady(implode("\n",$this->_script)."\n");
+                $this->_script = [];
+            }
 		}
 	}
 
