@@ -151,7 +151,8 @@ class Template extends Renderable
 			if( method_exists($controller,'addDocReady') )
             {
 				$controller->addDocReady(implode("\n",$this->_script)."\n");
-                $this->_script = [];
+                if( system_is_ajax_call() )
+                    $this->_script = [];
             }
 		}
 	}

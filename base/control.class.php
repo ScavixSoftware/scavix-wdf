@@ -402,7 +402,8 @@ class Control extends Renderable
 			if( method_exists($controller,'addDocReady') )
             {
 				$controller->addDocReady(implode("\n",$this->_script));
-                $this->_script = [];
+                if( system_is_ajax_call() )
+                    $this->_script = [];
             }
 		}
 	}
