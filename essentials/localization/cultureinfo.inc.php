@@ -3936,6 +3936,7 @@ function internal_getRegionsForLanguage($code)
 		case 'zh-chs': return array(internal_getRegion('CN'),internal_getRegion('SG'));
 		case 'es': return array(internal_getRegion('ES'),internal_getRegion('MX'),internal_getRegion('GT'),internal_getRegion('CR'),internal_getRegion('PA'),internal_getRegion('DO'),internal_getRegion('VE'),internal_getRegion('CO'),internal_getRegion('PE'),internal_getRegion('AR'),internal_getRegion('EC'),internal_getRegion('CL'),internal_getRegion('UY'),internal_getRegion('PY'),internal_getRegion('BO'),internal_getRegion('SV'),internal_getRegion('HN'),internal_getRegion('NI'),internal_getRegion('PR'),internal_getRegion('US'));
 		case 'sr': return array(internal_getRegion('CS'));
+		case 'ast': return array(internal_getRegion('ES'));
 	}
     return false;
 
@@ -4014,7 +4015,9 @@ function internal_getLanguage($code)
 		case 'syr': return new CultureInfo('syr','','syr','Syriac','ܣܘܪܝܝܐ','1');
 		case 'dv': return new CultureInfo('dv','','dv','Divehi','ދިވެހިބަސް','1');
 		case 'zh-chs': return new CultureInfo('zh-CHS','zh-Hans','zh','Chinese (Simplified)','中文(简体)','0');
-		case 'es': return new CultureInfo('es','','es','Spanish','Español','0');
+		case 'es': 
+		case 'ast': 
+            return new CultureInfo('es','','es','Spanish','Español','0');
 		case 'sr': return new CultureInfo('sr','','sr','Serbian','Srpski','0');
 		case 'am-et': return internal_getCultureInfo('am-ET');
 		case 'tzm-latn-dz': return internal_getCultureInfo('tzm-Latn-DZ');
