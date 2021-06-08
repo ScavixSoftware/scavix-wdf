@@ -84,6 +84,8 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
 	public static function Make($datatype=false, $table=false)
 	{
 		$a = func_get_args();
+        if( count($a)>3 )
+            \ScavixWDF\WdfException::Raise('Too many parameters for '.__METHOD__);
 		if( count($a)>2 )
 		{
 			$table = $a[2];
@@ -139,6 +141,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
         $this->datatable = $table;
         $this->controller = $controller?:current_controller(true);
         $this->sortable = !self::$ShowCompleteData && $sortable;
+        $this->persistkeyextra = $persistkeyextra;
         $this->persistance_key = ($datatype.$controller.$table.($sortable?'1':'0').$persistkeyextra);
         
         $this->ds = DataSource::Get();
@@ -379,11 +382,11 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
         return $this;
     }
     
-    function addComplexColumn($name,$label,$sql,$arguments=[])
+    function addComplexColumn($name,$label,$sql,$arguments=[],$format=false,$alignment='l')
     {
         return $this
             ->addField("($sql) as '$name'",$arguments)
-            ->addColumn($name, $label);
+            ->addColumn($name, $label, $format, $alignment);
     }
     
     function addField($sql,$arguments=[])
