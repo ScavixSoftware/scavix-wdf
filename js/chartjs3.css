@@ -1,0 +1,10 @@
+.chartjs3 .caption
+{
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+.chartjs3 .wrap
+{
+    position: relative;
+}
