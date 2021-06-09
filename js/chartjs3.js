@@ -88,20 +88,12 @@
 		init: function(id,config)
 		{
             var ctx = document.getElementById(id);
-            if( false && config.options.percentScale ) // todo: make this work again
-            {
-//                var a = this._deepGet(config,'options.scales.y',[{}]);
-//                for( var i=0; i<a.length; i++ )
-//                    this._deepSet(a[i],'ticks.callback',function(value,index,values){ return value+'%'; });
-                this._deepSet(config,'options.scales.y.ticks.callback',function(value,index,values){ return value+'%'; });
-            }
             
             $('#'+id).closest('.chartjs3').data('raw',config);
             switch( config.type )
             {
                 case 'pie': 
                     this._deepSet(config,'options.plugins.tooltip.callbacks',win.wdf.chartjs3.pieTooltips(id));
-                    wdf.debug(config);
                     break;
                 default: 
                     this._deepSet(config,'options.plugins.tooltip.callbacks',win.wdf.chartjs3.stdTooltips(id));
