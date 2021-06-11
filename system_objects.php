@@ -49,6 +49,15 @@ class Wdf
     public static $ObjectStore;
     public static $Translation;
     
+    private static $once_buffer = [];
+    public static function Once($id)
+    {
+        if( isset(self::$once_buffer[$id]) )
+            return false;
+        self::$once_buffer[$id] = true;
+        return true;
+    }
+    
     protected static $buffers = [];
 	
     /**
