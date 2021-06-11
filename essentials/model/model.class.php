@@ -967,6 +967,15 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		}
 		return $res;
 	}
+    
+    public function AsDbArgs(...$names)
+    {
+        $d = $this->AsArray(...$names);
+        return array_combine(
+            array_map(function($n){ return ":$n"; }, array_keys($d)),
+            array_values($d)
+        );
+    }
 	
 	/**
 	 * Uses <system_sanitize_parameters> to sanitze all field values.
