@@ -49,6 +49,8 @@ class ChartJS3 extends Control
     var $colorRange = false;
     var $xMin = false, $xMax = false;
     var $query = false;
+    var $colors, $named_colors;
+    var $series_order = false;
     
     protected static $currentInstance;
     
@@ -76,7 +78,7 @@ class ChartJS3 extends Control
         $dt = DateTimeEx::Make($x);
         $xval = self::$currentInstance->setXMinMax($dt);
         //return ['x'=>"[jscode]new Date('".$dt->format("c")."')", 'y'=>$y, 'xval'=>$xval];
-        return ['x'=>$dt->format("c"), 'y'=>$y, 'xval'=>$xval];
+        return ['x'=>$dt->getTimestamp()*1000, 'y'=>$y, 'xval'=>$xval];
     }
     
     /**
@@ -116,6 +118,10 @@ class ChartJS3 extends Control
      * @shortcut Create a Pie chart
      */
     public static function Pie($title='',$height=false) { return ChartJS3::Make($title,'pie',$height)->scaleX('display',false); }
+    /**
+     * @shortcut Create a Doughnut chart
+     */
+    public static function Doughnut($title='',$height=false) { return ChartJS3::Make($title,'doughnut',$height)->scaleX('display',false); }
     
     /**
      * @shortcut Create a Stacked-Bar chart
@@ -126,7 +132,10 @@ class ChartJS3 extends Control
 	{
         self::$currentInstance = $this;
 		parent::__construct('div');
-
+        
+        $this->colors = []+self::$COLORS;
+        $this->named_colors = []+self::$NAMED_COLORS;
+        
         $this->chart_title = $this->content(Control::Make('div')->append($title))->addClass('caption');
         $this->canvas = Control::Make('canvas');
         $wrap = $this->content($this->canvas->wrap('div'))->addClass('wrap');
@@ -162,27 +171,56 @@ class ChartJS3 extends Control
         if( $this->xMax !== false )
             $this->scaleX("ticks.max",$this->xMax);
         
-        if( count($args) > 0 && self::$CI instanceof \ScavixWDF\Localization\CultureInfo )
+        if( \ScavixWDF\Wdf::Once(__METHOD__) && self::$CI instanceof \ScavixWDF\Localization\CultureInfo )
         {
             $lang = self::$CI->ResolveToLanguage()->Code;
-            $script = "try{ luxon.Settings.defaultLocale = '$lang'; } catch(ex){ console.log('lucon error',ex); }";
-            if( $args[0] instanceof \ScavixWDF\Base\HtmlPage )
-                $args[0]->addDocReady($script);
-            else
-                $this->script($script);
+            $script = "try{ luxon.Settings.defaultLocale = '$lang'; } catch(ex){ console.log('luxon error',ex); }";
+            $this->script($script);
         }
         
-        foreach( $this->series as $i=>$series )
+        foreach( $this->series as $i=>&$series )
         {
+            if( $this->series_order )
+            {
+                if( isset($series['name']) )
+                {
+                    $series['order'] = max(0,array_search($series['name'],$this->series_order));
+                    $this->legend('reverse',true);
+//                    log_debug("Ordered series '{$series['name']}'",$this->dataset($i,'order'));
+                }
+                elseif( ifavail($series,'isPieData') )
+                {
+                    $sort = function($a,$b)
+                    {
+                        $ia = array_search($a,$this->series_order);
+                        $ib = array_search($b,$this->series_order);
+                        if( $ia == $ib ) return 0;
+                        return $ia<$ib?-1:($ia>$ib?1:0);
+                    };
+                    uksort($series['data'],$sort);
+                    uksort($series['backgroundColor'],$sort);
+                    uksort($series['borderColor'],$sort);
+//                    log_debug("Sorted PIE data",$series);
+                }
+            }
+            
+            if( ifavail($series,'isPieData') )
+            {
+                unset($series['isPieData']);
+                $series['data'] = array_values($series['data']);
+                $series['backgroundColor'] = array_values($series['backgroundColor']);
+                $series['borderColor'] = array_values($series['borderColor']);
+            }
+            
             if( count($series['data']) < 100 )
                 continue;
-            $this->dataset($i,'type','line');
-            $this->dataset($i,'fill',false);
-            $this->dataset($i,'pointRadius',0);
-            $this->dataset($i,'lineTension',0);
+            $series['type'] = 'line';
+            $series['fill'] = false;
+            $series['pointRadius'] = 0;
+            $series['lineTension'] = 0;
         }
-        
-        //log_debug(__METHOD__,$this->config);
+        $this->conf('data.datasets',$this->series);
+
         $this->script("wdf.chartjs3.init('{$this->canvas->id}',".system_to_json($this->config).");");
         parent::PreRender($args);
         $this->_skipRendering = true;
@@ -240,7 +278,7 @@ class ChartJS3 extends Control
         foreach( $this->series as $i=>$s )
         {
             //log_debug("[$index] series $i",$s);
-            if( $all || $s['name'] == "$index" || "$index" == "$i" )
+            if( $all || ifavail($s,'name') == "$index" || "$index" == "$i" )
             {
                 if( $value === null )
                     return $this->conf("data.datasets.$i.$name");
@@ -321,7 +359,19 @@ class ChartJS3 extends Control
      */
     function legend($name,$value=null)
     {
-        return $this->opt("legend.$name",$value);
+        return $this->opt("plugins.legend.$name",$value);
+    }
+    
+    /**
+     * Gets/Sets the tooltip.
+     * 
+     * @param string $name Name
+     * @param mixed $value Optional value
+     * @return mixed Returns $this is value is given, else the data requested
+     */
+    function tooltip($name,$value=null)
+    {
+        return $this->opt("plugins.tooltip.$name",$value);
     }
     
     /**
@@ -366,7 +416,7 @@ class ChartJS3 extends Control
      */
     function setTimeAxesX($unit=false)
     {
-        $this->scaleX('type','timeseries');
+        $this->scaleX('type','time');
         if( $unit )
             $this->scaleX("time.unit",$unit);
         if($unit == 'hour')
@@ -396,12 +446,24 @@ class ChartJS3 extends Control
         return $this;
     }
     
+    function setColors($colors)
+    {
+        $this->colors = $colors;
+        return $this;
+    }
+
+    function setNamedColors($colors)
+    {
+        $this->named_colors = $colors;
+        return $this;
+    }
+    
     protected function getColor($name=false,$label=false,$value=false)
     {
         if( $value && $this->colorRange )
             return "".$this->colorRange->fromValue($value);
-        $col = ifavail(self::$NAMED_COLORS,$name,$label);
-        return $col?$col:(self::$COLORS[($this->currentColor++)%count(self::$COLORS)]);
+        $col = ifavail($this->named_colors,$name,$label);
+        return $col?$col:($this->colors[($this->currentColor++)%count($this->colors)]);
     }
     
     /**
@@ -444,7 +506,7 @@ class ChartJS3 extends Control
             {
                 if( is_callable($pointType) )
                     $d[] = $pointType($r,$series,$x_value_row);
-                else
+                elseif( isset($r[$series]) )
                 {
                     $v = isset($r[$series])?$r[$series]:0;
                     $d[] = ChartJS3::$pointType($r[$x_value_row],floatval($v)); 
@@ -501,14 +563,14 @@ class ChartJS3 extends Control
      */
     function setPieData(array $name_value_pairs)
     {
-        $labels = []; $this->series = [['data'=>[],'backgroundColor'=>[],'borderColor'=>[]]];
-        foreach( $name_value_pairs as $lab=>$val )
+        $labels = []; $this->series = [['isPieData'=>true,'data'=>[],'backgroundColor'=>[],'borderColor'=>[]]];
+        foreach( $name_value_pairs as $name=>$val )
         {
-            $labels[] = $lab;
-            $col = $this->getColor($lab,false,$val);
-            $this->series[0]['backgroundColor'][] = $col;
-            $this->series[0]['borderColor'][] = $col;
-            $this->series[0]['data'][] = floatval($val);
+            $labels[] = $name;
+            $col = $this->getColor($name,false,$val);
+            $this->series[0]['data'][$name] = floatval($val);
+            $this->series[0]['backgroundColor'][$name] = $col;
+            $this->series[0]['borderColor'][$name] = $col;
         }
         return $this->xLabels($labels)->conf('data.datasets',$this->series);
     }
@@ -673,5 +735,11 @@ class ChartJS3 extends Control
     {
         // todo: see MultiSeriesTime for comment on how to delay better
         return $this->opt('refresh',['interval'=>$refresh_interval,'url'=>$url] );
+    }
+    
+    public function setSeriesOrder(array $names)
+    {
+        $this->series_order = $names;
+        return $this;
     }
 }

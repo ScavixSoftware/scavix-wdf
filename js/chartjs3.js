@@ -45,6 +45,11 @@
     
     Chart.defaults.plugins.legend.position = 'right';
     
+    Chart.defaults.datasets.line.borderWidth = 2;
+    Chart.defaults.datasets.line.pointRadius = 3;
+    Chart.defaults.datasets.line.pointHoverRadius = 5;
+    Chart.defaults.datasets.line.pointHoverBackgroundColor = 'transparent';
+    
 	win.wdf.chartjs3 = 
 	{
 		charts: {},
@@ -82,7 +87,7 @@
                 return str;
             if( str.match(/\d\d\d\d-\d\d-\d\d/) )
                 str = win.luxon.DateTime.fromFormat(str,"yyyy-MM-dd").toLocaleString();
-            return str.replace(/,\s\d\d:\d\d:\d\d/,'');
+            return str.replace(/,\s00:00:00/,'');
         },
 
 		init: function(id,config)
@@ -252,7 +257,7 @@
                 if ( y.hasOwnProperty( p ) && ! x.hasOwnProperty( p ) ) return false;
             }
             return true;
-          }
+        }
 	};
 	
 })(window,jQuery);
