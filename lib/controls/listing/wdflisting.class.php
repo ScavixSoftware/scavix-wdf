@@ -187,6 +187,8 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
     {
         if( $this->log_sql && !$this->log_sql_done )
         {
+            if(!$this->table->ResultSet)
+                $this->table->GetData();
             $this->table->ResultSet->LogDebug();
             $this->log_sql_done = true;
         }
