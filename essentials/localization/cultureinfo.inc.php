@@ -3119,6 +3119,7 @@ function internal_getCultureInfo($cultureCode)
 			return $ci;
 			
 		case '':
+		case '*':
 			return false;
 			break;
             
