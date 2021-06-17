@@ -178,30 +178,36 @@ class ChartJS3 extends Control
             $this->script($script);
         }
         
+        if( $this->series_order && count($this->series)>1 )
+        {
+            $sort = function($a,$b)
+            {
+                $ia = array_search($a['name'],$this->series_order);
+                $ib = array_search($b['name'],$this->series_order);
+                if( $ia == $ib ) return 0;
+                return $ia<$ib?-1:($ia>$ib?1:0);
+            };
+            log_debug("order",$this->series_order);
+            log_debug("pre",array_map(function($s){ return $s['name']; },$this->series));
+            usort($this->series,$sort);
+            log_debug("post",array_map(function($s){ return $s['name']; },$this->series));
+            $this->legend('reverse',true);
+        }
+        
         foreach( $this->series as $i=>&$series )
         {
-            if( $this->series_order )
+            if( $this->series_order && ifavail($series,'isPieData') )
             {
-                if( isset($series['name']) )
+                $sort = function($a,$b)
                 {
-                    $series['order'] = max(0,array_search($series['name'],$this->series_order));
-                    $this->legend('reverse',true);
-//                    log_debug("Ordered series '{$series['name']}'",$this->dataset($i,'order'));
-                }
-                elseif( ifavail($series,'isPieData') )
-                {
-                    $sort = function($a,$b)
-                    {
-                        $ia = array_search($a,$this->series_order);
-                        $ib = array_search($b,$this->series_order);
-                        if( $ia == $ib ) return 0;
-                        return $ia<$ib?-1:($ia>$ib?1:0);
-                    };
-                    uksort($series['data'],$sort);
-                    uksort($series['backgroundColor'],$sort);
-                    uksort($series['borderColor'],$sort);
-//                    log_debug("Sorted PIE data",$series);
-                }
+                    $ia = array_search($a,$this->series_order);
+                    $ib = array_search($b,$this->series_order);
+                    if( $ia == $ib ) return 0;
+                    return $ia<$ib?-1:($ia>$ib?1:0);
+                };
+                uksort($series['data'],$sort);
+                uksort($series['backgroundColor'],$sort);
+                uksort($series['borderColor'],$sort);
             }
             
             if( ifavail($series,'isPieData') )

@@ -1,0 +1,42 @@
+
+.chartjs3 .caption
+{
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+.chartjs3 .wrap
+{
+    position: relative;
+}
+
+#chartjs3-global-legend
+{
+    position: absolute;
+    right: 20px;
+    bottom: 10px;
+    background-color: white;
+    padding: 10px;
+    padding-right: 0px;
+    border: 1px solid lightgray;
+    display: flex;
+}
+
+#chartjs3-global-legend > div
+{
+    margin-right: 10px;
+    display: flex;
+    cursor: pointer;
+}
+
+#chartjs3-global-legend > div:hover
+{
+    text-decoration: underline;
+}
+
+#chartjs3-global-legend > div > span
+{
+    border: 1px solid black;
+    width: 30px;
+    margin-right: 5px;
+}

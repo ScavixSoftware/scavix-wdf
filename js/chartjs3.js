@@ -104,10 +104,56 @@
                     this._deepSet(config,'options.plugins.tooltip.callbacks',win.wdf.chartjs3.stdTooltips(id));
                     break;
             }
+            if( config.options.globalLegend )
+            {
+                this._deepSet(config,'options.plugins.legend.labels.filter',win.wdf.chartjs3.grabGlobalLegendItem);
+                this._deepSet(config,'options.plugins.legend.display',false);
+            }
+            
             this.charts[id] = new Chart(ctx.getContext('2d'),config);
             if( config.options.refresh )
                 win.wdf.chartjs3.loadData(id,true);
 		},
+        
+        grabGlobalLegendItem: function(item)
+        {
+            var $glob = $('#chartjs3-global-legend');
+            if( $glob.length == 0 )
+                $glob = $('<div/>').attr('id','chartjs3-global-legend').appendTo('body');
+            
+            var $item = $('[data-text="'+item.text+'"]',$glob);
+            if( $item.length > 0 )
+                return false;
+            
+            $('<div data-text="'+item.text+'"/>')
+                .append($('<span/>').css('background-color',item.fillStyle))
+                .append(item.text)
+                .appendTo($glob)
+                .click(function()
+                {
+                    var lab = $(this).data('text');
+                    for( var cid in win.wdf.chartjs3.charts )
+                    {
+                        var c = win.wdf.chartjs3.charts[cid];
+                        
+                        (c.data.labels || []).forEach(function(label,i)
+                        {
+                            if( label != lab )
+                                return;
+                            c.toggleDataVisibility(i);
+                        });
+                        c.data.datasets.forEach(function(ds,i)
+                        {
+                            if( ds.label != lab )
+                                return;
+                            ds.hidden = !ds.hidden;
+                        });
+                        c.update();
+                    }
+                });
+                
+            return false;
+        },
 		
 		getChart: function(id)
 		{
