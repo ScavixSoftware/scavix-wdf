@@ -12,19 +12,23 @@
 
 #chartjs3-global-legend
 {
-    position: absolute;
+    z-index: 1000;
+    position: fixed;
     right: 20px;
     bottom: 10px;
     background-color: white;
     padding: 10px;
     padding-right: 0px;
+    padding-bottom: 0px;
     border: 1px solid lightgray;
     display: flex;
+    flex-wrap: wrap;
 }
 
 #chartjs3-global-legend > div
 {
     margin-right: 10px;
+    margin-bottom: 10px;
     display: flex;
     cursor: pointer;
 }

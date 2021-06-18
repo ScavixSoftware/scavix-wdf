@@ -66,14 +66,14 @@ class WdfTaskModel extends Model
             );");
     }
 	
-    public function Save($columns_to_update = false)
+    public function Save($columns_to_update = false, &$changed=null)
     {
         if( $this->isVirtual )
         {
 //            log_debug("Skipping Save for virtual task");
             return true;
         }
-        return parent::Save($columns_to_update);
+        return parent::Save($columns_to_update, $changed);
     }
     
 	public static function RunInstance($runtime_seconds=null)
