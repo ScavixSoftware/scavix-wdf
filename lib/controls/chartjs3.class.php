@@ -187,10 +187,7 @@ class ChartJS3 extends Control
                 if( $ia == $ib ) return 0;
                 return $ia<$ib?-1:($ia>$ib?1:0);
             };
-            log_debug("order",$this->series_order);
-            log_debug("pre",array_map(function($s){ return $s['name']; },$this->series));
             usort($this->series,$sort);
-            log_debug("post",array_map(function($s){ return $s['name']; },$this->series));
             $this->legend('reverse',true);
         }
         
