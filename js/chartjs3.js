@@ -98,6 +98,7 @@
             switch( config.type )
             {
                 case 'pie': 
+                case 'doughnut': 
                     this._deepSet(config,'options.plugins.tooltip.callbacks',win.wdf.chartjs3.pieTooltips(id));
                     break;
                 default: 
@@ -167,7 +168,7 @@
             {
                 //console.log("pie.label",typeof(item.raw),item);
                 if( typeof(item.raw) !== 'object' )
-                        item.raw = {raw:item.raw};
+                    item.raw = {raw:item.raw};
                     
                 if( !item.raw.label )
                 {
@@ -189,30 +190,51 @@
             {
                 title: function(items)
                 {
-                    //console.log("std.title",typeof(items[0].raw),items[0]);
                     if( typeof(items[0].raw) !== 'object' )
                         items[0].raw = {raw:items[0].raw};
                     if( !items[0].raw.title ) 
                     {                    
-                        var t = (items.length > 1)
-                            ?items[0].label || items[0].dataset.label || '' // return X label on multi-series tooltips
-                            :items[0].dataset.label || items[0].label || '';
-                        items[0].raw.title = wdf.chartjs3._dtFormat(t);
+                        if( items[0].chart.data.datasets.length > 1 )
+                            items[0].raw.title = wdf.chartjs3._dtFormat(items[0].label);
+                        else
+                        {
+                            var t = (items.length > 1)
+                                ?items[0].label || items[0].dataset.label || '' // return X label on multi-series tooltips
+                                :items[0].dataset.label || items[0].label || '';
+                            items[0].raw.title = wdf.chartjs3._dtFormat(t);
+                        }
                     }
                     return items[0].raw.title;
                 },
                 label: function(item)
                 {
+                    //console.log("std.label",item);
                     if( !item.raw.label )
                     {
-                        var val = (item.chart.options.percentScale)
-                            ?item.raw.yval+' ('+Math.round(item.raw.y)+'%)'
-                            :item.formattedValue;
-                        var l = (item.chart.config.data.datasets.length > 1)
-                            ?item.dataset.label || item.label || ''
-                            :item.label || item.dataset.label || '';
-
-                        item.raw.label = wdf.chartjs3._dtFormat(l) +": "+ val;
+                        var formatLine = function(chart,dataset,item)
+                        {
+                            var val = (chart.options.percentScale)
+                                ?item.raw.yval+' ('+Math.round(item.raw.y)+'%)'
+                                :item.formattedValue;
+                            var l = (chart.config.data.datasets.length > 1)
+                                ?dataset.label || item.label || ''
+                                :item.label || dataset.label || '';
+                            
+                            return wdf.chartjs3._dtFormat(l) +": "+ (val || item.y);
+                        };
+                        
+                        if( item.chart.data.datasets.length > 1 )
+                        {
+                            item.raw.label = [];
+                            item.chart.data.datasets.forEach(function(ds)
+                            {
+                                item.raw.label.push( formatLine(item.chart, ds, ds.data[item.dataIndex]) );
+                            });
+                        }
+                        else
+                        {
+                            item.raw.label = formatLine(item.chart,item.dataset,item);
+                        }
                     }
                     return item.raw.label;
                 }
