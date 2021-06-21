@@ -400,4 +400,10 @@ class WdfTaskModel extends Model
     {
         return $this->CreateChild($name, $args, true);
     }
+    
+    function Repeat($delay_seconds=0)
+    {
+        $r = $this->GetArg('repetition',0)+1;
+        return $this->CreateChild($this->name)->SetArg('repetition',$r)->Delay($delay_seconds)->Go();
+    }
 }
