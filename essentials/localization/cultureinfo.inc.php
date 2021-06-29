@@ -3143,6 +3143,9 @@ function internal_getCultureInfo($cultureCode)
                         $codes = internal_getCultureCodeFromRegion($a[1]);
                         if($codes !== false)
                             return internal_getCultureInfo($codes[0]);
+                        $regions = internal_getRegionsForLanguage($a[0]);           // it could also be something like "es-419"
+                        if($regions !== false)
+                            return $regions[0]->DefaultCulture();
                     }
 					log_trace("unknown culture: $cultureCode");
 					return false;
