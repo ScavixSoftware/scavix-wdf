@@ -48,7 +48,6 @@ class Query
 
 	var $_initialSequence = false;
 	var $_where = false;
-	var $_currentTree = false;
 
 	var $_values = array();
 
@@ -64,9 +63,14 @@ class Query
 			$this->_object = $obj;
 			$this->_ds = $datasource;
 			$this->_where = new ConditionTree(-1,"AND",$conditions_separator);
-			$this->_currentTree = $this->_where;
 			$this->_knownmodels = array($obj);
 		}
+	}
+    
+    public function __clone()
+	{
+		if( $this->_where )
+            $this->_where = unserialize(serialize($this->_where));
 	}
 	
 	function __toString()
@@ -117,15 +121,17 @@ class Query
 				$this->_statement->bindValue($i+1,$v);
 		}
 		if( !$this->_statement->execute() )
+        {
+            log_debug("Query:",$this);
 			WdfDbException::RaiseStatement($this->_statement,true);
-		
+        }		
 		$res = $this->_statement->fetchAll(PDO::FETCH_CLASS,get_class($this->_object),$ctor_args);
 		return $res;
 	}
 
 	protected function &__conditionTree()
 	{
-		return $this->_currentTree;
+		return $this->_where;
 	}
 
 	protected function __fqFields(&$property)
@@ -151,7 +157,6 @@ class Query
 	function where($defaultOperator = "AND")
 	{
 		$this->_where = new ConditionTree(-1,$defaultOperator);
-		$this->_currentTree = $this->_where;
 	}
     
 	function andAll()
@@ -173,6 +178,11 @@ class Query
 	{
 		$this->__conditionTree()->Nest($count,"OR");
 	}
+    
+    function end()
+    {
+        $this->__conditionTree()->Close();
+    }
 	
     function if($condition)
 	{
@@ -460,6 +470,12 @@ class ConditionTree
 		$this->_current = $this->_current->_conditions[count($this->_current->_conditions)-1];
 		$this->_current->_parent = $mem;
 	}
+    
+    function Close()
+    {
+        $this->_current->_maxConditions = count($this->_current->_conditions);
+        $this->__ensureClose();
+    }
 }
 
 /**

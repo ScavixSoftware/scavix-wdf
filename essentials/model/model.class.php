@@ -1087,6 +1087,14 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
     
+    function end()
+    {
+        $res = clone $this;
+		$res->__ensureSelect();
+		$res->_query->end();
+		return $res;
+    }
+    
     function if($condition)
 	{
 		$res = clone $this;
@@ -1136,7 +1144,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
 		$res = clone $this;
 		$res->__ensureSelect();
-		$res->_query->equal($this->__ensureFieldname($property),$value_is_sql?$value:$this->__toTypedSQLValue($property,$value),$value_is_sql);
+		$res->_query->equal($res->__ensureFieldname($property),$value_is_sql?$value:$res->__toTypedSQLValue($property,$value),$value_is_sql);
 		return $res;
 	}
 	
