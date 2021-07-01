@@ -99,17 +99,24 @@ class Color
             "pink" => "ffc0cb", "lightpink" => "ffb6c1", "black" => "000000",
             "dimgray" => "696969", "gray" => "808080", "darkgray" => "a9a9a9",
             "silver" => "c0c0c0", "lightgrey" => "d3d3d3", "gainsboro" => "dcdcdc",
-            "whitesmoke" => "f5f5f5", "white" => "ffffff",
+            "whitesmoke" => "f5f5f5", "white" => "ffffff"
         ];
+        
         
         $hex = strtolower(trim(trim($hex_string,'#')));
         if( isset($named[$hex]) )
             $hex = $named[$hex];
+        if( $hex == "transparent" )
+            return new Color([0,0,0,0]);
         
         $hex = preg_replace('/^([0-9a-f])([0-9a-f])([0-9a-f])([0-9a-f])$/i','$1$1$2$2$3$3$4$4', $hex);
         $hex = preg_replace('/^([0-9a-f])([0-9a-f])([0-9a-f])$/i','$1$1$2$2$3$3', $hex);
         if( strlen($hex) < 8 )
             $hex .= "ff";
+        
+        if( preg_match('/([^0-9a-f])/i',$hex) )
+            \ScavixWDF\WdfException::Raise("Invalid color code: $hex_string");
+        
         $parts = array_map('hexdec', str_split($hex,2));
         return new Color($parts,true);
     }
@@ -174,6 +181,20 @@ class Color
         if( $this->a == 1 )
             return sprintf("#%02X%02X%02X",$this->r,$this->g,$this->b);
         return "rgba($t)";
+    }
+    
+    public function setAlpha($a)
+    {
+        $c = new Color([0,0,0,$a],$a>1);
+        $this->a = $c->a;
+        return $this;
+    }
+    
+    public static function matchingFont(Color $c)
+    {
+        if( ($c->r + $c->g + $c->b) / 3 > 100 )
+            return new Color([0,0,0,1]);
+        return new Color([255,255,255,1]);
     }
 }
 
