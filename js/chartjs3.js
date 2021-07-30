@@ -223,13 +223,15 @@
                             return wdf.chartjs3._dtFormat(l) +": "+ (val || item.y);
                         };
                         
-                        if( item.chart.data.datasets.length > 1 )
-                        {
-                            item.raw.label = [];
+                        if( item.parsed._stacks && item.chart.data.datasets.length > 1 )
+                        {                            var temp = [];
                             item.chart.data.datasets.forEach(function(ds)
                             {
-                                item.raw.label.push( formatLine(item.chart, ds, ds.data[item.dataIndex]) );
+                                temp.push( formatLine(item.chart, ds, ds.data[item.dataIndex]) );
+                                //console.log("pushed "+temp.length);
                             });
+                            item.raw.label = temp;
+                            //console.log(item.raw.label);
                         }
                         else
                         {
