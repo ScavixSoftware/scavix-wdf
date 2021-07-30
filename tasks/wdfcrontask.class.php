@@ -38,14 +38,14 @@ namespace ScavixWDF\Tasks;
  * Next run will be scheduled after current run is over, so running a long task hourly will result
  * in more and more shifting away from the complete hour.
  */
-abstract class WdfCronTask extends ScavixWDF\Tasks\Task
+abstract class WdfCronTask extends Task
 {
     private function mustRun($interval)
     {
         $fn = system_app_temp_dir('cron', false)."data.$interval";
         $next = @file_get_contents($fn)?:'0';
         //log_debug("Next run $interval",date("Y-m-d H:i:s",$next),intval($next) < time());
-        return intval($next) < time();
+        return intval($next) <= time();
     }
     
     private function done($interval)
@@ -64,7 +64,7 @@ abstract class WdfCronTask extends ScavixWDF\Tasks\Task
                 $tasks[] = static::Async('RunInternal')->SetArg('interval',$interval)->Go(false);
         }
         if( count($tasks) )
-            ScavixWDF\Tasks\WdfTaskModel::RunInstance();
+            WdfTaskModel::RunInstance();
     }
     
     function RunInternal($args)
