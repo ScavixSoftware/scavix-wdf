@@ -1408,6 +1408,7 @@ if( !function_exists('getallheaders') )
 function system_app_temp_dir($subfolder = '', $appendnc = true)
 {
     global $CONFIG;
+    
     if($subfolder)
     {
         if(starts_with($subfolder, '/'))
@@ -1418,8 +1419,16 @@ function system_app_temp_dir($subfolder = '', $appendnc = true)
     $basedir = (avail($CONFIG, 'app_temp') ? $CONFIG['app_temp'] : sys_get_temp_dir().'/'.session_name().'/');
     if(!ends_with($basedir, '/'))
         $basedir .= '/';
+
+    if( substr(sprintf('%o', fileperms($basedir)), -4) != '0777' )
+        @chmod($basedir, 0777);
+
     if($appendnc)
         $basedir .= getAppVersion('nc').'/';
+    
+    if( substr(sprintf('%o', fileperms($basedir)), -4) != '0777' )
+        @chmod($basedir, 0777);
+    
     $folder = $basedir.($subfolder ?: '');
     $folder = str_replace(['..'], [''], $folder);
     $folder = (stripos(PHP_OS, 'WIN') === 0)
@@ -1429,13 +1438,16 @@ function system_app_temp_dir($subfolder = '', $appendnc = true)
         $folder = str_replace('//', '/', $folder);
     if( !file_exists($folder) )
     {
-        if(!mkdir($folder, 0777, true))
+        if(!@mkdir($folder, 0777, true))
             WdfException::Raise('Unable to create app temp folder: '.$folder);
-        chmod($folder, 0777);
-        if(!is_writable($folder))
+    }
+    if( substr(sprintf('%o', fileperms($folder)), -4) != '0777' )
+    {
+        @chmod($folder, 0777);
+        clearstatcache(true,$folder);
+        if( substr(sprintf('%o', fileperms($folder)), -4) != '0777' )
             WdfException::Raise('App temp folder is not writable: '.$folder);
     }
-    
     return $folder;
 }
 
