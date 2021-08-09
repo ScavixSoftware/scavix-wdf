@@ -3137,13 +3137,17 @@ function internal_getCultureInfo($cultureCode)
 				else
 				{
                     $a = explode('-', $cultureCode);
-                    if(count($a) == 2)
+                    if(count($a) >= 2)
                     {
-                        // it could be something like "en-BE", so BE is the region to try
-                        $codes = internal_getCultureCodeFromRegion($a[1]);
+                        // it could be something like "en-BE", so BE is the region to try. Could also be something like "bs-Latn-BA"
+                        $codes = internal_getCultureCodeFromRegion(array_last($a));
                         if($codes !== false)
                             return internal_getCultureInfo($codes[0]);
-                        $regions = internal_getRegionsForLanguage($a[0]);           // it could also be something like "es-419"
+                        array_pop($a);
+                        $regions = internal_getRegionsForLanguage(join('-', $a));           // it could also be something like "bs-Latn-BA-BA", so try "bs-Latn-BA"
+                        if($regions !== false)
+                            return $regions[0]->DefaultCulture();
+                        $regions = internal_getRegionsForLanguage($a[0]);           // try the first part of i.e. "es-419", "bs-Latn-BA"
                         if($regions !== false)
                             return $regions[0]->DefaultCulture();
                     }
