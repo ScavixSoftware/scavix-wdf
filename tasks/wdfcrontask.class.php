@@ -43,9 +43,9 @@ abstract class WdfCronTask extends Task
     private function mustRun($interval)
     {
         $fn = system_app_temp_dir('cron', false)."data.$interval";
-        $next = @file_get_contents($fn)?:'0';
+        $next = intval(@file_get_contents($fn)?:'0');
         //log_debug("Next run $interval",date("Y-m-d H:i:s",$next),intval($next) < time());
-        return intval($next) <= time();
+        return $next <= time() || $next-time()<5;
     }
     
     private function done($interval)
