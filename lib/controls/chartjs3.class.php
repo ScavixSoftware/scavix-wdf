@@ -215,7 +215,7 @@ class ChartJS3 extends Control
                 $series['borderColor'] = array_values($series['borderColor']);
             }
             
-            if( count($series['data']) < 100 )
+            if( count($series['data']) < 100 || ifavail($series,'raw_large_datasets') )
                 continue;
             $series['type'] = 'line';
             $series['fill'] = false;
@@ -285,6 +285,8 @@ class ChartJS3 extends Control
             {
                 if( $value === null )
                     return $this->conf("data.datasets.$i.$name");
+                
+                $this->series[$i][$name] = $value;
                 $this->conf("data.datasets.$i.$name",$value);
                 if( !$all )
                     break;
