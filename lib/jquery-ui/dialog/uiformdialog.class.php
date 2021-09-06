@@ -48,7 +48,7 @@ class uiFormDialog extends uiDialog
         ];
         parent::__construct($title, $options);
         $this->form = $this->content(\ScavixWDF\Controls\Form\Form::Make());
-        $this->AddButton("BTN_OK", "$(this).closest('.ui-dialog').find('form').submit({$this->CloseButtonAction}).submit();");
+        $this->AddButton("BTN_OK", "$(this).closest('.ui-dialog').find('form').submit(function(){wdf.defer({$this->CloseButtonAction})}).submit();");
         $this->AddButton("BTN_CANCEL",$this->CloseButtonAction);
         $this->script("$('#{self}').dialog('open');");
     }
