@@ -970,7 +970,14 @@ abstract class Model implements Iterator, Countable, ArrayAccess
     
     public function AsDbArgs(...$names)
     {
-        $d = $this->AsArray(...$names);
+        if( count($names)>0 )
+        {
+            $d = [];
+            foreach( $names as $cn )
+                $d[$cn] = isset($this->$cn)?$this->__typedValue($cn):null;
+        }
+        else
+            $d = $this->AsArray();
         return array_combine(
             array_map(function($n){ return ":$n"; }, array_keys($d)),
             array_values($d)
