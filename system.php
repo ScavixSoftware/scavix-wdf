@@ -1123,7 +1123,7 @@ function buildQuery($controller,$event="",$data="", $url_root=false)
 		$controller = $controller->_storage_id;
     }
 	
-    if(substr($controller, 0, 4) == "http")
+    if(substr($controller, 0, 4) == "http" || substr($controller, 0, 2) == "//")
         return $controller;
 	
 	// allow buildQuery('controller/method')
