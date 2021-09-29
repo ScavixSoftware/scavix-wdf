@@ -397,6 +397,12 @@ function setAppVersion($major,$minor,$build,$codename="",$nc_salt=false)
 	$GLOBALS['APP_VERSION']['nc'] = 'nc'.substr(preg_replace('/[^0-9]/', '', md5($GLOBALS['APP_VERSION']['string'].$nc_salt)), 0, 8);
 }
 
+function updateAppNC($nc_salt)
+{
+    if( $nc_salt )
+        $GLOBALS['APP_VERSION']['nc'] = 'nc'.substr(preg_replace('/[^0-9]/', '', md5($GLOBALS['APP_VERSION']['string'].$nc_salt)), 0, 8);
+}
+
 /**
  * Gets the application version.
  * 
