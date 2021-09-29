@@ -491,6 +491,7 @@ class SysAdmin extends HtmlPage
             $create = preg_replace('/\sENGINE=[^\s]+\s/i',' ',$create);
             $create = preg_replace('/\sDEFAULT\sCHARSET=[^\s]+\s/i',' ',$create);
             $create = preg_replace('/\sCOLLATE=[^\s]+(\s*)/i','$1',$create);
+            $create = preg_replace('/\sUSING\sBTREE/i','',$create);
             
             $create .= ";";
             
@@ -508,8 +509,42 @@ class SysAdmin extends HtmlPage
                 
                 $create .= "\n\n<b style='color:red'>NOTE THAT THIS IS A VIEW AND IT SHOULD BE UPDATED FROM SOURCE BECAUSE OF * REFERENCES</b>";
             }
+            else
+            {
+                if( defined("DATABASE_VERSION") && defined("DATABASE_FOLDER") )
+                {
+                    foreach( system_glob_rec(DATABASE_FOLDER,"{$table}.sql") as $file )
+                    {
+                        $current = file_get_contents($file);
+                        $fn = str_replace(DATABASE_FOLDER,'',$file);
+                        if( preg_replace('/\s/','',$current) == preg_replace('/\s/','',$create) )
+                            $this->append("<b style='color:green'>Definition file '$fn' is up to date</b>");
+                        else
+                        {
+                            $this->append("<b style='color:red'>Definition file '$fn' differs. Make sure the update path contains all ALTERs.</b>");
+                            
+                            if( shell_exec("which diff") )
+                            {
+                                $test = system_app_temp_dir('sysadmin_db')."$table.create.sql";
+                                file_put_contents($test, "$create\n");
+                                $diff = shell_exec("diff -iEZbB \"$file\" \"$test\"");
+                                $this->content("<div>DIFF:</div><pre style='border: 1px solid black'>$diff</pre>");
+                                unlink($test);
+                            }
+                            else
+                            {
+                                $this->content("<pre id='table-current' style='opacity:0.6; color: red; position:absolute;'>$current</pre>");
+                                $this->addDocReady("$('#table-current').position({my:'left top',at:'left top',of:'#table-code'});");
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
         }
-        $this->content("<pre>$create</pre>");
+        $this->content("<pre id='table-code'>$create</pre><br/><br/>");
+        
+        
         
         $listing = \ScavixWDF\JQueryUI\uiDatabaseTable::Make($ds,false,$table)
             ->AddPager()
