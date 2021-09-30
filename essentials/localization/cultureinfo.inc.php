@@ -35,6 +35,9 @@ namespace ScavixWDF\Localization;
  */
 function internal_getCultureInfo($cultureCode)
 {
+    if(ends_iwith($cultureCode, '.utf-8'))          // might be something like "en_US.UTF-8"
+        $cultureCode = substr($cultureCode, 0, -6);
+    
 	switch( strtolower( str_replace("_", "-", $cultureCode)) )
 	{
 		case 'en-us':
