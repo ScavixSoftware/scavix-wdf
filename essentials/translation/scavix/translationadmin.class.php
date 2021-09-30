@@ -117,6 +117,13 @@ class TranslationAdmin extends TranslationAdminBase
 		return $sel;
 	}
 	
+    function ClearJsTextBuffer()
+    {
+        foreach( glob(system_app_temp_dir('js_strings',false)."*.js") as $jstf )
+            @unlink($jstf);
+        redirect('translationadmin','fetch');
+    }
+    
     /**
 	 * @internal Fetch action handler
      * @attribute[RequestParam('languages','array',false)]
@@ -157,6 +164,26 @@ class TranslationAdmin extends TranslationAdminBase
             $div->content("<br/>");
         }
         $div->content('<br/>');
+        
+        $js_texts = [];
+        foreach( glob(system_app_temp_dir('js_strings',false)."*.js") as $jstf )
+        {
+            $c = file_get_contents($jstf);
+            foreach( json_decode(substr($c,19,-1),true) as $k=>$v )
+                $js_texts[] = $k;
+        }
+        $js_texts = array_unique($js_texts);
+        if( count($js_texts)>0 )
+        {
+            $div->content('<h2>Texts detected as needed in JS</h2>');
+            $div->content("<a style='font-weight:normal' href='javascript:void(0)' onclick='document.getElementById(\"js_texts\").select(); document.execCommand(\"Copy\");'>copy</a>");
+            $div->content('<br/><textarea id="js_texts" style="width: 90%; min-height: 30px">["'.implode('","',$js_texts).'"]</textarea>');
+            $div->content('<br/>');
+            $div->content("<a href='".buildQuery('translationadmin','clearjstextbuffer')."'>Clear buffer</a>");
+            $div->content('<br/>');
+            $div->content('<br/>');
+        }
+        
         $div->AddSubmit("Create translation files");
         
         if( !$languages )
