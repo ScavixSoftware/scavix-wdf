@@ -111,12 +111,57 @@
                 this._deepSet(config,'options.plugins.legend.display',false);
             }
             
+            this._prepareColors(id,config);
+            
             this.charts[id] = new Chart(ctx.getContext('2d'),config);
             if( config.options.refresh )
                 win.wdf.chartjs3.loadData(id,true);
 		},
         
-        grabGlobalLegendItem: function(item)
+        _prepareColors: function(id,config)
+        {
+            config.data.datasets.forEach(function(dataset)
+            {
+                ['backgroundColor','borderColor','pointBackgroundColor','pointBorderColor'].forEach(function(k)
+                {
+                    if( !dataset[k] )
+                        return;
+                    
+                    if( typeof dataset[k] == 'string' )
+                    {
+                        var m = dataset[k].match(/var\((.*)\)/);
+                        if( !m ) return;
+                        
+                        var orig = dataset[k];
+                        dataset[k] = function()
+                        {
+                            var style = getComputedStyle($('#'+id).get(0));
+                            return orig.replace(/var\(.*\)/,style.getPropertyValue(m[1]));
+                        };
+                    }
+                    else
+                    {
+                        var orig = dataset[k];
+                        dataset[k] = function()
+                        {
+                            var style = getComputedStyle($('#'+id).get(0));
+                            var res = [];
+                            orig.forEach(function(value)
+                            {
+                                var m = value.match(/var\((.*)\)/);
+                                if( m ) 
+                                    res.push(value.replace(/var\(.*\)/,style.getPropertyValue(m[1])));
+                                else
+                                    res.push(value);
+                            });
+                            return res;
+                        };
+                    }
+                });
+			});
+        },
+        
+        grabGlobalLegendItem: function(item,data)
         {
             var $glob = $('#chartjs3-global-legend');
             if( $glob.length == 0 )
@@ -125,7 +170,7 @@
             var $item = $('[data-text="'+item.text+'"]',$glob);
             if( $item.length > 0 )
                 return false;
-            
+           
             $('<div data-text="'+item.text+'"/>')
                 .append($('<span/>').css('background-color',item.fillStyle))
                 .append(item.text)
@@ -294,6 +339,19 @@
                 wdf.chartjs3.updateData(id,data);
                 if( int > 0 && start !== 'now' )
                     setTimeout(wdf.chartjs3.loadData,int,id);
+            });
+        },
+        
+        update: function(id)
+        {
+            Object.keys(wdf.chartjs3.charts).forEach(function(cid)
+            {
+                if( id && id != cid )
+                    return;
+                var chart = wdf.chartjs3.charts[cid];
+                if( chart.config.options.globalLegend )
+                    $('#chartjs3-global-legend').remove();
+                chart.update();
             });
         },
         
