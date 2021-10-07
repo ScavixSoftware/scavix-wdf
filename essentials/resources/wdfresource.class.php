@@ -54,6 +54,7 @@ class WdfResource implements ICallable
 		header("Last-Modified: ".$mtime);
 		header('Pragma: public');
 		header("Cache-Control: public, max-age=$days");
+        header("Referrer-Policy: strict-origin-when-cross-origin");
 		header("ETag: $etag");
 		$headers = getallheaders();
 		if( $cached )

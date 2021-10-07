@@ -152,6 +152,7 @@ function system_config_default($reset = true)
 	
 	$CONFIG['system']['header']['Content-Type'] = "text/html; charset=utf-8";
 	$CONFIG['system']['header']['X-XSS-Protection'] = "1; mode=block";
+    $CONFIG['system']['header']["Referrer-Policy"] = "strict-origin-when-cross-origin";
 	
     $path = explode("index.php",$_SERVER['PHP_SELF']);
     if(PHP_SAPI == 'cli')
