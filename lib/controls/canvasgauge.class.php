@@ -37,7 +37,7 @@ class CanvasGauge extends Control
 	function __construct()
 	{
 		parent::__construct('canvas');
-        $this->setData('type','radial-gauge')
+        $this->data('type','radial-gauge')
             ->opt('value-int',0)
             ->opt('value-dec',0)
             ->opt('stroke-ticks',false)
@@ -57,10 +57,10 @@ class CanvasGauge extends Control
 	}
     
     /**
-     * @shortcut <Control::setData>
+     * @shortcut <Control::data>
      */
     function opt($name,$value)
     {
-        return $this->setData($name, $value);
+        return $this->data($name, $value);
     }
 }

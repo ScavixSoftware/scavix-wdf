@@ -50,8 +50,8 @@ class RegionSelect extends Select
 	{
 		parent::__construct();
 		$this->script("Locale_Settings_Init();");
-		$this->setData('role', 'region');
-		$this->setData('controller', buildQuery($this->id));
+		$this->data('role', 'region');
+		$this->data('controller', buildQuery($this->id));
 		
 		if( $current_language_code )
 		{

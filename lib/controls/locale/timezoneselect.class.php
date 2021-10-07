@@ -47,7 +47,7 @@ class TimezoneSelect extends Select
 	{
 		parent::__construct();
 		$this->script("Locale_Settings_Init();");
-		$this->setData('role', 'timezone');
+		$this->data('role', 'timezone');
 		
 		if( !$current_timezone )
 			$current_timezone = Localization::getTimeZone();

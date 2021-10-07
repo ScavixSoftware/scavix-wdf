@@ -418,7 +418,7 @@ class TranslationAdmin extends TranslationAdminBase
 		
 		$tab = Table::Make()->addClass('translations all')
 			->SetHeader('Term','Default','','Content','')
-			->setData('lang',$lang)
+			->data('lang',$lang)
 			->appendTo($this);
 
 		$rs = $this->_searchQuery($offset,$lang,$search,$untranslated);
@@ -429,7 +429,7 @@ class TranslationAdmin extends TranslationAdminBase
                 ->addClass($term['id'])
                 //->attr('rows',count(explode('<br />', $def)) + 1)
                 ;
-			$btn = Button::Textual('Save')->addClass('save')->setData('term',$term['id']);
+			$btn = Button::Textual('Save')->addClass('save')->data('term',$term['id']);
 			
             $wrap = Control::Make()
                 ->append($ta);
@@ -437,13 +437,13 @@ class TranslationAdmin extends TranslationAdminBase
                 $wrap->append( "<span class='termdata' title='Sample: {$v}' onclick=\"$(this).closest('.td').find('textarea').insertAtCaret($(this).text());\">{$k}</span>" );
             
             $cpy = Button::Textual('&raquo;')->addClass('copy')
-                ->setData('term',$term['id'])
-                ->setData('def', json_encode($term['def'],JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT));
+                ->data('term',$term['id'])
+                ->data('def', json_encode($term['def'],JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT));
                 
             $one = Control::Make()
                 ->append(Anchor::Make(buildQuery('translationadmin','translateone',['term'=>$term['id']]),$term['id']))
-                ->append(Control::Make("span")->addClass('term_action rename')->setData('term', $term['id'])->append('rename'))
-                ->append(Control::Make("span")->addClass('term_action remove')->setData('term', $term['id'])->append('remove'))
+                ->append(Control::Make("span")->addClass('term_action rename')->data('term', $term['id'])->append('rename'))
+                ->append(Control::Make("span")->addClass('term_action remove')->data('term', $term['id'])->append('remove'))
                 ;
             
 			$tab->AddNewRow($one,$def,$cpy,$wrap,$btn);
@@ -503,7 +503,7 @@ class TranslationAdmin extends TranslationAdminBase
 			$ta->rows = count(explode('<br />', nl2br($row['content']))) + 1;
             
             $btn = new Button('Save');
-			$btn->addClass('save')->setData('term',$row['id'])->setData('lang',$lang);
+			$btn->addClass('save')->data('term',$row['id'])->data('lang',$lang);
             
             $wrap = Control::Make()
                 ->append($ta)

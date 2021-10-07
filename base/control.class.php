@@ -512,18 +512,20 @@ class Control extends Renderable
 	}
 	
 	/**
-	 * Set a valud to a data-$name attribute.
+	 * Set a value to a data-$name attribute.
 	 * 
 	 * Those can be accessed in JS easily using jQuery.data method
 	 * @param string $name Data name
 	 * @param mixed $value Data value (<system_to_json> will be used for arrays and objects) 
 	 * @return Control `$this`
+     * @deprecated Use <Control::data> instead
 	 */
 	function setData($name,$value)
 	{
         if( !is_string($name) && $this instanceof \ScavixWDF\Controls\ChartJS )
             WdfException::Raise("ChartJS::setData is obsolete, use setChartData instead");
         
+        log_warn("Calling Control::setData is obsolete, use Control::data instead");
 		if( is_array($value) || is_object($value) )
 			$this->_data_attributes[$name] = system_to_json($value);
 		else
@@ -542,6 +544,43 @@ class Control extends Renderable
 		if( isset($this->_data_attributes[$name]) )
 			unset($this->_data_attributes[$name]);
 		return $this;
+	}
+    
+    /**
+	 * data-* attribute Handling
+	 * 
+     * This work exaclty like <Control::attr> but with all the data-* attributes.
+     * 
+	 * @return mixed `$this`, a data-attribute value or an array of data-attributes
+	 */
+	function data()
+	{
+        $cnt = func_num_args();
+		switch( $cnt )
+		{
+			case 0:
+				return $this->_data_attributes;
+			case 1: 
+				$name = func_get_arg(0);
+				if( is_array($name) )
+				{
+					foreach( $name as $n=>$v )
+						$this->data($n,$v);
+					return $this;
+				}
+				return isset($this->_data_attributes[$name])
+                    ?$this->_data_attributes[$name]
+                    :null;
+			case 2: 
+				$name = func_get_arg(0);
+                $value = func_get_arg(1);
+                if( is_array($value) || is_object($value) )
+                    $this->_data_attributes[$name] = system_to_json($value);
+                else
+                    $this->_data_attributes[$name] = $value;
+				return $this;
+		}
+        WdfException::Raise("Control::data needs 0,1 or 2 parameters");
 	}
 	
 	/**

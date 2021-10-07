@@ -50,7 +50,7 @@ class CurrencySelect extends Select
 	{
 		parent::__construct();
 		$this->script("Locale_Settings_Init();");
-		$this->setData('role', 'currency');
+		$this->data('role', 'currency');
 		
 		$this->current_currency_code = $current_currency_code;
 		if( $current_currency_code )

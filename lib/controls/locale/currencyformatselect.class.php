@@ -48,8 +48,8 @@ class CurrencyFormatSelect extends Select
 	{
 		parent::__construct();
 		$this->script("Locale_Settings_Init();");
-		$this->setData('role', 'currenyformat');
-		$this->setData('controller', buildQuery($this->id));
+		$this->data('role', 'currenyformat');
+		$this->data('controller', buildQuery($this->id));
 		
 		if( $selected_format )
 			$this->SetCurrentValue( $selected_format );

@@ -70,7 +70,7 @@ class TimeFormatEx extends Control
 		$sample->append("($txt)")->css('color','gray');
 		
 		$cb = new CheckBox();
-		$cb->setData('role', 'timeformatex')->setData('controller', buildQuery($this->id));
+		$cb->data('role', 'timeformatex')->data('controller', buildQuery($this->id));
 		$cb->value = 1;
 		if( $append_timezone )
 			$cb->checked = "checked";

@@ -550,7 +550,7 @@ class Table extends Control
 		$ra->class = "ui-icon ui-icon-$icon";
 		$ra->title = $label;
 		$ra->id = $ra->_storage_id;
-		$ra->setData('action',$icon);
+		$ra->data('action',$icon);
 		
 		$this->_actions->content( $ra->wrap('div') );
 		

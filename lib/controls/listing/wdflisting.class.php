@@ -669,14 +669,14 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             switch($name)
             {
                 case '__CHECKBOX__':
-                    $links[] = \ScavixWDF\Controls\Form\Checkbox::Make($this->_multiselectname.'_all')->setData('multicheckboxname', $this->_multiselectname)->setValue(isset($row[$this->_multiselectidcolumn]) ? $row[$this->_multiselectidcolumn] : '')->addclass('nomonitor');
+                    $links[] = \ScavixWDF\Controls\Form\Checkbox::Make($this->_multiselectname.'_all')->data('multicheckboxname', $this->_multiselectname)->setValue(isset($row[$this->_multiselectidcolumn]) ? $row[$this->_multiselectidcolumn] : '')->addclass('nomonitor');
                     break;
                     
                 default:
                     if($label != '')
                     {
                         if( $this->sortable && $this->table->ResultSet && array_key_exists($name, $this->table->ResultSet->current()) )
-                            $a = Anchor::Make('javascript:void(0)', $label)->setData("sort", $name);
+                            $a = Anchor::Make('javascript:void(0)', $label)->data("sort", $name);
                         else
                             $a = Control::Make('span')->append($label);
                         if( preg_match('/\b'.preg_quote($name,'/').'`? DESC\b/i',$table->OrderBy) )
@@ -691,7 +691,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             }
         }
         $wrap = Control::Make()->append(array_pop($links))->append('&nbsp;');
-        Anchor::Void("<span class='ui-icon ui-icon-gear'></span>")->setData('column-state', $columns)->appendTo($wrap);
+        Anchor::Void("<span class='ui-icon ui-icon-gear'></span>")->data('column-state', $columns)->appendTo($wrap);
         
         $links[] = $wrap;
         
@@ -841,7 +841,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
                 default:
                     $td = $tr->NewCell(ifavail($row,$name));
                     if( !isset($this->columnCallbacks[$name]) )
-                        $td->setData('model-col',$name);
+                        $td->data('model-col',$name);
                     if( isset($this->colClasses[$name]) )
                         $td->addClass($this->colClasses[$name]);
                     break;
@@ -852,7 +852,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             $cb($row,$tr);
         
         if( avail($row,'uid') )
-            $tr->setData('model-uid',$row['uid']);
+            $tr->data('model-uid',$row['uid']);
         
         return $tr;
     }

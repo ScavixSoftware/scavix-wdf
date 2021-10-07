@@ -101,7 +101,7 @@ class AjaxAction
 		$action = "$data".AjaxAction::Post($controller,$event,'d',$dlg->CloseButtonAction);
 		$dlg->SetOkCallback($action);
 		$_SESSION['ajax_confirm'][$text_base] = md5(time());
-		$dlg->setData('confirmed', $_SESSION['ajax_confirm'][$text_base]);
+		$dlg->data('confirmed', $_SESSION['ajax_confirm'][$text_base]);
 		return $dlg;
 	}
 	

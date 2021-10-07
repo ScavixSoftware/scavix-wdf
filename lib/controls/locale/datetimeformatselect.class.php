@@ -54,8 +54,8 @@ class DateTimeFormatSelect extends Select
 	{
 		parent::__construct();
 		$this->script("Locale_Settings_Init();");
-		$this->setData('role', 'datetimeformat');
-		$this->setData('controller', buildQuery($this->id));
+		$this->data('role', 'datetimeformat');
+		$this->data('controller', buildQuery($this->id));
 		$this->culture_code = $culture_code;
 		
 		if( $selected_date_format || $selected_time_format )

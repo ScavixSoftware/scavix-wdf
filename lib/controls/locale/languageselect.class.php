@@ -48,7 +48,7 @@ class LanguageSelect extends Select
 	{
 		parent::__construct();
 		$this->script("Locale_Settings_Init();");
-		$this->setData('role', 'language');
+		$this->data('role', 'language');
 		
 		if( $current_language_code )
 		{
