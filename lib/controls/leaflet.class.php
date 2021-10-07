@@ -89,6 +89,7 @@ class LeafLet extends Control
 	function __construct()
 	{
 		parent::__construct("div");
+        $this->css("height", '300px')->css("width", '400px')->css("max-width", '100%');
 	}
     
     /**
@@ -123,7 +124,9 @@ class LeafLet extends Control
         // set tileLayer
         $opts = self::$providers[$this->TileProvider];
         $url = $opts['url']; unset($opts['url']);
+        $opts['crossOrigin'] = '';
         $opts = system_to_json($opts);
+        
         $this->script("L.tileLayer('$url',$opts).addTo($map);");
         $markers = "$('#{self}').data('markers')";
         $this->script("var markers = new Array();");
