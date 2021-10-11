@@ -4,6 +4,10 @@
     margin-top: 10px;
     margin-bottom: 5px;
 }
+.chartjs3 .caption:empty
+{
+    display: none;
+}
 
 .chartjs3 .wrap
 {

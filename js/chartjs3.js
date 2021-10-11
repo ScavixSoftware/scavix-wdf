@@ -110,6 +110,10 @@
                 this._deepSet(config,'options.plugins.legend.labels.filter',win.wdf.chartjs3.grabGlobalLegendItem);
                 this._deepSet(config,'options.plugins.legend.display',false);
             }
+            if( config.options.plugins && config.options.plugins.tooltip && config.options.plugins.tooltip.display === false )
+            {
+                this._deepSet(config,'options.plugins.tooltip.filter',function(){ return false; });
+            }
             
             this._prepareColors(id,config);
             
