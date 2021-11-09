@@ -210,6 +210,29 @@ class WdfResource implements ICallable
             $url = trim($match[1],"\"' ");
             return "url('".resFile($url)."')";
         }, $res);
+        
+        $res = preg_replace_callback("/dataUri\s*\(['\"]*(.*)['\"]*\)/siU",function($match)
+        {
+            $fn = resFile(trim($match[1],"\"' "), true);
+            if( !file_exists($fn) )
+                return "none";
+            
+            $mime = system_guess_mime($fn);
+            if( "image/svg+xml" == $mime )
+            {
+                $c = file_get_contents($fn);
+                $c = preg_replace('/<!--.*-->/', '', $c);
+                $c = preg_replace('/[\r\n\t]/', ' ', $c);
+                $c = preg_replace('/\s\s+/', ' ', $c);
+                $c = str_replace(
+                    ['"',"%"  ,"#"  ,'{'  ,'}'  ,'<'  ,'>'],
+                    ["'","%25","%23","%7B","%7D","%3C","%3E"], 
+                    $c);
+                return "url(\"data:$mime,$c\")";
+            }
+            $c = base64_encode(file_get_contents($fn));
+            return "url(\"data:$mime;base64,$c\")";
+        }, $res);
 
 		if( $base )
 			$res = preg_replace_callback("/url\s*\(['\"]*([^'\")]*)['\"]*\)/si",function($match)use($base)

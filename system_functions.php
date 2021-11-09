@@ -1457,16 +1457,9 @@ function system_app_temp_dir($subfolder = '', $appendnc = true)
     return $folder;
 }
 
-/**
- * Return file extension based on mimetype.
- * 
- * @see https://gist.github.com/alexcorvi/df8faecb59e86bee93411f6a7967df2c#gistcomment-2722664
- * @param string $mime Given mime type
- * @return string|bool extendion or false
- */
-function system_mime_to_extension($mime)
+function system_mime_map()
 {
-    $mime_map = [
+    return $mime_map = [
         'video/3gpp2'                                                               => '3g2',
         'video/3gp'                                                                 => '3gp',
         'video/3gpp'                                                                => '3gp',
@@ -1646,6 +1639,24 @@ function system_mime_to_extension($mime)
         'multipart/x-zip'                                                           => 'zip',
         'text/x-scriptzsh'                                                          => 'zsh',
     ];
+}
 
+/**
+ * Return file extension based on mimetype.
+ * 
+ * @see https://gist.github.com/alexcorvi/df8faecb59e86bee93411f6a7967df2c#gistcomment-2722664
+ * @param string $mime Given mime type
+ * @return string|bool extendion or false
+ */
+function system_mime_to_extension($mime)
+{
+    $mime_map = system_mime_map();
     return isset($mime_map[$mime]) === true ? $mime_map[$mime] : false;
+}
+
+function system_guess_mime($filename)
+{
+    $mime_map = system_mime_map();
+    $ext = pathinfo($filename,PATHINFO_EXTENSION);
+    return array_search($ext,$mime_map);
 }
