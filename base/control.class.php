@@ -334,7 +334,7 @@ class Control extends Renderable
 	function css($name,$value)
 	{
 		$name = strtolower($name);
-		$this->_css[$name] = is_numeric($value)?$value.'px':$value;
+		$this->_css[$name] = ($name!='flex'&&is_numeric($value))?$value.'px':$value;
 		return $this;
 	}
 

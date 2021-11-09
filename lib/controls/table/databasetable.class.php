@@ -400,6 +400,7 @@ class DatabaseTable extends Table implements ICallable
 		
         if( !$this->ResultSet || $this->ResultSet->Count()==0 )
 		{
+            $this->addClass('empty');
 			if( !$this->noDataAsRow )
             {
                 $this->content($this->contentNoData);

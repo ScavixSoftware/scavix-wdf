@@ -927,6 +927,12 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
         return $this;
     }
     
+    function setEmptyContent($content)
+    {
+        $this->table->contentNoData = $content;
+        return $this;
+    }
+    
     /**
      * @attribute[RequestParam('target','string',false)]
      * @attribute[RequestParam('format','string',false)]
