@@ -263,6 +263,13 @@ class ChartJS3 extends Control
         return $this->conf("options.$name",$value);
 	}
     
+    function addPlugin($name)
+    {
+        $p = $this->conf("plugins")?:[];
+        $p[] = "[jscode]$name";
+        return $this->conf("plugins",$p);
+    }
+    
     /**
      * Get/Set dataset related configuration.
      * 
