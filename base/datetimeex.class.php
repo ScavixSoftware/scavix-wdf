@@ -331,10 +331,17 @@ class DateTimeEx extends DateTime
 	 * That sounds mystic, in fact just `return $this > self::Now();`
 	 * @return bool true or false
 	 */
-	public function is_future_date()
+	public function is_future_date(bool $date_only = false)
 	{
+        if( $date_only )
+            return $this > self::Today();
 		return $this > self::Now();
 	}
+    
+    public function is_today()
+    {
+        return $this->format("Y-m-d") == date("Y-m-d");
+    }
 	
 	/**
 	 * Checks if this represents a date/time in the past.
@@ -342,8 +349,10 @@ class DateTimeEx extends DateTime
 	 * In fact just `return $this < self::Now();`
 	 * @return bool true or false
 	 */
-	public function is_past_date()
+	public function is_past_date(bool $date_only = false)
 	{
+        if( $date_only )
+            return $this < self::Today();
 		return $this < self::Now();
 	}
 }
