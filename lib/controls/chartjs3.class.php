@@ -211,8 +211,8 @@ class ChartJS3 extends Control
             {
                 unset($series['isPieData']);
                 $series['data'] = array_values($series['data']);
-                $series['backgroundColor'] = array_values($series['backgroundColor']);
-                $series['borderColor'] = array_values($series['borderColor']);
+                $series['backgroundColor'] = array_values(force_array($series['backgroundColor']));
+                $series['borderColor'] = array_values(force_array($series['borderColor']));
             }
             
             if( count($series['data']) < 100 || ifavail($series,'raw_large_datasets') )
@@ -583,6 +583,21 @@ class ChartJS3 extends Control
             $this->series[0]['data'][$name] = floatval($val);
             $this->series[0]['backgroundColor'][$name] = $col;
             $this->series[0]['borderColor'][$name] = $col;
+        }
+        return $this->xLabels($labels)->conf('data.datasets',$this->series);
+    }
+    
+    function addPieData(array $name_value_pairs)
+    {
+        $labels = []; $this->series[] = ['isPieData'=>true,'data'=>[],'backgroundColor'=>[],'borderColor'=>[]];
+        $i = count($this->series)-1;
+        foreach( $name_value_pairs as $name=>$val )
+        {
+            $labels[] = $name;
+            $col = $this->getColor($name,false,$val);
+            $this->series[$i]['data'][$name] = floatval($val);
+            $this->series[$i]['backgroundColor'][$name] = $col;
+            $this->series[$i]['borderColor'][$name] = $col;
         }
         return $this->xLabels($labels)->conf('data.datasets',$this->series);
     }
