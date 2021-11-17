@@ -3146,13 +3146,13 @@ function internal_getCultureInfo($cultureCode)
                         $codes = internal_getCultureCodeFromRegion(array_last($a));
                         if($codes !== false)
                             return internal_getCultureInfo($codes[0]);
-                        array_pop($a);
-                        $regions = internal_getRegionsForLanguage(join('-', $a));           // it could also be something like "bs-Latn-BA-BA", so try "bs-Latn-BA"
-                        if($regions !== false)
-                            return $regions[0]->DefaultCulture();
-                        $regions = internal_getRegionsForLanguage($a[0]);           // try the first part of i.e. "es-419", "bs-Latn-BA"
-                        if($regions !== false)
-                            return $regions[0]->DefaultCulture();
+                        while(count($a) > 0)
+                        {
+                            array_pop($a);
+                            $regions = internal_getRegionsForLanguage(join('-', $a));           // it could also be something like "bs-Latn-BA-BA", so try "bs-Latn-BA"
+                            if($regions !== false)
+                                return $regions[0]->DefaultCulture();
+                        }
                     }
 					log_trace("unknown culture: $cultureCode");
 					return false;
