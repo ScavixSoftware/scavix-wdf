@@ -37,6 +37,7 @@ use ScavixWDF\Base\DateTimeEx;
  * @attribute[Resource('chartjs3/luxon.js')]
  * @attribute[Resource('chartjs3/chartjs-adapter-luxon.js')]
  * @attribute[Resource('chartjs3/chartjs-plugin-trendline.js')]
+ * @attribute[Resource('chartjs3/chartjs-plugin-datalabels.js')]
  * @attribute[Resource('canvas2svg.js')]
  */
 class ChartJS3 extends Control
