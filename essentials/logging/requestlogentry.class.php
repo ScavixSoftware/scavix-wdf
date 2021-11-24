@@ -88,7 +88,7 @@ class RequestLogEntry extends Model
         $this->session_id = session_id();
         $this->ip = get_ip_address();
         $this->url = ifavail(\ScavixWDF\Wdf::$Request,'URL')?:system_current_request(true);
-        $this->post = json_encode($_POST);
+        $this->post = json_encode($this->obfuscateData($_POST));
         $id = md5($this->ip.'-'.$this->url.'-'.$this->post.'-'.$this->started);
         
         if( $this->Blacklisted() )
@@ -122,6 +122,14 @@ class RequestLogEntry extends Model
         }
         while($i++<10);
         return false;
+    }
+    
+    protected function obfuscateData(array $data): array
+    {
+        foreach( $data as $k=>$v )
+            if( stripos($k,'pass') )
+                $data[$k] = '***';
+        return $data;
     }
     
     public function _died($data)
