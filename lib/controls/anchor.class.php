@@ -71,6 +71,11 @@ class Anchor extends Control
     {
         return new Anchor("javascript:void(0)",$label);
     }
+    
+    public static function Link($label,$controller,$event="",$data="")
+    {
+        return new Anchor(buildQuery($controller,$event,$data),$label);
+    }
 	
 	/**
 	 * @override Ensures that there's a valid href attribute, if not adds "#" to it.
