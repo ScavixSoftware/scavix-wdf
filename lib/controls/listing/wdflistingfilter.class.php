@@ -151,8 +151,11 @@ class WdfListingFilter extends Template
     function resetValues()
     {
         foreach( WdfListing::Storage()->keys() as $k )
-            if(starts_with($k,"{$this->prefix}_") )
+            if( starts_with($k,"{$this->prefix}_") )
                 $this->delValue(str_replace("{$this->prefix}_","",$k));
+        
+        foreach( $this->get('inputs') as $control )
+            $control->setValue('');
         return $this;
     }
 
