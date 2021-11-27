@@ -270,7 +270,7 @@ function get_timezone_by_ip($ip = false)
             {
                 if(!$zone[1])
                     $zone[1] = get_countrycode_by_ip($ip);
-                $isDst = date('I');
+                $isDst = 1; //date('I');        // that doesn't work as expected :-(
                 list($hours, $minutes) = explode(':', $zone[0]);
                 $seconds = $hours * 60 * 60 + $minutes * 60;
                 $tz = false;
