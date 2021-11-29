@@ -27,6 +27,8 @@
  */
 namespace ScavixWDF\Session;
 
+use ScavixWDF\WdfException;
+
 /**
  * Stores objects in the SESSION.
  * 

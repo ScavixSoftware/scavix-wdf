@@ -35,6 +35,9 @@ namespace ScavixWDF\Localization;
  */
 function internal_getCultureInfo($cultureCode)
 {
+    if(stripos($cultureCode, '.utf-8'))          // might be something like "en_US.UTF-8"
+        $cultureCode = str_ireplace('.utf-8', '', $cultureCode);
+    
 	switch( strtolower( str_replace("_", "-", $cultureCode)) )
 	{
 		case 'en-us':
@@ -3119,6 +3122,7 @@ function internal_getCultureInfo($cultureCode)
 			return $ci;
 			
 		case '':
+		case '*':
 			return false;
 			break;
             
@@ -3136,14 +3140,22 @@ function internal_getCultureInfo($cultureCode)
 				else
 				{
                     $a = explode('-', $cultureCode);
-                    if(count($a) == 2)
+                    if(count($a) >= 2)
                     {
-                        // it could be something like "en-BE", so BE is the region to try
-                        $codes = internal_getCultureCodeFromRegion($a[1]);
+                        // it could be something like "en-BE", so BE is the region to try. Could also be something like "bs-Latn-BA"
+                        $codes = internal_getCultureCodeFromRegion(array_last($a));
                         if($codes !== false)
                             return internal_getCultureInfo($codes[0]);
+                        while(count($a) > 0)
+                        {
+                            array_pop($a);
+                            $regions = internal_getRegionsForLanguage(join('-', $a));           // it could also be something like "bs-Latn-BA-BA", so try "bs-Latn-BA"
+                            if($regions !== false)
+                                return $regions[0]->DefaultCulture();
+                        }
                     }
-					log_trace("unknown culture: $cultureCode");
+                    if(!in_array($cultureCode, ['ig']))         // don't log the ones we know are faulty
+                        log_trace("unknown culture: $cultureCode");
 					return false;
 				} 
             }                

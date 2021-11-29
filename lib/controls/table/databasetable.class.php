@@ -140,6 +140,7 @@ class DatabaseTable extends Table implements ICallable
 					$this->ResultSet = $this->DataSource->ExecuteSql($sql,$prms);
 			}
 		}
+        $this->TotalItems = $this->ResultSet?$this->ResultSet->GetpagingInfo('total_rows'):0;
 		if( $this->DataSource->ErrorMsg() )
 			log_error(get_class($this).": ".$this->DataSource->ErrorMsg());
         elseif( isset($logtimer) )
@@ -152,6 +153,7 @@ class DatabaseTable extends Table implements ICallable
 	function Clear()
 	{
 		$this->ResultSet = false;
+        $this->TotalItems = 0;
 		return parent::Clear();
 	}
 
@@ -638,8 +640,8 @@ class DatabaseTable extends Table implements ICallable
 	
 	protected function RenderPager()
 	{
-        if( $this->ItemsPerPage && !$this->HidePager )
-            $this->TotalItems = $this->ResultSet?$this->ResultSet->GetpagingInfo('total_rows'):0;
+//        if( $this->ItemsPerPage && !$this->HidePager )
+//            $this->TotalItems = $this->ResultSet?$this->ResultSet->GetpagingInfo('total_rows'):0;
 		return parent::RenderPager();
 	}
     
