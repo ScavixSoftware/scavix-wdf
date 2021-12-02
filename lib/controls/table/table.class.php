@@ -169,8 +169,6 @@ class Table extends Control
 	 */
 	function Clear()
 	{
-//		$this->header = false;
-//		$this->footer = false;
 		$this->current_row_group = false;
 		$this->current_row = false;
 		$this->current_cell = false;
@@ -296,7 +294,7 @@ class Table extends Control
         $opts = array
         (
             'top_pager' => $this->ItemsPerPage && !$this->HidePager && $this->PagerAtTop,
-            'bottom_pager' => $this->ItemsPerPage && !$this->HidePager,
+            'bottom_pager' => $this->ItemsPerPage && !$this->HidePager
         );
         
         $this->script("$('#{self}').table(".json_encode($opts).");");
@@ -333,23 +331,18 @@ class Table extends Control
 			system_call_user_func_array_byref($this->DataCallback[0], $this->DataCallback[1], $args);
 		}
 			
-		if( $this->ItemsPerPage && !$this->HidePager )
-		{
-			$pager = $this->RenderPager();
-			$this->content($pager);
-		}
         if( $this->footer )
-            $this->prepend($this->footer);//array_merge(array($this->footer),$this->_content);
+            $this->prepend($this->footer);
         if( $this->header )
-            $this->prepend($this->header);//array_merge(array($this->header),$this->_content);
+            $this->prepend($this->header);
 
 		if( $this->colgroup )
-			$this->prepend($this->colgroup);//array_merge(array($this->colgroup),$this->_content);
+			$this->prepend($this->colgroup);
 
         if( $this->Caption )
         {
 			$this->_ensureCaptionObject();
-            $this->prepend($this->Caption);//array_merge(array($this->Caption),$this->_content);
+            $this->prepend($this->Caption);
         }
 		
         foreach( $this->_content as &$c )
@@ -365,9 +358,19 @@ class Table extends Control
                 $r->FormatCells($this);
 			}
         }
-		$res = parent::WdfRender();
-		if( $this->DataCallback )
+        
+		
+//        log_debug(__METHOD__, $this->TotalItems);
+//        $this->setData('rowcount', $this->TotalItems);
+        if( $this->ItemsPerPage && !$this->HidePager )
+		{
+			$pager = $this->RenderPager();
+			$this->content($pager);
+		}
+        $res = parent::WdfRender();
+        if( $this->DataCallback )
 			$this->Clear();
+
 		return $res;
     }
 	

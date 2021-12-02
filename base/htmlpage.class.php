@@ -117,9 +117,9 @@ class HtmlPage extends Template implements ICallable
 		$this->addMeta("viewport","width=device-width, height=device-height, initial-scale=1.0");
 		$this->addMeta("referrer","strict-origin-when-cross-origin");
         
+    	$buffer = \ScavixWDF\Wdf::GetBuffer('wdf_js_strings')->mapToSession('wdf_js_strings');
 		if( !avail($_SESSION,'js_strings_version') )
 		{
-			$buffer = \ScavixWDF\Wdf::GetBuffer('wdf_js_strings')->mapToSession('wdf_js_strings');
 			foreach( $this->getJsRegisteredStrings() as $id=>$txt )
 			{
 				if( is_numeric($id) )
@@ -128,7 +128,8 @@ class HtmlPage extends Template implements ICallable
 			}
 			$_SESSION['js_strings_version'] = time();
 		}
-		$this->addJs(buildQuery('wdfresource','texts').$_SESSION['js_strings_version'].".js");
+        if(iterator_count($buffer))
+            $this->addJs(buildQuery('wdfresource','texts').$_SESSION['js_strings_version'].".js");
 	}
 	
 	/**

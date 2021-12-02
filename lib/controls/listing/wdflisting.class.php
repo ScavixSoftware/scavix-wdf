@@ -148,6 +148,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
         $this->datatable = $table;
         $this->controller = $controller?:current_controller(true);
         $this->sortable = !self::$ShowCompleteData && $sortable;
+        $this->persistkeyextra = $persistkeyextra;
         $this->persistance_key = ($datatype.$controller.$table.($sortable?'1':'0').$persistkeyextra);
         
         $this->ds = DataSource::Get();
@@ -193,6 +194,8 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
     {
         if( $this->log_sql && !$this->log_sql_done )
         {
+            if(!$this->table->ResultSet)
+                $this->table->GetData();
             $this->table->ResultSet->LogDebug();
             $this->log_sql_done = true;
         }
@@ -388,11 +391,11 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
         return $this;
     }
     
-    function addComplexColumn($name,$label,$sql,$arguments=[])
+    function addComplexColumn($name,$label,$sql,$arguments=[],$format=false,$alignment='l')
     {
         return $this
             ->addField("($sql) as '$name'",$arguments)
-            ->addColumn($name, $label);
+            ->addColumn($name, $label, $format, $alignment);
     }
     
     function addField($sql,$arguments=[])
@@ -1004,12 +1007,24 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
         if(isset($sqlcols['__CHECKBOX__']))
             unset($sqlcols['__CHECKBOX__']);
         
+        $lst = $this;
+        
         DatabaseTable::$export_def[$format]['fn'] = 'Export_'.$exportfilename.'_'.date("Y-m-d_H-i-s").'.'.$format;
         $tab->Clear();
-        $tab->Export($format, function($row) use ($datatype)
+        $tab->Export($format, function($row) use ($datatype, $lst)
 		{
+            foreach( $lst->rowDataCallbacks as $cb )
+                $row = $cb($row);
+            
             foreach($row as $k => $val)
+            {
+                if( isset($lst->columnCallbacks[$k]) )
+                    $val = $lst->columnCallbacks[$k]($val,$row);
                 $row[$k] = strip_tags(str_replace(['&nbsp;', '<br/>', '<br>'], [' ', ', ', ', '], $val));
+            }
+            
+            foreach( $lst->rowCallbacks as $cb )
+                $cb($row,$tr);
             
             return $row;
         });

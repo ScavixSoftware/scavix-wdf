@@ -203,7 +203,7 @@
                     }
                     else
                     {
-                        $('form').find('input[type="text"]:not(.hasDatepicker),input[type="email"],input[type="password"],textarea,select').filter(':not([data-noautofocus])').filter(':not([readonly])').filter(':visible:first').focus().select();
+                        $('input[type="text"]:not(.hasDatepicker),input[type="email"],input[type="password"],textarea,select').filter(':not([data-noautofocus])').filter(':not([readonly])').filter(':visible:first').focus().select();
                     }
                 });
 			}

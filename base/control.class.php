@@ -392,7 +392,11 @@ class Control extends Renderable
             if( is_null($controller) || ($this != $controller && !$this->isChildOf($controller)) )
                 return;
 			if( method_exists($controller,'addDocReady') )
+            {
 				$controller->addDocReady(implode("\n",$this->_script));
+                if( system_is_ajax_call() )
+                    $this->_script = [];
+            }
 		}
 	}
 
@@ -461,7 +465,10 @@ class Control extends Renderable
 
 		if( system_is_ajax_call() && count($this->_script)>0 )
         {
-            $this->_script[] = "$('#{$this->id}').on('remove',function(){ $('[data-wdf-remove-with=\"{$this->id}\"]').remove(); });";
+            $scriptCode = "$('#{$this->id}').on('remove',function(){ $('[data-wdf-remove-with=\"{$this->id}\"]').remove(); });";
+            $k = "k".md5($scriptCode);
+            if(!isset($this->_script[$k]))
+                $this->_script[$k] = $scriptCode;
 			$res .= "<script type='text/javascript' data-wdf-remove-with='{$this->id}'> ".implode("\n",$this->_script)."</script>";
         }
 		return $res;
