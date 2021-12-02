@@ -131,7 +131,7 @@ class Control extends Renderable
         'pre' => array('width'),
         'q' => array('cite'),
         'script' => array('charset','defer','event','language','for','src','type'),
-        'select' => array('disabled','multiple','name','onblur','onchange','onfocus','size','tabindex','title'),
+        'select' => array('disabled','multiple','name','onblur','onchange','onfocus','size','tabindex','title','autocomplete'),
         'style' => array('media','title','type'),
         'table' => array('align','border','bgcolor','cellpadding','cellspacing','frame','rules','summary','width'),
         'tbody' => array('align','char','charoff','valign'),
