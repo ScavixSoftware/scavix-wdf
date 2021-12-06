@@ -86,9 +86,16 @@ var wdf = win.wdf;
         self.overlay('remove', function() {
             self.prev('.pager').remove(); 
             self.next('.pager').remove();
-            self.replaceWith(html); 
+            var newobj = $(html);
+            self.replaceWith(newobj); 
             $('.thead a',self).click(self.overlay);
             self.placePager(self.opts);
+//            console.log($('.tbody > div', newobj).length);
+            var lst = newobj.parent();
+            if($('.tbody > div', newobj).length > 0)
+                $('.multi-actions, .btnexport', lst).show();
+            else
+                $('.multi-actions, .btnexport', lst).hide();
             wdf.processCallback(callbackwhendone);
         });
     };
@@ -108,15 +115,18 @@ var wdf = win.wdf;
     {
         var $p = $('.pager',this).remove();
 
-        if( opts && opts.top_pager )
+        if( opts )
         {
-            $(this).addClass('pager_top');
-            $p = $p.insertBefore(this).clone(true);
-        }
-        if( opts && opts.bottom_pager )
-        {
-            $(this).addClass('pager_bottom');
-            $p.insertAfter(this);
+            if( opts.top_pager )
+            {
+                $(this).addClass('pager_top');
+                $p = $p.insertBefore(this).clone(true);
+            }
+            if( opts.bottom_pager )
+            {
+                $(this).addClass('pager_bottom');
+                $p.insertAfter(this);
+            }
         }
     };
 

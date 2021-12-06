@@ -297,12 +297,17 @@ function logging_remove_category($name)
  * Sets the minimum severity to log.
  * 
  * @param string $min_severity A valid severity string
- * @return void
+ * @return bool
  */
 function logging_set_level($min_severity = "INFO")
 {
+    if(is_string($min_severity))
+        $min_severity = @constant("\\ScavixWDF\\Logging\\Logger::".$min_severity);
+    if(!$min_severity)
+        return false;
 	foreach( Wdf::$Logger as $l )
 		$l->min_severity = $min_severity;
+    return true;
 }
 
 /**

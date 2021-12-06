@@ -2,9 +2,7 @@
 /**
  * Scavix Web Development Framework
  *
- * Copyright (c) 2007-2012 PamConsult GmbH
- * Copyright (c) 2013-2019 Scavix Software Ltd. & Co. KG
- * Copyright (c) since 2019 Scavix Software GmbH & Co. KG
+ * Copyright (c) since 2021 Scavix Software GmbH & Co. KG
  *
  * This library is free software; you can redistribute it
  * and/or modify it under the terms of the GNU Lesser General
@@ -20,12 +18,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library. If not, see <http://www.gnu.org/licenses/>
  *
- * @author PamConsult GmbH http://www.pamconsult.com <info@pamconsult.com>
- * @copyright 2007-2012 PamConsult GmbH
- * @author Scavix Software Ltd. & Co. KG https://www.scavix.com <info@scavix.com>
- * @copyright 2012-2019 Scavix Software Ltd. & Co. KG
- * @author Scavix Software GmbH & Co. KG https://www.scavix.com <info@scavix.com>
- * @copyright since 2019 Scavix Software GmbH & Co. KG
+ * @copyright since 2021 Scavix Software GmbH & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
@@ -33,32 +26,26 @@ use ScavixWDF\Wdf;
 use ScavixWDF\WdfException;
 
 /**
- * Modul to localize ip-adresses.
+ * Module to localize ip-addresses.
  * 
- * Uses the [free version of GeoIP](http://www.maxmind.com/app/geolitecity) from maxmind.
- * In the majority of cases maxmind publishes updates for the GeoLiteCity.dat on the first day each month.
+ * Uses [IP2Location](https://lite.ip2location.com/ip2location-lite)
+ * Needs 'composer require ip2location/ip2location-php'
  * @return void
 */
-function geoip_init()
+function ip2location_init()
 {
 	global $CONFIG;
-	if( !function_exists('geoip_country_code_by_name') )
-	{
-		require_once(__DIR__."/geoip/geoip.inc");
-		require_once(__DIR__."/geoip/geoipcity.inc");
-	}
 
-	if( !system_is_module_loaded('curlwrapper') )
-		WdfException::Raise("Missing module: curlwrapper!");
-		
 	if( !Wdf::$ClientIP )
 		Wdf::$ClientIP = get_ip_address();
 	
-	if( !isset($CONFIG['geoip']['city_dat_file']) )
-		$CONFIG['geoip']['city_dat_file'] = __DIR__."/geoip/GeoLiteCity.dat";
-	
-	if( !file_exists($CONFIG['geoip']['city_dat_file']) )
-		WdfException::Raise("GeoIP module: missing GeoLiteCity.dat (".$CONFIG['geoip']['city_dat_file'].")! Get it from http://dev.maxmind.com/geoip/legacy/geolite/");
+	if( !isset($CONFIG['ip2location']) || (!file_exists($CONFIG['ip2location']['ipv4_bin_file']) && !file_exists($CONFIG['ip2location']['ipv6_bin_file'])) )
+		WdfException::Raise("ip2location module: missing database BIN file. Get it from https://lite.ip2location.com/ip2location-lite");
+    
+	if( !isset($CONFIG['ip2location']['autoload_file']) || !file_exists($CONFIG['ip2location']['autoload_file']) )
+		WdfException::Raise("ip2location module: autoload.php");
+    
+    require_once($CONFIG['ip2location']['autoload_file']);
 }
 
 /**
@@ -67,23 +54,30 @@ function geoip_init()
  * @param string $ip_address IP address to check (defaults to <get_ip_address>)
  * @return stdClass Object containing location information
  */
-function get_geo_location_by_ip($ip_address=null)
+function get_geo_location_by_ip($ip = false)
 {
-	if( is_null($ip_address) ) 
-		$ip_address = Wdf::$ClientIP;
-
-	// local ips throw an error, so ignore them:
-	if(starts_with($ip_address, "1.1 ") || starts_with($ip_address, "192.168."))
+ 	// ip could be something like "1.1 ironportweb01.gouda.lok:80 (IronPort-WSA/7.1.1-038)" from proxies
+	if($ip === false)
+		$ip = Wdf::$ClientIP;
+	if(starts_with($ip, "1.1 ") || starts_with($ip, "192.168."))
 		return false;
-	if( function_exists('geoip_open') )
-	{
-		$gi = geoip_open($GLOBALS['CONFIG']['geoip']['city_dat_file'],GEOIP_STANDARD);
-		$location = geoip_record_by_addr($gi,$ip_address);
-		geoip_close($gi);
-		return $location;
-	}
-	$location = @geoip_record_by_name($ip_address);
-	return (object) $location;
+    
+    $key = "get_geo_location_by_ip.".getAppVersion('nc')."-".$ip;
+    $ret = cache_get($key);
+	if( $ret )
+		return $ret;
+    
+    global $CONFIG;
+    $binfile = $CONFIG['ip2location'][filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) ? 'ipv4_bin_file' : 'ipv6_bin_file'];
+    $ipdb = new \IP2Location\Database($binfile, \IP2Location\Database::FILE_IO);
+    $ret = $ipdb->lookup($ip, \IP2Location\Database::ALL);
+    if($ret === false)
+        return $ret;
+    $ret = (object) $ret;
+//    log_debug($ret);
+    cache_set($key, $ret, 60 * 60); // keep that in cache for an hour
+    
+    return $ret;
 }
 
 /**
@@ -92,20 +86,12 @@ function get_geo_location_by_ip($ip_address=null)
  * See <get_ip_address>
  * @return string Location name or empty string if unknown
  */
-function get_geo_region()
+function get_geo_region($ip = false)
 {
-	include(__DIR__."/geoip/geoipregionvars.php");
-	if( function_exists('geoip_open') )
-	{
-		$gi = geoip_open($GLOBALS['CONFIG']['geoip']['city_dat_file'],GEOIP_STANDARD);
-		$location = geoip_record_by_addr($gi,Wdf::$ClientIP);
-		geoip_close($gi);
-		if(!isset($GEOIP_REGION_NAME[$location->country_code]))
-			return "";
-	}
-	else
-		$location = (object) geoip_record_by_name(Wdf::$ClientIP);
-	return $GEOIP_REGION_NAME[$location->country_code][$location->region];
+    $data = get_geo_location_by_ip($ip);
+    if(avail($data, 'regionName'))
+        return $data->regionName;
+    return false;
 }
 
 /**
@@ -117,31 +103,13 @@ function get_geo_region()
 function get_coordinates_by_ip($ip = false)
 {
 	// ip could be something like "1.1 ironportweb01.gouda.lok:80 (IronPort-WSA/7.1.1-038)" from proxies
-	if($ip === false)
-		$ip = Wdf::$ClientIP;
-	if(starts_with($ip, "1.1 ") || starts_with($ip, "192.168."))
-		return false;
-	
-	if( function_exists('geoip_open') )
-	{
-		$gi = geoip_open($GLOBALS['CONFIG']['geoip']['city_dat_file'],GEOIP_STANDARD);
-		$location = geoip_record_by_addr($gi,$ip);
-		geoip_close($gi);
-	}
-	else
-		$location = (object) geoip_record_by_name($ip);
-	
-	if(!isset($location->latitude) && !isset($location->longitude))
-	{
-		log_error("get_coordinates_by_ip: No coordinates found for IP ".$ip);
-		return false;
-	}
-	
-	$coordinates = array();
-	$coordinates["latitude"] = $location->latitude;
-	$coordinates["longitude"] = $location->longitude;
-
-	return $coordinates;
+	$data = get_geo_location_by_ip($ip);
+    if(avail($data, 'longitude') && avail($data, 'latitude'))
+        return [
+            'latitude' => $data->latitude,
+            'longitude' => $data->longitude
+        ];
+    return false;
 }
 
 /**
@@ -150,40 +118,12 @@ function get_coordinates_by_ip($ip = false)
  * @param string $ipaddr IP address to resolve (defaults to <get_ip_address>)
  * @return array Country code or empty string if not found
  */
-function get_countrycode_by_ip($ipaddr = false)
+function get_countrycode_by_ip($ip = false)
 {
-	if($ipaddr === false)
-		$ipaddr = Wdf::$ClientIP;
-    
-    if(!filter_var($ipaddr, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4))
-        return false;
-            
-	if( isset($_SESSION['geoip_countrycode_by_ip_'.$ipaddr]) && $_SESSION['geoip_countrycode_by_ip_'.$ipaddr] != "" )
-		return $_SESSION['geoip_countrycode_by_ip_'.$ipaddr];
-
-	if( function_exists('geoip_open') )
-	{
-		$gi = geoip_open($GLOBALS['CONFIG']['geoip']['city_dat_file'],GEOIP_STANDARD);
-		$country_code = geoip_country_code_by_addr($gi,$ipaddr);
-		geoip_close($gi);
-	}
-	else
-		$country_code = geoip_country_code_by_name($ipaddr);
-
-	if(!$country_code)
-	{
-		if(isDev() && (starts_with($ip, "1.1 ") || starts_with($ip, "192.168.")))
-			$country_code = 'DE';
-		else
-		{
-			$location = get_geo_location_by_ip($ipaddr);
-			if($location && isset($location->country_code))
-				$country_code = $location->country_code;
-		}
-	}
-	$_SESSION['geoip_countrycode_by_ip_'.$ipaddr] = $country_code."";
-	
-	return $country_code;
+    $data = get_geo_location_by_ip($ip);
+    if(avail($data, 'countryCode'))
+        return $data->countryCode;
+    return false;
 }
 
 /**
@@ -192,21 +132,12 @@ function get_countrycode_by_ip($ipaddr = false)
  * See <get_ip_address>
  * @return string Country name or empty string if unknown
  */
-function get_countryname_by_ip()
+function get_countryname_by_ip($ip = false)
 {
-//	// maxmind installed as server module?
-//	if(isset($_SERVER["GEOIP_COUNTRY_CODE"]))
-//		return $_SERVER["GEOIP_COUNTRY_CODE"];
-	if( function_exists('geoip_open') )
-	{
-		$gi = geoip_open($GLOBALS['CONFIG']['geoip']['city_dat_file'],GEOIP_STANDARD);
-		$country_name = geoip_country_name_by_name($gi,Wdf::$ClientIP);
-		geoip_close($gi);
-	}
-	else
-		$country_name = geoip_country_name_by_name(Wdf::$ClientIP);
-
-	return $country_name;
+    $data = get_geo_location_by_ip($ip);
+    if(avail($data, 'countryName'))
+        return $data->countryName;
+    return false;
 }
 
 /**
@@ -231,6 +162,8 @@ function get_timezone_by_ip($ip = false)
     
     $services = [];
     $triedurls = [];
+    
+    $services['ip2location'] = true;
     
 // freegeoip is now ipstack.com and doesn't offer timezone information for free anymore
 //    $services["https://freegeoip.net/xml/$ip"] = function($response)
@@ -313,12 +246,23 @@ function get_timezone_by_ip($ip = false)
             {
                 $data = simplexml_load_string($response);
                 if(avail($data, 'timezoneId'))
-                    return (string)$data->timezoneId;
+                    return [(string)$data->timezoneId, (string)ifavail($data, 'countryCode')];
+                return false;
+            };
+        }
+        elseif( $url == 'ip2location' ) // prepare geo search inline to only have overhead when we reach that case
+        {
+            $url = false;
+            $cb = function($response) use ($ip, $CONFIG)
+            {
+                $data = get_geo_location_by_ip($ip);
+                if(avail($data, 'timeZone'))
+                    return [$data->timeZone, $data->countryCode];
                 return false;
             };
         }
         
-        $resp = downloadData($url, false, false, 60 * 60, 2);
+        $resp = ($url ? downloadData($url, false, false, 60 * 60, 2) : false);
         $zone = $cb($resp);
         if( $zone !== false )
         {
@@ -326,7 +270,7 @@ function get_timezone_by_ip($ip = false)
             {
                 if(!$zone[1])
                     $zone[1] = get_countrycode_by_ip($ip);
-                $isDst = date('I');
+                $isDst = 1; //date('I');        // that doesn't work as expected :-(
                 list($hours, $minutes) = explode(':', $zone[0]);
                 $seconds = $hours * 60 * 60 + $minutes * 60;
                 $tz = false;
@@ -364,6 +308,7 @@ function get_timezone_by_ip($ip = false)
             return $zone[0];
         }
     }
+    
     $zone = isset($CONFIG['geoip']['default_timezone'])
         ?$CONFIG['geoip']['default_timezone']
         :date_default_timezone_get();
