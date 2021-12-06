@@ -255,6 +255,7 @@ function cli_execute()
         }
 
         $exectime = microtime(true);
+        $argv = $task->PreprocessArguments($argv);
         $task->$method($argv);
         $exectime = round((microtime(true) - $exectime) * 1000);
         $task->Finished($method,$exectime,$exectime);
