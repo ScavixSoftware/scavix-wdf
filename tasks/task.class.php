@@ -103,6 +103,16 @@ abstract class Task
     }
 
     /**
+     * Subclasses may implement this to react on arguments before actual run.
+     * @param array $args Array with arguments
+     * @return array New array with arguments
+     */
+    function PreprocessArguments(array $args): array
+    {
+        return $args;
+    }
+    
+    /**
      * Central processing method. Subclasses must implement this.
      * @param array $args Array with arguments
      * @return void
