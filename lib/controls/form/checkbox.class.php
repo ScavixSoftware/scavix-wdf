@@ -59,4 +59,21 @@ class CheckBox extends Input
 			unset($this->_attributes['checked']);
 		return $this;
 	}
+    
+    /**
+     * Enables form auto-submission on value change.
+     * 
+     * This is done by submitting `$(this).closest('form')`
+     * 
+     * @param bool $on if true, activates, else stops
+     * @return Select $this
+     */
+    function setAutoSubmit($on=true)
+    {
+        if( $on )
+            $this->attr("onchange","$(this).closest('form').submit()");
+        else
+            $this->attr("onchange","");
+        return $this;
+    }
 }

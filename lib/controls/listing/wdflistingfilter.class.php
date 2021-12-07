@@ -34,6 +34,7 @@ class WdfListingFilter extends Template
     var $prefix = "";
     var $sql_builders = [];
     var $listings = [];
+    var $onoffs = [];
 
     function __construct($controller,$method='',$object=false)
     {
@@ -124,6 +125,9 @@ class WdfListingFilter extends Template
         $val = Args::post($name);
         if( $val )
             $this->persist($name, $val);
+        
+        if( $control instanceof \ScavixWDF\Controls\Form\CheckBox )
+            $this->onoffs[] = $name;
 
         return $return_self?$this:$control;
     }
@@ -144,6 +148,12 @@ class WdfListingFilter extends Template
             $val = Args::post($name,null);
             if( $val !== null )
                 $this->persist($name, $val);
+        }
+        foreach( $this->onoffs as $name )
+        {
+            $val = Args::request($name,null);
+            if( $val === null )
+                $this->persist($name, 0);
         }
         return $this;
     }
