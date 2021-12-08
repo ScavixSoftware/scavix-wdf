@@ -231,9 +231,11 @@ function cli_execute()
     //log_debug("Task '$task' resolved to '$class::$method'");
     if( class_exists($class) )
     {
+		$ref = new ReflectionClass($class);
+        if( !$ref->isSubclassOf(\ScavixWDF\Tasks\Task::class) )
+            \ScavixWDF\WdfException::Raise("Invalid task processor '$class' found in file '".$ref->getFilename()."'");
+		
         $task = new $class();
-        if( !($task instanceof \ScavixWDF\Tasks\Task) )
-            \ScavixWDF\WdfException::Raise("Invalid task processor");
 
         $ref = new ReflectionMethod($task, $method);
         if( !$ref )

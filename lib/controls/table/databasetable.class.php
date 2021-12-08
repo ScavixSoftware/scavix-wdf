@@ -32,9 +32,6 @@ namespace ScavixWDF\Controls\Table;
 
 use ExcelCulture;
 use PDO;
-use PHPExcel;
-use PHPExcel_Cell;
-use PHPExcel_IOFactory;
 use ScavixWDF\ICallable;
 use ScavixWDF\Localization\CultureInfo;
 use ScavixWDF\Model\DataSource;

@@ -5,12 +5,13 @@ define("NO_CONFIG_NEEDED",true);
 require(__DIR__.'/system.php');
 system_init('scavix-wdf-cli');
 \ScavixWDF\Model\DataSource::SetDefault("sqlite://:memory:");
-
-\ScavixWDF\CLI\CliLogger::$LOG_SEVERITY = false;
+if( class_exists("\\ScavixWDF\\CLI\\CliLogger") )
+	\ScavixWDF\CLI\CliLogger::$LOG_SEVERITY = false;
 classpath_add(getcwd());
 
 if( count($GLOBALS['argv'])<2 )
-	$GLOBALS['argv'][] = 'help';
+	$GLOBALS['argv'][] = 'helptask';
+
 
 /**
  * Standard help output
@@ -71,7 +72,7 @@ class HelpTask extends \ScavixWDF\Tasks\Task
 		}
 		else
 		{
-			log_info("Syntax: php scavix-wdf.phar (help|search|<cmd> [<args>])");
+			log_info("Syntax: php ".basename($GLOBALS['argv'][0])." (help|search|<cmd> [<args>])");
 			if( file_exists(__DIR__.'/VERSION') )
 			{
 				$v = file(__DIR__.'/VERSION');
@@ -91,10 +92,13 @@ class SearchTask extends \ScavixWDF\Tasks\Task
 {
 	function Run($args)
 	{
-		log_info("Searching for tasks in current folder...");
-		$fqcns = [];
-		$processClassFile = function($file)use(&$fqcns)
+		$fqcns = []; $done = [];
+		$processClassFile = function($file)use(&$fqcns,&$done)
 		{
+			if( isset($done[$file]) ) return;
+			$done[$file] = true;
+			if( stripos($file,"/vendor/") ) return;
+			
 			$content = file_get_contents($file);
 			$tokens = @token_get_all($content);
 			$namespace = '';
@@ -119,42 +123,42 @@ class SearchTask extends \ScavixWDF\Tasks\Task
 			}
 		};
 		
+		log_info("Searching for tasks in '".getcwd()."'...");
 		$dir = new RecursiveDirectoryIterator(getcwd());
 		$it = new RecursiveIteratorIterator($dir);
 		$regit = new RegexIterator($it, '/^.+\.php$/i', RecursiveRegexIterator::GET_MATCH);
 		foreach( $regit as $phpFile )
 			$processClassFile($phpFile[0]);
 		
-		$dir = new RecursiveDirectoryIterator(__DIR__,FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS);
-		$it = new RecursiveIteratorIterator($dir);
-		$regit = new RegexIterator($it, '/^.+\.php$/i', RecursiveRegexIterator::GET_MATCH);
-		foreach( $regit as $phpFile )
-			$processClassFile($phpFile[0]);
-		
 		$in_phar = (stripos(__DIR__,"phar://") !== false);
-		$reflector = $in_phar?str_replace("phar://","",__DIR__):__FILE__;
+		
+		if( $in_phar )
+			$processClassFile(__FILE__);
+		elseif( strpos(__DIR__,getcwd().'/') !== 0 ) 
+		{
+			log_info("Searching for tasks in '".__DIR__."'...");
+			$dir = new RecursiveDirectoryIterator(__DIR__,FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS);
+			$it = new RecursiveIteratorIterator($dir);
+			$regit = new RegexIterator($it, '/^.+\.php$/i', RecursiveRegexIterator::GET_MATCH);
+			foreach( $regit as $phpFile )
+				$processClassFile($phpFile[0]);
+		}
+		
+		$reflector = $in_phar?str_replace("phar://","",__DIR__):$GLOBALS['argv'][0];
 		$tasks = [];
-		foreach( array_chunk($fqcns,20) as $chunk )
+		foreach( array_chunk(array_unique($fqcns),20) as $chunk )
 		{
 			try
 			{
 				$cls = implode(" ",$chunk);
-			
-				$test = shell_exec("php $reflector search-reflect $cls");
-				if( !preg_match_all('/^ok:(.*)$/im',$test,$matches) )
+				$out = shell_exec("php $reflector searchtask-reflect $cls");
+				$test = json_decode($out,true);
+				if( !$test )
 					continue;
-				foreach( $matches[1] as $m )
-					$tasks[] = $m;
+				foreach( $test as $entry )
+					log_info("\nFile       : {$entry['file']}\nCommand    : {$entry['name']}\nDescription: {$entry['desc']}");
 			}
 			catch(\Exception $ex){ log_debug("Caught",$ex); }
-		}
-		foreach( $tasks as $cls )
-		{
-			$ref = \ScavixWDF\Reflection\WdfReflector::GetInstance($cls);
-			$comment = $ref->getCommentObject();
-			$md = trim($comment?$comment->RenderAsMD():'');
-			$name = strtolower(str_ireplace("task","",array_last(explode("\\",$cls))));
-			log_info("\nCommand    : {$name}\nDescription: {$md}");
 		}
 	}
 	
@@ -162,22 +166,26 @@ class SearchTask extends \ScavixWDF\Tasks\Task
 	{
 		ini_set('display_errors',0);
 		error_reporting(0);
+		$res = [];
 		while( count($args)>0 )
 		{
 			$ref = false;
 			$cls = array_shift($args);
 			try
 			{
+				cache_clear();
 				$ref = new \ScavixWDF\Reflection\WdfReflector($cls);
+				if( $ref && $ref->isSubclassOf(\ScavixWDF\Tasks\Task::class) )
+				{
+					$comment = $ref->getCommentObject();
+					$md = trim($comment?$comment->RenderAsMD():'');
+					$res[] = ['name'=>$cls,'file'=>$ref->getFileName(),'desc'=>$md];
+				}
 			}
-			catch(\Exception $ex){}
-			
-			if( $ref && $ref->isSubclassOf(\ScavixWDF\Tasks\Task::class) )
-				echo "ok:$cls\n";
-			else
-				echo "nok:$cls\n";
+			catch(\Exception $ex){ }
 		}
+		die(json_encode($res));
 	}
 }
 
-system_execute();
+\system_execute();
