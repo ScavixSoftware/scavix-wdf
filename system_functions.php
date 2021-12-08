@@ -1154,7 +1154,7 @@ function avail()
 	$args = func_get_args();
 	if( count($args) < 2 )
 		ScavixWDF\WdfException::Raise("avail needs at least two arguments");
-	
+
 	$ar = array_shift($args);
 	if( !is_array($ar) && !is_object($ar) )
 		return false;

@@ -1,5 +1,7 @@
 <?php
+namespace ScavixWDF\Controls\Table;
 
+use DateTime;
 use ScavixWDF\Localization\CultureInfo;
 use ScavixWDF\Localization\Localization;
 
@@ -21,25 +23,25 @@ class ExcelCulture extends CultureInfo
 		return $res;
 	}
 	
-	function FormatDate($date, $format_id = false)
+	function FormatDate($date, $format_id = false, $convert_to_timezone = 'default')
 	{
 		$date = $this->_ensureTimeStamp($date);
         $timeStart = new DateTime();
-		return PHPExcel_Shared_Date::FormattedPHPToExcel(date("Y",$date),date("m",$date),date("d",$date));
+		return \PhpOffice\PhpSpreadsheet\Shared\Date::formattedPHPToExcel(date("Y",$date),date("m",$date),date("d",$date));
 	}
 	
-	function FormatTime($date, $format_id = false)
+	function FormatTime($date, $format_id = false, $convert_to_timezone = 'default')
 	{
 		$date = $this->_ensureTimeStamp($date);
         $timeStart = new DateTime();
-		return fmod(PHPExcel_Shared_Date::PHPToExcel($timeStart->setTimestamp($date)),1);
+		return fmod(\PhpOffice\PhpSpreadsheet\Shared\Date::PHPToExcel($timeStart->setTimestamp($date)),1);
 	}
 	
-	function FormatDateTime($date, $format_id = false)
+	function FormatDateTime($date, $format_id = false, $convert_to_timezone = 'default')
 	{
 		$date = $this->_ensureTimeStamp($date);
         $timeStart = new DateTime();
-		return PHPExcel_Shared_Date::PHPToExcel($timeStart->setTimestamp($date));
+		return \PhpOffice\PhpSpreadsheet\Shared\Date::PHPToExcel($timeStart->setTimestamp($date));
 	}
 	
 	function FormatInt($number)
@@ -66,13 +68,13 @@ class ExcelCulture extends CultureInfo
 		{
 			case 'time':
 			case 'duration':
-				self::$FORMAT_MAP[$f] = PHPExcel_Style_NumberFormat::FORMAT_DATE_TIME4;
+				self::$FORMAT_MAP[$f] = \PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_TIME4;
 				break;
 			case 'date':
-				self::$FORMAT_MAP[$f] = PHPExcel_Style_NumberFormat::FORMAT_DATE_DDMMYYYY;
+				self::$FORMAT_MAP[$f] = \PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_DDMMYYYY;
 				break;
 			case 'datetime':
-				self::$FORMAT_MAP[$f] = PHPExcel_Style_NumberFormat::FORMAT_DATE_DATETIME;
+				self::$FORMAT_MAP[$f] = \PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_DATETIME;
 				break;
 			case 'currency':
 				$res = '#'.
@@ -102,11 +104,11 @@ class ExcelCulture extends CultureInfo
 				self::$FORMAT_MAP[$f] = "$pos;$neg";
 				break;
             case 'text':
-				self::$FORMAT_MAP[$f] = PHPExcel_Style_NumberFormat::FORMAT_TEXT;
+				self::$FORMAT_MAP[$f] = \PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT;
                 break;
 			default:
 				log_warn("Unknown column format: $f");
-				self::$FORMAT_MAP[$f] = PHPExcel_Style_NumberFormat::FORMAT_GENERAL;
+				self::$FORMAT_MAP[$f] = \PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_GENERAL;
 				break; 
 		}
 		return self::$FORMAT_MAP[$f];

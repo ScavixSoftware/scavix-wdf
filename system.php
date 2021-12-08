@@ -111,11 +111,11 @@ function system_config_default($reset = true)
 	# see http://www.php.net/manual/de/session.configuration.php
 	ini_set('session.hash_function',1);
 	ini_set('session.hash_bits_per_character',5);
-	
+
 
 	if( $reset )
 		$CONFIG = array();
-	
+
 	$CONFIG['class_path']['system'][]  = __DIR__.'/reflection/';
 	$CONFIG['class_path']['system'][]  = __DIR__.'/base/';
 	$CONFIG['class_path']['system'][]  = __DIR__.'/tasks/';
@@ -131,7 +131,7 @@ function system_config_default($reset = true)
 	$CONFIG['class_path']['content'][] = __DIR__.'/lib/widgets/';
 	$CONFIG['class_path']['content'][] = __DIR__.'/lib/google/';
 	$CONFIG['class_path']['content'][] = __DIR__.'/lib/fusioncharts/';
-	
+
 	$CONFIG['class_path']['order'] = array('system','model','content');
 
 	$CONFIG['system']['path_root'] = __DIR__;
@@ -149,11 +149,11 @@ function system_config_default($reset = true)
 
 	$CONFIG['system']['hook_logging'] = false;
 	$CONFIG['system']['attach_session_to_ajax'] = false;
-	
+
 	$CONFIG['system']['header']['Content-Type'] = "text/html; charset=utf-8";
 	$CONFIG['system']['header']['X-XSS-Protection'] = "1; mode=block";
     $CONFIG['system']['header']["Referrer-Policy"] = "strict-origin-when-cross-origin";
-	
+
     $path = explode("index.php",$_SERVER['PHP_SELF']);
     if(PHP_SAPI == 'cli')
         $path = ['/'];
@@ -163,7 +163,7 @@ function system_config_default($reset = true)
 		$_SERVER['HTTP_HOST'] = '127.0.0.1';
 	if( !isset($_SERVER['REQUEST_URI']) )
 		$_SERVER['REQUEST_URI'] = '';
-    
+
 
     if(defined('IDNA_DEFAULT') && defined('INTL_IDNA_VARIANT_UTS46'))
     {
@@ -182,11 +182,11 @@ function system_config_default($reset = true)
     $CONFIG['system']['default_page'] = \ScavixWDF\Base\HtmlPage::class;
     $CONFIG['system']['default_event'] = false;
 	$CONFIG['system']['tpl_ext'] = array("tpl.php");
-	
+
 	$CONFIG['system']['admin']['enabled']  = false;
 	$CONFIG['system']['admin']['username'] = false;
 	$CONFIG['system']['admin']['password'] = false;
-	
+
     // deprecated: Use HtmlPage static properties instead!
 //	$CONFIG['system']['htmlpage']['doctype'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 //	$CONFIG['system']['htmlpage']['render_noscript'] = true;
@@ -205,6 +205,9 @@ function system_load_module($path_to_module)
 	// prevent double-loading:
 	$mod = basename($path_to_module,".php");
 
+    if( $mod == "mod_phpexcel" )
+        \ScavixWDF\WdfException::Raise("PHPExcel module has bee removed. Use PhpSpreadsheet instead.");
+    
 	if(system_is_module_loaded($mod))
 		return true;
 

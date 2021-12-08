@@ -944,15 +944,22 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
     {
         if(!$format)
         {
-            $dlg = uiDialog::Make('TITLE_CHOOSE_EXPORT_FORMAT', array('width'=>400,'height'=>230)); //->append($frm);
+            $dlg = uiDialog::Make(
+                tds('TITLE_CHOOSE_EXPORT_FORMAT','Choose export format'), 
+                ['width'=>400,'height'=>230]
+            );
          
             $chosen = $this->getSetting('export_format');
-            $sel = Select::Make('format')->attr('title', 'TXT_FILE_FORMAT')->appendTo($dlg);
+            $sel = Select::Make('format')->appendTo($dlg);
+            $sel->CreateLabel(tds('TXT_FILE_FORMAT','Format'))->css('display','block')
+                ->prependTo($dlg);
+            
             foreach(['xlsx', 'xls', 'csv'] as $f)
                 $sel->CreateOption($f, strtoupper($f), $f==$chosen);
             
-            $dlg->AddCloseButton('BTN_CANCEL');
-            $dlg->AddButton('OK',"wdf.redirect('{$target}/export', {format:$('#{$sel->id}').val()}); $('#{$dlg->id}').dialog('close'); ");
+            $dlg->AddCloseButton(tds('BTN_CANCEL','Cancel'));
+            $q = buildQuery($target,'export');
+            $dlg->AddButton('OK',"wdf.redirect('$q', {format:$('#{$sel->id}').val()}); $('#{$dlg->id}').dialog('close'); ");
             
             return $dlg;
         }
@@ -992,6 +999,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             if(isset($this->columns['__CHECKBOX__']))
                 unset($this->columns['__CHECKBOX__']);
             $tab->Header()->NewRow($this->columns);
+            $tab->SetFormat( array_values($this->filterToVisible($this->formats)) );
         }
         
         $sqlcols = $this->columns;

@@ -534,12 +534,11 @@ class DatabaseTable extends Table implements ICallable
 
             if( !isset($format_buffer) )
 			{
-				$i=0; $format_buffer = array();
-				foreach( $r as $k=>$v )
+				$format_buffer = array();
+				foreach( $cols as $i=>$k )
 				{
                     if( isset($this->ColFormats[$i]) )
                         $format_buffer[$k] = $this->ColFormats[$i];
-                    $i++;
 				}
 			}
 			foreach( $format_buffer as $k=>$cellformat )
@@ -548,11 +547,14 @@ class DatabaseTable extends Table implements ICallable
 		}
 		return $res;
 	}
-	
+    
 	protected function _exportExcel($format=self::EXPORT_FORMAT_XLSX, $rowcallback = null)
-	{		
-		system_load_module(__DIR__.'/../../../modules/mod_phpexcel.php');
-		$xls = new PHPExcel();
+	{
+        //log_debug(__METHOD__,$format);
+        if( !class_exists("\\PhpOffice\\PhpSpreadsheet\\Spreadsheet") )
+            \ScavixWDF\WdfException::Raise("Missing PhpSpreadsheet. Please install using composer.");
+        
+		$xls = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
 		$sheet = $xls->getActiveSheet();
 		$row = 1;
 		$max_cell = 0;
@@ -562,22 +564,22 @@ class DatabaseTable extends Table implements ICallable
 
 		foreach( array_merge($head_rows,$this->_export_get_data($ci,$rowcallback)) as $data_row )
 		{
-			$i = 0;
-			foreach( $data_row as $val )
+			foreach( array_values($data_row) as $i=>$val )
 			{
-				$sheet->setCellValueByColumnAndRow($i, $row, $val);
-				$i++;
-				if( $i>$max_cell )$max_cell = $i;
+                $col = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($i+1);
+                $sheet->setCellValue("$col$row",$val);
+				if( $i>$max_cell ) $max_cell = $i;
 			}
 			$row++;
 		}
-		for($i=0; $i<=$max_cell; $i++)
+        
+		for($i=0;$i<=$max_cell; $i++)
 		{
-			$sheet->getColumnDimensionByColumn($i)->setAutoSize(true);
+			$sheet->getColumnDimensionByColumn($i+1)->setAutoSize(true);
 			if( isset($this->ColFormats[$i]) )
 			{
 				$ef = $ci->GetExcelFormat($this->ColFormats[$i]);
-				$col = PHPExcel_Cell::stringFromColumnIndex($i);
+				$col = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($i+1);
 				$sheet->getStyle("$col$first_data_row:$col$row")
 					->getNumberFormat()
 					->setFormatCode($ef);
@@ -586,9 +588,9 @@ class DatabaseTable extends Table implements ICallable
         $sheet->freezePane('A2');
 		
 		if( $format == self::EXPORT_FORMAT_XLS )
-			$xlswriter = PHPExcel_IOFactory::createWriter($xls, 'Excel5');
+			$xlswriter = new \PhpOffice\PhpSpreadsheet\Writer\Xls($xls);
 		else
-			$xlswriter = PHPExcel_IOFactory::createWriter($xls, 'Excel2007');
+			$xlswriter = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($xls);
 		
 		$filename = str_replace("{date}",date("Y-m-d_H-i-s"),self::$export_def[$format]['fn']);
 		$mime = self::$export_def[$format]['mime'];
