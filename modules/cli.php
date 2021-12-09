@@ -253,6 +253,12 @@ function cli_execute()
                 list($k,$v) = explode("=",$arg,2);
                 if( !isset($argv[$k]) )
                     $argv[$k] = $v;
+                else
+                {
+                    if( !is_array($argv[$k]) )
+                        $argv[$k] = [$argv[$k]];
+                    $argv[$k][] = $v;
+                }
             }
         }
 

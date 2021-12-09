@@ -192,7 +192,7 @@ class CheckTask extends Task
     {
         $dir = realpath(ifavail($args,'dir'));
         if( !$dir )
-            return log_info("Syntax: check-php8 dir=<base-folder>");
+            return log_info("Syntax: check-php8 dir=<base-folder> [ignore=<wdf-folder>]");
         
         $removed_functions = [
             // according to https://www.php.net/manual/de/migration80.incompatible.php
@@ -213,15 +213,28 @@ class CheckTask extends Task
         $removed_classes = [
             // according to https://www.php.net/manual/de/migration80.incompatible.php
             'DOMNameList', 'DomImplementationList', 'DOMConfiguration', 'DomError', 'DomErrorHandler',
-            'DOMImplementationSource', 'DOMLocator', 'DOMUserDataHandler', 'DOMTypeInfo'
+            'DOMImplementationSource', 'DOMLocator', 'DOMUserDataHandler', 'DOMTypeInfo', 
+            // removed from WDF, see #SI-18
+            'PHPExcel','InvoicePdf','PdfDocument'
         ];
+        $removed_modules = [
+            // removed from WDF, see #SI-18
+            'mod_phpexcel', 'pear', 'zend', 'invoices',
+        ];
+        
+        $ignores = array_filter(array_map(
+            'realpath', 
+            ifavail($args,'ignore')? force_array(ifavail($args,'ignore')):[]
+        ));
+        $ignores[] = __SCAVIXWDF__;
         
         foreach( system_glob_rec($dir,"*.php") as $file )
         {
-            if( 0 === stripos(realpath($file), __SCAVIXWDF__) )
+            foreach( $ignores as $ign )
+                if( 0 === stripos(realpath($file), $ign) )
+                    continue(2);
+            if( stripos($file,'/vendor/') )
                 continue;
-//            if( basename($file) == 'checktask.class.php' )
-//                continue;
             
             $relfile = trim(str_replace($dir,"", $file),"/");
             $findings = [];
@@ -251,6 +264,10 @@ class CheckTask extends Task
             foreach( $removed_classes as $c )
                 if( strpos($code, $c) !== false )
                     $findings[] = "(F) Removed class found: '$c'";
+                
+            foreach( $removed_modules as $m )
+                if( preg_match("/system_load_module.*{$m}/",$code) || preg_match("/modules[^;]+{$m}/m",$code) )
+                    $findings[] = "(F) Removed module found: '$m'";
             
             if( strpos($code,"is_resource") !== false )
                 foreach( $res_to_obj as $rto )

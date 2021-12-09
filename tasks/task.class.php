@@ -146,11 +146,19 @@ abstract class Task
         return $res;
     }
     
-    protected function getArg($args,...$aliases)
+    protected function getArg($args, ...$aliases)
     {
         foreach( $aliases as $a )
             if( isset($args[$a]) )
                 return $args[$a];
         return null;
+    }
+    
+    protected function hasFlag($args, ...$names)
+    {
+        foreach( $names as $n )
+            if( in_array($n, $args) )
+                return true;
+        return false;
     }
 }
