@@ -283,8 +283,11 @@ class PayPal extends PaymentProvider
 		global $CONFIG;
 		// strip off the prefix (needed to have unique invoice_ids at paypal):
 		$order_id = $ipndata["invoice"];
-		if(starts_with($order_id, $CONFIG["invoices"]["invoice_id_prefix"]))
-			$order_id = trim(str_replace($CONFIG["invoices"]["invoice_id_prefix"], "", $order_id));
+        
+        $this->compatConfig();
+        
+		if(starts_with($order_id, $CONFIG["payment"]["invoice_id_prefix"]))
+			$order_id = trim(str_replace($CONFIG["payment"]["invoice_id_prefix"], "", $order_id));
 		$payment_status = strtolower($ipndata["payment_status"]);
 		$transaction_id = $ipndata["txn_id"];
 

@@ -180,4 +180,13 @@ abstract class PaymentProvider
 	{
 		return true;
 	}
+    
+    protected function compatConfig()
+    {
+        if( !avail($GLOBALS,'CONFIG',"invoices","invoice_id_prefix") )
+            return;
+        log_warn("Deprecated CONFIG found: ['invoices']['invoice_id_prefix'] should be ['payment']['invoice_id_prefix']");
+        if( !avail($GLOBALS,'CONFIG',"payment","invoice_id_prefix") )
+            $GLOBALS['CONFIG']['payment']['invoice_id_prefix'] = $GLOBALS['CONFIG']['invoices']['invoice_id_prefix'];
+    }
 }

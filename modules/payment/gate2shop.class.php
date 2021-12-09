@@ -265,8 +265,11 @@ class Gate2Shop extends PaymentProvider
 	{
 		global $CONFIG;
 		$order_id = $ipndata["invoice_id"];
-		if(starts_with($order_id, $CONFIG["invoices"]["invoice_id_prefix"]))
-			$order_id = trim(str_replace($CONFIG["invoices"]["invoice_id_prefix"], "", $order_id));		
+        
+        $this->compatConfig();
+        
+		if(starts_with($order_id, $CONFIG["payment"]["invoice_id_prefix"]))
+			$order_id = trim(str_replace($CONFIG["payment"]["invoice_id_prefix"], "", $order_id));		
 		
 		$order = $this->LoadOrder($order_id);
 		if( !$order )
@@ -312,9 +315,11 @@ class Gate2Shop extends PaymentProvider
 			return false;
 		}
 		
+        $this->compatConfig();
+        
 		$order_id = $ipndata["invoice_id"];
-		if(starts_with($order_id, $CONFIG["invoices"]["invoice_id_prefix"]))
-			$order_id = trim(str_replace($CONFIG["invoices"]["invoice_id_prefix"], "", $order_id));		
+		if(starts_with($order_id, $CONFIG["payment"]["invoice_id_prefix"]))
+			$order_id = trim(str_replace($CONFIG["payment"]["invoice_id_prefix"], "", $order_id));		
 		$ds = model_datasource('system');
 		$order = $ds->CreateInstance("ShopOrder");
 		if(!$order->Load("id=?", $order_id))
