@@ -34,7 +34,6 @@ use ScavixWDF\WdfException;
 define('globalcache_CACHE_OFF',0);
 define('globalcache_CACHE_EACCELERATOR',1);
 define('globalcache_CACHE_MEMCACHE',2);
-define('globalcache_CACHE_ZEND',3);
 define('globalcache_CACHE_APC',4);
 define('globalcache_CACHE_DB',5);
 
@@ -64,18 +63,6 @@ function globalcache_init()
         $CONFIG['globalcache']['CACHE'] = globalcache_CACHE_OFF;
     
     register_hook_function(HOOK_POST_INIT,'globalcache_initialize');
-}
-
-/**
- * Cleans up a key
- * 
- * Zend only allows A-Za-z0-9 characters, so everything else will be stripped out
- * @param string $key The key to be cleaned up
- * @return string Valid key
- */
-function globalcache_cleanupkey($key)
-{
-	return preg_replace("/[^A-Za-z0-9]/", "", $key);
 }
 
 /**
@@ -117,60 +104,7 @@ function globalcache_initialize()
 			if($try >= $tries)
 				die("globalcache_init unable to connect to memcache server ".$CONFIG['globalcache']['server'].":".$CONFIG['globalcache']['port']);
 			break;
-
-		case globalcache_CACHE_ZEND:
-			system_load_module("modules/zend.php");
-			zend_load("Zend/Cache.php");
-
-			$frontendOptions = array(
-				'automatic_serialization' => true,
-				'lifetime' => 3600,
-				'write_control' => false,
-				'cache_id_prefix' => $GLOBALS["globalcache_key_prefix"]
-			);
-
-			$usememcache = extension_loaded('memcache'); // do we want to store in memcache or in files
-			if($usememcache)
-			{
-				$backendOptions  = array(
-					'servers' => array(array('host' => $CONFIG['globalcache']['server'],'port' => $CONFIG['globalcache']['port'], 'persistent' => true, 'weight' => 1, 'timeout' => 5, 'retry_interval' => 15, 'status' => true )),
-					'read_control' => false,
-					'hashed_directory_level' => 2,
-					'automatic_cleaning_factor' => 200
-				);
-				$GLOBALS["zend_cache_object"] = Zend_Cache::factory('Core',
-													'Memcached',
-													$frontendOptions,
-													$backendOptions);
-			}
-			else
-			{
-				// store data in temp files
-				if(isset($CONFIG['model']['ado_cache']))
-					$cache_dir = $CONFIG['model']['ado_cache'];
-				else
-					$cache_dir = system_app_temp_dir('globalcache');
-
-				if(!is_dir($cache_dir))
-					@mkdir($cache_dir);
-
-				if(!is_dir($cache_dir))
-					die("globalcache temp dir not found");
-
-				$backendOptions  = array(
-					'cache_dir' => $cache_dir,
-					'read_control' => false,
-					'hashed_directory_level' => 2,
-					'automatic_cleaning_factor' => 200
-				);
-				$GLOBALS["zend_cache_object"] = Zend_Cache::factory('Core',
-													'File',
-													$frontendOptions,
-													$backendOptions);
-
-			}
-			break;
-            
+           
         case globalcache_CACHE_DB:
             break;
 	}
@@ -200,10 +134,6 @@ function globalcache_set($key, $value, $ttl = false)
 
 			case globalcache_CACHE_APC:
 				return apc_store($GLOBALS["globalcache_key_prefix"].$key, $value, $ttl);
-				break;
-
-			case globalcache_CACHE_ZEND:
-				return $GLOBALS["zend_cache_object"]->save($value, globalcache_cleanupkey($GLOBALS["globalcache_key_prefix"].$key), array(), $ttl);
 				break;
 
 			case globalcache_CACHE_EACCELERATOR:
@@ -287,11 +217,6 @@ function globalcache_get($key, $default = false)
 				return $success?$ret:$default;
 				break;
 
-			case globalcache_CACHE_ZEND:
-				$ret = $GLOBALS["zend_cache_object"]->load(globalcache_cleanupkey($GLOBALS["globalcache_key_prefix"].$key));
-				return ($ret === false)?$default:$ret;
-				break;
-
 			case globalcache_CACHE_EACCELERATOR:
 				$ret = eaccelerator_get($GLOBALS["globalcache_key_prefix"].md5($key));
 				return is_null($ret)?$default:$ret;
@@ -344,10 +269,6 @@ function globalcache_clear()
 			return apc_clear_cache('user');
 			break;
 
-		case globalcache_CACHE_ZEND:
-			return $GLOBALS["zend_cache_object"]->clean();
-			break;
-
 		case globalcache_CACHE_EACCELERATOR:
 			return eaccelerator_clear();
 			break;
@@ -388,10 +309,6 @@ function globalcache_delete($key)
 			return apc_delete($GLOBALS["globalcache_key_prefix"].$key);
 			break;
 
-		case globalcache_CACHE_ZEND:
-			return $GLOBALS["zend_cache_object"]->remove(globalcache_cleanupkey($GLOBALS["globalcache_key_prefix"].$key));
-			break;
-
 		case globalcache_CACHE_EACCELERATOR:
 			return eaccelerator_rm($GLOBALS["globalcache_key_prefix"].md5($key));
 			break;
@@ -429,7 +346,6 @@ function globalcache_info()
 			return(var_export($status, true));
 
 		case globalcache_CACHE_OFF:
-		case globalcache_CACHE_ZEND:
 		case globalcache_CACHE_EACCELERATOR:
 			return "no stats available";
 			break;
