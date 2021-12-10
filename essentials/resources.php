@@ -57,18 +57,20 @@ function resources_init()
 			continue;
 		$CONFIG['resources'][$i]['url'] = $CONFIG['system']['url_root'].$conf['url'];
 	}
+    
+    $path = Phar::running()?:realpath(__DIR__."/../");
 	
 	$CONFIG['resources'][] = array
 	(
 		'ext' => 'js',
-		'path' => realpath(__DIR__.'/../js/'),
+		'path' => $path.'/js',
 		'url' => $CONFIG['resources_system_url_root'].'js/',
 		'append_nc' => true,
 	);
 	$CONFIG['resources'][] = array
 	(
 		'ext' => 'css|png|jpg|jpeg|gif|svg|htc|ico|less',
-		'path' => realpath(__DIR__.'/../skin/'),
+		'path' => $path.'/skin',
 		'url' => $CONFIG['resources_system_url_root'].'skin/',
 		'append_nc' => true,
 	);
@@ -88,7 +90,7 @@ function resources_init()
 function resourceExists($filename, $return_url = false, $as_local_path = false, $nocache = false)
 {
 	global $CONFIG;
-
+    
 	$cnc = substr(appendVersion('/'),1);
 	$key = (isSSL()?"resource_ssl_$filename":"resource_$filename")."_{$cnc}".($as_local_path?"_l":"");
 	if( !$nocache && (($res = cache_get($key)) !== false) )
@@ -100,7 +102,7 @@ function resourceExists($filename, $return_url = false, $as_local_path = false, 
 		if( strpos("|".$conf['ext']."|", "|".$ext."|") === false )
 			continue;
 		
-		if( !file_exists($conf['path'].'/'.$filename) )
+        if( !file_exists($conf['path'].'/'.$filename) )
 			continue;
 		
 		if( $as_local_path )
@@ -114,7 +116,8 @@ function resourceExists($filename, $return_url = false, $as_local_path = false, 
 			cache_set($key, $res);
 		return $return_url?$res:true;
 	}
-	cache_set($key, "0");
+    if( !$nocache )
+        cache_set($key, "0");
 	return false;
 }
 

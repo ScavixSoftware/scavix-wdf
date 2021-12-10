@@ -71,7 +71,7 @@ EOPS;
         if( !preg_match('/^v\d+\.\d+\.\d+/i',shell_exec("node -v")) )
             \ScavixWDF\WdfException::Raise("Node not found!");
         
-        $dir = str_replace("\\", "/", __DIR__);
+        $dir = str_replace("\\", "/", getcwd());
         while( !file_exists("{$dir}/node_modules/puppeteer") )
         {
             $o = $dir;
