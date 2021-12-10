@@ -219,11 +219,13 @@ function cli_execute()
         // hardcoded wdf task shortcuts
         switch( strtolower($class) )
         {
-            case 'task':         $class = \ScavixWDF\Tasks\Task::class; break;
-            case 'dbtask':       $class = \ScavixWDF\Tasks\DbTask::class; break;
-            case 'cleartask':    $class = \ScavixWDF\Tasks\ClearTask::class; break;
             case 'checktask':    $class = \ScavixWDF\Tasks\CheckTask::class; break;
-            case 'createtask':    $class = \ScavixWDF\Tasks\CreateTask::class; break;
+            case 'cleartask':    $class = \ScavixWDF\Tasks\ClearTask::class; break;
+            case 'createtask':   $class = \ScavixWDF\Tasks\CreateTask::class; break;
+            case 'dbtask':       $class = \ScavixWDF\Tasks\DbTask::class; break;
+            case 'pdfprinttask': $class = \ScavixWDF\Tasks\PdfPrintTask::class; break;
+            case 'task':         $class = \ScavixWDF\Tasks\Task::class; break;
+            case 'wdfcronmodel': $class = \ScavixWDF\Tasks\WdfCronTask::class; break;
             case 'wdftaskmodel': $class = \ScavixWDF\Tasks\WdfTaskModel::class; break;
         }
     }
