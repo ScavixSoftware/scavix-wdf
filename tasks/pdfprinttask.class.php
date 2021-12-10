@@ -126,7 +126,7 @@ EOPS;
         $um = umask(0);
         $node_root = self::detectPuppeteer();
         
-		$fn = tempnam(system_app_temp_dir(),'PdfPrintTask_CreatePdf_');
+		$fn = tempnam(system_app_temp_dir(),'PdfPrintTask_Url2Pdf_');
         $cfg = false&&avail($GLOBALS,'CONFIG','system','logging','human_readable')
             ?$GLOBALS['CONFIG']['system']['logging']['human_readable']
             :['path'=>'','filename_pattern'=>ini_get('error_log')];
