@@ -1840,8 +1840,11 @@ function fq_class_name($classname)
  */
 function system_process_running($pid)
 {
-	$test = explode("\n",trim(shell_exec("ps $pid")));
-	return count($test) > 1;
+    $stat = @file_get_contents("/proc/$pid/stat");
+    if( !$stat ) return false;
+    $d = sscanf($stat,"%d %s %c %d");
+    if( !isset($d[2]) ) return false;
+    return $d[2]=='S' || $d[2]=='R' || $d[2]=='D';
 }
 
 /**
