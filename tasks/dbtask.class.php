@@ -180,6 +180,7 @@ class DbTask extends Task
         $eol = time() + $ttl;
         WdfTaskModel::FreeOrphans();
         $task = WdfTaskModel::Reserve();
+        set_time_limit(0);
         while( $task || time()<$eol )
         {
             if( $task )

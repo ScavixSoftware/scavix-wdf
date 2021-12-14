@@ -151,8 +151,10 @@ function get_timezone_by_ip($ip = false)
     global $CONFIG;
 	if($ip === false)
 		$ip = Wdf::$ClientIP;
+	if( !$ip )
+		return false;
 
-	if( starts_with($ip, "1.1 ") || starts_with($ip, "192.168.") )
+	if( starts_with($ip, "1.1 ") || starts_with($ip, "192.168.") || "$ip" === "undefined" )
 		return false;
     
 	$key = "get_timezone_by_ip.".getAppVersion('nc')."-".$ip;

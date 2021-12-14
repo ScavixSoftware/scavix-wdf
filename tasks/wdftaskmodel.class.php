@@ -34,9 +34,9 @@ use ScavixWDF\Base\DateTimeEx;
  */
 class WdfTaskModel extends Model
 {
-    private $isVirtual = false;
+    private $isVirtual = false, $prevent_duplicate = false;
     public static $PROCESS_FILTER = 'db-processwdftasks';
-    public static $MAX_PROCESSES = 5;
+    public static $MAX_PROCESSES = 100;
     
 	public function GetTableName() { return 'wdf_tasks'; }
     
@@ -60,10 +60,10 @@ class WdfTaskModel extends Model
                 `assigned` DATETIME NULL DEFAULT NULL,
                 `worker_pid` INT(11) NULL DEFAULT NULL,
                 `name` VARCHAR(255) NULL DEFAULT NULL,
-                `arguments` LONGTEXT NULL DEFAULT NULL,
+                `arguments` VARCHAR(21000) NULL DEFAULT NULL,
                 PRIMARY KEY (`id`),
                 INDEX `enabled_workerpid_parenttask_id` (`enabled`, `worker_pid`, `parent_task`, `id`)
-            );");
+            ) ENGINE=MEMORY ;");
     }
 	
     public function Save($columns_to_update = false, &$changed=null)
@@ -149,6 +149,12 @@ class WdfTaskModel extends Model
         return unserialize($this->arguments);
     }
     
+    public function PreventDuplicate()
+    {
+        $this->prevent_duplicate = true;
+        return $this;
+    }
+    
 	public function DependsOn($task,$follow_deletion=true)
 	{
 		if( !$task )
@@ -181,27 +187,29 @@ class WdfTaskModel extends Model
 	{
         if( !$this->isVirtual )
         {
-            $q = WdfTaskModel::Make()->eq('name',$this->name)->eq('arguments',$this->arguments);
-            if( isset($this->id) )
-                $q = $q->neq('id',$this->id);
-            $other = $q->scalar('id');
+            $this->enabled = 1;
+            
+            if( $this->prevent_duplicate )
+            {
+                $q = WdfTaskModel::Make()->eq('name',$this->name)->eq('arguments',$this->arguments);
+                if( isset($this->id) )
+                    $q = $q->neq('id',$this->id);
+                $other = $q->scalar('id');
+            }
+            else
+                $other = false;
+            
             if( $other )
             {
                 if( isset($this->id) )
-                {
-//                    log_debug("Removing duplicate task {$this->name}[{$this->id}] because of $other");
                     $this->Delete();
-                }
-//                else
-//                    log_debug("Removing duplicate task {$this->name} because of $other");
                 $this->isVirtual = true;
             }
             else
             {
-                $this->enabled = 1;
                 $this->Save();
-                if( $depth++ < 10 ) 
-                    foreach( WdfTaskModel::Make()->eq('parent_task',$this->id) as $t )		
+                if( $depth++ < 50 ) // limit depth to 50 to avoid too large trees
+                    foreach( WdfTaskModel::Make()->eq('parent_task',$this->id)->eq('enabled',0) as $t )		
                         $t->Go(false,$depth);
             }
         }
@@ -210,16 +218,20 @@ class WdfTaskModel extends Model
 		return $this;
 	}
     
-    private static function getRunningProcessors()
+    private static function getRunningProcessors($pids=false)
     {
-        $filter = preg_quote(CLI_SELF,'/').".*".preg_quote(self::$PROCESS_FILTER,'/');
+        $filter = '/'.preg_quote(CLI_SELF,'/').".*".preg_quote(self::$PROCESS_FILTER,'/').'/i';
         $res = array();
-        $out = shell_exec("ps -Af");
-//        log_debug($out, $filter);
-        if( preg_match_all('/\n[^\s+]*\s+(\d+)\s+.*'.$filter.'/i',$out,$m) )
+        if( $pids )
+            $pids = array_map(function($p){ return "/proc/$p/cmdline"; },$pids);
+        else
+            $pids = glob("/proc/*/cmdline");
+
+        foreach( $pids as $pp )
         {
-            foreach( $m[1] as $p )
-                $res[] = $p;
+            $c = @file_get_contents("$pp");
+            if( $c && preg_match($filter,$c) )
+                $res[] = basename(dirname($pp));
         }
         return $res;
     }
@@ -227,8 +239,11 @@ class WdfTaskModel extends Model
     public static function FreeOrphans()
     {
         $ds = DataSource::Get();
+        
+        //$ds->ExecuteSql("UPDATE wdf_tasks SET parent_task=null WHERE parent_task IS NOT NULL AND parent_task NOT IN(SELECT id FROM wdf_tasks)");
+        
         $test = $ds->ExecuteSql("SELECT DISTINCT worker_pid FROM wdf_tasks WHERE worker_pid IS NOT NULL")->Enumerate('worker_pid');
-        $tasks = self::getRunningProcessors();
+        $tasks = self::getRunningProcessors($test);
 
         $pids = implode(",",array_filter(array_diff($test,$tasks)));
         if( $pids )
@@ -298,6 +313,7 @@ class WdfTaskModel extends Model
             
             if( $inline )
             {
+                // seeems unused. todo: check and remove
                 foreach( WdfTaskModel::Make()->eq('parent_task',$this->id)->orderBy('id') as $child )
                     $child->Run(true);
             }
