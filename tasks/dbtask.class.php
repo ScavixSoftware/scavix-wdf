@@ -176,7 +176,7 @@ class DbTask extends Task
     function ProcessWdfTasks($args)
     {
         logging_add_category(getmypid());
-        $ttl = intval(array_shift($args)?:30)?:30;
+        $ttl = intval(array_shift($args)?:0)?:0;
         $eol = time() + $ttl;
         WdfTaskModel::FreeOrphans();
         $task = WdfTaskModel::Reserve();
@@ -190,7 +190,7 @@ class DbTask extends Task
                 logging_remove_category("{$task->name}");
             }
             else
-                usleep(10000);
+                usleep(100000);
             $task = WdfTaskModel::Reserve();
         }
     }

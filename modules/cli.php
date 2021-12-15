@@ -148,7 +148,7 @@ function cli_run_taskprocessor($runtime_seconds=null)
         ScavixWDF\WdfException::Raise("Cannot run task processor");
 
     if( !$runtime_seconds )
-        $runtime_seconds = intval(cfg_getd('system','cli','taskprocessor_runtime',30));
+        $runtime_seconds = intval(cfg_getd('system','cli','taskprocessor_runtime',0));
 
     if( PHP_SAPI == 'cli' )
     {

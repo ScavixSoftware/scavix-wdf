@@ -36,7 +36,7 @@ class WdfTaskModel extends Model
 {
     private $isVirtual = false, $prevent_duplicate = false;
     public static $PROCESS_FILTER = 'db-processwdftasks';
-    public static $MAX_PROCESSES = 100;
+    public static $MAX_PROCESSES = 10;
     
 	public function GetTableName() { return 'wdf_tasks'; }
     
@@ -78,7 +78,7 @@ class WdfTaskModel extends Model
     
 	public static function RunInstance($runtime_seconds=null)
 	{
-        if( count(self::getRunningProcessors()) < self::$MAX_PROCESSES )
+        if( !$runtime_seconds || count(self::getRunningProcessors()) < self::$MAX_PROCESSES )
             cli_run_taskprocessor($runtime_seconds);
 	}
 	
@@ -157,13 +157,15 @@ class WdfTaskModel extends Model
     
 	public function DependsOn($task,$follow_deletion=true)
 	{
-		if( !$task )
-			return $this;
+		if( $task instanceof Task )
+            $task = $task->model;
 		if( $task instanceof WdfTaskModel )
         {
             $task->Save();
 			$task = ifavail($task,'id');
         }
+		if( !$task )
+			return $this;
 		$this->parent_task = $task;
 		$this->follow_deletion = $follow_deletion?1:0;
 		$this->Save();
@@ -223,7 +225,9 @@ class WdfTaskModel extends Model
         $filter = '/'.preg_quote(CLI_SELF,'/').".*".preg_quote(self::$PROCESS_FILTER,'/').'/i';
         $res = array();
         if( $pids )
+        {
             $pids = array_map(function($p){ return "/proc/$p/cmdline"; },$pids);
+        }
         else
             $pids = glob("/proc/*/cmdline");
 
@@ -243,17 +247,19 @@ class WdfTaskModel extends Model
         //$ds->ExecuteSql("UPDATE wdf_tasks SET parent_task=null WHERE parent_task IS NOT NULL AND parent_task NOT IN(SELECT id FROM wdf_tasks)");
         
         $test = $ds->ExecuteSql("SELECT DISTINCT worker_pid FROM wdf_tasks WHERE worker_pid IS NOT NULL")->Enumerate('worker_pid');
-        $tasks = self::getRunningProcessors($test);
+        //$tasks = self::getRunningProcessors($test);
+        $tasks = array_filter($test,'system_process_running');
 
         $pids = implode(",",array_filter(array_diff($test,$tasks)));
         if( $pids )
         {
+            $debug = $ds->ExecuteSql("SELECT * FROM wdf_tasks WHERE (assigned<NOW()-INTERVAL 5 SECOND) AND worker_pid IN($pids)")->results();
             $rs = $ds->ExecuteSql(
                 "UPDATE wdf_tasks SET worker_pid=null, assigned=null WHERE 
                  (assigned<NOW()-INTERVAL 5 SECOND) AND worker_pid IN($pids)"
                 );
             if( $rs && $rs->Count() )
-                log_debug("Restarted ".$rs->Count()." tasks whose workers ($pids) did not exist anymore");
+                log_debug("Restarted ".$rs->Count()." tasks whose workers ($pids) did not exist anymore",$debug);
             
             $rs = $ds->ExecuteSql("UPDATE wdf_tasks SET assigned=null WHERE isnull(worker_pid)");
             if( $rs && $rs->Count() )
