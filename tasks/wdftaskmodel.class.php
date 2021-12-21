@@ -76,6 +76,11 @@ class WdfTaskModel extends Model
         return parent::Save($columns_to_update);
     }
     
+    public static function HasToDo()
+    {
+        return !!DataSource::Get()->ExecuteScalar("SELECT count(*) FROM wdf_tasks WHERE enabled=1 AND ISNULL(parent_task)");
+    }
+    
 	public static function RunInstance($runtime_seconds=null)
 	{
         if( !$runtime_seconds || count(self::getRunningProcessors()) < self::$MAX_PROCESSES )
