@@ -84,6 +84,12 @@ abstract class Task
         return WdfTaskModel::CreateOnce($name, $return_original);
     }
     
+    public static function IsRunning($method='run')
+    {
+        $name = get_called_class()."-$method";
+        return !!WdfTaskModel::Make()->eq('name',$name)->scalar('id');
+    }
+    
     /**
      * Runs this task in another (CLI) process.
      * 
