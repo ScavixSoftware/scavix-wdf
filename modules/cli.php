@@ -49,12 +49,9 @@ function cli_init()
         if( !$self && $GLOBALS['argv'] && is_array($GLOBALS['argv']) && count($GLOBALS['argv'])>0 )
             $self = $GLOBALS['argv'][0];
         define("CLI_SELF",realpath($self));
-//        log_debug("setting ".realpath($self));
     }
-//    else
-//        log_debug('is set: '.CLI_SELF);
 
-    if( defined('STDOUT') && (!function_exists('posix_isatty') || posix_isatty(STDOUT)) )
+    if( defined('STDOUT') )
     {
         classpath_add(__DIR__.'/cli');
         logging_add_logger('cli',['class' => \ScavixWDF\CLI\CliLogger::class]);

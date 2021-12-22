@@ -58,7 +58,7 @@ class CliLogger extends Logger
 		$entry = $this->prepare($severity,$log_trace,$a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10);
 		if( !$entry ) return;
         
-        if( isset(self::$COLORS[$severity]))
+        if( isset(self::$COLORS[$severity]) && function_exists('posix_isatty') && posix_isatty(STDOUT) )
             echo "\033[".self::$COLORS[$severity]."m{$s}{$entry->message}\033[0m\n";
 		else
             echo "{$s}{$entry->message}\n";
