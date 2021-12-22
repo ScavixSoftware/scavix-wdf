@@ -92,7 +92,7 @@ class OAuthHandler
     function getTokenInstance($data)
     {
         // todo: check map for special classes
-        return \League\OAuth2\Client\Token\AccessToken($data);
+        return new \League\OAuth2\Client\Token\AccessToken($data);
     }
     
     function authorize()
@@ -142,6 +142,12 @@ class OAuthHandler
                 $model->local_id = $this->local_id;
                 $model->UpdateFromToken($token);
                 
+                try
+                {
+                    $owner = $provider->getResourceOwner($token);
+                    $model->UpdateFromOwner($owner);
+                } catch (\Exception $ex) { log_debug($ex); }
+                
                 log_debug(__METHOD__,'Token',$token->jsonSerialize(),$token->getValues());
                 delete_object('oauth_current_handler');
             }
@@ -174,6 +180,13 @@ class OAuthHandler
             ]);
             
             $model->UpdateFromToken($token);
+            
+            try
+            {
+                $owner = $provider->getResourceOwner($token);
+                $model->UpdateFromOwner($owner);
+            } catch (\Exception $ex) { log_debug($ex); }
+            
             return true;
         }
         catch (Exception $ex)
