@@ -50,6 +50,7 @@ class Wdf
     public static $Translation;
     
     protected static $buffers = [];
+    protected static $locks = false;
 	
     /**
      * Checks if there's a buffer present.
@@ -77,6 +78,69 @@ class Wdf
         return self::$buffers[$name];
     }
     
+    
+    public static function GetLock($name,$timeout=10)
+    {
+        if( PHP_OS_FAMILY == "Linux" )
+        {
+            $lock = md5($name);
+            $dir = '/run/lock/'.session_name();
+            @mkdir($dir,0777,true);
+            $end = time()+$timeout;
+            do
+            {
+                $fp = @fopen("$dir/$lock","x+");
+                if( !$fp )
+                {
+                    if( $timeout > 0 )
+                        usleep(100000);
+                    continue;
+                }
+                fwrite($fp,getmypid());
+                fflush($fp);
+                fclose($fp);
+                
+                if( self::$locks === false )
+                {
+                    self::$locks = [];
+                    register_shutdown_function(function()
+                    {
+                        foreach( Wdf::$locks as $lock=>$fp )
+                            unlink('/run/lock/'.session_name().'/'.$lock);
+                    });
+                }
+                
+                self::$locks[$lock] = $fp;
+                return true;
+            }
+            while(time()<$end);
+            
+            foreach( glob("$dir/???*") as $f )
+            {
+                if( !system_process_running(trim(@file_get_contents($f))) )
+                    unlink($f);
+            }
+            if( $timeout <= 0 )
+                return false;
+            WdfException::Raise("Timeout while awaiting the lock '$name'");
+        }
+        return system_get_lock($name,ScavixWDF\Model\DataSource::Get(),$timeout);
+    }
+    
+    public static function ReleaseLock($name)
+    {
+        if( PHP_OS_FAMILY == "Linux" )
+        {
+            $lock = md5($name);
+            if( isset(self::$locks[$lock]) )
+            {
+                unlink('/run/lock/'.session_name().'/'.$lock);
+                unset(self::$locks[$lock]);
+            }
+            return;
+        }
+        return system_release_lock($name,ScavixWDF\Model\DataSource::Get());
+    }
 }
 
 /**
