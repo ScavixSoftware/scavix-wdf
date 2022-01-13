@@ -106,7 +106,7 @@ class Wdf
                     register_shutdown_function(function()
                     {
                         foreach( Wdf::$locks as $lock=>$fp )
-                            unlink('/run/lock/wdf-'.md5(__SCAVIXWDF__).'/'.$lock);
+                            @unlink('/run/lock/wdf-'.md5(__SCAVIXWDF__).'/'.$lock);
                     });
                 }
                 
@@ -118,11 +118,12 @@ class Wdf
             foreach( glob("$dir/???*") as $f )
             {
                 if( !system_process_running(trim(@file_get_contents($f))) )
-                    unlink($f);
+                    @unlink($f);
             }
             if( $timeout <= 0 )
                 return false;
             WdfException::Raise("Timeout while awaiting the lock '$name'");
+            return false;
         }
         return system_get_lock($name,ScavixWDF\Model\DataSource::Get(),$timeout);
     }
@@ -134,10 +135,11 @@ class Wdf
             $lock = md5($name);
             if( isset(self::$locks[$lock]) )
             {
-                unlink('/run/lock/wdf-'.md5(__SCAVIXWDF__).'/'.$lock);
+                @unlink('/run/lock/wdf-'.md5(__SCAVIXWDF__).'/'.$lock);
                 unset(self::$locks[$lock]);
+                return true;
             }
-            return;
+            return false;
         }
         return system_release_lock($name,ScavixWDF\Model\DataSource::Get());
     }
