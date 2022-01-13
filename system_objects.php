@@ -84,7 +84,7 @@ class Wdf
         if( PHP_OS_FAMILY == "Linux" )
         {
             $lock = md5($name);
-            $dir = '/run/lock/'.session_name();
+            $dir = '/run/lock/wdf-'.md5(__SCAVIXWDF__);
             @mkdir($dir,0777,true);
             $end = time()+$timeout;
             do
@@ -106,7 +106,7 @@ class Wdf
                     register_shutdown_function(function()
                     {
                         foreach( Wdf::$locks as $lock=>$fp )
-                            unlink('/run/lock/'.session_name().'/'.$lock);
+                            unlink('/run/lock/wdf-'.md5(__SCAVIXWDF__).'/'.$lock);
                     });
                 }
                 
@@ -134,7 +134,7 @@ class Wdf
             $lock = md5($name);
             if( isset(self::$locks[$lock]) )
             {
-                unlink('/run/lock/'.session_name().'/'.$lock);
+                unlink('/run/lock/wdf-'.md5(__SCAVIXWDF__).'/'.$lock);
                 unset(self::$locks[$lock]);
             }
             return;
