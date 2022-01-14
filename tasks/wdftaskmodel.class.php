@@ -139,7 +139,7 @@ class WdfTaskModel extends Model
     
     public function SetArgs($arguments)
     {
-        $this->arguments = serialize($arguments);
+        $this->arguments = serialize($arguments?:[]);
 		return $this;
     }
     
@@ -167,6 +167,8 @@ class WdfTaskModel extends Model
 		if( $task instanceof WdfTaskModel )
         {
             $task->Save();
+            if($task->isVirtual)
+                $this->isVirtual = true;
 			$task = ifavail($task,'id');
         }
 		if( !$task )
