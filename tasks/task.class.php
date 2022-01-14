@@ -78,10 +78,12 @@ abstract class Task
      * @param bool $return_original If true and there's already another task present, return that one, else return a dummy if there's another one
      * @return \ScavixWDF\Tasks\WdfTaskModel The new task or a dummy if already present or the one already present
      */
-    public static function AsyncOnce($method='run', $return_original=false) : WdfTaskModel
+    public static function AsyncOnce($method='run', $return_original=false, $args = false) : WdfTaskModel
     {
         $name = get_called_class()."-$method";
-        return WdfTaskModel::CreateOnce($name, $return_original);
+        if($args)
+            $name .= '-'.md5(serialize($args));
+        return WdfTaskModel::CreateOnce($name, $return_original)->SetArgs($args);
     }
     
     public static function IsRunning($method='run')
