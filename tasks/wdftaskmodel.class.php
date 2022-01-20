@@ -217,7 +217,7 @@ class WdfTaskModel extends Model
             else
             {
                 $this->Save();
-                if( $depth++ < 50 ) // limit depth to 50 to avoid too large trees
+                if( $depth++ < 200 ) // limit depth to 50 to avoid too large trees
                     foreach( WdfTaskModel::Make()->eq('parent_task',$this->id)->eq('enabled',0) as $t )		
                         $t->Go(false,$depth);
             }
