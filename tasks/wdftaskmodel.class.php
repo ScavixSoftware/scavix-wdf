@@ -34,7 +34,7 @@ use ScavixWDF\Base\DateTimeEx;
  */
 class WdfTaskModel extends Model
 {
-    private $isVirtual = false, $prevent_duplicate = false;
+    private $isVirtual = false, $prevent_duplicate = false, $cascade_go = true;
     public static $PROCESS_FILTER = 'db-processwdftasks';
     public static $MAX_PROCESSES = 10;
     
@@ -154,6 +154,12 @@ class WdfTaskModel extends Model
         return unserialize($this->arguments);
     }
     
+    public function SetCascadeGo($on=true)
+    {
+        $this->cascade_go = $on;
+        return $this;
+    }
+    
     public function PreventDuplicate()
     {
         $this->prevent_duplicate = true;
@@ -217,7 +223,7 @@ class WdfTaskModel extends Model
             else
             {
                 $this->Save();
-                if( $depth++ < 200 ) // limit depth to 50 to avoid too large trees
+                if( $this->cascade_go && $depth++ < 50 ) // limit depth to 50 to avoid too large trees
                     foreach( WdfTaskModel::Make()->eq('parent_task',$this->id)->eq('enabled',0) as $t )		
                         $t->Go(false,$depth);
             }
