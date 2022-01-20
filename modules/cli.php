@@ -65,6 +65,7 @@ function cli_init()
     create_class_alias(\ScavixWDF\Tasks\ClearTask::class,'cleartask');
     create_class_alias(\ScavixWDF\Tasks\CreateTask::class,'createtask');
     create_class_alias(\ScavixWDF\Tasks\DbTask::class,'dbtask');
+    create_class_alias(\ScavixWDF\Tasks\TaskPool::class,'taskpool');
 }
 
 /**
@@ -223,7 +224,8 @@ function cli_execute()
             case 'dbtask':       $class = \ScavixWDF\Tasks\DbTask::class; break;
             case 'cleartask':    $class = \ScavixWDF\Tasks\ClearTask::class; break;
             case 'checktask':    $class = \ScavixWDF\Tasks\CheckTask::class; break;
-            case 'createtask':    $class = \ScavixWDF\Tasks\CreateTask::class; break;
+            case 'createtask':   $class = \ScavixWDF\Tasks\CreateTask::class; break;
+            case 'taskpool':     $class = \ScavixWDF\Tasks\TaskPool::class; break;
             case 'wdftaskmodel': $class = \ScavixWDF\Tasks\WdfTaskModel::class; break;
         }
     }
