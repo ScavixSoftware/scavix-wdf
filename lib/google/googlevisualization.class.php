@@ -357,10 +357,9 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	 * Calling this will set this into inline mdoe thus removing all database related settings (<GoogleVisualization::setDbQuery>).
 	 * @return GoogleVisualization `$this`
 	 */
-	function setDataHeader()
+	function setDataHeader(...$args)
 	{
 		$this->_entities = array(); $this->gvQuery = false;
-		$args = func_get_args();
 		if( count($args)==1 && is_array($args[0]) )
 			$args = array_shift($args);
 		$this->_data = array($this->_applyRowCallbacks($args));
@@ -374,10 +373,9 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	 * Calling this will set this into inline mdoe thus removing all database related settings (<GoogleVisualization::setDbQuery>).
 	 * @return GoogleVisualization `$this`
 	 */
-	function addDataRow()
+	function addDataRow(...$args)
 	{
 		$this->_entities = array(); $this->gvQuery = false;
-		$args = func_get_args();
 		if( count($args)==1 && is_array($args[0]) )
 			$args = array_shift($args);
 		$this->_data[] = $this->_applyRowCallbacks($args);

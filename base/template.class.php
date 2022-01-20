@@ -249,7 +249,7 @@ class Template extends Renderable
         $tpl = strtolower(str_replace("\\","/",$tpl));
         return $tpl == strtolower(str_replace("\\","/",WDF_HTMLPAGE_TEMPLATE));
     }
-    
+        
 	/**
 	 * @override
 	 */
@@ -259,15 +259,15 @@ class Template extends Renderable
         $scriptcnt = count($this->_script);
 
         /* parameters are $file and $variables, keeping them anonymous to avoid conflicts with named variables */
-        $render_in_context = function()
+        $render_in_context = function($wdf__file__to__be__included, $wdf__arguments__to__be__extracted)
         {
             Renderable::PushRenderer($this);
             
             extract($GLOBALS);
-            extract(func_get_arg(1));
+            extract($wdf__arguments__to__be__extracted);
             
             ob_start();
-            require(func_get_arg(0));
+            require($wdf__file__to__be__included);
             $result = ob_get_contents();
             ob_end_clean();
             

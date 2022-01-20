@@ -43,9 +43,8 @@ class WdfClosure
 		$this->used_variables = $this->_fetchUsedVariables();
     }
     
-	public function __invoke()
+	public function __invoke(...$args)
 	{
-		$args = func_get_args();
 		return $this->reflection->invokeArgs($args);
 	}
 

@@ -159,11 +159,10 @@ function isDevOrBeta(){ return $_ENV['CURRENT_ENVIRONMENT'] == ENVIRONMENT_DEV |
  * But for 1000 calls it just needs 5ms, so just leave me alone with that.
  * @return void
  */
-function cfg_set()
+function cfg_set(...$args)
 {
 	global $CONFIG;
-	$args = func_get_args();
-	switch( func_num_args() )
+	switch( count($args) )
 	{
 		case 2: $CONFIG[$args[0]] = $args[1]; break;
 		case 3: $CONFIG[$args[0]][$args[1]] = $args[2]; break;
@@ -181,11 +180,10 @@ function cfg_set()
  * See cfg_set() for usage and performance thoughts
  * @return void
  */
-function cfg_setd()
+function cfg_setd(...$args)
 {
 	global $CONFIG;
-	$args = func_get_args();
-	switch( func_num_args() )
+	switch( count($args) )
 	{
 		case 2: if( !isset($CONFIG[$args[0]]) ) $CONFIG[$args[0]] = $args[1]; break;
 		case 3: if( !isset($CONFIG[$args[0]][$args[1]]) ) $CONFIG[$args[0]][$args[1]] = $args[2]; break;
@@ -203,11 +201,10 @@ function cfg_setd()
  * See cfg_set() for usage and performance thoughts
  * @return void
  */
-function cfg_add()
+function cfg_add(...$args)
 {
 	global $CONFIG;
-	$args = func_get_args();
-	switch( func_num_args() )
+	switch( count($args) )
 	{
 		case 2: $CONFIG[$args[0]][] = $args[1]; break;
 		case 3: $CONFIG[$args[0]][$args[1]][] = $args[2]; break;
@@ -225,11 +222,10 @@ function cfg_add()
  * See cfg_set() for usage and performance thoughts
  * @return mixed Config value
  */
-function cfg_get()
+function cfg_get(...$args)
 {
 	global $CONFIG;
-	$args = func_get_args();
-	switch( func_num_args() )
+	switch( count($args) )
 	{
 		case 1: return isset($CONFIG[$args[0]])?$CONFIG[$args[0]]:false;
 		case 2: return isset($CONFIG[$args[0]][$args[1]])?$CONFIG[$args[0]][$args[1]]:false;
@@ -247,11 +243,10 @@ function cfg_get()
  * See cfg_set() for usage and performance thoughts
  * @return mixed Config value
  */
-function cfg_getd()
+function cfg_getd(...$args)
 {
 	global $CONFIG;
-	$args = func_get_args();
-	switch( func_num_args() )
+	switch( count($args) )
 	{
         case 2: return isset($CONFIG[$args[0]])?$CONFIG[$args[0]]:$args[1];
 		case 3: return isset($CONFIG[$args[0]][$args[1]])?$CONFIG[$args[0]][$args[1]]:$args[2];
@@ -269,11 +264,10 @@ function cfg_getd()
  * See cfg_set() for usage and performance thoughts
  * @return void
  */
-function cfg_del()
+function cfg_del(...$args)
 {
 	global $CONFIG;
-	$args = func_get_args();
-	switch( func_num_args() )
+	switch( count($args) )
 	{
 		case 1: unset($CONFIG[$args[0]]); break;
 		case 2: unset($CONFIG[$args[0]][$args[1]]); break;
@@ -292,11 +286,10 @@ function cfg_del()
  * See cfg_set() for usage and performance thoughts
  * @return void
  */
-function cfg_check()
+function cfg_check(...$args)
 {
 	global $CONFIG;
-	$args = func_get_args();
-	switch( func_num_args() )
+	switch( count($args) )
 	{
 		case 2: if( !isset($CONFIG[$args[0]]) || !$CONFIG[$args[0]] ) WdfException::Raise($args[1]); break;
 		case 3: if( !isset($CONFIG[$args[0]][$args[1]]) || !$CONFIG[$args[0]][$args[1]] ) WdfException::Raise($args[2]); break;
@@ -475,35 +468,23 @@ function system_ensure_path_ending(&$path, $make_realpath=false)
  * @param string $start The start to be checked
  * @return bool true or false
  */
-function starts_with($string,$start)
+function starts_with($string,...$start)
 {
-	if( func_num_args() > 2 )
-	{
-		$args = func_get_args();
-		array_shift($args);
-		foreach( $args as $start )
-			if( strpos($string,$start) === 0 )
-				return true;
-		return false;
-	}
-	return strpos($string,$start) === 0;
+    foreach( $start as $s )
+        if( strpos($string,$s) === 0 )
+            return true;
+    return false;
 }
 
 /**
  * @shortcut <starts_with>() but ignoring the case
  */
-function starts_iwith($string,$start)
+function starts_iwith($string,...$start)
 {
-	if( func_num_args() > 2 )
-	{
-		$args = func_get_args();
-		array_shift($args);
-		foreach( $args as $start )
-			if( stripos($string,$start) === 0 )
-				return true;
-		return false;
-	}
-	return stripos($string,$start) === 0;
+	foreach( $start as $s )
+        if( stripos($string,$s) === 0 )
+            return true;
+    return false;
 }
 
 /**
@@ -516,18 +497,12 @@ function starts_iwith($string,$start)
  * @param string $end The end to be checked
  * @return bool true or false
  */
-function ends_with($string,$end)
+function ends_with($string,...$end)
 {
-	if( func_num_args() > 2 )
-	{
-		$args = func_get_args();
-		array_shift($args);
-		foreach( $args as $end )
-			if( substr($string,strlen($string)-strlen($end)) == $end )
-				return true;
-		return false;
-	}
-	return substr($string,strlen($string)-strlen($end)) == $end;
+    foreach( $end as $e )
+        if( substr($string,strlen($string)-strlen($e)) == $e )
+            return true;
+    return false;
 }
 
 /**
@@ -538,19 +513,13 @@ function ends_with($string,$end)
  * @param string $end The end to be checked
  * @return bool true or false
  */
-function ends_iwith($string,$end)
+function ends_iwith($string,...$end)
 {
-	$end = strtolower($end);
-	if( func_num_args() > 2 )
-	{
-		$args = func_get_args();
-		array_shift($args);
-		foreach( $args as $end )
-			if( strtolower(substr($string,strlen($string)-strlen($end))) == $end )
-				return true;
-		return false;
-	}
-	return strtolower(substr($string,strlen($string)-strlen($end))) == $end;
+    $string = strtolower($string);
+    foreach( $end as $e )
+        if( substr($string,strlen($string)-strlen($e)) == strtolower($e) )
+            return true;
+    return false;
 }
 
 /**
@@ -560,9 +529,8 @@ function ends_iwith($string,$end)
  * This is a shortcut for `in_array('nice',array('Hello','nice','World'))`.
  * @return bool true or false
  */
-function is_in()
+function is_in(...$args)
 {
-	$args = func_get_args();
 	$needle = array_shift($args);
 	return in_array($needle,$args);
 }
@@ -581,9 +549,8 @@ function is_in()
  * </code>
  * @return bool true or false
  */
-function contains()
+function contains(...$args)
 {
-	$args = func_get_args();
 	$array = array_shift($args);
 	if( is_array($array) )
 	{
@@ -1080,9 +1047,8 @@ function is_assoc($array)
  * </code>
  * @return mixed The first non-null value or null of none found
  */
-function ifnull()
+function ifnull(...$args)
 {
-	$args = func_get_args();
 	$data = array_shift($args);
 	
 	if( count($args) == 0 )
@@ -1092,7 +1058,7 @@ function ifnull()
 		$data = (object)$data;
 	if( !is_object($data) )
 	{
-		foreach( func_get_args() as $arg )
+		foreach( $args as $arg )
 			if( $arg !== null )
 				return $arg;
 		return null;
@@ -1149,9 +1115,8 @@ function sif($condition,$true_value,$false_value)
  * </code>
  * @return boolean True if the requested data is available, else false
  */
-function avail()
+function avail(...$args)
 {
-	$args = func_get_args();
 	if( count($args) < 2 )
 		ScavixWDF\WdfException::Raise("avail needs at least two arguments");
 
@@ -1180,9 +1145,8 @@ function avail()
  * Difference is that this only checks against null but also if a value is set (weak comparison against false).
  * @return mixed The first set value or null of none found
  */
-function ifavail()
+function ifavail(...$args)
 {
-	$args = func_get_args();
 	$data = array_shift($args);
 	
 	if( count($args) == 0 )
@@ -1192,7 +1156,7 @@ function ifavail()
 		$data = (object)$data;
 	if( !is_object($data) )
 	{
-		foreach( func_get_args() as $arg )
+		foreach( $args as $arg )
 			if( $arg )
 				return $arg;
 		return null;

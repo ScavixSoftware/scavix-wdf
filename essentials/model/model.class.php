@@ -556,10 +556,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * 
 	 * @return array plain array of values
 	 */
-	public function FieldValues()
+	public function FieldValues(...$args)
 	{
 		$res = array();
-		foreach( func_get_args() as $col )
+		foreach( $args as $col )
 			$res[] = $this->__typedValue($col);
 		return $res;
 	}
@@ -946,10 +946,9 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * 
 	 * @return array Associative array of fieldname=>value pairs
 	 */
-	public function AsArray()
+	public function AsArray(...$filter)
 	{
 		$res = array();
-		$filter = func_get_args();
 		if( count($filter)>0 )
 		{
             if( count($filter)==1 && is_array($filter[0]) )
@@ -1620,9 +1619,9 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * @return Model `clone $this`
 	 * @throws WdfDbException
 	 */
-	public function Update()
+	public function Update(...$args)
 	{
-		$this->Save(func_get_args());
+		$this->Save($args);
 		return $this;
 	}
 	

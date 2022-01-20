@@ -560,15 +560,15 @@ class Control extends Renderable
      * 
 	 * @return mixed `$this`, a data-attribute value or an array of data-attributes
 	 */
-	function data()
+	function data(...$args)
 	{
-        $cnt = func_num_args();
+        $cnt = count($args);
 		switch( $cnt )
 		{
 			case 0:
 				return $this->_data_attributes;
 			case 1: 
-				$name = func_get_arg(0);
+				$name = $args[0];
 				if( is_array($name) )
 				{
 					foreach( $name as $n=>$v )
@@ -579,8 +579,7 @@ class Control extends Renderable
                     ?$this->_data_attributes[$name]
                     :null;
 			case 2: 
-				$name = func_get_arg(0);
-                $value = func_get_arg(1);
+                list($name,$value) = $args;
                 if( is_array($value) || is_object($value) )
                     $this->_data_attributes[$name] = system_to_json($value);
                 else
@@ -608,15 +607,15 @@ class Control extends Renderable
 	 * Note: Will return `$this` in cases 3. and 4. (the set cases).
 	 * @return mixed `$this`, an attribute value or an array of attribute values
 	 */
-	function attr()
+	function attr(...$args)
 	{
-		$cnt = func_num_args();
+		$cnt = count($args);
 		switch( $cnt )
 		{
 			case 0:
 				return $this->_attributes;
 			case 1: 
-				$name = func_get_arg(0);
+				$name = $args[0];
 				if( is_array($name) )
 				{
 					foreach( $name as $n=>$v )
@@ -625,8 +624,8 @@ class Control extends Renderable
 				}
 				return $this->$name;
 			case 2: 
-				$name = func_get_arg(0);
-				$this->$name = func_get_arg(1);
+				$name = $args[0];
+				$this->$name = $args[1];
 				return $this;
 		}
 		WdfException::Raise("Control::attr needs 0,1 or 2 parameters");

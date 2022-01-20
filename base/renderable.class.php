@@ -328,10 +328,10 @@ abstract class Renderable implements \JsonSerializable
     /**
      * @internal Prepares given resources to be processed
      */
-    public static function CategorizeResources()
+    public static function CategorizeResources(...$args)
     {
         $res = [];
-        foreach( func_get_args() as $a )
+        foreach( $args as $a )
             $res = array_merge($res, force_array($a));
         
         $ret = [];

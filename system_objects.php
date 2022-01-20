@@ -383,11 +383,11 @@ class WdfException extends Exception
 	 * </code>
 	 * @return void
 	 */
-	public static function Raise()
+	public static function Raise(...$args)
 	{
 		$msgs = array();
 		$inner_exception = false;
-		foreach( func_get_args() as $m )
+		foreach( $args as $m )
 		{
 			if( !$inner_exception && ($m instanceof Exception) )
 				$inner_exception = $m;
@@ -416,9 +416,9 @@ class WdfException extends Exception
 	 * Note that Raise method will log automatically, so this is mainly useful when silently catching exceptions.
 	 * @return void
 	 */
-	public static function Log()
+	public static function Log(...$args)
 	{
-		call_user_func_array('log_error', func_get_args());
+		call_user_func_array('log_error', $args);
 	}
 	
 	/**

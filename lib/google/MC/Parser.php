@@ -43,16 +43,16 @@ class MC_Parser {
      * Return a MC_Parser_Def_Set with the function arguments as the subexpressions
      * @return MC_Parser_Def_Set
      */
-    public function set() {
-        return new MC_Parser_Def_Set(func_get_args());
+    public function set(...$args) {
+        return new MC_Parser_Def_Set($args);
     }
     
     /**
      * Return a MC_Parser_Def_OneOf with the function arguments as the possible expressions
      * @return MC_Parser_Def_OneOf
      */
-    public function oneOf() {
-        return new MC_Parser_Def_OneOf(func_get_args());
+    public function oneOf(...$args) {
+        return new MC_Parser_Def_OneOf($args);
     }
     
     /**

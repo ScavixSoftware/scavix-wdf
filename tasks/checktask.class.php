@@ -257,6 +257,10 @@ class CheckTask extends Task
             if( preg_match('/([^a-z0-9-_\.]each[\(\s])/i', $code, $m) !== false && count($m) )
                 $findings[] = "(F) 'each()' has been removed, foreach or ArrayIterator should be used instead";
             
+            foreach( ['func_get_args(','func_get_arg(','func_num_args('] as $f )
+                if( strpos($code, $f) !== false )
+                    $findings[] = "(I) Deprecation found, use '...\$args'-Syntax instead of '$f'";
+            
             foreach( $removed_functions as $f )
                 if( strpos($code, $f) !== false )
                     $findings[] = "(F) Removed function found: '$f'";

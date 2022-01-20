@@ -393,9 +393,8 @@ class Table extends Control
 	 * 
 	 * @return Table `$this`
 	 */
-	function SetHeader()
+	function SetHeader(...$args)
 	{
-        $args = func_get_args();
         if((count($args) == 1) && is_array($args[0]))
             $args = $args[0];
 		$this->Header()->NewRow($args);
@@ -407,9 +406,8 @@ class Table extends Control
 	 * 
 	 * @return Table `$this`
 	 */
-	function SetFooter()
+	function SetFooter(...$args)
 	{
-        $args = func_get_args();
         if((count($args) == 1) && is_array($args[0]))
             $args = $args[0];
 		$this->Footer()->NewRow($args);
@@ -433,9 +431,8 @@ class Table extends Control
 	 * 
 	 * @return Table `$this`
 	 */
-	function AddNewRow()
+	function AddNewRow(...$args)
 	{
-        $args = func_get_args();
         if((count($args) == 1) && is_array($args[0]))
             $args = $args[0];        
 		$this->NewRow($args);
@@ -450,9 +447,8 @@ class Table extends Control
 	 * to skip a column just pass an empty string: $tab->SetAlignment('l','','','r')
 	 * @return Table `$this`
 	 */
-	function SetAlignment()
+	function SetAlignment(...$args)
 	{
-		$args = func_get_args();
         if((count($args) == 1) && is_array($args[0]))
             $args = array_values($args[0]);
         $this->alignments = $args;
@@ -473,9 +469,8 @@ class Table extends Control
 	 * to skip a column just pass an empty string: $tab->SetFormat('int','','','f2')
 	 * @return Table `$this`
 	 */
-	function SetFormat()
+	function SetFormat(...$args)
 	{
-        $args = func_get_args();
         if((count($args) == 1) && is_array($args[0]))
             $args = $args[0];
         $this->ColFormats = [];
@@ -618,9 +613,9 @@ class Table extends Control
 	 * @param int $max_pages_to_show Maximum links to pages to be shown
 	 * @return DatabaseTable `$this`
 	 */
-	function AddPager($items_per_page = 15, $current_page=false, $max_pages_to_show=10)
+	function AddPager($items_per_page = 15, $current_page=false, $max_pages_to_show=10, ...$toomany)
 	{
-        if( func_num_args() > 3 )
+        if( count($toomany) > 0 )
             WdfException::Raise("Use of obsolete method signature");
 		$this->TotalItems = 0;
 		$this->ItemsPerPage = $items_per_page;

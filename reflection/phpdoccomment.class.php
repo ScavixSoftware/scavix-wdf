@@ -186,9 +186,9 @@ class PhpDocComment
 	 * </code>
 	 * @return bool true or false
 	 */
-	function hasOne()
+	function hasOne(...$args)
 	{
-		foreach( func_get_args() as $name )
+		foreach( $args as $name )
 			if( $this->has($name) )
 				return true;
 		return false;

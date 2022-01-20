@@ -867,11 +867,11 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             $this->summary_names[$name] = [$label,$format?:''];
         return $this;
     }
-    public function setSummary()
+    public function setSummary(...$args)
     {
         $this->summary = [];
         $this->summary_names = [];
-        foreach( func_get_args() as $def )
+        foreach( $args as $def )
         {
             if( is_array($def) )
             {
