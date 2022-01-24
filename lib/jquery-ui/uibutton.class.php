@@ -58,7 +58,25 @@ class uiButton extends uiControl
 	 * @param string $onclick OnClick JS code
 	 * @return uiButton The new button
 	 */
-	static function Make($label,$onclick=false)
+	static function Make(...$args)
+	{
+        log_debug(__METHOD__,"Deprecated. Use uiButton::Textual instead");
+        $label = isset($args[0])?$args[0]:'';
+        $onclick = isset($args[1])?$args[1]:'';
+        
+		$res = new uiButton($label);
+		if( $onclick ) $res->onclick = $onclick;
+		return $res;
+	}
+    
+    /**
+	 * Button creation shortcut
+	 * 
+	 * @param string $label Label
+	 * @param string $onclick OnClick JS code
+	 * @return Button The new button
+	 */
+	static function Textual($label, $onclick = false)
 	{
 		$res = new uiButton($label);
 		if( $onclick ) $res->onclick = $onclick;

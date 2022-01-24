@@ -62,12 +62,12 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	 * @param string $title Title string
 	 * @return GoogleVisualization Created control
 	 */
-	static function Make($title=false)
+	static function Make(...$args)
 	{
 		$className = get_called_class();
 		$res = new $className();
-		if( $title )
-			$res->opt('title',$title);
+		if( count($args) )
+			$res->opt('title',$args[0]);
 		if( self::$Colors )
 			$res->opt('colors',self::$Colors);		
 		return $res;
