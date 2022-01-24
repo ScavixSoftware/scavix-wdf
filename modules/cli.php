@@ -62,6 +62,7 @@ function cli_init()
     create_class_alias(\ScavixWDF\Tasks\ClearTask::class,'cleartask');
     create_class_alias(\ScavixWDF\Tasks\CreateTask::class,'createtask');
     create_class_alias(\ScavixWDF\Tasks\DbTask::class,'dbtask');
+    create_class_alias(\ScavixWDF\Tasks\TaskPool::class,'taskpool');
 }
 
 /**

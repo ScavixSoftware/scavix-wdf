@@ -94,6 +94,7 @@ class Wdf
         {
             $lock = md5($name);
             $dir = '/run/lock/wdf-'.md5(__SCAVIXWDF__);
+            $um = umask(0);
             @mkdir($dir,0777,true);
             $end = time()+$timeout;
             do
@@ -120,6 +121,7 @@ class Wdf
                 }
                 
                 self::$locks[$lock] = $fp;
+                umask($um);
                 return true;
             }
             while(time()<$end);
@@ -129,6 +131,7 @@ class Wdf
                 if( !system_process_running(trim(@file_get_contents($f))) )
                     @unlink($f);
             }
+            umask($um);
             if( $timeout <= 0 )
                 return false;
             WdfException::Raise("Timeout while awaiting the lock '$name'");
