@@ -457,6 +457,9 @@ function system_execute()
 	Wdf::$Request->CurrentController = $current_controller 
         = system_instanciate_controller($current_controller);
     
+    if( system_method_exists($current_controller,'__translate_event') )
+        $current_event = $current_controller->__translate_event($current_event);
+    
 	if( !(system_method_exists($current_controller,$current_event) ||
 		(system_method_exists($current_controller,'__method_exists') && $current_controller->__method_exists($current_event) )) )
 	{
