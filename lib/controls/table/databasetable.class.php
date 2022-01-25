@@ -30,7 +30,6 @@
  */
 namespace ScavixWDF\Controls\Table;
 
-use ExcelCulture;
 use PDO;
 use ScavixWDF\ICallable;
 use ScavixWDF\Localization\CultureInfo;
