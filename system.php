@@ -1935,3 +1935,4 @@ function system_release_lock($name,$datasource='internal')
 	$ds = ($datasource instanceof DataSource)?$datasource:model_datasource($datasource);
 	$ds->ExecuteSql("DELETE FROM wdf_locks WHERE lockname=?",$name);
 }
+ 
