@@ -131,7 +131,7 @@ class CellFormat
 	 */
 	function FormatContent($full_content,$culture=false)
 	{
-		$this->content = $content = trim(strip_tags($full_content));
+		$this->content = $content = trim(strip_tags("$full_content"));
 		if( $this->blank_if_false && !$content )
 			return "";
 		if( !$this->format )

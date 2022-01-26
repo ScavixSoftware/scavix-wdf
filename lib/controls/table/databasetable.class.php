@@ -613,7 +613,7 @@ class DatabaseTable extends Table implements ICallable
 			$csv_line = array();
 			foreach( $row as $val )
 			{
-				if( strpos($val, $sep) !== false )
+				if( strpos("$val", $sep) !== false )
 					$csv_line[] = "$esc$val$esc";
 				else
 					$csv_line[] = $val;
