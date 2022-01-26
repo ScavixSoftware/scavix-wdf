@@ -131,7 +131,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
             if($this->_columnDef)
                 $coldefs = array_values($this->_columnDef);
 
-			array_walk_recursive($this->_data, function(&$item, &$key) use ($coldefs) { 
+			array_walk_recursive($this->_data, function(&$item, $key) use ($coldefs) { 
                 //log_debug($key, $item);
                 if( $item instanceof DateTime) 
                     $item = "[jscode]new Date(".($item->getTimestamp()*1000).")";
