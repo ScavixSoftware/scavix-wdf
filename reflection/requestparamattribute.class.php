@@ -59,7 +59,7 @@ class RequestParamAttribute extends WdfAttribute
 			switch( strtolower($this->Type) )
 			{
 				case 'string':
-					$this->Filter = FILTER_SANITIZE_STRING;
+					$this->Filter = FILTER_SANITIZE_FULL_SPECIAL_CHARS;
 					break;
 			}
 		}

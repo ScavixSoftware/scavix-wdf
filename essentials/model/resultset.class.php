@@ -341,7 +341,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	 * @param int $cursor_offset See php.net docs
 	 * @return mixed See php.net docs
 	 */
-	function fetch($fetch_style = null, $cursor_orientation = null, $cursor_offset = null)
+    function fetch(int $mode = PDO::FETCH_DEFAULT, int $cursorOrientation = PDO::FETCH_ORI_NEXT, int $cursorOffset = 0): mixed
 	{
 		$this->_data_fetched = true;
 		if( $this->_index < (count($this->_rowbuffer)-1) )
@@ -356,10 +356,10 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 			return false;
 		}
 		
-		if( $fetch_style == null && $this->FetchMode )
-			$fetch_style = $this->FetchMode;
+		if( $mode == null && $this->FetchMode )
+			$mode = $this->FetchMode;
 		
-		$this->_current = $this->_stmt->fetch($fetch_style, $cursor_orientation, $cursor_offset);
+		$this->_current = $this->_stmt->fetch($mode, $cursorOffsetrientation, $cursorOffset);
 		if( $this->_current !== false )
 		{
 			$this->_index = count($this->_rowbuffer);
@@ -639,7 +639,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	/**
 	 * @implements <Iterator::current>
 	 */
-	public function current() {
+	public function current(): mixed {
 		if( !$this->_current ) $this->_current = $this->fetch();
 		return $this->_current;
 	}
@@ -647,21 +647,21 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	/**
 	 * @implements <Iterator::key>
 	 */
-	public function key() {
+	public function key(): mixed {
 		return $this->_index;
 	}
 
 	/**
 	 * @implements <Iterator::next>
 	 */
-	public function next() {
+	public function next(): void {
 		$this->_current = $this->fetch();
 	}
 
 	/**
 	 * @implements <Iterator::rewind>
 	 */
-	public function rewind() {
+	public function rewind(): void {
 		$this->_index = -1;
         $this->_current = false;
 	}
@@ -669,7 +669,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	/**
 	 * @implements <Iterator::valid>
 	 */
-	public function valid() {
+	public function valid(): bool {
 		if( !$this->_current ) $this->_current = $this->fetch();
 		return $this->_current !== false;
 	}

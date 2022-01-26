@@ -28,7 +28,7 @@
  * @copyright since 2019 Scavix Software GmbH & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-
+       
 define('FRAMEWORK_LOADED','uSI7hcKMQgPaPKAQDXg5');
 define('__SCAVIXWDF__',__DIR__);
 date_default_timezone_set("Europe/Berlin");
@@ -1386,7 +1386,7 @@ function cache_set($key,$value,$ttl=false,$use_global_cache=true,$use_session_ca
 	if( $use_global_cache && system_is_module_loaded('globalcache') )
 		globalcache_set($key, $value, $ttl);
 
-    if( $use_session_cache )
+    if( $use_session_cache && function_exists('session_serialize') && avail($_SESSION, 'system_internal_cache') )
 		$_SESSION["system_internal_cache"][$key] = session_serialize($value);
 }
 
@@ -1935,4 +1935,3 @@ function system_release_lock($name,$datasource='internal')
 	$ds = ($datasource instanceof DataSource)?$datasource:model_datasource($datasource);
 	$ds->ExecuteSql("DELETE FROM wdf_locks WHERE lockname=?",$name);
 }
- 

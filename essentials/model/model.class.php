@@ -114,7 +114,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	/**
 	 * @implements <Iterator::rewind>
 	 */
-	function rewind() { $this->_index = 0; }
+	function rewind(): void { $this->_index = 0; }
 	
 	/**
 	 * @implements <Iterator::current>
@@ -124,22 +124,22 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	/**
 	 * @implements <Iterator::key>
 	 */
-    function key() { return $this->_index; }
+    function key(): mixed { return $this->_index; }
 	
 	/**
 	 * @implements <Iterator::next>
 	 */
-    function next() { $this->_index++; }
+    function next(): void { $this->_index++; }
 	
 	/**
 	 * @implements <Iterator::valid>
 	 */
-    function valid() { $this->__ensureResults(); return isset($this->_results[$this->_index]); }
+    function valid(): bool { $this->__ensureResults(); return isset($this->_results[$this->_index]); }
 
 	/**
 	 * @implements <ArrayAccess::offsetSet>
 	 */
-	public function offsetSet($offset, $value)
+	public function offsetSet(mixed $offset, mixed $value): void
 	{
 		$this->__ensureResults();
 		if( $this->_query )
@@ -151,7 +151,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	/**
 	 * @implements <ArrayAccess::offsetExists>
 	 */
-    public function offsetExists($offset)
+    public function offsetExists(mixed $offset)
 	{
 		$this->__ensureResults();
 		if( $this->_query )
@@ -162,7 +162,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	/**
 	 * @implements <ArrayAccess::offsetUnset>
 	 */
-    public function offsetUnset($offset)
+    public function offsetUnset(mixed $offset)
 	{
 		$this->__ensureResults();
 		if( $this->_query )
@@ -174,7 +174,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	/**
 	 * @implements <ArrayAccess::offsetGet>
 	 */
-    public function offsetGet($offset)
+    public function offsetGet(mixed $offset)
 	{
 		$this->__ensureResults();
 		if( $this->_query )

@@ -52,8 +52,9 @@ class PdoLayer extends PDO
 	 * @param array $driver_options This array holds one or more key=>value pairs to set attribute values for the PDOStatement object that this method returns
 	 * @return mixed PDOStatement (in our case ResultSet) or false
 	 */
-	function prepare($statement, $driver_options = null)
-	{
+    
+    public function prepare(string $statement, array $driver_options = []): \PDOStatement
+    {
 		// remove the counter from ?0, ?,... so that they are simply ?,?,...
 		$statement = preg_replace('/\?\d+/','?',$statement);
         
@@ -71,8 +72,6 @@ class PdoLayer extends PDO
             $statement = $this->Driver->PreprocessSql($statement);
         
         $this->LastPreparedSqlCode = $statement;
-		if( is_null($driver_options) )
-			return parent::prepare($statement);
 		return parent::prepare($statement, $driver_options);
 	}
 }

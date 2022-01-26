@@ -124,7 +124,7 @@ abstract class Renderable implements \JsonSerializable
      * @see <Renderable::StartSlimSerialize>
      * @return object|array If SlimSerialisation is active, returns an array, else returns $this
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         if( !self::$SLIM_SERIALIZER )
             return $this;
