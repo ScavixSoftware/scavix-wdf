@@ -953,7 +953,7 @@ function system_spl_autoload($class_name)
 			else
 			{
 				$class_name = isset($orig)?$orig:$class_name;
-				if( strtolower($def) != strtolower($class_name) && ends_iwith($def,$class_name) ) // no qualified classname requested but class was defined with namespace
+				if( strtolower($def) != strtolower("$class_name") && ends_iwith($def,$class_name) ) // no qualified classname requested but class was defined with namespace
 				{
 					log_trace("Aliasing class '$def' to '$class_name'. To avoid this check the use statements or use a qualified classname.");
 					create_class_alias($def,$class_name,true);

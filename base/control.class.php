@@ -500,7 +500,7 @@ class Control extends Renderable
 	function addClass($class)
 	{
         $class = is_array($class)?$class:explode(" ",$class);
-        $class = array_merge(explode(" ",$this->class),$class);
+        $class = array_merge(explode(" ","{$this->class}"),$class);
 		$this->class = trim(implode(" ",array_unique($class)));
 		return $this;
 	}

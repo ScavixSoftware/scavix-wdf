@@ -215,7 +215,7 @@ class Args
 				case 'TEXT': 
 				case 'STRIPPED':
 				case 'VARCHAR':
-					return filter_var($value,FILTER_SANITIZE_STRING);
+					return htmlspecialchars($value);
 				case 'URL': 
 				case 'URI': 
 					return filter_var($value,FILTER_SANITIZE_URL);

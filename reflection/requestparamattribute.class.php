@@ -59,7 +59,7 @@ class RequestParamAttribute extends WdfAttribute
 			switch( strtolower($this->Type) )
 			{
 				case 'string':
-					$this->Filter = FILTER_SANITIZE_FULL_SPECIAL_CHARS;
+					$this->Filter = FILTER_UNSAFE_RAW;
 					break;
 			}
 		}
@@ -144,7 +144,7 @@ class RequestParamAttribute extends WdfAttribute
 				case 'string':
 				case 'text':
 					if( $this->Filter )
-						$args[$this->Name] = filter_var($data[$name],$this->Filter,FILTER_FLAG_NO_ENCODE_QUOTES);
+						$args[$this->Name] = htmlspecialchars($data[$name]);
 					else
 						$args[$this->Name] = $data[$name];
 					return true;

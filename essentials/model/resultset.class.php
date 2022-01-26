@@ -183,8 +183,13 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	 */
 	function serialize()
 	{
-		$buf = array(
-			'ds' => $this->_ds->_storage_id,
+		return serialize($this->__serialize());
+	}
+    
+    function __serialize() : array
+    {
+        return [
+            'ds' => $this->_ds->_storage_id,
 			'sql' => $this->_stmt->queryString,
 			'args' => $this->_arguments_used,
 			'paging_info' => $this->_paging_info,
@@ -192,10 +197,9 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 			'index' => $this->_index,
 			'rows' => $this->_rowbuffer,
 			'rowCount' => $this->_rowCount,
-			'df' => $this->_data_fetched,
-		);		
-		return serialize($buf);
-	}
+			'df' => $this->_data_fetched
+        ];
+    }
     
     /**
 	 * Savely unserializes this object
@@ -208,7 +212,12 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	{
         //log_debug(__METHOD__,$data);
 		$buf = unserialize($data);
-		$this->_ds = model_datasource($buf['ds']);
+		$this->__unserialize($buf);
+	}
+    
+    function __unserialize(array $data)
+    {
+        $this->_ds = model_datasource($buf['ds']);
 		$this->_sql_used = $buf['sql'];
 		$this->_arguments_used = $buf['args'];
 		$this->_paging_info = $buf['paging_info'];
@@ -220,7 +229,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 		$this->_data_fetched = isset($buf['df'])?$buf['df']:false;
 		if( isset($this->_rowbuffer[$this->_index]) )
 			$this->_current = $this->_rowbuffer[$this->_index];
-	}
+    }
 	
 	/**
 	 * Creates a ResultSet from a serialized data string
@@ -302,7 +311,9 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
             if( is_null($input_parameters) )
                 $result = $this->_stmt->execute();
             else
+                try{
                 $result = $this->_stmt->execute($input_parameters);
+                }catch(Exception $ex){ log_debug($this->_sql_used,$this->_arguments_used); throw $ex; }
             
             // this is MySQL deadlock
             if( $result === false && $deadlock_retries++<5 )
@@ -341,7 +352,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	 * @param int $cursor_offset See php.net docs
 	 * @return mixed See php.net docs
 	 */
-    function fetch(int $mode = PDO::FETCH_DEFAULT, int $cursorOrientation = PDO::FETCH_ORI_NEXT, int $cursorOffset = 0): mixed
+    function fetch(int $mode = null, int $cursorOrientation = null, int $cursorOffset = null): mixed
 	{
 		$this->_data_fetched = true;
 		if( $this->_index < (count($this->_rowbuffer)-1) )
@@ -359,7 +370,11 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 		if( $mode == null && $this->FetchMode )
 			$mode = $this->FetchMode;
 		
-		$this->_current = $this->_stmt->fetch($mode, $cursorOffsetrientation, $cursorOffset);
+		$this->_current = $this->_stmt->fetch(
+            is_null($mode)?PDO::FETCH_DEFAULT:$mode,
+            is_null($cursorOrientation)?PDO::FETCH_ORI_NEXT:$cursorOrientation, 
+            is_null($cursorOffset)?0:$cursorOffset
+        );
 		if( $this->_current !== false )
 		{
 			$this->_index = count($this->_rowbuffer);
@@ -603,7 +618,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	/**
 	 * @implements <ArrayAccess::offsetExists>
 	 */
-	public function offsetExists($offset)
+	public function offsetExists($offset): bool
 	{
 		if( !$this->_current ) $this->_current = $this->fetch();
 		return isset($this->_current[$offset]);
@@ -612,7 +627,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	/**
 	 * @implements <ArrayAccess::offsetGet>
 	 */
-	public function offsetGet($offset)
+	public function offsetGet($offset):mixed
 	{
 		if( !$this->_current ) $this->_current = $this->fetch();
 		return isset($this->_current[$offset]) ? $this->_current[$offset] : null;
@@ -621,7 +636,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	/**
 	 * @implements <ArrayAccess::offsetSet>
 	 */
-	public function offsetSet($offset, $value)
+	public function offsetSet($offset, $value):void
 	{
 		if( !$this->_current ) $this->_current = $this->fetch();
 		$this->_current[$offset] = $value;
@@ -630,7 +645,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	/**
 	 * @implements <ArrayAccess::offsetUnset>
 	 */
-	public function offsetUnset($offset)
+	public function offsetUnset($offset):void
 	{
 		if( !$this->_current ) $this->_current = $this->fetch();
 		unset($this->_current[$offset]);

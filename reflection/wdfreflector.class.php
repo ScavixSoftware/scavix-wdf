@@ -392,7 +392,7 @@ class WdfReflector extends ReflectionClass
 	 * @param string $name Name of the method to get
 	 * @return WdfReflectionMethod A WdfReflectionMethod instance or false on error
 	 */
-	public function getMethod($name)
+	public function getMethod($name): \ReflectionMethod
 	{
 		try
 		{

@@ -53,7 +53,7 @@ class PdoLayer extends PDO
 	 * @return mixed PDOStatement (in our case ResultSet) or false
 	 */
     
-    public function prepare(string $statement, array $driver_options = []): \PDOStatement
+    public function prepare(string $statement, array $driver_options = []): \PDOStatement|false
     {
 		// remove the counter from ?0, ?,... so that they are simply ?,?,...
 		$statement = preg_replace('/\?\d+/','?',$statement);

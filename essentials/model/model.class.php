@@ -114,32 +114,32 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	/**
 	 * @implements <Iterator::rewind>
 	 */
-	function rewind(): void { $this->_index = 0; }
+	function rewind():void { $this->_index = 0; }
 	
 	/**
 	 * @implements <Iterator::current>
 	 */
-    function current() { $this->__ensureResults(); return isset($this->_results[$this->_index])?$this->_results[$this->_index]:null; }
+    function current():mixed { $this->__ensureResults(); return isset($this->_results[$this->_index])?$this->_results[$this->_index]:null; }
 	
 	/**
 	 * @implements <Iterator::key>
 	 */
-    function key(): mixed { return $this->_index; }
+    function key():mixed { return $this->_index; }
 	
 	/**
 	 * @implements <Iterator::next>
 	 */
-    function next(): void { $this->_index++; }
+    function next():void { $this->_index++; }
 	
 	/**
 	 * @implements <Iterator::valid>
 	 */
-    function valid(): bool { $this->__ensureResults(); return isset($this->_results[$this->_index]); }
+    function valid():bool { $this->__ensureResults(); return isset($this->_results[$this->_index]); }
 
 	/**
 	 * @implements <ArrayAccess::offsetSet>
 	 */
-	public function offsetSet(mixed $offset, mixed $value): void
+	public function offsetSet($offset, $value):void
 	{
 		$this->__ensureResults();
 		if( $this->_query )
@@ -151,7 +151,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	/**
 	 * @implements <ArrayAccess::offsetExists>
 	 */
-    public function offsetExists(mixed $offset)
+    public function offsetExists($offset):bool
 	{
 		$this->__ensureResults();
 		if( $this->_query )
@@ -162,7 +162,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	/**
 	 * @implements <ArrayAccess::offsetUnset>
 	 */
-    public function offsetUnset(mixed $offset)
+    public function offsetUnset($offset):void
 	{
 		$this->__ensureResults();
 		if( $this->_query )
@@ -174,7 +174,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	/**
 	 * @implements <ArrayAccess::offsetGet>
 	 */
-    public function offsetGet(mixed $offset)
+    public function offsetGet($offset):mixed
 	{
 		$this->__ensureResults();
 		if( $this->_query )
@@ -187,7 +187,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * 
 	 * @return int Amount of results
 	 */
-	function count(){ $this->__ensureResults(); return count($this->_results); }
+	function count():int { $this->__ensureResults(); return count($this->_results); }
 	
 	/**
 	 * Returns an array containing all results.
