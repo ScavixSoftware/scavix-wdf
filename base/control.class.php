@@ -436,10 +436,10 @@ class Control extends Renderable
 		{
             if( $name[0] == "_" || ($name == "class" && $value=="") )
                 continue;
-    		$attr[] = "$name=\"".str_replace("\"","&#34;",$value)."\"";
+    		$attr[] = "$name=\"".str_replace("\"","&#34;","$value")."\"";
 		}
 		foreach( $this->_data_attributes as $name=>$value )
-			$attr[] = "data-$name=\"".str_replace("\"","&#34;",$value)."\"";
+			$attr[] = "data-$name=\"".str_replace("\"","&#34;","$value")."\"";
 //			$attr[] = "data-$name='".str_replace("'","\\'",$value)."'";
 		
 		$css = array();

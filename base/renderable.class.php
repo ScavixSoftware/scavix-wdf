@@ -199,6 +199,7 @@ abstract class Renderable implements \JsonSerializable
 		if( !$min_js_file && !$min_css_file )
 			return $res;
 		
+
 		$js = array(); $css = array();
 		foreach( $res as $r )
 		{
@@ -294,7 +295,7 @@ abstract class Renderable implements \JsonSerializable
                         $static_stack[$cnl] = true;
                     }
 					$classname = array_last(explode('\\',get_parent_class(fq_class_name($classname))));
-					$cnl = strtolower($classname);
+    				$cnl = strtolower($classname);
 				}
 				while($classname != "");
 				$res = array_merge($res,array_reverse($parents));

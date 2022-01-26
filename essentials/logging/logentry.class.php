@@ -155,7 +155,7 @@ class LogEntry
         if( !function_exists('utf8_encode') )
             return "missing php-xml";
         
-        $mss = false;//\ScavixWDF\Base\Renderable::StartSlimSerialize();
+        $mss = \ScavixWDF\Base\Renderable::StartSlimSerialize();
         
 		$res = new stdClass();
 		$res->dt = date("c",$this->datetime);

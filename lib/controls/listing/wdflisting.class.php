@@ -265,7 +265,11 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
                     array_keys($this->summary)
                 )
             );
-            $sql = str_replace(" SQL_CALC_FOUND_ROWS "," ",$this->table->Sql?:$this->table->GetSQL());
+            $sql = str_replace(
+                [" SQL_CALC_FOUND_ROWS "," /*SQL_CALC_FOUND_ROWS*/ "],
+                [" "," "],
+                $this->table->Sql?:$this->table->GetSQL()
+            );
             if( count($sumcols)> 0 )
             {
                 $sql = str_replace('SELECT * ', 'SELECT '.implode(',', array_map(function($c) { return "`$c`"; }, $sumcols)).' ', $sql);

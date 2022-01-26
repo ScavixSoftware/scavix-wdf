@@ -311,9 +311,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
             if( is_null($input_parameters) )
                 $result = $this->_stmt->execute();
             else
-                try{
                 $result = $this->_stmt->execute($input_parameters);
-                }catch(Exception $ex){ log_debug($this->_sql_used,$this->_arguments_used); throw $ex; }
             
             // this is MySQL deadlock
             if( $result === false && $deadlock_retries++<5 )
@@ -330,7 +328,8 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
         
         if( stripos($this->_sql_used, 'SQL_CALC_FOUND_ROWS') !== false )
         {
-            $qry = $this->_pdo->query("SELECT FOUND_ROWS()",PDO::FETCH_COLUMN,0);
+            $sql = preg_replace('/LIMIT[\s0-9,]+$/i','',$this->_sql_used);
+            $qry = $this->_pdo->query("SELECT count(1) FROM ( $sql ) as cnt",PDO::FETCH_COLUMN,0);
             if( $qry )
             {
                 $found_rows = $qry->fetchColumn(0);
