@@ -144,7 +144,7 @@ class RequestParamAttribute extends WdfAttribute
 				case 'string':
 				case 'text':
 					if( $this->Filter )
-						$args[$this->Name] = htmlspecialchars($data[$name]);
+						$args[$this->Name] = htmlspecialchars("{$data[$name]}");
 					else
 						$args[$this->Name] = $data[$name];
 					return true;

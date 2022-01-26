@@ -375,7 +375,7 @@ class DatabaseTable extends Table implements ICallable
 //				$c4 = count(explode("<",$v));
 //				if( count($tags)!=$c || ($c1 & 1)==0 || ($c2 & 1)==0 || ($c3 & 1)==0 || ($c4 & 1)==0 )
 //                {
-//					$row[$k] = htmlspecialchars($v);
+//					$row[$k] = htmlspecialchars("$v");
 //                    log_debug("spec because $c1 $c2 $c3 $c4",$v);
 //                }
 //			}

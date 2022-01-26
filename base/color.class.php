@@ -103,7 +103,7 @@ class Color
         ];
         
         
-        $hex = strtolower(trim(trim($hex_string,'#')));
+        $hex = strtolower(trim(trim("$hex_string",'#')));
         if( isset($named[$hex]) )
             $hex = $named[$hex];
         if( $hex == "transparent" )

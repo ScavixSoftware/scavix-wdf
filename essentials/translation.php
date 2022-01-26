@@ -470,7 +470,7 @@ function getStringOrig($constant, $arreplace = null, $unbuffered = false, $encod
 			if($res == $constant)
 			{
 				// if still the same, constant is unknown
-				$res = htmlspecialchars($constant)."?";
+				$res = htmlspecialchars("$constant")."?";
 				$GLOBALS['translation']['skip_buffering_once'] = true;
 				Wdf::$Translation->unknown_constants["k".$constant] = [$constant,$arreplace];
 			}

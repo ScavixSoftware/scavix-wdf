@@ -424,7 +424,7 @@ class TranslationAdmin extends TranslationAdminBase
 		$rs = $this->_searchQuery($offset,$lang,$search,$untranslated);
 		foreach( $rs as $term )
 		{
-			$def = nl2br(htmlspecialchars($term['def']));
+			$def = nl2br(htmlspecialchars("{$term['def']}"));
 			$ta = TextArea::Make($untranslated?'':$term['trans'])
                 ->addClass($term['id'])
                 //->attr('rows',count(explode('<br />', $def)) + 1)

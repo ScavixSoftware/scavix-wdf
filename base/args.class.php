@@ -108,7 +108,7 @@ class Args
 		if( !$name )
 			return array_keys(self::$_buffer[$order]);
 		if( self::$_ignore_case )
-			$name = strtolower($name);
+			$name = strtolower("$name");
 		if( isset(self::$_buffer[$order][$name]) )
 			return is_null($filter)?self::$_buffer[$order][$name]:self::sanitize(self::$_buffer[$order][$name],$filter,$filter_options);
 		if( !is_null($default) )
@@ -215,7 +215,7 @@ class Args
 				case 'TEXT': 
 				case 'STRIPPED':
 				case 'VARCHAR':
-					return htmlspecialchars($value);
+					return htmlspecialchars("$value");
 				case 'URL': 
 				case 'URI': 
 					return filter_var($value,FILTER_SANITIZE_URL);
@@ -240,7 +240,7 @@ class Args
 				case 'BOOL':
 				case 'BOOLEAN':
 					if( is_string($value) )
-						if( $value == '' || $value == '0' || strtolower($value) == "false" )
+						if( $value == '' || $value == '0' || strtolower("$value") == "false" )
 							return false;
 						else
 							return true;
