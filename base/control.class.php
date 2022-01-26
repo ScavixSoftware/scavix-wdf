@@ -183,7 +183,7 @@ class Control extends Renderable
 		$this->__constructed();
 
         create_storage_id($this);
-        $this->Tag = strtolower($tag);
+        $this->Tag = strtolower("$tag");
         $class = strtolower(get_class_simple($this));
 
         if( $class != $this->Tag && $class != "control" )
@@ -249,7 +249,7 @@ class Control extends Renderable
 		}
 		$this->_attributes[$varname] = $value;
 
-		if( strtolower($varname) == "id" )
+		if( strtolower("$varname") == "id" )
 			$this->_storage_id = $value;
 	}
 	
@@ -333,7 +333,7 @@ class Control extends Renderable
 	 */
 	function css($name,$value)
 	{
-		$name = strtolower($name);
+		$name = strtolower("$name");
 		$this->_css[$name] = ($name!='flex'&&is_numeric($value))?$value.'px':$value;
 		return $this;
 	}
@@ -356,7 +356,7 @@ class Control extends Renderable
 	 */
 	protected function IsAllowedAttribute($attr)
 	{
-		$attr = strtolower($attr);
+		$attr = strtolower("$attr");
 		$isattr = isset(Control::$html_attributes[$this->Tag]);
 		if( $isattr && !isset(Control::$html_attributes_keys[$this->Tag]))
 			Control::$html_attributes_keys[$this->Tag] = array_flip(Control::$html_attributes[$this->Tag]);

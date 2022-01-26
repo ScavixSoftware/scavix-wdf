@@ -52,8 +52,8 @@ class PdoLayer extends PDO
 	 * @param array $driver_options This array holds one or more key=>value pairs to set attribute values for the PDOStatement object that this method returns
 	 * @return mixed PDOStatement (in our case ResultSet) or false
 	 */
-    
-    public function prepare(string $statement, array $driver_options = []): \PDOStatement|false
+    #[\ReturnTypeWillChange]
+    public function prepare(string $statement, array $driver_options = [])
     {
 		// remove the counter from ?0, ?,... so that they are simply ?,?,...
 		$statement = preg_replace('/\?\d+/','?',$statement);
