@@ -177,7 +177,8 @@ class WdfBuffer implements \Iterator, \JsonSerializable
 	/**
 	 * @internal see <JsonSerializable>
 	 */
-	public function jsonSerialize():mixed
+    #[\ReturnTypeWillChange]
+	public function jsonSerialize()
 	{
         return $this->dump();
     }
@@ -329,12 +330,14 @@ class WdfBuffer implements \Iterator, \JsonSerializable
         $this->position = 0;
     }
 
-    public function current():mixed
+    #[\ReturnTypeWillChange]
+    public function current()
     {
         return $this->get($this->key());
     }
 
-    public function key():mixed
+    #[\ReturnTypeWillChange]
+    public function key()
     {
         return $this->keys()[$this->position];
     }

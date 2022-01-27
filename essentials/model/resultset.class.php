@@ -351,7 +351,8 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	 * @param int $cursor_offset See php.net docs
 	 * @return mixed See php.net docs
 	 */
-    function fetch(int $mode = null, int $cursorOrientation = null, int $cursorOffset = null): mixed
+    #[\ReturnTypeWillChange]
+    function fetch(int $mode = null, int $cursorOrientation = null, int $cursorOffset = null)
 	{
 		$this->_data_fetched = true;
 		if( $this->_index < (count($this->_rowbuffer)-1) )
@@ -626,7 +627,8 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	/**
 	 * @implements <ArrayAccess::offsetGet>
 	 */
-	public function offsetGet($offset):mixed
+    #[\ReturnTypeWillChange]
+	public function offsetGet($offset)
 	{
 		if( !$this->_current ) $this->_current = $this->fetch();
 		return isset($this->_current[$offset]) ? $this->_current[$offset] : null;
@@ -653,7 +655,8 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	/**
 	 * @implements <Iterator::current>
 	 */
-	public function current(): mixed {
+    #[\ReturnTypeWillChange]
+	public function current(){
 		if( !$this->_current ) $this->_current = $this->fetch();
 		return $this->_current;
 	}
@@ -661,7 +664,8 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	/**
 	 * @implements <Iterator::key>
 	 */
-	public function key(): mixed {
+    #[\ReturnTypeWillChange]
+	public function key() {
 		return $this->_index;
 	}
 

@@ -50,7 +50,8 @@ class WdfReflectionMethod extends ReflectionMethod
 	 * @param array $argsarray The parameters to be passed to the function, as an array
 	 * @return mixed Returns the method result. 
 	 */
-	public function invokeArgs($object, array $argsarray): mixed
+    #[\ReturnTypeWillChange]
+	public function invokeArgs($object, array $argsarray)
 	{
 		try{
 			return parent::invokeArgs($object, $argsarray);

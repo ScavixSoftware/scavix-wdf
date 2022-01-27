@@ -119,12 +119,14 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	/**
 	 * @implements <Iterator::current>
 	 */
-    function current():mixed { $this->__ensureResults(); return isset($this->_results[$this->_index])?$this->_results[$this->_index]:null; }
+    #[\ReturnTypeWillChange]
+    function current(){ $this->__ensureResults(); return isset($this->_results[$this->_index])?$this->_results[$this->_index]:null; }
 	
 	/**
 	 * @implements <Iterator::key>
 	 */
-    function key():mixed { return $this->_index; }
+    #[\ReturnTypeWillChange]
+    function key() { return $this->_index; }
 	
 	/**
 	 * @implements <Iterator::next>
@@ -174,7 +176,8 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	/**
 	 * @implements <ArrayAccess::offsetGet>
 	 */
-    public function offsetGet($offset):mixed
+    #[\ReturnTypeWillChange]
+    public function offsetGet($offset)
 	{
 		$this->__ensureResults();
 		if( $this->_query )
