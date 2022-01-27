@@ -172,7 +172,7 @@ function get_countrycode_by_ip($ipaddr = false)
 
 	if(!$country_code)
 	{
-		if(isDev() && (starts_with($ip, "1.1 ") || starts_with($ip, "192.168.")))
+		if(isDev() && (starts_with($ipaddr, "1.1 ") || starts_with($ipaddr, "192.168.")))
 			$country_code = 'DE';
 		else
 		{

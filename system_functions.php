@@ -471,7 +471,7 @@ function system_ensure_path_ending(&$path, $make_realpath=false)
 function starts_with($string,...$start)
 {
     foreach( $start as $s )
-        if( strpos($string,$s) === 0 )
+        if( strpos("$string","$s") === 0 )
             return true;
     return false;
 }
@@ -482,7 +482,7 @@ function starts_with($string,...$start)
 function starts_iwith($string,...$start)
 {
 	foreach( $start as $s )
-        if( stripos($string,$s) === 0 )
+        if( stripos("$string","$s") === 0 )
             return true;
     return false;
 }
