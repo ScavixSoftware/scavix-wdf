@@ -69,7 +69,7 @@ class ResourceAttribute extends WdfAttribute
 		$ref = WdfReflector::GetInstance($classname);
 		$attrs = $ref->GetClassAttributes(array('Resource','ExternalResource'));
 		$ref = $ref->getParentClass();
-		$parents = $ref?self::Collect($ref->getName()):array();
+		$parents = $ref?self::Collect($ref->getName()):[];
 		$attrs = array_merge($parents,$attrs);
 		return $attrs;
 	}
@@ -83,7 +83,7 @@ class ResourceAttribute extends WdfAttribute
 	 */
 	public static function ResolveAll($array_of_res_attr)
 	{
-		$res = array();
+		$res = [];
 		foreach( $array_of_res_attr as $a )
 			$res[] = $a->Resolve();
 		return array_unique($res);

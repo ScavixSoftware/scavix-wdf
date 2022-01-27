@@ -39,8 +39,8 @@ abstract class Renderable implements \JsonSerializable
 	var $_translate = true;
 	var $_storage_id;
 	var $_parent = false;
-	var $_content = array();
-	var $_script = array();
+	var $_content = [];
+	var $_script = [];
     
     public static $SLIM_SERIALIZER = false;
     public static $SLIM_SERIALIZER_RUN = 0;
@@ -149,7 +149,7 @@ abstract class Renderable implements \JsonSerializable
     /**
      * @internal Dummy. Can be used in subclasses by overriding.
      */
-    function PreRender($args=array()){}
+    function PreRender($args=[]){}
     
 	/**
 	 * Renders this Renderable as controller.
@@ -201,7 +201,7 @@ abstract class Renderable implements \JsonSerializable
 			return $res;
 		
 
-		$js = array(); $css = array();
+		$js = []; $css = [];
 		foreach( $res as $r )
 		{
 			if( ends_with($r, '.css') || ends_with($r, '.less') )
@@ -226,13 +226,13 @@ abstract class Renderable implements \JsonSerializable
 		return $js;
 	}
 	
-	protected function __collectResourcesInternal($template,&$static_stack = array())
+	protected function __collectResourcesInternal($template,&$static_stack = [])
 	{
         // kind of dirty hack to allow overrides in subclasses
         if( $template instanceof Renderable && $template != $this )
             return $template->__collectResourcesInternal($template,$static_stack);
         
-        $res = array();
+        $res = [];
 		
 		if( is_object($template) )
 		{
@@ -251,7 +251,7 @@ abstract class Renderable implements \JsonSerializable
 				// then check all contents and collect theis includes
 				foreach( $template->__getContentVars() as $varname )
 				{
-					$sub = array();
+					$sub = [];
 					foreach( $template->$varname as $var )
 					{
 						if( is_object($var) || is_array($var) )
@@ -282,7 +282,7 @@ abstract class Renderable implements \JsonSerializable
 				// finally include the 'self' stuff (<classname>.js,...)
 				// Note: these can be forced to be loaded in static if they require to be loaded before the contents resources
 				$classname = get_class_simple($template);
-				$parents = array(); $cnl = strtolower($classname);
+				$parents = []; $cnl = strtolower($classname);
 				do
 				{
                     if( !isset($static_stack[$cnl]) )
@@ -430,7 +430,7 @@ abstract class Renderable implements \JsonSerializable
 				$c->_parent = false;
 				release_hooks($c);
 			}
-		$this->_content = array();
+		$this->_content = [];
 		return $this;
 	}
 	
@@ -596,7 +596,7 @@ abstract class Renderable implements \JsonSerializable
 				WdfException::Raise("Cannot insert because index not found");
 		}
 		$buf = $this->_content;
-		$this->_content = array();
+		$this->_content = [];
 		$i = 0;
 		foreach( $buf as $b )
 		{

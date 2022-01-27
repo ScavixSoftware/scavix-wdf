@@ -127,7 +127,7 @@ class RedisStore extends ObjectStore
                 }
             } elseif ($type == '*') { // multi-bulk reply
                 $count = ( int ) $result;
-                for ($i = 0, $result = array(); $i < $count; $i++) {
+                for ($i = 0, $result = []; $i < $count; $i++) {
                     $result[] = $this->getResponse();
                 }
             }

@@ -43,7 +43,7 @@ class uiContainer extends uiControl
 	 * @param string $title Title for header section
 	 * @param options $options
 	 */
-	function __construct($title="TXT_UNKNOWN",$options=array())
+	function __construct($title="TXT_UNKNOWN",$options=[])
 	{
 		parent::__construct("div");
 		$this->Options = $options;
@@ -62,7 +62,7 @@ class uiContainer extends uiControl
 		if( isset($this->Options['buttons']) )
 			$buttons = $this->Options['buttons'];
 		else
-			$buttons = array();
+			$buttons = [];
 
 		$icon = self::Icon($icon);
 		if( is_array($function))

@@ -124,7 +124,7 @@ class uiControl extends Control
 		'gripsmall-diagonal-se',
 		'grip-diagonal-se'
 	);
-	protected $Options = array();
+	protected $Options = [];
 	var $InitFunctionName;
 	
 	function __construct($tag = "")
@@ -136,7 +136,7 @@ class uiControl extends Control
 	/**
 	 * @override
 	 */
-	function PreRender($args = array())
+	function PreRender($args = [])
 	{
 		if( $this->InitFunctionName )
 			$this->script("$('#{$this->id}').{$this->InitFunctionName}(".system_to_json($this->Options).");");
@@ -188,7 +188,7 @@ class uiControl extends Control
 	 * @param array $options See http://api.jqueryui.com/draggable/
 	 * @return uiControl $this
 	 */
-	public function Draggable($options=array())
+	public function Draggable($options=[])
 	{
 		$this->script("$('#".$this->id."').draggable(".system_to_json($options).")");
 		return $this;
@@ -200,7 +200,7 @@ class uiControl extends Control
 	 * @param array $options See http://api.jqueryui.com/droppable/
 	 * @return uiControl $this
 	 */
-	public function Droppable($options=array())
+	public function Droppable($options=[])
 	{
 		$this->script("$('#".$this->id."').droppable(".system_to_json($options).")");
 		return $this;
@@ -212,7 +212,7 @@ class uiControl extends Control
 	 * @param array $options See http://api.jqueryui.com/resizable/
 	 * @return uiControl $this
 	 */
-	public function Resizable($options=array())
+	public function Resizable($options=[])
 	{
 		$this->script("$('#".$this->id."').resizable(".system_to_json($options).")");
 		return $this;

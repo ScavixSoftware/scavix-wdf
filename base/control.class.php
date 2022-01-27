@@ -54,114 +54,113 @@ class Control extends Renderable
      * Each (1st dimension) array key represents an attribute and the value (array) contains
      * all tags it is allowed to be used in.
      */
-    protected static $html_universals = array(
-        'class' => array('base', 'basefont', 'head', 'html', 'meta', 'param', 'script', 'style', 'title'),
-        'id' => array('base', 'head', 'html', 'meta', 'script', 'style', 'title'),
-        'style' => array('base', 'basefont', 'head', 'html', 'meta', 'param', 'script', 'style', 'title'),
-        'title' => array('base', 'basefont', 'head', 'html', 'meta', 'param', 'script', 'style', 'title'),
-        'dir' => array('applet', 'base', 'basefont', 'br', 'frame', 'frameset', 'hr', 'iframe', 'param', 'script'),
-        'lang' => array('applet', 'base', 'basefont', 'br', 'frame', 'frameset', 'hr', 'iframe', 'meta', 'param', 'script'),
-        'onclick' => array('applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'),
-        'ondblclick' => array('applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'),
-        'onmousedown' => array('applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'),
-        'onmouseup' => array('applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'),
-        'onmouseover' => array('applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'),
-        'onmousemove' => array('applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'),
-        'onmouseout' => array('applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'),
-        'onkeypress' => array('applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'),
-        'onkeydown' => array('applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'),
-        'onkeyup' => array('applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'),
-        'contextmenu' => array()
-    );
+    protected static $html_universals = [
+        'class' => ['base', 'basefont', 'head', 'html', 'meta', 'param', 'script', 'style', 'title'],
+        'id' => ['base', 'head', 'html', 'meta', 'script', 'style', 'title'],
+        'style' => ['base', 'basefont', 'head', 'html', 'meta', 'param', 'script', 'style', 'title'],
+        'title' => ['base', 'basefont', 'head', 'html', 'meta', 'param', 'script', 'style', 'title'],
+        'dir' => ['applet', 'base', 'basefont', 'br', 'frame', 'frameset', 'hr', 'iframe', 'param', 'script'],
+        'lang' => ['applet', 'base', 'basefont', 'br', 'frame', 'frameset', 'hr', 'iframe', 'meta', 'param', 'script'],
+        'onclick' => ['applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'],
+        'ondblclick' => ['applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'],
+        'onmousedown' => ['applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'],
+        'onmouseup' => ['applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'],
+        'onmouseover' => ['applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'],
+        'onmousemove' => ['applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'],
+        'onmouseout' => ['applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'],
+        'onkeypress' => ['applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'],
+        'onkeydown' => ['applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'],
+        'onkeyup' => ['applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'],
+        'contextmenu' => []
+       ];
     
     /**
      * These are HTML tags.
      * Each (1st dimension) array key represents a tag and the value (array) contains
      * all attributes that are allowed to use with it.
      */
-    protected static $html_attributes = array(
-        'a' => array('accesskey','charset','coords','href','hreflang','name','onblur','onfocus','rel','rev','shape','tabindex','target','type'),
-        'applet' => array('align','alt','archive','code','codebase','height','hspace','name','object','vspace','width'),
-        'area' => array('alt','accesskey','coords','href','nohref','onblur','onfocus','shape','tabindex','target'),
-        'base' => array('href','target'),
-        'basefont' => array('color','face','size'),
-        'bdo' => array('dir'),
-        'blockquote' => array('cite'),
-        'body' => array('alink','background','bgcolor','link','onload','onunload','text','vlink'),
-        'br' => array('clear'),
-        'button' => array('accesskey','disabled','name','onblur','onfocus','tabindex','type','value'),
-        'caption' => array('align'),
-        'col' => array('align','char','charoff','span','valign','width'),
-        'colgroup' => array('align','char','charoff','span','valign','width'),
-        'del' => array('cite','datetime'),
-        'dir' => array('compact'),
-        'div' => array('align'),
-        'dl' => array('compact'),
-        'font' => array('color','face','size'),
-        'form' => array('action','accept','accept-charset','enctype','method','name','onreset','onsubmit','target'),
-        'frame' => array('frameborder','longdesc','marginwidth','marginheight','name','noresize','scrolling','src'),
-        'frameset' => array('cols','onload','onunload','rows'),
-        'h1' => array('align'),
-        'h2' => array('align'),
-        'h3' => array('align'),
-        'h4' => array('align'),
-        'h5' => array('align'),
-        'h6' => array('align'),
-        'head' => array('profile'),
-        'hr' => array('align','noshade','size','width'),
-        'html' => array('version'),
-        'iframe' => array('align','frameborder','height','longdesc','marginwidth','marginheight','name','scrolling','src','width','type'),
-        'img' => array('align','alt','border','height','hspace','ismap','longdesc','name','src','usemap','vspace','width','onload'),
-        'input' => array('accept','accesskey','align','alt','checked','disabled','ismap','maxlength','name','onblur','onchange','onfocus','onselect','readonly','size','src','tabindex','type','usemap','value','placeholder','autocomplete'),
-        'ins' => array('cite','datetime'),
-        'isindex' => array('prompt'),
-        'label' => array('accesskey','for','onblur','onfocus'),
-        'legend' => array('accesskey','align'),
-        'li' => array('type','value'),
-        'link' => array('charset','href','hreflang','media','rel','rev','target','type'),
-        'map' => array('name'),
-        'menu' => array('compact'),
-        'meta' => array('name','content','http-equiv','scheme'),
-        'object' => array('align','archive','border','classid','codebase','codetype','data','declare','height','hspace','name','standby','tabindex','type','usemap','vspace','width'),
-        'ol' => array('compact','start','type'),
-        'optgroup' => array('disabled','label'),
-        'option' => array('disabled','label','selected','value'),
-        'p' => array('align'),
-        'param' => array('id','name','value','valuetype','type'),
-        'pre' => array('width'),
-        'q' => array('cite'),
-        'script' => array('charset','defer','event','language','for','src','type'),
-        'select' => array('disabled','multiple','name','onblur','onchange','onfocus','size','tabindex','title','autocomplete'),
-        'style' => array('media','title','type'),
-        'table' => array('align','border','bgcolor','cellpadding','cellspacing','frame','rules','summary','width'),
-        'tbody' => array('align','char','charoff','valign'),
-        'td' => array('abbr','align','axis','bgcolor','class','char','charoff','colspan','headers','height','nowrap','rowspan','scope','valign','width'),
-        'textarea' => array('accesskey','cols','disabled','name','onblur','onchange','onfocus','onselect','readonly','rows','tabindex','value'),
-        'tfoot' => array('align','char','charoff','valign'),
-        'th' => array('abbr','align','axis','bgcolor','char','charoff','colspan','headers','height','nowrap','rowspan','scope','valign','width'),
-        'thead' => array('align','char','charoff','valign'),
-        'tr' => array('align','bgcolor','char','charoff','valign'),
-        'ul' => array('compact','type'),
-        'menu' => array('type'),
-        'menuitem' => array('label'),
-        'audio' => array('controls','autoplay','loop','preload','src','onload'),
-        'video' => array('controls','autoplay','loop','preload','src','onload','width','height'),
-        'source' => array('src','type','onload'),
-        'track' => array('default','kind','label','src','srclang'),
-        'svg' => array('width','height','viewbox','preserveaspectratio'),
-        'rect' => array('x','y','width','height','id'),
-    );
+    protected static $html_attributes = [
+        'a' => ['accesskey','charset','coords','href','hreflang','name','onblur','onfocus','rel','rev','shape','tabindex','target','type'],
+        'applet' => ['align','alt','archive','code','codebase','height','hspace','name','object','vspace','width'],
+        'area' => ['alt','accesskey','coords','href','nohref','onblur','onfocus','shape','tabindex','target'],
+        'base' => ['href','target'],
+        'basefont' => ['color','face','size'],
+        'bdo' => ['dir'],
+        'blockquote' => ['cite'],
+        'body' => ['alink','background','bgcolor','link','onload','onunload','text','vlink'],
+        'br' => ['clear'],
+        'button' => ['accesskey','disabled','name','onblur','onfocus','tabindex','type','value'],
+        'caption' => ['align'],
+        'col' => ['align','char','charoff','span','valign','width'],
+        'colgroup' => ['align','char','charoff','span','valign','width'],
+        'del' => ['cite','datetime'],
+        'dir' => ['compact'],
+        'div' => ['align'],
+        'dl' => ['compact'],
+        'font' => ['color','face','size'],
+        'form' => ['action','accept','accept-charset','enctype','method','name','onreset','onsubmit','target'],
+        'frame' => ['frameborder','longdesc','marginwidth','marginheight','name','noresize','scrolling','src'],
+        'frameset' => ['cols','onload','onunload','rows'],
+        'h1' => ['align'],
+        'h2' => ['align'],
+        'h3' => ['align'],
+        'h4' => ['align'],
+        'h5' => ['align'],
+        'h6' => ['align'],
+        'head' => ['profile'],
+        'hr' => ['align','noshade','size','width'],
+        'html' => ['version'],
+        'iframe' => ['align','frameborder','height','longdesc','marginwidth','marginheight','name','scrolling','src','width','type'],
+        'img' => ['align','alt','border','height','hspace','ismap','longdesc','name','src','usemap','vspace','width','onload'],
+        'input' => ['accept','accesskey','align','alt','checked','disabled','ismap','maxlength','name','onblur','onchange','onfocus','onselect','readonly','size','src','tabindex','type','usemap','value','placeholder','autocomplete'],
+        'ins' => ['cite','datetime'],
+        'isindex' => ['prompt'],
+        'label' => ['accesskey','for','onblur','onfocus'],
+        'legend' => ['accesskey','align'],
+        'li' => ['type','value'],
+        'link' => ['charset','href','hreflang','media','rel','rev','target','type'],
+        'map' => ['name'],
+        'meta' => ['name','content','http-equiv','scheme'],
+        'object' => ['align','archive','border','classid','codebase','codetype','data','declare','height','hspace','name','standby','tabindex','type','usemap','vspace','width'],
+        'ol' => ['compact','start','type'],
+        'optgroup' => ['disabled','label'],
+        'option' => ['disabled','label','selected','value'],
+        'p' => ['align'],
+        'param' => ['id','name','value','valuetype','type'],
+        'pre' => ['width'],
+        'q' => ['cite'],
+        'script' => ['charset','defer','event','language','for','src','type'],
+        'select' => ['disabled','multiple','name','onblur','onchange','onfocus','size','tabindex','title','autocomplete'],
+        'style' => ['media','title','type'],
+        'table' => ['align','border','bgcolor','cellpadding','cellspacing','frame','rules','summary','width'],
+        'tbody' => ['align','char','charoff','valign'],
+        'td' => ['abbr','align','axis','bgcolor','class','char','charoff','colspan','headers','height','nowrap','rowspan','scope','valign','width'],
+        'textarea' => ['accesskey','cols','disabled','name','onblur','onchange','onfocus','onselect','readonly','rows','tabindex','value'],
+        'tfoot' => ['align','char','charoff','valign'],
+        'th' => ['abbr','align','axis','bgcolor','char','charoff','colspan','headers','height','nowrap','rowspan','scope','valign','width'],
+        'thead' => ['align','char','charoff','valign'],
+        'tr' => ['align','bgcolor','char','charoff','valign'],
+        'ul' => ['compact','type'],
+        'menu' => ['compact','type'],
+        'menuitem' => ['label'],
+        'audio' => ['controls','autoplay','loop','preload','src','onload'],
+        'video' => ['controls','autoplay','loop','preload','src','onload','width','height'],
+        'source' => ['src','type','onload'],
+        'track' => ['default','kind','label','src','srclang'],
+        'svg' => ['width','height','viewbox','preserveaspectratio'],
+        'rect' => ['x','y','width','height','id'],
+       ];
     
     protected static $html_universals_keys = [];
     protected static $html_attributes_keys = [];
     
 	var $Tag = "";
 	
-	var $_css = array();
-	var $_attributes = array();
-	var $_data_attributes = array();
+	var $_css = [];
+	var $_attributes = [];
+	var $_data_attributes = [];
 	
-	var $_extender = array();
+	var $_extender = [];
 
 	var $_skipRendering = false;
     
@@ -171,7 +170,7 @@ class Control extends Renderable
         return $r." ".$this->__renderStructure([]);
     }
 	
-	function __getContentVars(){ return array_merge(parent::__getContentVars(),array('_extender')); }
+	function __getContentVars(){ return array_merge(parent::__getContentVars(),['_extender']); }
 
 	/**
 	 * Constructs a Control
@@ -381,7 +380,7 @@ class Control extends Renderable
 	 * Adds this controls init code to rendering <HtmlPage> if root is of that type.
 	 * @internal
 	 */
-	function PreRender($args=array())
+	function PreRender($args=[])
 	{
 		if( $this->_skipRendering )
 			return;
@@ -417,7 +416,7 @@ class Control extends Renderable
 		if( !hook_already_fired(HOOK_PRE_RENDER) )
 		{
 			$this->_skipRendering = true;
-			execute_hooks(HOOK_PRE_RENDER,array($this));
+			execute_hooks(HOOK_PRE_RENDER, [$this]);
 		}
 		return $this->WdfRender();
 	}
@@ -431,7 +430,7 @@ class Control extends Renderable
         if( !$this->Tag )
             return "$content";
         
-        $attr = array();
+        $attr = [];
 		foreach( $this->_attributes as $name=>$value )
 		{
             if( $name[0] == "_" || ($name == "class" && $value=="") )
@@ -442,7 +441,7 @@ class Control extends Renderable
 			$attr[] = "data-$name=\"".str_replace("\"","&#34;","$value")."\"";
 //			$attr[] = "data-$name='".str_replace("'","\\'",$value)."'";
 		
-		$css = array();
+		$css = [];
 		foreach( $this->_css as $key=>$val )
 			$css[] = "$key:$val;";
 
@@ -602,7 +601,7 @@ class Control extends Renderable
 	 * 1. $c->attr() returns all attributes
 	 * 2. $c->attr('name') returns the 'name' attributes value
 	 * 3. $c->attr('name','mycontrol') sets the 'name' attribute values
-	 * 4. $c->attr(array('name'=>'myname','href'=>'my.domain')) sets 'name' and 'href' attribute values
+	 * 4. $c->attr(['name'=>'myname','href'=>'my.domain']) sets 'name' and 'href' attribute values
 	 * 
 	 * Note: Will return `$this` in cases 3. and 4. (the set cases).
 	 * @return mixed `$this`, an attribute value or an array of attribute values

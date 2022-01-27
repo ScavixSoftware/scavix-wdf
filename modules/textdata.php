@@ -54,7 +54,7 @@ function csv_to_array($csv, $delimiter = false, $enclosure = '"', $escape = '\\'
     if( !$delimiter )
         $delimiter = csv_detect_delimiter(substr($csv,0,1024));
     
-    $result = array();
+    $result = [];
     $rows = explode("\n",trim($csv));
     $csv = ""; 
     $names = str_getcsv(array_shift($rows),$delimiter,$enclosure,$escape);
@@ -114,7 +114,7 @@ function csv_detect_delimiter($csv)
     $csv = str_replace("\r\n","\n",$csv);
 	$rows = explode("\n",trim($csv));
 	$r = $rows[0];
-	$counts = array();
+	$counts = [];
 	foreach( array(';',',','|',"\t") as $delim )
 		$counts[count(explode($delim,$r))] = $delim;
 	krsort($counts);

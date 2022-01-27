@@ -137,7 +137,7 @@ function get_coordinates_by_ip($ip = false)
 		return false;
 	}
 	
-	$coordinates = array();
+	$coordinates = [];
 	$coordinates["latitude"] = $location->latitude;
 	$coordinates["longitude"] = $location->longitude;
 

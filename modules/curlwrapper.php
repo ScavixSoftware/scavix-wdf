@@ -69,7 +69,7 @@ function releaseDownloadProxy()
 /**
  * @shortcut <downloadData>($url,$postdata,$request_header,$cacheTTLsec,$request_timeout,$response_header,$cookie_file)
  */
-function sendHTTPRequest($url, $postdata = false, $cacheTTLsec = false, &$response_header = false, $request_header = array(), $request_timeout = 120, $cookie_file=false)
+function sendHTTPRequest($url, $postdata = false, $cacheTTLsec = false, &$response_header = false, $request_header = [], $request_timeout = 120, $cookie_file=false)
 {
 	return downloadData($url,$postdata,$request_header,$cacheTTLsec,$request_timeout,$response_header,$cookie_file);
 }
@@ -86,7 +86,7 @@ function sendHTTPRequest($url, $postdata = false, $cacheTTLsec = false, &$respon
  * @param string $cookie_file Name of the cookie file to use
  * @return string The downloaded data
  */
-function downloadData($url, $postdata = false, $request_header = array(), $cacheTTLsec = false, $request_timeout = 120, &$response_header = false, $cookie_file=false)
+function downloadData($url, $postdata = false, $request_header = [], $cacheTTLsec = false, $request_timeout = 120, &$response_header = false, $cookie_file=false)
 {
 	if( starts_with($url, '//') )
 		$url = urlScheme().':'.$url;
@@ -109,7 +109,7 @@ function downloadData($url, $postdata = false, $request_header = array(), $cache
 		{
             curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
 			if( !is_array($request_header) )
-				$request_header = array();
+				$request_header = [];
 			$request_header[] = "Content-Length: ".strlen($postdata);
             if( starts_with($postdata,"{") || starts_with($postdata,"[") )
                 $request_header[] = "Content-Type: application/json";
@@ -223,10 +223,10 @@ function downloadData($url, $postdata = false, $request_header = array(), $cache
  * @param string $cookie_file Name of the cookie file to use
  * @return array Array following the rules of the $_FILES superglobal (but without the first dimension) or FALSE if an error occured. Note that $_FILES may contain an error too!
  */
-function downloadFile($url, $postdata = false, $request_header = array(), $follow_location=true, $cookie_file=false)
+function downloadFile($url, $postdata = false, $request_header = [], $follow_location=true, $cookie_file=false)
 {
 	$parsed_url = parse_url($url);
-	$GLOBALS['downloadFile_data'] = array();
+	$GLOBALS['downloadFile_data'] = [];
 	$GLOBALS['downloadFile_data']['error'] = 0;
 	$GLOBALS['downloadFile_data']['name'] = basename($parsed_url['path']);
 

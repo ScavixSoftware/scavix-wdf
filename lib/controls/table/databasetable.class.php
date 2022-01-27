@@ -109,7 +109,7 @@ class DatabaseTable extends Table implements ICallable
         return array_keys($res);
     }
     
-	private function ExecuteSql($sql,$prms=array())
+	private function ExecuteSql($sql,$prms=[])
 	{
         if( $this->logIfSlow )
             $logtimer = start_timer("[".\ScavixWDF\Model\ResultSet::MergeSql($this->DataSource,$sql,$prms)."]");
@@ -386,7 +386,7 @@ class DatabaseTable extends Table implements ICallable
 	/**
 	 * @override Calls <DatabaseTable::GetData>() and loops thru the <ResultSet> creating the table content before calling <OVERRIDE::DatabaseTable::PreRender>
 	 */
-	function PreRender($args = array())
+	function PreRender($args = [])
 	{
         // stop rebuilding the table of row-action was clicked: 
         // - performance 
@@ -407,13 +407,13 @@ class DatabaseTable extends Table implements ICallable
 			
 			if( !$this->header || $this->header->length()==0 )
 				if( $this->OnAddHeader )
-					$this->OnAddHeader[0]->{$this->OnAddHeader[1]}($this, array());
+					$this->OnAddHeader[0]->{$this->OnAddHeader[1]}($this, []);
 				else
-					$this->AddHeader(array());
+					$this->AddHeader([]);
                 
 			if( !$this->footer )
 				if( $this->OnAddFooter )
-					$this->OnAddFooter[0]->{$this->OnAddFooter[1]}($this, array());
+					$this->OnAddFooter[0]->{$this->OnAddFooter[1]}($this, []);
 				
 			$td = $this->SetColFormat(0,"")->NewCell($this->contentNoData);
 			$td->colspan = $this->header->GetMaxCellCount();
@@ -421,7 +421,7 @@ class DatabaseTable extends Table implements ICallable
 		}
         else
         {
-            $this->_rowModels = array();
+            $this->_rowModels = [];
             foreach( $this->ResultSet as $raw_row )
             {
 				$row = $this->_preProcessData($raw_row);
@@ -483,12 +483,12 @@ class DatabaseTable extends Table implements ICallable
 	
 	private function _export_get_header()
 	{
-		$res = array();
+		$res = [];
 		if( $this->header )
 		{
 			foreach( $this->header->Rows() as $row )
 			{
-				$line = array();
+				$line = [];
 				foreach( $row->Cells() as $cell )
 				{
 					$cc = trim(strip_tags($cell->GetContent()));
@@ -509,7 +509,7 @@ class DatabaseTable extends Table implements ICallable
 			$copy->Culture = $ci;
 		$copy->GetData();
 		
-		$res = array();
+		$res = [];
 		$copy->ResultSet->FetchMode = PDO::FETCH_ASSOC;
         $cols = [];
         if(!$this->Columns && $this->Sql)
@@ -530,7 +530,7 @@ class DatabaseTable extends Table implements ICallable
 
             if( !isset($format_buffer) )
 			{
-				$format_buffer = array();
+				$format_buffer = [];
 				foreach( $cols as $i=>$k )
 				{
                     if( isset($this->ColFormats[$i]) )
@@ -607,10 +607,10 @@ class DatabaseTable extends Table implements ICallable
 		$esc = '"';
 		$sep = ',';
 		$newline = "\n";
-		$csv = array();
+		$csv = [];
 		foreach( array_merge($this->_export_get_header(),$this->_export_get_data(null,$rowcallback)) as $row )
 		{
-			$csv_line = array();
+			$csv_line = [];
 			foreach( $row as $val )
 			{
 				if( strpos("$val", $sep) !== false )

@@ -38,7 +38,7 @@ use ScavixWDF\Base\Control;
  */
 class Tr extends Control
 {
-//    var $row_groups = array();
+//    var $row_groups = [];
     var $options = false;
     var $current_cell = false;
 	var $model = false;

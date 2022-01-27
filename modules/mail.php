@@ -60,7 +60,7 @@ function mail_init()
  * @param array $attachments Array of filenames to attach
  * @return PHPMailer A PHPMailer object ready to be sent.
  */
-function mail_prepare($recipient,$subject,$message,$plainmessage="",$attachments=array())
+function mail_prepare($recipient,$subject,$message,$plainmessage="",$attachments=[])
 {
 	global $CONFIG;
 
@@ -178,7 +178,7 @@ function mail_prepare($recipient,$subject,$message,$plainmessage="",$attachments
  * @param array $attachments Array of filenames to attach
  * @return boolean true on success or string on error
  */
-function mail_send($recipient,$subject="",$message="",$plainmessage="",$attachments=array())
+function mail_send($recipient,$subject="",$message="",$plainmessage="",$attachments=[])
 {
 	if( is_object($recipient) && $recipient instanceof PHPMailer )
 		$mail = $recipient;

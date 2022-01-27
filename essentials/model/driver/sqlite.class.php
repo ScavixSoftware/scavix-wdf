@@ -82,7 +82,7 @@ class SqLite implements IDatabaseDriver
 	function listTables()
 	{
 		$sql = 'SELECT tbl_name FROM sqlite_master WHERE type="table" ORDER BY tbl_name';
-		$tables = array();
+		$tables = [];
 		foreach($this->_pdo->query($sql) as $row)
 			$tables[] = $row['tbl_name'];
 		return $tables;
@@ -147,7 +147,7 @@ class SqLite implements IDatabaseDriver
 	function listColumns($tablename)
 	{
 		$sql = 'PRAGMA table_info("'.$tablename.'")';
-		$cols = array();
+		$cols = [];
 		foreach($this->_pdo->query($sql) as $row)
 			$cols[] = $row['name'];
 		return $cols;
@@ -173,7 +173,7 @@ class SqLite implements IDatabaseDriver
 	 */
 	function createTable($objSchema)
 	{
-		$sql = array();
+		$sql = [];
 
 		foreach( $objSchema->Columns as $col )
 			$sql[] = $this->columnDef($col);
@@ -189,11 +189,11 @@ class SqLite implements IDatabaseDriver
 	 */
 	function getSaveStatement($model,&$args,$columns_to_update=false)
 	{
-		$cols = array();
+		$cols = [];
 		$pks = $model->GetPrimaryColumns();
-		$all = array();
-		$vals = array();
-		$pkcols = array();
+		$all = [];
+		$vals = [];
+		$pkcols = [];
 
 		foreach( $pks as $col )
 		{
@@ -266,7 +266,7 @@ class SqLite implements IDatabaseDriver
 	function getDeleteStatement($model,&$args)
 	{
 		$pks = $model->GetPrimaryColumns();
-		$cols = array();		
+		$cols = [];		
 		foreach( $pks as $col )
 		{
 			if( isset($model->$col) )

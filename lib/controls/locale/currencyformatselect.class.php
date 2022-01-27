@@ -69,7 +69,7 @@ class CurrencyFormatSelect extends Select
 	public function ListOptions($currency)
 	{
 		$samples = $this->getCurrencySamples($currency,1234.56,true);
-		$res = array();
+		$res = [];
 		foreach($samples as $code=>$item)
 			$res[] = "<option value='$code'>$item</option>";
 		return AjaxResponse::Text(implode("\n",$res));
@@ -79,7 +79,7 @@ class CurrencyFormatSelect extends Select
 	{
 		$cultures = internal_getCulturesByCurrency($currency_code);
 
-		$res = array();
+		$res = [];
 		foreach( $cultures as $culture_code )
 		{
 			$ci = self::getCultureInfo($culture_code);

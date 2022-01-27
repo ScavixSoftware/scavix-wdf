@@ -99,7 +99,7 @@ class uiDatePicker extends uiControl
 	/**
 	 * @override
 	 */
-	function PreRender($args = array())
+	function PreRender($args = [])
 	{
 		if( !$this->CultureInfo )
 			$this->SetCulture(Localization::detectCulture());

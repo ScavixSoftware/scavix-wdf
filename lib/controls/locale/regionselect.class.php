@@ -83,7 +83,7 @@ class RegionSelect extends Select
 		{
 			$cc = current_controller(false);
 			$translations_active = ($cc instanceof Renderable) && $cc->_translate;
-			$sorted = array();
+			$sorted = [];
 			foreach($regions as $reg)
 			{
 				if( !$reg ) continue;
@@ -125,12 +125,12 @@ class RegionSelect extends Select
 		if(!$lang)
 			$lang = Localization::getLanguageCulture('en');
 		$regions = $lang->GetRegions(true);
-		$sorted = array();
+		$sorted = [];
 		foreach($regions as $code)
 			$sorted[$code] = array("name"=>getString("TXT_COUNTRY_".strtoupper($code)),"code" => $code);
 		uasort($sorted, "RegionSelect::compareCountryNames");
 
-		$res = array();
+		$res = [];
 		foreach($sorted as $code=>$item)
 			$res[] = "<option value='$code'>{$item['name']}</option>";
 		return \ScavixWDF\Base\AjaxResponse::Text(implode("\n",$res));

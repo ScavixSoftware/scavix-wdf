@@ -53,6 +53,6 @@ class GoogleAnalytics extends Template
 		$this->set("track_immediately",$track_immediately);
 		$this->set("track_prefix",$track_prefix);
 
-		$this->set("tracker",array());
+		$this->set("tracker",[]);
 	}
 }

@@ -170,7 +170,7 @@ function cli_get_processes($filter=false, $test_myself=false)
     $ini = preg_quote(system_app_temp_dir('',false),"/");
     $filter = "\-c\s+{$ini}".($filter?(".*".preg_quote($filter,"/").".*"):'');
 
-    $res = array();
+    $res = [];
     $out = shell_exec("ps -Af");
     //log_debug("$filter",$out);
     if( preg_match_all('/\n[^\s+]*\s+(\d+)\s+(\d+)\s+.*'.$filter.'/i',$out,$m) )

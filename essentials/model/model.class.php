@@ -81,8 +81,8 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	public static $DefaultDatasource = false;
     public static $SaveDelayed = false;
 	
-	protected static $_schemaCache = array();
-	protected static $_typeMap = array();
+	protected static $_schemaCache = [];
+	protected static $_typeMap = [];
 	protected $_className = false;
 	protected $_isInherited = false;
 	protected $_cacheKey;
@@ -103,11 +103,11 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	var $_query = false;
 	protected $_results = false;
 	protected $_index = 0;
-	protected $_fieldValues = array();
-	protected $_dbValues = array();
+	protected $_fieldValues = [];
+	protected $_dbValues = [];
 	
 	var $_querySql = false;
-	var $_queryArgs = array();
+	var $_queryArgs = [];
 	
 	var $_saved = false;
 
@@ -222,7 +222,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 */
 	function enumerate($property_or_fieldname, $distinct=true, $key_column_name=false)
 	{
-		$res = array();
+		$res = [];
 		foreach( $this as $tmp )
         {
 			if( $distinct && in_array($tmp->$property_or_fieldname, $res) )
@@ -328,7 +328,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	function __init_db_values($known_as_empty=false)
 	{
 		$this->_saved = !$known_as_empty;
-		$this->_dbValues = array();
+		$this->_dbValues = [];
 		if( !$this->_tableSchema )
 			$this->__ensureTableSchema();
 		foreach( $this->_tableSchema->Columns as $column )
@@ -538,7 +538,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			if(is_array($property))
 			{
 				// multiple fields requested
-				$ret = array();
+				$ret = [];
 				foreach($property as $p)
 					$ret[$p] = $res->$p;
 				return $ret;
@@ -566,7 +566,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 */
 	public function FieldValues(...$args)
 	{
-		$res = array();
+		$res = [];
 		foreach( $args as $col )
 			$res[] = $this->__typedValue($col);
 		return $res;
@@ -608,7 +608,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * @param DataSource $datasource Use this datasource
 	 * @return <Model> The result set
 	 */
-	public static function &Query($sql,$args=array(),$datasource=null)
+	public static function &Query($sql,$args=[],$datasource=null)
 	{
 		$className = get_called_class();
 		$res = new $className($datasource);
@@ -826,7 +826,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		if( !$changed_only )
 			return $this->__ensureTableSchema()->ColumnNames();
 		
-		$res = array();
+		$res = [];
 		//$cols = array_diff(array_keys(get_object_vars($this)), array_keys(get_class_vars(get_class($this))));
 		foreach( $this->__ensureTableSchema()->Columns as $column )
 		{
@@ -874,7 +874,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
      */
     public function GetChanges()
 	{
-		$res = array();
+		$res = [];
 		foreach( $this->GetColumnNames(true) as $col )
 		{
             $type = $this->TypeOf($col);
@@ -956,7 +956,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 */
 	public function AsArray(...$filter)
 	{
-		$res = array();
+		$res = [];
 		if( count($filter)>0 )
 		{
             if( count($filter)==1 && is_array($filter[0]) )
@@ -1138,7 +1138,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * @param array $args The arguments of the raw SQL query part
 	 * @return Model `clone $this`
 	 */
-	public function sql($sql_statement_part,$args=array())
+	public function sql($sql_statement_part,$args=[])
 	{
 		$res = clone $this;
 		$res->__ensureSelect();
@@ -1588,7 +1588,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
         if( $columns_to_update !== false && !is_array($columns_to_update) )
             WdfException::Raise("Please specify 'columns_to_update' as array");
         
-		$args = array();
+		$args = [];
 		$stmt = $this->_ds->Driver->getSaveStatement($this,$args,$columns_to_update);
 
 		if( !$stmt )
@@ -1640,7 +1640,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 */
 	public function Delete()
 	{
-		$args = array();
+		$args = [];
 		$stmt = $this->_ds->Driver->getDeleteStatement($this,$args);
 		if( !$stmt || !$stmt->execute($args) )
 		{
@@ -1660,7 +1660,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * @param array $prms Arguments used in $where
 	 * @return array Array of <Model> datasets
 	 */
-	public function Find($where="",$prms=array())
+	public function Find($where="",$prms=[])
 	{
 		$sql = "SELECT * FROM ".$this->GetTableName().($where?" WHERE $where":"");
 		$q = new SelectQuery($this, $this->_ds);

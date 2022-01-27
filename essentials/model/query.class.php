@@ -44,12 +44,12 @@ class Query
 	 * @var DataSource|false
 	 */
 	var $_ds = false;
-	var $_knownmodels = array();
+	var $_knownmodels = [];
 
 	var $_initialSequence = false;
 	var $_where = false;
 
-	var $_values = array();
+	var $_values = [];
 
 	/**
 	 * @var ResultSet|bool
@@ -88,7 +88,7 @@ class Query
 	public function GetArgs()
 	{
 		if( !$this->_statement )
-			return array();
+			return [];
 		return $this->_statement->GetArgs();
 	}
 	
@@ -99,7 +99,7 @@ class Query
 		return $this->_statement->GetPagingInfo($key);
 	}
 
-	function __execute($injected_sql=false, $injected_arguments=array(), $ctor_args=null)
+	function __execute($injected_sql=false, $injected_arguments=[], $ctor_args=null)
 	{
 		$sql = $injected_sql?$injected_sql:$this->__toString();
 		if( $injected_arguments )
@@ -189,7 +189,7 @@ class Query
 		$this->__conditionTree()->Nest(1,"IF",!!$condition);
 	}
 
-	function sql($sql,$args=array())
+	function sql($sql,$args=[])
 	{
 		if( $this->__conditionTree()->Add($sql) )
             foreach( $args as $v ) $this->_values[] = $v;
@@ -380,7 +380,7 @@ class ConditionTree
 {
 	var $_firstToken = "WHERE";
 	var $_operator = "AND";
-	var $_conditions = array();
+	var $_conditions = [];
 	var $_maxConditions = -1;
 	var $_current = false;
 	var $_parent = false;
@@ -405,7 +405,7 @@ class ConditionTree
 		if( count($this->_conditions) < 1 )
 			return "";
 
-		$sql = array();
+		$sql = [];
 		foreach( $this->_conditions as $c )
 		{
 			if( is_string($c) )

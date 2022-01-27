@@ -10,7 +10,7 @@ use ScavixWDF\Localization\Localization;
  */
 class ExcelCulture extends CultureInfo
 {
-	private static $FORMAT_MAP = array();
+	private static $FORMAT_MAP = [];
 	
 	static function FromCode($code)
 	{

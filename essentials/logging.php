@@ -73,7 +73,7 @@ function logging_init()
 	// default logger if nothing configured uses defined php error_log (see Logger constructor)
 	// no further limits and/or features are enabled, so plain logging is active
 	if( !isset($CONFIG['system']['logging']) )
-		$CONFIG['system']['logging'] = array('default' => array());
+		$CONFIG['system']['logging'] = array('default' => []);
 	
 	foreach( $CONFIG['system']['logging'] as $alias=>$conf )
 		Wdf::$Logger[$alias] = Logger::Get($conf);
@@ -494,7 +494,7 @@ function log_report(LogReport $report, $severity="TRACE")
  * @param string $indent IGNORE (just to have nice readable output)
  * @return string The content rendered as string
  */
-function logging_render_var($content,&$stack=array(),$indent="")
+function logging_render_var($content,&$stack=[],$indent="")
 {
     if( !logging_mem_ok() )
         return "*OUTOFMEM*";
@@ -504,7 +504,7 @@ function logging_render_var($content,&$stack=array(),$indent="")
 		if( $s === $content )
 			return "*RECURSION".(is_object($content)?"[".get_class($content)."]*":"*");
 	}
-	$res = array();
+	$res = [];
 	if( is_array($content) )
 	{
 		if( count($content) == 0 )

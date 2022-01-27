@@ -76,12 +76,12 @@ class MinifyTask extends Task
         {
             global $CONFIG;
             $parts = array_diff($CONFIG['class_path']['order'], array('system','model','content'));
-            $paths = array();
+            $paths = [];
             foreach( $parts as $part )
                 $paths = array_merge ($paths,$CONFIG['class_path'][$part]);
 
             sort($paths);
-            $this->paths = array();
+            $this->paths = [];
             foreach( $paths as $i=>$cp )
             {
                 $root = true;

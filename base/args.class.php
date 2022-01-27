@@ -55,7 +55,7 @@ class Args
 {
 	private static $_ignore_case = true;
 	private static $_order = "GPC";
-	private static $_buffer = array();
+	private static $_buffer = [];
 	private static $_ci = null;
 	
 	/**
@@ -79,7 +79,7 @@ class Args
 		$order = is_null($order)?self::$_order:$order;
 		if( !isset(self::$_buffer[$order]) )
 		{
-			self::$_buffer[$order] = array();
+			self::$_buffer[$order] = [];
 			for($i=0;$i<strlen($order);$i++)
 			{
 				switch( $order[$i] )
@@ -125,7 +125,7 @@ class Args
 	public static function setIgnoreCase($ignore)
 	{
 		if( self::$_ignore_case != $ignore )
-			self::$_buffer = array();
+			self::$_buffer = [];
 		self::$_ignore_case = $ignore;
 	}
 	
@@ -137,7 +137,7 @@ class Args
 	 */
 	public static function clearBuffer()
 	{
-		self::$_buffer = array();
+		self::$_buffer = [];
 	}
 	
 	/**
@@ -280,7 +280,7 @@ class Args
 						return $value;
 					}
 					log_warn("Value is no array. Returning empty array");
-					return array();
+					return [];
 				case 'OBJECT':
 					if( is_string($value) && in_object_storage($value) )
 						return restore_object($value);

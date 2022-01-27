@@ -41,7 +41,7 @@ use ScavixWDF\WdfException;
  */
 class Template extends Renderable
 {
-	var $_data = array();
+	var $_data = [];
 	var $file = "";
     
     function __toString()
@@ -131,7 +131,7 @@ class Template extends Renderable
 	 * Prepares the template for output.
 	 * @internal
 	 */
-	function PreRender($args=array())
+	function PreRender($args=[])
 	{
 		if( count($args) > 0 && count($this->_script) > 0 )
 		{

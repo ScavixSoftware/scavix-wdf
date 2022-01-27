@@ -39,7 +39,7 @@ function resources_init()
 	global $CONFIG;
 
 	if( !isset($CONFIG['resources']) )
-		$CONFIG['resources'] = array();
+		$CONFIG['resources'] = [];
 	
 	if( !isset($CONFIG['resources_system_url_root']) || !$CONFIG['resources_system_url_root'] )
 		$CONFIG['resources_system_url_root'] = can_rewrite()
@@ -145,7 +145,7 @@ function resFile($filename, $as_local_path = false)
 function register_less_variable($name,$value)
 {
     if( !isset($_SESSION['resources_less_variables']) )
-        $_SESSION['resources_less_variables'] = array();
+        $_SESSION['resources_less_variables'] = [];
 	$_SESSION['resources_less_variables'][$name] = $value;
 }
 
@@ -161,7 +161,7 @@ function add_less_import_dir($dir,$key=false)
     if(!$dir)
         return;
     if( !isset($_SESSION['resources_less_dirs']) )
-        $_SESSION['resources_less_dirs'] = array();
+        $_SESSION['resources_less_dirs'] = [];
 	if( $key )
         $_SESSION['resources_less_dirs'][$key] = $dir;
     else

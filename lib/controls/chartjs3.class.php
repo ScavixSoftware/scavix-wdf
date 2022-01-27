@@ -44,7 +44,7 @@ class ChartJS3 extends Control
 {
     var $chart_title, $canvas;
     var $series = [];
-    var $config = array();
+    var $config = [];
     var $detectedCategories = [];
     var $detectedDateseries = false;
     var $colorRange = false;
@@ -155,7 +155,7 @@ class ChartJS3 extends Control
     /**
      * @override
      */
-    function PreRender($args = array())
+    function PreRender($args = [])
     {
         if( $this->_skipRendering )
             return;

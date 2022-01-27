@@ -215,8 +215,8 @@ function minify_css($paths,$target_file,$nc_argument=false)
 	//log_debug("CSS files to minify: ",$files);
 	//die("stopped");
 	$code = "";
-	$res = array();
-	$map = array();
+	$res = [];
+	$map = [];
 	
     $results = [];
 	foreach( $files as $i=>$f )
@@ -271,7 +271,7 @@ function minify_css($paths,$target_file,$nc_argument=false)
 					else
 					{
 						$map[$k] = $f;
-						$res[$k] = array();
+						$res[$k] = [];
 					}
 
 					foreach( explode(";",$item[2]) as $e )
@@ -341,9 +341,9 @@ function minify_css_translate_url($match)
 function minify_collect_files($paths,$kind)
 {
 	global $dependency_info, $res_file_storage, $ext_resources;
-	$dependency_info = array();
-	$res_file_storage = array();
-	$ext_resources = array();
+	$dependency_info = [];
+	$res_file_storage = [];
+	$ext_resources = [];
 	
 	foreach( $paths as $path )
 	{
@@ -351,7 +351,7 @@ function minify_collect_files($paths,$kind)
 		foreach( system_glob_rec($path,'*.class.php') as $f )
 			minify_collect_from_file($kind,$f);
 		
-		$done_templates = array();
+		$done_templates = [];
 		foreach( array_reverse(cfg_get('system','tpl_ext')) as $tpl_ext )
 		{
 			$files = system_glob_rec($path,"*.$tpl_ext");
@@ -367,7 +367,7 @@ function minify_collect_files($paths,$kind)
 		}
 	}
 	
-	$res = array();
+	$res = [];
 	$classes = array_keys($res_file_storage);
 	foreach( $classes as $class )
 		$res = array_merge($res, minify_resolve_dependencies($class,$dependency_info,$res_file_storage));
@@ -380,9 +380,9 @@ function minify_collect_files($paths,$kind)
 /**
  * @internal Resolves dependencies
  */
-function minify_resolve_dependencies($classname,&$dependency_info,&$res_file_storage,$tree=array())
+function minify_resolve_dependencies($classname,&$dependency_info,&$res_file_storage,$tree=[])
 {
-	$res = array();
+	$res = [];
 	if( isset($dependency_info[$classname]) )
 	{	
 		if( !in_array($classname,$tree) )
@@ -420,7 +420,7 @@ function minify_collect_from_file($kind,$f,$classname='')
 	$order = array('static','inherited','instanciated','self');
 		//:array('self','incontent','instanciated','inherited');
 	
-	$res_file_storage[$classname] = array();
+	$res_file_storage[$classname] = [];
 	$content = file_get_contents($f);
 	
 	// remove block-comments
@@ -490,7 +490,7 @@ function minify_collect_from_file($kind,$f,$classname='')
 				}
 				break;
 			case 'instanciated':
-				$matches = array();
+				$matches = [];
 				if( preg_match_all('/new\s+([^\(]+)\(/', $content, $by_new, PREG_SET_ORDER) )
 					$matches = array_merge($matches,$by_new);
 				if( preg_match_all('/\s+([^:\s\(\)]+)::Make\(/Ui', $content, $by_make, PREG_SET_ORDER) )

@@ -47,7 +47,7 @@ function globalcache_init()
 	global $CONFIG;
 	
 	if( !isset($CONFIG['globalcache']) )
-		$CONFIG['globalcache'] = array();
+		$CONFIG['globalcache'] = [];
 	
 	$servername = isset($_SERVER['SERVER_NAME'])?$_SERVER['SERVER_NAME']:"SCAVIX_WDF_SERVER";
 	
@@ -410,7 +410,7 @@ function globalcache_info()
 function globalcache_list_keys()
 {
     if( !hook_already_fired(HOOK_POST_INIT) )
-        return array();
+        return [];
     
 	global $CONFIG;
 	switch($CONFIG['globalcache']['CACHE'])
@@ -422,10 +422,10 @@ function globalcache_list_keys()
 				$rs = $ds->ExecuteSql("SELECT full_key FROM wdf_cache WHERE (valid_until IS NULL OR valid_until>=".$ds->Driver->Now().")");
 				return $rs->Enumerate('full_key');
 			}catch(Exception $ex){}
-			return array(); 
+			return []; 
             
         case globalcache_CACHE_APC:
-            $ret = array();
+            $ret = [];
             $cacheinfo = apc_cache_info('user');
             $keyprefixlen = strlen($GLOBALS["globalcache_key_prefix"]);
             foreach($cacheinfo['cache_list'] as $cacheentry)
@@ -437,5 +437,5 @@ function globalcache_list_keys()
 			WdfException::Log("globalcache_list_keys not implemented for handler {$CONFIG['globalcache']['CACHE']}");
 			break;
 	}
-	return array();
+	return [];
 }

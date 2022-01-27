@@ -41,8 +41,8 @@ class PhpDocComment
 {
 	var $ShortDesc = "";
 	var $LongDesc = "";
-	var $Tags = array();
-	var $Attributes = array();
+	var $Tags = [];
+	var $Attributes = [];
 	
 	/**
 	 * Creates a PhpDocComment instance from a string
@@ -139,17 +139,17 @@ class PhpDocComment
 		foreach( $this->Tags as $i=>$t )
 			if( $t['tag'] == $tag && !$t['data'] )
 				$this->Tags[$i]['data'] = $default_description;
-		$this->_tagbuf = array();
+		$this->_tagbuf = [];
 	}
 	
 	private function getTag($name,$properties)
 	{
 		if( !isset($this->_tagbuf) )
-			$this->_tagbuf = array();
+			$this->_tagbuf = [];
 		
 		if( !isset($this->_tagbuf[$name]) )
 		{
-			$this->_tagbuf[$name] = array();
+			$this->_tagbuf[$name] = [];
 			foreach( $this->Tags as $t )
 			{
 				if( $t['tag'] != $name )
@@ -158,7 +158,7 @@ class PhpDocComment
 				$p = new stdClass();
 				if( preg_match_all('/([^\s]+)/',$t['data'],$matches) )
 				{
-					$props = array();
+					$props = [];
 					for($i=0;$i<count($properties)-1;$i++)
 						$props[] = array_shift($matches[1]);
 					$props[] = implode(" ",$matches[1]);
@@ -317,7 +317,7 @@ class PhpDocComment
 		
 		if( !$this->entities )
 		{
-			$this->entities = array();
+			$this->entities = [];
 			$this->mdEscapeEntity($this->entities,'ul');
 			$this->mdEscapeEntity($this->entities,'ol');
 			$this->mdEscapeEntity($this->entities,'li');

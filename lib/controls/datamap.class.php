@@ -57,7 +57,7 @@ class Datamap extends Control
     /**
      * @override
      */
-    function PreRender($args = array())
+    function PreRender($args = [])
     {
         //log_debug(__METHOD__,$this->config);
         $this->config['element'] = "[jscode]document.getElementById('{$this->canvas->id}')";

@@ -35,10 +35,10 @@ namespace ScavixWDF\Model;
  */
 class TableSchema
 {
-	static $_typeMap = array();
-	static $_colMap = array();
-	static $_hasColMap = array();
-	static $_colMapPri = array();
+	static $_typeMap = [];
+	static $_colMap = [];
+	static $_hasColMap = [];
+	static $_colMapPri = [];
 	
 	private $_ds;
 	var $_cacheKey;
@@ -51,7 +51,7 @@ class TableSchema
     {
 		$this->_ds = $datasource;
         $this->Name = $tableName;
-		$this->Columns = array();
+		$this->Columns = [];
 		$this->_cacheKey = $this->_ds->Database().$this->Name;
     }
 	
@@ -64,7 +64,7 @@ class TableSchema
 	public function TypeOf($column_name)
 	{
 		if( !isset(self::$_typeMap[$this->_cacheKey]) )
-			self::$_typeMap[$this->_cacheKey] = array();
+			self::$_typeMap[$this->_cacheKey] = [];
 		if( !isset(self::$_typeMap[$this->_cacheKey][$column_name]) )
 		{
 			foreach( $this->Columns as $c )
@@ -86,8 +86,8 @@ class TableSchema
 	{
 		if( !isset(self::$_colMap[$this->_cacheKey]) )
 		{
-			self::$_colMap[$this->_cacheKey] = array();
-			self::$_hasColMap[$this->_cacheKey] = array();
+			self::$_colMap[$this->_cacheKey] = [];
+			self::$_hasColMap[$this->_cacheKey] = [];
 			foreach( $this->Columns as $c )
 			{
 				self::$_colMap[$this->_cacheKey][] = $c->Name;
@@ -106,7 +106,7 @@ class TableSchema
 	{
 		if( !isset(self::$_colMapPri[$this->_cacheKey]) )
 		{
-			self::$_colMapPri[$this->_cacheKey] = array();
+			self::$_colMapPri[$this->_cacheKey] = [];
 			foreach( $this->Columns as $c )
 				if( $c->IsPrimary() )
 					self::$_colMapPri[$this->_cacheKey][] = $c->Name;

@@ -44,15 +44,15 @@ class gMap extends GoogleControl
 	
 	var $gmOptions = array('language'=>'en','region'=>'DE');
 	private $_basicOptions = array('center'=>'new google.maps.LatLng(-34.397, 150.644)','zoom'=>13,'mapTypeId'=>self::ROADMAP,'scrollwheel'=>false);
-	private $_markers = array();
-	private $_addresses = array();
+	private $_markers = [];
+	private $_addresses = [];
 	
 	var $AutoShowHints = false;
 	
 	/**
 	 * @param array $options See https://developers.google.com/maps/documentation/javascript/tutorial#MapOptions
 	 */
-	function __construct($options=array())
+	function __construct($options=[])
 	{
         global $CONFIG;
 		parent::__construct('div',false);
@@ -77,7 +77,7 @@ class gMap extends GoogleControl
 	/**
 	 * @override
 	 */
-	function PreRender($args = array())
+	function PreRender($args = [])
 	{
 		$id = $this->id;
         $this->_basicOptions['center'] = '[jscode]'.$this->_basicOptions['center'];
@@ -112,7 +112,7 @@ class gMap extends GoogleControl
 	 * @param array $options See https://developers.google.com/maps/documentation/javascript/reference#MarkerOptions
 	 * @return gMap `$this`
 	 */
-	function AddMarker($lat, $lng, $options = array())
+	function AddMarker($lat, $lng, $options = [])
 	{
 		$this->_markers[] = array($lat,$lng,$options);
 		return $this;
@@ -127,7 +127,7 @@ class gMap extends GoogleControl
 	 * @param array $options See https://developers.google.com/maps/documentation/javascript/reference#MarkerOptions
 	 * @return gMap `$this`
 	 */
-	function AddMarkerTitled($lat, $lng, $title, $options = array())
+	function AddMarkerTitled($lat, $lng, $title, $options = [])
 	{
 		$options['title'] = $title;
 		$this->_markers[] = array($lat,$lng,$options);

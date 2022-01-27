@@ -101,7 +101,7 @@ class Localization
 			// Prepare the string that looks like this:
 			// ja,en-us;q=0.8,de-de;q=0.6,en;q=0.4,de;q=0.2
 			$langs = explode(",",$_SERVER['HTTP_FORCE_LANGUAGE']);
-			$parts = array();
+			$parts = [];
 			foreach( $langs as $k=>$v )
 			{
 				$v = explode(";",$v);
@@ -129,7 +129,7 @@ class Localization
 			// Prepare the string that looks like this:
 			// ja,en-us;q=0.8,de-de;q=0.6,en;q=0.4,de;q=0.2
 			$langs = explode(",",$_SERVER['HTTP_ACCEPT_LANGUAGE']);
-			$parts = array();
+			$parts = [];
 			foreach( $langs as $k=>$v )
 			{
 				$v = explode(";",$v);
@@ -319,7 +319,7 @@ class Localization
 	 */
 	public static function get_language_names()
 	{
-		$res = array();
+		$res = [];
 		$codes = internal_getAllLanguageCodes();
 		foreach( $codes as $c )
 		{
@@ -367,7 +367,7 @@ class Localization
 	public static function get_country_names($culture_filter=false)
 	{
 		$regions = internal_getAllRegionCodes();
-		$res = array();
+		$res = [];
 
 		foreach( $regions as $oreg )
 		{
@@ -422,7 +422,7 @@ class Localization
 		if( $only_codes )
 			return internal_getAllRegionCodes();
 		
-		$res = array();
+		$res = [];
 		foreach( internal_getAllRegionCodes() as $code )
 			$res[] = internal_getRegion($code);
 		return $res;
@@ -496,7 +496,7 @@ class Localization
 				break;
 				
 			default:
-				return array();
+				return [];
 		}
 	}
 	

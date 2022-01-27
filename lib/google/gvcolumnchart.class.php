@@ -37,7 +37,7 @@ class gvColumnChart extends GoogleVisualization
 	/**
 	 * @override
 	 */
-	function __construct($options=array(),$query=false,$ds=false)
+	function __construct($options=[],$query=false,$ds=false)
 	{
 		if( GoogleVisualization::$UseMaterialDesign )
 		{

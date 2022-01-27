@@ -44,6 +44,7 @@ use ScavixWDF\WdfDbException;
  */
 class MySql implements IDatabaseDriver
 {
+	private $_ds;
 	private $_pdo;
     private $_tableexistbuffer = [];
 
@@ -79,7 +80,7 @@ class MySql implements IDatabaseDriver
 	function listTables()
 	{
 		$sql = 'SHOW TABLES';
-		$tables = array();
+		$tables = [];
 		foreach($this->_pdo->query($sql)->finishAll() as $row)
         {
 			$tables[] = $row[0];
@@ -143,7 +144,7 @@ class MySql implements IDatabaseDriver
 	function listColumns($tablename)
 	{
 		$sql = 'SHOW COLUMNS FROM `'.$tablename.'`';
-		$cols = array();
+		$cols = [];
 		foreach($this->_pdo->query($sql)->finishAll() as $row)
 			$cols[] = $row[0];
 		return $cols;
@@ -185,12 +186,12 @@ class MySql implements IDatabaseDriver
 	function getSaveStatement($model,&$args,$columns_to_update=false)
 	{
         $argnum = 0;
-		$cols = array();
+		$cols = [];
 		$pks = $model->GetPrimaryColumns();
-		$all = array();
-		$vals = array();
-		$pkcols = array();
-		$pks2 = array();
+		$all = [];
+		$vals = [];
+		$pkcols = [];
+		$pks2 = [];
 
 		foreach( $pks as $col )
 		{
@@ -272,7 +273,7 @@ class MySql implements IDatabaseDriver
 	function getDeleteStatement($model,&$args)
 	{
 		$pks = $model->GetPrimaryColumns();
-		$cols = array();		
+		$cols = [];		
 		foreach( $pks as $col )
 		{
 			if( isset($model->$col) )
@@ -326,7 +327,7 @@ class MySql implements IDatabaseDriver
                 $sql = "SELECT 1 FROM".substr($sql,13);
             $sql = "SELECT count(*) FROM ($sql) AS x";
 
-            $ok = $this->_ds->ExecuteScalar($sql,is_null($input_arguments)?array():array_values($input_arguments));
+            $ok = $this->_ds->ExecuteScalar($sql,is_null($input_arguments)?[]:array_values($input_arguments));
             $total = intval($ok);
             if( $ok === false )
                 $this->_ds->LogLastStatement("Error querying paging info");

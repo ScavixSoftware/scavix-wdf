@@ -181,7 +181,7 @@ class SqlFormatter
     // Cache variables
     // Only tokens shorter than this size will be cached.  Somewhere between 10 and 20 seems to work well for most cases.
     public static $max_cachekey_size = 15;
-    protected static $token_cache = array();
+    protected static $token_cache = [];
     protected static $cache_hits = 0;
     protected static $cache_misses = 0;
 
@@ -385,7 +385,7 @@ class SqlFormatter
     {
         self::init();
 
-        $tokens = array();
+        $tokens = [];
 
         // Used for debugging if there is an error while tokenizing the string
         $original_length = strlen($string);
@@ -467,7 +467,7 @@ class SqlFormatter
         $inline_parentheses = false;
         $increase_special_indent = false;
         $increase_block_indent = false;
-        $indent_types = array();
+        $indent_types = [];
         $added_newline = false;
         $inline_count = 0;
         $inline_indented = false;
@@ -477,7 +477,7 @@ class SqlFormatter
         $original_tokens = self::tokenize($string);
 
         // Remove existing whitespace
-        $tokens = array();
+        $tokens = [];
         foreach ($original_tokens as $i=>$token) {
             if ($token[self::TOKEN_TYPE] !== self::TOKEN_TYPE_WHITESPACE) {
                 $token['i'] = $i;
@@ -778,7 +778,7 @@ class SqlFormatter
      */
     public static function splitQuery($string)
     {
-        $queries = array();
+        $queries = [];
         $current_query = '';
         $empty = true;
 

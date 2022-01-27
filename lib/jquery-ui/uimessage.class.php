@@ -38,7 +38,7 @@ use ScavixWDF\Base\Control;
 class uiMessage extends uiControl
 {
 	var $sub;
-    var $messages = array();
+    var $messages = [];
 	
 	function __construct($message,$type='highlight',$closeable=true)
 	{

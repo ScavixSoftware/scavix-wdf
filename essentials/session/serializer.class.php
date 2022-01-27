@@ -123,9 +123,9 @@ class Serializer
 //            log_debug(__METHOD__,"B", $data);
 //        return serialize($data);
         
-		$this->Stack  = array();
-		$this->clsmap = array();
-		$this->sleepmap = array();
+		$this->Stack  = [];
+		$this->clsmap = [];
+		$this->sleepmap = [];
 		return $this->Ser_Inner($data);
 	}
  
@@ -230,7 +230,7 @@ class Serializer
         
 		$this->Index = 0;
 		$this->Lines = explode("\n",trim($data));
-		$this->Stack = array();
+		$this->Stack = [];
 		$res = $this->Unser_Inner();
         
 		self::$unserializing_level--;
@@ -276,7 +276,7 @@ class Serializer
 				case 'i':
 					return intval($line);
 				case 'a':
-					$res = array();
+					$res = [];
 					for($i=0; $i<$line; $i++)
 					{
 						$key = $this->Unser_Inner();

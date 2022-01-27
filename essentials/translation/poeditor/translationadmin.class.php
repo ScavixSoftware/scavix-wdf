@@ -51,7 +51,7 @@ class TranslationAdmin extends TranslationAdminBase
             WdfException::Raise("POEditor ProjectID missing!");
     }
     
-    private function request($data=array())
+    private function request($data=[])
     {
         $data['api_token'] = $GLOBALS['CONFIG']['translation']['sync']['poeditor_api_key'];
         $data['id'] = $GLOBALS['CONFIG']['translation']['sync']['poeditor_project_id'];
@@ -86,7 +86,7 @@ class TranslationAdmin extends TranslationAdminBase
     private function fetchTerms($lang_code,$defaults = false)
     {
         $response = $this->request(array('action'=>'view_terms','language'=>$lang_code));
-        $res = array();
+        $res = [];
         foreach( $response->list as $lang )
         {
             $res[$lang->term] = isset($lang->definition)?$lang->definition->form:'';
@@ -127,7 +127,7 @@ class TranslationAdmin extends TranslationAdminBase
             return;
         }
         
-        $head = array();
+        $head = [];
         foreach( $response->list as $lang )
             $head[$lang->code] = array('percentage_complete'=>$lang->percentage/100, 'percentage_empty'=>(1-$lang->percentage/100), 'syntax_error_qty'=>0);
         $info = "\$GLOBALS['translation']['properties'] = ".var_export($head,true);

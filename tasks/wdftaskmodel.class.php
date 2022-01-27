@@ -115,7 +115,7 @@ class WdfTaskModel extends Model
         {
             $tn = new WdfTaskModel();
             $tn->isVirtual = true;
-            $tn->arguments = serialize(array());
+            $tn->arguments = serialize([]);
             return $tn;
         }
         if( !isset($tn) || !$tn )
@@ -124,7 +124,7 @@ class WdfTaskModel extends Model
             $tn->created = 'now()';
             $tn->enabled = 0;
             $tn->name = $name;
-            $tn->arguments = serialize(array());
+            $tn->arguments = serialize([]);
         }
 		return $tn;
 	}
@@ -236,7 +236,7 @@ class WdfTaskModel extends Model
     private static function getRunningProcessors($pids=false)
     {
         $filter = '/'.preg_quote(CLI_SELF,'/').".*".preg_quote(self::$PROCESS_FILTER,'/').'/i';
-        $res = array();
+        $res = [];
         if( $pids )
         {
             $pids = array_map(function($p){ return "/proc/$p/cmdline"; },$pids);

@@ -142,7 +142,7 @@ class WdfResource implements ICallable
 	 */
 	function CompileLess($file)
 	{
-		$vars = isset($_SESSION['resources_less_variables'])?$_SESSION['resources_less_variables']:array();
+		$vars = isset($_SESSION['resources_less_variables'])?$_SESSION['resources_less_variables']:[];
         $dirs = isset($_SESSION['resources_less_dirs'])?$_SESSION['resources_less_dirs']:false;
 		$file_key = md5($file.serialize($vars).serialize($dirs).substr(appendVersion('/'),1));
 		

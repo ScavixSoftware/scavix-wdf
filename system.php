@@ -114,7 +114,7 @@ function system_config_default($reset = true)
 
 
 	if( $reset )
-		$CONFIG = array();
+		$CONFIG = [];
 
 	$CONFIG['class_path']['system'][]  = __DIR__.'/reflection/';
 	$CONFIG['class_path']['system'][]  = __DIR__.'/base/';
@@ -178,7 +178,7 @@ function system_config_default($reset = true)
         $CONFIG['system']['url_root'] = idn_to_utf8("{$_SERVER['REQUEST_SCHEME']}://{$_SERVER['HTTP_HOST']}")."{$path[0]}";
         $CONFIG['system']['same_page'] = idn_to_utf8("{$_SERVER['REQUEST_SCHEME']}://{$_SERVER['HTTP_HOST']}")."{$_SERVER['REQUEST_URI']}";
     }
-    $CONFIG['system']['modules'] = array();
+    $CONFIG['system']['modules'] = [];
     $CONFIG['system']['default_page'] = \ScavixWDF\Base\HtmlPage::class;
     $CONFIG['system']['default_event'] = false;
 	$CONFIG['system']['tpl_ext'] = array("tpl.php");
@@ -251,7 +251,7 @@ function system_init($application_name, $skip_header = false, $logging_category=
 	global $CONFIG;
 	$thispath = __DIR__;
 	if(!isset($_SESSION["system_internal_cache"]))
-		$_SESSION["system_internal_cache"] = array();
+		$_SESSION["system_internal_cache"] = [];
 
 	$CONFIG['system']['application_name'] = $application_name;
 	if(!isset($CONFIG['model']['internal']['connection_string']))
@@ -497,12 +497,12 @@ function system_invoke_request($target_class,$target_event,$pre_execute_hook_typ
 {
 	$ref = WdfReflector::GetInstance($target_class);
 	$params = $ref->GetMethodAttributes($target_event,"RequestParam");
-	$args = array();
+	$args = [];
 
     if( count($params) > 0 )
     {
-        $argscheck = array();
-        $failedargs = array();
+        $argscheck = [];
+        $failedargs = [];
 
         $req_data = array_merge($_FILES,$_GET,$_POST);
         $last = max(array_keys($params));
@@ -681,7 +681,7 @@ function register_hook_function($type,$handler_method,$prepend=false)
 function register_hook($type,&$handler_obj,$handler_method,$prepend=false)
 {
 	if( !isset(Wdf::$Hooks[$type]) )
-		Wdf::$Hooks[$type] = array();
+		Wdf::$Hooks[$type] = [];
 
 	is_valid_hook_type($type);
     if( $prepend )
@@ -718,7 +718,7 @@ function release_hooks($handler_obj)
  * @param array $arguments to be passed to the handler functions/methods
  * @return void
  */
-function execute_hooks($type,$arguments = array())
+function execute_hooks($type,$arguments = [])
 {
 	global $CONFIG;
 
@@ -854,7 +854,7 @@ function hook_bound($type)
  */
 function system_stacktrace_to_string($stacktrace)
 {
-	$stack = array();
+	$stack = [];
 
 	$stcnt = count($stacktrace);
 	for($i=1; $i<=$stcnt; $i++)
@@ -1217,7 +1217,7 @@ function redirect($controller,$event="",$data="",$url_root=false)
 {
 	if( is_array($controller) )
 	{
-		$url = array();
+		$url = [];
 		foreach( $controller as $key=>&$val )
 			$url[] = "$key=$val";
 		$url = '?'.implode("&",$url);
@@ -1310,7 +1310,7 @@ function detectUTF8($string)
 function referrer($part='')
 {
 	$ref = explode("?",$_SERVER['HTTP_REFERER']);
-	$res = array();
+	$res = [];
     $arref = explode("&",$ref[1]);
 	foreach( $arref as $tmp )
 	{
@@ -1419,7 +1419,7 @@ function cache_del($key)
 function cache_clear($global_cache=true, $session_cache=true)
 {
     if( $session_cache )
-		$_SESSION["system_internal_cache"] = array();
+		$_SESSION["system_internal_cache"] = [];
     
     unset($_SESSION['js_strings_version']); // force JS string regeneration
         
@@ -1439,7 +1439,7 @@ function cache_clear($global_cache=true, $session_cache=true)
  */
 function cache_list_keys($global_cache=true, $session_cache=true)
 {
-    $res = $session_cache?array_keys($_SESSION["system_internal_cache"]):array();
+    $res = $session_cache?array_keys($_SESSION["system_internal_cache"]):[];
 	
 	if( $global_cache && system_is_module_loaded('globalcache') )
 		$res = array_merge($res, globalcache_list_keys() );
@@ -1714,9 +1714,9 @@ function shuffle_assoc(&$array)
 function system_render_object_tree($array_of_objects)
 {
 	if( !isset($GLOBALS['system_render_object_tree_stack']) )
-		$GLOBALS['system_render_object_tree_stack'] = array();
+		$GLOBALS['system_render_object_tree_stack'] = [];
 	
-	$res = array();
+	$res = [];
 	foreach( $array_of_objects as $key=>&$val )
 	{
 		if( $val instanceof Renderable )

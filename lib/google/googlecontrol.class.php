@@ -39,7 +39,7 @@ use ScavixWDF\Localization\CultureInfo;
  */
 class GoogleControl extends Control
 {
-	protected static $_apis = array();
+	protected static $_apis = [];
 	private static $_delayedHookAdded = false;
 	private $disposed = false;
 	private $frozen = true;
@@ -56,7 +56,7 @@ class GoogleControl extends Control
         $this->gchartsversion = $gchartsversion;
 	}
     
-    protected function __collectResourcesInternal($template, &$static_stack = array())
+    protected function __collectResourcesInternal($template, &$static_stack = [])
     {
         $res = parent::__collectResourcesInternal($template, $static_stack);
         if( $this->frozen )
@@ -88,7 +88,7 @@ class GoogleControl extends Control
 	/**
 	 * @override
 	 */
-	function PreRender($args = array())
+	function PreRender($args = [])
 	{
 		// we register a new HOOK_PRE_RENDER handler here so that it will be executed when all others are
 		// finished. so derivered classes can add their loader code in PreRender as usual.
@@ -112,7 +112,7 @@ class GoogleControl extends Control
 	 */
 	function AddLoaderCode($args)
 	{
-		$loader = array();
+		$loader = [];
 		foreach( self::$_apis as $api=>$definition )
 		{
             if(count($definition) > 1)
@@ -157,7 +157,7 @@ class GoogleControl extends Control
 			return;
 		
 		if( !isset(self::$_apis[$api][1]['callback']) )
-			self::$_apis[$api][1]['callback'] = array();
+			self::$_apis[$api][1]['callback'] = [];
 		
 		if( is_array($script) )
 			$script = implode("\n",$script);

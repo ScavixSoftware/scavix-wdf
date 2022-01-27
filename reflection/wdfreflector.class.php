@@ -153,7 +153,7 @@ class WdfReflector extends ReflectionClass
 				$lines = file_get_contents($ref->getFileName());
 //				log_error($lines);
 				$lines = explode("\n",$lines);
-				$doc = array();
+				$doc = [];
 				$collecting = false;
 				for( $i=$ref->getStartLine()-1; $i>1 && isset($lines[$i]); $i-- )
 				{
@@ -184,14 +184,14 @@ class WdfReflector extends ReflectionClass
 	{
 		$pattern = '/@attribute\[([^\]]*)\]/im';
 		if( !preg_match_all($pattern, $comment, $matches) )
-			return array();
+			return [];
 		
 		if( !is_array($filter) )
 			$filter = array($filter);
 		foreach( $filter as $i=>$f )
 			$filter[$i] = strtolower(str_replace("Attribute","",$f));
 
-		$res = array();
+		$res = [];
 		$pattern = '/([^\(]*)\((.*)\)/im';
 		foreach( $matches[1] as $m )
 		{			
@@ -280,7 +280,7 @@ class WdfReflector extends ReflectionClass
 	 * @param bool $allowAttrInheritance If true, filter not only matches directly, but also all classes derivered from a valid filter
 	 * @return array An array of objects derivered from <WdfAttribute>.
 	 */
-	public function GetClassAttributes($filter=array(), $allowAttrInheritance=true)
+	public function GetClassAttributes($filter=[], $allowAttrInheritance=true)
 	{
 		if( !is_array($filter) )
 			$filter = array($filter);
@@ -305,7 +305,7 @@ class WdfReflector extends ReflectionClass
 	 * @param bool $allowAttrInheritance If true, filter not only matches directly, but also all classes derivered from a valid filter
 	 * @return array An array of objects derivered from <WdfAttribute>.
 	 */
-	public function GetMethodAttributes($method_name, $filter=array(), $allowAttrInheritance=true)
+	public function GetMethodAttributes($method_name, $filter=[], $allowAttrInheritance=true)
 	{
 		$cache_key = $this->Classname."::".$method_name;
 		$res = $this->_getCached($cache_key,$filter);
@@ -329,7 +329,7 @@ class WdfReflector extends ReflectionClass
 					}
 				}
 			}
-			return array();
+			return [];
 		}
 
 		$method = $this->getMethod($method_name);
@@ -352,7 +352,7 @@ class WdfReflector extends ReflectionClass
 	public function GetPropertyNames($include_derivered = true)
 	{
 		$properties = parent::getProperties(ReflectionProperty::IS_PUBLIC);
-		$res = array();
+		$res = [];
 		foreach( $properties as $prop )
 		{
 			if( $include_derivered || $prop->getDeclaringClass().getName() == $this->getName() )

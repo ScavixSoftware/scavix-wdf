@@ -36,12 +36,12 @@ use ScavixWDF\Base\Control;
  */
 class uiAccordion extends uiControl
 {
-	var $_sections = array();
+	var $_sections = [];
 	
 	/**
 	 * @param array $options See http://api.jqueryui.com/accordion/
 	 */
-    function __construct($options = array())
+    function __construct($options = [])
 	{
 		parent::__construct("div");
 		$this->Options = array_merge(array
@@ -55,7 +55,7 @@ class uiAccordion extends uiControl
 	/**
 	 * @override
 	 */
-	function PreRender($args = array())
+	function PreRender($args = [])
 	{
 		foreach($this->_sections as $section=>$section_content)
 		{

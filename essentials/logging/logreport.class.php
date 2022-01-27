@@ -48,7 +48,7 @@ namespace ScavixWDF\Logging;
 class LogReport
 {
 	var $Name = "LogReport";
-	var $Lines = array();
+	var $Lines = [];
 	
 	public function __construct($name)
 	{
@@ -63,7 +63,7 @@ class LogReport
 	 */
     public function add($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)
 	{
-		$l = array();
+		$l = [];
 		for($i=1;$i<11;$i++)
 		{
 			$v = "a$i";

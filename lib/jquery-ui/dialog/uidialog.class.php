@@ -38,7 +38,7 @@ default_string('TITLE_DIALOG', 'Dialog');
  */
 class uiDialog extends uiControl
 {
-	protected $Buttons = array();
+	protected $Buttons = [];
 	protected $CloseButton = null;
 	var $CloseButtonAction = null;
     
@@ -48,7 +48,7 @@ class uiDialog extends uiControl
 	 * @param string $title The dialogs title
 	 * @param array $options See http://api.jqueryui.com/dialog/
 	 */
-	function __construct($title="TITLE_DIALOG", $options=array())
+	function __construct($title="TITLE_DIALOG", $options=[])
 	{
 		parent::__construct("div");
 		$this->title = $title;
@@ -87,7 +87,7 @@ class uiDialog extends uiControl
 	/**
 	 * @override
 	 */
-	function PreRender($args=array())
+	function PreRender($args=[])
 	{
 		if( count($args) > 0 )
 		{
@@ -112,7 +112,7 @@ class uiDialog extends uiControl
 
 			$this->Options['buttons'] = $this->Buttons;
 			$tmp = $this->_script;
-			$this->_script = array();
+			$this->_script = [];
 			$this->script("try{ $('#{$this->id}').dialog(".system_to_json($this->Options)."); }catch(ex){ wdf.debug(ex); }");
 			$this->script("$('#{$this->id}').parent().find('.ui-dialog-buttonpane .ui-button').click(function(){ $(this).parent().find('.ui-button').button().prop('disabled', true).addClass( 'ui-state-disabled' ); });");
 			$this->_script = array_merge($this->_script,$tmp);

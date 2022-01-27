@@ -45,11 +45,11 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	public static $Colors = false;
 	
 	var $_columnDef = false;
-	var $_data = array();
-	var $_rowCallbacks = array();
-	var $_roleCallbacks = array();
+	var $_data = [];
+	var $_rowCallbacks = [];
+	var $_roleCallbacks = [];
 	
-	var $_entities = array();
+	var $_entities = [];
 	var $_ds;
 	
 	var $gvType;
@@ -79,7 +79,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	 * @param string $query A valid google query string. See [queryobjects](https://developers.google.com/chart/interactive/docs/reference#queryobjects)
 	 * @param DataSource $ds DataSource to use, will fall back to GoogleVisualization::$DefaultDatasource or (if that is not set) to <model_datasource>('internal')
 	 */
-	function __construct($type=false,$options=array(),$query=false,$ds=false)
+	function __construct($type=false,$options= [],$query=false,$ds=false)
 	{
 		parent::__construct();
 		$this->addClass('google_vis');
@@ -106,7 +106,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	/**
 	 * @override
 	 */
-	function PreRender($args = array())
+	function PreRender($args = [])
 	{
 		$this->_data = array_values_rec($this->_data,2);
 		
@@ -322,7 +322,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		$schema = $this->_ds->Driver->getTableSchema($table_name);
 		$entity = array(
 			'table' => $schema->Name,
-			'fields' => array()
+			'fields' => []
 		);
 		foreach( $schema->Columns as $col )
 			$entity['fields'][$col->Name] = array(
@@ -331,7 +331,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 			);
 		
 		$this->_entities[$alias?$alias:$table_name] = $entity;
-		$this->_data = array();
+		$this->_data = [];
 		return $this;
 	}
 	
@@ -343,7 +343,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	 * @param mixed $datasource Optional <DataSource> to be used
 	 * @return GoogleVisualization `$this`
 	 */
-	function setSqlQuery($sql,$args=array(),$datasource=false)
+	function setSqlQuery($sql,$args=[],$datasource=false)
 	{
 		if( $datasource )
 			$this->setDataSource($datasource);
@@ -359,7 +359,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	 */
 	function setDataHeader(...$args)
 	{
-		$this->_entities = array(); $this->gvQuery = false;
+		$this->_entities = []; $this->gvQuery = false;
 		if( count($args)==1 && is_array($args[0]) )
 			$args = array_shift($args);
 		$this->_data = array($this->_applyRowCallbacks($args));
@@ -375,7 +375,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	 */
 	function addDataRow(...$args)
 	{
-		$this->_entities = array(); $this->gvQuery = false;
+		$this->_entities = []; $this->gvQuery = false;
 		if( count($args)==1 && is_array($args[0]) )
 			$args = array_shift($args);
 		$this->_data[] = $this->_applyRowCallbacks($args);
@@ -392,7 +392,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	 */
 	function setDataRows($rows)
 	{
-		$this->_entities = array(); $this->gvQuery = false;
+		$this->_entities = []; $this->gvQuery = false;
 		
 		foreach( $rows as $i=>$r )
 			$rows[$i] = $this->_applyRowCallbacks($r);
@@ -436,7 +436,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		}
         if( $this->_columnDef === false )
             $this->_columnDef = [];
-		$this->_columnDef[$label] = array($name,$type,$style);
+		$this->_columnDef[$label] = [$name,$type,$style];
 		return $this;
 	}
 	
@@ -470,7 +470,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 		$key = "{$role}_".count($this->_roleCallbacks);
 		$this->_columnDef[$key] = $role;
 		if($callback !== false)
-			$this->_roleCallbacks[$key] = array($role,$callback);
+			$this->_roleCallbacks[$key] = [$role,$callback];
 		return $this;
 	}
 	
@@ -494,30 +494,30 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 			case 'number': 
 				$v = floatval($v);
                 if( $ci )
-                    $v = array('v'=>$v,'f'=>$ci->FormatNumber($v,(count($extraparams) > 0 ? $extraparams[0] : false), (count($extraparams) > 1 ? $extraparams[1] : true))); 
+                    $v = ['v'=>$v,'f'=>$ci->FormatNumber($v,(count($extraparams) > 0 ? $extraparams[0] : false), (count($extraparams) > 1 ? $extraparams[1] : true))]; 
 				break;
 			case 'currency': 
 				$v = floatval($v);
 				if( $ci )
-					$v = array('v'=>$v,'f'=>$ci->FormatCurrency($v,(count($extraparams) > 0 ? $extraparams[0] : true)));
+					$v = ['v'=>$v,'f'=>$ci->FormatCurrency($v,(count($extraparams) > 0 ? $extraparams[0] : true))];
 				break;
 			case 'date':
                 if(strtotime($v))
                 {
                     $v = new DateTime($v);
                     if( $ci )
-                        $v = array('v'=>$v,'f'=>$ci->FormatDate($v));
+                        $v = ['v'=>$v,'f'=>$ci->FormatDate($v)];
                 }
 				break;
 			case 'time': 
 				$v = new DateTime($v);
 				if( $ci )
-					$v = array('v'=>$v,'f'=>$ci->FormatTime($v));
+					$v = ['v'=>$v,'f'=>$ci->FormatTime($v)];
 				break;
 			case 'datetime': 
 				$v = new DateTime($v);
 				if( $ci )
-					$v = array('v'=>$v,'f'=>$ci->FormatDateTime($v));
+					$v = ['v'=>$v,'f'=>$ci->FormatDateTime($v)];
 				break;
 			case 'timeofday': 
                 $anextv = explode(':', $v);
@@ -527,13 +527,13 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 			case 'duration': 
                 if( !$v ) $v = "0";					
                 if( $ci )
-                    $v = array('v'=>floatval($v),'f'=>$ci->FormatDuration($v*60, (count($extraparams) > 0 ? $extraparams[0] : true)));
+                    $v = ['v'=>floatval($v),'f'=>$ci->FormatDuration($v*60, (count($extraparams) > 0 ? $extraparams[0] : true))];
                 else
                 {
                     $v = floatval($v);
                     $h = floor($v);
                     $m = ($v - $h) * 60;
-                    $v = array('v'=>$v,'f'=>sprintf("%d:%02d",$h,$m));
+                    $v = ['v'=>$v,'f'=>sprintf("%d:%02d",$h,$m)];
                 }
 				break;
 		}
@@ -551,18 +551,18 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	 */
 	function setResultSet($rs)
 	{
-		$head = array();
+		$head = [];
 		foreach( $this->_columnDef as $key=>$def )
 		{
 			if( isset($this->_roleCallbacks[$key]) )
-				$head[] = array('role'=>$def);
+				$head[] = ['role'=>$def];
 			else
 				$head[] = $key;
 		}
 		$this->_data = array($head);
 		foreach( $rs->results() as $row )
 		{
-			$d = array();
+			$d = [];
 			foreach( $this->_columnDef as $key=>$def )
 			{
 				list($name,$type) = $def;
@@ -630,7 +630,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 			$this->addColumn($key,$key,$newcolformat);
 		}
 		
-		$head = array();
+		$head = [];
 		foreach( $this->_columnDef as $key=>$def )
 		{
 			if( isset($this->_roleCallbacks[$key]) )

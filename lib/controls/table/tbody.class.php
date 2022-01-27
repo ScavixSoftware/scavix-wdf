@@ -45,7 +45,7 @@ class TBody extends Control
     var $current_row = false;
     var $current_cell = false;
 
-	var $RowOptions = array();
+	var $RowOptions = [];
 
 	/**
 	 * Constructs a new <TBody>.
@@ -170,10 +170,10 @@ class TBody extends Control
 	 */
 	function GetCellContentArray()
 	{
-		$res = array();
+		$res = [];
 		foreach( $this->Rows() as $row )
 		{
-			$data = array();
+			$data = [];
 			foreach( $row->Cells() as $c )
 				$data[] = $c->GetContent();
 			$res[] = $data;

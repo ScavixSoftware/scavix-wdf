@@ -44,7 +44,7 @@ class ChartJS extends Control
 {
     protected $chart_title, $canvas;
     protected $series = [];
-    protected $config = array();
+    protected $config = [];
     protected $detectedCategories = [];
     protected $detectedDateseries = false;
     protected $colorRange = false;
@@ -143,7 +143,7 @@ class ChartJS extends Control
     /**
      * @override
      */
-    function PreRender($args = array())
+    function PreRender($args = [])
     {
         if( $this->_skipRendering )
             return;

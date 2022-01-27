@@ -37,7 +37,7 @@ use ScavixWDF\Controls\Form\RadioButton;
  */
 class uiButtonSet extends uiControl
 {
-	var $buttons = array();
+	var $buttons = [];
 
 	function __construct()
 	{
@@ -47,7 +47,7 @@ class uiButtonSet extends uiControl
 	/**
 	 * @override
 	 */
-	function PreRender($args = array())
+	function PreRender($args = [])
 	{
 		$btncnt = count($this->buttons);
 		if($btncnt != 0)

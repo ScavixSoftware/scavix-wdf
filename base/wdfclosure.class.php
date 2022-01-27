@@ -30,7 +30,7 @@ class WdfClosure
 	protected $closure = NULL;
 	protected $reflection = NULL;
 	public $code = NULL;
-	public $used_variables = array();
+	public $used_variables = [];
 
 	public function __construct($function=null)
     {
@@ -90,7 +90,7 @@ class WdfClosure
 		// Make sure the use construct is actually used
 		$use_index = stripos($this->code, 'use');
 		if ( ! $use_index)
-			return array();
+			return [];
 
         if( !preg_match('/function\([^\)]*\)\s*use\s*\(([^\)]+)\)/U',$this->code,$m) )
             return;
@@ -106,7 +106,7 @@ class WdfClosure
 		$static_vars = $this->reflection->getStaticVariables();
 	
 		// Only keep the variables that appeared in both sets
-		$used_vars = array();
+		$used_vars = [];
 		foreach ($vars as $var)
 		{
 			$var = trim($var,' $');

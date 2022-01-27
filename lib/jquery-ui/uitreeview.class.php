@@ -58,7 +58,7 @@ class uiTreeView extends uiControl
 	/**
 	 * @override
 	 */
-	function  PreRender($args=array())
+	function  PreRender($args=[])
 	{
 		if( $this->Url )
 			$this->opt('url',$this->Url);

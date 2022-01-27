@@ -39,7 +39,7 @@ use ScavixWDF\Base\Control;
 class Select extends Control
 {
 	var $_first_option_value = false;
-	var $_options = array();
+	var $_options = [];
 	var $_current = false;
 
 	/**

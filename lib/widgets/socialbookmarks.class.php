@@ -44,7 +44,7 @@ class SocialBookmarks extends Template
 	{
 		parent::__construct();
 
-		$links = array();
+		$links = [];
 		$links[] = $this->CreateLink("TwitThis",
 			"http://twitter.com/home?status={url}",
 			resFile("socialbookmarks/twitter.png"));

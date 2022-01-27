@@ -247,7 +247,7 @@ class SysAdmin extends HtmlPage
 		$form->content( '</div>' );
 		
 		if( !isset($_SESSION['admin_handler_last_cache_searches']) )
-			$_SESSION['admin_handler_last_cache_searches'] = array();
+			$_SESSION['admin_handler_last_cache_searches'] = [];
 
 		if( count($_SESSION['admin_handler_last_cache_searches']) > 0 )
 		{

@@ -42,12 +42,12 @@ use ScavixWDF\Base\Control;
  */
 class SimplyScroll extends Control
 {
-	var $Options = array();
+	var $Options = [];
 
 	/**
 	 * @param type $options SimplyScroll options (see http://logicbox.net/jquery/simplyscroll)
 	 */
-	function __construct($options=array())
+	function __construct($options=[])
 	{
 		parent::__construct("ul");
 		if( !isset($options['autoMode']) ) $options['autoMode'] = 'loop';

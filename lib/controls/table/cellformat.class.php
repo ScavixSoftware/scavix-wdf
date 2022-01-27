@@ -53,9 +53,9 @@ class CellFormat
 {
     var $format = false;
     var $blank_if_false = false;
-	var $conditional_css = array();
+	var $conditional_css = [];
 
-	function __construct($format=false,$blank_if_false=false,$conditional_css=array())
+	function __construct($format=false,$blank_if_false=false,$conditional_css=[])
 	{
 		if( $format !== false )
 		{

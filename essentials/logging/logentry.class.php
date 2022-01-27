@@ -56,9 +56,9 @@ class LogEntry
     
 	private function cleanupTrace($stacktrace,$max_trace_depth)
 	{
-		$args = array();
-		$info = array();
-		$stack = array();
+		$args = [];
+		$info = [];
+		$stack = [];
 		$stcnt = count($stacktrace);
 		foreach($stacktrace as $i=>$t0)
 		{
@@ -111,7 +111,7 @@ class LogEntry
     
     private function parseTrace($stacktrace)
 	{
-		$stack = array();
+		$stack = [];
 		
 		foreach( $stacktrace as $t0 )
 		{
@@ -159,9 +159,10 @@ class LogEntry
         
 		$res = new stdClass();
 		$res->dt = date("c",$this->datetime);
-		$res->cat = array();
+		$res->cat = [];
 		foreach( array_values($this->categories) as $v )
-			$res->cat[] = utf8_encode($v);
+			if( $v )
+                $res->cat[] = utf8_encode("$v");
 		$res->sev = utf8_encode($this->severity);
 		$res->msg = utf8_encode($this->message);
         if( logging_mem_ok() )
@@ -171,7 +172,7 @@ class LogEntry
 		$out = json_encode($res);
 		if( !$out )
 		{
-			$res->trace = array();
+			$res->trace = [];
 			foreach( $this->trace as $i=>$t )
 			{
 				if( !json_encode($t) )

@@ -45,13 +45,13 @@ define("WDF_HTMLPAGE_TEMPLATE", __DIR__."/htmlpage.tpl.php");
  */
 class HtmlPage extends Template implements ICallable
 {
-	var $meta = array();
-	var $js = array();
-	var $css = array();
-	var $docready = array();
+	var $meta = [];
+	var $js = [];
+	var $css = [];
+	var $docready = [];
 	var $inlineheaderpre = false;
 	var $inlineheader = false;
-	var $plaindocready = array();
+	var $plaindocready = [];
 	var $wdf_settings = array('focus_first_input'=>true);
     
     public static $RENDER_NOSCRIPT = true;
@@ -101,7 +101,7 @@ class HtmlPage extends Template implements ICallable
 		$this->set("meta",$this->meta);
 		$this->set("js",$this->js);
 		$this->set("css",$this->css);
-		$this->set("content",array());
+		$this->set("content",[]);
 		$this->set("docready",$this->docready);
 		$this->set("plaindocready",$this->plaindocready);
 		$this->set("inlineheaderpre",$this->inlineheaderpre);

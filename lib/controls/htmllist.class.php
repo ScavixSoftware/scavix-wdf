@@ -39,7 +39,7 @@ use ScavixWDF\Base\Control;
  */
 class HtmlList extends Control
 {
-	var $items = array();
+	var $items = [];
 	
 	/**
 	 * @param string $id Id to be set

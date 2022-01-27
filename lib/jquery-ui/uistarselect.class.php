@@ -58,7 +58,7 @@ class uiStarSelect extends uiControl
 	/**
 	 * @param array $options See http://plugins.jquery.com/project/Star_Rating_widget
 	 */
-    function __construct( $options=array() )
+    function __construct( $options=[] )
 	{
 		parent::__construct("div");
 		
@@ -74,7 +74,7 @@ class uiStarSelect extends uiControl
 	/**
 	 * @override
 	 */
-	public function PreRender($args = array())
+	public function PreRender($args = [])
 	{
 		if( isset($this->Options['captionEl']) )
 		{

@@ -103,7 +103,7 @@ class Button extends Input
 	 * @param array|string $data Optional data to be passed
 	 * @return Button `$this`
 	 */
-	function LinkTo($controller,$method='',$data=array())
+	function LinkTo($controller,$method='',$data=[])
 	{
 		$q = buildQuery($controller,$method,$data);
 		$this->onclick = "document.location.href = '$q';";

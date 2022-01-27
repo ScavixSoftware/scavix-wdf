@@ -52,7 +52,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	private $_paging_info = null;
 	private $_field_types = null;
 	private $_index = -1;
-	private $_rowbuffer = array();
+	private $_rowbuffer = [];
 	private $_loaded_from_cache = false;
 	private $_data_fetched = false;
 	private $_rowCount = false;
@@ -217,16 +217,16 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
     
     function __unserialize(array $data)
     {
-        $this->_ds = model_datasource($buf['ds']);
-		$this->_sql_used = $buf['sql'];
-		$this->_arguments_used = $buf['args'];
-		$this->_paging_info = $buf['paging_info'];
-		$this->_field_types = $buf['field_types'];
-		$this->_index = $buf['index'];
-		$this->_rowbuffer = $buf['rows'];
-		$this->_rowCount = isset($buf['rowCount'])?$buf['rowCount']:false;
+        $this->_ds = model_datasource($data['ds']);
+		$this->_sql_used = $data['sql'];
+		$this->_arguments_used = $data['args'];
+		$this->_paging_info = $data['paging_info'];
+		$this->_field_types = $data['field_types'];
+		$this->_index = $data['index'];
+		$this->_rowbuffer = $data['rows'];
+		$this->_rowCount = isset($data['rowCount'])?$data['rowCount']:false;
 		$this->_loaded_from_cache = true;
-		$this->_data_fetched = isset($buf['df'])?$buf['df']:false;
+		$this->_data_fetched = isset($data['df'])?$data['df']:false;
 		if( isset($this->_rowbuffer[$this->_index]) )
 			$this->_current = $this->_rowbuffer[$this->_index];
     }
@@ -270,7 +270,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	function bindValue($parameter, $value, $data_type = null)
 	{
 		if( !$this->_arguments_used )
-			$this->_arguments_used = array();
+			$this->_arguments_used = [];
 		$this->_arguments_used[$parameter] = $value;
 
         if( is_null($data_type) )
@@ -463,7 +463,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
         if( !$className )
             return $this->_rowbuffer;
         
-        $res = array();
+        $res = [];
         foreach( $this->_rowbuffer as $row )
             $res[] = Model::MakeFromData($row, $this->_ds, true, $className);
         return $res;
@@ -517,7 +517,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
         if( !$this->_paging_info )
         {
             if( !$this->_ds || !$this->_ds->Driver )
-                return $key?0:array();
+                return $key?0:[];
 			$this->_paging_info = $this->_ds->Driver->getPagingInfo($this->_stmt->queryString,$this->_arguments_used);
         }
 		if( $key && isset($this->_paging_info[$key]) )
@@ -542,7 +542,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	{
 		if( !$this->_data_fetched )
 			$this->fetchAll();
-		$res = array();
+		$res = [];
 		if( is_integer($column_name) && count($this->_rowbuffer)>0 )
 		{
 			$temp = array_keys($this->_rowbuffer[0]);

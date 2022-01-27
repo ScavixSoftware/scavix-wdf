@@ -66,9 +66,9 @@ class Logger
 	const STRICT     = self::WARN;
 	const PARSE      = self::FATAL;
 	
-	public static $Instances = array();
-	public static $FilenamePatterns = array();
-    private $categories = array();
+	public static $Instances = [];
+	public static $FilenamePatterns = [];
+    private $categories = [];
 	
 	
 	protected function __construct($config)
@@ -229,7 +229,7 @@ class Logger
             umask($um);
         }
 		
-		$parts = array();
+		$parts = [];
 		if( !is_null( $a1) ) $parts[] = $this->render( $a1);
 		if( !is_null( $a2) ) $parts[] = $this->render( $a2);
 		if( !is_null( $a3) ) $parts[] = $this->render( $a3);

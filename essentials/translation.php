@@ -62,7 +62,7 @@ function translation_init()
     $CONFIG['class_path']['system'][] = __DIR__.'/translation/'.strtolower($CONFIG['translation']['sync']['provider']).'/';
     
 	if( !isset($CONFIG['translation']['searchpatterns']) )
-		$CONFIG['translation']['searchpatterns'] = array();
+		$CONFIG['translation']['searchpatterns'] = [];
 
 	if( !isset($CONFIG['translation']['minlangtransrate']) )
 		$CONFIG['translation']['minlangtransrate'] = 0.75;
@@ -74,7 +74,7 @@ function translation_init()
 		$CONFIG['translation']['detect_ci_callback'] = false;
 	
 	if( !isset($CONFIG['translation']['default_strings']) )
-		$CONFIG['translation']['default_strings'] = array();
+		$CONFIG['translation']['default_strings'] = [];
 
 	$CONFIG['translation']['searchpatterns'] = array_merge(
 		$CONFIG['translation']['searchpatterns'],
@@ -82,7 +82,7 @@ function translation_init()
 	);
 
 	// build reg pattern once:
-	$reg = array();
+	$reg = [];
 	foreach( $CONFIG['translation']['searchpatterns'] as $pat )
 		$reg[] = '('.$pat.'[a-zA-Z0-9_-]+)(\[[^\]]+\])*';
 	$reg = "/".implode("|",$reg)."/";
@@ -116,8 +116,8 @@ function translation_do_includes()
 		{
             if( !isDev() )
                 log_warn("No translations found!",$CONFIG['translation']['data_path'].$CONFIG['localization']['default_language'].".inc.php");
-			$GLOBALS['translation']['properties'] = array();
-			$GLOBALS['translation']['strings'] = array();
+			$GLOBALS['translation']['properties'] = [];
+			$GLOBALS['translation']['strings'] = [];
 		}
 	}
 	
@@ -411,7 +411,7 @@ function getString($constant, $arreplace = null, $unbuffered = false, $encoding 
     
 	if( !$arreplace )
 		return getStringOrig($constant,$arreplace,$unbuffered,$encoding);
-	$n = array();
+	$n = [];
 	foreach( $arreplace as $k=>$v )
 		if( $k[0] == '{' ) $n[$k] = $v; else $n['{'.$k.'}'] = $v;
 	return getStringOrig($constant,$n,$unbuffered,$encoding);
@@ -550,7 +550,7 @@ function getAvailableLanguages( $min_percent_translated=false )
 	if(isset($GLOBALS[$key]))
 		return $GLOBALS[$key];
 	
-	$res = array();
+	$res = [];
 	foreach( $GLOBALS['translation']['properties'] as $lang=>$data )
 		if( $data['percentage_empty'] < 1 - $min_percent_translated )
 			$res[] = $lang;
@@ -774,5 +774,5 @@ function add_trans_data($name,$data,$depth=0)
  */
 function clear_trans_data()
 {
-	Wdf::$Translation->data = array();
+	Wdf::$Translation->data = [];
 }

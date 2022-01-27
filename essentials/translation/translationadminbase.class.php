@@ -80,7 +80,7 @@ abstract class TranslationAdminBase extends SysAdmin
         $this->setTitle('New strings');
 		$this->content("<p>Default language is <b>'{$GLOBALS['CONFIG']['localization']['default_language']}'</b>, so please create new strings accordingly.</p>");
         $ds = model_datasource($GLOBALS['CONFIG']['translation']['sync']['datasource']);
-		translation_add_unknown_strings(array());
+		translation_add_unknown_strings([]);
 		foreach( $ds->Query('wdf_unknown_strings')->all() as $row )
         {
 			$ns = Template::Make('translationnewstring');

@@ -53,7 +53,7 @@ function payment_init()
  */
 function payment_list_providers()
 {
-	$res = array();
+	$res = [];
 	foreach( system_glob(__DIR__.'/payment/*.class.php') as $file )
 	{
 		$cn = basename($file,".class.php");

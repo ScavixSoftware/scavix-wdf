@@ -340,7 +340,7 @@ class DataSource
 	 * @return ResultSet The ResultSet
 	 * @throws WdfDbException
 	 */
-	function CacheExecuteSql($sql,$prms=array(),$lifetime=false)
+	function CacheExecuteSql($sql,$prms=[],$lifetime=false)
 	{
 		if( !system_is_module_loaded('globalcache') || $lifetime === 0 )
 			return $this->ExecuteSql($sql, $prms);
@@ -368,7 +368,7 @@ class DataSource
 	/**
 	 * @shortcut to <DataSource::DLookUp> but uses cache
 	 */
-	function CacheDLookUp($field_name, $table_name = "", $where_condition = "", $parameter = array(),$lifetime=300)
+	function CacheDLookUp($field_name, $table_name = "", $where_condition = "", $parameter = [],$lifetime=300)
 	{
 		if( !system_is_module_loaded('globalcache') || $lifetime === 0 )
 			return $this->DLookUp($field_name, $table_name, $where_condition, $parameter);
@@ -438,7 +438,7 @@ class DataSource
 	function Now($seconds_to_add=0)
 	{
 		$sql = $this->Driver->Now($seconds_to_add);
-		$rs = $this->CacheExecuteSql("SELECT $sql as dt",array(),1);
+		$rs = $this->CacheExecuteSql("SELECT $sql as dt",[],1);
 		return $rs['dt'];
 	}
 	
@@ -461,7 +461,7 @@ class DataSource
 	 * @param array $prms Arguments for $sql
 	 * @return mixed The first scalar
 	 */
-	function ExecuteScalar($sql,$prms=array())
+	function ExecuteScalar($sql,$prms=[])
 	{
 		$stmt = $this->Prepare($sql);
 		$stmt->execute($prms);
@@ -478,7 +478,7 @@ class DataSource
 	 * @param int $lifetime Lifetime in seconds
 	 * @return mixed The first scalar
 	 */
-	function CacheExecuteScalar($sql,$prms=array(),$lifetime=false)
+	function CacheExecuteScalar($sql,$prms=[],$lifetime=false)
 	{
 		if( !system_is_module_loaded('globalcache') || $lifetime === 0 )
 			return $this->ExecuteScalar($sql, $prms);
@@ -502,7 +502,7 @@ class DataSource
 	/**
 	 * @shortcut <DataSource::ExecuteScalar>
 	 */
-	function GetOne($sql,$prms=array())
+	function GetOne($sql,$prms=[])
 	{
 		return $this->ExecuteScalar($sql,$prms);
 	}
@@ -510,7 +510,7 @@ class DataSource
 	/**
 	 * @shortcut for <DataSource::ExecuteScalar>
 	 */
-	function DLookUp($field_name, $table_name = "", $where_condition = "", $parameter = array())
+	function DLookUp($field_name, $table_name = "", $where_condition = "", $parameter = [])
 	{
 		$sql = "SELECT " . $field_name . " ". ($table_name ? "FROM " . $table_name : "") . ($where_condition ? " WHERE " . $where_condition : "")." LIMIT 1";
 		$res = $this->ExecuteScalar($sql,$parameter);
@@ -527,7 +527,7 @@ class DataSource
 	 * @param array $parameter SQL arguments
 	 * @return ResultSet The query result
 	 */
-	function PageExecute($sql,$items_per_page,$page,$parameter=array())
+	function PageExecute($sql,$items_per_page,$page,$parameter=[])
 	{
 		$stmt = $this->Driver->getPagedStatement($sql,$page,$items_per_page);
 		if( !$stmt->execute($parameter) )
@@ -539,7 +539,7 @@ class DataSource
 	/**
 	 * @shortcut <DataSource::ExecuteSql>
 	 */
-	function Execute($sql,$args=array())
+	function Execute($sql,$args=[])
 	{
 		return $this->ExecuteSql($sql,$args);
 	}

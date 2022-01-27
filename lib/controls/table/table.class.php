@@ -52,9 +52,9 @@ class Table extends Control
 
     var $Caption = false;
 
-	var $RowGroupOptions = array();
-	var $RowOptions = array();
-	var $ColFormats = array();
+	var $RowGroupOptions = [];
+	var $RowOptions = [];
+	var $ColFormats = [];
 	var $Culture = false;
 	
 	var $DataCallback = false;
@@ -123,7 +123,7 @@ class Table extends Control
         }
     }
     
-    function __collectResourcesInternal($template,&$static_stack = array())
+    function __collectResourcesInternal($template,&$static_stack = [])
 	{
         if(system_is_ajax_call() && !$this->force_ajax_dependenciesloading)
             return [];
@@ -139,7 +139,7 @@ class Table extends Control
 	 * @param type $conditional_css See <CellFormat> for explanation
 	 * @return Table `$this`
 	 */
-	function SetColFormat($index,$format,$blank_if_false=false,$conditional_css=array())
+	function SetColFormat($index,$format,$blank_if_false=false,$conditional_css=[])
 	{
 		$this->ColFormats[$index] = new CellFormat($format, $blank_if_false, $conditional_css);
 		if( array_key_exists('copy',$conditional_css) )
@@ -289,7 +289,7 @@ class Table extends Control
 	/**
 	 * @override
 	 */
-	function PreRender($args=array())
+	function PreRender($args=[])
 	{
         $opts = array
         (
@@ -497,8 +497,8 @@ class Table extends Control
 	}
 	
 	var $_actions = false;
-	var $_rowModels = array();
-	var $_actionHandler = array();
+	var $_rowModels = [];
+	var $_actionHandler = [];
 	var $_sortHandler = false;
 	
 	/**

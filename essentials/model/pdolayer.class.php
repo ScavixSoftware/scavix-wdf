@@ -65,7 +65,7 @@ class PdoLayer extends PDO
         // this is replacement for coalesce but not checking agains NULL but against NULL or empty strings
         $statement = preg_replace_callback('/ifavail{([^}]+)}/iU',function($m)
         {
-            $r = array();
+            $r = [];
             foreach( explode(",",$m[1]) as $p )
                 $r[] = "WHEN IFNULL($p,'')!='' THEN $p";
             return "CASE ".implode(" ",$r)." END";

@@ -98,7 +98,7 @@ class uiButton extends uiControl
 	/**
 	 * @override
 	 */
-	function PreRender($args=array())
+	function PreRender($args=[])
 	{
 		if( count($args) > 0 )
 		{
@@ -119,7 +119,7 @@ class uiButton extends uiControl
 	 * @param array|string $data Optional data to be passed
 	 * @return uiButton `$this`
 	 */
-	function LinkTo($controller,$method='',$data=array())
+	function LinkTo($controller,$method='',$data=[])
 	{
 		$q = buildQuery($controller,$method,$data);
 		$this->onclick = "document.location.href = '$q';";

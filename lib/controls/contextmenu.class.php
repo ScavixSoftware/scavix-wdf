@@ -39,10 +39,10 @@ use ScavixWDF\Base\Control;
  */
 class ContextMenu extends Control
 {
-	public $_content = array();
-    private $_triggers = array();
-    private $_bindings = array();
-    private $_menuitems = array();
+	public $_content = [];
+    private $_triggers = [];
+    private $_bindings = [];
+    private $_menuitems = [];
     private $_leftclick = false;
     private $_defaults = array(
         'menuStyle'=>"listStyle: 'none',padding: '1px', margin: '0px', backgroundColor: '#fff', border: '1px solid #999'",

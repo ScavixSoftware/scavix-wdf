@@ -39,7 +39,7 @@ abstract class PaymentProvider
 	public $type = null;
 	public $type_name = null;
 	public $small_image = null;
-	protected $data = array();
+	protected $data = [];
 	
 	const PROCESSOR_INTERNAL	= 0; //"internal";
 	const PROCESSOR_PAYPAL		= 1; //"paypal";
@@ -110,7 +110,7 @@ abstract class PaymentProvider
 	
 	protected function Redirect($url)
 	{
-		$q = array();
+		$q = [];
 		foreach( $this->data as $k=>$v )
 			$q[] = "$k=".urldecode($v);
 		redirect("$url?$q");

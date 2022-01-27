@@ -391,7 +391,7 @@ class WdfException extends Exception
 	 */
 	public static function Raise(...$args)
 	{
-		$msgs = array();
+		$msgs = [];
 		$inner_exception = false;
 		foreach( $args as $m )
 		{

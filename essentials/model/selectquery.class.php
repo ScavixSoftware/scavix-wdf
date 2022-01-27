@@ -35,11 +35,11 @@ namespace ScavixWDF\Model;
  */
 class SelectQuery extends Query
 {
-	var $_groupBy = array();
+	var $_groupBy = [];
 	var $_having = false;
-	var $_orderBy = array();
-	var $_limit = array();
-	var $_join = array();
+	var $_orderBy = [];
+	var $_limit = [];
+	var $_join = [];
 
 	function __construct(&$obj=null,&$datasource=null,$select_statement=false)
 	{
@@ -77,7 +77,7 @@ class SelectQuery extends Query
 		if( count($this->_join) > 0 )
 		{
 			//debug($this->_join);
-			$tmp = array();
+			$tmp = [];
 			foreach( $this->_join as $j )
 				$tmp[] = $j->__generateSql();
 			$sql = implode(" ",$tmp)." ".$sql;
@@ -85,7 +85,7 @@ class SelectQuery extends Query
 
 		if( count($this->_groupBy) > 0 )
 		{
-			$tmp = array();
+			$tmp = [];
 			foreach( $this->_groupBy as $g )
 				$tmp[] = "$g";
 
@@ -97,7 +97,7 @@ class SelectQuery extends Query
 
 		if( count($this->_orderBy) > 0 )
 		{
-			$tmp = array();
+			$tmp = [];
 			foreach( $this->_orderBy as $k=>$d )
 				if( $k != '{SPECIAL}' )
 					$tmp[] = "$k $d";
@@ -123,7 +123,7 @@ class SelectQuery extends Query
 	function having($defaultOperator = "AND")
 	{
 		$this->_having = new ConditionTree(-1,$defaultOperator,"HAVING");
-		$this->_currentTree = $this->_having;
+//		$this->_currentTree = $this->_having;
 	}
 
 	function orderBy($property,$direction)
@@ -145,7 +145,7 @@ class SelectQuery extends Query
 	{
 		$direction = strtoupper($direction);
 		$this->_join[] = new ConditionTree(-1,"AND","$direction JOIN `{$model->GetTableName()}` ON");
-		$this->_currentTree = $this->_join[count($this->_join)-1];
+//		$this->_currentTree = $this->_join[count($this->_join)-1];
 		$this->_knownmodels[] = $model;
 	}
 }

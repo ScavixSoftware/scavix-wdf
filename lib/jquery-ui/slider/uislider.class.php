@@ -45,7 +45,7 @@ class uiSlider extends uiControl
 	/**
 	 * @override
 	 */
-	function PreRender($args = array())
+	function PreRender($args = [])
 	{
 		if( $this->opt('value') > $this->opt('max') ) $this->opt('value',$this->opt('max'));
 		if( $this->opt('value') < $this->opt('min') ) $this->opt('value',$this->opt('min'));

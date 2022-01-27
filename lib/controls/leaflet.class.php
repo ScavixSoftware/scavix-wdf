@@ -112,7 +112,7 @@ class LeafLet extends Control
     /**
      * @override
      */
-    function PreRender($args = array())
+    function PreRender($args = [])
     {
         $map = "$('#{self}').data('leaflet')";
         // initialize
@@ -217,7 +217,7 @@ class LeafLet extends Control
      * @param array $options Optional options
      * @return LeafLet
      */
-    function AddMarker($lat, $lng, $options = array())
+    function AddMarker($lat, $lng, $options = [])
     {
         if( !isset($options['title']) )
             $options['title'] = "Lat: $lat, Lng: $lng";
@@ -234,7 +234,7 @@ class LeafLet extends Control
      * @param array $options Optional options
      * @return LeafLet
      */
-    function AddMarkerTitled($lat, $lng, $title, $options = array())
+    function AddMarkerTitled($lat, $lng, $title, $options = [])
     {
         $options['title'] = $title;
         $this->_markers[] = array($lat,$lng,$options);

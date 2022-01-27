@@ -47,7 +47,7 @@ function admin_init()
           )
 			WdfException::Raise("System admin needs username and password to be set!");
 		
-		$CONFIG['system']['admin']['actions'] = array();
+		$CONFIG['system']['admin']['actions'] = [];
 	}
 }
 

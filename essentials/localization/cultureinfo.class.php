@@ -81,7 +81,7 @@ class CultureInfo
 	
 	function __sleep()
 	{
-		$res = array();		
+		$res = [];		
 		foreach( get_object_vars($this) as $name=>$val)
 		{
 			switch( $name )
@@ -150,7 +150,7 @@ class CultureInfo
 		$regions = internal_getRegionsForLanguage($ci->Code);
 		if( !$only_codes )
 			return $regions;
-		$res = array();
+		$res = [];
 		foreach( $regions as $r )
 			$res[] = $r->Code;
 		return $res;

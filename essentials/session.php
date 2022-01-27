@@ -95,7 +95,7 @@ function session_run()
     Wdf::$SessionHandler->store = Wdf::$ObjectStore = new $CONFIG['session']['object_store']();
     
     if( !isset($_SESSION[$GLOBALS['CONFIG']['session']['prefix']."object_access"]) )
-        $_SESSION[$GLOBALS['CONFIG']['session']['prefix']."object_access"] = array();
+        $_SESSION[$GLOBALS['CONFIG']['session']['prefix']."object_access"] = [];
 }
 
 /**

@@ -730,11 +730,11 @@ function unicode_cleanup_rtl($data)
 
 	preg_match_all("!$explicits!",	$data, $m1, PREG_OFFSET_CAPTURE | PREG_SET_ORDER);
 	//preg_match_all("!$pdf!", 	$data, $m2, PREG_OFFSET_CAPTURE | PREG_SET_ORDER);
-	$m2 = array();
+	$m2 = [];
 
 	if (count($m1) || count($m2)){
 
-		$p = array();
+		$p = [];
 		foreach ($m1 as $m){ $p[$m[0][1]] = 'push'; }
 		foreach ($m2 as $m){ $p[$m[0][1]] = 'pop'; }
 		ksort($p);
@@ -897,7 +897,7 @@ function system_glob($pattern, $flags = 0)
 {
     $ret = glob($pattern, $flags);
     if( $ret === false )
-        return array();
+        return [];
     return $ret;
 }
 
@@ -956,7 +956,7 @@ function can_nocache(){ return array_val_is($_SERVER,'WDF_FEATURES_NOCACHE','on'
  */
 function natksort(&$array)
 {
-	$new_array = array();
+	$new_array = [];
 	$keys = array_keys($array);
 	natcasesort($keys);
 	foreach ($keys as $k)
@@ -968,14 +968,14 @@ function natksort(&$array)
  * Wraps something into an array if needed.
  * 
  * If fact does this: `return is_array($data)?$data:array($data);`
- * Note that for `is_null($data)` force_array will return an empty `array()`
+ * Note that for `is_null($data)` force_array will return an empty `[]`
  * @param mixed $data Anything you want to be an array if it is not aready
  * @return array The resulting array
  */
 function force_array($data)
 {
 	if( is_null($data) )
-		return array();
+		return [];
 	return is_array($data)?$data:array($data);
 }
 
@@ -1102,7 +1102,7 @@ function sif($condition,$true_value,$false_value)
  * $o = new stdClass();
  * $o->attributes = new stdClass();
  * $o->attributes->url = 'http://www.scavix.com';
- * $a = array();
+ * $a = [];
  * $a['system']['atad'] = 'wrong order';
  * if( avail($o,'attributes','url') )
  *     log_debug("URL",$o->attributes->url);
@@ -1174,7 +1174,7 @@ function array_values_rec($array,$max_depth=false,$cur_depth=1)
 {
 	if( $max_depth !== false && $cur_depth>$max_depth )
 		return $array;
-	$res = array();
+	$res = [];
 	foreach( $array as $v )
 	{
 		if( is_array($v) )
@@ -1239,7 +1239,7 @@ if( !function_exists('idn_to_utf8') )
                 $input = str_split(array_pop($a));
                 $output = str_split(implode("-",$a));
             } else {
-                $output = array();
+                $output = [];
                 $input = str_split($input);
             }
             $n = 128; $i = 0; $bias = 72; // init punycode vars

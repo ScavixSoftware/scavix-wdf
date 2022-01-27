@@ -56,7 +56,7 @@ class SuperfishMenu extends Control
 	 * @param mixed $data Array or urlencoded string containing additional data to be passed
 	 * @return SuperfishMenuItem The created item
 	 */
-	function AddItem($label,$controller,$event="",$data=array())
+	function AddItem($label,$controller,$event="",$data=[])
 	{
 		$item = new SuperfishMenuItem($label,$controller,$event,$data);
 		$this->content($item);
@@ -156,7 +156,7 @@ class SuperfishMenuItem extends Control
 	 * @param string $event Handler method
 	 * @param mixed $data Array or urlencoded string containing additional data to be passed
 	 */
-	function __construct($label,$controller,$event="",$data=array())
+	function __construct($label,$controller,$event="",$data=[])
 	{
 		parent::__construct("li");
 		$this->class = "";
@@ -179,7 +179,7 @@ class SuperfishMenuItem extends Control
 	 * @param mixed $data Array or urlencoded string containing additional data to be passed
 	 * @return SuperfishMenuItem The created item
 	 */
-	function AddItem($label,$controller,$event="",$data=array())
+	function AddItem($label,$controller,$event="",$data=[])
 	{
 		if( !$this->sub )
 		{
@@ -214,7 +214,7 @@ class SuperfishMenuItem extends Control
 	{
 		if( $this->sub )
 			return $this->sub->_content;
-		return array();
+		return [];
 	}
 	
 	/**

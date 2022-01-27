@@ -39,7 +39,7 @@ class gvTable extends GoogleVisualization
 	/**
 	 * @override
 	 */
-	function __construct($options=array(),$query=false,$ds=false)
+	function __construct($options=[],$query=false,$ds=false)
 	{
 		parent::__construct('Table',$options,$query,$ds);
 		$this->_loadPackage('table');

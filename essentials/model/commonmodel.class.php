@@ -85,7 +85,7 @@ class CommonModel extends Model
 	{
 		if( $this->IsRow() )
 			return Model::CastFrom($this,true,$className);
-		$res = array();
+		$res = [];
 		foreach( $this->results() as $obj )
 			$res[] = Model::CastFrom($obj,true,$className);
 		return $res;

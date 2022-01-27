@@ -72,7 +72,7 @@ class TranslationAdmin extends TranslationAdminBase
 //		$this->subnav('Import', 'TranslationAdmin', 'import');
     }
 	
-	private function fetchTerms($lang_code,$defaults = array(),&$unkown=null)
+	private function fetchTerms($lang_code,$defaults = [],&$unkown=null)
     {
         $rs = $this->ds->ExecuteSql("SELECT id,content FROM wdf_translations WHERE lang=?",$lang_code);
         $res = $defaults;
@@ -94,7 +94,7 @@ class TranslationAdmin extends TranslationAdminBase
 		$known = $sel->CreateGroup('Languages with translations');
 		$avail = $sel->CreateGroup('Available languages');
 		
-		$counts = array();
+		$counts = [];
 		foreach( $this->ds->ExecuteSql("SELECT lang,count(*) as cnt FROM wdf_translations GROUP BY lang") as $row )
 			$counts[$row['lang']] = intval($row['cnt']);
 		$total = max($counts);
@@ -189,7 +189,7 @@ class TranslationAdmin extends TranslationAdminBase
         if( !$languages )
             return; 
         
-        $head = array();
+        $head = [];
         foreach( $db_languages as $lang )
             $head[$lang->code] = array('percentage_complete'=>$lang->percentage/100, 'percentage_empty'=>(1-$lang->percentage/100), 'syntax_error_qty'=>0);
 //        $info = "\$GLOBALS['translation']['properties'] = ".var_export($head,true);

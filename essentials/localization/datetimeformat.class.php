@@ -98,7 +98,7 @@ class DateTimeFormat
 	{
 		if( is_array($format_id) )
 		{
-			$res = array();
+			$res = [];
 			foreach( $format_id as $fi )
 				$res[] = $this->Format($date, $fi);
 			return implode("",$res);
@@ -129,7 +129,7 @@ class DateTimeFormat
 		$pattern = self::$PatternPlaceholders;
 
 		// find all placeholders
-		$arplaceholders = array();
+		$arplaceholders = [];
 		$pl = sizeof($pattern);
 		for($j = 0; $j < $pl; $j++)
 		{
@@ -249,7 +249,7 @@ class DateTimeFormat
 
 	private function _regexEscapeArray($array)
 	{
-		$res = array();
+		$res = [];
 		foreach( $array as $i )
 			$res[] = preg_quote($i, '/');
 		return implode("|",$res);
@@ -303,11 +303,11 @@ class DateTimeFormat
 		$pattern = self::$PatternPlaceholders;
 		$formats = $this->KnownDateTimePatterns();
 
-		$found = array();
-		$semantics = array();
+		$found = [];
+		$semantics = [];
 		foreach( $formats as $format )
 		{
-			$tmp_s = array();
+			$tmp_s = [];
 			for( $iter=0; $iter<strlen($format); $iter++ )
 			{
 				foreach( $pattern as $k=>$p )
