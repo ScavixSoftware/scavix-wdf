@@ -75,9 +75,10 @@ class HelpTask extends \ScavixWDF\Tasks\Task
 			log_info("Syntax: php ".basename($GLOBALS['argv'][0])." (help|search|<cmd> [<args>])");
 			if( file_exists(__DIR__.'/VERSION') )
 			{
-				$v = file(__DIR__.'/VERSION');
-				log_info("\nGIT revision",trim(array_shift($v)));
+				$v = array_map('trim',file(__DIR__.'/VERSION'));
+				log_info("\nGIT revision",array_shift($v));
 				log_info("GIT date",date("Y-m-d H:i:s",array_shift($v)));
+				log_info("GIT branch",array_shift($v));
 			}
 			log_info("\nCommand syntax: help [classname [methodname]]");
 			log_info("Command syntax: search");
