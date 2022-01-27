@@ -491,28 +491,69 @@ class WdfDbException extends WdfException
         
     private $statement;
     
+    private static function _prepare(string $message, Model\ResultSet $statement)
+    {
+        $errid = uniqid();
+        if( isDev() && false )
+            $msg = "SQL Error ($errid): $message";
+        else
+            $msg = "SQL Error occured. Please contact the technical team and tell them this error ID: $errid";
+        
+        if( !self::$DISABLE_LOGGING && $statement )
+        {
+            $trim_sql = function($s)
+            {
+                $lines = explode("\n",$s);
+                foreach( ["\t"," "] as $ws )
+                {
+                    $pre = [];
+                    foreach( $lines as $l )
+                        $pre[] = strspn($l,$ws)?:999;
+                    $min = min($pre);
+                    if( $min == 999 )
+                        continue;
+                    foreach( $lines as $i=>&$l )
+                        $l = preg_replace("/^{$ws}{{$min}}/","",$l);
+                    break;
+                }
+                return implode("\n",$lines);
+            };
+            
+            $sql = $trim_sql($statement->GetSql());
+            $args = $statement->GetArgs();
+            $msql = $trim_sql($statement->GetMergedSql());
+            
+            $details = "SQL Error $errid\nSQL: $sql";
+            if( count($args) )
+                $details .= "\nArguments: ".json_encode($args);
+            if( $msql != $sql )
+                $details .= "\nMerged: $msql";
+            
+            log_error($details);
+        }
+            
+        
+        return $msg;
+    }
+    
+    public static function RaisePdoEx(\PDOException $ex, ?Model\ResultSet $statement = null)
+    {
+        $msg = self::_prepare($ex->getMessage(),$statement);
+        $res = new \ScavixWDF\WdfDbException($msg);
+        $res->statement = $statement;
+        throw $res;
+
+    }
+    
     /**
      * @internal Raises an Exception for a failed DB Statement.
      */
     public static function RaiseStatement($statement, $use_extended_info = false)
 	{
-        $errid = uniqid();
         if(!($statement instanceof Model\ResultSet))
             $statement = new Model\ResultSet($statement->_ds, $statement);
         
-        if(isDev())
-        {
-            if( $use_extended_info )
-                $msg = "SQL Error: ".$statement->ErrorOutput()."\nSQL:".$statement->GetMergedSql()."\nError ID: ".$errid;
-            else
-                $msg = render_var($statement->ErrorOutput())."\nError ID: ".$errid;
-        }
-        else
-        {
-            $msg = 'SQL Error occured. Please contact the technical team and tell them this error ID: '.$errid;
-            if( !self::$DISABLE_LOGGING )
-                log_error("SQL Error", $errid, $statement->ErrorOutput(), $statement->GetMergedSql());
-        }
+        $msg = self::_prepare($ex->getMessage(),$statement);
         $ex = new WdfDbException($msg);
         $ex->statement = $statement;
 		throw $ex;

@@ -434,6 +434,8 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 			$cols[] = $style = self::$Colors[$name];
 			$this->opt('colors',$cols);
 		}
+        if( $this->_columnDef === false )
+            $this->_columnDef = [];
 		$this->_columnDef[$label] = array($name,$type,$style);
 		return $this;
 	}

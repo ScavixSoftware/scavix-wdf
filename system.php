@@ -596,7 +596,7 @@ function system_exit($result=null,$die=true)
  * @param string $additional_message More details to be logged
  * @return void
  */
-function system_die($reason,$additional_message='')
+function system_die($reason,$additional_message='',$log_error=true)
 {
 	if( $reason instanceof Exception )
 	{
@@ -616,11 +616,13 @@ function system_die($reason,$additional_message='')
 	}
 
     $errid = uniqid();
-    if( function_exists('log_fatal') )
-        log_fatal('Fatal system error (ErrorID: '.$errid.')'."\n".$reason."\n".$additional_message."\n".system_stacktrace_to_string($stacktrace));
-    else
-        error_log('Fatal system error (ErrorID: '.$errid.')'."\n".$reason."\n".$additional_message."\n".system_stacktrace_to_string($stacktrace));
-    
+    if( $log_error )
+    {
+        if( function_exists('log_fatal') )
+            log_fatal('Fatal system error (ErrorID: '.$errid.')'."\n".$reason."\n".$additional_message."\n".system_stacktrace_to_string($stacktrace));
+        else
+            error_log('Fatal system error (ErrorID: '.$errid.')'."\n".$reason."\n".$additional_message."\n".system_stacktrace_to_string($stacktrace));
+    }
     if( PHP_SAPI == 'cli' )
     {
         if(isDev())

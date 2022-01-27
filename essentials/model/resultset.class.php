@@ -308,10 +308,18 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
         $deadlock_retries = 0;
         do
         {
-            if( is_null($input_parameters) )
-                $result = $this->_stmt->execute();
-            else
-                $result = $this->_stmt->execute($input_parameters);
+            try
+            {
+                if( is_null($input_parameters) )
+                    $result = $this->_stmt->execute();
+                else
+                    $result = $this->_stmt->execute($input_parameters);
+            }
+            catch(\PDOException $ex)
+            {
+                // rethrow as WdfDbException to get more details
+                \ScavixWDF\WdfDbException::RaisePdoEx($ex,$this);
+            }
             
             // this is MySQL deadlock
             if( $result === false && $deadlock_retries++<5 )

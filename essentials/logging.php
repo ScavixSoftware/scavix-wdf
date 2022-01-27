@@ -206,7 +206,7 @@ function global_exception_handler($ex)
 		// keep things in place and let that function only handle the exception
 		foreach( Wdf::$Logger as $l )
 			$l->fatal($ex);
-		system_die($ex);
+		system_die($ex,'',false);
 	}
 	catch(Exception $fatal)
 	{

@@ -217,7 +217,7 @@ class WdfListingFilter extends Template
         {
 //            log_debug("TERM $name",$value);
             $res = [];
-            foreach( explode("\n",wordwrap($value,1)) as $t )
+            foreach( explode("\n",wordwrap("$value",1)) as $t )
             {
                 $t = \ScavixWDF\Model\DataSource::Get()->EscapeArgument(trim($t));
                 if( !$t ) continue;
