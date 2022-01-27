@@ -278,8 +278,13 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		{
 			if( !self::$DefaultDatasource )
 			{
-				$aliases = array_keys(Wdf::$DataSources);
-				self::$DefaultDatasource = model_datasource(array_pop($aliases));
+                if(avail(Wdf::$DataSources, 'system'))
+                    self::$DefaultDatasource = model_datasource('system');
+                else
+                {
+                    $aliases = array_keys(Wdf::$DataSources);
+                    self::$DefaultDatasource = model_datasource(array_pop($aliases));
+                }
 			}
 			if( self::$DefaultDatasource )
 				$this->__constructed(self::$DefaultDatasource);
@@ -459,7 +464,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	
 	protected function __ensureTableSchema()
 	{
-		if( $this->_tableSchema )
+        if( $this->_tableSchema )
 			return $this->_tableSchema;
 		
 		if( !$this->_ds )

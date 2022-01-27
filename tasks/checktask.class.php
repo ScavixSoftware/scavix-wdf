@@ -191,7 +191,7 @@ class CheckTask extends Task
     function php8($args)
     {
         $dir = realpath(ifavail($args,'dir'));
-        if( !$dir )
+        if( !$dir || !avail($args,'dir') )
             return log_info("Syntax: check-php8 dir=<base-folder> [ignore=<wdf-folder>]");
         
         $removed_functions = [
@@ -233,7 +233,7 @@ class CheckTask extends Task
             foreach( $ignores as $ign )
                 if( 0 === stripos(realpath($file), $ign) )
                     continue(2);
-            if( stripos($file,'/vendor/') )
+            if( stripos($file,'/vendor/') || stripos($file,'/wp-content/') || stripos($file,'/wp-includes/') || stripos($file,'/wp-admin/') )
                 continue;
             
             $relfile = trim(str_replace($dir,"", $file),"/");
