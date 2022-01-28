@@ -245,7 +245,7 @@ function globalcache_get($key, $default = false)
 		WdfException::Log($ex);
 		die($ex->__toString());
 	}
-	return $ret;
+	return isset($ret)?$ret:$default;
 }
 
 /**

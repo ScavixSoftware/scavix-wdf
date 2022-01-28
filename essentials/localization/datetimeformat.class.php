@@ -331,7 +331,7 @@ class DateTimeFormat
 						$found = $match;
 						$semantics = $tmp_s;
 					}
-			}catch(Exception $ex)
+			}catch(\Exception $ex)
 			{
 				WdfException::Log("Invalid RegEx: $format",$ex);
 			}

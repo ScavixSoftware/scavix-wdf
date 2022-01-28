@@ -1580,40 +1580,20 @@ function name_from_constant($class_name,$constant_value,$prefix=false)
 function system_to_json($value)
 {
 	$res = json_encode($value);
-    if( defined('PHP_VERSION_ID') && PHP_VERSION_ID > 50300 )
-    {
-        $res = preg_replace_callback('/\"\[jscode\](.*)\"([,\]\}])/U',
-            function($m)
-            {
-                // single quotes are essential here,
-                // or alternative escape all $ as \$
-                return stripcslashes($m[1]).$m[2];
-            }, $res );
-        $res = preg_replace_callback('/\"function\(.*[^\\\\]\"/U',
-            function($m)
-            {
-                // single quotes are essential here,
-                // or alternative escape all $ as \$
-                return json_decode($m[0]);
-            }, $res );
-    }
-    else
-    {
-        $res = preg_replace_callback('/\"\[jscode\](.*)\"([,\]\}])/U',
-            create_function(
-                // single quotes are essential here,
-                // or alternative escape all $ as \$
-                '$m',
-                'return stripcslashes($m[1]).$m[2];'
-            ), $res );
-        $res = preg_replace_callback('/\"function\(.*[^\\\\]\"/U',
-            create_function(
-                // single quotes are essential here,
-                // or alternative escape all $ as \$
-                '$m',
-                'return json_decode($m[0]);'
-            ), $res );
-    }
+    $res = preg_replace_callback('/\"\[jscode\](.*)\"([,\]\}])/U',
+        function($m)
+        {
+            // single quotes are essential here,
+            // or alternative escape all $ as \$
+            return stripcslashes($m[1]).$m[2];
+        }, $res );
+    $res = preg_replace_callback('/\"function\(.*[^\\\\]\"/U',
+        function($m)
+        {
+            // single quotes are essential here,
+            // or alternative escape all $ as \$
+            return json_decode($m[0]);
+        }, $res );
 	return $res;
 }
 

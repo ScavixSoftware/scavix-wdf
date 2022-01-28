@@ -236,7 +236,7 @@ class SessionStore extends ObjectStore
 			{
 				$this->Store($obj,$id);
 			}
-			catch(Exception $ex)
+			catch(\Exception $ex)
 			{
 				WdfException::Log("updating storage for object $id [".get_class($obj)."]",$ex);
 			}

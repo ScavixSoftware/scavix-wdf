@@ -184,7 +184,7 @@ function minify_js($paths,$target_file)
 		if( !isset($GLOBALS['nominify']) )
 		{
 			try {
-				$code .= jsmin::minify($js)."\n";
+				$code .= JSMin::minify($js)."\n";
 			} catch(Exception $ex)
 			{
 				WdfException::Log("EXCEPTION occured in jsmin::minify ($js)",$ex);
@@ -248,7 +248,7 @@ function minify_css($paths,$target_file,$nc_argument=false)
 		$css = preg_replace_callback("/AlphaImageLoader\(src='([^']*)'/siU", "minify_css_translate_url", $css);
 		$css = "/* FILE: $f */\n$css";
 		if( !isset($GLOBALS['nominify']) )
-			$code .= cssmin::minify($css)."\n";
+			$code .= CssMin::minify($css)."\n";
 		else
 		{
 			$code .= "$css\n";

@@ -206,7 +206,7 @@ function creditcard_check ($cardnumber, $cardname, &$errornumber, &$errortext) {
   $cardNo = str_replace (' ', '', $cardnumber);  
    
   // Check that the number is numeric and of the right sort of length.
-  if (!eregi('^[0-9]{13,19}$',$cardNo))  {
+  if (!preg_match('/^[0-9]{13,19}$/i',$cardNo))  {
      $errornumber = 2;     
      $errortext = $ccErrors [$errornumber];
      return false; 
@@ -249,13 +249,13 @@ function creditcard_check ($cardnumber, $cardname, &$errornumber, &$errortext) {
   // The following are the card-specific checks we undertake.
 
   // Load an array with the valid prefixes for this card
-  $prefix = split(',',$cards[$cardType]['prefixes']);
+  $prefix = explode(',',$cards[$cardType]['prefixes']);
       
   // Now see if any of them match what we have in the card number  
   $PrefixValid = false; 
   for ($i=0; $i<sizeof($prefix); $i++) {
     $exp = '^' . $prefix[$i];
-    if (ereg($exp,$cardNo)) {
+    if (preg_match("/$exp/",$cardNo)) {
       $PrefixValid = true;
       break;
     }
@@ -270,7 +270,7 @@ function creditcard_check ($cardnumber, $cardname, &$errornumber, &$errortext) {
     
   // See if the length is valid for this card
   $LengthValid = false;
-  $lengths = split(',',$cards[$cardType]['length']);
+  $lengths = explode(',',$cards[$cardType]['length']);
   for ($j=0; $j<sizeof($lengths); $j++) {
     if (strlen($cardNo) == $lengths[$j]) {
       $LengthValid = true;

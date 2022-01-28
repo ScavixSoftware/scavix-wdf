@@ -63,7 +63,7 @@ function localization_init()
  */
 function localized_to_float_number($value)
 {
-	$ci = Localization::getCultureInfo();
+	$ci = Localization::detectCulture();
 	$number =  str_replace($ci->NumberFormat->GroupSeparator,"",$value);
 	if( $ci->NumberFormat->DecimalSeparator != '.' )
 		$number =  str_replace($ci->NumberFormat->DecimalSeparator,".",$number);

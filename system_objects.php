@@ -165,6 +165,7 @@ class WdfBuffer implements \Iterator, \JsonSerializable
     protected $changed = false;
     protected $data = [];
     protected $session_name = false;
+    protected $position = 0;
     
     function __construct($initial_data=[])
     {
@@ -553,7 +554,7 @@ class WdfDbException extends WdfException
         if(!($statement instanceof Model\ResultSet))
             $statement = new Model\ResultSet($statement->_ds, $statement);
         
-        $msg = self::_prepare($ex->getMessage(),$statement);
+        $msg = self::_prepare($statement->ErrorInfo(),$statement);
         $ex = new WdfDbException($msg);
         $ex->statement = $statement;
 		throw $ex;

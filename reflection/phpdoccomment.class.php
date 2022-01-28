@@ -43,6 +43,8 @@ class PhpDocComment
 	var $LongDesc = "";
 	var $Tags = [];
 	var $Attributes = [];
+    
+    private $_tagbuf;
 	
 	/**
 	 * Creates a PhpDocComment instance from a string

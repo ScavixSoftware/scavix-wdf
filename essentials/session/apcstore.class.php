@@ -60,7 +60,7 @@ class APCStore extends ObjectStore
 		if( $id == "" )
 		{
 			if( !isset($obj->_storage_id) )
-				WdfException::Raise("Trying to store an object without storage_id!");
+				\ScavixWDF\WdfException::Raise("Trying to store an object without storage_id!");
 			$id = $obj->_storage_id;
 		}
 		else
@@ -191,9 +191,9 @@ class APCStore extends ObjectStore
 			{
                 $this->Store($obj, $id);
 			}
-			catch(Exception $ex)
+			catch(\Exception $ex)
 			{
-				WdfException::Log("updating storage for object $id [".get_class($obj)."]",$ex);
+				\ScavixWDF\WdfException::Log("updating storage for object $id [".get_class($obj)."]",$ex);
 			}
 		}
         $this->_stats(__METHOD__,$start);

@@ -355,7 +355,7 @@ class WdfReflector extends ReflectionClass
 		$res = [];
 		foreach( $properties as $prop )
 		{
-			if( $include_derivered || $prop->getDeclaringClass().getName() == $this->getName() )
+			if( $include_derivered || $prop->getDeclaringClass()->getName() == $this->getName() )
 				$res[] = $prop->getName();
 		}
 		return $res;

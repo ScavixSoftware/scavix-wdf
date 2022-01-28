@@ -109,7 +109,7 @@ class RequestLogEntry extends Model
                 RequestLogEntry::$Current = $this;
                 return true;
             }
-            catch(Exception $ex)
+            catch(\Exception $ex)
             {
 				if( preg_match("/Table '.*wdf_requests' doesn't exist/i", $ex->getMessage(), $dummy) !== false )
 				{
