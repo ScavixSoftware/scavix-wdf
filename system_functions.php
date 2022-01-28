@@ -567,6 +567,7 @@ function contains(...$args)
 		return false;
 	}
 	WdfException::Raise('First argument needs to be of type array or string');
+    return false;
 }
 
 /**

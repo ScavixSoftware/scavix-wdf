@@ -70,6 +70,8 @@ class Logger
 	public static $FilenamePatterns = [];
     private $categories = [];
 	
+    protected $path = false;
+    protected $filename;
 	
 	protected function __construct($config)
 	{
@@ -79,7 +81,7 @@ class Logger
 		foreach( $config as $k=>$v )
 			$this->$k = $v;
 		
-		if( !isset($this->path) )
+		if( !$this->path )
 			$this->path = dirname(ini_get('error_log'))."/";
 		
 		if( !is_object($this) || !isset($this) )

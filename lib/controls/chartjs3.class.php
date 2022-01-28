@@ -284,7 +284,7 @@ class ChartJS3 extends Control
 	{
         $all = preg_replace('/[*all-]/','',"$index")=="";
         if( $all && $value === null )
-            throw new Exception("Cannot get property '$name' of all datasets");
+            throw new \Exception("Cannot get property '$name' of all datasets");
         
         foreach( $this->series as $i=>$s )
         {
@@ -318,7 +318,7 @@ class ChartJS3 extends Control
         if( $scaleId == "*" )
         {
             if( $value === null )
-                throw new Exception("Cannot get property '$name' of all scales");
+                throw new \Exception("Cannot get property '$name' of all scales");
             
             $scales = array_merge(['x'=>[],'y'=>[]],$this->opt("scales")?:[]);
             foreach( $scales as $id=>$sc )
@@ -694,15 +694,15 @@ class ChartJS3 extends Control
      */
     public static function MultiSeriesTime($data, $dataset_name='series', $x_name='x', $y_name='y')
 	{
+        $chart = new ChartJS3();
         // todo: use this logik in every place where data is set. then try to create some kind of
         //       detection for automatic ajax-delay-loading
         if( $data instanceof \ScavixWDF\Model\Model || $data instanceof ScavixWDF\Model\ResultSet )
         {
-            $this->query = $data;
+            $chart->query = $data;
             $data = $data->results();
         }
         
-        $chart = new ChartJS3();
         $series = array_unique(array_map(function($row)use($dataset_name){ return $row[$dataset_name]; },$data));
         if( count($series)<1 )
         {

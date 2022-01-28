@@ -157,6 +157,7 @@ class uiControl extends Control
 		if(in_array($icon_to_test, self::$_icons) )
 			return $icon_to_test;
 		WdfException::Raise("Invalid Icon '$icon_to_test'");
+        return '';
 	}
 	
 	/**

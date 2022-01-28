@@ -234,7 +234,7 @@ class ChartJS extends Control
 	{
         $all = preg_replace('/[*all-]/','',"$index")=="";
         if( $all && $value === null )
-            throw new Exception("Cannot get property '$name' of all datasets");
+            throw new \Exception("Cannot get property '$name' of all datasets");
         
         foreach( $this->series as $i=>$s )
         {
@@ -263,11 +263,11 @@ class ChartJS extends Control
     protected function scales($axes,$index,$name,$value=null)
     {
         if( $axes!="xAxes" && $axes!="yAxes" )
-            throw new Exception("Invalid axes '$axes'");
+            throw new \Exception("Invalid axes '$axes'");
         
         $all = preg_replace('/[*all-]/','',"$index")=="";
         if( $all && $value === null )
-            throw new Exception("Cannot get property '$name' of all scales");
+            throw new \Exception("Cannot get property '$name' of all scales");
         
         if( $all )
         {

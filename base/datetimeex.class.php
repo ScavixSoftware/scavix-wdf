@@ -229,6 +229,7 @@ class DateTimeEx extends DateTime
 				return $factor * ($diff->days*86400 + $diff->h*3600 + $diff->i*60 + $diff->s);
 		}
 		WdfException::Raise("Getting the age is not possible in unit '$unit'");
+        return 0;
 	}
 	
 	/**

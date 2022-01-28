@@ -82,7 +82,7 @@ class CurrencyFormatSelect extends Select
 		$res = [];
 		foreach( $cultures as $culture_code )
 		{
-			$ci = self::getCultureInfo($culture_code);
+			$ci = \ScavixWDF\Localization\Localization::getCultureInfo($culture_code);
 			if( !$ci )
 				continue;
 

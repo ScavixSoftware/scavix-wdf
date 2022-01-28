@@ -153,7 +153,7 @@ class Wdf
             }
             return false;
         }
-        return system_release_lock($name,ScavixWDF\Model\DataSource::Get());
+        system_release_lock($name,ScavixWDF\Model\DataSource::Get());
     }
 }
 

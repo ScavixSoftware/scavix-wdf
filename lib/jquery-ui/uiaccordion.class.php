@@ -74,12 +74,12 @@ class uiAccordion extends uiControl
 	 */
 	public function &AddSection($section_title)
 	{
-		if(!array_key_exists($section_title, $this->_sections))
+		if( !isset($this->_sections[$section_title]) )
 		{
 			$ctrl = new Control("div");
 			$this->_sections[$section_title] = $ctrl;
-			return $ctrl;
 		}
+        return $this->_sections[$section_title];
 	}
 	/**
 	 * Adds Content to the specific section.

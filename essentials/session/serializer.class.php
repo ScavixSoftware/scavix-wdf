@@ -55,6 +55,7 @@ class Serializer
 	var $clsmap;
 	var $sleepmap;
 	var $Lines;
+    var $Index;
     
     public static $unserializing_level = 0;
 

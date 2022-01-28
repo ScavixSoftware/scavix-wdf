@@ -48,7 +48,10 @@ class CreateTask extends Task
         $name = ifavail($args,'name');
         $root = ifavail($args,'root');
         if( !$name || !$root )
-            return $this->Run($args);
+        {
+            $this->Run($args);
+            return;
+        }
 
         $rp_root = realpath($root);
         if( !file_exists($rp_root) )

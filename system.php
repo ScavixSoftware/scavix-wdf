@@ -784,6 +784,7 @@ function is_valid_hook_type($type)
 		return true;
 
 	WdfException::Raise("Invalid hook type ($type)!");
+    return false;
 }
 
 /**
@@ -1439,11 +1440,13 @@ function cache_clear($global_cache=true, $session_cache=true)
  */
 function cache_list_keys($global_cache=true, $session_cache=true)
 {
-    $res = $session_cache?array_keys($_SESSION["system_internal_cache"]):[];
+    $res = ($session_cache&&isset($_SESSION["system_internal_cache"]))
+        ?array_keys($_SESSION["system_internal_cache"])
+        :[];
 	
 	if( $global_cache && system_is_module_loaded('globalcache') )
 		$res = array_merge($res, globalcache_list_keys() );
-	
+       
 	sort($res);
 	return array_unique($res);
 }

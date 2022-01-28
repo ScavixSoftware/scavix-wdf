@@ -676,7 +676,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             switch($name)
             {
                 case '__CHECKBOX__':
-                    $links[] = \ScavixWDF\Controls\Form\Checkbox::Make($this->_multiselectname.'_all')->data('multicheckboxname', $this->_multiselectname)->setValue(isset($row[$this->_multiselectidcolumn]) ? $row[$this->_multiselectidcolumn] : '')->addclass('nomonitor');
+                    $links[] = \ScavixWDF\Controls\Form\CheckBox::Make($this->_multiselectname.'_all')->data('multicheckboxname', $this->_multiselectname)->setValue(isset($row[$this->_multiselectidcolumn]) ? $row[$this->_multiselectidcolumn] : '')->addclass('nomonitor');
                     break;
                     
                 default:
@@ -843,7 +843,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             switch($name)
             {
                 case '__CHECKBOX__':
-                    $tr->NewCell(\ScavixWDF\Controls\Form\Checkbox::Make($this->_multiselectname)->setValue($row[$this->_multiselectidcolumn]));
+                    $tr->NewCell(\ScavixWDF\Controls\Form\CheckBox::Make($this->_multiselectname)->setValue($row[$this->_multiselectidcolumn]));
                     break;
                 default:
                     $td = $tr->NewCell(ifavail($row,$name));
@@ -1036,7 +1036,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             }
             
             foreach( $lst->rowCallbacks as $cb )
-                $cb($row,$tr);
+                $cb($row,null);
             
             return $row;
         });
