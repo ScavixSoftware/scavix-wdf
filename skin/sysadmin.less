@@ -265,7 +265,7 @@ body.sysadmin
 
         .tbody .tr:nth-child(even)
         {
-            background: light@gray1;
+            background: @gray1;
         }
 
         .tbody .tr .td:nth-child(3)
@@ -809,8 +809,6 @@ body.sysadmin
 
                 .tr
                 {
-                    /*line-height: 1.7em;*/
-
                     .td
                     {
                         padding: 3px 6px 3px 3px;
@@ -819,13 +817,11 @@ body.sysadmin
 
                 .tbody .tr
                 {
-                    &:hover { background-color: @gray4; }
-                    &:nth-child(even):hover { background-color: @gray4; }
+                    &:hover { background-color: @gray1; }
+                    &:nth-child(even):hover { background-color: @gray1; }
                     &:nth-child(even)  { }
                     .td
                     {
-/*                        white-space: nowrap;
-                        overflow: hidden;*/
                         vertical-align: top;
                         border-bottom: 1px solid @gray1;
                     }
