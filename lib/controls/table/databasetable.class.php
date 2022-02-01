@@ -230,7 +230,7 @@ class DatabaseTable extends Table implements ICallable
         $sql = str_replace("@where@",$this->Where,$sql);
         $sql = str_replace("@groupby@",$this->GroupBy,$sql);
         $sql = str_replace("@having@",$this->Having,$sql);
-        $sql = str_replace("@orderby@",$this->OrderBy,$sql);
+        $sql = str_replace("@orderby@","/*BEG-ORDER*/{$this->OrderBy}/*END-ORDER*/",$sql);
         $sql = str_replace("@limit@",$this->Limit,$sql);
         
         return $sql;

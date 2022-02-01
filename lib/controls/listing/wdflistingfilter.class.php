@@ -149,12 +149,13 @@ class WdfListingFilter extends Template
             if( $val !== null )
                 $this->persist($name, $val);
         }
-        foreach( $this->onoffs as $name )
-        {
-            $val = Args::request($name,null);
-            if( $val === null )
-                $this->persist($name, 0);
-        }
+        // wdflisting.js ensures that even unchecked checkboxes will be transferred as '0', so this bad 'always off' handling can be left out
+//        foreach( $this->onoffs as $name )
+//        {
+//            $val = Args::request($name,null); 
+//            if( $val === null )
+//                $this->persist($name, 0);
+//        }
         return $this;
     }
     

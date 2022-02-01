@@ -190,13 +190,13 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             ->setItemsPerPage($items_per_page);
     }
     
-    protected function logSql()
+    protected function logSql($origin=false)
     {
         if( $this->log_sql && !$this->log_sql_done )
         {
             if(!$this->table->ResultSet)
                 $this->table->GetData();
-            $this->table->ResultSet->LogDebug();
+            $this->table->ResultSet->LogDebug("{$this->id} SQL ($origin)");
             $this->log_sql_done = true;
         }
     }
@@ -344,6 +344,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             $this->table->PagerPrefix = $div;
         }        
         $this->store();
+        $this->logSql("WdfRender");
         return parent::WdfRender();
     }
     
@@ -596,6 +597,8 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
         store_object($this->table);
         
         $this->extendInnerTable();
+        if(system_is_ajax_call() )
+            $this->logSql("SetFilterValues");
         return $this->table;
     }
     
@@ -638,7 +641,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
     {
         if(!$this->table->ResultSet)
             $this->table->GetData();
-        $this->logSql();
+        $this->logSql("countRows");
         return $this->table->ResultSet->Count();
     }
     
@@ -658,7 +661,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
     
     function OnAddHeader($table, $row)
     {
-        $this->logSql();
+        $this->logSql("OnAddHeader");
         $links = $columns = [];
         
         foreach( $this->columns as $name=>$label )
@@ -774,7 +777,8 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             $this->table->OrderBy = ($this->default_order ? ' ORDER BY '.str_replace(' DESC', '', $this->default_order) : '');
         else
             $this->table->OrderBy = ' ORDER BY `'.$name.'`'.(preg_match('/ORDER\sBY[\s\'"`]+'.$name.'[\s\'"`]*$/i',$this->table->OrderBy)?' DESC':'');
-        $this->table->Sql = "";//preg_replace('/ORDER BY(.*)/i', $this->table->OrderBy, $this->table->Sql);
+        $this->table->Sql = preg_replace("/(\/\*BEG-ORDER\*\/)(.*)(\/\*END-ORDER\*\/)/", '$1'.$this->table->OrderBy.'$3', $this->table->Sql);
+        $this->table->Sql = "";
         
         $this->table->Clear()->ResetPager();
         $this->table->header = false;
@@ -783,6 +787,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
         
         $this->extendInnerTable();
         $this->store();
+        $this->logSql("Sort");
         return $this->table;
     }
     

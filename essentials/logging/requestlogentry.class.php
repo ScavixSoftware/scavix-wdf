@@ -129,7 +129,7 @@ class RequestLogEntry extends Model
         foreach( $data as $k=>$v )
             if( stripos($k,'pass') )
                 $data[$k] = '***';
-            else if(starts_iwith($v,"data:") ) 
+            else if( is_string($v) && starts_iwith($v,"data:") ) 
                 $data[$k] = substr($v,0,30)."-TRUNCATED";
         return $data;
     }

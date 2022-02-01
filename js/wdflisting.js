@@ -108,11 +108,27 @@ function init_listings()
         .submit(function(e)
         {
             e.preventDefault();
-            var $form = $(this), data = $form.serialize();
+            var $form = $(this), data;
             if( $form.data('reset') )
             {
                 $form.data('reset',false);
                 data = {reset:1};
+            }
+            else
+            {
+                $('[type="checkbox"][name]',$form).each(function()
+                {
+                    var name = $(this).attr('name'), 
+                        on = $(this).is(':checked');
+                    $('[type="hidden"][name="'+name+'"]',$form).remove();
+                    if( on )
+                        return;
+                    $('<input type="hidden"/>')
+                        .attr('name',name)
+                        .val('0')
+                        .appendTo($form);
+                });
+                data = $form.serialize();
             }
             $(':input',$form).markValued();
             $('.go',$form).button('disable');
