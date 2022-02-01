@@ -190,9 +190,9 @@ class Color
         return $this;
     }
     
-    public static function matchingFont(Color $c)
+    public static function matchingFont(Color $c, $swapvalue = 100)
     {
-        if( ($c->r + $c->g + $c->b) / 3 > 100 )
+        if( ($c->r + $c->g + $c->b) / 3 > $swapvalue )
             return new Color([0,0,0,1]);
         return new Color([255,255,255,1]);
     }
