@@ -470,6 +470,8 @@ function system_ensure_path_ending(&$path, $make_realpath=false)
  */
 function starts_with($string,...$start)
 {
+    if(!$string)
+        return false;
     foreach( $start as $s )
         if( strpos("$string","$s") === 0 )
             return true;
@@ -481,6 +483,8 @@ function starts_with($string,...$start)
  */
 function starts_iwith($string,...$start)
 {
+    if(!$string)
+        return false;
 	foreach( $start as $s )
         if( stripos("$string","$s") === 0 )
             return true;
@@ -499,6 +503,8 @@ function starts_iwith($string,...$start)
  */
 function ends_with($string,...$end)
 {
+    if(!$string)
+        return false;
     foreach( $end as $e )
         if( substr($string,strlen($string)-strlen($e)) == $e )
             return true;
@@ -515,6 +521,8 @@ function ends_with($string,...$end)
  */
 function ends_iwith($string,...$end)
 {
+    if(!$string)
+        return false;
     $string = strtolower($string);
     foreach( $end as $e )
         if( substr($string,strlen($string)-strlen($e)) == strtolower($e) )
