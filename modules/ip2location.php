@@ -161,6 +161,7 @@ function get_timezone_by_ip($ip = false)
     $ret = cache_get($key);
 	if( !isDev() && $ret )
 		return $ret;
+//    log_debug($ip, $CONFIG['geoip']);
     
     $services = [];
     $triedurls = [];
@@ -272,7 +273,7 @@ function get_timezone_by_ip($ip = false)
             {
                 if(!$zone[1])
                     $zone[1] = get_countrycode_by_ip($ip);
-                $isDst = 1; //date('I');        // that doesn't work as expected :-(
+                $isDst = date('I');
                 list($hours, $minutes) = explode(':', $zone[0]);
                 $seconds = $hours * 60 * 60 + $minutes * 60;
                 $tz = false;
