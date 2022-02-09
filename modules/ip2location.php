@@ -166,7 +166,7 @@ function get_timezone_by_ip($ip = false)
     $services = [];
     $triedurls = [];
     
-    $services['ip2location'] = true;
+    $services['ip2location'] = (file_exists($CONFIG['ip2location']['ipv4_bin_file']) || file_exists($CONFIG['ip2location']['ipv6_bin_file']));
     
 // freegeoip is now ipstack.com and doesn't offer timezone information for free anymore
 //    $services["https://freegeoip.net/xml/$ip"] = function($response)
@@ -187,28 +187,6 @@ function get_timezone_by_ip($ip = false)
             return false;
         };
     }
-    
-    // use geobytes free service (limited). Free API key is 7c756203dbb38590a66e01a5a3e1ad96
-    $apikey = (isset($CONFIG['geoip']['geobytes']) && isset($CONFIG['geoip']['geobytes']['apikey'])) ? $CONFIG['geoip']['geobytes']['apikey'] : '7c756203dbb38590a66e01a5a3e1ad96';
-    $services["https://secure.geobytes.com/GetCityDetails?key=".$apikey."&fqcn=$ip"] = function($response)
-    {
-        $data = json_decode($response, true);
-        if( $data && $data['geobytestimezone'] )
-        {
-            $tz = $data['geobytestimezone'];
-            if(strpos($tz, ':') !== false)
-            {
-                if(date('I'))
-                {
-                    list($hours, $minutes) = explode(':', $tz);
-                    $hours = intval($hours) + 1;
-                    $tz = ($hours >= 0 ? '+' : '-').sprintf('%02d:%02d', abs($hours), $minutes);
-                }
-            }
-            return [$tz, ifavail($data, 'geobytesinternet')];
-        }
-        return false;
-    };
     
     // use ip-api free service (limited)
     if( !isset($CONFIG['geoip']['ip-api']) || !isset($CONFIG['geoip']['ip-api']['usefree']) || $CONFIG['geoip']['ip-api']['usefree'] )
@@ -235,9 +213,32 @@ function get_timezone_by_ip($ip = false)
     if( isset($CONFIG['geoip']['geonames']) && isset($CONFIG['geoip']['geonames']['username']) )
         $services['geo'] = false; // prepare geo search inline to avoid overhead here
     
+    // use geobytes free service (limited). Free API key is 7c756203dbb38590a66e01a5a3e1ad96
+    $apikey = (isset($CONFIG['geoip']['geobytes']) && isset($CONFIG['geoip']['geobytes']['apikey'])) ? $CONFIG['geoip']['geobytes']['apikey'] : '7c756203dbb38590a66e01a5a3e1ad96';
+    $services["https://secure.geobytes.com/GetCityDetails?key=".$apikey."&fqcn=$ip"] = function($response)
+    {
+        $data = json_decode($response, true);
+        if( $data && $data['geobytestimezone'] )
+        {
+            $tz = $data['geobytestimezone'];
+            if(strpos($tz, ':') !== false)
+            {
+                if(date('I'))
+                {
+                    list($hours, $minutes) = explode(':', $tz);
+                    $hours = intval($hours) + 1;
+                    $tz = ($hours >= 0 ? '+' : '-').sprintf('%02d:%02d', abs($hours), $minutes);
+                }
+            }
+            return [$tz, ifavail($data, 'geobytesinternet')];
+        }
+        return false;
+    };
+    
     foreach( $services as $url=>$cb )
     {
         $triedurls[] = $url;
+        $isDst = date('I');
         if( $url == 'geo' ) // prepare geo search inline to only have overhead when we reach that case
         {
             $coords = get_coordinates_by_ip($ip);
@@ -256,7 +257,7 @@ function get_timezone_by_ip($ip = false)
         elseif( $url == 'ip2location' ) // prepare geo search inline to only have overhead when we reach that case
         {
             $url = false;
-            $cb = function($response) use ($ip, $CONFIG)
+            $cb = function($response) use ($ip)
             {
                 $data = get_geo_location_by_ip($ip);
                 if(avail($data, 'timeZone'))
@@ -267,13 +268,13 @@ function get_timezone_by_ip($ip = false)
         
         $resp = ($url ? downloadData($url, false, false, 60 * 60, 2) : false);
         $zone = $cb($resp);
+//        log_debug($ip, $url, $zone);
         if( $zone !== false )
         {
             if(strpos($zone[0], ':') !== false)
             {
                 if(!$zone[1])
                     $zone[1] = get_countrycode_by_ip($ip);
-                $isDst = date('I');
                 list($hours, $minutes) = explode(':', $zone[0]);
                 $seconds = $hours * 60 * 60 + $minutes * 60;
                 $tz = false;
