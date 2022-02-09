@@ -158,8 +158,8 @@ class WdfResource implements ICallable
 		else
 			$cache = $less;
 		
-		require_once(__DIR__.'/lessphp/lessc.inc.php');
-		$compiler = new \lessc();
+		//require_once(__DIR__.'/lessphp/lessc.inc.php');
+		$compiler = new LessCompiler();
 		$compiler->setVariables($vars);
         if( $dirs )
             $compiler->setImportDir(array_merge([''],$dirs));
