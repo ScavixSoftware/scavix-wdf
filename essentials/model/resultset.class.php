@@ -332,21 +332,9 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
                 }
             }
             break;
-        }while(true);
-        
-        if( stripos($this->_sql_used, 'SQL_CALC_FOUND_ROWS') !== false )
-        {
-            $sql = preg_replace('/LIMIT[\s0-9,]+$/i','',$this->_sql_used);
-            $qry = $this->_pdo->query("SELECT count(1) FROM ( $sql ) as cnt",PDO::FETCH_COLUMN,0);
-            if( $qry )
-            {
-                $found_rows = $qry->fetchColumn(0);
-                $qry->closeCursor();
-                $key = 'DB_Cache_FoundRows_'.md5($this->_sql_used.serialize($this->_arguments_used));
-                cache_set($key,$found_rows,60,false,true);
-            }
         }
-        
+        while(true);
+                
 		return $result;
 	}
 	

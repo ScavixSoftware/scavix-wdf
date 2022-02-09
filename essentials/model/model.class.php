@@ -406,7 +406,9 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 				}
 				break;
             case 'json':
-                return @json_decode($value)?:$value;
+                return is_string($value)
+                    ?(@json_decode($value)?:$value)
+                    :$value;
 		}
 		return $value;
 	}

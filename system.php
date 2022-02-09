@@ -1389,8 +1389,12 @@ function cache_set($key,$value,$ttl=false,$use_global_cache=true,$use_session_ca
 	if( $use_global_cache && system_is_module_loaded('globalcache') )
 		globalcache_set($key, $value, $ttl);
 
-    if( $use_session_cache && function_exists('session_serialize') && avail($_SESSION, 'system_internal_cache') )
+    if( $use_session_cache && function_exists('session_serialize') )
+    {
+        if( !isset($_SESSION['system_internal_cache']) )
+            $_SESSION['system_internal_cache'] = [];
 		$_SESSION["system_internal_cache"][$key] = session_serialize($value);
+    }
 }
 
 /**
