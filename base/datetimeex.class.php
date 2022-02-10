@@ -77,7 +77,7 @@ class DateTimeEx extends DateTime
 			if( $source instanceof DateTime )
 				return new DateTimeEx( $source->format('c') );
 			if( is_numeric($source) )
-				return new DateTimeEx( date('c',$source) );
+				return new DateTimeEx( date('c',intval("$source")) );
 			return new DateTimeEx($source);
 		}
 		return new DateTimeEx();
