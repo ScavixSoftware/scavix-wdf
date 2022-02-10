@@ -13,7 +13,7 @@ wdf.ready.add(function()
                 
                 $filter.submit(function(e)
                 {
-                    console.log("submitted");
+//                    console.log("submitted");
                     e.preventDefault();
                     var $form = $(this), data;
                     if( $form.data('reset') )

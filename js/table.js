@@ -83,7 +83,7 @@
         },
         gotoPage: function(table,n)
         {
-            console.log("wdf.tables.gotoPage");
+//            console.log("wdf.tables.gotoPage");
             var self = $(table), handler = self.data('gotoPage');
             if( handler )
             {
@@ -98,7 +98,7 @@
         },
         update: function(table, html, callbackwhendone)
         {
-            console.log("wdf.tables.update");
+//            console.log("wdf.tables.update");
             var self = $(table);
             self.overlay('remove', function() {
                 self.prev('.pager').remove(); 
@@ -117,7 +117,7 @@
         },
         placePager: function(table,opts)
         {
-            console.log("wdf.tables.placePager");
+//            console.log("wdf.tables.placePager");
             var self = $(table);
             var $p = $('.pager',self).remove();
 
