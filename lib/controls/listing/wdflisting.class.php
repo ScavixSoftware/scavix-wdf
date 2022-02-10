@@ -326,8 +326,14 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             call_user_func($this->onPreRender,$this);
 		
         if( !self::$ShowCompleteData && $this->exportable && ($this->table->ResultSet->Count() > 0) )
-            Anchor::Make('javascript:void(0)', tds('BTN_EXPORT','Export'))->attr('onclick', 'wdf.post("'.$this->id.'/export", {target:"'.$this->id.'"})')->addClass('btnexport')->appendTo($this);
-        
+        {
+            $btnexport = Anchor::Make('javascript:void(0)', tds('BTN_EXPORT','Export'))
+                ->attr('onclick', 'wdf.post("'.$this->id.'/export", {target:"'.$this->id.'"})')
+                ->addClass('btnexport')
+                ->appendTo($this);
+            if( $this->table->ResultSet->Count() == 0 )
+                $btnexport->css('display', 'none');
+        }
         $this->extendInnerTable();
         
         if( count($this->_multiactions)>0 )
@@ -335,6 +341,8 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             $div = Control::Make('div')
                 ->addClass('multi-actions')
                 ->append('<span class="multi-arrow">&#8629;</span>');
+            if( $this->table->ResultSet->Count() == 0 )
+                $div->css('display', 'none');
             $n = $this->_multiselectname;
             foreach( $this->_multiactions as $label=>$url )
                 Anchor::Make('javascript:void(0)',$label)

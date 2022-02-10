@@ -89,7 +89,8 @@ class LogEntry
 			if( $t0['function'] == 'system_render_object_tree' ||
 				$t0['function'] == 'global_error_handler' ||
 				$t0['function'] == 'WdfRender' ||
-				$t0['function'] == 'WdfRenderAsRoot' )
+				$t0['function'] == 'WdfRenderAsRoot' ||
+                (isset($t0['class']) && ($t0['class'] == 'lessc' || $t0['class'] == "ScavixWDF\\LessCompiler")) )
 				$t0['args'] = array("*TRUNCATED*");
             
 			$stack[] = $t0;
