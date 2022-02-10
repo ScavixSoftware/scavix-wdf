@@ -1391,7 +1391,7 @@ function cache_set($key,$value,$ttl=false,$use_global_cache=true,$use_session_ca
 
     if( $use_session_cache && function_exists('session_serialize') )
     {
-        if( !isset($_SESSION['system_internal_cache']) )
+        if( !isset($_SESSION['system_internal_cache']) || !is_array($_SESSION['system_internal_cache']) )
             $_SESSION['system_internal_cache'] = [];
 		$_SESSION["system_internal_cache"][$key] = session_serialize($value);
     }
