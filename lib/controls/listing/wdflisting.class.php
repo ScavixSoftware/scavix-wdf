@@ -316,7 +316,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
 	function PreRender($args=[])
 	{
 		if( $this->sortable )
-			$this->script("$(document).on('click', '#{$this->id} a[data-sort]', function(e){ e.preventDefault(); wdf.post('{$this->id}/sort',{name:$(this).data('sort')},function(d){ if(d) $('#{$this->table->id}').updateTable(d); }); });");
+			$this->script("$(document).on('click', '#{$this->id} a[data-sort]', function(e){ e.preventDefault(); wdf.post('{$this->id}/sort',{name:$(this).data('sort')},function(d){ if(d) wdf.tables.update('#{$this->table->id}',d); }); });");
 		return parent::PreRender($args);
 	}
     
@@ -833,7 +833,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
                 {
                     return ifavail($row,$m[1])?:''; //$m[0];
                 },$this->details_link);
-                $tr->attr('onclick',"listing_rowclick(event,'$link')");
+                $tr->attr('onclick',"wdf.listings.rowclick(event,'$link')");
             }
             else
             {
@@ -841,7 +841,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
                 foreach($this->details_args as $name => $valkey)
                     $args[$name] = isset($row[$valkey]) ? $row[$valkey] : $valkey;
                 $link = buildQuery($this->controller,$this->details_event,$args);
-                $tr->attr('onclick',"listing_rowclick(event,'$link')");
+                $tr->attr('onclick',"wdf.listings.rowclick(event,'$link')");
             }
         }
         

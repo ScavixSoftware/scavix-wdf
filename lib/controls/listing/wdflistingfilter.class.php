@@ -52,6 +52,8 @@ class WdfListingFilter extends Template
             $this->set('action',buildQuery($controller,$method,compact('id')));
         else
             $this->set('action',buildQuery($controller,$method));
+        
+        $this->script("wdf.listings.initFilter('#{$this->id}');");
     }
     
     protected function persist($name,$value)
