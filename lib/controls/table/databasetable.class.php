@@ -548,7 +548,7 @@ class DatabaseTable extends Table implements ICallable
 	{
         //log_debug(__METHOD__,$format);
         if( !class_exists("\\PhpOffice\\PhpSpreadsheet\\Spreadsheet") )
-            \ScavixWDF\WdfException::Raise("Missing PhpSpreadsheet. Please install using composer.");
+            \ScavixWDF\WdfException::Raise("Missing PhpSpreadsheet. Please install using composer (composer require phpoffice/phpspreadsheet).");
         
 		$xls = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
 		$sheet = $xls->getActiveSheet();
@@ -557,6 +557,9 @@ class DatabaseTable extends Table implements ICallable
 		$ci = ExcelCulture::FromCode(isset($this->Culture) && $this->Culture ? $this->Culture->Code : 'en-US');
 		$head_rows = $this->_export_get_header();
 		$first_data_row = count($head_rows)+1;
+        
+        \PhpOffice\PhpSpreadsheet\Settings::setLocale($ci->Code);
+        \PhpOffice\PhpSpreadsheet\Cell\Cell::setValueBinder( new \PhpOffice\PhpSpreadsheet\Cell\AdvancedValueBinder() );
 
 		foreach( array_merge($head_rows,$this->_export_get_data($ci,$rowcallback)) as $data_row )
 		{
@@ -571,11 +574,12 @@ class DatabaseTable extends Table implements ICallable
         
 		for($i=0;$i<=$max_cell; $i++)
 		{
-			$sheet->getColumnDimensionByColumn($i+1)->setAutoSize(true);
+			$sheet->getColumnDimensionByColumn($i)->setAutoSize(true);
 			if( isset($this->ColFormats[$i]) )
 			{
 				$ef = $ci->GetExcelFormat($this->ColFormats[$i]);
-				$col = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($i+1);
+				$col = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($i);
+//				log_debug($i, $col, $this->ColFormats[$i], $ef);
 				$sheet->getStyle("$col$first_data_row:$col$row")
 					->getNumberFormat()
 					->setFormatCode($ef);
