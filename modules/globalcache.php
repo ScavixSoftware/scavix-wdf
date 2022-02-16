@@ -45,7 +45,7 @@ define('globalcache_CACHE_DB',5);
 function globalcache_init()
 {
 	global $CONFIG;
-	
+    
 	if( !isset($CONFIG['globalcache']) )
 		$CONFIG['globalcache'] = [];
 	
@@ -72,7 +72,7 @@ function globalcache_initialize()
 {
     global $CONFIG, $LOCALHOST;
 	$ret = true;
-
+    
 	switch($CONFIG['globalcache']['CACHE'])
 	{
 		case globalcache_CACHE_OFF:
@@ -428,8 +428,11 @@ function globalcache_list_keys()
             $ret = [];
             $cacheinfo = apc_cache_info('user');
             $keyprefixlen = strlen($GLOBALS["globalcache_key_prefix"]);
+//            foreach($cacheinfo['cache_list'] as $cacheentry)
+//                $ret[] = substr($cacheentry['info'], $keyprefixlen);
             foreach($cacheinfo['cache_list'] as $cacheentry)
-                $ret[] = substr($cacheentry['info'], $keyprefixlen);
+                if(starts_with($cacheentry['info'], $GLOBALS["globalcache_key_prefix"]))
+                    $ret[] = substr($cacheentry['info'], $keyprefixlen);
             return $ret;
             break;
             
