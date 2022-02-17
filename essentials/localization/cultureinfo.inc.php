@@ -3154,8 +3154,15 @@ function internal_getCultureInfo($cultureCode)
                                 return $regions[0]->DefaultCulture();
                         }
                     }
-                    if(!in_array($cultureCode, ['ig']))         // don't log the ones we know are faulty
-                        log_trace("unknown culture: $cultureCode");
+                    if(!in_array($cultureCode, ['ig', 'bs']))         // don't log the ones we know are faulty
+                    {
+                        $key = __METHOD__.' unknown culture: '.$cultureCode;
+                        if(!globalcache_get($key))
+                        {
+                            log_trace("unknown culture: $cultureCode");
+                            globalcache_set($key, $cultureCode);
+                        }
+                    }
 					return false;
 				} 
             }                
