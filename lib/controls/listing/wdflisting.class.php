@@ -75,6 +75,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
     protected $onPreRender = false;
     
     public static $ShowCompleteData = false;
+    public static $Exporting = false;           // is set to true in Export() call
         
 	/**
 	 * @var uiDatabaseTable
@@ -959,6 +960,8 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
     */
     public function Export($target, $format)
     {
+        WdfListing::$Exporting = true;
+        
         if(!$format)
         {
             $dlg = uiDialog::Make(
@@ -1036,16 +1039,21 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
         
         DatabaseTable::$export_def[$format]['fn'] = 'Export_'.$exportfilename.'_'.date("Y-m-d_H-i-s").'.'.$format;
         $tab->Clear();
-        $tab->Export($format, function($row) use ($datatype, $lst)
+        $tab->Export($format, function($row) use ($datatype, $lst, $sqlcols)
 		{
             foreach( $lst->rowDataCallbacks as $cb )
                 $row = $cb($row);
+            
+            foreach($sqlcols as $c => $caption)
+                if(!isset($row[$c]))
+                    $row[$c] = null;
             
             foreach($row as $k => $val)
             {
                 if( isset($lst->columnCallbacks[$k]) )
                     $val = $lst->columnCallbacks[$k]($val,$row);
-                $row[$k] = strip_tags(str_replace(['&nbsp;', '<br/>', '<br>'], [' ', ', ', ', '], $val));
+//                log_debug($k, $val);
+                $row[$k] = ($val ? strip_tags(str_replace(['&nbsp;', '<br/>', '<br>'], [' ', ', ', ', '], $val)) : $val);
             }
             
             foreach( $lst->rowCallbacks as $cb )
@@ -1053,5 +1061,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             
             return $row;
         });
+        
+        WdfListing::$Exporting = false;
     }
 }
