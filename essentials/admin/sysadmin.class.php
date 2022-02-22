@@ -294,13 +294,14 @@ class SysAdmin extends HtmlPage
 				}
 			}
 			$footer = $tab->Footer()->NewCell();
-			$footer->colspan = 2;
 			$footer->content( new Anchor('','all') )->onclick = "$('#{$tab->id} .tbody input').prop('checked',true);";
 			$footer->content('&nbsp;');
 			$footer->content( new Anchor('','none') )->onclick = "$('#{$tab->id} .tbody input').prop('checked',false)";
 			
 			$footer = $tab->Footer()->NewCell();
 			$footer->content( new Anchor('','delete') )->onclick = "$('#{$tabform->id}').submit()";
+            
+            $tab->Footer()->NewCell();
 		}
     }
 	

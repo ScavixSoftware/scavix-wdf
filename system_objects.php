@@ -492,7 +492,7 @@ class WdfDbException extends WdfException
         
     private $statement;
     
-    private static function _prepare(string $message, Model\ResultSet $statement)
+    private static function _prepare(string $message, ?Model\ResultSet $statement = null)
     {
         $errid = uniqid();
         if( isDev() )
@@ -525,7 +525,7 @@ class WdfDbException extends WdfException
             $msql = $trim_sql($statement->GetMergedSql());
             
             $details = "SQL Error $errid\nMessage: $message\nSQL: $sql";
-            if( count($args) )
+            if( $args && count($args) )
                 $details .= "\nArguments: ".json_encode($args);
             if( $msql != $sql )
                 $details .= "\nMerged: $msql";
@@ -549,12 +549,12 @@ class WdfDbException extends WdfException
     /**
      * @internal Raises an Exception for a failed DB Statement.
      */
-    public static function RaiseStatement($statement, $use_extended_info = false)
+    public static function RaiseStatement($statement)
 	{
         if(!($statement instanceof Model\ResultSet))
             $statement = new Model\ResultSet($statement->_ds, $statement);
         
-        $msg = self::_prepare($statement->ErrorInfo(),$statement);
+        $msg = self::_prepare(json_encode($statement->ErrorInfo()),$statement);
         $ex = new WdfDbException($msg);
         $ex->statement = $statement;
 		throw $ex;

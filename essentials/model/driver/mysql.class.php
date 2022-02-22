@@ -322,15 +322,26 @@ class MySql implements IDatabaseDriver
         $found_rows = cache_get($key,false,false,true);
         if( $found_rows === false )
         {
-            $sql = preg_replace('/LIMIT\s+[\d\s,]+/i', '', $sql);
-            if( stripos($sql, 'select * from') === 0 )
-                $sql = "SELECT 1 FROM".substr($sql,13);
-            $sql = "SELECT count(*) FROM ($sql) AS x";
+            $sql = preg_replace("/(\/\*BEG-ORDER\*\/)(.*)(\/\*END-ORDER\*\/)/",'', $sql);
+            
+            $sql_limit = preg_replace("/\/\*BEG-LIMIT\*\/.+\/\*END-LIMIT\*\//",'', $sql);
+            $sql = ($sql_limit == $sql)
+                ?preg_replace('/LIMIT[\s0-9,]+$/i','',$sql)
+                :$sql_limit;
 
-            $ok = $this->_ds->ExecuteScalar($sql,is_null($input_arguments)?[]:array_values($input_arguments));
+            $sql_columns = preg_replace("/\/\*BEG-COLUMNS\*\/.+\/\*END-COLUMNS\*\//",'1', $sql);
+            $sql = ($sql_columns == $sql)
+                ?((stripos($sql, 'select * from') === 0)?"SELECT 1 FROM".substr($sql,13):$sql)
+                :$sql_columns;
+            
+            $ok = $this->_ds->ExecuteScalar("SELECT count(1) FROM ($sql) AS x",
+                is_null($input_arguments)?[]:array_values($input_arguments)
+            );
             $total = intval($ok);
             if( $ok === false )
                 $this->_ds->LogLastStatement("Error querying paging info");
+            else
+                cache_set($key,$total,60,false,true);
         }
         else
             $total = intval($found_rows);

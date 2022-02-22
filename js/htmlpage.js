@@ -272,7 +272,7 @@
             {
                 if(location.hash && (location.hash != '#'))
                     location.hash = '';
-                console.log("href change from "+location.href,"to "+href);
+                //console.log("href change from "+location.href,"to "+href);
 				location.href = href;
                 if(location.hash && (location.hash != '#'))
                     location.reload();

@@ -224,14 +224,14 @@ class DatabaseTable extends Table implements ICallable
             $sql = "SELECT SQL_CALC_FOUND_ROWS @fields@ FROM @table@@join@@where@@groupby@@having@@orderby@@limit@";
         else
             $sql = "SELECT @fields@ FROM @table@@join@@where@@groupby@@having@@orderby@@limit@";
-        $sql = str_replace("@fields@",$this->Columns,$sql);
+        $sql = str_replace("@fields@","/*BEG-COLUMNS*/{$this->Columns}/*END-COLUMNS*/",$sql);
         $sql = str_replace("@table@","`".$this->DataTable."`",$sql);
         $sql = str_replace("@join@",$this->Join,$sql);
         $sql = str_replace("@where@",$this->Where,$sql);
         $sql = str_replace("@groupby@",$this->GroupBy,$sql);
         $sql = str_replace("@having@",$this->Having,$sql);
         $sql = str_replace("@orderby@","/*BEG-ORDER*/{$this->OrderBy}/*END-ORDER*/",$sql);
-        $sql = str_replace("@limit@",$this->Limit,$sql);
+        $sql = str_replace("@limit@","/*BEG-LIMIT*/$this->Limit/*END-LIMIT*/",$sql);
         
         return $sql;
     }

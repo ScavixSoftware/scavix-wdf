@@ -325,7 +325,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$this->__init_db_values();
 	}
 	
-	function __init_db_values($known_as_empty=false)
+	function __init_db_values($known_as_empty=false, $convert_now_values=false)
 	{
 		$this->_saved = !$known_as_empty;
 		$this->_dbValues = [];
@@ -341,7 +341,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			}
 			else
 			{
-				$this->$col = !isset($this->$col)?null:$this->__typedValue($col); // do not use $this->TypedValue because may be overridden
+				$this->$col = !isset($this->$col)?null:$this->__typedValue($col,$convert_now_values); // do not use $this->TypedValue because may be overridden
                 if( $column->Type == 'json' && (is_object($this->$col) || is_array($this->$col)) )
                     $this->_dbValues[$col] = json_decode(json_encode($this->$col));
                 else
@@ -370,14 +370,14 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return false;
 	}
 	
-	private function __typedValue($column_name)
+	private function __typedValue($column_name,$convert_now_value=false)
 	{
 		if( !isset($this->$column_name) )
 			return null;
-		return $this->__toTypedValue($column_name, $this->$column_name);
+		return $this->__toTypedValue($column_name, $this->$column_name,$convert_now_value);
 	}
 	
-	private function __toTypedValue($column_name,$value)
+	private function __toTypedValue($column_name,$value, $convert_now_value=false)
 	{
 		if( isset(self::$_typeMap[$this->_cacheKey][$column_name]) )
 			$t = self::$_typeMap[$this->_cacheKey][$column_name];
@@ -398,7 +398,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			case 'timestamp':
 				try
 				{
-					return Model::EnsureDateTime($value);
+					return Model::EnsureDateTime($value,$convert_now_value);
 				}
 				catch(Exception $ex)
 				{
@@ -406,7 +406,9 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 				}
 				break;
             case 'json':
-                return @json_decode($value)?:$value;
+                return is_string($value)
+                    ?(@json_decode($value)?:$value)
+                    :$value;
 		}
 		return $value;
 	}
@@ -1613,7 +1615,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
                 return true;
             }
 		}
-		$this->__init_db_values();
+		$this->__init_db_values(false,true);
 		return true;
 	}
 

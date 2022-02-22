@@ -26,120 +26,115 @@
  */
 (function(win,$) {
 
-var wdf = win.wdf;
+    var wdf = win.wdf;
 
-    $.fn.table = function(opts)
+    wdf.tables = 
     {
-        this.opts = $.extend({bottom_pager:false,top_pager:false},opts||{});
-
-        return this.each( function()
+        init: function(table,opts)
         {
-            var self = $(this), current_row;
+            var $elem = $(table);
+            var elem_opts = $.extend({bottom_pager:false,top_pager:false},opts||{});
 
-            var actions = $('.ui-table-actions .ui-icon',self);
-            if( actions.length > 0 )
+            return $elem.each( function()
             {
-                var w = 0;
-                $('.ui-table-actions > div',self)
-                    .hover( function(){ $(this).toggleClass('ui-state-hover'); } )
-                    .each(function(){ w+=$(this).width(); });
+                var self = $(this), current_row;
 
-                $('.ui-table-actions .ui-icon',self)
-                    .click(function()
-                    {
-                        self.overlay();
-                        wdf.post(self.attr('id')+'/onactionclicked',{action:$(this).data('action'),row:current_row.attr('id')},function(d)
-                        {
-                            $('body').append(d);
-                            self.overlay('remove');
-                        });
-                    });
-
-                $('.ui-table-actions',self).width(w);
-
-                var on = function()
+                var actions = $('.ui-table-actions .ui-icon',self);
+                if( actions.length > 0 )
                 {
-                    if( $('.ui-table-actions.sorting',self).length>0 )
-                        return;
-                    current_row = $(this); 
-                    $('.ui-table-actions',self).show()
-                        .position({my:'right center',at:'right-1 center',of:current_row});
-                };
-                var off = function(){ $('.ui-table-actions',self).hide(); };
+                    var w = 0;
+                    $('.ui-table-actions > div',self)
+                        .hover( function(){ $(this).toggleClass('ui-state-hover'); } )
+                        .each(function(){ w+=$(this).width(); });
 
-                $('.tbody .tr',self).bind('mouseenter click',on);
-                $('.caption, .thead, .tfoot',self).bind('mouseenter',off);
-                self.bind('mouseleave',off);
+                    $('.ui-table-actions .ui-icon',self)
+                        .click(function()
+                        {
+                            self.overlay();
+                            wdf.post(self.attr('id')+'/onactionclicked',{action:$(this).data('action'),row:current_row.attr('id')},function(d)
+                            {
+                                $('body').append(d);
+                                self.overlay('remove');
+                            });
+                        });
 
-                $('.tbody .tr .td:last-child, .thead .tr .td:last-child, .tfoot .tr .td:last-child',self).css('padding-right',w+10);
-            }
+                    $('.ui-table-actions',self).width(w);
 
-//            $('.pager',self).each( function(){ $(this).width(self.width());});
-            $('.thead a[data-sort]',self).click( function(e) { self.overlay(); });
-            $(this).placePager(opts);
-        });
-    };
+                    var on = function()
+                    {
+                        if( $('.ui-table-actions.sorting',self).length>0 )
+                            return;
+                        current_row = $(this); 
+                        $('.ui-table-actions',self).show()
+                            .position({my:'right center',at:'right-1 center',of:current_row});
+                    };
+                    var off = function(){ $('.ui-table-actions',self).hide(); };
 
-    $.fn.updateTable = function(html, callbackwhendone)
-    {
-        var self = this;
-        self.overlay('remove', function() {
-            self.prev('.pager').remove(); 
-            self.next('.pager').remove();
-            var newobj = $(html);
-            self.replaceWith(newobj); 
-            $('.thead a',self).click(self.overlay);
-            self.placePager(self.opts);
-//            console.log($('.tbody > div', newobj).length);
-            var lst = newobj.parent();
-            if($('.tbody > div', newobj).length > 0)
-                $('.multi-actions, .btnexport', lst).show();
-            else
-                $('.multi-actions, .btnexport', lst).hide();
-            wdf.processCallback(callbackwhendone);
-        });
-    };
+                    $('.tbody .tr',self).bind('mouseenter click',on);
+                    $('.caption, .thead, .tfoot',self).bind('mouseenter',off);
+                    self.bind('mouseleave',off);
 
-    $.fn.gotoPage = function(n)
-    {
-        var self = this;
-        self.overlay();
+                    $('.tbody .tr .td:last-child, .thead .tr .td:last-child, .tfoot .tr .td:last-child',self).css('padding-right',w+10);
+                }
 
-        wdf.post(self.attr('id')+'/gotopage',{number:n},function(d,s,p)
+                $('.thead a[data-sort]',self).click( function(e) { self.overlay(); });
+                wdf.tables.placePager(this,elem_opts);
+            });
+        },
+        gotoPage: function(table,n)
         {
-            self.updateTable(d,p.wait());
-        });
-    };
-
-    $.fn.placePager = function(opts)
-    {
-        var $p = $('.pager',this).remove();
-
-        if( opts )
-        {
-            if( opts.top_pager )
+//            console.log("wdf.tables.gotoPage");
+            var self = $(table), handler = self.data('gotoPage');
+            if( handler )
             {
-                $(this).addClass('pager_top');
-                $p = $p.insertBefore(this).clone(true);
+                handler(table,n);
+                return;
             }
-            if( opts.bottom_pager )
+            self.overlay();
+            wdf.post(self.attr('id')+'/gotopage',{number:n},function(d,s,p)
             {
-                $(this).addClass('pager_bottom');
-                $p.insertAfter(this);
+                wdf.tables.update(self,d,p.wait());
+            });
+        },
+        update: function(table, html, callbackwhendone)
+        {
+//            console.log("wdf.tables.update");
+            var self = $(table);
+            self.overlay('remove', function() {
+                self.prev('.pager').remove(); 
+                self.next('.pager').remove();
+                var newobj = $(html);
+                self.replaceWith(newobj); 
+                $('.thead a',self).click(self.overlay);
+                wdf.tables.placePager(self,self.opts);
+                var lst = newobj.parent();
+                if($('.tbody > div', newobj).length > 0)
+                    $('.multi-actions, .btnexport', lst).show();
+                else
+                    $('.multi-actions, .btnexport', lst).hide();
+                wdf.processCallback(callbackwhendone);
+            });
+        },
+        placePager: function(table,opts)
+        {
+//            console.log("wdf.tables.placePager");
+            var self = $(table);
+            var $p = $('.pager',self).remove();
+
+            if( opts )
+            {
+                if( opts.top_pager )
+                {
+                    self.addClass('pager_top');
+                    $p = $p.insertBefore(self).clone(true);
+                }
+                if( opts.bottom_pager )
+                {
+                    self.addClass('pager_bottom');
+                    $p.insertAfter(self);
+                }
             }
         }
-    };
-
-    $.fn.showLoadingOverlay = function()
-    {
-        wdf.debug("$.showLoadingOverlay is deprecated, use $.overlay() instead");
-        return $(this).overlay();
-    };
-
-    $.fn.hideLoadingOverlay = function(callback)
-    {
-        wdf.debug("$.hideLoadingOverlay is deprecated, use $.overlay('remove') instead");
-        return $(this).overlay('remove',callback);
     };
 
 })(window,jQuery);

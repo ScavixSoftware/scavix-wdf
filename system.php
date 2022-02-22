@@ -985,7 +985,7 @@ function __autoload__template($controller,$template_name)
 
 	if( $template_name != "" )
 	{
-        $key = "autoload_template-".getAppVersion('nc').$template_name;
+        $key = "autoload_template-".session_name().'-'.getAppVersion('nc').'-'.$template_name;
         $r = cache_get($key);
         if( ($r != false) && file_exists($r) )
             return $r;
@@ -1011,7 +1011,7 @@ function __autoload__template($controller,$template_name)
 		}
 	}
 
-    $key = "autoload_template_class-".$class;
+    $key = "autoload_template_class-".session_name().'-'.getAppVersion('nc').'-'.$class;
     $r = cache_get($key);
     if( ($r != false) && file_exists($r) )
         return $r;
@@ -1045,7 +1045,7 @@ function __search_file_for_class($class_name,$extension="class.php",$classpath_l
 {
 	global $CONFIG;
 
-    $key = "autoload_class-".session_name().getAppVersion('nc').$class_name.$extension.$classpath_limit;
+    $key = "autoload_class-".session_name().'-'.getAppVersion('nc').'-'.$class_name.$extension.$classpath_limit;
     $r = cache_get($key);
     if( $r !== false )
         return $r;
@@ -1389,8 +1389,12 @@ function cache_set($key,$value,$ttl=false,$use_global_cache=true,$use_session_ca
 	if( $use_global_cache && system_is_module_loaded('globalcache') )
 		globalcache_set($key, $value, $ttl);
 
-    if( $use_session_cache && function_exists('session_serialize') && avail($_SESSION, 'system_internal_cache') )
+    if( $use_session_cache && function_exists('session_serialize') )
+    {
+        if( !isset($_SESSION['system_internal_cache']) || !is_array($_SESSION['system_internal_cache']) )
+            $_SESSION['system_internal_cache'] = [];
 		$_SESSION["system_internal_cache"][$key] = session_serialize($value);
+    }
 }
 
 /**
@@ -1661,12 +1665,12 @@ function system_method_exists($object_or_classname,$method_name)
 	if( is_array($object_or_classname) || (is_scalar($object_or_classname) && !is_string($object_or_classname)) )
 		return false;
 	
-	$key = (is_string($object_or_classname)?$object_or_classname:get_class($object_or_classname)).'.'.$method_name;
-	$ret = cache_get("method_exists_$key");
+	$key = 'method_exists_'.session_name().'-'.getAppVersion('nc').'-'.(is_string($object_or_classname)?$object_or_classname:get_class($object_or_classname)).'.'.$method_name;
+	$ret = cache_get($key);
 	if( $ret !== false )
 		return $ret=="1";
 	$ret = method_exists($object_or_classname,$method_name);
-	cache_set("method_exists_$key",$ret?"1":"0");
+	cache_set($key,$ret?"1":"0");
 	return $ret;
 }
 

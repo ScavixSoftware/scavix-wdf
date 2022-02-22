@@ -158,71 +158,13 @@ class WdfResource implements ICallable
 		else
 			$cache = $less;
 		
-		require_once(__DIR__.'/lessphp/lessc.inc.php');
-		$compiler = new \lessc();
+		//require_once(__DIR__.'/lessphp/lessc.inc.php');
+		$compiler = new LessCompiler();
 		$compiler->setVariables($vars);
         if( $dirs )
             $compiler->setImportDir(array_merge([''],$dirs));
         
-        $enhancedBackgound = function($a,$mode)
-        {
-            $color = '#fff';
-            $opacity = '0.7';
-            $getVal = function($v)use(&$color,&$opacity)
-            {
-                if( $v[0] == 'color' )
-                    $color = Base\Color::rgba($v[1], $v[2], $v[3]);
-                elseif( $v[0] == 'function' && $v[1] == 'var' )
-                {
-                    $v = $v[2][2];
-                    $color = "var({$v[0][1]})";
-                }
-                elseif( $v[0] == 'number' )
-                    $opacity = $v[1];
-            };
-            if( $a[0] == 'list' )
-                foreach( $a[2] as $v )
-                    $getVal($v);
-            else
-                $getVal($a);
-            
-            $svg_col = Base\Color::hex($mode=='lighten'?'white':'black')->setAlpha($opacity);
-            
-            return implode(", ",[
-                "linear-gradient(to right,$color 0%,$color 100%)",
-                "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1' style='background:$svg_col'%3E%3C/svg%3E%0A\")"
-            ]).";background-blend-mode:$mode;";
-        };
-        
-        $compiler->registerFunction('lightenBackground', function($a)use($enhancedBackgound){ return $enhancedBackgound($a,'lighten'); });
-        $compiler->registerFunction('darkenBackground', function($a)use($enhancedBackgound){ return $enhancedBackgound($a,'darken'); });
-        $compiler->registerFunction('dataUri', function($a)
-        {
-            if( $a[0] != 'string' )
-                return "none";
-            
-            $fn = resFile(trim($a[2][0],"\"' "), true);
-            if( !file_exists($fn) )
-                return "none";
-            
-            $mime = system_guess_mime($fn);
-            if( "image/svg+xml" == $mime )
-            {
-                $c = file_get_contents($fn);
-                $c = preg_replace('/<!--.*-->/', '', $c);
-                $c = preg_replace('/[\r\n\t]/', ' ', $c);
-                $c = preg_replace('/\s\s+/', ' ', $c);
-                $c = str_replace(
-                    ['"',"%"  ,"#"  ,'{'  ,'}'  ,'<'  ,'>'],
-                    ["'","%25","%23","%7B","%7D","%3C","%3E"], 
-                    $c);
-                return "url(\"data:$mime,$c\")";
-            }
-            $c = base64_encode(file_get_contents($fn));
-            return "url(\"data:$mime;base64,$c\")";
-        });
-        
-		$newCache = $compiler->cachedCompile($cache);
+        $newCache = $compiler->cachedCompile($cache);
 		if( !is_array($cache) || $newCache["updated"] > $cache["updated"] )
 		{
 			file_put_contents($cacheFile, serialize($newCache));

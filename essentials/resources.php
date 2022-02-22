@@ -185,8 +185,8 @@ function clear_less_cache()
 
 function compile_less_code($less,$use_vars=false)
 {
-    require_once(__DIR__.'/resources/lessphp/lessc.inc.php');
-    $compiler = new \lessc();
+//    require_once(__DIR__.'/resources/lessphp/lessc.inc.php');
+    $compiler = new ScavixWDF\LessCompiler();
     
     if( $use_vars && isset($_SESSION['resources_less_variables']) )
         $compiler->setVariables($_SESSION['resources_less_variables']);

@@ -43,6 +43,7 @@ class lessc {
 	static public $TRUE = array("keyword", "true");
 	static public $FALSE = array("keyword", "false");
 
+    protected $env = null;
 	protected $libFunctions = [];
 	protected $registeredVars = [];
 	protected $preserveComments = false;
@@ -150,7 +151,7 @@ class lessc {
 
 	protected function compileImportedProps($props, $block, $out, $sourceParser, $importDir) {
 		$oldSourceParser = $this->sourceParser;
-
+        $this->sourceParser = $sourceParser;
 		$oldImport = $this->importDir;
 
 		// TODO: this is because the importDir api is stupid
@@ -675,7 +676,7 @@ class lessc {
 	protected function compileProp($prop, $block, $out) {
 		// set error position context
 		$this->sourceLoc = isset($prop[-1]) ? $prop[-1] : -1;
-
+        
 		switch ($prop[0]) {
 		case 'assign':
 			list(, $name, $value) = $prop;
@@ -1813,7 +1814,10 @@ class lessc {
 		$e->parent = $this->env;
 		$e->store = [];
 		$e->block = $block;
+        $e->child = null;
 
+        if( $this->env )
+            $this->env->child = $e;
 		$this->env = $e;
 		return $e;
 	}
@@ -2093,7 +2097,7 @@ class lessc {
 	 * Uses the current value of $this->count to show line and line number
 	 */
 	public function throwError($msg = null) {
-		if ($this->sourceLoc >= 0) {
+		if ($this->sourceLoc >= 0 && $this->sourceParser) {
 			$this->sourceParser->throwError($msg, $this->sourceLoc);
 		}
 		throw new exception($msg);

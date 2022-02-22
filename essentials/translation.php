@@ -664,9 +664,28 @@ function translation_is_valid_constant($constant)
  */
 function translation_ensure_nt($text_potentially_named_like_a_constant)
 {
-	if( !translation_string_exists($text_potentially_named_like_a_constant) )
-		return $text_potentially_named_like_a_constant;
-	return $text_potentially_named_like_a_constant."[NT]";
+    return preg_replace_callback(
+        Wdf::$Translation->translate_regpattern,
+        function($matches)
+        {
+            $mod = array_pop($matches);
+            $val = array_pop($matches);
+            switch( $mod )
+            {
+                case '[NT]':
+                case '[NC]':
+                case '[JS]':
+                case '[AT]':
+                case '[LC]':
+                case '[UC]':
+                    break;
+                default:
+                    $val = $mod;
+                    break;
+            }
+            return "{$val}[NT]";
+        },$text_potentially_named_like_a_constant
+    );
 }
 
 /**
