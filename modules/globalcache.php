@@ -36,6 +36,8 @@ define('globalcache_CACHE_EACCELERATOR',1);
 define('globalcache_CACHE_MEMCACHE',2);
 define('globalcache_CACHE_APC',4);
 define('globalcache_CACHE_DB',5);
+define('globalcache_CACHE_YAC',6);
+define('globalcache_CACHE_FILES',7);
 
 /**
  * Initializes the globalcache module.
@@ -45,69 +47,45 @@ define('globalcache_CACHE_DB',5);
 function globalcache_init()
 {
 	global $CONFIG;
-    
+	
 	if( !isset($CONFIG['globalcache']) )
 		$CONFIG['globalcache'] = [];
 	
+    // ensure valid config if present
+    if( isset($CONFIG['globalcache']['CACHE']) )
+    {
+        if( $CONFIG['globalcache']['CACHE'] == globalcache_CACHE_APC && !function_exists('apc_store') )
+            unset($CONFIG['globalcache']['CACHE']);
+        elseif( $CONFIG['globalcache']['CACHE'] == globalcache_CACHE_YAC && !class_exists('Yac') )
+            unset($CONFIG['globalcache']['CACHE']);
+        elseif( $CONFIG['globalcache']['CACHE'] == globalcache_CACHE_EACCELERATOR )
+            unset($CONFIG['globalcache']['CACHE']);
+        elseif( $CONFIG['globalcache']['CACHE'] == globalcache_CACHE_MEMCACHE )
+            unset($CONFIG['globalcache']['CACHE']);
+    }
+    
+    // autodetect best cache if not set (or previously unset)
+    if( !isset($CONFIG['globalcache']['CACHE']) )
+    {
+        if( class_exists('Yac') )
+            $CONFIG['globalcache']['CACHE'] = globalcache_CACHE_YAC;
+        elseif( function_exists('apc_store') )
+            $CONFIG['globalcache']['CACHE'] = globalcache_CACHE_APC;
+        else
+            $CONFIG['globalcache']['CACHE'] = globalcache_CACHE_DB;
+    }
+    
 	$servername = isset($_SERVER['SERVER_NAME'])?$_SERVER['SERVER_NAME']:"SCAVIX_WDF_SERVER";
-	
-	if( !isset($CONFIG['globalcache']['CACHE']) )
-		$CONFIG['globalcache']['CACHE'] = (function_exists('apc_store') ? globalcache_CACHE_APC : globalcache_CACHE_OFF);
-
-	if(isset($CONFIG['globalcache']['key_prefix']))
-		$GLOBALS['globalcache_key_prefix'] = "K".md5($servername."-".$CONFIG['globalcache']['key_prefix']."-".getAppVersion('nc'));
+	if( isset($CONFIG['globalcache']['key_prefix']))
+		$GLOBALS['globalcache_key_prefix'] = $CONFIG['globalcache']['key_prefix'];
 	else
 		$GLOBALS["globalcache_key_prefix"] = "K".md5($servername."-".session_name()."-".getAppVersion('nc'));
     
-    if( $CONFIG['globalcache']['CACHE'] == globalcache_CACHE_APC && !function_exists('apc_store') )
-        $CONFIG['globalcache']['CACHE'] = globalcache_CACHE_OFF;
     
-    register_hook_function(HOOK_POST_INIT,'globalcache_initialize');
-}
-
-/**
- * @internal Delayed init method
- */
-function globalcache_initialize()
-{
-    global $CONFIG, $LOCALHOST;
-	$ret = true;
-    
-	switch($CONFIG['globalcache']['CACHE'])
-	{
-		case globalcache_CACHE_OFF:
-		case globalcache_CACHE_APC:
-			break;
-
-		case globalcache_CACHE_EACCELERATOR:
-			if( !isset($CONFIG['globalcache']['server']) )
-				$CONFIG['globalcache']['server'] = (isset($LOCALHOST) ? $LOCALHOST : "localhost");
-			break;
-
-		case globalcache_CACHE_MEMCACHE:
-			$GLOBALS["memcache_object"] = new Memcache();
-		//	$GLOBALS["memcache_object"]->addServer($CONFIG['memcache']['server'], 11211);
-            if(!isset($CONFIG['globalcache']['port']))
-                $CONFIG['globalcache']['port'] = ini_get('memcache.default_port');
-            if(!isset($CONFIG['globalcache']['server']))
-                $CONFIG['globalcache']['server'] = 'localhost';
-			$try = 1;
-			$tries = 5;
-			while($try++ <= $tries)
-			{
-				try {
-					if($GLOBALS["memcache_object"]->connect($CONFIG['globalcache']['server'], $CONFIG['globalcache']['port']))
-						return true;
-				} catch(Exception $ex) {}
-			}
-
-			if($try >= $tries)
-				die("globalcache_init unable to connect to memcache server ".$CONFIG['globalcache']['server'].":".$CONFIG['globalcache']['port']);
-			break;
-           
-        case globalcache_CACHE_DB:
-            break;
-	}
+    if( $CONFIG['globalcache']['CACHE'] == globalcache_CACHE_YAC )
+        $CONFIG['globalcache']['handler'] = new WdfYacWrapper($GLOBALS['globalcache_key_prefix']);
+    elseif( $CONFIG['globalcache']['CACHE'] == globalcache_CACHE_FILES )
+        $CONFIG['globalcache']['handler'] = new WdfFileCacheWrapper($GLOBALS['globalcache_key_prefix']);
 }
 
 /**
@@ -135,14 +113,11 @@ function globalcache_set($key, $value, $ttl = false)
 			case globalcache_CACHE_APC:
 				return apc_store($GLOBALS["globalcache_key_prefix"].$key, $value, $ttl);
 				break;
-
-			case globalcache_CACHE_EACCELERATOR:
-				$ret = eaccelerator_put($GLOBALS["globalcache_key_prefix"].md5($key), $value, ($ttl ? $ttl : 0));
-				return $ret;
-				break;
-
-			case globalcache_CACHE_MEMCACHE:
-				return $GLOBALS["memcache_object"]->set($GLOBALS["globalcache_key_prefix"].md5($key), $value, 0, ($ttl ? time() + $ttl : 0));
+            
+			case globalcache_CACHE_YAC:
+            case globalcache_CACHE_FILES:
+                $CONFIG['globalcache']['handler']->set($key, $value, $ttl);
+                return true;
 				break;
             
             case globalcache_CACHE_DB:
@@ -216,15 +191,11 @@ function globalcache_get($key, $default = false)
 				$ret = apc_fetch($GLOBALS["globalcache_key_prefix"].$key, $success);
 				return $success?$ret:$default;
 				break;
-
-			case globalcache_CACHE_EACCELERATOR:
-				$ret = eaccelerator_get($GLOBALS["globalcache_key_prefix"].md5($key));
-				return is_null($ret)?$default:$ret;
-				break;
-
-			case globalcache_CACHE_MEMCACHE:
-				$ret = $GLOBALS["memcache_object"]->get($GLOBALS["globalcache_key_prefix"].md5($key));
-				return ($ret === false)?$default:$ret;
+            
+            case globalcache_CACHE_YAC:
+            case globalcache_CACHE_FILES:
+				$ret = $CONFIG['globalcache']['handler']->get($key,$default);
+				return $ret===false?$default:$ret;
 				break;
             
             case globalcache_CACHE_DB:
@@ -268,13 +239,10 @@ function globalcache_clear()
 		case globalcache_CACHE_APC:
 			return apc_clear_cache('user');
 			break;
-
-		case globalcache_CACHE_EACCELERATOR:
-			return eaccelerator_clear();
-			break;
-
-		case globalcache_CACHE_MEMCACHE:
-			return $GLOBALS["memcache_object"]->flush();
+        
+        case globalcache_CACHE_YAC:
+        case globalcache_CACHE_FILES:
+			return $CONFIG['globalcache']['handler']->flush();
 			break;
         
         case globalcache_CACHE_DB:
@@ -308,13 +276,10 @@ function globalcache_delete($key)
 		case globalcache_CACHE_APC:
 			return apc_delete($GLOBALS["globalcache_key_prefix"].$key);
 			break;
-
-		case globalcache_CACHE_EACCELERATOR:
-			return eaccelerator_rm($GLOBALS["globalcache_key_prefix"].md5($key));
-			break;
-
-		case globalcache_CACHE_MEMCACHE:
-			return $GLOBALS["memcache_object"]->delete($GLOBALS["globalcache_key_prefix"].md5($key));
+        
+        case globalcache_CACHE_YAC:
+        case globalcache_CACHE_FILES:
+			return $CONFIG['globalcache']['handler']->delete($key);
 			break;
         
         case globalcache_CACHE_DB:
@@ -344,48 +309,14 @@ function globalcache_info()
 		case globalcache_CACHE_APC:
 			$status = apc_cache_info('user');
 			return(var_export($status, true));
-
-		case globalcache_CACHE_OFF:
-		case globalcache_CACHE_EACCELERATOR:
-			return "no stats available";
-			break;
-
-		case globalcache_CACHE_MEMCACHE:
-			$status = $GLOBALS["memcache_object"]->getStats();
+            
+        case globalcache_CACHE_YAC:
+        case globalcache_CACHE_FILES:
+			$status = $CONFIG['globalcache']['handler']->info();
 			return(var_export($status, true));
 
-			if($status == false)
-				return "no memcache stats available";
-			$ret = "";
-			$ret .= "Memcache Server version:".$status ["version"]."\r\n";
-			$ret .= "Process id of this server process: ".$status ["pid"]."\r\n";
-			$ret .= "Number of seconds this server has been running: ".$status ["uptime"]."\r\n";
-			$ret .= "Accumulated user time for this process: ".$status ["rusage_user"]." seconds\r\n";
-			$ret .= "Accumulated system time for this process: ".$status ["rusage_system"]." seconds\r\n";
-			$ret .= "Total number of items stored by this server ever since it started: ".$status ["total_items"]."\r\n";
-			$ret .= "Number of open connections: ".$status ["curr_connections"]."\r\n";
-			$ret .= "Total number of connections opened since the server started running: ".$status ["total_connections"]."\r\n";
-			$ret .= "Number of connection structures allocated by the server: ".$status ["connection_structures"]."\r\n";
-			$ret .= "Cumulative number of retrieval requests: ".$status ["cmd_get"]."\r\n";
-			$ret .= "Cumulative number of storage requests: ".$status ["cmd_set"]."\r\n";
-
-			if((float) $status ["cmd_get"] > 0)
-			{
-				$percCacheHit=((float)$status ["get_hits"]/ (float)$status ["cmd_get"] *100);
-				$percCacheHit=round($percCacheHit,3);
-				$percCacheMiss=100-$percCacheHit;
-
-				$ret .= "Number of keys that have been requested and found present: ".$status ["get_hits"]." ($percCacheHit%)\r\n";
-				$ret .= "Number of items that have been requested and not found: ".$status ["get_misses"]."($percCacheMiss%)\r\n";
-			}
-			$MBRead= (float)$status["bytes_read"]/(1024*1024);
-
-			$ret .= "Total number of bytes read by this server from network: ".$MBRead." Mega Bytes\r\n";
-			$MBWrite=(float) $status["bytes_written"]/(1024*1024) ;
-			$ret .= "Total number of bytes sent by this server to network: ".$MBWrite." Mega Bytes\r\n";
-			$MBSize=(float) $status["limit_maxbytes"]/(1024*1024) ;
-			$ret .= "Number of bytes this server is allowed to use for storage: ".$MBSize." Mega Bytes\r\n";
-			$ret .= "Number of valid items removed from cache to free memory for new items: ".$status ["evictions"]."\r\n";
+		case globalcache_CACHE_OFF:
+			return "no stats available";
 			break;
 			
         case globalcache_CACHE_DB:
@@ -428,12 +359,14 @@ function globalcache_list_keys()
             $ret = [];
             $cacheinfo = apc_cache_info('user');
             $keyprefixlen = strlen($GLOBALS["globalcache_key_prefix"]);
-//            foreach($cacheinfo['cache_list'] as $cacheentry)
-//                $ret[] = substr($cacheentry['info'], $keyprefixlen);
             foreach($cacheinfo['cache_list'] as $cacheentry)
-                if(starts_with($cacheentry['info'], $GLOBALS["globalcache_key_prefix"]))
-                    $ret[] = substr($cacheentry['info'], $keyprefixlen);
+                $ret[] = substr($cacheentry['info'], $keyprefixlen);
             return $ret;
+            break;
+            
+        case globalcache_CACHE_YAC:
+        case globalcache_CACHE_FILES:
+            return $CONFIG['globalcache']['handler']->keys();
             break;
             
 		default:
@@ -442,3 +375,161 @@ function globalcache_list_keys()
 	}
 	return [];
 }
+
+class WdfYacWrapper
+{
+    private $id, $yac;
+    
+    function __construct($key_prefix)
+    {
+        $this->id = substr(md5($key_prefix),0,16);
+        $this->yac = new Yac("$this->id-");
+    }
+    
+    private function getKey($key)
+    {
+        $map = $this->yac->get('keymap')?:[];
+        if( isset($map[$key]) )
+            return $map[$key];
+        $map[$key] = count($map);
+        $this->yac->set('keymap', $map);
+        return $map[$key];
+    }
+    
+    function get($key,$default)
+    {
+        $k = $this->getKey($key);
+        $ret = $this->yac->get($k);
+        return ($ret === false)?$default:$ret;
+    }
+    
+    function set($key,$val,$ttl)
+    {
+        $this->yac->set($this->getKey($key),$val,$ttl);
+    }
+    
+    function delete($key)
+    {
+        $this->yac->delete($this->getKey($key));
+    }
+    
+    function flush()
+    {
+        $this->yac->flush();
+    }
+    
+    function info()
+    {
+        return $this->yac->info();
+    }
+    
+    function keys()
+    {
+        return array_keys( $this->yac->dump(999999) );
+    }
+}
+
+class WdfFileCacheWrapper
+{                                                                   
+    private $root;
+    private $prefix;
+    private $map;
+
+    public function __construct($key_prefix)
+    {
+        $this->prefix = $key_prefix;
+        $this->map = [];
+        $this->root = sys_get_temp_dir()."/wdf_globalcache/{$key_prefix}";
+        $um = umask(0);
+        @mkdir($this->root,0777,true);
+        umask($um);
+    }                                                                           
+
+    public function set($key, $val, $ttl = 0)
+    {                              
+        $eol = time() + $ttl;
+        $file = md5($key);
+        $val = array(
+            'expiry' => $eol>time()?$eol:false,
+            'key' => $key,
+            'data' => $val,
+        );
+        // Write to temp file first to ensure atomicity
+        $um = umask(0);
+        $dest = "{$this->root}/$file";
+        $tmp = $dest . '.' . uniqid('', true) . '.tmp';
+        //file_put_contents($tmp, '<?php $val = session_unserialize(base64_decode("'.base64_encode(session_serialize($val)).'"));', LOCK_EX);
+        file_put_contents($tmp, session_serialize($val), LOCK_EX);
+        rename($tmp, $dest);
+        umask($um);
+        //opcache_invalidate($dest);
+    }
+    
+    public function get($key,$default)
+    {                                 
+        $file = "{$this->root}/".md5($key);
+        $filemtime = @filemtime($file);
+        if( isset($this->map[$key]) && $this->map[$key]['filemtime'] == $filemtime )
+            return $this->map[$key]['data'];
+        
+        $c = @file_get_contents($file);
+        if (!$c)
+            return $default;
+        $val = session_unserialize($c);
+
+        if (!isset($val))
+            return $default;
+
+        if ( isset($val['key']) && $val['key'] != $key ) 
+            return $default;
+        
+        if (!$val['expiry'] || $val['expiry'] > time()) 
+        {
+            $this->map[$key] = $val;
+            $this->map[$key]['filemtime'] = $filemtime;
+            return $val['data'];
+        }
+        $this->delete($key);
+        return $default;
+    }                                                                           
+
+    public function delete($key)
+    {                                              
+        $file = "{$this->root}/".md5($key);
+        @unlink($file);
+        if( isset($this->map[$key]) ) 
+            unset( $this->map[$key]);
+    }
+    
+    function flush()
+    {
+        foreach( glob("{$this->root}/*") as $f )
+            if( is_file($f) )
+                @unlink($f);
+        $this->map = [];
+    }
+    
+    function info()
+    {
+        return [
+            'map_size'=>count($this->map),
+            'keys'=>$this->keys()
+        ];
+    }
+    
+    function keys()
+    {
+        $ret = [];
+        foreach( glob("{$this->root}/*") as $file )
+            if( is_file($file) )
+            {
+                $c = @file_get_contents($file);
+                if (!$c)
+                    continue;
+                $val = session_unserialize($c);
+                if( isset($val['key']) )
+                    $ret[] = $val['key'];
+            }
+        return $ret;
+    }
+}    
