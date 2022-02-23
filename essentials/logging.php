@@ -523,13 +523,17 @@ function logging_render_var($content,&$stack=[],$indent="")
 		if( $content instanceof WdfException )
 		{
 			$res[] = get_class($content).": ".$content->getMessageEx();
-            if(isDev())
+            if( isset($GLOBALS['logging_render_var_for_logger']) )
+                $res[] = $content->getTraceAsString();
+            elseif( isDev() )
                 $res[] = "in ".$content->getFileEx().":".$content->getLineEx();
 		}
 		elseif( ($content instanceof Exception) || ($content instanceof Error) )
 		{
 			$res[] = get_class($content).": ".$content->getMessage();
-            if(isDev())
+            if( isset($GLOBALS['logging_render_var_for_logger']) )
+                $res[] = $content->getTraceAsString();
+            elseif( isDev() )
                 $res[] = "in ".$content->getFile().":".$content->getLine();
 		}
         elseif($content instanceof ScavixWDF\Base\DateTimeEx)
