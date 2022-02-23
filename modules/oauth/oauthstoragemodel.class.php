@@ -41,7 +41,6 @@ class OAuthStorageModel extends Model
                 `access_token` TEXT NULL DEFAULT NULL,
                 `refresh_token` TEXT NULL DEFAULT NULL,
                 `expires` TIMESTAMP NULL DEFAULT NULL,
-                `deleted` TIMESTAMP NULL DEFAULT NULL,
                 `resource_owner_id` TEXT NULL DEFAULT NULL,
                 `data` TEXT NULL DEFAULT NULL,
                 `owner_data` TEXT NULL DEFAULT NULL,
@@ -53,6 +52,13 @@ class OAuthStorageModel extends Model
     {
         return OAuthStorageModel::Make()->eq('local_id',$local_id)
             ->if($provider_name)->eq('provider',$provider_name);
+    }
+    
+    static function GetAnonId()
+    {
+        return DataSource::Get()->ExecuteScalar(
+            "select round(rand()*-999999) as id having id not in(select local_id from wdf_oauthstore)"
+        );
     }
     
     function UpdateFromToken(\League\OAuth2\Client\Token\AccessToken $token)
@@ -101,16 +107,5 @@ class OAuthStorageModel extends Model
     {
         $handler = new OAuthHandler($this->local_id, $this->provider);
         return $handler->isAuthorized($this);
-    }
-    
-    function Delete()
-    {
-        $this->access_token = null;
-        $this->refresh_token = null;
-        $this->expires = null;
-        $this->data = null;
-        $this->deleted = 'now()';
-        // keep identifier and owner_data to be able to match returning users
-        return $this->Save();
     }
 }
