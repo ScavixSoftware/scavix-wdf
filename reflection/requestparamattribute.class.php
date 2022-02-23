@@ -144,7 +144,7 @@ class RequestParamAttribute extends WdfAttribute
 				case 'string':
 				case 'text':
 					if( $this->Filter )
-						$args[$this->Name] = htmlspecialchars("{$data[$name]}");
+						$args[$this->Name] = preg_replace('/x00|<[^>]*>?/', '', "{$data[$name]}");      // see https://www.javacodexamples.com/examples/constant-filter-sanitize-string-is-deprecated
 					else
 						$args[$this->Name] = $data[$name];
 					return true;
