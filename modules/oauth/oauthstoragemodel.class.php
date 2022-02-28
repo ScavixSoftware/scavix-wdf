@@ -61,6 +61,16 @@ class OAuthStorageModel extends Model
         );
     }
     
+    function ChangeLocalId($new_local_id)
+    {
+        $this->_ds->ExecuteSql(
+            "UPDATE wdf_oauthstore SET local_id=? WHERE provider=? AND identifier=? and local_id=?",
+            [$new_local_id,$this->provider,$this->identifier,$this->local_id]
+        );
+        $this->local_id = $new_local_id;
+        return $this;
+    }
+    
     function UpdateFromToken(\League\OAuth2\Client\Token\AccessToken $token)
     {
         $this->access_token = $token->getToken();
