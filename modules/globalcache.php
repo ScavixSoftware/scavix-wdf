@@ -193,9 +193,13 @@ function globalcache_get($key, $default = false)
 				break;
             
             case globalcache_CACHE_YAC:
-            case globalcache_CACHE_FILES:
 				$ret = $CONFIG['globalcache']['handler']->get($key,$default);
 				return $ret===false?$default:$ret;
+				break;
+            
+            case globalcache_CACHE_FILES:
+				$ret = $CONFIG['globalcache']['handler']->get($key,$default,$exists);
+				return $exists?$ret:$default;
 				break;
             
             case globalcache_CACHE_DB:
@@ -465,8 +469,9 @@ class WdfFileCacheWrapper
         //opcache_invalidate($dest);
     }
     
-    public function get($key,$default)
-    {                                 
+    public function get($key,$default,&$exists)
+    {
+        $exists = false;
         $file = "{$this->root}/".md5($key);
         $filemtime = @filemtime($file);
         if( isset($this->map[$key]) && $this->map[$key]['filemtime'] == $filemtime )
@@ -476,6 +481,7 @@ class WdfFileCacheWrapper
         if (!$c)
             return $default;
         $val = session_unserialize($c);
+//        log_debug($key, $val);
 
         if (!isset($val))
             return $default;
@@ -487,6 +493,7 @@ class WdfFileCacheWrapper
         {
             $this->map[$key] = $val;
             $this->map[$key]['filemtime'] = $filemtime;
+            $exists = true;
             return $val['data'];
         }
         $this->delete($key);
