@@ -56,9 +56,12 @@ class OAuthStorageModel extends Model
     
     static function GetAnonId()
     {
-        return DataSource::Get()->ExecuteScalar(
-            "select round(rand()*-999999) as id having id not in(select local_id from wdf_oauthstore)"
-        );
+        $ds = DataSource::Get();
+        do
+        {
+            $anonid = random_int(-999999, -1);
+        } while ($ds->ExecuteScalar('SELECT COUNT(*) FROM wdf_oauthstore WHERE local_id=? LIMIT 1', [$anonid]));
+        return $anonid;
     }
     
     function ChangeLocalId($new_local_id)
