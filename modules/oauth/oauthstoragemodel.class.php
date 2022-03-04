@@ -109,7 +109,7 @@ class OAuthStorageModel extends Model
     function GetTokenData()
     {
         $data = $this->AsArray('access_token','refresh_token','resource_owner_id');
-        $data['expires'] = $this->expires->getTimestamp();
+        $data['expires'] = avail($this,'expires')?$this->expires->getTimestamp():null;
         return $data;
     }
     
