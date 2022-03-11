@@ -415,7 +415,8 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
     function addField($sql,$arguments=[])
     {
         if( !$this->table->Columns )
-            $this->table->Columns = "`{$this->table->DataTable}`.*";
+            $this->table->Columns = "*";
+//            $this->table->Columns = "`{$this->table->DataTable}`.*";          // why was this added?? let's see where it crashes :-o
         
         foreach( $arguments as $a )
             $sql = preg_replace('/\?/', (is_numeric($a) ? $a : "'".$this->ds->EscapeArgument($a)."'"), $sql, 1);
