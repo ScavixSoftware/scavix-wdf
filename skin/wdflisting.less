@@ -5,6 +5,8 @@
 @wdf_listing_even: #f9f9f9;
 @wdf_listing_hover: #d0d0d0;
 
+@not_phone:     ~"(min-width: 500px)";
+
 .listingfilter
 {
     display: flex;
@@ -22,7 +24,7 @@
         padding: 3px 4px;
     }
     
-    @media (min-width: 500px)
+    @media @not_phone
     {
         select
         {

@@ -523,13 +523,17 @@ function logging_render_var($content,&$stack=[],$indent="")
 		if( $content instanceof WdfException )
 		{
 			$res[] = get_class($content).": ".$content->getMessageEx();
-            if(isDev())
+            if( isset($GLOBALS['logging_render_var_for_logger']) )
+                $res[] = $content->getTraceAsString();
+            elseif( isDev() )
                 $res[] = "in ".$content->getFileEx().":".$content->getLineEx();
 		}
 		elseif( ($content instanceof Exception) || ($content instanceof Error) )
 		{
 			$res[] = get_class($content).": ".$content->getMessage();
-            if(isDev())
+            if( isset($GLOBALS['logging_render_var_for_logger']) )
+                $res[] = $content->getTraceAsString();
+            elseif( isDev() )
                 $res[] = "in ".$content->getFile().":".$content->getLine();
 		}
         elseif($content instanceof ScavixWDF\Base\DateTimeEx)
@@ -620,7 +624,7 @@ function finish_timer($id,$min_ms = false)
     if( !$min_ms || $ms >= $min_ms )
     {
         $trace = array_map(function($a){ return "{$a[2]}ms for {$a[0]}"; },$trace);
-        array_unshift($trace, "started ".date("H:i:s",$start));
+        array_unshift($trace, "started ".date("H:i:s",(int)$start));
         $trace[] = "{$ms}ms total";
         log_debug("Timer finish:\t$name\n\t".implode("\n\t",$trace));
     }

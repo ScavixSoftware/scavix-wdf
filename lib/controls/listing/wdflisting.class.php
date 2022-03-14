@@ -75,6 +75,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
     protected $onPreRender = false;
     
     public static $ShowCompleteData = false;
+    public static $Exporting = false;           // is set to true in Export() call
         
 	/**
 	 * @var uiDatabaseTable
@@ -316,7 +317,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
 	function PreRender($args=[])
 	{
 		if( $this->sortable )
-			$this->script("$(document).on('click', '#{$this->id} a[data-sort]', function(e){ e.preventDefault(); wdf.post('{$this->id}/sort',{name:$(this).data('sort')},function(d){ if(d) $('#{$this->table->id}').updateTable(d); }); });");
+			$this->script("$(document).on('click', '#{$this->id} a[data-sort]', function(e){ e.preventDefault(); wdf.post('{$this->id}/sort',{name:$(this).data('sort')},function(d){ if(d) wdf.tables.update('#{$this->table->id}',d); }); });");
 		return parent::PreRender($args);
 	}
     
@@ -414,7 +415,8 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
     function addField($sql,$arguments=[])
     {
         if( !$this->table->Columns )
-            $this->table->Columns = "`{$this->table->DataTable}`.*";
+            $this->table->Columns = "*";
+//            $this->table->Columns = "`{$this->table->DataTable}`.*";          // why was this added?? let's see where it crashes :-o
         
         foreach( $arguments as $a )
             $sql = preg_replace('/\?/', (is_numeric($a) ? $a : "'".$this->ds->EscapeArgument($a)."'"), $sql, 1);
@@ -833,7 +835,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
                 {
                     return ifavail($row,$m[1])?:''; //$m[0];
                 },$this->details_link);
-                $tr->attr('onclick',"listing_rowclick(event,'$link')");
+                $tr->attr('onclick',"wdf.listings.rowclick(event,'$link')");
             }
             else
             {
@@ -841,7 +843,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
                 foreach($this->details_args as $name => $valkey)
                     $args[$name] = isset($row[$valkey]) ? $row[$valkey] : $valkey;
                 $link = buildQuery($this->controller,$this->details_event,$args);
-                $tr->attr('onclick',"listing_rowclick(event,'$link')");
+                $tr->attr('onclick',"wdf.listings.rowclick(event,'$link')");
             }
         }
         
@@ -959,6 +961,8 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
     */
     public function Export($target, $format)
     {
+        WdfListing::$Exporting = true;
+        
         if(!$format)
         {
             $dlg = uiDialog::Make(
@@ -1036,16 +1040,21 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
         
         DatabaseTable::$export_def[$format]['fn'] = 'Export_'.$exportfilename.'_'.date("Y-m-d_H-i-s").'.'.$format;
         $tab->Clear();
-        $tab->Export($format, function($row) use ($datatype, $lst)
+        $tab->Export($format, function($row) use ($datatype, $lst, $sqlcols)
 		{
             foreach( $lst->rowDataCallbacks as $cb )
                 $row = $cb($row);
+            
+            foreach($sqlcols as $c => $caption)
+                if(!isset($row[$c]))
+                    $row[$c] = null;
             
             foreach($row as $k => $val)
             {
                 if( isset($lst->columnCallbacks[$k]) )
                     $val = $lst->columnCallbacks[$k]($val,$row);
-                $row[$k] = strip_tags(str_replace(['&nbsp;', '<br/>', '<br>'], [' ', ', ', ', '], $val));
+//                log_debug($k, $val);
+                $row[$k] = ($val ? strip_tags(str_replace(['&nbsp;', '<br/>', '<br>'], [' ', ', ', ', '], $val)) : $val);
             }
             
             foreach( $lst->rowCallbacks as $cb )
@@ -1053,5 +1062,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             
             return $row;
         });
+        
+        WdfListing::$Exporting = false;
     }
 }

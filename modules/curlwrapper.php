@@ -111,6 +111,7 @@ function downloadData($url, $postdata = false, $request_header = [], $cacheTTLse
 			if( !is_array($request_header) )
 				$request_header = [];
 			$request_header[] = "Content-Length: ".strlen($postdata);
+            $postdata = trim($postdata);
             if( starts_with($postdata,"{") || starts_with($postdata,"[") )
                 $request_header[] = "Content-Type: application/json";
         }
@@ -160,7 +161,7 @@ function downloadData($url, $postdata = false, $request_header = [], $cacheTTLse
 		curl_close($ch);
 		return $result;
 	}
-	//log_info($info);
+//	log_info($info);
 	curl_close($ch);
 
     if($response_header !== false)

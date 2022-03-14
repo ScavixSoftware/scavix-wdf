@@ -297,7 +297,7 @@ class Table extends Control
             'bottom_pager' => $this->ItemsPerPage && !$this->HidePager
         );
         
-        $this->script("$('#{self}').table(".json_encode($opts).");");
+        $this->script("wdf.tables.init('#{self}',".json_encode($opts).");");
 		if( isset($this->RowOptions['hoverclass']) && $this->RowOptions['hoverclass'] )
 		{
 			$over = "function(){ $(this).addClass('{$this->RowOptions['hoverclass']}') }";
@@ -725,11 +725,11 @@ class Table extends Control
 			$start++;
 
 		if( $start == 2 )
-            $ui->content( new Anchor("javascript: $('#$this->id').gotoPage(1)","1") );
+            $ui->content( new Anchor("javascript: wdf.tables.gotoPage('#$this->id',1)","1") );
 		elseif( $start > 1 )
 		{
-			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage(1)","1 &laquo;") );
-			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage(".($this->CurrentPage-1).")","&lsaquo;") );
+			$ui->content( new Anchor("javascript: wdf.tables.gotoPage('#$this->id',1)","1 &laquo;") );
+			$ui->content( new Anchor("javascript: wdf.tables.gotoPage('#$this->id',".($this->CurrentPage-1).")","&lsaquo;") );
 		}
         
 		for( $i=$start; $i<=$pages && $i<($start+$this->MaxPagesToShow); $i++ )
@@ -737,15 +737,15 @@ class Table extends Control
 			if( $i == $this->CurrentPage )
 				$ui->content("<span class='current'>".($this->Culture !== false ? $this->Culture->FormatInt($i) : $i)."</span>");
 			else
-				$ui->content(new Anchor("javascript: $('#$this->id').gotoPage($i)", ($this->Culture !== false ? $this->Culture->FormatInt($i) : $i)));
+				$ui->content(new Anchor("javascript: wdf.tables.gotoPage('#$this->id',$i)", ($this->Culture !== false ? $this->Culture->FormatInt($i) : $i)));
 		}
         
 		if( $i == $pages )
-            $ui->content(new Anchor("javascript: $('#$this->id').gotoPage($i)", ($this->Culture !== false ? $this->Culture->FormatInt($i) : $i)));
+            $ui->content(new Anchor("javascript: wdf.tables.gotoPage('#$this->id',$i)", ($this->Culture !== false ? $this->Culture->FormatInt($i) : $i)));
         elseif( $i < $pages )
 		{
-			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage(".($this->CurrentPage+1).")","&rsaquo;") );
-			$ui->content( new Anchor("javascript: $('#$this->id').gotoPage($pages)","&raquo; ".($this->Culture !== false ? $this->Culture->FormatInt($pages) : $pages)) );
+			$ui->content( new Anchor("javascript: wdf.tables.gotoPage('#$this->id',".($this->CurrentPage+1).")","&rsaquo;") );
+			$ui->content( new Anchor("javascript: wdf.tables.gotoPage('#$this->id',$pages)","&raquo; ".($this->Culture !== false ? $this->Culture->FormatInt($pages) : $pages)) );
 		}
         
         if( $this->ShowTotalText )

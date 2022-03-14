@@ -203,7 +203,10 @@ class Logger
 	
 	protected function render($content)
 	{
-		return logging_render_var($content);
+        $GLOBALS['logging_render_var_for_logger'] = true;
+		$r = logging_render_var($content);
+        unset($GLOBALS['logging_render_var_for_logger']);
+        return $r;
 	}
 	
 	protected function prepare($severity=false,$log_trace=false,$a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)

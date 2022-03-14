@@ -104,6 +104,17 @@ class AjaxAction
 		$dlg->data('confirmed', $_SESSION['ajax_confirm'][$text_base]);
 		return $dlg;
 	}
+    
+    public static function ConfirmDlg($text_base,$controller,$event='',$data=[])
+	{
+		$dlg = new \ScavixWDF\JQueryUI\Dialog\uiFormDialog("TITLE_$text_base");
+        $dlg->form->setAction(buildQuery($controller,$event));
+		foreach( $data as $k=>$v )
+            $dlg->form->AddHidden($k,$v);
+		$_SESSION['ajax_confirm'][$text_base] = md5(time());
+        $dlg->form->AddHidden('confirmed',$_SESSION['ajax_confirm'][$text_base]);
+		return $dlg;
+	}
 	
 	/**
 	 * Checks if the user has seen and accepted a confirmation.

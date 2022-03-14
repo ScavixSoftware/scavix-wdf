@@ -41,7 +41,6 @@ class OAuthStorageModel extends Model
                 `access_token` TEXT NULL DEFAULT NULL,
                 `refresh_token` TEXT NULL DEFAULT NULL,
                 `expires` TIMESTAMP NULL DEFAULT NULL,
-                `deleted` TIMESTAMP NULL DEFAULT NULL,
                 `resource_owner_id` TEXT NULL DEFAULT NULL,
                 `data` TEXT NULL DEFAULT NULL,
                 `owner_data` TEXT NULL DEFAULT NULL,
@@ -53,6 +52,26 @@ class OAuthStorageModel extends Model
     {
         return OAuthStorageModel::Make()->eq('local_id',$local_id)
             ->if($provider_name)->eq('provider',$provider_name);
+    }
+    
+    static function GetAnonId()
+    {
+        $ds = DataSource::Get();
+        do
+        {
+            $anonid = random_int(-999999, -1);
+        } while ($ds->ExecuteScalar('SELECT COUNT(*) FROM wdf_oauthstore WHERE local_id=? LIMIT 1', [$anonid]));
+        return $anonid;
+    }
+    
+    function ChangeLocalId($new_local_id)
+    {
+        $this->_ds->ExecuteSql(
+            "UPDATE wdf_oauthstore SET local_id=? WHERE provider=? AND identifier=? and local_id=?",
+            [$new_local_id,$this->provider,$this->identifier,$this->local_id]
+        );
+        $this->local_id = $new_local_id;
+        return $this;
     }
     
     function UpdateFromToken(\League\OAuth2\Client\Token\AccessToken $token)
@@ -93,7 +112,7 @@ class OAuthStorageModel extends Model
     function GetTokenData()
     {
         $data = $this->AsArray('access_token','refresh_token','resource_owner_id');
-        $data['expires'] = $this->expires->getTimestamp();
+        $data['expires'] = avail($this,'expires')?$this->expires->getTimestamp():null;
         return $data;
     }
     
@@ -101,16 +120,5 @@ class OAuthStorageModel extends Model
     {
         $handler = new OAuthHandler($this->local_id, $this->provider);
         return $handler->isAuthorized($this);
-    }
-    
-    function Delete()
-    {
-        $this->access_token = null;
-        $this->refresh_token = null;
-        $this->expires = null;
-        $this->data = null;
-        $this->deleted = 'now()';
-        // keep identifier and owner_data to be able to match returning users
-        return $this->Save();
     }
 }

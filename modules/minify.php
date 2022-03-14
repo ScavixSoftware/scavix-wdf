@@ -64,9 +64,9 @@ function minify_init()
  */
 function minify_pre_render_handler($args)
 {
-	if( count($args)>0 )
+	if( $args && is_array($args) )
 	{
-		if( minify_forbidden($args[0]) )
+		if( count($args)>0 && minify_forbidden($args[0]) )
 			return;
 	}
 	
