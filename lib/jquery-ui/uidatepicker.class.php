@@ -191,4 +191,13 @@ class uiDatePicker extends uiControl
         $page->addDocReady("$.datepicker.setDefaults($def);");
         self::$DefaultCI = $cultureInfo;
     }
+    
+    function setValue($value)
+    {
+        $value = ($value?:false);
+        if( $this->type == 'text' )
+            $this->value = $value;
+        else
+            $this->Options['defaultDate'] = $value;
+    }
 }

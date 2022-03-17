@@ -44,4 +44,13 @@ class uiDateTimePicker extends uiDatePicker
 	{
 		parent::__construct($value,$inline);
 	}
+    
+    function setValue($value)
+    {
+        $value = ($value?:false);
+        if( $this->type == 'text' )
+            $this->value = $value;
+        else
+            $this->Options['defaultDate'] = $value;
+    }
 }

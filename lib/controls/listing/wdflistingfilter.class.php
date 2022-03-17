@@ -260,7 +260,14 @@ class WdfListingFilter extends Template
         {
             if( $value )
             {
-                $v = date("Y-m-d",$this->listings[0]->ci->DateTimeFormat->StringToTime($value));
+                $ci = false;
+                if(isset($this->listings) && $this->listings && isset($this->listings[0]) && isset($this->listings[0]->ci) && $this->listings[0]->ci)
+                    $ci = $this->listings[0]->ci;
+                if(!$ci && ScavixWDF\JQueryUI\uiDatePicker::$DefaultCI)
+                    $ci = ScavixWDF\JQueryUI\uiDatePicker::$DefaultCI;
+                if(!$ci)
+                    return '';
+                $v = date("Y-m-d",$ci->DateTimeFormat->StringToTime($value));
                 return "DATE($column)$op'$v'";
             }
             return "";
@@ -273,7 +280,14 @@ class WdfListingFilter extends Template
         {
             if( $value )
             {
-                $v = date("Y-m-d H:i:s",$this->listings[0]->ci->DateTimeFormat->StringToTime($value));
+                $ci = false;
+                if(isset($this->listings) && $this->listings && isset($this->listings[0]) && isset($this->listings[0]->ci) && $this->listings[0]->ci)
+                    $ci = $this->listings[0]->ci;
+                if(!$ci && ScavixWDF\JQueryUI\uiDatePicker::$DefaultCI)
+                    $ci = ScavixWDF\JQueryUI\uiDatePicker::$DefaultCI;
+                if(!$ci)
+                    return '';
+                $v = date("Y-m-d H:i:s",$ci->DateTimeFormat->StringToTime($value));
                 return "$column$op'$v'";
             }
             return "";
