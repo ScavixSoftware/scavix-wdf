@@ -588,10 +588,19 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             return;
         
         $this->filter->dataFromPost();
-        
         if(strpos($this->table->Sql, '*BEG ') === false)
-            $this->table->Sql = str_replace(' WHERE ', ' WHERE '.$this->filter->getSql(true).' AND ', $this->table->Sql);
-        
+        {
+            if(strpos($this->table->Sql, '/*END-COLUMNS*/') === false)
+                $this->table->Sql = str_replace(' WHERE ', ' WHERE '.$this->filter->getSql(true).' AND ', $this->table->Sql);
+            else
+            {
+                $pos = strpos($this->table->Sql, '/*END-COLUMNS*/');
+                if(strpos(substr($this->table->Sql, $pos), ' WHERE ') === false)
+                    $this->table->Sql = substr($this->table->Sql, 0, $pos).str_replace('/*BEG-ORDER*/', ' HAVING '.$this->filter->getSql(true).'/*BEG-ORDER*/', substr($this->table->Sql, $pos));
+                else
+                    $this->table->Sql = substr($this->table->Sql, 0, $pos).str_replace(' WHERE ', ' WHERE '.$this->filter->getSql(true).' AND ', substr($this->table->Sql, $pos));
+            }
+        }
         $this->table->Clear();
         if($resetpager)
             $this->table->ResetPager();
@@ -601,7 +610,6 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
         $prefix = preg_quote( $this->filter->prefix,'/');
         $sql = $this->filter->getSql();
         $this->table->Sql = preg_replace("/(\/\*BEG $prefix\*\/)(.*)(\/\*$prefix END\*\/)/", '$1'.$sql.'$3', $this->table->Sql);
-        //log_debug($prefix, $sql, $this->table->Sql);
 
         store_object($this);
         store_object($this->table);
