@@ -220,8 +220,15 @@ class ChartJS3 extends Control
                 continue;
             $series['type'] = 'line';
             $series['fill'] = false;
-            $series['pointRadius'] = 0;
             $series['lineTension'] = 0;
+            
+            if( !isset($series['elements']) ) 
+				$series['elements'] = [];
+			if( !isset($series['elements']['point']) ) 
+				$series['elements']['point'] = [];
+			$series['elements']['point']['pointStyle'] = 'line';
+			$series['elements']['point']['borderWidth'] = 0;
+			$series['elements']['point']['hoverBorderWidth'] = 0;
         }
         $this->conf('data.datasets',$this->series);
 
