@@ -607,8 +607,6 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
         store_object($this->table);
         
         $this->extendInnerTable();
-        if(system_is_ajax_call() )
-            $this->logSql("SetFilterValues");
         return $this->table;
     }
     
@@ -649,10 +647,14 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
     
     function countRows()
     {
-        if(!$this->table->ResultSet)
-            $this->table->GetData();
-        $this->logSql("countRows");
-        return $this->table->ResultSet->Count();
+        $this->getResultSet();
+        try
+        {
+            return $this->table->ResultSet->Count();
+        } catch(Exception $ex)
+        {
+            return -1;
+        }
     }
     
     function getResultSet()
