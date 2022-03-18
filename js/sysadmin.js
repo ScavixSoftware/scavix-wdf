@@ -124,14 +124,18 @@ wdf.ready.add(function()
     {
         showLoaderOverlay();
 		var btn = $(this).attr('disabled',true);
+        btn.html('Saving');
 		var lang = btn.data('lang') || $('.translations').data('lang');
         var term = btn.data('term');
 		var text = encodeURIComponent( btn.closest('.tr').find('textarea').val()||'');
         wdf.controller.post('SaveString',{lang:lang,term:term,text:text},function()
 		{
-			btn.val('Saved').addClass('ok');
-            hideLoaderOverlay();
-			setTimeout(function(){ btn.removeAttr('disabled').val('Save').removeClass('ok err').focus(); },1000);
+			btn.html('Saved').addClass('ok');
+            hideLoaderOverlay( function() { 
+                btn.removeAttr('disabled').html('Save').removeClass('ok err');
+                if($('textarea', btn.parents('.tr').next('.tr')).length > 0)
+                    $('textarea', btn.parents('.tr').next('.tr')).focus();
+            });
 		});
     });
 
@@ -196,7 +200,7 @@ var showLoaderOverlay = function()
     $('#loaderoverlay').fadeIn('fast', function() { setTimeout(hideLoaderOverlay, 15 * 1000) } );
 };
 
-var hideLoaderOverlay = function()
+var hideLoaderOverlay = function($callback)
 {
-    $('#loaderoverlay').fadeOut('fast');
+    $('#loaderoverlay').fadeOut('fast', $callback);
 };

@@ -53,7 +53,7 @@ class Button extends Input
         $this->Tag = 'button';
         $this->content($label);
 
-		if( $controller != "" && strpos($controller,"$") === false && strpos($controller,"?") === false )
+		if( ($controller != "") && (strpos($controller,"$") === false) && (strpos($controller,"?") === false) && !starts_with($controller, 'wdf.') )
 			$query = "wdf.redirect('".buildQuery($controller,$event,$data)."')";
 		else
 			$query = $controller;
