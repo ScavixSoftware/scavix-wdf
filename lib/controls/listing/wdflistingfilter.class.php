@@ -225,7 +225,11 @@ class WdfListingFilter extends Template
                 $t = \ScavixWDF\Model\DataSource::Get()->EscapeArgument(trim($t));
                 if( !$t ) continue;
                 foreach( $columns as $col )
-                    $res[] = "(`$col` LIKE '%$t%')";
+                {
+                    if(strpos($col, '`') === false)
+                        $col = '`'.$col.'`';
+                    $res[] = "($col LIKE '%$t%')";
+                }
             }
             if( count($res)>0 )
                 return "(".implode("OR",$res).")";

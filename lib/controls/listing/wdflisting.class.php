@@ -596,11 +596,17 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             {
                 $pos = strpos($this->table->Sql, '/*END-COLUMNS*/');
                 if(strpos(substr($this->table->Sql, $pos), ' WHERE ') === false)
-                    $this->table->Sql = substr($this->table->Sql, 0, $pos).str_replace('/*BEG-ORDER*/', ' HAVING '.$this->filter->getSql(true).'/*BEG-ORDER*/', substr($this->table->Sql, $pos));
+                {
+//                    if(strpos(substr($this->table->Sql, $pos), ' HAVING ') === false)
+                        $this->table->Sql = substr($this->table->Sql, 0, $pos).str_replace('/*BEG-ORDER*/', ' HAVING '.$this->filter->getSql(true).'/*BEG-ORDER*/', substr($this->table->Sql, $pos));
+//                    else
+//                        $this->table->Sql = substr($this->table->Sql, 0, $pos).str_replace(' HAVING ', ' HAVING '.$this->filter->getSql(true).' AND ', substr($this->table->Sql, $pos));
+                }
                 else
                     $this->table->Sql = substr($this->table->Sql, 0, $pos).str_replace(' WHERE ', ' WHERE '.$this->filter->getSql(true).' AND ', substr($this->table->Sql, $pos));
             }
         }
+        
         $this->table->Clear();
         if($resetpager)
             $this->table->ResetPager();

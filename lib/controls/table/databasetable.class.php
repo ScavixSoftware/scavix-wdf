@@ -158,11 +158,11 @@ class DatabaseTable extends Table implements ICallable
 	 */
 	final function GetData()
 	{
-//        log_debug(__METHOD__,$this->Sql,$this);
+//        log_debug(__METHOD__,$this->Sql);
 		if( !$this->Sql )
 			$this->Sql = $this->GetSQL();
 //        $this->Sql = str_ireplace('ORDER BY ORDER BY',"ORDER BY", $this->Sql);
-        
+//        log_debug(__METHOD__,$this->Sql);
 		$this->Clear();
 		$this->ExecuteSql($this->Sql);
         if($this->ResultSet->HadError() && $this->OrderBy)
