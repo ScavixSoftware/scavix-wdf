@@ -272,7 +272,7 @@
                             return wdf.chartjs3._dtFormat(l) +": "+ (val || item.y);
                         };
                         
-                        if( item.parsed._stacks && item.chart.data.datasets.length > 1 )
+                        if( false && item.parsed._stacks && item.chart.data.datasets.length > 1 )
                         {                            var temp = [];
                             item.chart.data.datasets.forEach(function(ds)
                             {
