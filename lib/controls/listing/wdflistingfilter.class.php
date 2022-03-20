@@ -222,14 +222,11 @@ class WdfListingFilter extends Template
             $res = [];
             foreach( explode("\n",wordwrap("$value",1)) as $t )
             {
-                $t = \ScavixWDF\Model\DataSource::Get()->EscapeArgument(trim($t));
+                $ds = \ScavixWDF\Model\DataSource::Get();
+                $t = $ds->EscapeArgument(trim($t));
                 if( !$t ) continue;
                 foreach( $columns as $col )
-                {
-                    if(strpos($col, '`') === false)
-                        $col = '`'.$col.'`';
-                    $res[] = "($col LIKE '%$t%')";
-                }
+                    $res[] = "(".$ds->QuoteColumnName($col)." LIKE '%$t%')";
             }
             if( count($res)>0 )
                 return "(".implode("OR",$res).")";
@@ -242,7 +239,10 @@ class WdfListingFilter extends Template
         return new WdfClosure(function($name,$value)use($column)
         {
             if( $value !== false && $value !== '' && !is_null($value) )
-                return "$column='".\ScavixWDF\Model\DataSource::Get()->EscapeArgument($value)."'";
+            {
+                $ds = \ScavixWDF\Model\DataSource::Get();
+                return $ds->QuoteColumnName($column)."='".$ds->EscapeArgument($value)."'";
+            }
             return "";
         });
     }
@@ -252,6 +252,7 @@ class WdfListingFilter extends Template
         return new WdfClosure(function($name,$value)use($column,$inverted,$xor)
         {
             if( $inverted ) $value = !$value;
+            $column = \ScavixWDF\Model\DataSource::Get()->QuoteColumnName($column);
             if( $value )
                 return "($column IS NULL)";
             return $xor?"($column IS NOT NULL)":"";
@@ -272,7 +273,7 @@ class WdfListingFilter extends Template
                 if(!$ci)
                     return '';
                 $v = date("Y-m-d",$ci->DateTimeFormat->StringToTime($value));
-                return "DATE($column)$op'$v'";
+                return "DATE(".\ScavixWDF\Model\DataSource::Get()->QuoteColumnName($column).")$op'$v'";
             }
             return "";
         });
@@ -292,7 +293,7 @@ class WdfListingFilter extends Template
                 if(!$ci)
                     return '';
                 $v = date("Y-m-d H:i:s",$ci->DateTimeFormat->StringToTime($value));
-                return "$column$op'$v'";
+                return \ScavixWDF\Model\DataSource::Get()->QuoteColumnName($column)."$op'$v'";
             }
             return "";
         });

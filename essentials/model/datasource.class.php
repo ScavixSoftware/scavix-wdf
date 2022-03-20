@@ -264,6 +264,19 @@ class DataSource
 	{
 		return $this->_pdo->quote($value);
 	}
+	
+	/**
+	 * Quotes a column name
+	 * 
+	 * @param string $column The column name to quote
+	 * @return string The quoted column name
+	 */
+	function QuoteColumnName($column)
+	{
+        if((strpos($column, '`') === false) && (strpos($column, '.') === false))
+            $column = '`'.$column.'`';
+		return $column;
+	}
     
     /**
      * Helper to create a valid 'column IN(0,1,2)' sting.
