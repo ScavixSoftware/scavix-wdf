@@ -329,8 +329,7 @@ class MySql implements IDatabaseDriver
                 ?preg_replace('/LIMIT[\s0-9,]+$/i','',$sql)
                 :$sql_limit;
 
-//            $sql_columns = preg_replace("/\/\*BEG-COLUMNS\*\/.+\/\*END-COLUMNS\*\//",'1', $sql);          // DOESN#T WORK with virual columns
-            $sql_columns = $sql;
+            $sql_columns = preg_replace("/\/\*BEG-COLUMNS\*\/.+\/\*END-COLUMNS\*\//",'1', $sql);          // Might not work with virual columns
             $sql = ($sql_columns == $sql)
                 ?((stripos($sql, 'select * from') === 0)?"SELECT 1 FROM".substr($sql,13):$sql)
                 :$sql_columns;
