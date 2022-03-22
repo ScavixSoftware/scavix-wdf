@@ -68,9 +68,10 @@ class DateTimeEx extends DateTime
                 return new DateTimeEx();
             if( $format )
             {
+                $os = $source;
                 $source = \DateTime::createFromFormat($format,$source);
                 if( !$source )
-                    WdfException::Raise("Error creating DateTime object from format '$format' and source '$source'");
+                    WdfException::Raise("Error creating DateTime object from format '$format' and source '$os'");
             }
 			if( $source instanceof DateTimeEx )
 				return clone $source;

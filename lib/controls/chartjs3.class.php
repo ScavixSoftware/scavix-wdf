@@ -59,6 +59,7 @@ class ChartJS3 extends Control
     public static $COLORS = ['red','green','blue','yellow','brown'];
     protected $currentColor = 0;
     protected $xBasedData = false;
+    protected $missingPointCallback = false;
     
     public static $CI = false;
     
@@ -544,7 +545,7 @@ class ChartJS3 extends Control
      * @param string $series_row Name of the field with the series name
      * @param string $x_value_row Name of the field with the x-values
      * @param string $y_value_row Name of the field with the y-values
-     * @param string $pointType Optional classname of the Point handler
+     * @param string|Callable $pointType Optional name of the Point handler or a callable receiving $row,$series,$series_row_name,$x_value_row_name,$y_value_row_name
      * @return $this
      */
     function setSeriesData(iterable $data, string $series_row, string $x_value_row, string $y_value_row, $pointType="StrPoint")
@@ -609,6 +610,19 @@ class ChartJS3 extends Control
         }
         return $this->xLabels($labels)->conf('data.datasets',$this->series);
     }
+    
+    /**
+     * Sets a handler to be called when points are missing.
+     * 
+     * This can be the case when harmonizing data (so that every series has the same X-Values) or when <fillGaps> is called.
+     * @param Callback $missingPointCallback Callback function that receives series_name, x and xval parameters and must return a point
+     * @return $this
+     */
+    function onMissingPoint($missingPointCallback)
+    {
+        $this->missingPointCallback = $missingPointCallback;
+        return $this;
+    }
 
     /**
      * Fill the chart with data using a callback.
@@ -628,6 +642,7 @@ class ChartJS3 extends Control
             foreach( $series['data'] as $point )
             {
                 $data[$point['x']]['data'][$series['name']] = $point['y'];
+                $data[$point['x']]['xval'] = ifavail($point,'xval','x');
                 $data[$point['x']]['total'] = (isset($data[$point['x']]['total']))
                     ?$data[$point['x']]['total']+$point['y']
                     :$point['y'];
@@ -642,24 +657,36 @@ class ChartJS3 extends Control
 		return $this->conf('data.datasets',$this->series);
 	}
     
+    protected function sortHarmonizedValues()
+    {
+        foreach( $this->series as &$series )
+            usort($series['data'], function($a,$b)
+            {
+                $a = ifavail($a,'xval','x'); 
+                $b = ifavail($b,'xval','x'); 
+                return $a<$b?-1:($a>$b?1:0);
+            });
+    }
+    
     protected function harmonizeData()
     {
         if( !$this->xBasedData || count($this->xBasedData)==0 )
             return false;
         
+        $cb = is_callable($this->missingPointCallback)?$this->missingPointCallback:false;
         foreach( $this->xBasedData as $x=>&$point )
         {
+            $xval = ifavail($point,'xval');
             foreach( $this->series as &$series )
             {
-                if( isset($point['data'][$series['name']]) )
+                if( $point && isset($point['data'][$series['name']]) )
                     continue;
-                //$point['data'][$series['name']] = 0;
-                $series['data'][] = ['x'=>$x,'y'=>null];
-//                log_debug("{$series['name']}: adding missing point $x");
+                $series['data'][] = $cb
+                    ?$cb($series['name'],$x,self::phpXVal($xval))
+                    :($xval?['x'=>$x,'y'=>null,'xval'=>$xval]:['x'=>$x,'y'=>null]);
             }
         }
-        foreach( $this->series as &$series )
-            usort($series['data'], function($a,$b){ return $a['x']<$b['x']?-1:($a['x']>$b['x']?1:0); });
+        $this->sortHarmonizedValues();
 
         return true;
     }
@@ -686,15 +713,77 @@ class ChartJS3 extends Control
                     $pt['y'] = ($point['total']>0)
                         ?$pt['yval'] / $point['total'] * 100
                         :0;
-//                    log_debug("$sn($x) = {$pt['yval']} => {$pt['y']}% of {$point['total']}");
                 }
-//                log_debug($series['name'],$series['data']);
                 break;
             }
         }
         return true;
     }
+    
+    protected static function phpXVal($val)
+    {
+        if( !$val || !is_numeric($val) )
+            return $val;
+        if( strlen($val)<13 )
+            return $val;
+        if( !ends_with("$val","000") )
+            return $val;
+        return $val / 1000;
+    }
 
+    /**
+     * Fills all series with contiguous points.
+     * 
+     * @param int|Callback $increment An integer value or a callback, that receives a X-value and returns the next
+     * @return $this
+     */
+    function fillGaps($increment)
+    {
+        if( $this->xMin === false || $this->xMax === false )
+        {
+            foreach( $this->series as $series )
+                foreach( $series['data'] as $row )
+                {
+                    $v = ifavail($row,'xval','x');
+                    if( is_numeric($v) )
+                        $this->setXMinMax($v);
+                }
+        }
+        if( $this->xMin === false || $this->xMax === false )
+        {
+            log_warn(__METHOD__,"Unable to detect numeric min/max values");
+            return $this;
+        }
+        $existing = [];
+        foreach( $this->series as &$series )
+            $existing[$series['name']] = array_map(function($d){ return self::phpXVal(ifavail($d,'xval','x')); },$series['data']);
+            
+        $cur = self::phpXVal($this->xMin);
+        $max = self::phpXVal($this->xMax);
+        $missing = is_callable($this->missingPointCallback)?$this->missingPointCallback:false;
+        $end = time()+10;
+        while( $cur <= $max )
+        {
+            foreach( $this->series as &$series )
+            {
+                if( !in_array($cur, $existing[$series['name']]) )
+                    $series['data'][] = $missing?$missing($series['name'],$cur,$cur):['x'=>$cur,'y'=>null];
+            }
+            if( is_numeric($increment) )
+                $cur += $increment;
+            elseif( is_callable($increment) )
+                $cur = max($increment($cur),$cur);
+            
+            if( $end < time() )
+            {
+                log_warn(__METHOD__,"Running too long, aborting",date("Y-m-d",$cur));
+                break;
+            }
+        }
+        
+        $this->sortHarmonizedValues();
+        return $this;
+    }
 
     /**
      * @shortcut Create a multi-series time chart
