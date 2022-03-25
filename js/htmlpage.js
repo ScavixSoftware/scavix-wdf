@@ -764,7 +764,36 @@
             }
 			wdf.debug("Missing text "+name);
 			return name;
-		}
+		},
+        pushedStates: false,
+        pushState: function()
+        {
+            if( wdf.pushedStates === false )
+            {
+                wdf.pushedStates = [];
+                win.addEventListener('popstate', function(event)
+                {
+//                    for(var i=0; i<wdf.pushedStates.length; i++)
+//                    {
+//                        var state = wdf.pushedStates[i];
+//                        if( state.url == document.location )
+//                        {
+//                            if( state.cb )
+//                                state.cb(state.data || {});
+//                            break;
+//                        }
+//                    }
+                    console.log(event.state);
+                    $('html').replaceWith(event.state.data);
+                });
+            }
+            var html = $('html').prop('outerHTML');
+            var id = Math.random().toString(36).substr(2)+Math.random().toString(36).substr(2);
+            state = {id: id,data:html,prevurl:location.href};
+            wdf.pushedStates.push(state);
+            
+            win.history.pushState({}, '', '#'+id);
+        }
 	};
 	
 	if( typeof win.Debug != "function" )

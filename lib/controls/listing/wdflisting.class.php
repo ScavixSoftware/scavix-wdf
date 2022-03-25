@@ -85,7 +85,10 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
 	public static function Make(...$args)
 	{
         $controller = $datatype = $table = false;
-		if( count($args)>2 )
+		if( count($args)>3 )
+            log_warn(__METHOD__.": Calling with more that 3 arguments is obsolete. Use setter methods for assignment!",$args);
+
+        if( count($args)>2 )
 		{
 			$datatype = $args[0];
 			$controller = $args[1];
@@ -128,6 +131,8 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
 	
 	function setPersistKeyExtra($extra)
 	{
+        if( $this->persistkeyextra == $extra )
+            return $this;
 		$this->persistkeyextra = $extra;
 		return $this->initDataChanged();
 	}	
@@ -143,6 +148,14 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
 	function __construct($datatype=false, $controller=false, $table=false, $persistkeyextra = false, $sortable=true, $pager_items = 25)
 	{
         parent::__construct("div");
+        
+        if( $state = \ScavixWDF\Base\Args::request('listing_state',false) )
+        {
+            self::RestoreSettingsSnapshot($state);
+            unset($_REQUEST['listing_state']);
+            \ScavixWDF\Base\Args::clearBuffer();
+        }
+        
         $this->class = 'listing';
         
         $this->datatype = $datatype?:\ScavixWDF\Model\CommonModel::class;
@@ -238,11 +251,49 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
         self::Storage()->del("{$this->persistance_key}_{$name}");
     }
     
+    protected static $SettingsSnapshotRestored = false;
+    static function RestoreSettingsSnapshot($id)
+    {
+        $store = self::Storage();
+        $buf = $store->dump();
+        if( isset($buf['snapshots']) )
+        {
+            $snapshots = $buf['snapshots'];
+            if( isset($snapshots[$id]) )
+            {
+                $data = unserialize($snapshots[$id]);
+                $store->clear();
+                foreach( $data as $k=>$v )
+                    $store->set($k,$v);
+                $store->set('snapshots',$snapshots);
+                self::$SettingsSnapshotRestored = $id;
+            }
+        }
+    }
+    
+    static function CreateSettingsSnapshot()
+    {
+        $store = self::Storage();
+        $buf = $store->dump();
+        if( isset($buf['snapshots']) )
+        {
+            $snapshots = $buf['snapshots'];
+            unset($buf['snapshots']);
+        }
+        else $snapshots = [];
+        $id = generatePW(12);
+        $snapshots[$id] = serialize($buf);
+        $store->set('snapshots',$snapshots);
+        //log_debug("SNAP $id created",$buf);
+        return $id;
+    }
+    
     static function RestoreSettings($data)
     {
         // self::Storage() buffer is linked to session key "listing_storage"
         //log_debug(__METHOD__,$data);
         $_SESSION["listing_storage"] = $data;
+        self::Storage()->set('snapshots',[]);
     }
     
     function GetTableName()
@@ -370,6 +421,12 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
         return $this->initDataChanged();
     }
     
+    function setExportable($on=true)
+    {
+        $this->exportable = $on;
+        return $this;
+    }
+    
     function setReadonly($on=true)
     {
         $this->readonly = $on;
@@ -386,11 +443,18 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
 	{
 		return $this->setItemsPerPage($items_per_page);
 	}
+    
+    function ResetPager()
+    {
+        if( !self::$SettingsSnapshotRestored )
+            $this->table->ResetPager();
+        return $this;
+    }
 	
     function setItemsPerPage($perpage)
     {
         if( !self::$ShowCompleteData )
-            $this->table->AddPager($perpage);
+            $this->table->AddPager($perpage, self::$SettingsSnapshotRestored?false:1);
         return $this;
     }
     
@@ -780,14 +844,48 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
         $this->table->GotoPage($number);
         $this->extendInnerTable();
         $this->store();
-        return $this->table;
+        $id = self::CreateSettingsSnapshot();
+        return $this->table->data('state-id',$id);
+        //return AjaxResponse::Renderable($this->table)->AddScript("wdf.listings.pushState('$id')");
 	}
     
-    function Reload()
+    /**
+	 * @internal Will be polled via AJAX to reload listing. Optionally for a specific state.
+	 * @attribute[RequestParam('state_id','string','')]
+	 */
+    function Reload($state_id)
     {
-        $this->table->SetStorage(self::Storage());
-        $this->extendInnerTable();
-        $this->store();
+//        log_debug("Reload($state_id)");
+        if( $state_id )
+        {
+            $snap = self::Storage()->get('snapshots',[]);
+            if( isset($snap[$state_id]) )
+            {
+                $store = \ScavixWDF\Wdf::GetBuffer(
+                    "listing_storage_snapshot_{$state_id}",
+                    unserialize($snap[$state_id])
+                    );
+            }
+        }           
+            
+        if( isset($store) )
+        {
+            $page = $store->get("{$this->persistance_key}_page",1);
+//            log_debug("SNAP page",$page);
+            $this->table->SetStorage($store);
+            $this->table->CurrentPage = $page;
+            //$this->table->GotoPage($page);
+            $this->extendInnerTable();
+        }
+        else
+        {
+            $this->table->SetStorage(self::Storage());
+            if( $state_id == '-' )
+                $this->table->ResetPager();
+            $this->extendInnerTable();
+            $this->store();
+            $store = self::Storage();
+        }
         return $this->table;
     }
     

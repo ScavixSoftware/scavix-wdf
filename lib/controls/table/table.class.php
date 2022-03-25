@@ -80,6 +80,31 @@ class Table extends Control
             $this->force_ajax_dependenciesloading = true;
 	}
     
+    protected final function checkCallIsCorrectlyListingWrapped($hard=false)
+    {
+        if( !($this->par() instanceof \ScavixWDF\Controls\Listing\WdfListing) )
+            return;
+        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+        array_shift($trace);
+        $cls = \ScavixWDF\Controls\Listing\WdfListing::class;
+        $stack = [];
+        foreach( $trace as $entry )
+        {
+            if( count($stack)>20 || is_in($entry['function'],"system_invoke_request","system_execute") )
+                break;
+            $stack[] = $entry['file'].':'.$entry['line'];
+            if( !isset($entry['class']) )
+                continue;
+            if( $entry['class'] == $cls || is_subclass_of($entry['class'],$cls) )
+                return;
+        }
+        $method = $trace[0]['class'].$trace[0]['type'].$trace[0]['function'];
+        $msg = "Invalid call to '$method' on a listing-owned table. Use Listings wrapper method instead.";
+        if( $hard )
+            WdfException::Raise($msg);
+        log_warn($msg."\n\t".implode("\n\t",$stack));
+    }
+    
     protected $persistance_storage;
     protected function storage()
     {
@@ -296,8 +321,8 @@ class Table extends Control
             'top_pager' => $this->ItemsPerPage && !$this->HidePager && $this->PagerAtTop,
             'bottom_pager' => $this->ItemsPerPage && !$this->HidePager
         );
-        
-        $this->script("wdf.tables.init('#{self}',".json_encode($opts).");");
+        $this->data('options',$opts);
+        $this->script("wdf.tables.init('#{self}');");
 		if( isset($this->RowOptions['hoverclass']) && $this->RowOptions['hoverclass'] )
 		{
 			$over = "function(){ $(this).addClass('{$this->RowOptions['hoverclass']}') }";
@@ -617,6 +642,8 @@ class Table extends Control
 	{
         if( count($toomany) > 0 )
             WdfException::Raise("Use of obsolete method signature");
+        $this->checkCallIsCorrectlyListingWrapped();
+        
 		$this->TotalItems = 0;
 		$this->ItemsPerPage = $items_per_page;
         if($current_page !== false)
@@ -639,6 +666,7 @@ class Table extends Control
      */
     function Persist($name, \ScavixWDF\WdfBuffer $storage=null)
     {
+        $this->checkCallIsCorrectlyListingWrapped();
         $this->persistance_storage = $storage;
         $this->PersistName = $name;
         if( $this->hasSetting('page') )
@@ -660,6 +688,7 @@ class Table extends Control
      */
     function SetStorage(\ScavixWDF\WdfBuffer $storage)
     {
+        $this->checkCallIsCorrectlyListingWrapped();
         $this->persistance_storage = $storage;
     }
     
@@ -670,6 +699,8 @@ class Table extends Control
      */
     function ResetPager()
     {
+        $this->checkCallIsCorrectlyListingWrapped();
+        
         if( $this->ItemsPerPage )
            $this->CurrentPage = 1;
         $this->delSetting('page');
@@ -697,6 +728,7 @@ class Table extends Control
 	 */
 	function GotoPage($number)
 	{
+        $this->checkCallIsCorrectlyListingWrapped();
         $this->CurrentPage = $number;
         $this->setSetting('page', $this->CurrentPage);
         $this->TriggerOnPageChanged();
@@ -705,6 +737,7 @@ class Table extends Control
     var $PagerPrefix = false;
 	protected function RenderPager()
 	{
+        $this->checkCallIsCorrectlyListingWrapped();
 		$pages = ceil($this->TotalItems / $this->ItemsPerPage);
         $hidden = ($pages < 2) && (!$this->ShowTotalText || ($this->TotalItems == 0));
         

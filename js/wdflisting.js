@@ -13,7 +13,6 @@ wdf.ready.add(function()
                 
                 $filter.submit(function(e)
                 {
-//                    console.log("submitted");
                     e.preventDefault();
                     var $form = $(this), data;
                     if( $form.data('reset') )
@@ -140,17 +139,68 @@ wdf.ready.add(function()
                 $(this).data('gotoPage',function(table,n)
                 {
                     var tab = $(table), self = tab.closest('.listing');
-                    var prevPos = self.css('position');
-                    self.css('position', 'relative');
+                    self.data("css-position",self.css('position')).css('position', 'relative');
                     tab.addClass('blurred');
                     tab.overlay();
 
                     wdf.post(self.attr('id')+'/gotopage',{number:n},(d,s,p) =>
                     {
-                        wdf.tables.update(tab,d,p.wait());
-                        self.css('position', prevPos);
+                        var done = p.wait();
+                        wdf.tables.update(tab,d,function()
+                        {
+                            self.css('position', self.data("css-position"));
+                            var id = $(table).data('state-id');
+                            if( id )
+                                wdf.listings.pushState(id);
+                            wdf.processCallback(done);
+                        });
                     });
                 })
+            });
+        },
+        
+        each: function(callback)
+        {
+            $('.listing').each(function() { callback("#"+$(this).attr('id')); });
+        },
+        
+        states: false,
+        pushState: function(id)
+        {
+            if( wdf.listings.states === false )
+            {
+                wdf.listings.states = {};
+                window.addEventListener('popstate', function(event)
+                {
+                    var estate = event.state || {trigger:'listing',id:'-'};
+                    if( !estate || estate.trigger !== 'listing' )
+                        return;
+                    wdf.listings.restoreState(estate.id);
+                });
+            }
+            wdf.listings.states[id] = {};
+            wdf.listings.each(function(listing)
+            {
+                if( id == '-' && $('.pager .current',listing).text() == 1 )
+                    wdf.listings.states[id][listing] = $(listing).html();
+            });
+            if( id != '-' )
+            {
+                var url = new URL(location);
+                url.searchParams.set('listing_state',id);
+                window.history.pushState({trigger:'listing',id:id}, '', url);
+            }
+        },
+        
+        restoreState: function(id)
+        {
+            var state = wdf.listings.states[id];
+            wdf.listings.each(function(listing)
+            {
+                if( !state || !state[listing] )
+                    wdf.listings.reload(listing,id);
+                else
+                    $(listing).html(state[listing]);
             });
         },
         
@@ -197,7 +247,7 @@ wdf.ready.add(function()
             });
         },
         
-        reload: function(listing)
+        reload: function(listing, stateId)
         {
             return $(listing).each(function()
             {
@@ -206,8 +256,8 @@ wdf.ready.add(function()
                 self.css('position', 'relative');
                 tab.addClass('blurred');
                 tab.overlay();
-
-                wdf.get(self.attr('id')+'/reload',(d,s,p) =>
+                
+                wdf.get(self.attr('id')+'/reload',{"state_id":stateId||''},(d,s,p) =>
                 {
                     wdf.tables.update(tab,d,p.wait());
                     tab.removeClass('blurred');
@@ -232,4 +282,6 @@ wdf.ready.add(function()
     
     wdf.listings.init();
     wdf.ajaxReady.add(wdf.listings.init);
+    
+    wdf.defer(function(){ wdf.listings.pushState('-'); });
 });

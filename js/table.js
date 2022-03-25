@@ -33,7 +33,6 @@
         init: function(table,opts)
         {
             var $elem = $(table);
-            var elem_opts = $.extend({bottom_pager:false,top_pager:false},opts||{});
 
             return $elem.each( function()
             {
@@ -78,12 +77,11 @@
                 }
 
                 $('.thead a[data-sort]',self).click( function(e) { self.overlay(); });
-                wdf.tables.placePager(this,elem_opts);
+                wdf.tables.placePager(this);
             });
         },
         gotoPage: function(table,n)
         {
-//            console.log("wdf.tables.gotoPage");
             var self = $(table), handler = self.data('gotoPage');
             if( handler )
             {
@@ -98,17 +96,16 @@
         },
         update: function(table, html, callbackwhendone)
         {
-//            console.log("wdf.tables.update");
             var self = $(table);
             self.overlay('remove', function() {
                 self.prev('.pager').remove(); 
                 self.next('.pager').remove();
-                var newobj = $(html);
-                self.replaceWith(newobj); 
+                self.replaceWith(html);
+                self = $(table);
                 $('.thead a',self).click(self.overlay);
-                wdf.tables.placePager(self,self.opts);
-                var lst = newobj.parent();
-                if($('.tbody > div', newobj).length > 0)
+                wdf.tables.placePager(self);
+                var lst = self.parent();
+                if($('.tbody > div', self).length > 0)
                     $('.multi-actions, .btnexport', lst).show();
                 else
                     $('.multi-actions, .btnexport', lst).hide();
@@ -117,9 +114,11 @@
         },
         placePager: function(table,opts)
         {
-//            console.log("wdf.tables.placePager");
             var self = $(table);
             var $p = $('.pager',self).remove();
+            
+            if( !opts )
+                opts = self.data('options');
 
             if( opts )
             {
