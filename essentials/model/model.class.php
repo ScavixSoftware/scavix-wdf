@@ -276,6 +276,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$this->_isInherited = $this->_className != "Model";
 		if( !$datasource )
 		{
+            self::$DefaultDatasource = model_datasource('default');
 			if( !self::$DefaultDatasource )
 			{
                 if(avail(Wdf::$DataSources, 'system'))
