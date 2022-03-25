@@ -91,6 +91,32 @@ class HelpTask extends \ScavixWDF\Tasks\Task
  */
 class SearchTask extends \ScavixWDF\Tasks\Task	
 {
+    private function listFiles()
+    {
+        $res = [];
+        log_info("Searching for files in '".getcwd()."'...");
+		$dir = new RecursiveDirectoryIterator(getcwd());
+		$it = new RecursiveIteratorIterator($dir);
+		$regit = new RegexIterator($it, '/^.+\.php$/i', RecursiveRegexIterator::GET_MATCH);
+		foreach( $regit as $phpFile )
+			$res[] = $phpFile[0];
+		
+		$in_phar = (stripos(__DIR__,"phar://") !== false);
+		
+		if( $in_phar )
+			$res[] = __FILE__;
+		elseif( strpos(__DIR__,getcwd().'/') !== 0 ) 
+		{
+			log_info("Searching for files in '".__DIR__."'...");
+			$dir = new RecursiveDirectoryIterator(__DIR__,FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS);
+			$it = new RecursiveIteratorIterator($dir);
+			$regit = new RegexIterator($it, '/^.+\.php$/i', RecursiveRegexIterator::GET_MATCH);
+			foreach( $regit as $phpFile )
+				$res[] = $phpFile[0];
+		}
+        return $res;
+    }
+    
 	function Run($args)
 	{
 		$fqcns = []; $done = [];
@@ -123,41 +149,29 @@ class SearchTask extends \ScavixWDF\Tasks\Task
 				}
 			}
 		};
+        
+        foreach( $this->listFiles() as $file )
+            $processClassFile($file);
 		
-		log_info("Searching for tasks in '".getcwd()."'...");
-		$dir = new RecursiveDirectoryIterator(getcwd());
-		$it = new RecursiveIteratorIterator($dir);
-		$regit = new RegexIterator($it, '/^.+\.php$/i', RecursiveRegexIterator::GET_MATCH);
-		foreach( $regit as $phpFile )
-			$processClassFile($phpFile[0]);
-		
-		$in_phar = (stripos(__DIR__,"phar://") !== false);
-		
-		if( $in_phar )
-			$processClassFile(__FILE__);
-		elseif( strpos(__DIR__,getcwd().'/') !== 0 ) 
-		{
-			log_info("Searching for tasks in '".__DIR__."'...");
-			$dir = new RecursiveDirectoryIterator(__DIR__,FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS);
-			$it = new RecursiveIteratorIterator($dir);
-			$regit = new RegexIterator($it, '/^.+\.php$/i', RecursiveRegexIterator::GET_MATCH);
-			foreach( $regit as $phpFile )
-				$processClassFile($phpFile[0]);
-		}
-		
+        $in_phar = (stripos(__DIR__,"phar://") !== false);
 		$reflector = $in_phar?str_replace("phar://","",__DIR__):$GLOBALS['argv'][0];
 		$tasks = [];
 		foreach( array_chunk(array_unique($fqcns),20) as $chunk )
 		{
 			try
 			{
-				$cls = implode(" ",$chunk);
-				$out = shell_exec("php $reflector searchtask-reflect $cls");
-				$test = json_decode($out,true);
+                $cls = implode(" ",array_map(function($c){ return "\"$c\""; },$chunk));
+                $out = shell_exec("php $reflector searchtask-reflect $cls");
+				$test = json_decode("$out",true);
 				if( !$test )
 					continue;
 				foreach( $test as $entry )
-					log_info("\nFile       : {$entry['file']}\nCommand    : {$entry['name']}\nDescription: {$entry['desc']}");
+                {
+                    if( isset($entry['ex']) )
+                        log_error($entry['ex']);
+					else
+                        log_info("\nFile       : {$entry['file']}\nCommand    : {$entry['name']}\nDescription: {$entry['desc']}");
+                }
 			}
 			catch(\Exception $ex){ log_debug("Caught",$ex); }
 		}
@@ -183,9 +197,32 @@ class SearchTask extends \ScavixWDF\Tasks\Task
 					$res[] = ['name'=>$cls,'file'=>$ref->getFileName(),'desc'=>$md];
 				}
 			}
-			catch(\Exception $ex){ }
+            catch(\Exception $ex){ }
 		}
 		die(json_encode($res));
+	}
+    
+    function LoadClassesTest($args)
+	{
+        $preload = implode(" ",array_map(function($c){ return "\"$c\""; },$args));
+        $in_phar = (stripos(__DIR__,"phar://") !== false);
+        $reflector = $in_phar?str_replace("phar://","",__DIR__):$GLOBALS['argv'][0];
+        foreach( $this->listFiles() as $file )
+        {
+            if( $file == __FILE__ || !fnmatch("*.class.php", $file) || strpos($file, "/system") )
+                continue;
+            $out = trim(shell_exec("php $reflector SearchTask-LoadClassesTestWorker $preload \"$file\" 2>&1"));
+            if( $out )
+                log_error("Error in file $file:\n$out\n");
+        }
+    }
+    
+    function LoadClassesTestWorker($args)
+	{
+        ob_start();
+        foreach( $args as $a )
+            require($a);
+        ob_end_clean();
 	}
 }
 
