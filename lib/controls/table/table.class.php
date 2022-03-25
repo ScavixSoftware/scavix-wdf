@@ -737,7 +737,6 @@ class Table extends Control
     var $PagerPrefix = false;
 	protected function RenderPager()
 	{
-        $this->checkCallIsCorrectlyListingWrapped();
 		$pages = ceil($this->TotalItems / $this->ItemsPerPage);
         $hidden = ($pages < 2) && (!$this->ShowTotalText || ($this->TotalItems == 0));
         
