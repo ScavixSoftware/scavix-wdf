@@ -43,26 +43,40 @@ class RequestLogEntry extends Model
      */
     public function GetTableName(): string { return "wdf_requests"; }
 
+    protected function __ensureTableSchema()
+    {
+        if( $this->_ds->Driver instanceof \ScavixWDF\Model\Driver\MySql )
+            return parent::__ensureTableSchema();
+        
+        self::$_schemaCache[$this->_cacheKey] 
+            = $this->_tableSchema 
+            = new \ScavixWDF\Model\TableSchema($this->_ds,$this->GetTableName());
+        return $this->_tableSchema;
+    }
+    
     protected function CreateTable()
     {
-        $this->_ds->ExecuteSql(
-            "CREATE TABLE `wdf_requests` (
-                `id` VARCHAR(40) NOT NULL,
-                `created` DATETIME NULL DEFAULT NULL,
-                `ms` FLOAT NULL DEFAULT NULL,
-                `session_id` VARCHAR(50) NULL DEFAULT NULL,
-                `ip` VARCHAR(50) NOT NULL,
-                `url` VARCHAR(255) NULL DEFAULT NULL,
-                `post` TEXT NULL DEFAULT NULL,
-                `result` TEXT NULL DEFAULT NULL,
-                INDEX `created` (`created`),
-                INDEX `ip` (`ip`),
-                INDEX `url` (`url`),
-                INDEX `post` (`post`),
-                PRIMARY KEY (`id`)
-            )
-            COLLATE='utf8_unicode_ci';");
-        $this->AlterTable();
+        if( $this->_ds->Driver instanceof \ScavixWDF\Model\Driver\MySql )
+        {
+            $this->_ds->ExecuteSql(
+                "CREATE TABLE `wdf_requests` (
+                    `id` VARCHAR(40) NOT NULL,
+                    `created` DATETIME NULL DEFAULT NULL,
+                    `ms` FLOAT NULL DEFAULT NULL,
+                    `session_id` VARCHAR(50) NULL DEFAULT NULL,
+                    `ip` VARCHAR(50) NOT NULL,
+                    `url` VARCHAR(255) NULL DEFAULT NULL,
+                    `post` TEXT NULL DEFAULT NULL,
+                    `result` TEXT NULL DEFAULT NULL,
+                    INDEX `created` (`created`),
+                    INDEX `ip` (`ip`),
+                    INDEX `url` (`url`),
+                    INDEX `post` (`post`),
+                    PRIMARY KEY (`id`)
+                )
+                COLLATE='utf8_unicode_ci';");
+            $this->AlterTable();
+        }
     }
     
     protected function AlterTable(){}
@@ -83,6 +97,8 @@ class RequestLogEntry extends Model
     
     protected function SaveToDB($data=[])
     {
+        if( !($this->_ds->Driver instanceof \ScavixWDF\Model\Driver\MySql) )
+            return;
         $this->started = microtime(true); // not in DB!
         $this->created = 'now()';
         $this->session_id = session_id();
@@ -142,6 +158,9 @@ class RequestLogEntry extends Model
     
     public function _done($args)
     {
+        if( !($this->_ds->Driver instanceof \ScavixWDF\Model\Driver\MySql) )
+            return;
+        
         if( $this->handled )
             return;
         $this->handled = true;
@@ -168,6 +187,9 @@ class RequestLogEntry extends Model
      */
     public static function Finish($result)
     {
+        if( !($this->_ds->Driver instanceof \ScavixWDF\Model\Driver\MySql) )
+            return;
+        
         if( self::$Current )
             self::$Current->_done([$result]);
     }
@@ -180,6 +202,9 @@ class RequestLogEntry extends Model
      */
     public static function Cleanup($maxage)
     {
+        if( !($this->_ds->Driver instanceof \ScavixWDF\Model\Driver\MySql) )
+            return;
+        
         DataSource::Get()->ExecuteSql(
             "DELETE FROM wdf_requests WHERE created<now()-interval $maxage"
         );
