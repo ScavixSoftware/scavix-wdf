@@ -238,7 +238,7 @@ function get_timezone_by_ip($ip = false)
     foreach( $services as $url=>$cb )
     {
         $triedurls[] = $url;
-        $isDst = date('I');
+        $isDst = false; //date('I');
         if( $url == 'geo' ) // prepare geo search inline to only have overhead when we reach that case
         {
             $coords = get_coordinates_by_ip($ip);
@@ -307,7 +307,7 @@ function get_timezone_by_ip($ip = false)
             }
             
 //            if(isDev())
-//                log_debug($url, $zone, $tz);
+//                log_debug($url, $zone, $tz, $isDst);
             cache_set($key, $zone[0], 24 * 60 * 60);
             return $zone[0];
         }
