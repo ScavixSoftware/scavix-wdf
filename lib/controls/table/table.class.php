@@ -82,7 +82,7 @@ class Table extends Control
     
     protected final function checkCallIsCorrectlyListingWrapped($hard=false)
     {
-        if( !($this->par() instanceof \ScavixWDF\Controls\Listing\WdfListing) )
+        if( !$this->_parent || !($this->par() instanceof \ScavixWDF\Controls\Listing\WdfListing) )
             return;
         $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
         array_shift($trace);
