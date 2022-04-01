@@ -591,7 +591,7 @@ function system_exit($result=null,$die=true)
  * Will be called from exception and error handlers. You may, call this directly, but we
  * recommend to throw an exception instead. See the WdfException class and it's Raise() method
  * for more about this.
- * Note: This function will call `die()`!
+ * Note: This function will call `system_exit()`!
  * @param string $reason The reason as human readable and hopefully understandable text
  * @param string $additional_message More details to be logged
  * @return void
@@ -629,7 +629,7 @@ function system_die($reason,$additional_message='',$log_error=true)
             $res = 'Fatal system error (ErrorID: '.$errid.')'."\n".$reason."\n".$additional_message."\n".system_stacktrace_to_string($stacktrace);
         else
             $res = 'Oh no! A fatal system error occured. Please try again. Contact our technical support if this problem occurs again (ErrorID: '.$errid.')';
-		die("$res\n");
+		system_exit("$res\n");
     }
     elseif( system_is_ajax_call() )
 	{
@@ -637,7 +637,7 @@ function system_die($reason,$additional_message='',$log_error=true)
             $res = AjaxResponse::Error('Fatal system error (ErrorID: '.$errid.')'."\n".$reason."\n".$additional_message."\n".system_stacktrace_to_string($stacktrace),true);
         else
             $res = AjaxResponse::Error('Oh no! A fatal system error occured. Please try again. Contact our technical support if this problem occurs again (ErrorID: '.$errid.')',true);
-		die($res->Render());
+		system_exit($res->Render());
 	}
 	else
 	{
@@ -649,7 +649,7 @@ function system_die($reason,$additional_message='',$log_error=true)
 		else
             $res .= "<br/>Please try again.<br/>Contact our technical support if this problem occurs again (ErrorID: {$errid}).<br/><br/>Apologies for any inconveniences this may have caused you.";
 		$res .= "</body></html>";
-        die($res);
+        system_exit($res);
 	}
 }
 

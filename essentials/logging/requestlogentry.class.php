@@ -71,7 +71,7 @@ class RequestLogEntry extends Model
                     INDEX `created` (`created`),
                     INDEX `ip` (`ip`),
                     INDEX `url` (`url`),
-                    INDEX `post` (`post`),
+                    INDEX `post` (`post`(1024)),
                     PRIMARY KEY (`id`)
                 )
                 COLLATE='utf8_unicode_ci';");
