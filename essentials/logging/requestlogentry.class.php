@@ -61,11 +61,11 @@ class RequestLogEntry extends Model
             $this->_ds->ExecuteSql(
                 "CREATE TABLE `wdf_requests` (
                     `id` VARCHAR(40) NOT NULL,
-                    `created` DATETIME NULL DEFAULT NULL,
+                    `created` TIMESTAMP(3) NULL DEFAULT current_timestamp(3),
                     `ms` FLOAT NULL DEFAULT NULL,
                     `session_id` VARCHAR(50) NULL DEFAULT NULL,
-                    `ip` VARCHAR(50) NOT NULL,
-                    `url` VARCHAR(255) NULL DEFAULT NULL,
+                    `ip` VARCHAR(255) NOT NULL,
+                    `url` VARCHAR(1000) NULL DEFAULT NULL,
                     `post` TEXT NULL DEFAULT NULL,
                     `result` TEXT NULL DEFAULT NULL,
                     INDEX `created` (`created`),
@@ -99,12 +99,20 @@ class RequestLogEntry extends Model
     {
         if( !($this->_ds->Driver instanceof \ScavixWDF\Model\Driver\MySql) )
             return;
+        
         $this->started = microtime(true); // not in DB!
-        $this->created = 'now()';
+//        $this->created = 'NOW(3)';
         $this->session_id = session_id();
         $this->ip = get_ip_address();
         $this->url = ifavail(\ScavixWDF\Wdf::$Request,'URL')?:system_current_request(true);
-        $this->post = json_encode($this->obfuscateData($_POST));
+        $post = $_POST;
+        if(count($post) == 0)
+        {
+            $post = json_decode(@file_get_contents('php://input'), true);
+            if(!$post)
+                $post = [];
+        }
+        $this->post = json_encode($this->obfuscateData($post));
         $id = md5($this->ip.'-'.$this->url.'-'.$this->post.'-'.$this->started);
         
         if( $this->Blacklisted() )
@@ -162,8 +170,9 @@ class RequestLogEntry extends Model
             return;
         
         if( $this->handled )
-            return;
+            return;        
         $this->handled = true;
+        
         $message = array_shift($args);
         
         if( $message instanceof uiMessage )
@@ -176,10 +185,25 @@ class RequestLogEntry extends Model
         $this->ms = ceil( (microtime(true)-$this->started)*1000 );
         $this->result = $message;
         
-        $this->_ds->ExecuteSql(
-            "UPDATE `wdf_requests` SET ms={$this->ms}, result=? WHERE id='{$this->id}'",
-            [$this->result]
-        );
+        $changedcols = $this->GetChanges();
+        if(count($changedcols) == 0)
+            return;
+        $args = [];
+        $sql = 'UPDATE LOW_PRIORITY `wdf_requests` SET ';
+        foreach($changedcols as $col => $vals)
+        {
+            $sql .= ((count($args) > 0) ? ', ' : '').'`'.$col.'`=?';
+            $args[] = $vals[1];
+        }
+        $sql .= ' WHERE id=?';
+        $args[] = $this->id;
+        $this->_ds->ExecuteSql($sql, $args);
+//        log_debug($sql, $args);
+        
+//        $this->_ds->ExecuteSql(
+//            "UPDATE `wdf_requests` SET ms={$this->ms}, result=? WHERE id='{$this->id}'",
+//            [$this->result]
+//        );
     }
     
     /**
@@ -187,8 +211,8 @@ class RequestLogEntry extends Model
      */
     public static function Finish($result)
     {
-        if( !($this->_ds->Driver instanceof \ScavixWDF\Model\Driver\MySql) )
-            return;
+//        if( !($this->_ds->Driver instanceof \ScavixWDF\Model\Driver\MySql) )
+//            return;
         
         if( self::$Current )
             self::$Current->_done([$result]);
@@ -202,8 +226,8 @@ class RequestLogEntry extends Model
      */
     public static function Cleanup($maxage)
     {
-        if( !($this->_ds->Driver instanceof \ScavixWDF\Model\Driver\MySql) )
-            return;
+//        if( !($this->_ds->Driver instanceof \ScavixWDF\Model\Driver\MySql) )
+//            return;
         
         DataSource::Get()->ExecuteSql(
             "DELETE FROM wdf_requests WHERE created<now()-interval $maxage"

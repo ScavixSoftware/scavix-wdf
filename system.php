@@ -1228,7 +1228,7 @@ function redirect($controller,$event="",$data="",$url_root=false)
 
     translation_add_unknown_strings();
 	header("Location: ".$url);
-	exit;
+    system_exit('Location: '.$url);
 }
 
 /**

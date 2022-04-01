@@ -103,7 +103,6 @@ class RateLimit extends \ScavixWDF\Model\Model
         $maxage = array_first(array_keys($this->limits));
         $this->_ds->Execute("DELETE FROM wdf_ratelimits WHERE name='{$this->name}' AND created<NOW()-INTERVAL $maxage SECOND");
         
-//        $timer = start_timer('waited');
         $end = time() + $timeout_seconds;
         do
         {
@@ -114,7 +113,6 @@ class RateLimit extends \ScavixWDF\Model\Model
             }
             $ok = true;
             $count = $this->_ds->ExecuteSql($sql)->current();
-            //log_debug("cnt", json_encode($count));
             foreach( $this->limits as $seconds=>$limit )
                 $ok &= $count[$seconds] < $limit;
             
@@ -122,7 +120,6 @@ class RateLimit extends \ScavixWDF\Model\Model
             {
                 $this->_ds->Execute("INSERT INTO wdf_ratelimits(name)VALUES('{$this->name}')");
                 \ScavixWDF\Wdf::ReleaseLock($this->name);
-//                finish_timer($timer);
                 return true;
             }
             
@@ -130,10 +127,13 @@ class RateLimit extends \ScavixWDF\Model\Model
             usleep(500000);
         }
         while( time() < $end );
-//        finish_timer($timer);
+        log_debug(__METHOD__, 'unable to reserve');
         return false;
     }
     
+    /***
+     * Limit to $limit calls per $seconds seconds
+     */
     public function PerSeconds($seconds, $limit)
     {
         $this->limits[$seconds] = $limit;
