@@ -607,4 +607,18 @@ class WdfDbException extends WdfException
             return $this->statement->ErrorInfo();
         return ['','',"Error preparing the SQL statement. Most likely there's an error in the SQL syntax."];
     }
+    
+    function isDuplicateKeyException($key = false)
+    {
+        list($c1,$c2,$msg) = $this->getErrorInfo();
+        $regex = "/Duplicate entry '.*' for key".($key ? " '".$key."'" : '')."/i";
+        return (preg_match($regex, $msg, $dummy) != false);
+    }
+    
+    function isTableNotExistException($table = false)
+    {
+        list($c1,$c2,$msg) = $this->getErrorInfo();
+        $regex = "/Table '.*".($table ? $table : '')."' doesn't exist/i";
+        return (preg_match($regex, $msg, $dummy) != false);
+    }
 }

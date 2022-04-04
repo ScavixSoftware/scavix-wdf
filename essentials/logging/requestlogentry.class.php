@@ -121,6 +121,7 @@ class RequestLogEntry extends Model
         foreach( $data as $k=>$v )
             $this->$k = $v;
         
+        \ScavixWDF\WdfDbException::$DISABLE_LOGGING = true;
         $i = 0;
         do
         {
@@ -131,20 +132,24 @@ class RequestLogEntry extends Model
                 register_hook(HOOK_PRE_FINISH,$this,'_done',true);
                 register_hook(HOOK_SYSTEM_DIE,$this,'_died',true);
                 RequestLogEntry::$Current = $this;
+                \ScavixWDF\WdfDbException::$DISABLE_LOGGING = false;
                 return true;
             }
-            catch(\Exception $ex)
+            catch(\ScavixWDF\WdfDbException $ex)
             {
-				if( preg_match("/Table '.*wdf_requests' doesn't exist/i", $ex->getMessage(), $dummy) !== false )
+                \ScavixWDF\WdfDbException::$DISABLE_LOGGING = false;
+//                log_debug(__METHOD__, $ex->getErrorInfo());
+                if($ex->isTableNotExistException('wdf_requests'))
 				{
 					$this->CreateTable();
 					continue;
-				}else log_debug("MSG: ",$ex->getMessage());
-                if( preg_match("/Duplicate entry '.*' for key 'id'/i", $ex->getMessage(), $dummy) === false )
+				}
+                if(!$ex->isDuplicateKeyException('PRIMARY'))
                     throw $ex;
             }
         }
         while($i++<10);
+        \ScavixWDF\WdfDbException::$DISABLE_LOGGING = false;
         return false;
     }
     
