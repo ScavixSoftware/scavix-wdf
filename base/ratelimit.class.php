@@ -127,7 +127,7 @@ class RateLimit extends \ScavixWDF\Model\Model
             usleep(500000);
         }
         while( time() < $end );
-        log_debug(__METHOD__, 'unable to reserve');
+        log_debug(__METHOD__, 'unable to reserve', $this->name);
         return false;
     }
     
