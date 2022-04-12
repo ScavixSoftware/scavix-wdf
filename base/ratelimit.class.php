@@ -90,6 +90,7 @@ class RateLimit extends \ScavixWDF\Model\Model
     {
         $res = new RateLimit();
         $res->name = md5($name);
+        $res->internal_name = $name;
         return $res;
     }
        
@@ -127,7 +128,7 @@ class RateLimit extends \ScavixWDF\Model\Model
             usleep(500000);
         }
         while( time() < $end );
-        log_debug(__METHOD__, 'unable to reserve', $this->name);
+        log_trace(__METHOD__, 'unable to reserve', $this);
         return false;
     }
     
