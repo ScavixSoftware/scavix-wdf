@@ -595,6 +595,11 @@ abstract class Renderable implements \JsonSerializable
 			if( $index < 0 )
 				WdfException::Raise("Cannot insert because index not found");
 		}
+        if( count($this->_content) == 0 )
+        {
+            $this->_content[] = $content;
+            return $this;
+        }
 		$buf = $this->_content;
 		$this->_content = [];
 		$i = 0;

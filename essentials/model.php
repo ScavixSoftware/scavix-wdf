@@ -316,27 +316,38 @@ function model_run_script($file,$datasource=false,$verbose=false)
     $sql = preg_replace("/^(#|--).*$/m", "", $sql);
 
 	WdfDbException::$DISABLE_LOGGING = true;
-    foreach( preg_split('/;[\r\n]+/', $sql) as $statement )
+    $delimiter = ";";
+    foreach( preg_split('/(DELIMITER\s+.*)[\r\n]+/', $sql, -1, PREG_SPLIT_DELIM_CAPTURE) as $delimited )
     {
-        $statement = trim($statement);
-        $ignore = isset($statement[0]) && $statement[0]=='@';
-        $statement = trim($statement,";@ \t\r\n");
-        if( $statement )
+        if( starts_iwith($delimited, 'DELIMITER') )
         {
-            try
+            $delimiter = trim(str_ireplace('DELIMITER','',$delimited));
+            if( $verbose )
+                log_debug("Running SQL: '$delimited'");
+            $ds->ExecuteSql($delimited);
+        }
+        else foreach( preg_split('/'.preg_quote($delimiter).'[\r\n]+/', $delimited) as $statement )
+        {
+            $statement = trim($statement);
+            $ignore = isset($statement[0]) && $statement[0]=='@';
+            $statement = trim($statement,";@ \t\r\n");
+            if( $statement )
             {
-                if( !ends_with($statement,';') )
-                    $statement .= ";";
-                if( $verbose )
-                    log_debug("Running SQL: '$statement'");
-                $ds->ExecuteSql($statement);
-            }
-            catch(Exception $first)
-            {
-                if( !$ignore )
-                    throw $first;
-                if( $verbose )
-                    log_debug("Expected (handled) error: ",$first->getMessage());
+                try
+                {
+                    if( !ends_with($statement,$delimiter) )
+                        $statement .= $delimiter;
+                    if( $verbose )
+                        log_debug("Running SQL: '$statement'");
+                    $ds->ExecuteSql($statement);
+                }
+                catch(Exception $first)
+                {
+                    if( !$ignore )
+                        throw $first;
+                    if( $verbose )
+                        log_debug("Expected (handled) error: ",$first->getMessage());
+                }
             }
         }
     }
