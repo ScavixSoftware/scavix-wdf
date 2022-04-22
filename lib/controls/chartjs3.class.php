@@ -95,6 +95,21 @@ class ChartJS3 extends Control
         if( $row ) $pt['raw'] = $row;
         return $pt;
     }
+    
+    /**
+     * @internal Handler for points of type Week
+     */
+    public static function WeekPoint($x,float $y,$row=false)
+    {
+        $dt = DateTimeEx::Make($x);
+        list($year,$week) = explode(" ",$dt->format('o W'));
+        $xval = \ScavixWDF\Base\DateTimeEx::FirstDayOfWeek("{$year}-01-01 00:00:00")
+            ->Offset($week,"week")->getTimestamp();
+        
+        $pt = ['x'=>"$year W $week", 'y'=>$y, 'xval'=>$xval];
+        if( $row ) $pt['raw'] = $row;
+        return $pt;
+    }
 
     /**
      * @internal Handler for points of type String
