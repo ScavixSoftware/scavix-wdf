@@ -356,6 +356,8 @@ class Control extends Renderable
 	protected function IsAllowedAttribute($attr)
 	{
 		$attr = strtolower("$attr");
+        if( $attr == "is")
+            return true;
 		$isattr = isset(Control::$html_attributes[$this->Tag]);
 		if( $isattr && !isset(Control::$html_attributes_keys[$this->Tag]))
 			Control::$html_attributes_keys[$this->Tag] = array_flip(Control::$html_attributes[$this->Tag]);
@@ -549,6 +551,19 @@ class Control extends Renderable
 	{
 		if( isset($this->_data_attributes[$name]) )
 			unset($this->_data_attributes[$name]);
+		return $this;
+	}
+    
+    /**
+	 * Removes attribute $name.
+	 * 
+	 * @param string $name Attribute name
+	 * @return Control `$this`
+	 */
+	function removeAttr($name)
+	{
+		if( isset($this->_attributes[$name]) )
+			unset($this->_attributes[$name]);
 		return $this;
 	}
     
