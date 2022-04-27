@@ -706,6 +706,17 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
         return $this;
     }
     
+    function setMultiSelectableOff()
+    {
+        $this->_multiselectname = false;
+        $this->_multiactions = [];
+        $this->removeClass('multiselect');
+        if( isset($this->columns['__CHECKBOX__']) )
+            unset($this->columns['__CHECKBOX__']);
+        
+        return $this;
+    }
+    
     function setOrder($orderby)
     {
         $this->default_order = $orderby;
