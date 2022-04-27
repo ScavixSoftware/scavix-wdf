@@ -81,6 +81,16 @@ function mail_prepare($recipient,$subject,$message,$plainmessage="",$attachments
 				break;
 			}
 		}
+		if(!$isvalidrecipient && isset($CONFIG['mail']['dev_catchall']) )
+        {
+            $domain = array_last(explode("@",$recipient,2));
+            if( avail($CONFIG['mail']['dev_catchall'],$domain) )
+            {
+                log_debug("email recipient changed from ".var_export($recipient, true)." to ".var_export($CONFIG['mail']['dev_catchall'][$domain], true));
+                $recipient = $CONFIG['mail']['dev_catchall'][$domain];
+                $isvalidrecipient = true;
+            }
+        }
 		if(!$isvalidrecipient && isset($CONFIG['mail']['dev_recipient']) )
 		{
 			// if not found in whitelist, send to predefined recipient
