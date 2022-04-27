@@ -1,39 +1,20 @@
 
-let WdfElement = (superclass) => class extends superclass
-{
-    autoId()
-    {
-        if( typeof WdfElement.nextId === 'undefined' )
-            WdfElement.nextId = 0;
-        return this.constructor.name+"_"+WdfElement.nextId++;
-    }
-    
-    connectedCallback(e)
-    {
-        if( this.hasAttribute('id') )
-            this.id = this.getAttribute('id');
-        else
-        {
-            this.id = this.autoId();
-            this.setAttribute('id',this.id);
-        }
-        setTimeout( ()=>{ this.onReady(); } );
-    }
-};
-
-customElements.define('wdf-select2', class extends WdfElement(HTMLSelectElement)
+wdf.RegisterElement('select','wdf-select2',class extends wdf.ExtendElement(HTMLSelectElement)
 {
     onReady()
     {
         this.config = JSON.parse(this.dataset.config) || {};
-        //console.log("Select 2 onReady",this);
-        
-        if( !this.config.templateResult ) this.options.templateResult = this.renderItem;
-        if( !this.config.templateSelection ) this.options.templateSelection = this.renderItem;
+        //console.log("Select 2 onReady");
+      
+        if( !this.config.templateResult ) this.config.templateResult = this.renderItem;
+        if( !this.config.templateSelection ) this.config.templateSelection = this.renderItem;
         
         $(this).select2(this.config);
         if( this.config.selected )
+        {
+            //console.log("preselecting",this.config.selected);
             $(this).val(this.config.selected).trigger('change');
+        }
     }
     
     renderItem(item)
@@ -50,5 +31,4 @@ customElements.define('wdf-select2', class extends WdfElement(HTMLSelectElement)
             res = item.text;
         return res || '(undefined)';
     }
-}
-,{ extends: 'select' });
+});

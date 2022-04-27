@@ -793,6 +793,65 @@
             wdf.pushedStates.push(state);
             
             win.history.pushState({}, '', '#'+id);
+        },
+        
+        RegisterElement: function(extends_tag,element_name,definition)
+        {
+            customElements.define(element_name,definition,{ extends: extends_tag });
+        },
+        
+        ExtendElement: function(superclass)
+        {
+            return class extends superclass
+            {
+                constructor()
+                {
+                    super();
+
+                    this.lifecycle = 
+                    {
+                        'wdf-onconnected': function()
+                        {
+                            if( this.hasAttribute('id') )
+                                this.id = this.getAttribute('id');
+                            else
+                            {
+                                this.id = this.autoId();
+                                this.setAttribute('id',this.id);
+                            }
+                            if( typeof this.onReady === 'function' )
+                                this.onReady();
+                        }
+                    };
+                }
+
+                fireEvent(name)
+                {
+                    switch( typeof this.lifecycle[name] )
+                    {
+                        case 'undefined': break;
+                        case 'function':
+                            this.lifecycle[name].call(this);
+                        default: 
+                            this.lifecycle[name] = true;
+                            return;
+                    }
+                    this.dispatchEvent(new Event(name));
+                }
+
+                autoId()
+                {
+                    if( typeof WdfElement.nextId === 'undefined' )
+                        WdfElement.nextId = 0;
+                    return this.constructor.name+"_"+WdfElement.nextId++;
+                }
+
+                connectedCallback()
+                {
+                    if( this.isConnected )
+                        this.fireEvent('wdf-onconnected');
+                }
+            };
         }
 	};
 	
