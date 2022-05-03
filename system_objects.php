@@ -88,7 +88,7 @@ class Wdf
     }
     
     
-    public static function GetLock($name,$timeout=10)
+    public static function GetLock($name,$timeout=10,$exceptiononfailure=true)
     {
         if( PHP_OS_FAMILY == "Linux" )
         {
@@ -132,7 +132,7 @@ class Wdf
                     @unlink($f);
             }
             umask($um);
-            if( $timeout <= 0 )
+            if( ($timeout <= 0) || !$exceptiononfailure )
                 return false;
             WdfException::Raise("Timeout while awaiting the lock '$name'");
             return false;
