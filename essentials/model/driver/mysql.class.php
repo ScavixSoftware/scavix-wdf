@@ -92,7 +92,7 @@ class MySql implements IDatabaseDriver
 	/**
 	 * @implements <IDatabaseDriver::getTableSchema>
 	 */
-    function &getTableSchema($tablename)
+    function &getTableSchema_bak($tablename)
 	{
 		$sql = 'SHOW CREATE TABLE `'.$tablename.'`';
 		$tableSql = $this->_pdo->query($sql);
@@ -135,6 +135,77 @@ class MySql implements IDatabaseDriver
             }
 		}
 
+		return $res;
+	}
+    
+    function &getTableSchema($tablename)
+	{
+		$res = new TableSchema($this->_ds, $tablename);
+        if( PHP_OS_FAMILY == "Linux" && file_exists("/run/shm") )
+        {
+            $um = umask(0);
+            $dir = '/run/shm/wdf-'.md5(__SCAVIXWDF__);
+            @mkdir($dir,0777,true);
+            
+            $schemafile = $dir."/".md5($this->_ds->GetDsn."/$tablename").".schema";
+            $age = time() - @filemtime($schemafile);
+            if( $age < 300 )
+            {
+                $schema = @unserialize(@file_get_contents($schemafile))?:[];
+                $res->CreateCode = isset($schema['create'])?$schema['create']:'';
+                $res->Columns = isset($schema['columns'])?$schema['columns']:[];
+            }
+        }
+        
+        if( !$res->CreateCode )
+        {
+            $sql = 'SHOW CREATE TABLE `'.$tablename.'`';
+            $tableSql = $this->_pdo->query($sql);
+            if( !$tableSql )
+                WdfDbException::Raise("Table `$tablename` not found!","PDO error info: ",$this->_pdo->errorInfo());
+
+            $res->CreateCode = $tableSql->finishScalar(1);
+        }
+        
+        if( !count($res->Columns) )
+        {
+            $sql = "show columns from `$tablename`";
+            foreach($this->_pdo->query($sql)->finishAll() as $row)
+            {
+                $size = false;
+                if( preg_match('/([a-zA-Z]+)\(*(\d*)\)*/',$row['Type'],$match) )
+                {
+                    $row['Type'] = $match[1];
+                    $size = $match[2];
+                }
+                if( $row['Key'] == 'PRI' )
+                    $row['Key'] = 'PRIMARY';
+
+                $col = new ColumnSchema($row['Field']);
+                $col->Type = $row['Type'];
+                $col->Size = $size;
+                $col->Null = $row['Null'];
+                $col->Key = $row['Key'];
+                $col->Default = $row['Default'];
+                $col->Extra = $row['Extra'];
+                $res->Columns[] = $col;
+
+                if( $col->Type == 'longtext' )
+                {
+                    $db = $this->_ds->Database();
+                    $sql = "SELECT 1 FROM information_schema.CHECK_CONSTRAINTS cc WHERE cc.CONSTRAINT_SCHEMA='$db' AND cc.TABLE_NAME='$tablename' AND cc.CHECK_CLAUSE LIKE 'json_valid(%'";
+                    $q = $this->_pdo->query($sql);
+                    if( $q && $q->finishScalar() )
+                        $col->Type = 'json';
+                }
+            }
+        }
+        if( isset($um) )
+        {
+            $schema = ['create'=>$res->CreateCode,'columns'=>$res->Columns];
+            @file_put_contents($schemafile,serialize($schema));
+            umask($um);
+        }
 		return $res;
 	}
 

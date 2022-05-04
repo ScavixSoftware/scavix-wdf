@@ -60,7 +60,7 @@ class NumberFormat
 	function Format($number, $decimals = false, $use_plain = false)
 	{
 		$number = doubleval($number);
-		$val = number_format($number,$decimals!==false?$decimals:$this->DecimalDigits,$this->DecimalSeparator,$this->GroupSeparator);
+		$val = number_format($number,($decimals!==null && $decimals!==false)?$decimals:$this->DecimalDigits,$this->DecimalSeparator,$this->GroupSeparator);
 		if( strlen($this->GroupSeparator) > 0 && !$use_plain )
 		{
 			$ord = uniord($this->GroupSeparator);

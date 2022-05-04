@@ -137,7 +137,6 @@ class RequestLogEntry extends Model
             }
             catch(\ScavixWDF\WdfDbException $ex)
             {
-                \ScavixWDF\WdfDbException::$DISABLE_LOGGING = false;
 //                log_debug(__METHOD__, $ex->getErrorInfo());
                 if($ex->isTableNotExistException('wdf_requests'))
 				{
@@ -145,7 +144,10 @@ class RequestLogEntry extends Model
 					continue;
 				}
                 if(!$ex->isDuplicateKeyException('PRIMARY'))
+                {
+                    \ScavixWDF\WdfDbException::$DISABLE_LOGGING = false;
                     throw $ex;
+                }
             }
         }
         while($i++<10);
