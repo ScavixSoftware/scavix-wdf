@@ -841,9 +841,9 @@
 
                 autoId()
                 {
-                    if( typeof WdfElement.nextId === 'undefined' )
-                        WdfElement.nextId = 0;
-                    return this.constructor.name+"_"+WdfElement.nextId++;
+                    if( typeof wdf.nextAutoId === 'undefined' )
+                        wdf.nextAutoId = 0;
+                    return this.constructor.name+"_"+wdf.nextAutoId++;
                 }
 
                 connectedCallback()
