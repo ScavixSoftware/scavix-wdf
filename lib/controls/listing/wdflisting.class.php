@@ -913,7 +913,6 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
         else
             $this->table->OrderBy = ' ORDER BY `'.$name.'`'.(preg_match('/ORDER\sBY[\s\'"`]+'.$name.'[\s\'"`]*$/i',$this->table->OrderBy)?' DESC':'');
         $this->table->Sql = preg_replace("/(\/\*BEG-ORDER\*\/)(.*)(\/\*END-ORDER\*\/)/", '$1'.$this->table->OrderBy.'$3', $this->table->Sql);
-        $this->table->Sql = "";
         
         $this->table->Clear()->ResetPager();
         $this->table->header = false;
