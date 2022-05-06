@@ -500,7 +500,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
     {
         $this->columns[$name] = $label;
         $this->alignments[$name] = $alignment;
-        if( $format && (is_callable($format) && !is_string($format)) )
+        if( $format && is_callable($format) && !in_array($format, ['duration', 'fixed', 'pre', 'preformatted', 'date', 'time', 'datetime', 'currency', 'int', 'integer', 'percent', 'float', 'double', 'custom']) )
         {
             $this->formats[$name] = false;
             $this->addColCallback([$name], $format);
@@ -1144,7 +1144,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             if(isset($this->columns['__CHECKBOX__']))
                 unset($this->columns['__CHECKBOX__']);
             $tab->Header()->NewRow($this->columns);
-            $tab->SetFormat( array_values($this->filterToVisible($this->formats)) );
+            $tab->SetFormat( array_values($this->formats) );
         }
         
         $sqlcols = $this->columns;
@@ -1163,6 +1163,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
         $lst = $this;
         
         DatabaseTable::$export_def[$format]['fn'] = 'Export_'.$exportfilename.'_'.date("Y-m-d_H-i-s").'.'.$format;
+        
         $tab->Clear();
         $tab->Export($format, function($row) use ($datatype, $lst, $sqlcols)
 		{
@@ -1177,7 +1178,8 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             {
                 if( isset($lst->columnCallbacks[$k]) )
                     $val = $lst->columnCallbacks[$k]($val,$row);
-//                log_debug($k, $val);
+                if( is_string($val) )
+                    $val = __translate($val);
                 $row[$k] = ($val ? strip_tags(str_replace(['&nbsp;', '<br/>', '<br>'], [' ', ', ', ', '], $val)) : $val);
             }
             

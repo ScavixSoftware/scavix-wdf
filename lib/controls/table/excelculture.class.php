@@ -20,6 +20,8 @@ class ExcelCulture extends CultureInfo
 		foreach( get_object_vars($ci) as $prop=>$value )
 			$res->$prop = $value;
 	
+        $res->LanguageCode = $ci->ResolveToLanguage()->Code;
+        
 		return $res;
 	}
 	
@@ -107,7 +109,12 @@ class ExcelCulture extends CultureInfo
 				self::$FORMAT_MAP[$f] = \PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT;
                 break;
 			default:
-				log_warn("Unknown column format: $f");
+                if( is_callable($f) )
+                {
+                    self::$FORMAT_MAP[$f] = \PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT;
+                    break;
+                }
+    			log_warn("Unknown column format: $f");
 				self::$FORMAT_MAP[$f] = \PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_GENERAL;
 				break; 
 		}

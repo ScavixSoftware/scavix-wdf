@@ -558,7 +558,9 @@ class DatabaseTable extends Table implements ICallable
 		$head_rows = $this->_export_get_header();
 		$first_data_row = count($head_rows)+1;
         
-        \PhpOffice\PhpSpreadsheet\Settings::setLocale($ci->Code);
+        if( !\PhpOffice\PhpSpreadsheet\Settings::setLocale($ci->Code) )
+        if( !\PhpOffice\PhpSpreadsheet\Settings::setLocale($ci->LanguageCode) )
+            log_debug("Invalid Excel locale. Tried {$ci->Code} and {$ci->LanguageCode}");
         \PhpOffice\PhpSpreadsheet\Cell\Cell::setValueBinder( new \PhpOffice\PhpSpreadsheet\Cell\AdvancedValueBinder() );
 
 		foreach( array_merge($head_rows,$this->_export_get_data($ci,$rowcallback)) as $data_row )
@@ -587,6 +589,16 @@ class DatabaseTable extends Table implements ICallable
 		}
         $sheet->freezePane('A2');
 		
+        if( isset(self::$export_def[$format]['metadata']) && is_array(self::$export_def[$format]['metadata']) )
+        {
+            foreach( self::$export_def[$format]['metadata'] as $name=>$value )
+            {
+                $m = "set{$name}";
+                if( method_exists($xls, $m) )
+                    $xls->$m($value);
+            }
+        }
+        
 		if( $format == self::EXPORT_FORMAT_XLS )
 			$xlswriter = new \PhpOffice\PhpSpreadsheet\Writer\Xls($xls);
 		else
