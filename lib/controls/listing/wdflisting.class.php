@@ -810,12 +810,12 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
         
         if( $this->colClasses === true )
         {
-            $names = array_keys($this->columns);
+            $names = array_keys($this->filterToVisible($this->columns));
             $this->colClasses = array_combine($names, $names);
         }
         if( count($this->colClasses)>0 )
         {
-            $names = array_keys($this->columns);
+            $names = array_keys($this->filterToVisible($this->columns));
             foreach( $table->header->Rows() as $tr )
                 foreach( $tr->Cells() as $i=>$td )
                     if( isset($this->colClasses[$names[$i]]) )
@@ -929,7 +929,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
     {
         if( $this->colClasses === true )
         {
-            $names = array_keys($this->columns);
+            $names = array_keys($this->filterToVisible($this->columns));
             $this->colClasses = array_combine($names, $names);
         }
         
@@ -1061,8 +1061,13 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             }
             $name = [$name=>$class];
         }
+        if( !is_array($this->colClasses) )
+            $this->colClasses = [];
         foreach( $name as $n=>$c )
-            $this->colClasses[$name][] = $c;
+            if( isset($this->colClasses[$n]) )
+                $this->colClasses[$n][] = $c;
+            else
+                $this->colClasses[$n] = [$c];
         
         return $this;
     }

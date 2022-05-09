@@ -84,7 +84,7 @@ wdf.ready.add(function()
                         enabled = 0;
                     for(var i=0; i<columns.length; i++)
                     {
-                        if((columns[i].label == '') && (i == columns.length-1))
+                        if( columns[i].label == '' )
                             continue;
                         if( columns[i].visible ) enabled++;
                         $('<div style="display:flex; align-items:center"/>').appendTo($d).data('column',columns[i])
