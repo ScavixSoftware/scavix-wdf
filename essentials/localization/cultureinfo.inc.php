@@ -35,10 +35,10 @@ namespace ScavixWDF\Localization;
  */
 function internal_getCultureInfo($cultureCode)
 {
-    if(stripos($cultureCode, '.utf-8'))          // might be something like "en_US.UTF-8"
-        $cultureCode = str_ireplace('.utf-8', '', $cultureCode);
+    if(stripos("$cultureCode", '.utf-8'))          // might be something like "en_US.UTF-8"
+        $cultureCode = str_ireplace('.utf-8', '', "$cultureCode");
     
-	switch( strtolower( str_replace("_", "-", $cultureCode)) )
+	switch( strtolower( str_replace("_", "-", "$cultureCode")) )
 	{
 		case 'en-us':
 			$ci = new CultureInfo('en-US','en','en','English (United States)','English (United States)','0');
@@ -3176,7 +3176,7 @@ function internal_getCultureInfo($cultureCode)
  */
 function internal_getDateTimeFormat($cultureCode)
 {
-	switch( strtolower( str_replace("_", "-", $cultureCode)) )
+	switch( strtolower( str_replace("_", "-", "$cultureCode")) )
 	{
 		case 'en-us':
 			return new DateTimeFormat('0','d4, M4 d5, y4 h1:m2:s2 t2','d4, M4 d5, y4','h1:m2:s2 t2','M4 d5','M1/d1/y4','h1:m2 t2','M4, y4','am','pm');
@@ -3747,7 +3747,7 @@ function internal_getCultureCodeFromRegion($region)
  */
 function internal_getRegion($code)
 {
-	switch( strtolower($code) )
+	switch( strtolower("$code") )
 	{
 		case 'sa': return new RegionInfo('SA','Saudi Arabia','المملكة العربية السعودية',array('ar-SA'));
 		case 'bg': return new RegionInfo('BG','Bulgaria','България',array('bg-BG'));
@@ -3885,7 +3885,7 @@ function internal_getRegion($code)
  */
 function internal_getRegionsForLanguage($code)
 {
-	switch( strtolower($code) )
+	switch( strtolower("$code") )
 	{
 		case 'ar': return array(internal_getRegion('SA'),internal_getRegion('IQ'),internal_getRegion('EG'),internal_getRegion('LY'),internal_getRegion('DZ'),internal_getRegion('MA'),internal_getRegion('TN'),internal_getRegion('OM'),internal_getRegion('YE'),internal_getRegion('SY'),internal_getRegion('JO'),internal_getRegion('LB'),internal_getRegion('KW'),internal_getRegion('AE'),internal_getRegion('BH'),internal_getRegion('QA'));
 		case 'bg': return array(internal_getRegion('BG'));
@@ -3966,7 +3966,7 @@ function internal_getRegionsForLanguage($code)
  */
 function internal_getLanguage($code)
 {
-	switch( strtolower($code) )
+	switch( strtolower("$code") )
 	{
 		case 'ar': return new CultureInfo('ar','','ar','Arabic','العربية','1');
 		case 'bg': return new CultureInfo('bg','','bg','Bulgarian','Български','0');
@@ -4118,7 +4118,7 @@ function internal_getLanguage($code)
  */
 function internal_getCulturesByCurrency($code)
 {
-	switch( strtolower($code) )
+	switch( strtolower("$code") )
 	{
 		case 'sar': return array('ar-SA');
 		case 'bgl': return array('bg-BG');
