@@ -67,7 +67,11 @@ class OAuthStorageModel extends Model
     function ChangeLocalId($new_local_id)
     {
         $this->_ds->ExecuteSql(
-            "UPDATE wdf_oauthstore SET local_id=? WHERE provider=? AND identifier=? and local_id=?",
+            "DELETE FROM wdf_oauthstore WHERE provider=? AND local_id=?",
+            [$this->provider,$this->local_id]
+        );
+        $this->_ds->ExecuteSql(
+            "UPDATE wdf_oauthstore SET local_id=? WHERE provider=? AND identifier=? AND local_id=?",
             [$new_local_id,$this->provider,$this->identifier,$this->local_id]
         );
         $this->local_id = $new_local_id;
