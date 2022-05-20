@@ -45,7 +45,7 @@ class Select2 extends Select
         return $this->opt('selected',$value);
     }
     
-    function setMultiple($on=true)
+    function setMultiple($on=true, $sort_selection=true)
     {
         if( $on )
         {
@@ -59,7 +59,7 @@ class Select2 extends Select
             $this->removeAttr('multiple');
         }
         
-        return $this->opt('multiple',$on);
+        return $this->opt('multiple',$on)->opt('skip_multi_sorting',!$sort_selection);
     }
     
     function setAjax($url)
