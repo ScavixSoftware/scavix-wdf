@@ -296,7 +296,7 @@ function downloadFile_header($ch, $header)
 {
     if( preg_match( "#HTTP/[0-9\.]+\s+([0-9]+)#", $header, $out ) )
     {
-        $GLOBALS['downloadFile_data']['response_headers']['status'] = $h;
+        $GLOBALS['downloadFile_data']['response_headers']['status'] = $header;
         $GLOBALS['downloadFile_data']['response_headers']['response_code'] = intval($out[1]);
     }
     else
