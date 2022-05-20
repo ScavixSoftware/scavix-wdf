@@ -230,6 +230,7 @@ function downloadFile($url, $postdata = false, $request_header = [], $follow_loc
 	$GLOBALS['downloadFile_data'] = [];
 	$GLOBALS['downloadFile_data']['error'] = 0;
 	$GLOBALS['downloadFile_data']['name'] = basename($parsed_url['path']);
+    $GLOBALS['downloadFile_data']['response_headers'] = [];
 
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, $url);
@@ -293,6 +294,18 @@ function downloadFile($url, $postdata = false, $request_header = [], $follow_loc
  */
 function downloadFile_header($ch, $header)
 {
+    if( preg_match( "#HTTP/[0-9\.]+\s+([0-9]+)#", $header, $out ) )
+    {
+        $GLOBALS['downloadFile_data']['response_headers']['status'] = $h;
+        $GLOBALS['downloadFile_data']['response_headers']['response_code'] = intval($out[1]);
+    }
+    else
+    {
+        $hk = explode(':', $header, 2);
+        if(isset($hk[1]))
+            $GLOBALS['downloadFile_data']['response_headers'][trim($hk[0])] = trim($hk[1]);
+    }
+    
 	if( preg_match('/Content-Disposition:\s*(.*)/i', $header, $res) )
 	{
 		$p = explode(";",$res[1]);
