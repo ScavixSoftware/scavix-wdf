@@ -102,7 +102,6 @@ class RateLimit extends \ScavixWDF\Model\Model
         $sql = "SELECT SQL_NO_CACHE ".implode(",",$q)." FROM (SELECT timestampdiff(second,created,now()) as age FROM wdf_ratelimits WHERE name='{$this->name}') as x";
         
         $maxage = array_first(array_keys($this->limits));
-        $this->_ds->Execute("DELETE FROM wdf_ratelimits WHERE name='{$this->name}' AND created<NOW()-INTERVAL $maxage SECOND");
         
         $end = time() + $timeout_seconds;
         do
@@ -112,6 +111,7 @@ class RateLimit extends \ScavixWDF\Model\Model
                 usleep(10000);
                 continue;
             }
+            $this->_ds->Execute("DELETE FROM wdf_ratelimits WHERE name='{$this->name}' AND created<NOW()-INTERVAL $maxage SECOND");
             $ok = true;
             $count = $this->_ds->ExecuteSql($sql)->current();
             foreach( $this->limits as $seconds=>$limit )
