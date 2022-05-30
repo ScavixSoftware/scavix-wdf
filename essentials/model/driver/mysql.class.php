@@ -144,10 +144,10 @@ class MySql implements IDatabaseDriver
         if( PHP_OS_FAMILY == "Linux" && file_exists("/run/shm") )
         {
             $um = umask(0);
-            $dir = '/run/shm/wdf-'.md5(__SCAVIXWDF__);
+            $dir = '/run/shm/wdf-'.md5(__SCAVIXWDF__.(defined("DATABASE_VERSION")?'-'.DATABASE_VERSION:''));
             @mkdir($dir,0777,true);
             
-            $schemafile = $dir."/".md5($this->_ds->GetDsn."/$tablename").".schema";
+            $schemafile = $dir."/".md5($this->_ds->GetDsn()."/$tablename").".schema";
             $age = time() - @filemtime($schemafile);
             if( $age < 300 )
             {
