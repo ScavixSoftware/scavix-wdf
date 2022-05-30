@@ -74,7 +74,7 @@ if( !function_exists('check_vat_number') )
      */
     function check_vat_number($vat_number)
     {
-        $vat = strtoupper(str_replace(array(" ", "-", ",", ".", "/", "\\"), "", $vat_number));
+        $vat = strtoupper(preg_replace('/[^0-9A-Z]/i', '', $vat_number));
         if (preg_match("/^(AT|BE|BG|CY|CZ|DE|DK|EE|EL|ES|FI|FR|GB|HU|IE|IT|LT|LU|LV|MT|NL|PL|PT|RO|SE|SI|SK)(.*)/i", $vat, $matches))
         {
             $country_code = strtoupper($matches[1]);
@@ -122,10 +122,13 @@ if( !function_exists('check_vat_number') )
         // only ask service is syntax-check is ok
         if( $m[1] == $vat )
         {
+            $lock = 'europa.eu-checkVatService';
             try{
                 $res = cache_get("vat_check_{$country_code}_{$vat}");
                 if( !$res )
-                {			
+                {
+                    if( !ScavixWDF\Wdf::GetLock($lock) )
+                        return true;
                     $sc = new SoapClient("http://ec.europa.eu/taxation_customs/vies/checkVatService.wsdl");
                     $test = $sc->checkVat(array('countryCode'=>$country_code,'vatNumber'=>$vat));
                     if( !$test->valid )
@@ -137,7 +140,15 @@ if( !function_exists('check_vat_number') )
                 elseif( $res != "valid" )
                     log_debug("VAT syntax ok, but CACHE says not",$vat_number,$country_code,$vat);
                 return $res == "valid";
-            }catch(Exception $ex){ WdfException::Log($ex); }
+            }
+            catch(Exception $ex)
+            { 
+                WdfException::Log($ex); 
+            }
+            finally
+            {
+                ScavixWDF\Wdf::ReleaseLock($lock);
+            }
             return true; // ignore service exceptions
         }
         return false;
