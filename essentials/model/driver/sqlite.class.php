@@ -93,6 +93,14 @@ class SqLite implements IDatabaseDriver
 	 */
     function &getTableSchema($tablename)
 	{
+        if( !$tablename )
+        {
+            $tablename = '<undefined>';
+            $res = new TableSchema($this->_ds, $tablename);
+            $res->CreateCode = "/* cannot create table without name */";
+            return $res;
+        }
+        
 		if( strtolower($tablename) == 'sqlite_master' )
 		{
 			$res = new TableSchema($this->_ds, $tablename);

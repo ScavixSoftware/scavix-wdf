@@ -140,6 +140,13 @@ class MySql implements IDatabaseDriver
     
     function &getTableSchema($tablename)
 	{
+        if( !$tablename )
+        {
+            $tablename = '<undefined>';
+            $res = new TableSchema($this->_ds, $tablename);
+            $res->CreateCode = "/* cannot create table without name */";
+            return $res;
+        }
 		$res = new TableSchema($this->_ds, $tablename);
         if( PHP_OS_FAMILY == "Linux" && file_exists("/run/shm") )
         {
