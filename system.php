@@ -379,9 +379,15 @@ function system_parse_request_path()
 	}
 
 	if( !isset($controller) || !$controller )
+    {
 		$controller = Args::request('page', cfg_get('system','default_page')); // really oldschool	
+        Wdf::$Request->UsingDefaultPage = true;
+    }
 	if( !isset($event) || !$event )
+    {
 		$event = Args::request('event', cfg_get('system','default_event')); // really oldschool
+        Wdf::$Request->UsingDefaultEvent = true;
+    }
 	
 	$pattern = '/[^A-Za-z0-9\-_\\\\]/';
 	$controller = substr(preg_replace($pattern, "", $controller), 0, 256);
