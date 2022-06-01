@@ -61,7 +61,7 @@ class FilesStore extends ObjectStore
     
     protected function getFile($id)
     {
-        return $this->getPath().$id;
+        return $this->getPath()."/$id";
     }
     
     protected function _key($key)
