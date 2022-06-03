@@ -53,8 +53,10 @@ class FilesStore extends ObjectStore
             unlink($directory);
         if( !file_exists($directory) )
         {
+            $origumask = umask(0);
             if(!mkdir($directory, 0777, true))
                 log_error('unable to create '.$directory, error_get_last());
+            umask($origumask);
         }
         return $directory;
     }
