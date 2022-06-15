@@ -204,7 +204,8 @@ function mail_send($recipient,$subject="",$message="",$plainmessage="",$attachme
 	if( !$res )
 	{
 		log_trace("mail_send($subject,$message): " . $mail->ErrorInfo, $recipient);
-        log_debug("Detailed mail log:\n",$mail->debug_lines);
+        if(avail($mail, 'debug_lines'))
+            log_debug("Detailed mail log:\n",$mail->debug_lines);
 		return $mail->ErrorInfo;
 	}
 	return true;

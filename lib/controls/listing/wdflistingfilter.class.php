@@ -209,8 +209,7 @@ class WdfListingFilter extends Template
         $sql = count($res)==0?"(1=1)":"(".implode("AND",$res).")";
         if( $for_listing_injection )
             $sql = "/*BEG {$this->prefix}*/".$sql."/*{$this->prefix} END*/";
-
-//        log_debug($sql);
+            
         return $sql;
     }
 
@@ -271,6 +270,8 @@ class WdfListingFilter extends Template
                 if(!$ci && ScavixWDF\JQueryUI\uiDatePicker::$DefaultCI)
                     $ci = ScavixWDF\JQueryUI\uiDatePicker::$DefaultCI;
                 if(!$ci)
+                    $ci = \ScavixWDF\Localization\Localization::detectCulture();
+                if(!$ci)
                     return '';
                 $v = date("Y-m-d",$ci->DateTimeFormat->StringToTime($value));
                 return "DATE(".\ScavixWDF\Model\DataSource::Get()->QuoteColumnName($column).")$op'$v'";
@@ -290,6 +291,8 @@ class WdfListingFilter extends Template
                     $ci = $this->listings[0]->ci;
                 if(!$ci && ScavixWDF\JQueryUI\uiDatePicker::$DefaultCI)
                     $ci = ScavixWDF\JQueryUI\uiDatePicker::$DefaultCI;
+                if(!$ci)
+                    $ci = \ScavixWDF\Localization\Localization::detectCulture();
                 if(!$ci)
                     return '';
                 $v = date("Y-m-d H:i:s",$ci->DateTimeFormat->StringToTime($value));

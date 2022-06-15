@@ -1233,6 +1233,10 @@ function redirect($controller,$event="",$data="",$url_root=false)
 		$url = buildQuery($controller,$event,$data,$url_root);
 
     translation_add_unknown_strings();
+    
+    if( system_is_ajax_call() )
+        system_exit(AjaxResponse::Redirect($url));
+    
 	header("Location: ".$url);
     system_exit('Location: '.$url);
 }

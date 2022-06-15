@@ -43,7 +43,7 @@ class FilesStore extends ObjectStore
     protected function getPath($sid=false)
     {
         if( $sid )
-            $directory = $GLOBALS['CONFIG']['session']['filesstore']['path'].$sid;
+            $directory = $this->path = $GLOBALS['CONFIG']['session']['filesstore']['path'].$sid;
         elseif($this->path)
             return $this->path;     // already checked/created
         else
@@ -53,8 +53,10 @@ class FilesStore extends ObjectStore
             unlink($directory);
         if( !file_exists($directory) )
         {
+            $origumask = umask(0);
             if(!mkdir($directory, 0777, true))
                 log_error('unable to create '.$directory, error_get_last());
+            umask($origumask);
         }
         return $directory;
     }
@@ -256,7 +258,18 @@ class FilesStore extends ObjectStore
         foreach( ObjectStore::$buffer as $id=>$obj )
         {
             $content = $this->serializer->Serialize($obj);
-            file_put_contents($this->getFile($id), $content);
+            $filename = $this->getFile($id);
+            if(@file_put_contents($filename, $content) === false)
+            {
+//                log_error(__METHOD__, $filename, $GLOBALS['CONFIG']['session']['filesstore']['path'], $this->path, ifavail($GLOBALS, 'subsystem'));
+                usleep(100 * 1000);
+                $this->path = null;
+                $filename = $this->getFile($id);
+                if(@file_put_contents($filename, $content) !== false)
+                {
+//                    log_debug(__METHOD__, 'it worked', $filename, $GLOBALS['CONFIG']['session']['filesstore']['path'], $this->path, ifavail($GLOBALS, 'subsystem'));
+                }
+            }
         }
         touch( $this->getPath() );
         $this->_stats(__METHOD__.($keep_alive?"/KA":''),$start);
