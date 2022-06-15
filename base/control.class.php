@@ -655,4 +655,10 @@ class Control extends Renderable
     {
         return $this->attr('title',$title);
     }
+    
+    function capture(&$variable)
+    {
+        $this->_attributes['id'] = $this->_storage_id; // ensure there's an ID present
+        return parent::capture($variable);
+    }
 }
