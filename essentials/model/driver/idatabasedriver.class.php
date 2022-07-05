@@ -41,8 +41,8 @@ interface IDatabaseDriver
 	/**
 	 * Initializes the driver.
 	 * 
-	 * @param DataSource $datasource The datasource object using this driver (it is called $this over there)
-	 * @param PDOPdoLayer $pdo The PDo database connection
+	 * @param \ScavixWDF\Model\DataSource $datasource The datasource object using this driver (it is called $this over there)
+	 * @param \ScavixWDF\Model\PdoLayer $pdo The PDO database connection
 	 * @return void
 	 */
 	function initDriver($datasource,$pdo);
@@ -51,7 +51,7 @@ interface IDatabaseDriver
 	 * Returns the schema of a table.
 	 * 
 	 * @param string $tablename The tables name
-	 * @return TableSchema The tables schema
+	 * @return \ScavixWDF\Model\TableSchema The tables schema
 	 */
     function &getTableSchema($tablename);
 
@@ -82,7 +82,7 @@ interface IDatabaseDriver
 	 * Create a table from an objects schema.
 	 * 
 	 * We are not sure if we will ever implement this side as we prefer to create our tables in the database.
-	 * @param TableSchema $objSchema Tableschema as specified by the Model
+	 * @param \ScavixWDF\Model\TableSchema $objSchema Tableschema as specified by the Model
 	 * @return void
 	 */
 	function createTable($objSchema);
@@ -90,7 +90,7 @@ interface IDatabaseDriver
 	/**
 	 * Creates a valid save statement to store an object into the database.
 	 * 
-	 * @param Model $model The model to store
+	 * @param \ScavixWDF\Model\Model $model The model to store
 	 * @param array $args <b>OUT:</b>The values extracted from $model that have changed wince last save (or all if new object)
 	 * @param array $columns_to_update If given only these fields will be updated. If not Model tries to detect changed columns automatically.
 	 * @return string SQL statement with argument placeholders for all change columns (see $args)
@@ -100,9 +100,9 @@ interface IDatabaseDriver
 	/**
 	 * Creates a valid statement to delete the given model from the database.
 	 * 
-	 * @param Model $model Model to delete
-	 * @param type $args <b>OUT:</b>The values extracted from $model to uniquely identify it (the primary key values)
-	 * @return string SQL statement with argument placeholders to identify $model (see $args)
+	 * @param \ScavixWDF\Model\Model $model Model to delete
+	 * @param array $args <b>OUT:</b>The values extracted from $model to uniquely identify it (the primary key values)
+	 * @return bool|\ScavixWDF\Model\ResultSet SQL statement with argument placeholders to identify $model (see $args)
 	 */
 	function getDeleteStatement($model,&$args);
 	
@@ -112,7 +112,7 @@ interface IDatabaseDriver
 	 * @param string $sql The original statement
 	 * @param int $page The one-based page index
 	 * @param int $items_per_page Items per page
-	 * @return string Paged SQL statement
+	 * @return \ScavixWDF\Model\ResultSet Paged SQL statement
 	 */
 	function getPagedStatement($sql,$page,$items_per_page);
 	

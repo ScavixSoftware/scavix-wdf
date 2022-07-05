@@ -123,8 +123,9 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	}
 	
 	/**
-	 * Returns the last query error code
-	 * @return int The error code
+	 * Returns if there was an error
+	 * 
+	 * @return bool true if there was an error
 	 */
 	public function HadError()
 	{
@@ -483,7 +484,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	 * list($min,$max) = $ds->ExecuteSql("SELECT min(a), max(a) FROM some_table")->fetchRow(false);
 	 * </code>
 	 * @param bool $assoc If true returns an associative array, else only array values are returned
-	 * @return array The next rows values or false on error
+	 * @return array|false The next rows values or false on error
 	 */
 	function fetchRow($assoc=true)
 	{
@@ -524,7 +525,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	 * @param string|int $column_name Column to enumerate values for. If an integer is given will see that as zero-based index.
 	 * @param bool $distinct True to array_unique, false to keep duplicates
 	 * @param string $key_column_name If given uses this column as key for an associative resulting array
-	 * @return type
+	 * @return array
 	 */
 	function Enumerate($column_name, $distinct=true, $key_column_name=false)
 	{
@@ -554,7 +555,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	 * Callback function will receive each row as array and must return the (eventually changed) array.
 	 * Note that this method will not clone the result, but return the object itself!
 	 * @param mixed $callback Anonymous callback function
-	 * @return Model Returns `$this`
+	 * @return ResultSet Returns `$this`
 	 */
 	function Process($callback)
 	{

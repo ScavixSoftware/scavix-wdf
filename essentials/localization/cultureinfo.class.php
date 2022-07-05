@@ -65,7 +65,7 @@ class CultureInfo
 	
 	private $_alwaysConvertTimesToTimezone = false;
 	
-	public $CurrenyConversionFunction = false;
+	public $CurrenyConversionFunction;
 	
 	function  __construct($code="",$parent="",$iso="",$english="",$native="",$rtl="")
 	{
@@ -160,7 +160,7 @@ class CultureInfo
 	 * Returns a <CultureInfo> object for another region
 	 * 
 	 * @param mixed $region_code Region code or <RegionInfo> object
-	 * @return CultureInfo The resultung culture or false on error
+	 * @return CultureInfo|false The resultung culture or false on error
 	 */
 	function OtherRegion($region_code)
 	{

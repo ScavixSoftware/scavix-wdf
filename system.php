@@ -209,7 +209,7 @@ function system_load_module($path_to_module)
         \ScavixWDF\WdfException::Raise("PHPExcel module has bee removed. Use PhpSpreadsheet instead.");
     
 	if(system_is_module_loaded($mod))
-		return true;
+		return;
 
 	require($path_to_module);
 
@@ -320,7 +320,7 @@ function system_init($application_name, $skip_header = false, $logging_category=
  * RewriteCond %{REQUEST_URI} !index.php
  * RewriteRule (.*) index.php?wdf_route=$1 [L,QSA]
  * </code>
- * @return void
+ * @return array
  */
 function system_parse_request_path()
 {
@@ -333,7 +333,7 @@ function system_parse_request_path()
 			$GLOBALS['routing_args'] = array($_REQUEST['wdf_route']); // compat
 			unset($_REQUEST['wdf_route']);
 			unset($_GET['wdf_route']);
-			return array('ScavixWDF\WdfResource','CompileLess');
+			return ['ScavixWDF\WdfResource','CompileLess'];
 		}
 		
 		// now for the normal processing
@@ -392,7 +392,7 @@ function system_parse_request_path()
 	$pattern = '/[^A-Za-z0-9\-_\\\\]/';
 	$controller = substr(preg_replace($pattern, "", $controller), 0, 256);
 	$event = substr(preg_replace($pattern, "", $event), 0, 256);
-	return array($controller,$event);
+	return [$controller,$event];
 }
 
 /**
@@ -1042,10 +1042,10 @@ function __autoload__template($controller,$template_name)
 
 /**
  * searches the $CLASS_PATH for the file that defines the class
- * @param <type> $class_name
- * @param <type> $extension
- * @param <type> $classpath_limit
- * @return <type>
+ * @param string $class_name
+ * @param string $extension
+ * @param mixed $classpath_limit
+ * @return mixed
  */
 function __search_file_for_class($class_name,$extension="class.php",$classpath_limit=false)
 {
@@ -1384,7 +1384,7 @@ function cache_get($key,$default=false,$use_global_cache=true,$use_session_cache
  * 
  * Noting to say. Just stores where you want.
  * @param string $key a key for the value
- * @param string $value the value to store
+ * @param mixed $value the value to store
  * @param int $ttl Time to life in seconds. -1 if it shall live forever
  * @param bool $use_global_cache If true stores in the global cache (see globalcache module)
  * @param bool $use_session_cache If true stores in the SESSION cache
@@ -1512,7 +1512,7 @@ function current_url()
  * 
  * If the current request is an AJAX request, it returns info about the last 'normal' call.
  * @param bool $as_url If true will return a string URL containing all the GET parametes
- * @return array Array with (string)controller,(string)method,(array)get and (array)post
+ * @return array|string Array with (string)controller,(string)method,(array)get and (array)post
  */
 function system_current_request($as_url=false)
 {
@@ -1630,34 +1630,24 @@ function system_call_user_func_array_byref(&$object, $funcname, &$args)
 	{
 		case 0: 
 			return $object->{$funcname}(); 
-			break;
 		case 1: 
 			return $object->{$funcname}($args[0]); 
-			break;
 		case 2: 
 			return $object->{$funcname}($args[0], $args[1]); 
-			break;
 		case 3: 
 			return $object->{$funcname}($args[0], $args[1], $args[2]); 
-			break;
 		case 4: 
 			return $object->{$funcname}($args[0], $args[1], $args[2], $args[3]); 
-			break;
 		case 5: 
 			return $object->{$funcname}($args[0], $args[1], $args[2], $args[3], $args[4]); 
-			break;
 		case 6: 
 			return $object->{$funcname}($args[0], $args[1], $args[2], $args[3], $args[4], $args[5]); 
-			break;
 		case 7: 
 			return $object->{$funcname}($args[0], $args[1], $args[2], $args[3], $args[4], $args[5], $args[6]); 
-			break;
 		case 8: 
 			return $object->{$funcname}($args[0], $args[1], $args[2], $args[3], $args[4], $args[5], $args[6], $args[7]); 
-			break;
 		default: 
 			return call_user_func_array(array($object, $funcname), $args);  
-			break;
 	}
 }
 
@@ -1749,7 +1739,7 @@ function system_render_object_tree($array_of_objects)
  * Note that <Model> objects that are assigned to <Control>s or <Template>s are automatically encoded by the WDF.
  * 
  * @param mixed $value Value or array/object of values to be encoded
- * @param array $encode_models_only If true only properties of <Model> objects are encoded
+ * @param bool $encode_models_only If true only properties of <Model> objects are encoded
  * @return mixed The encoded value(s)
  */
 function system_encode_for_output($value,$encode_models_only=false)

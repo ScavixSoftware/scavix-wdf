@@ -716,8 +716,8 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * </code>
 	 * @param Model $model Object of (sub-)type <Model>
 	 * @param bool $allFields If true, all data is taken to the result, not only that one that are present in the columns of the type
-	 * @param bool $className Optional classname to allow anonymous calls like `Model::MakeFromData`
-	 * @return subclass_of_Model The typed object
+	 * @param string|bool $className Optional classname to allow anonymous calls like `Model::MakeFromData`
+	 * @return Model The typed object
 	 */
 	public static function CastFrom($model,$allFields=false,$className=false)
 	{
@@ -997,14 +997,15 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	/**
 	 * Uses <system_sanitize_parameters> to sanitze all field values.
 	 * 
+	 * @deprecated This uses a non existant function, so atm does nothing
 	 * @return void
 	 */
 	public function SanitizeValues()
 	{
-		$vals = $this->AsArray();
-		system_sanitize_parameters($vals);
-		foreach( $vals as $k=>$v )
-			$this->$k = $v;
+		// $vals = $this->AsArray();
+		// system_sanitize_parameters($vals);
+		// foreach( $vals as $k=>$v )
+		// 	$this->$k = $v;
 	}
 
 	function __ensureFieldname($name)

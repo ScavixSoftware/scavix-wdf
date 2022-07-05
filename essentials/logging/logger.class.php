@@ -271,8 +271,11 @@ class Logger
 		$content = $content->toReadable($log_trace);
         
         if( !$this->filename )
-            return PHP_SAPI=='cli'?false:error_log($content);
-        
+		{
+			if( PHP_SAPI!='cli' )
+				error_log($content);
+            return;
+		}
 		$try = 0;
 		while((@file_put_contents($this->filename, "$content\n", FILE_APPEND) === false) && ($try < 10) )
 		{

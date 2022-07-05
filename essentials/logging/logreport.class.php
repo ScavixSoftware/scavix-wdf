@@ -78,7 +78,7 @@ class LogReport
 	 * Renders a report to a logfile.
 	 * 
 	 * Do not call directly but use a combination of <log_start_report> and <log_report> instead.
-	 * @return void
+	 * @return string
 	 */
 	public function render()
 	{

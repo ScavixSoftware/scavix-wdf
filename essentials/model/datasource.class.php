@@ -325,7 +325,7 @@ class DataSource
 	 * Executes an SQL statement.
 	 *
 	 * @param string $sql SQL statement
-	 * @param array $parameter Arguments
+	 * @param mixed $parameter Arguments
 	 * @return ResultSet The query result
 	 * @throws WdfDbException
 	 */
@@ -638,7 +638,7 @@ class DataSource
 	 * Returns the id of the last inserted row.
 	 * 
 	 * @param string $table The table to get last insert id for
-	 * @return int The last insert id
+	 * @return mixed The last insert id
 	 */
 	function LastInsertId($table=null)
 	{

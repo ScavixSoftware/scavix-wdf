@@ -79,7 +79,7 @@ function sendHTTPRequest($url, $postdata = false, $cacheTTLsec = false, &$respon
  * 
  * @param string $url URL to download
  * @param array|string $postdata Data to POST, associative array or string from <http_build_query>
- * @param array $request_header Headers to send along with the request (one entry per header)
+ * @param array|bool $request_header Headers to send along with the request (one entry per header)
  * @param int $cacheTTLsec If set: time to life in cache
  * @param int $request_timeout Timeout in seconds
  * @param array $response_header <b>OUT</b> Will contain the response headers
@@ -218,8 +218,8 @@ function downloadData($url, $postdata = false, $request_header = [], $cacheTTLse
  * FEEL FREE TO EXTEND THIS FUNCTION TO SUPPORT OTHER AUTHENTICATION METHODS OR HTTP ERROR CODES!
  *
  * @param string $url URL to file/script to download
- * @param array $postdata Optional data to post to the URI
- * @param array $request_header Headers to send along with the request (one entry per header)
+ * @param array|false $postdata Optional data to post to the URI
+ * @param array|false $request_header Headers to send along with the request (one entry per header)
  * @param bool $follow_location If true follows redirects
  * @param string $cookie_file Name of the cookie file to use
  * @return array Array following the rules of the $_FILES superglobal (but without the first dimension) or FALSE if an error occured. Note that $_FILES may contain an error too!
