@@ -189,7 +189,15 @@ class LessCompiler extends \lessc implements \JsonSerializable
             $this->debug("Added global LESS file '$f'");
         }
         $this->setImportDir(array_unique($dirs));
-        return parent::compile($string, $name);
+        try
+        {
+            return parent::compile($string, $name);
+        }
+        catch (\Exception $ex)
+        {
+            $this->error($ex->getMessage());
+        }
+        return "";
     }
     
     function getRegisteredVariable($name)

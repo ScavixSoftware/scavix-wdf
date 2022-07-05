@@ -554,13 +554,16 @@ function system_exit($result=null,$die=true)
 			$response = $result->Render();
         elseif( $result instanceof ScavixWDF\Base\HtmlPage )
         {
-            log_error("Cannot deliver HtmlPage via AJAX.",$GLOBALS['wdf_route'],"Triggered from page:",system_current_request());
-            $response = AjaxResponse::None(true)->Render();
+            // use this to redirect if some previous AJAX redirect should have in fact been redirected to an HTML page.
+            log_error("Cannot deliver HtmlPage via AJAX, redirecting instead:",system_current_request());
+            $response = \ScavixWDF\Base\AjaxResponse::Redirect(system_current_request(true))->Render();
         }
 		elseif( $result instanceof Renderable )
 			$response = AjaxResponse::Renderable($result)->Render();
-		else
-			WdfException::Raise("Unknown AJAX return value");
+		elseif( !is_string($result) )
+			WdfException::Raise("Unknown AJAX return value",$result);
+        else
+            $response = $result;
 	}
 	elseif( $result instanceof AjaxResponse ) // is system_is_ajax_call() failed to detect AJAX but response in fact IS for AJAX
 		die("__SESSION_TIMEOUT__");
@@ -1234,8 +1237,10 @@ function redirect($controller,$event="",$data="",$url_root=false)
 
     translation_add_unknown_strings();
     
-    if( system_is_ajax_call() )
-        system_exit(AjaxResponse::Redirect($url));
+    // As discussed this breaks when AJAX request shall be redirected itself.
+    // Trying to redirect if HTML is rendered in Ajax context, see <system_exit>.
+//    if( system_is_ajax_call() )
+//        system_exit(AjaxResponse::Redirect($url));
     
 	header("Location: ".$url);
     system_exit('Location: '.$url);

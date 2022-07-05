@@ -817,9 +817,16 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
         {
             $names = array_keys($this->filterToVisible($this->columns));
             foreach( $table->header->Rows() as $tr )
+            {
                 foreach( $tr->Cells() as $i=>$td )
+                {
                     if( isset($this->colClasses[$names[$i]]) )
-                        $td->addClass($this->colClasses[$names[$i]]);
+                    {
+                        $cls = preg_replace('/\{([a-z0-9_]+)\}/i','$1',$this->colClasses[$names[$i]]);
+                        $td->addClass($cls);
+                    }
+                }
+            }
         }
     }
     
@@ -937,6 +944,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
 
         foreach( $this->rowDataCallbacks as $cb )
             $row = $cb($row);
+        $raw_row_data = $row;
         
         if( !$this->readonly )
         {
@@ -989,7 +997,13 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
                     if( !isset($this->columnCallbacks[$name]) )
                         $td->data('model-col',$name);
                     if( isset($this->colClasses[$name]) )
-                        $td->addClass($this->colClasses[$name]);
+                    {
+                        $cls = preg_replace_callback('/\{([a-z0-9_]+)\}/i',function($m)use($raw_row_data)
+                        {
+                            return ifavail($raw_row_data,$m[1])?:'';
+                        },$this->colClasses[$name]);
+                        $td->addClass($cls);
+                    }
                     break;
             }
         }
@@ -1190,7 +1204,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             
             foreach( $lst->rowCallbacks as $cb )
                 $cb($row,null);
-            
+               
             return $row;
         });
         
