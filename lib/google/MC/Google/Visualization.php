@@ -751,9 +751,9 @@ class MC_Google_Visualization {
                         $field = $formats[$i];
                         $formatstr = trim($formats[$i + 1], '\'"');
 
-                        if($entity['fields'][$field]['type'] == 'boolean' && strpos($formatstr, ':') === false) {
-                            throw new MC_Google_Visualization_QueryError('Invalid boolean format string: "' . $formatstr . '"');
-                        }
+                        // if($entity['fields'][$field]['type'] == 'boolean' && strpos($formatstr, ':') === false) {
+                        //     throw new MC_Google_Visualization_QueryError('Invalid boolean format string: "' . $formatstr . '"');
+                        // }
 
                         $query_formats[$field] = $formatstr;
                     }
@@ -1060,12 +1060,9 @@ class MC_Google_Visualization {
      * @param mixed $php the PHP variable to serialize
      * @return string the JSON representation of the variable
      */
-    public function jsonEncode($php) {
-        if(class_exists('Zend_Json')) {
-            return Zend_Json::encode($php);
-        } else {
-            return json_encode($php);
-        }
+    public function jsonEncode($php)
+    {
+        return json_encode($php);
     }
 
     /**

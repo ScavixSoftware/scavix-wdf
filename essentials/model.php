@@ -125,7 +125,7 @@ function &model_datasource($name)
         }
 		if( function_exists('model_on_unknown_datasource') )
 		{
-			$res = model_on_unknown_datasource($name);
+			$res = call_user_func('model_on_unknown_datasource',$name);
 			return $res;
 		}
         

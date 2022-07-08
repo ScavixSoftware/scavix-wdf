@@ -36,6 +36,7 @@ use ScavixWDF\WdfDbException;
 
 /**
  * @internal SQL common query builder
+ * @suppress PHP0413
  */
 class Query
 {

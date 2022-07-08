@@ -512,7 +512,7 @@ class Control extends Renderable
 	 * 
      * This work exaclty like <Control::attr> but with all the data-* attributes.
      * 
-	 * @return mixed `$this`, a data-attribute value or an array of data-attributes
+	 * @return static|mixed `$this`, a data-attribute value or an array of data-attributes
 	 */
 	function data(...$args)
 	{
@@ -559,7 +559,7 @@ class Control extends Renderable
 	 * 4. $c->attr(['name'=>'myname','href'=>'my.domain']) sets 'name' and 'href' attribute values
 	 * 
 	 * Note: Will return `$this` in cases 3. and 4. (the set cases).
-	 * @return mixed `$this`, an attribute value or an array of attribute values
+	 * @return static|mixed `$this`, an attribute value or an array of attribute values
 	 */
 	function attr(...$args)
 	{

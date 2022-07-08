@@ -2569,6 +2569,7 @@ class PHPMailer
      * @throws phpmailerException
      * @access protected
      * @return string
+     * @suppress PHP0417
      */
     protected function encodeFile($path, $encoding = 'base64')
     {

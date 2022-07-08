@@ -32,6 +32,7 @@ namespace ScavixWDF\Localization;
 
 /**
  * @internal 
+ * @suppress PHP0419
  */
 function internal_getCultureInfo($cultureCode)
 {

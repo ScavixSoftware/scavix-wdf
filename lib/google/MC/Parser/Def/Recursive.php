@@ -28,7 +28,7 @@ class MC_Parser_Def_Recursive extends MC_Parser_Def {
     /**
      * When actually parsing the grammar, use this rule to validate the recursive rule - this must be called before parsing begins
      * @param MC_Parser_Def $expr
-     * @return MC_Parser_Recursive chainable method - returns $this
+     * @return MC_Parser_Def_Recursive chainable method - returns $this
      */
     public function replace(MC_Parser_Def $expr) {
         $this->replacement = $expr;

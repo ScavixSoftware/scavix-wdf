@@ -29,6 +29,8 @@ namespace ScavixWDF\Session;
 
 /**
  * Implements <ObjectStore> for use with APC.
+ * 
+ * @suppress PHP0417
  */
 class APCStore extends ObjectStore
 {
