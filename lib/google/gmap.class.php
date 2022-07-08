@@ -110,7 +110,7 @@ class gMap extends GoogleControl
 	 * @param float $lat Latitute
 	 * @param float $lng Longitude
 	 * @param array $options See https://developers.google.com/maps/documentation/javascript/reference#MarkerOptions
-	 * @return gMap `$this`
+	 * @return static
 	 */
 	function AddMarker($lat, $lng, $options = [])
 	{
@@ -125,7 +125,7 @@ class gMap extends GoogleControl
 	 * @param float $lng Longitude
 	 * @param string $title Marker title
 	 * @param array $options See https://developers.google.com/maps/documentation/javascript/reference#MarkerOptions
-	 * @return gMap `$this`
+	 * @return static
 	 */
 	function AddMarkerTitled($lat, $lng, $title, $options = [])
 	{
@@ -140,7 +140,7 @@ class gMap extends GoogleControl
 	 * Will use googles geolocation to resolve the address to a marker.
 	 * @param string $address The address as string
 	 * @param string $title An optional title
-	 * @return gMap `$this`
+	 * @return static
 	 */
 	function AddAddress($address,$title=false)
 	{
@@ -153,7 +153,7 @@ class gMap extends GoogleControl
 	 * 
 	 * @param float $lat Latitude
 	 * @param float $lng Longitude
-	 * @return gMap `$this`
+	 * @return static
 	 */
 	function setCenterPoint($lat,$lng)
 	{
@@ -165,7 +165,7 @@ class gMap extends GoogleControl
 	 * Sets the maps type.
 	 * 
 	 * @param string $type One of gMap::ROADMAP, gMap::SATELLITE, gMap::HYBRID, gMap::TERRAIN
-	 * @return gMap `$this`
+	 * @return static
 	 */
 	function setType($type)
 	{
@@ -177,7 +177,7 @@ class gMap extends GoogleControl
 	 * Sets the maps zoom level.
 	 * 
 	 * @param int $zoomlevel The initial zoom level
-	 * @return gMap `$this`
+	 * @return static
 	 */
 	function setZoom($zoomlevel)
 	{
@@ -189,7 +189,7 @@ class gMap extends GoogleControl
 	 * En-/Disabled the default map UI
 	 * 
 	 * @param bool $disabled If true UI will be disabled
-	 * @return gMap `$this`
+	 * @return static
 	 */
 	function setUiDisabled($disabled=false)
 	{

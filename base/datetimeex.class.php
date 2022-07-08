@@ -69,7 +69,7 @@ class DateTimeEx extends DateTime
             if( $format )
             {
                 $os = $source;
-                $source = \DateTime::createFromFormat($format,$source);
+                $source = DateTime::createFromFormat($format,$source);
                 if( !$source )
                     WdfException::Raise("Error creating DateTime object from format '$format' and source '$os'");
             }

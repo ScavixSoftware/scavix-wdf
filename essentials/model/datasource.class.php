@@ -52,7 +52,7 @@ class DataSource
 	
     public $_storage_id;
 	public $Driver;
-	public $LastStatement = false;
+	public $LastStatement;
     
 	/**
 	 * Returns a <DataSource> by name.
@@ -647,7 +647,7 @@ class DataSource
     
     /**
      * @shortcut <ResultSet::LogDebug>
-     * @param type $label
+     * @param string $label
      * @return void
      */
     public function LogLastStatement($label='Last Statement')

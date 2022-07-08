@@ -51,17 +51,17 @@ class ChartJS3 extends Control
     var $xMin = false, $xMax = false;
     var $query = false;
     var $colors, $named_colors;
-    var $series_order = false;
+    var $series_order;
     
     protected static $currentInstance;
     
     public static $NAMED_COLORS = [];
     public static $COLORS = ['red','green','blue','yellow','brown'];
     protected $currentColor = 0;
-    protected $xBasedData = false;
+    protected $xBasedData;
     protected $missingPointCallback = false;
     
-    public static $CI = false;
+    public static $CI;
     
     protected function setXMinMax($val)
     {
@@ -103,7 +103,7 @@ class ChartJS3 extends Control
     {
         $dt = DateTimeEx::Make($x);
         list($year,$week) = explode(" ",$dt->format('o W'));
-        $xval = \ScavixWDF\Base\DateTimeEx::FirstDayOfWeek("{$year}-01-01 00:00:00")
+        $xval = DateTimeEx::FirstDayOfWeek("{$year}-01-01 00:00:00")
             ->Offset($week,"week")->getTimestamp();
         
         $pt = ['x'=>"$year W $week", 'y'=>$y, 'xval'=>$xval];
@@ -301,7 +301,7 @@ class ChartJS3 extends Control
      * @param string $name Config name
      * @param mixed $value Optional value
      * @return mixed Returns $this is value is given, else the data requested
-     * @throws Exception
+     * @throws \Exception
      */
     function dataset($index,$name,$value=null)
 	{
@@ -334,7 +334,7 @@ class ChartJS3 extends Control
      * @param string $name Config name
      * @param mixed $value Optional value
      * @return mixed Returns $this is value is given, else the data requested
-     * @throws Exception
+     * @throws \Exception
      */
     protected function scales($scaleId,$name,$value=null)
     {
@@ -473,7 +473,7 @@ class ChartJS3 extends Control
     /**
      * Sets a <ColorRange> for the chart.
      * 
-     * @param ColorRange $range Range of colors
+     * @param \ScavixWDF\Base\Color\ColorRange $range Range of colors
      * @return $this
      */
     function setColorRange(\ScavixWDF\Base\Color\ColorRange $range)
@@ -505,7 +505,7 @@ class ChartJS3 extends Control
     /**
      * Sets series names.
      * 
-     * @param string $seriesNames Series names
+     * @param array $seriesNames Series names
      * @param bool $append If true, series will be appended, else existing will be replaced
      * @return $this
      */
@@ -630,7 +630,7 @@ class ChartJS3 extends Control
      * Sets a handler to be called when points are missing.
      * 
      * This can be the case when harmonizing data (so that every series has the same X-Values) or when <fillGaps> is called.
-     * @param Callback $missingPointCallback Callback function that receives series_name, x and xval parameters and must return a point
+     * @param \Closure $missingPointCallback Callback function that receives series_name, x and xval parameters and must return a point
      * @return $this
      */
     function onMissingPoint($missingPointCallback)
@@ -749,7 +749,7 @@ class ChartJS3 extends Control
     /**
      * Fills all series with contiguous points.
      * 
-     * @param int|Callback $increment An integer value or a callback, that receives a X-value and returns the next
+     * @param int|\Closure $increment An integer value or a callback, that receives a X-value and returns the next
      * @return $this
      */
     function fillGaps($increment)
@@ -808,7 +808,7 @@ class ChartJS3 extends Control
         $chart = new ChartJS3();
         // todo: use this logik in every place where data is set. then try to create some kind of
         //       detection for automatic ajax-delay-loading
-        if( $data instanceof \ScavixWDF\Model\Model || $data instanceof ScavixWDF\Model\ResultSet )
+        if( $data instanceof \ScavixWDF\Model\Model || $data instanceof \ScavixWDF\Model\ResultSet )
         {
             $chart->query = $data;
             $data = $data->results();
@@ -848,7 +848,7 @@ class ChartJS3 extends Control
      * Iterates series.
      * 
      * @param callable $callback Callback that received each searies
-     * @return $this
+     * @return static
      */
     public function eachSeries($callback)
     {

@@ -230,7 +230,7 @@ class HtmlPage extends Template implements ICallable
 	 * @param string $content The content
 	 * @param string $scheme The scheme
 	 * @param string $type The meta-tags name ('name','http-equiv',...)
-	 * @return HtmlPage `$this`
+	 * @return static
 	 */
 	function addMeta($name,$content,$scheme="",$type='name')
 	{
@@ -247,12 +247,12 @@ class HtmlPage extends Template implements ICallable
 	 * @param string $href The href attribute
 	 * @param string $type The type attribute
 	 * @param string $title The title attribute
-	 * @return HtmlPage `$this`
+	 * @return static
 	 */
 	function addLink($rel,$href,$type="",$title="")
 	{
 		if( isset($this->meta[$rel.$href.$type]) )
-			return;
+			return $this;
 		$meta = "\t<link rel='$rel' type='$type' title=\"$title\" href='$href'/>\n";
 		$this->meta[$rel.$href.$type] = $meta;
 		return $this;
@@ -264,12 +264,12 @@ class HtmlPage extends Template implements ICallable
 	 * Like this: &lt;script type='text/javascript' src='$src'&gt;&lt;/script&gt;
 	 * @param string $src The src attribute
 	 * @param string $key Optional data-key attribute for the script tag
-	 * @return HtmlPage `$this`
+	 * @return static
 	 */
 	function addJs($src,$key='')
 	{
 		if( isset($this->js[$src]) )
-			return;
+			return $this;
 		$js = "\t<script type='text/javascript' src='$src'".($key != '' ? " data-key='$key'" : '')."></script>\n";
 		$this->js[$src] = $js;
 		return $this;
@@ -281,12 +281,12 @@ class HtmlPage extends Template implements ICallable
 	 * Like this: &lt;link rel='stylesheet' type='text/css' href='$src'/&gt;
 	 * @param string $src The src attribute
 	 * @param string $key Optional data-key attribute for the link tag
-	 * @return HtmlPage `$this`
+	 * @return static
 	 */
 	function addCss($src,$key='')
 	{
 		if( isset($this->css[$src]) )
-			return;
+			return $this;
 		$css = "\t<link rel='stylesheet' type='text/css' href='$src'".($key != '' ? " data-key='$key'" : '')."/>\n";
 		$this->css[$src] = $css;
 		return $this;
@@ -297,7 +297,7 @@ class HtmlPage extends Template implements ICallable
 	 * 
 	 * @param string $code The raw code
 	 * @param bool $pre Should it be added before the standard css and js files in the header?
-	 * @return HtmlPage `$this`
+	 * @return static
 	 */
 	function addHeaderRaw($code, $pre = false)
 	{
@@ -321,7 +321,7 @@ class HtmlPage extends Template implements ICallable
 	 * 
 	 * @param mixed $js_code JS code as string or array
 	 * @param bool $jq_wrapped If true adds the code to the ready event handler, else will be added inline into the head script element
-	 * @return HtmlPage `$this`
+	 * @return static
 	 */
 	function addDocReady($js_code,$jq_wrapped=true)
 	{
@@ -352,12 +352,12 @@ class HtmlPage extends Template implements ICallable
 	 * @param string $tooltip See [msapplication-tooltip](http://msdn.microsoft.com/en-us/library/ie/gg491732%28v=vs.85%29.aspx#msapplication-tooltip)
 	 * @param string $start_url See [msapplication-starturl](http://msdn.microsoft.com/en-us/library/ie/gg491732%28v=vs.85%29.aspx#msapplication-starturl)
 	 * @param string $button_color See [msapplication-navbutton-color](http://msdn.microsoft.com/en-us/library/ie/gg491732%28v=vs.85%29.aspx#msapplication-navbutton-color)
-	 * @return HtmlPage `$this`
+	 * @return static
 	 */
 	function SetIE9PinningData($application,$tooltip,$start_url,$button_color=false)
 	{
 		if ( !isset($_SERVER['HTTP_USER_AGENT']) || ((strpos( $_SERVER['HTTP_USER_AGENT'], 'MSIE 9' ) === false) && (strpos( $_SERVER['HTTP_USER_AGENT'], 'MSIE 10' ) === false)) )
-			return;
+			return $this;
 		$this->addMeta('application-name',"$application");
 		$this->addMeta('msapplication-tooltip',"$tooltip");
 		$this->addMeta('msapplication-starturl',"$start_url");
@@ -375,12 +375,12 @@ class HtmlPage extends Template implements ICallable
 	 * @param string $url The address that is launched when the item is clicked
 	 * @param string $icon_url The icon resource that appears next to the task in the Jump List
 	 * @param string $window_type One of 'tab', 'self' or 'window'
-	 * @return HtmlPage `$this`
+	 * @return static
 	 */
 	function AddIE9PinningTask($name,$url,$icon_url,$window_type="tab")
 	{
 		if ( !isset($_SERVER['HTTP_USER_AGENT']) || ((strpos( $_SERVER['HTTP_USER_AGENT'], 'MSIE 9' ) === false) && (strpos( $_SERVER['HTTP_USER_AGENT'], 'MSIE 10' ) === false)) )
-			return;
+			return $this;
 		$this->addMeta('msapplication-task',"name=$name; action-uri=$url; icon-uri=$icon_url; window-type=$window_type");
 		return $this;
 	}

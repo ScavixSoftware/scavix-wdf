@@ -62,7 +62,7 @@ class Localization
 	/**
 	 * Tries to match the remote IP to a culture.
 	 * 
-	 * @return CultureInfo The detected culture or false
+	 * @return CultureInfo|bool The detected culture or false
 	 */
 	public static function getIPCulture()
 	{
@@ -88,7 +88,7 @@ class Localization
 	/**
 	 * Detects the browsers culture settings.
 	 * 
-	 * @return CultureInfo The detected culture
+	 * @return CultureInfo|bool The detected culture
 	 */
 	public static function getBrowserCulture()
 	{
@@ -334,7 +334,7 @@ class Localization
 	 * Gets the default culture for a country.
 	 * 
 	 * @param string $country_code Country code
-	 * @return CultureInfo The default culture or false on error
+	 * @return CultureInfo|bool The default culture or false on error
 	 */
 	public static function get_country_culture($country_code)
 	{
@@ -348,7 +348,7 @@ class Localization
 	 * Gets the <RegionInfo> for a country.
 	 * 
 	 * @param string $country_code Country code
-	 * @return RegionInfo The region info or false on error
+	 * @return RegionInfo|bool The region info or false on error
 	 */
 	public static function get_country_region($country_code)
 	{
@@ -431,7 +431,7 @@ class Localization
 	/**
 	 * Returns an array of states for a country (USA only ATM).
 	 * 
-	 * @param type $country_code The country code to list states of
+	 * @param string $country_code The country code to list states of
 	 * @return array Associative array of code=>name pairs
 	 */
 	public static function get_country_states($country_code)
@@ -493,7 +493,6 @@ class Localization
 					"WY" => "Wyoming"
 				);
 				return $ret;
-				break;
 				
 			default:
 				return [];
@@ -503,7 +502,7 @@ class Localization
 	/**
 	 * Returns the A2 ISO3166 country code from a given A3 ISO3166 country code.
 	 * 
-	 * @param type $country_code The country code as A3
+	 * @param string $country_code The country code as A3
 	 * @return string The A2 ISO3166 or false on error
 	 */
 	public static function get_countrycodeA2ISOfromA3($country_code)

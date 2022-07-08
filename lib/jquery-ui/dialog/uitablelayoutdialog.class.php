@@ -55,7 +55,7 @@ class uiTableLayoutDialog extends uiDialog
 	 * 
 	 * @param mixed $label Label for the first column
 	 * @param mixed $control Control for the second column
-	 * @return uiTableLayoutDialog `$this`
+	 * @return static
 	 */
 	function AddLine($label, $control=false)
 	{

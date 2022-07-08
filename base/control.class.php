@@ -160,8 +160,6 @@ class Control extends Renderable
 	var $_attributes = [];
 	var $_data_attributes = [];
 	
-	var $_extender = [];
-
 	var $_skipRendering = false;
     
     function __toString()
@@ -169,8 +167,6 @@ class Control extends Renderable
         $r = parent::__toString();
         return $r." ".$this->__renderStructure([]);
     }
-	
-	function __getContentVars(){ return array_merge(parent::__getContentVars(),['_extender']); }
 
 	/**
 	 * Constructs a Control
@@ -218,13 +214,7 @@ class Control extends Renderable
 
 		if( isset($this->_attributes[$name]) )
 			return $this->_attributes[$name];
-
-		foreach( $this->_extender as &$ex)
-		{
-			if( property_exists($ex,$name) )
-				return $ex->$name;
-		}
-		
+	
 		return null;
 	}
 
@@ -235,37 +225,14 @@ class Control extends Renderable
 	function __set($varname,$value)
 	{
 		if( !$this->IsAllowedAttribute($varname) )
-		{
-			foreach( $this->_extender as &$ex)
-			{
-				if( property_exists($ex,$varname) )
-				{
-					$ex->$varname = $value;
-					return;
-				}
-			}
 			WdfException::Raise("'$varname' is not an allowed attriute for a control of type '{$this->Tag}'");
-		}
+
 		$this->_attributes[$varname] = $value;
 
 		if( strtolower("$varname") == "id" )
 			$this->_storage_id = $value;
 	}
 	
-	/**
-	 * @internal Magic method __call.
-	 * See [Member overloading](http://ch2.php.net/manual/en/language.oop5.overloading.php#language.oop5.overloading.members)
-	 */
-	public function __call($name, $arguments)
-	{
-        foreach( $this->_extender as &$ex)
-		{
-			if( system_method_exists($ex,$name) )
-				return system_call_user_func_array_byref($ex, $name, $arguments);
-		}
-		WdfException::Raise("Call to undefined method '$name' on object of type '".get_class($this)."'");
-    }
-
 	/**
 	 * @internal Magic method __isset.
 	 * See [Member overloading](http://ch2.php.net/manual/en/language.oop5.overloading.php#language.oop5.overloading.members)
@@ -278,11 +245,6 @@ class Control extends Renderable
 		if( array_key_exists($name,$this->_attributes) )
 			return true;
 
-        foreach( $this->_extender as &$ex)
-		{
-			if( property_exists($ex,$name) )
-				return true;
-		}
 		return false;
     }
 
@@ -295,12 +257,6 @@ class Control extends Renderable
 	{
 		if( system_method_exists($this,$name) )
 			return true;
-
-        foreach( $this->_extender as &$ex)
-		{
-			if( system_method_exists($ex,$name) )
-				return true;
-		}
 		return false;
     }
 	
@@ -328,7 +284,7 @@ class Control extends Renderable
 	 * If value is an integer (or numeric string like '12') 'px' will be added.
 	 * @param string $name Name of the CSS property (like width, background-image,...)
 	 * @param string $value Value of the CSS property
-	 * @return Control `$this`
+	 * @return static
 	 */
 	function css($name,$value)
 	{
@@ -476,27 +432,11 @@ class Control extends Renderable
 	}
 
 	/**
-	 * Extends this control with additional functionality.
-	 * 
-     * @deprecated since may 2020
-	 * @param object $extender Object that shall extend this
-	 * @return Control `$this`
-	 */
-	function Extend($extender)
-	{
-		$key = get_class($extender);
-		if( array_key_exists($key,$this->_extender) )
-			return;
-		$this->_extender[$key] = $extender;
-		return $this;
-	}
-
-	/**
 	 * Adds a value to the 'class' attribute.
 	 * 
 	 * Note: you may pass multiple classes at once in a tring space separated: 'cls1 cls2'
 	 * @param string $class CSS class(es)
-	 * @return Control `$this`
+	 * @return static
 	 */
 	function addClass($class)
 	{
@@ -510,7 +450,7 @@ class Control extends Renderable
 	 * Removes a value from the 'class' attribute.
 	 * 
 	 * @param string $class CSS class
-	 * @return Control `$this`
+	 * @return static
 	 */
 	function removeClass($class)
 	{
@@ -525,7 +465,7 @@ class Control extends Renderable
 	 * Those can be accessed in JS easily using jQuery.data method
 	 * @param string $name Data name
 	 * @param mixed $value Data value (<system_to_json> will be used for arrays and objects) 
-	 * @return Control `$this`
+	 * @return static
      * @deprecated Use <Control::data> instead
 	 */
 	function setData($name,$value)
@@ -545,7 +485,7 @@ class Control extends Renderable
 	 * Removes a data-$name attribute.
 	 * 
 	 * @param string $name Data name
-	 * @return Control `$this`
+	 * @return static
 	 */
 	function removeData($name)
 	{
@@ -558,7 +498,7 @@ class Control extends Renderable
 	 * Removes attribute $name.
 	 * 
 	 * @param string $name Attribute name
-	 * @return Control `$this`
+	 * @return static
 	 */
 	function removeAttr($name)
 	{
@@ -649,13 +589,17 @@ class Control extends Renderable
      * Sets the title attribute.
      * 
      * @param string $title Value for the title-atribute
-     * @return Control $this
+     * @return static
      */
     function setTitle($title)
     {
         return $this->attr('title',$title);
     }
     
+	/**
+	 * @see <Renderable::capture>
+	 * @return static
+	 */
     function capture(&$variable)
     {
         $this->_attributes['id'] = $this->_storage_id; // ensure there's an ID present

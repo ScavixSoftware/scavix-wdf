@@ -65,7 +65,7 @@ class uiFormDialog extends uiDialog
      * Sets the text for the OK button.
      * 
      * @param string $text Text
-     * @return $this
+     * @return static
      */
     function setOkText($text) { return $this->setButtonText(0, $text); }
 
@@ -73,7 +73,7 @@ class uiFormDialog extends uiDialog
      * Sets the text for the Cancel button.
      * 
      * @param string $text Text
-     * @return $this
+     * @return static
      */
     function setCancelText($text) { return $this->setButtonText(1, $text); }
 }

@@ -42,7 +42,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 {
 	public static $UseMaterialDesign = false;
 	public static $DefaultDatasource = false;
-	public static $Colors = false;
+	public static $Colors;
 	
 	var $_columnDef = false;
 	var $_data = [];
@@ -248,7 +248,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	 * Valid options vary for the different visualizations.
 	 * @param string $name Option name
 	 * @param mixed $value OPtion value
-	 * @return GoogleVisualization `$this`
+	 * @return static|null
 	 */
 	function opt($name,$value=null)
 	{
@@ -278,7 +278,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	 * Sets the <DataSource> to be used
 	 * 
 	 * @param mixed $datasource Optional <DataSource> to use. This may also be the name of the <DataSource> to use as `string`.
-	 * @return GoogleVisualization `$this`
+	 * @return static
 	 */
 	function setDataSource($datasource)
 	{
@@ -298,7 +298,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	 * @param string $table_name Table name
 	 * @param mixed $query The [goolge query](https://google-developers.appspot.com/chart/interactive/docs/querylanguage)
 	 * @param DataSource $datasource Optional <DataSource> to use. This may also be the name of the <DataSource> to use as `string`.
-	 * @return GoogleVisualization `$this`
+	 * @return static
 	 */
 	function setDbQuery($table_name,$query,$datasource=false)
 	{
@@ -315,7 +315,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	 * See https://developers.google.com/chart/interactive/docs/reference#queryobjects
 	 * @param string $table_name Table name
 	 * @param string $alias Alias name this can be referenced as
-	 * @return GoogleVisualization `$this`
+	 * @return static
 	 */
 	function EntityFromTable($table_name, $alias=false)
 	{
@@ -341,7 +341,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	 * @param string $sql The SQL statement
 	 * @param array $args Optional arguments
 	 * @param mixed $datasource Optional <DataSource> to be used
-	 * @return GoogleVisualization `$this`
+	 * @return static
 	 */
 	function setSqlQuery($sql,$args=[],$datasource=false)
 	{
@@ -355,7 +355,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	 * Sets the data header.
 	 * 
 	 * Calling this will set this into inline mdoe thus removing all database related settings (<GoogleVisualization::setDbQuery>).
-	 * @return GoogleVisualization `$this`
+	 * @return static
 	 */
 	function setDataHeader(...$args)
 	{
@@ -371,7 +371,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	 * 
 	 * If you did not yet specify a header this row will be used as it.
 	 * Calling this will set this into inline mdoe thus removing all database related settings (<GoogleVisualization::setDbQuery>).
-	 * @return GoogleVisualization `$this`
+	 * @return static
 	 */
 	function addDataRow(...$args)
 	{
@@ -388,7 +388,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	 * If you did not yet specify a header first row will be used as it.
 	 * Calling this will set this into inline mdoe thus removing all database related settings (<GoogleVisualization::setDbQuery>).
 	 * @param array $rows Two-dimensional array containing all the rows data
-	 * @return GoogleVisualization `$this`
+	 * @return static
 	 */
 	function setDataRows($rows)
 	{
@@ -408,7 +408,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	 * Interconnects two visualizations 'select' events.
 	 * 
 	 * @param GoogleVisualization $other_vis The other visualization
-	 * @return GoogleVisualization `$this`
+	 * @return static
 	 */
 	function linkSelect($other_vis)
 	{
@@ -424,7 +424,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	 * @param string $label Column label
 	 * @param string $type Type of values
 	 * @param string $style Style of values
-	 * @return GoogleVisualization `$this`
+	 * @return static
 	 */
 	function addColumn($name,$label=false,$type=false,$style=false)
 	{
@@ -443,8 +443,8 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	/**
 	 * Adds a callback method that will be called for each added data row.
 	 * 
-	 * @param Closure $callback Method to be called
-	 * @return GoogleVisualization `$this`
+	 * @param \Closure $callback Method to be called
+	 * @return static
 	 */
 	function addRowCallback($callback)
 	{
@@ -462,8 +462,8 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	 * See https://developers.google.com/chart/interactive/docs/roles
 	 * 
 	 * @param string $role Role specifier
-	 * @param Closure $callback Callback function
-	 * @return GoogleVisualization `$this`
+	 * @param \Closure $callback Callback function
+	 * @return static
 	 */
 	function addColumnRole($role,$callback = false)
 	{
@@ -546,8 +546,8 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	 * The set may contain any column but it must contain all columns defined
 	 * thru <GoogleVisualization::addColumn> or <GoogleVisualization::addColumnRole>.
 	 * 
-	 * @param type $rs <ResultSet> with data.
-	 * @return GoogleVisualization `$this`
+	 * @param \ScavixWDF\Model\ResultSet $rs <ResultSet> with data.
+	 * @return static
 	 */
 	function setResultSet($rs)
 	{
@@ -591,7 +591,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
     /**
      * Sets up a <ResultSet> as source of multiple data series.
      * 
-     * @param ResultSet $rs The resultset containing the series data
+     * @param \ScavixWDF\Model\ResultSet $rs The resultset containing the series data
      * @param string $xAxisCol Name of column containing the xAxis data
      * @param string $newColSpecifier Name of column containing the series identifiers
      * @param string $newColValue Name of column containing the real series data

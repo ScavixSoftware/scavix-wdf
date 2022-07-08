@@ -198,7 +198,7 @@ class WdfTaskModel extends Model
     
     public function SetStart($start)
 	{
-		$this->start = \ScavixWDF\Base\DateTimeEx::Make($start);
+		$this->start = DateTimeEx::Make($start);
 		return $this;
 	}
 	

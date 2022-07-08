@@ -351,7 +351,7 @@ abstract class Renderable implements \JsonSerializable
 	 * Adds JavaScript-Code to the <Renderable> object.
 	 * 
 	 * @param string|array $scriptCode JS code to be added
-	 * @return Renderable `$this`
+	 * @return static
 	 */
 	function script($scriptCode)
 	{
@@ -374,7 +374,7 @@ abstract class Renderable implements \JsonSerializable
 	 * TextInput::Make()->capture($tb)->appendTo($some_container)->par()->prepend($tb->CreateLabel('enter mail:'));
 	 * </code>
 	 * @param Renderable $variable Variable to assign `$this` to
-	 * @return Renderable `$this`
+	 * @return static
 	 */
 	function capture(&$variable)
 	{
@@ -420,7 +420,7 @@ abstract class Renderable implements \JsonSerializable
 	/**
 	 * Clears all contents.
 	 * 
-	 * @return Renderable `$this`
+	 * @return static
 	 */
 	function clearContent()
 	{
@@ -561,7 +561,7 @@ abstract class Renderable implements \JsonSerializable
 	 * 
 	 * This works exactly as <Renderable::content> but will return `$this` instead of the appended content.
 	 * @param mixed $content The content to be appended
-	 * @return Renderable `$this`
+	 * @return static
 	 */
 	function append($content)
 	{
@@ -573,7 +573,7 @@ abstract class Renderable implements \JsonSerializable
 	 * Prepends something to the contents of this Renderable.
 	 * 
 	 * @param mixed $content Content to be prepended
-	 * @return Renderable `$this`
+	 * @return static
 	 */
 	function prepend($content)
 	{
@@ -584,8 +584,8 @@ abstract class Renderable implements \JsonSerializable
 	 * Inserts something to the contents of this Renderable.
 	 * 
 	 * @param mixed $content Content to be prepended
-	 * @param int $index Zero base index where to insert
-	 * @return Renderable `$this`
+	 * @param int|Renderable $index Zero base index where to insert OR Renderable to insert before
+	 * @return static
 	 */
 	function insert($content,$index)
 	{
@@ -691,7 +691,7 @@ abstract class Renderable implements \JsonSerializable
 	 * Append this Renderable to another Renderable.
 	 * 
 	 * @param mixed $target Object of type <Renderable>
-	 * @return Renderable `$this`
+	 * @return static
 	 */
 	function appendTo($target)
 	{
@@ -706,7 +706,7 @@ abstract class Renderable implements \JsonSerializable
 	 * Prepends this Renderable to another Renderable.
 	 * 
 	 * @param mixed $target Object of type <Renderable>
-	 * @return Renderable `$this`
+	 * @return static
 	 */
 	function prependTo($target)
 	{
@@ -722,7 +722,7 @@ abstract class Renderable implements \JsonSerializable
 	 * 
 	 * In fact it will be inserted before the other Renderable into the other Renderables parent.
 	 * @param Renderable $target Object of type <Renderable>
-	 * @return Renderable `$this`
+	 * @return static
 	 */
 	function insertBefore($target)
 	{
@@ -737,7 +737,7 @@ abstract class Renderable implements \JsonSerializable
 	 * Inserts content after this element.
 	 * 
 	 * @param mixed $content Content to be inserted
-	 * @return Renderable `$this`
+	 * @return static
 	 */
 	function after($content)
 	{

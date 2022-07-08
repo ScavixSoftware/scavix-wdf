@@ -53,7 +53,7 @@ class uiAutocomplete extends uiControl
 	 * Sets an on change handler.
 	 * 
 	 * @param string $function JS Handler function
-	 * @return uiAutocomplete `$this`
+	 * @return static
 	 */
 	function setOnChange($function)
 	{

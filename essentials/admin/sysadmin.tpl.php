@@ -1,4 +1,5 @@
 <?
+    $page = current_controller(false);
     $hasmenu = (isset($navlinks) && $navlinks && (count($navlinks) > 0));
 ?>
 <div id="page_header" class="no-print">
@@ -21,7 +22,7 @@
 </div>
 <? } ?>
 <div id="page_content"<?=($hasmenu ? ' class="hasmenu"' : '')?>>
-    <div class="content_header"><?=isset($page_title)&&$page_title?"<h4>$page_title</h4>":''?><?=(isset($pagetoolbar) && $pagetoolbar ? $pagetoolbar : '')?><?=$this->GenerateBreadcrumbNavigation()?></div>
+    <div class="content_header"><?=isset($page_title)&&$page_title?"<h4>$page_title</h4>":''?><?=(isset($pagetoolbar) && $pagetoolbar ? $pagetoolbar : '')?><?=$page->GenerateBreadcrumbNavigation()?></div>
     <div class="content <?=current_controller(true)?>_page <?=current_event()?>_subpage">
 		<?=isset($intro)&&$intro?"<p>$intro</p>":''?>
 		<?php foreach($content as $c) echo $c; ?>	

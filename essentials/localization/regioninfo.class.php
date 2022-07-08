@@ -53,7 +53,7 @@ class RegionInfo
 	/**
 	 * Gets the default culture.
 	 * 
-	 * @return CultureInfo The default culture or false on error
+	 * @return CultureInfo|bool The default culture or false on error
 	 */
 	function DefaultCulture()
 	{
@@ -70,7 +70,7 @@ class RegionInfo
 	 * 
 	 * In other words: Checks all cultures that are valid for this region and returns the match.
 	 * @param mixed $culture <CultureInfo> or culture code
-	 * @return CultureInfo The found culture or false
+	 * @return CultureInfo|bool The found culture or false
 	 */
 	function GetCulture($culture)
 	{

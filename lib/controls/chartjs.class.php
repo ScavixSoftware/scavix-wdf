@@ -56,7 +56,7 @@ class ChartJS extends Control
     public static $COLORS = ['red','green','blue','yellow','brown'];
     protected $currentColor = 0;
     
-    public static $CI = false;
+    public static $CI;
     
     protected function setXMinMax($val)
     {
@@ -228,7 +228,7 @@ class ChartJS extends Control
      * @param string $name Config name
      * @param mixed $value Optional value
      * @return mixed Returns $this is value is given, else the data requested
-     * @throws Exception
+     * @throws \Exception
      */
     function dataset($index,$name,$value=null)
 	{
@@ -258,7 +258,7 @@ class ChartJS extends Control
      * @param string $name Config name
      * @param mixed $value Optional value
      * @return mixed Returns $this is value is given, else the data requested
-     * @throws Exception
+     * @throws \Exception
      */
     protected function scales($axes,$index,$name,$value=null)
     {
@@ -299,7 +299,7 @@ class ChartJS extends Control
      * Gets/Sets X-Axes labels.
      * 
      * @param array $labels Optional labels as array
-     * @return mixed $this is lables is given, else the data requested
+     * @return mixed $this if lables is given, else the data requested
      */
     function xLabels($labels=null)
     {
@@ -311,7 +311,7 @@ class ChartJS extends Control
      * 
      * @param string $name Name
      * @param mixed $value Optional value
-     * @return mixed Returns $this is value is given, else the data requested
+     * @return mixed Returns $this if value is given, else the data requested
      */
     function legend($name,$value=null)
     {
@@ -322,7 +322,7 @@ class ChartJS extends Control
      * Sets the chart type.
      * 
      * @param string $type The type name
-     * @return $this
+     * @return static
      */
     function setType($type)
     {
@@ -334,7 +334,7 @@ class ChartJS extends Control
      * Sets the chart title.
      * 
      * @param string $text Title
-     * @return $this
+     * @return static
      */
     function setTitle($text)
     {
@@ -345,7 +345,7 @@ class ChartJS extends Control
     /**
      * Sets this chart to be stacked.
      * 
-     * @return $this
+     * @return static
      */
     function setStacked()
     {
@@ -356,7 +356,7 @@ class ChartJS extends Control
      * Sets the xAxes to be a time-scale.
      * 
      * @param string $unit OPtional unit specifier
-     * @return $this
+     * @return static
      */
     function setTimeAxesX($unit=false)
     {
@@ -371,8 +371,8 @@ class ChartJS extends Control
     /**
      * Sets a <ColorRange> for the chart.
      * 
-     * @param ColorRange $range Range of colors
-     * @return $this
+     * @param \ScavixWDF\Base\Color\ColorRange $range Range of colors
+     * @return static
      */
     function setColorRange(\ScavixWDF\Base\Color\ColorRange $range)
     {
@@ -391,9 +391,9 @@ class ChartJS extends Control
     /**
      * Sets series names.
      * 
-     * @param string $seriesNames Series names
+     * @param array $seriesNames Series names
      * @param bool $append If true, series will be appended, else existing will be replaced
-     * @return $this
+     * @return static
      */
     function setSeries($seriesNames, $append=false)
     {
@@ -417,7 +417,7 @@ class ChartJS extends Control
      * @param iterable $data The actual data
      * @param string $x_value_row Name of the field that represents the series name
      * @param string $pointType Optional classname of the Point handler
-     * @return $this
+     * @return static
      */
     function setChartData(iterable $data, string $x_value_row, $pointType="StrPoint")
     {
@@ -447,7 +447,7 @@ class ChartJS extends Control
      * @param string $x_value_row Name of the field with the x-values
      * @param string $y_value_row Name of the field with the y-values
      * @param string $pointType Optional classname of the Point handler
-     * @return $this
+     * @return static
      */
     function setSeriesData(iterable $data, string $series_row, string $x_value_row, string $y_value_row, $pointType="StrPoint")
     {   
@@ -481,7 +481,7 @@ class ChartJS extends Control
      * Sets data for a Pie chart.
      * 
      * @param array $name_value_pairs key-value pairs of data
-     * @return $this
+     * @return static
      */
     function setPieData(array $name_value_pairs)
     {
@@ -501,7 +501,7 @@ class ChartJS extends Control
      * Fill the chart with data using a callback.
      * 
      * @param callable $seriesCallback Callback that will receive the series name and must return an array with data
-     * @return $this
+     * @return static
      */
     function fill($seriesCallback)
 	{
@@ -512,6 +512,7 @@ class ChartJS extends Control
     
     /**
      * @shortcut Create a multi-series time chart
+     * @return static
      */
     public static function MultiSeriesTime($data, $dataset_name='series', $x_name='x', $y_name='y')
 	{
@@ -550,7 +551,7 @@ class ChartJS extends Control
      * Iterates series.
      * 
      * @param callable $callback Callback that received each searies
-     * @return $this
+     * @return static
      */
     public function eachSeries($callback)
     {

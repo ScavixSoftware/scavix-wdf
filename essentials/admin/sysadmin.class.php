@@ -514,10 +514,11 @@ class SysAdmin extends HtmlPage
             {
                 if( defined("DATABASE_VERSION") && defined("DATABASE_FOLDER") )
                 {
-                    foreach( system_glob_rec(DATABASE_FOLDER,"{$table}.sql") as $file )
+					$dbf = constant("DATABASE_FOLDER");
+                    foreach( system_glob_rec($dbf,"{$table}.sql") as $file )
                     {
                         $current = file_get_contents($file);
-                        $fn = str_replace(DATABASE_FOLDER,'',$file);
+                        $fn = str_replace($dbf,'',$file);
                         if( preg_replace('/\s/','',$current) == preg_replace('/\s/','',$create) )
                             $this->append("<b style='color:green'>Definition file '$fn' is up to date</b>");
                         else
@@ -572,6 +573,7 @@ class SysAdmin extends HtmlPage
 	
     protected function GenerateBreadcrumbNavigation()
 	{
+		log_debug(__METHOD__);
 		$ret = '';
 		if(count($this->breadcrumbs) > 1)
 		{

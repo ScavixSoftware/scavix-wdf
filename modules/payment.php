@@ -69,7 +69,7 @@ if( !function_exists('check_vat_number') )
     /**
      * Checks if a vat number is valid
      * 
-     * @param type $vat_number VAT number to be checked
+     * @param string $vat_number VAT number to be checked
      * @return bool true if valid, else false
      */
     function check_vat_number($vat_number)

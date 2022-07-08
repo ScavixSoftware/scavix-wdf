@@ -115,7 +115,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
     /**
 	 * Returns the error info
 	 * 
-	 * @return string ErrorInfo
+	 * @return array ErrorInfo
 	 */
 	public function ErrorInfo()
 	{

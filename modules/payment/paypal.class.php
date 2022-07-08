@@ -260,7 +260,6 @@ class PayPal extends PaymentProvider
 				if(strcmp($res, "VERIFIED") == 0) 
 				{
 					return true;
-					break;
 				}
 				else if(strcmp($res, "INVALID") == 0) 
 				{
@@ -321,7 +320,6 @@ class PayPal extends PaymentProvider
 
 			default:
 				return "Unkown payment status: $payment_status";
-				break;
 		}
 		
 		return true;

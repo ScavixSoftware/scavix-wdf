@@ -59,7 +59,7 @@ class DateTimeFormatSelect extends Select
 		$this->culture_code = $culture_code;
 		
 		if( $selected_date_format || $selected_time_format )
-			$this->SetCurrentValue(
+			$this->setValue(
 				json_encode( array( 
 					$selected_date_format?$selected_date_format:false,
 					$selected_time_format?$selected_time_format:false) )

@@ -241,7 +241,7 @@ class ColorRange
      * Return the color corresponding to a value in the range.
      * 
      * @param int|float $value The value (between min and max) to get the color for
-     * @return Color
+     * @return \ScavixWDF\Base\Color
      */
     public function fromValue($value)
     {
@@ -254,7 +254,7 @@ class ColorRange
      * Return the color corresponding to percent in the range.
      * 
      * @param int|float $percent The percent (0-100) to get the color for
-     * @return Color
+     * @return \ScavixWDF\Base\Color
      */
     public function fromPercent($percent)
     {

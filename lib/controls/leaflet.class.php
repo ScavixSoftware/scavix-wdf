@@ -186,7 +186,7 @@ class LeafLet extends Control
      * Sets the tile provider.
      * 
      * @param string $name The provider name
-     * @return $this
+     * @return static
      */
     function setTileProvider($name)
     {
@@ -201,7 +201,7 @@ class LeafLet extends Control
      * En-/Disables auto zooming.
      * 
      * @param bool $on If true on, else off
-     * @return $this
+     * @return static
      */
     function setAutoZoom($on)
     {
@@ -215,7 +215,7 @@ class LeafLet extends Control
      * @param float $lat Latitute
      * @param float $lng Longitude
      * @param array $options Optional options
-     * @return LeafLet
+     * @return static
      */
     function AddMarker($lat, $lng, $options = [])
     {
@@ -232,7 +232,7 @@ class LeafLet extends Control
      * @param float $lng Longitude
      * @param string $title Marker title
      * @param array $options Optional options
-     * @return LeafLet
+     * @return static
      */
     function AddMarkerTitled($lat, $lng, $title, $options = [])
     {
@@ -247,7 +247,7 @@ class LeafLet extends Control
      * Will use geolocation API to resolve the address to a marker.
      * @param string $address The address as string
      * @param string $title An optional title
-     * @return LeafLet
+     * @return static
      */
     function AddAddress($address,$title=false)
     {
@@ -260,7 +260,7 @@ class LeafLet extends Control
      * 
      * @param string $color HTML color
      * @param array $points Array of points
-     * @return $this
+     * @return static
      */
     function AddPolygon($color,$points)
     {
@@ -273,7 +273,7 @@ class LeafLet extends Control
      *
      * @param float $lat Latitude
      * @param float $lng Longitude
-     * @return mixed
+     * @return static
      */
     function setCenterPoint($lat,$lng)
     {
@@ -284,7 +284,7 @@ class LeafLet extends Control
      * Sets the maps zoom level.
      *
      * @param int $zoomlevel The initial zoom level
-     * @return mixed
+     * @return static
      */
     function setZoom($zoomlevel)
     {
@@ -306,7 +306,7 @@ class LeafLet extends Control
      * Disables UI controls.
      * 
      * @param bool $disabled If true disabled, else not
-     * @return $this
+     * @return static
      */
     function setUiDisabled($disabled=false)
     {

@@ -45,7 +45,7 @@ class SimplyScroll extends Control
 	var $Options = [];
 
 	/**
-	 * @param type $options SimplyScroll options (see http://logicbox.net/jquery/simplyscroll)
+	 * @param array $options SimplyScroll options (see http://logicbox.net/jquery/simplyscroll)
 	 */
 	function __construct($options=[])
 	{
@@ -64,7 +64,7 @@ class SimplyScroll extends Control
 	 * @param string $src Image src
 	 * @param string $clicktarget Controller (or id) to redirect to when image is clicked
 	 * @param string $title Image alt text
-	 * @return SimplyScroll `$this`
+	 * @return static
 	 */
 	function AddImage($src,$clicktarget=false,$title=false)
 	{

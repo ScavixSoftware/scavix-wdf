@@ -42,8 +42,10 @@ use ScavixWDF\WdfException;
  */
 class Table extends Control
 {
-    var $header = false;
-    var $footer = false;
+	/** @var THead */
+    var $header;
+	/** @var TFoot */
+    var $footer;
 	var $colgroup = false;
     var $current_row_group = false;
     var $current_row = false;
@@ -70,7 +72,7 @@ class Table extends Control
     var $PersistName = false;
     var $force_ajax_dependenciesloading = false;
     
-    var $OnPageChanged = false;
+    var $OnPageChanged;
 	
 	function __construct()
 	{
@@ -161,15 +163,16 @@ class Table extends Control
 	 * @param int $index Zero based column index
 	 * @param string $format See <CellFormat> for explanation
 	 * @param bool $blank_if_false If shall be empty if content is false (that may be 0 or '' too)
-	 * @param type $conditional_css See <CellFormat> for explanation
-	 * @return Table `$this`
+	 * @param array $conditional_css See <CellFormat> for explanation
+	 * @return static
 	 */
 	function SetColFormat($index,$format,$blank_if_false=false,$conditional_css=[])
 	{
 		$this->ColFormats[$index] = new CellFormat($format, $blank_if_false, $conditional_css);
 		if( array_key_exists('copy',$conditional_css) )
 		{
-			$this->ColFormats[$index]->conditional_css['copy'] = $this->ColFormats[$this->ColFormats[$index]->conditional_css['copy']];
+			$i = intval($this->ColFormats[$index]->conditional_css['copy']);
+			$this->ColFormats[$index]->conditional_css['copy'] = $this->ColFormats[$i];
 		}
 		return $this;
 	}
@@ -190,7 +193,7 @@ class Table extends Control
 	/**
 	 * Clears the complete table.
 	 * 
-	 * @return Table `$this`
+	 * @return static
 	 */
 	function Clear()
 	{
@@ -405,7 +408,7 @@ class Table extends Control
 	 * Just sets the caption.
 	 * 
 	 * @param string $cap Caption text
-	 * @return Table `$this`
+	 * @return static
 	 */
 	function SetCaption($cap)
 	{
@@ -416,7 +419,7 @@ class Table extends Control
 	/**
 	 * Takes all arguments given and uses each as row-title.
 	 * 
-	 * @return Table `$this`
+	 * @return static
 	 */
 	function SetHeader(...$args)
 	{
@@ -429,7 +432,7 @@ class Table extends Control
 	/**
 	 * Takes all arguments given and uses each as row-title.
 	 * 
-	 * @return Table `$this`
+	 * @return static
 	 */
 	function SetFooter(...$args)
 	{
@@ -443,7 +446,7 @@ class Table extends Control
 	 * Same as NewRowGroup($options) but returns $this to allow method chaining.
 	 * 
 	 * @param array $options See <TBody> for options
-	 * @return Table `$this`
+	 * @return static
 	 */
 	function AddNewRowGroup($options=false)
 	{
@@ -454,7 +457,7 @@ class Table extends Control
 	/**
 	 * Adds a new row, takes all arguments given and uses each as new data-cell.
 	 * 
-	 * @return Table `$this`
+	 * @return static
 	 */
 	function AddNewRow(...$args)
 	{
@@ -470,7 +473,7 @@ class Table extends Control
 	 * possible values: l, r, c (or: left, right, center) as strings
 	 * sample $tab->SetAlignment('l','l','c','r') when there are 4+ columns
 	 * to skip a column just pass an empty string: $tab->SetAlignment('l','','','r')
-	 * @return Table `$this`
+	 * @return static
 	 */
 	function SetAlignment(...$args)
 	{
@@ -492,7 +495,7 @@ class Table extends Control
 	 * possible values: see CellFormat class
 	 * sample $tab->SetFormat('int','f2') when there are 2+ columns
 	 * to skip a column just pass an empty string: $tab->SetFormat('int','','','f2')
-	 * @return Table `$this`
+	 * @return static
 	 */
 	function SetFormat(...$args)
 	{
@@ -513,7 +516,7 @@ class Table extends Control
 	 * 
 	 * This will be used when value are formatted using a <CellFormat> specified via <Table::SetColFormat> or <Table::SetFormat>
 	 * @param CultureInfo $ci <CultureInfo> object speficying the culture
-	 * @return Table `$this`
+	 * @return static
 	 */
 	function SetCulture($ci)
 	{
@@ -531,7 +534,7 @@ class Table extends Control
 	 * 
 	 * This will be stored for AJAX acceess
 	 * @param mixed $model Data object
-	 * @return Table `$this`
+	 * @return static
 	 */
 	function AddDataToRow($model)
 	{
@@ -563,7 +566,7 @@ class Table extends Control
 	 * @param string $label Action label (alt and tootltip text)
 	 * @param object $handler Object handling the action
 	 * @param string $method Objects method that handles the action
-	 * @return Table `$this`
+	 * @return static
 	 */
 	function AddRowAction($icon,$label,$handler=false,$method=false)
 	{
@@ -607,7 +610,7 @@ class Table extends Control
 	 * Note: this does not mean that the data can be sorted for display, but that the user may rearrange the rows via mouse drag and drop!
 	 * @param object $handler Object handling the drop
 	 * @param string $method Method to be called
-	 * @return Table `$this`
+	 * @return static
 	 */
 	function Sortable($handler,$method)
 	{
@@ -636,7 +639,7 @@ class Table extends Control
 	 * @param int $items_per_page Items per page to be displayed
 	 * @param int $current_page One (1) based index of current page
 	 * @param int $max_pages_to_show Maximum links to pages to be shown
-	 * @return DatabaseTable `$this`
+	 * @return static
 	 */
 	function AddPager($items_per_page = 15, $current_page=false, $max_pages_to_show=10, ...$toomany)
 	{
@@ -661,8 +664,8 @@ class Table extends Control
      * Store this tables current page in the Session.
      * 
      * @param string $name A (session-)unique name for the table
-     * @param WdfBuffer $storage Optional external Buffer to use a storage container
-     * @return Table $this
+     * @param \ScavixWDF\WdfBuffer $storage Optional external Buffer to use a storage container
+     * @return static
      */
     function Persist($name, \ScavixWDF\WdfBuffer $storage=null)
     {
@@ -683,7 +686,7 @@ class Table extends Control
     /**
      * Sets the storage container.
      * 
-     * @param WdfBuffer $storage Buffer to be used as storage
+     * @param \ScavixWDF\WdfBuffer $storage Buffer to be used as storage
      * @return void
      */
     function SetStorage(\ScavixWDF\WdfBuffer $storage)
@@ -695,7 +698,7 @@ class Table extends Control
     /**
      * Resets the current page to be the first.
      * 
-     * @return $this
+     * @return static
      */
     function ResetPager()
     {
@@ -714,7 +717,7 @@ class Table extends Control
 	 * Use this in conjuction with <Table::AddPager> to generate dynamic data.
 	 * @param object $handler Object that will handle the request.
 	 * @param string $method Name of the method to be called
-	 * @return Table `$this`
+	 * @return static
 	 */
 	function SetDataCallback($handler,$method)
 	{

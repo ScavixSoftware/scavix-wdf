@@ -49,7 +49,7 @@ class CheckBox extends Input
      * Sets if checked or not.
      * 
      * @param bool $on true for checked, false for unchecked
-     * @return $this
+     * @return static
      */
 	function setChecked($on)
 	{
@@ -66,7 +66,7 @@ class CheckBox extends Input
      * This is done by submitting `$(this).closest('form')`
      * 
      * @param bool $on if true, activates, else stops
-     * @return Select $this
+     * @return static
      */
     function setAutoSubmit($on=true)
     {

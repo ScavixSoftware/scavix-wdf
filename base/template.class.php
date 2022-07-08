@@ -63,7 +63,7 @@ class Template extends Renderable
 	 * $tpl->set('myvar','I am just layout');
 	 * <code>
 	 * @param string $template_basename Name of the template
-	 * @return Template The created template
+	 * @return static The created template
 	 */
 	static function Make($template_basename=false)
 	{
@@ -152,7 +152,7 @@ class Template extends Renderable
 	 * 
 	 * @param string $name Var can be use in template under this name
 	 * @param mixed $value The value
-	 * @return Template `$this`
+	 * @return static
 	 */
 	public function set($name, $value)
 	{
@@ -179,7 +179,7 @@ class Template extends Renderable
 	 * </code>
 	 * @param string $name Variable name
 	 * @param mixed $value Value to add
-	 * @return Template `$this`
+	 * @return static
 	 */
 	public function add2var($name, $value)
 	{
@@ -199,7 +199,7 @@ class Template extends Renderable
 	 * 
 	 * @param array $vars Key=>Value pairs of variables
 	 * @param bool $clear Overwrite the whole vars (defaults to false)
-	 * @return Template `$this`
+	 * @return static
 	 */
 	function set_vars($vars, $clear = false)
 	{

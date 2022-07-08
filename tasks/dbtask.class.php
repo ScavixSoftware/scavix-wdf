@@ -53,8 +53,8 @@ class DbTask extends Task
             if( defined("DATABASE_VERSION") && defined("DATABASE_FOLDER") )
             {
                 log_info("DB Versioning enabled:");
-                log_info("\tSQL folder: ",DATABASE_FOLDER);
-                log_info("\tTarget version: ",DATABASE_VERSION);
+                log_info("\tSQL folder: ",constant("DATABASE_FOLDER"));
+                log_info("\tTarget version: ",constant("DATABASE_VERSION"));
                 if( $ds->Driver->tableExists('wdf_versions') )
                     log_info("\tDatabase version: ",$ds->ExecuteScalar("SELECT max(version) FROM wdf_versions"));
                 else
@@ -131,7 +131,7 @@ class DbTask extends Task
             $ds->ExecuteSql("DELETE FROM wdf_versions WHERE `version`=$v");
         }
         
-        model_update_db($ds, DATABASE_VERSION, DATABASE_FOLDER, function($v)
+        model_update_db($ds, constant("DATABASE_VERSION"), constant("DATABASE_FOLDER"), function($v)
         {
             log_info(__METHOD__,"Updated to version $v");
         });

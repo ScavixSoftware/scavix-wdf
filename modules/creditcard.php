@@ -85,10 +85,10 @@ function creditcard_getnames()
  * Syntactically checks a credit card number.
  * 
  * Valid values for $cardname are returned ny <creditcard_getnames>.
- * @param type $cardnumber Number to check
- * @param type $cardname Card name
- * @param type $errornumber <b>OUT</b> The error number
- * @param type $errortext <b>OUT</b> The error message
+ * @param string $cardnumber Number to check
+ * @param string $cardname Card name
+ * @param int $errornumber <b>OUT</b> The error number
+ * @param string $errortext <b>OUT</b> The error message
  * @return boolean true or false
  */
 function creditcard_check ($cardnumber, $cardname, &$errornumber, &$errortext) {
@@ -222,7 +222,7 @@ function creditcard_check ($cardnumber, $cardname, &$errornumber, &$errortext) {
     for ($i = strlen($cardNo) - 1; $i >= 0; $i--) {
     
       // Extract the next digit and multiply by 1 or 2 on alternative digits.      
-      $calc = $cardNo{$i} * $j;
+      $calc = $cardNo[$i] * $j;
     
       // If the result is in two digits add 1 to the checksum total
       if ($calc > 9) {

@@ -64,7 +64,7 @@ class uiMessage extends uiControl
 	 * 
 	 * @param string $message Hint text
      * @param bool $closeable Display close button true|false
-	 * @return uiMessage A new uiMessage 
+	 * @return static A new uiMessage 
 	 */
 	static function Hint($message,$closeable=true)
 	{
@@ -76,7 +76,7 @@ class uiMessage extends uiControl
 	 * 
 	 * @param string $message Error text
      * @param bool $closeable Display close button true|false
-	 * @return uiMessage A new uiMessage 
+	 * @return static A new uiMessage 
 	 */
 	static function Error($message,$closeable=true)
 	{
@@ -111,7 +111,7 @@ class uiMessage extends uiControl
      * 
      * @param mixed $message The message to be added
      * @param string $icon Icon to be used
-     * @return $this
+     * @return static
      */
     function prependLine($message,$icon='blank')
     {
@@ -125,7 +125,7 @@ class uiMessage extends uiControl
      * 
      * @param mixed $message The message to be added
      * @param string $icon Icon to be used
-     * @return $this
+     * @return static
      */
     function addLine($message,$icon='blank')
     {
@@ -139,7 +139,7 @@ class uiMessage extends uiControl
      * 
      * @param array $messages Array of messages to be added
      * @param string $icon Icon to be used
-     * @return $this
+     * @return static
      */
     function addLines($messages,$icon='blank')
     {

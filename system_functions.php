@@ -647,7 +647,7 @@ function system_is_ajax_call()
  * See http://www.php.net/manual/en/function.strip-tags.php#93567
  * @param string $str String to strip
  * @param array $tags Tags to be stripped
- * @return string cleaned up string
+ * @return string|array cleaned up string
  */
 function strip_only(&$str, $tags)
 {
@@ -685,8 +685,8 @@ function strip_only(&$str, $tags)
  * invalid overlong encodings of characters below U+0080),
  * though not entirely validating, so it still assumes proper input.
  * See http://de3.php.net/manual/en/function.ord.php#77905
- * @param char $c Character to get ORD of
- * @return int The ORD code
+ * @param string $c Character to get ORD of
+ * @return int|bool The ORD code
  */
 function uniord($c)
 {

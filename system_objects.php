@@ -78,7 +78,7 @@ class Wdf
      * 
      * @param string $name Buffer identifier
      * @param array|callable $initial_data Array with initial data or callback returning this initial data
-     * @return ScavixWDF\WdfBuffer
+     * @return \ScavixWDF\WdfBuffer
      */
     public static function GetBuffer($name,$initial_data=[])
     {
@@ -134,10 +134,10 @@ class Wdf
             umask($um);
             if( ($timeout <= 0) || !$exceptiononfailure )
                 return false;
-            WdfException::Raise("Timeout while awaiting the lock '$name'");
-            return false;
+            else
+                WdfException::Raise("Timeout while awaiting the lock '$name'");
         }
-        return system_get_lock($name,ScavixWDF\Model\DataSource::Get(),$timeout);
+        return system_get_lock($name,\ScavixWDF\Model\DataSource::Get(),$timeout);
     }
     
     public static function ReleaseLock($name)
@@ -153,7 +153,7 @@ class Wdf
             }
             return false;
         }
-        system_release_lock($name,ScavixWDF\Model\DataSource::Get());
+        system_release_lock($name,\ScavixWDF\Model\DataSource::Get());
     }
 }
 
@@ -191,7 +191,7 @@ class WdfBuffer implements \Iterator, \JsonSerializable
 	 * into $_SESSION[$name] and that getting data will transparently use that variable too.
      * 
      * @param string $name Name of session variable
-     * @return ScavixWDF\WdfBuffer
+     * @return \ScavixWDF\WdfBuffer
      */
     function mapToSession($name=false)
     {
@@ -597,9 +597,9 @@ class WdfDbException extends WdfException
     }
     
     /**
-     * Returns a string merged from the SQL statement and the arguments
+     * Returns an array with error information
      * 
-     * @return string Merged SQL statement
+     * @return array
      */
     function getErrorInfo()
     {

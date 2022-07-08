@@ -128,9 +128,11 @@ class Form extends Control
 	
 	/**
 	 * @shortcut <Form::AddInput>('checkbox',$name,$value)
+	 * @return Checkbox
 	 */
 	function AddCheckbox($name,$label=false)
 	{
+		/** @var $res Checkbox */
 		$res = $this->AddInput('checkbox', $name);
 		if( $label )
 			$this->content($res->CreateLabel($label));
@@ -139,6 +141,7 @@ class Form extends Control
 	
 	/**
 	 * @shortcut <Form::AddInput>('file',$name,$value)
+	 * @return Select
 	 */
 	function AddSelect($name){ return $this->AddInput('select', $name); }
     
@@ -157,9 +160,9 @@ class Form extends Control
 	 * Creates a standard AJAX submit action
 	 * 
 	 * Will create everything needed to post this form via AJAX to a PHP-side handler.
-	 * @param object $controller Handler object
+	 * @param mixed $controller Handler object
 	 * @param string $event Handler method name
-	 * @return Form `$this`
+	 * @return static
 	 */
 	function AjaxSubmitTo($controller,$event)
 	{
@@ -172,7 +175,7 @@ class Form extends Control
      * Creates a set of hidden inputs from data.
      * 
      * @param array $data name-value pairs of data
-     * @return Form $this
+     * @return static
      */
     function addHiddenData($data)
     {

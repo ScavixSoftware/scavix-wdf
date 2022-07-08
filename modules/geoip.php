@@ -65,7 +65,9 @@ function geoip_init()
  * Resolves an IP address to a location.
  * 
  * @param string $ip_address IP address to check (defaults to <get_ip_address>)
- * @return stdClass Object containing location information
+ * @return stdClass|false Object containing location information
+ * 
+ * @suppress PHP0417,PHP0415
  */
 function get_geo_location_by_ip($ip_address=null)
 {
@@ -91,6 +93,8 @@ function get_geo_location_by_ip($ip_address=null)
  * 
  * See <get_ip_address>
  * @return string Location name or empty string if unknown
+ * 
+ * @suppress PHP0417,PHP0415
  */
 function get_geo_region()
 {
@@ -112,7 +116,9 @@ function get_geo_region()
  * Resolves an IP address to geo coordinates.
  * 
  * @param string $ip IP address to resolve (defaults to <get_ip_address>)
- * @return array Associative array with keys 'latitude' and 'longitude'
+ * @return array|false Associative array with keys 'latitude' and 'longitude'
+ * 
+ * @suppress PHP0417,PHP0415
  */
 function get_coordinates_by_ip($ip = false)
 {
@@ -148,7 +154,9 @@ function get_coordinates_by_ip($ip = false)
  * Resolves an IP address to a country code
  * 
  * @param string $ipaddr IP address to resolve (defaults to <get_ip_address>)
- * @return array Country code or empty string if not found
+ * @return array|bool Country code or empty string if not found
+ * 
+ * @suppress PHP0417,PHP0415
  */
 function get_countrycode_by_ip($ipaddr = false)
 {
@@ -191,6 +199,8 @@ function get_countrycode_by_ip($ipaddr = false)
  * 
  * See <get_ip_address>
  * @return string Country name or empty string if unknown
+ * 
+ * @suppress PHP0417,PHP0415
  */
 function get_countryname_by_ip()
 {

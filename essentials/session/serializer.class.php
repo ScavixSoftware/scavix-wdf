@@ -41,6 +41,7 @@ use ScavixWDF\Model\Model;
 use ScavixWDF\Reflection\WdfReflector;
 use ScavixWDF\WdfException;
 use SimpleXMLElement;
+use Serializable;
 
 /**
  * Serializer/Unserializer
@@ -64,13 +65,13 @@ class Serializer
         if( !$stack )
             $stack = new \SplObjectStorage();
             
-        if( $data instanceof \Serializable )
+        if( $data instanceof Serializable )
             return $data;
-        if( $data instanceof \PDOStatement )
+        if( $data instanceof PDOStatement )
             return null;
         elseif( $data instanceof Closure )
             return null;
-        elseif( $data instanceof \Reflector )
+        elseif( $data instanceof Reflector )
             return null;
         elseif( $data instanceof \PDO )
             return null;

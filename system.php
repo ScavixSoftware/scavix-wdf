@@ -206,7 +206,7 @@ function system_load_module($path_to_module)
 	$mod = basename($path_to_module,".php");
 
     if( $mod == "mod_phpexcel" )
-        \ScavixWDF\WdfException::Raise("PHPExcel module has bee removed. Use PhpSpreadsheet instead.");
+        WdfException::Raise("PHPExcel module has bee removed. Use PhpSpreadsheet instead.");
     
 	if(system_is_module_loaded($mod))
 		return;
@@ -464,7 +464,7 @@ function system_execute()
         = system_instanciate_controller($current_controller);
     
     if( system_method_exists($current_controller,'__translate_event') )
-        $current_event = $current_controller->__translate_event($current_event);
+		$current_event = call_user_func([$current_controller,'__translate_event'],$current_event);
     
 	if( !(system_method_exists($current_controller,$current_event) ||
 		(system_method_exists($current_controller,'__method_exists') && $current_controller->__method_exists($current_event) )) )
@@ -556,7 +556,7 @@ function system_exit($result=null,$die=true)
         {
             // use this to redirect if some previous AJAX redirect should have in fact been redirected to an HTML page.
             log_error("Cannot deliver HtmlPage via AJAX, redirecting instead:",system_current_request());
-            $response = \ScavixWDF\Base\AjaxResponse::Redirect(system_current_request(true))->Render();
+            $response = AjaxResponse::Redirect(system_current_request(true))->Render();
         }
 		elseif( $result instanceof Renderable )
 			$response = AjaxResponse::Renderable($result)->Render();
@@ -667,7 +667,7 @@ function system_die($reason,$additional_message='',$log_error=true)
  * 
  * Note that this registers a function! If you want an objects method to be executed, see `register_hook()`.
  * @param int $type Valid hook type (see the HOOK_* constants)
- * @param string $handler_method name of function to call
+ * @param string|\Closure $handler_method name of function to call
  * @param bool $prepend If true will prepend, else will append
  * @return void
  */
@@ -833,7 +833,7 @@ function hook_type_to_string($type)
  * Sometimes you'll need to know the step of the current execution. You may use this function
  * to check which hooks have already been fired.
  * @param int $type Hook Type
- * @return bool true|false 
+ * @return bool true|bool 
  */
 function hook_already_fired($type)
 {
@@ -847,7 +847,7 @@ function hook_already_fired($type)
  * 
  * Checks if there's at least one handler registered for the hook
  * @param int $type Hook Type
- * @return bool true|false
+ * @return bool true|bool
  */
 function hook_bound($type)
 {
@@ -1523,7 +1523,7 @@ function system_current_request($as_url=false)
 {
     if( system_is_ajax_call() )
     {
-        $rid = \ScavixWDF\Base\Args::request('request_id');
+        $rid = Args::request('request_id');
         if( $rid && isset($_SESSION['latest_requests'][$rid]) )
         {
             if( !$as_url )

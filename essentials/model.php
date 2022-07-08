@@ -100,7 +100,7 @@ function model_store()
  * Get a database connection.
  * 
  * @param string $name The datasource alias.
- * @return DataSource The database connection
+ * @return DataSource|null The database connection
  */
 function &model_datasource($name)
 {
@@ -143,8 +143,9 @@ function &model_datasource($name)
 			WdfDbException::Raise("Unable to connect to database '$name'.");
 		Wdf::$DataSources[$name] = $model_db;
 	}
-
-	return Wdf::$DataSources[$name];
+    else
+        $model_deb = Wdf::$DataSources[$name];
+	return $model_db;
 }
 
 /**

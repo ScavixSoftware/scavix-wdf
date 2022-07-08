@@ -76,11 +76,11 @@ function cli_init()
  * -C&lt;path_to_configfile&gt; Path to the currently loaded WDF config.php file
  * -A&lt;appname&gt; The name of the current WDF application (see <system_init>).
  *
- * @param type $php_script_path The script path
- * @param type $args All arguments
+ * @param string $php_script_path The script path
+ * @param array $args All arguments
  * @param array $extended_data Optional additional data to pass to the process
  * @param bool $return_cmdline If true will not execute, but just return the commandline
- * @return void
+ * @return void|string
  */
 function cli_run_script($php_script_path, $args=[], $extended_data=false, $return_cmdline=false)
 {

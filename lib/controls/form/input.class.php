@@ -50,7 +50,7 @@ class Input extends Control
 	 * Sets the type attribute.
 	 * 
 	 * @param string $type The type
-	 * @return Input `$this`
+	 * @return static
 	 */
 	function setType($type)
 	{
@@ -63,7 +63,7 @@ class Input extends Control
 	 * Sets the name attribute.
 	 * 
 	 * @param string $name The type
-	 * @return Input `$this`
+	 * @return static
 	 */
 	function setName($name)
 	{
@@ -76,7 +76,7 @@ class Input extends Control
 	 * Sets the value attribute.
 	 * 
 	 * @param string $value The value
-	 * @return Input `$this`
+	 * @return static
 	 */
 	function setValue($value)
 	{

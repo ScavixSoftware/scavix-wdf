@@ -266,7 +266,7 @@ class DateTimeFormat
 	 * - Culture vi-VN Format dd MMMM
 	 *
 	 * @param string $str Input string in one of the KnownDateTimePatterns()
-	 * @return int The timestamp or FALSE on error
+	 * @return int|false The timestamp or FALSE on error
 	 */
 	public function StringToTime($str)
 	{
@@ -375,7 +375,7 @@ class DateTimeFormat
 					break;
 
 				case "h1":
-				case "h1":
+//				case "h1":
 					$h2 = $found[$iter];
 					break;
 				case "H2":

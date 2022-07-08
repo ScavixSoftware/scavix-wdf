@@ -52,7 +52,7 @@ class CurrencyFormatSelect extends Select
 		$this->data('controller', buildQuery($this->id));
 		
 		if( $selected_format )
-			$this->SetCurrentValue( $selected_format );
+			$this->setValue( $selected_format );
 		$samples = $this->getCurrencySamples($currency_code,1234.56,true);
 		foreach($samples as $code => $label)
 			$this->AddOption($code, $label);

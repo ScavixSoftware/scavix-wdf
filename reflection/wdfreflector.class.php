@@ -216,6 +216,8 @@ class WdfReflector extends ReflectionClass
 			}
 			
 			$parts = explode("(",$attr,2);
+
+			/** @var $attr WdfAttribute */
 			$attr = fq_class_name($parts[0])."(".$parts[1];
 			eval('$attr = new '.$attr.';');
 			
@@ -315,22 +317,7 @@ class WdfReflector extends ReflectionClass
 			return $res;
 		}
 		if( !$this->hasMethod($method_name) )
-		{
-			if( $this->Instance && $this->Instance instanceof Control )
-			{
-				foreach( $this->Instance->_extender as &$ex )
-				{
-					$ref2 = WdfReflector::GetInstance($ex);
-					$res = $ref2->GetMethodAttributes($method_name, $filter);
-					if( $res && count($res) > 0 )
-					{
-						$this->_setCached($cache_key,$filter,$res);
-						return $res;
-					}
-				}
-			}
 			return [];
-		}
 
 		$method = $this->getMethod($method_name);
 		$method_name = $method->getName();
@@ -390,7 +377,7 @@ class WdfReflector extends ReflectionClass
 	 * Overrides <ReflectionClass::getMethod> to enable <WdfReflectionMethod> handling.
 	 * 
 	 * @param string $name Name of the method to get
-	 * @return WdfReflectionMethod A WdfReflectionMethod instance or false on error
+	 * @return WdfReflectionMethod|null A WdfReflectionMethod instance or false on error
 	 */
 	public function getMethod($name): \ReflectionMethod
 	{
@@ -398,18 +385,7 @@ class WdfReflector extends ReflectionClass
 		{
 			$res = new WdfReflectionMethod($this->Classname,$name);
 			return $res;
-		}catch(Exception $e){ log_debug("Checking for extender method"); }
-		
-		if( $this->Instance && $this->Instance instanceof Control )
-		{
-			foreach( $this->Instance->_extender as &$ex )
-			{
-				$ref = WdfReflector::GetInstance($ex);
-				$res = $ref->getMethod($name);
-				if( $res )
-					return $res;
-			}
-		}
-		return false;
+		}catch(Exception $e){}
+		return $res;
 	}
 }

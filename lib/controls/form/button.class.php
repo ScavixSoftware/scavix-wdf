@@ -101,7 +101,7 @@ class Button extends Input
  	 * @param mixed $controller The controller to be loaded (can be <Renderable> or string)
 	 * @param string $method The method to be executed
 	 * @param array|string $data Optional data to be passed
-	 * @return Button `$this`
+	 * @return static
 	 */
 	function LinkTo($controller,$method='',$data=[])
 	{

@@ -102,7 +102,7 @@ class WdfListingFilter extends Template
 	{
 		return $this->addInput(
 			
-			ScavixWDF\Controls\Form\Select::Make($name)->SetCurrentValue($this->getValue($name))->setTitle($title),
+			\ScavixWDF\Controls\Form\Select::Make($name)->setValue($this->getValue($name))->setTitle($title),
 			$this->makeEqualsBuilder($column),
 			false
 		);
@@ -267,8 +267,8 @@ class WdfListingFilter extends Template
                 $ci = false;
                 if(isset($this->listings) && $this->listings && isset($this->listings[0]) && isset($this->listings[0]->ci) && $this->listings[0]->ci)
                     $ci = $this->listings[0]->ci;
-                if(!$ci && ScavixWDF\JQueryUI\uiDatePicker::$DefaultCI)
-                    $ci = ScavixWDF\JQueryUI\uiDatePicker::$DefaultCI;
+                if(!$ci && \ScavixWDF\JQueryUI\uiDatePicker::$DefaultCI)
+                    $ci = \ScavixWDF\JQueryUI\uiDatePicker::$DefaultCI;
                 if(!$ci)
                     $ci = \ScavixWDF\Localization\Localization::detectCulture();
                 if(!$ci)
@@ -289,8 +289,8 @@ class WdfListingFilter extends Template
                 $ci = false;
                 if(isset($this->listings) && $this->listings && isset($this->listings[0]) && isset($this->listings[0]->ci) && $this->listings[0]->ci)
                     $ci = $this->listings[0]->ci;
-                if(!$ci && ScavixWDF\JQueryUI\uiDatePicker::$DefaultCI)
-                    $ci = ScavixWDF\JQueryUI\uiDatePicker::$DefaultCI;
+                if(!$ci && \ScavixWDF\JQueryUI\uiDatePicker::$DefaultCI)
+                    $ci = \ScavixWDF\JQueryUI\uiDatePicker::$DefaultCI;
                 if(!$ci)
                     $ci = \ScavixWDF\Localization\Localization::detectCulture();
                 if(!$ci)

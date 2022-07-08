@@ -74,7 +74,7 @@ class TimeFrame
 			return $GLOBALS['timeframe']['data_object']->GetTimeframe();
 
 		if( $CONFIG['timeframe']['get_timeframe_func'] == 'getUserSetting' )
-			return getUserSetting("timeframe", "today");
+			return call_user_func('getUserSetting',"timeframe", "today");
 		else
 			return $CONFIG['timeframe']['get_timeframe_func']();
 	}
@@ -86,7 +86,7 @@ class TimeFrame
 			return $GLOBALS['timeframe']['data_object']->SetTimeframe($frame);
 
 		if( $CONFIG['timeframe']['set_timeframe_func'] == 'setUserSetting' )
-			return setUserSetting("timeframe", $frame);
+			return call_user_func('setUserSetting',"timeframe", $frame);
 		else
 			return $CONFIG['timeframe']['set_timeframe_func']($frame);
 	}
@@ -244,7 +244,6 @@ class TimeFrame
 
 			case "all":
 				return null;
-				break;
 
 			default:
 				$tf = explode("|",$tf);
@@ -341,7 +340,6 @@ class TimeFrame
 
 			case "all":
 				return null;
-				break;
 
 			default:
 				$tf = explode("|",$tf);
@@ -471,7 +469,6 @@ class TimeFrame
 				else
 					$ret = getString("TXT_TIMEFRAME", array("%s" => $GLOBALS['timeframe']['data_object']->FormatDate($s), "%e" => $GLOBALS['timeframe']['data_object']->FormatDate($e)));
 				return $ret;
-				break;
 		}
 	}
 

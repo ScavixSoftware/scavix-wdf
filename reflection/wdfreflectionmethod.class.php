@@ -55,17 +55,7 @@ class WdfReflectionMethod extends ReflectionMethod
 	{
 		try{
 			return parent::invokeArgs($object, $argsarray);
-		}catch(Exception $e){ log_debug("Checking for extender invokation"); }
-		
-		if( !is_null($object) && $object instanceof Control )
-		{
-			foreach( $object->_extender as &$ex )
-			{
-				try{
-					return $this->invokeArgs($ex, $argsarray);
-				}catch(Exception $e){ log_debug("Checking other extenders"); }
-			}
-		}
+		}catch(Exception $e){ }
 		WdfException::Raise("Error invoking ".$this->class."->".$this->name);
 	}
 }

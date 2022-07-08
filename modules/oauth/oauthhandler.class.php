@@ -29,6 +29,9 @@ use ScavixWDF\Model\OAuthStorageModel;
 use ScavixWDF\Wdf;
 use ScavixWDF\WdfException;
 
+/**
+ * @suppress PHP0413
+ */
 class OAuthHandler
 {
     protected static $map = 
@@ -146,7 +149,7 @@ class OAuthHandler
                 {
                     $owner = $provider->getResourceOwner($token);
                     $model->UpdateFromOwner($owner);
-                } catch (\Exception $ex) { log_debug($ex); }
+                } catch (Exception $ex) { log_debug($ex); }
                 
                 log_debug(__METHOD__,'Token',$token->jsonSerialize(),$token->getValues());
                 delete_object('oauth_current_handler');
@@ -185,7 +188,7 @@ class OAuthHandler
             {
                 $owner = $provider->getResourceOwner($token);
                 $model->UpdateFromOwner($owner);
-            } catch (\Exception $ex) { log_debug($ex); }
+            } catch (Exception $ex) { log_debug($ex); }
             
             return true;
         }

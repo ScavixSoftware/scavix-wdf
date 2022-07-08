@@ -29,6 +29,7 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 namespace ScavixWDF\Payment;
+use ScavixWDF\Model\Model;
 
 /**
  * Payment provider for testing.
@@ -58,7 +59,8 @@ class TestingPaymentProvider extends PaymentProvider
 	public function StartCheckout(IShopOrder $order, $ok_url=false, $cancel_url=false)
 	{
 		$order->SetPaid(PaymentProvider::PROCESSOR_TESTING, -1);
-		$order->Save();
+		if( $order instanceof Model)
+			$order->Save();
 		
 		if( $ok_url )
 		{

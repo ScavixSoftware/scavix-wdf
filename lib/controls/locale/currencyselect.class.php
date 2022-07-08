@@ -54,7 +54,7 @@ class CurrencySelect extends Select
 		
 		$this->current_currency_code = $current_currency_code;
 		if( $current_currency_code )
-			$this->SetCurrentValue($current_currency_code);
+			$this->setValue($current_currency_code);
 		
 		if( !$supported_currencies )
 			$supported_currencies = Localization::get_currency_codes();

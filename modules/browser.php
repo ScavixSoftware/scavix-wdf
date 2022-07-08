@@ -109,9 +109,6 @@ function browserDetails()
 {
 	global $__BROWSERINFO__CACHE;
 
-	if( false && isset($__BROWSERINFO__CACHE) )
-		return $__BROWSERINFO__CACHE;
-
 	$agent = $_SERVER['HTTP_USER_AGENT'];
 
     // initialize properties

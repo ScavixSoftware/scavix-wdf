@@ -76,7 +76,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
     protected function CreateTable(){}
 
 	/**
-	 * @var DataSource|false
+	 * @var DataSource|bool
 	 */
 	public static $DefaultDatasource = false;
     public static $SaveDelayed = false;
@@ -88,17 +88,17 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	protected $_cacheKey;
 
 	/**
-	 * @var DataSource|false
+	 * @var DataSource|bool
 	 */
     protected $_ds = false;
 
 	/**
-	 * @var TableSchema|false
+	 * @var TableSchema|bool
 	 */
     protected $_tableSchema = false;
 
 	/**
-	 * @var SelectQuery|false
+	 * @var SelectQuery|bool
 	 */
 	var $_query = false;
 	protected $_results = false;
@@ -484,7 +484,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
                     = $this->_ds->Driver->getTableSchema($tab);
             }
             catch(\PDOException $dbex){}
-            catch(\ScavixWDF\WdfDbException $dbex){}
+            catch(WdfDbException $dbex){}
 			if( $dbex )
             {
                 if( !$this->_ds->Driver->tableExists($tab) )
@@ -524,7 +524,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * <code php>
 	 * $name = $ds->Query('sometable')->eq('id')->scalar('name');
 	 * </code>
-	 * @param string $property Property name
+	 * @param string|array $property Property name
 	 * @param mixed $default Default if nothing was found
 	 * @return mixed The value of $default
 	 */

@@ -73,7 +73,7 @@ class Datamap extends Control
      * 
      * @param string $name config key
      * @param mixed $value Optional value
-     * @return $this If value is given, return $this, else returns the data for 'key'
+     * @return mixed If value is given, return $this, else returns the data for 'key'
      */
     function conf($name,$value=null)
 	{
@@ -102,7 +102,7 @@ class Datamap extends Control
      * @param string $country_code Country code (US, DE,...)
      * @param string $color HTML color
      * @param string $tooltip Optional tooltip
-     * @return $this
+     * @return static
      */
     function setColor($country_code, $color, $tooltip=false)
     {
@@ -116,8 +116,8 @@ class Datamap extends Control
     /**
      * Sets a color range for the datamap.
      * 
-     * @param ColorRange $range The <ColorRange>
-     * @return $this
+     * @param \ScavixWDF\Base\Color\ColorRange $range The <ColorRange>
+     * @return static
      */
     function setColorRange(\ScavixWDF\Base\Color\ColorRange $range)
     {
@@ -146,7 +146,7 @@ class Datamap extends Control
      * @param string $country_code Country Code
      * @param int|float $value The value, see <ColorRange::fromValue>
      * @param string $tooltip Optional tooltip
-     * @return $this
+     * @return static
      */
     function setValue($country_code, $value, $tooltip=false)
     {

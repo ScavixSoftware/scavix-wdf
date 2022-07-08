@@ -27,6 +27,8 @@
  * @author Scavix Software GmbH & Co. KG https://www.scavix.com <info@scavix.com>
  * @copyright since 2019 Scavix Software GmbH & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
+ * 
+ * @SuppressWarnings
  */
 
 use ScavixWDF\WdfException;
@@ -95,6 +97,8 @@ function globalcache_init()
  * @param mixed $value the object/string to save
  * @param int $ttl time to live (in seconds) of the caching
  * @return bool true if ok, false on error
+ * 
+ * @suppress PHP0404,PHP0417
  */
 function globalcache_set($key, $value, $ttl = false)
 {
@@ -108,17 +112,14 @@ function globalcache_set($key, $value, $ttl = false)
 		{
 			case globalcache_CACHE_OFF:
 				return true;
-				break;
 
 			case globalcache_CACHE_APC:
 				return apc_store($GLOBALS["globalcache_key_prefix"].$key, $value, $ttl);
-				break;
             
 			case globalcache_CACHE_YAC:
             case globalcache_CACHE_FILES:
                 $CONFIG['globalcache']['handler']->set($key, $value, $ttl);
                 return true;
-				break;
             
             case globalcache_CACHE_DB:
                 $val = session_serialize($value);
@@ -153,7 +154,6 @@ function globalcache_set($key, $value, $ttl = false)
 						$ds->ExecuteSql("REPLACE INTO wdf_cache(ckey,full_key,cvalue)VALUES(?,?,?)",array(md5($key),$key,$val));
 				}
                 return true;
-                break;
 		}
 	}
 	catch(Exception $ex)
@@ -170,6 +170,8 @@ function globalcache_set($key, $value, $ttl = false)
  * @param string $key the key of the value
  * @param mixed $default a default return value if the key can not be found in the cache
  * @return mixed The object from the cache or `$default`
+ * 
+ * @suppress PHP0404,PHP0417,PHP0412
  */
 function globalcache_get($key, $default = false)
 {
@@ -185,22 +187,18 @@ function globalcache_get($key, $default = false)
 		{
 			case globalcache_CACHE_OFF:
 				return $default;
-				break;
 
 			case globalcache_CACHE_APC:
 				$ret = apc_fetch($GLOBALS["globalcache_key_prefix"].$key, $success);
 				return $success?$ret:$default;
-				break;
             
             case globalcache_CACHE_YAC:
 				$ret = $CONFIG['globalcache']['handler']->get($key,$default);
 				return $ret===false?$default:$ret;
-				break;
             
             case globalcache_CACHE_FILES:
 				$ret = $CONFIG['globalcache']['handler']->get($key,$default,$exists);
 				return $exists?$ret:$default;
-				break;
             
             case globalcache_CACHE_DB:
                 $ds = model_datasource($CONFIG['globalcache']['datasource']);
@@ -212,7 +210,6 @@ function globalcache_get($key, $default = false)
                 if( $ret === false )
                     return $default;
                 return session_unserialize($ret);
-                break;
 		}
 	}
 	catch(Exception $ex)
@@ -227,6 +224,8 @@ function globalcache_get($key, $default = false)
  * Empty the whole cache.
  * 
  * @return bool true if ok, false on error
+ * 
+ * @suppress PHP0404,PHP0417
  */
 function globalcache_clear()
 {
@@ -238,16 +237,13 @@ function globalcache_clear()
 	{
 		case globalcache_CACHE_OFF:
 			return true;
-			break;
 
 		case globalcache_CACHE_APC:
 			return apc_clear_cache('user');
-			break;
         
         case globalcache_CACHE_YAC:
         case globalcache_CACHE_FILES:
 			return $CONFIG['globalcache']['handler']->flush();
-			break;
         
         case globalcache_CACHE_DB:
             $ds = model_datasource($CONFIG['globalcache']['datasource']);
@@ -264,6 +260,8 @@ function globalcache_clear()
  * @param mixed $value the object/string to save
  * @param int $ttl time to live (in seconds) of the caching
  * @return bool true if ok, false on error
+ * 
+ * @suppress PHP0404,PHP0417
  */
 function globalcache_delete($key)
 {
@@ -275,22 +273,18 @@ function globalcache_delete($key)
 	{
 		case globalcache_CACHE_OFF:
 			return true;
-			break;
 
 		case globalcache_CACHE_APC:
 			return apc_delete($GLOBALS["globalcache_key_prefix"].$key);
-			break;
         
         case globalcache_CACHE_YAC:
         case globalcache_CACHE_FILES:
 			return $CONFIG['globalcache']['handler']->delete($key);
-			break;
         
         case globalcache_CACHE_DB:
             $ds = model_datasource($CONFIG['globalcache']['datasource']);
 			try{ $ds->ExecuteSql("DELETE FROM wdf_cache WHERE ckey=?",md5($key)); }catch(Exception $ex){}
             return true;
-			break;
 	}
 	return false;
 }
@@ -300,6 +294,8 @@ function globalcache_delete($key)
  * 
  * Note: this currently returns various different information and format thus needs to be streamlined.
  * @return mixed Cache information
+ * 
+ * @suppress PHP0404,PHP0417
  */
 function globalcache_info()
 {
@@ -321,7 +317,6 @@ function globalcache_info()
 
 		case globalcache_CACHE_OFF:
 			return "no stats available";
-			break;
 			
         case globalcache_CACHE_DB:
             $ds = model_datasource($CONFIG['globalcache']['datasource']);
@@ -341,6 +336,8 @@ function globalcache_info()
  * Gets a list of all keys in the cache.
  * 
  * @return array list of all keys
+ * 
+ * @suppress PHP0404,PHP0417
  */
 function globalcache_list_keys()
 {
@@ -366,12 +363,10 @@ function globalcache_list_keys()
             foreach($cacheinfo['cache_list'] as $cacheentry)
                 $ret[] = substr($cacheentry['info'], $keyprefixlen);
             return $ret;
-            break;
             
         case globalcache_CACHE_YAC:
         case globalcache_CACHE_FILES:
             return $CONFIG['globalcache']['handler']->keys();
-            break;
             
 		default:
 			WdfException::Log("globalcache_list_keys not implemented for handler {$CONFIG['globalcache']['CACHE']}");
@@ -380,6 +375,9 @@ function globalcache_list_keys()
 	return [];
 }
 
+/**
+ * @suppress PHP0404,PHP0413
+ */
 class WdfYacWrapper
 {
     private $id, $yac;

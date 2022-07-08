@@ -93,7 +93,7 @@ class CurrencyFormat
 	 * Converts a string formatted as supposed in this currency back to float.
 	 * 
 	 * @param string $str String containing currency
-	 * @return float The value or false on error
+	 * @return float|false The value or false on error
 	 */
 	function StrToCurrencyValue($str)
 	{

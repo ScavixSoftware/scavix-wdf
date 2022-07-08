@@ -256,7 +256,7 @@ class DatabaseTable extends Table implements ICallable
 	 * to another object.
 	 * @param object $handler Object containing the handler method
 	 * @param string $function Name of the handler method
-	 * @return DatabaseTable `$this`
+	 * @return static
 	 */
 	function AssignOnAddHeader(&$handler,$function)
 	{
@@ -272,7 +272,7 @@ class DatabaseTable extends Table implements ICallable
 	 * to another object.
 	 * @param object $handler Object containing the handler method
 	 * @param string $function Name of the handler method
-	 * @return DatabaseTable `$this`
+	 * @return static
 	 */
 	function AssignOnAddRow(&$handler,$function)
 	{
@@ -288,7 +288,7 @@ class DatabaseTable extends Table implements ICallable
 	 * to another object.
 	 * @param object $handler Object containing the handler method
 	 * @param string $function Name of the handler method
-	 * @return DatabaseTable `$this`
+	 * @return static
 	 */
 	function AssignOnAddFooter(&$handler,$function)
 	{
@@ -544,6 +544,9 @@ class DatabaseTable extends Table implements ICallable
 		return $res;
 	}
     
+	/**
+	 * @suppress PHP0413,PHP0409
+	 */
 	protected function _exportExcel($format=self::EXPORT_FORMAT_XLSX, $rowcallback = null)
 	{
         //log_debug(__METHOD__,$format);
@@ -665,7 +668,7 @@ class DatabaseTable extends Table implements ICallable
      * Write a log information if querying was slow.
      * 
      * @param int $min_ms Minimum milliseconds that must be reached to really write info to log 
-     * @return $this
+     * @return static
      */
     function LogIfSlow($min_ms)
     {

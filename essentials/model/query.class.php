@@ -41,7 +41,7 @@ class Query
 {
 	var $_object = false;
 	/**
-	 * @var DataSource|false
+	 * @var DataSource|bool
 	 */
 	var $_ds = false;
 	var $_knownmodels = [];

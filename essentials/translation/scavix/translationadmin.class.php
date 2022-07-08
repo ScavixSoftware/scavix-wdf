@@ -90,7 +90,7 @@ class TranslationAdmin extends TranslationAdminBase
 	{
 		global $CONFIG;
 		$sel = new Select();
-		$sel->SetCurrentValue($lang);
+		$sel->setValue($lang);
 		$known = $sel->CreateGroup('Languages with translations');
 		$avail = $sel->CreateGroup('Available languages');
 		
@@ -616,7 +616,6 @@ class TranslationAdmin extends TranslationAdminBase
 	 * Sometimes you may want to correct a terms name, so use this one.
 	 * @param string $term The original term
 	 * @param string $new_term The new term name
-	 * @return void
 	 * @attribute[RequestParam('term','string')]
 	 * @attribute[RequestParam('new_term','string',false)]
 	 */
@@ -644,7 +643,6 @@ class TranslationAdmin extends TranslationAdminBase
 	 * 
 	 * Removes a term from all translations.
 	 * @param string $term The term to remove
-	 * @return void
 	 * @attribute[RequestParam('term','string')]
 	 */
 	function Remove($term)

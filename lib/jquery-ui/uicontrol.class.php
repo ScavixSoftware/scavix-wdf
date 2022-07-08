@@ -187,7 +187,7 @@ class uiControl extends Control
 	 * Add draggable init code to the uiControl.
 	 * 
 	 * @param array $options See http://api.jqueryui.com/draggable/
-	 * @return uiControl $this
+	 * @return static
 	 */
 	public function Draggable($options=[])
 	{
@@ -199,7 +199,7 @@ class uiControl extends Control
 	 * Add droppable init code to the uiControl.
 	 * 
 	 * @param array $options See http://api.jqueryui.com/droppable/
-	 * @return uiControl $this
+	 * @return static
 	 */
 	public function Droppable($options=[])
 	{
@@ -211,7 +211,7 @@ class uiControl extends Control
 	 * Add resizable init code to the uiControl.
 	 * 
 	 * @param array $options See http://api.jqueryui.com/resizable/
-	 * @return uiControl $this
+	 * @return static
 	 */
 	public function Resizable($options=[])
 	{

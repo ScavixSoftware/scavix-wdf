@@ -75,7 +75,7 @@ class NumberFormat
 	 * Converts a number matching this objects formatting back to a float.
 	 * 
 	 * @param string $str String containing the formattedc number
-	 * @return float The number or false on error
+	 * @return float|bool The number or false on error
 	 */
 	function StrToNumber($str)
 	{

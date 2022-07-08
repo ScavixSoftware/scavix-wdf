@@ -76,7 +76,7 @@ class uiTabs extends uiControl
 	 * </code>
 	 * @param Renderable $tab_or_index The tab itself or it's zero based index
 	 * @param mixed $content The conten to be added
-	 * @return uiTabs `$this`
+	 * @return static
 	 */
 	function AddToTab($tab_or_index,$content)
 	{
@@ -98,7 +98,7 @@ class uiTabs extends uiControl
 	 * Sets the tab to be selected initially.
 	 * 
 	 * @param Renderable $tab_or_index The tab itself or it's zero based index
-	 * @return uiTabs `$this`
+	 * @return static
 	 */
 	function SetSelected($tab_or_index)
 	{

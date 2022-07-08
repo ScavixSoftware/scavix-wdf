@@ -160,7 +160,7 @@ class CultureInfo
 	 * Returns a <CultureInfo> object for another region
 	 * 
 	 * @param mixed $region_code Region code or <RegionInfo> object
-	 * @return CultureInfo|false The resultung culture or false on error
+	 * @return CultureInfo|bool The resultung culture or false on error
 	 */
 	function OtherRegion($region_code)
 	{
@@ -379,7 +379,7 @@ class CultureInfo
         // If the time to be printed is in another DST range than we are 'now'
         // we must remove that gap to not confuse users with times beeing for example  8:00 instead of 9:00
         // when we look at them from our point of view.
-        if( false && $date instanceof DateTime)
+        /*if( $date instanceof DateTime)
         {
             $local = date("I"); $byobj = $date->format("I");
             if( $local < $byobj )
@@ -387,6 +387,7 @@ class CultureInfo
             elseif( $local > $byobj )
                 $date->add(\DateInterval::createFromDateString("1 hour"));
         }
+		*/
         
 		if( $convert_to_timezone==='default' ) $convert_to_timezone = $this->_alwaysConvertTimesToTimezone;
 		$date = $convert_to_timezone?$this->GetTimezoneDate($date):$this->_ensureTimeStamp($date);

@@ -37,6 +37,7 @@ use ScavixWDF\WdfException;
 /**
  * Gate2Shop payment provider.
  * 
+ * @deprecated Unused and untested for a long time
  */
 class Gate2Shop extends PaymentProvider
 {
@@ -321,8 +322,10 @@ class Gate2Shop extends PaymentProvider
 		if(starts_with($order_id, $CONFIG["payment"]["invoice_id_prefix"]))
 			$order_id = trim(str_replace($CONFIG["payment"]["invoice_id_prefix"], "", $order_id));		
 		$ds = model_datasource('system');
-		$order = $ds->CreateInstance("ShopOrder");
-		if(!$order->Load("id=?", $order_id))
+		
+		
+		$order = $this->LoadOrder($order_id);
+		if( !$order )
 			return "Order id $order_id not found";   // order not found
 		
 		return $this->HandlePayment($order, $ipndata);
@@ -379,7 +382,6 @@ class Gate2Shop extends PaymentProvider
 
 			default:
 				return "Unkown payment status: $payment_status";
-				break;
 		}
 		
 		return true;

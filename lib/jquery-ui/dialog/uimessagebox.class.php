@@ -60,7 +60,7 @@ class uiMessageBox extends uiDialog
 	 * Creates a new uiMessageBox as hint.
 	 * 
 	 * @param string $message Hint text
-	 * @return uiMessagebox A new uiMessagebox 
+	 * @return static A new uiMessagebox 
 	 */
 	static function Hint($message)
 	{
@@ -71,7 +71,7 @@ class uiMessageBox extends uiDialog
 	 * Creates a new uiMessageBox as error.
 	 * 
 	 * @param string $message Error text
-	 * @return uiMessageBox A new uiMessagebox 
+	 * @return static A new uiMessagebox 
 	 */
 	static function Error($message)
 	{

@@ -55,7 +55,7 @@ class TextInput extends Input
      * This is done by submitting `$(this).closest('form')`
      * 
      * @param int $delay Delay in milliseconds
-     * @return TextInput $this
+     * @return static
      */
     function setAutoSubmit($delay=500)
     {

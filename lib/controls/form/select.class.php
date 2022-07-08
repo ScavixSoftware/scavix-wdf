@@ -56,7 +56,7 @@ class Select extends Control
 	 * Sets the name attribute.
 	 * 
 	 * @param string $name The type
-	 * @return Select `$this`
+	 * @return static
 	 */
 	function setName($name)
 	{
@@ -69,7 +69,7 @@ class Select extends Control
 	 * Sets the value attribute.
 	 * 
 	 * @param string $value The value
-	 * @return Input `$this`
+	 * @return static
 	 */
 	function setValue($value)
 	{
@@ -113,7 +113,7 @@ class Select extends Control
 	 * @param mixed $label An optional label
 	 * @param bool $selected True if selected (hint: use <Select::SetCurrentValue> instead of evaluating selected state for each option)
 	 * @param Control $opt_group If given the option will be added to this optgroup element. Create one via <Select::CreateGroup>.
-	 * @return Select `$this`
+	 * @return static
 	 */
 	function AddOption($value, $label = "", $selected = false, $opt_group=false)
 	{
@@ -160,7 +160,7 @@ class Select extends Control
 	 * 
 	 * @param string $label The label text
 	 * @param bool $disabled True if disabled
-	 * @return Select `$this`
+	 * @return static
 	 */
 	function AddGroup($label = "", $disabled = false)
 	{
@@ -202,15 +202,16 @@ class Select extends Control
     /**
      * Created and return a <Select> control.
      * 
+	 * @deprecated Use Make and method-chaining instead
      * @param array $options Options
      * @param string $name Optional name attribute
      * @param string $selected Selected value
-     * @return Select The created Select control
+     * @return static The created Select control
      */
     static function Create($options,$name=false,$selected=false)
     {
         $res = new Select($name);
-        if( $selected ) $res->SetCurrentValue($selected);
+        if( $selected ) $res->setValue($selected);
         foreach( $options as $k=>$v )
             $res->AddOption($k,$v);
         return $res;
@@ -222,7 +223,7 @@ class Select extends Control
      * This is done by submitting `$(this).closest('form')`
      * 
      * @param bool $on if true, activates, else stops
-     * @return Select $this
+     * @return static
      */
     function setAutoSubmit($on=true)
     {

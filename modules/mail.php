@@ -186,7 +186,7 @@ function mail_prepare($recipient,$subject,$message,$plainmessage="",$attachments
  * @param string $message The message (may be HTML formatted)
  * @param string $plainmessage Optional plain message (may differ from $message)
  * @param array $attachments Array of filenames to attach
- * @return boolean true on success or string on error
+ * @return boolean|string true on success or string on error
  */
 function mail_send($recipient,$subject="",$message="",$plainmessage="",$attachments=[])
 {

@@ -41,7 +41,7 @@ class uiContainer extends uiControl
 {
 	/**
 	 * @param string $title Title for header section
-	 * @param options $options
+	 * @param array $options
 	 */
 	function __construct($title="TXT_UNKNOWN",$options=[])
 	{
@@ -55,7 +55,7 @@ class uiContainer extends uiControl
 	 * 
 	 * @param string $icon A valid <uiControl::Icon>
 	 * @param string $function JS code to be executed on click
-	 * @return uiContainer `$this`
+	 * @return static
 	 */
 	function AddButton($icon,$function)
 	{

@@ -27,6 +27,9 @@ namespace ScavixWDF\Model;
 use ScavixWDF\Base\DateTimeEx;
 use ScavixWDF\OAuth\OAuthHandler;
 
+/**
+ * @suppress PHP0413
+ */
 class OAuthStorageModel extends Model
 {
     public function GetTableName() { return "wdf_oauthstore"; }

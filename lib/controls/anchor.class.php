@@ -46,7 +46,6 @@ class Anchor extends Control
 	 * @param string $label The anchor text
 	 * @param string $class The CSS class
 	 * @param string $target The target attribute
-	 * @return void
 	 */
 	function __construct($href="", $label="", $class="",$target="")
 	{
@@ -65,7 +64,7 @@ class Anchor extends Control
      * Creates an <Anchor> with 'href="javascript:void(0)"'.
      * 
      * @param mixed $label Initial content
-     * @return Anchor
+     * @return static
      */
     public static function Void($label)
     {

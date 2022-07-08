@@ -165,7 +165,7 @@ class CheckTask extends Task
         if (defined('T_DOC_COMMENT'))
             $commentTokens[] = T_DOC_COMMENT; // PHP 5
         if (defined('T_ML_COMMENT'))
-            $commentTokens[] = T_ML_COMMENT;  // PHP 4
+            $commentTokens[] = constant("T_ML_COMMENT");  // PHP 4
 
         $cnts = $cntd = 0;
         foreach( token_get_all(file_get_contents($file)) as $token )

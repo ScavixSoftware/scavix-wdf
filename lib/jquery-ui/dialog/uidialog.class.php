@@ -134,7 +134,7 @@ class uiDialog extends uiControl
 	 * @param string $label Button text
 	 * @param string $action JS code for button click event
 	 * @param string $prepend If true will prepend the button, else append
-	 * @return uiDialog `$this`
+	 * @return static
 	 */
 	function AddButton($label,$action,$prepend=false)
 	{
@@ -161,7 +161,7 @@ class uiDialog extends uiControl
 	 * 
 	 * @param string $label Close button text
 	 * @param string $action Action to be performed on click, defaults to the standard close action
-	 * @return uiDialog `$this`
+	 * @return static
 	 */
 	function AddCloseButton($label, $action = false)
 	{

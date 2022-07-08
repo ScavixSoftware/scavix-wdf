@@ -7,6 +7,7 @@ use ScavixWDF\Localization\Localization;
 
 /**
  * @internal Overrides some methods for Excel compatibility.
+ * @suppress PHP0413
  */
 class ExcelCulture extends CultureInfo
 {

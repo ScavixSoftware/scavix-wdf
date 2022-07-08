@@ -77,7 +77,7 @@ class GoogleControl extends Control
 	 * 
 	 * This will be used for value formatting.
 	 * @param CultureInfo $ci The culture object
-	 * @return GoogleControl `$this`
+	 * @return static
 	 */
 	function setCulture(CultureInfo $ci)
 	{

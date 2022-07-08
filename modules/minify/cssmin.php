@@ -35,7 +35,6 @@
  * Abstract definition of a CSS token class.
  * 
  * Every token has to extend this class.
- *
  * @package		CssMin/Tokens
  * @link		http://code.google.com/p/cssmin/
  * @author		Joe Scylla <joe.scylla@gmail.com>
@@ -646,6 +645,8 @@ class CssVariablesMinifierPlugin extends aCssMinifierPlugin
  * @copyright	2008 - 2011 Joe Scylla <joe.scylla@gmail.com>
  * @license		http://opensource.org/licenses/mit-license.php MIT License
  * @version		3.0.1
+ * 
+ * @suppress PHP0422
  */
 class CssVariablesMinifierFilter extends aCssMinifierFilter
 	{
@@ -740,6 +741,8 @@ class CssVariablesMinifierFilter extends aCssMinifierFilter
  * @copyright	2008 - 2011 Joe Scylla <joe.scylla@gmail.com>
  * @license		http://opensource.org/licenses/mit-license.php MIT License
  * @version		3.0.1
+ * 
+ * @suppress PHP0408
  */
 class CssUrlParserPlugin extends aCssParserPlugin
 	{
@@ -816,6 +819,8 @@ class CssUrlParserPlugin extends aCssParserPlugin
  * @copyright	2008 - 2011 Joe Scylla <joe.scylla@gmail.com>
  * @license		http://opensource.org/licenses/mit-license.php MIT License
  * @version		3.0.1
+ * 
+ * @suppress PHP0408
  */
 class CssStringParserPlugin extends aCssParserPlugin
 	{
@@ -2327,6 +2332,8 @@ class CssMin
  * @copyright	2008 - 2011 Joe Scylla <joe.scylla@gmail.com>
  * @license		http://opensource.org/licenses/mit-license.php MIT License
  * @version		3.0.1
+ * 
+ * @suppress PHP0406,PHP0405
  */
 class CssImportImportsMinifierFilter extends aCssMinifierFilter
 	{
@@ -2532,6 +2539,8 @@ class CssImportImportsMinifierFilter extends aCssMinifierFilter
  * @copyright	2008 - 2011 Joe Scylla <joe.scylla@gmail.com>
  * @license		http://opensource.org/licenses/mit-license.php MIT License
  * @version		3.0.1
+ * 
+ * @suppress PHP0408
  */
 class CssExpressionParserPlugin extends aCssParserPlugin
 	{
@@ -2977,6 +2986,8 @@ class CssConvertNamedColorsMinifierPlugin extends aCssMinifierPlugin
  * @copyright	2008 - 2011 Joe Scylla <joe.scylla@gmail.com>
  * @license		http://opensource.org/licenses/mit-license.php MIT License
  * @version		3.0.1
+ * 
+ * @suppress PHP0440
  */
 class CssConvertLevel3PropertiesMinifierFilter extends aCssMinifierFilter
 	{
@@ -3844,6 +3855,8 @@ class CssCommentToken extends aCssToken
  * @copyright	2008 - 2011 Joe Scylla <joe.scylla@gmail.com>
  * @license		http://opensource.org/licenses/mit-license.php MIT License
  * @version		3.0.1
+ * 
+ * @suppress PHP0408
  */
 class CssCommentParserPlugin extends aCssParserPlugin
 	{

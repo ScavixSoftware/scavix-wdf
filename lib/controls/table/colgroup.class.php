@@ -91,7 +91,7 @@ class ColGroup extends Control
      * Sets the alignment.
      * 
      * @param array $alignment Array of alignments for each column l(eft)|r(ight)|c(enter)
-     * @return $this
+     * @return static
      */
 	function SetAlignment($alignment)
 	{

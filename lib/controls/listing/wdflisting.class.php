@@ -170,7 +170,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             ->AssignOnAddHeader($this,'OnAddHeader')
             ->AssignOnAddRow($this,'OnAddRow')
             ->appendTo($this);
-        $this->table->ParsingBehaviour = \ScavixWDF\Controls\Table\DatabaseTable::PB_NOPROCESSING;
+        $this->table->ParsingBehaviour = DatabaseTable::PB_NOPROCESSING;
         $this->table->SlimSerialization = true;
         
         if( $table )
@@ -740,7 +740,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
         try
         {
             return $this->table->ResultSet->Count();
-        } catch(Exception $ex)
+        } catch(\Exception $ex)
         {
             return -1;
         }

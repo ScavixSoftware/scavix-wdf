@@ -71,7 +71,7 @@ class TimezoneSelect extends Select
             if($tz === false) 
                 $tz = timezone_name_from_abbr('', $seconds, ($isDst ? 0 : 1));
             if($tz)
-                $this->SetCurrentValue($tz);
+                $this->setValue($tz);
         }
 	}
 }

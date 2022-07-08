@@ -44,7 +44,7 @@ class RegionSelect extends Select
 {
 	/**
 	 * @param mixed $current_language_code Currently selected language
-	 * @param type $current_region_code Currently selected region
+	 * @param string|CultureInfo $current_region_code Currently selected region
 	 */
 	function __construct($current_language_code=false, $current_region_code=false)
 	{
@@ -72,9 +72,9 @@ class RegionSelect extends Select
 		if( $current_region_code )
 		{
 			if( $current_region_code instanceof CultureInfo )
-				$this->SetCurrentValue($current_region_code->DefaultRegion()->Code);
+				$this->setValue($current_region_code->DefaultRegion()->Code);
 			else
-				$this->SetCurrentValue($current_region_code);
+				$this->setValue($current_region_code);
 		}
 		else
 			$this->AddOption(null, 'TXT_PLEASE_CHOOSE');

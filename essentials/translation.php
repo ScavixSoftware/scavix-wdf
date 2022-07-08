@@ -562,7 +562,7 @@ function getAvailableLanguages( $min_percent_translated=false )
  * Checks if there are translations for the given culture.
  * 
  * @param string $cultureCode Culture code to check for
- * @return bool true or false
+ * @return string|bool The given culture code or false
  */
 function checkForExistingLanguage($cultureCode)
 {

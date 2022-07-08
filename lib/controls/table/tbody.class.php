@@ -83,7 +83,7 @@ class TBody extends Control
 	 * 
 	 * @param array $data If given creates new cells in the row (see <Tr::NewCell>)
 	 * @param array $options See <Tr> for options
-	 * @return type
+	 * @return Tr
 	 */
     function &NewRow($data=false,$options = false)
     {
@@ -246,7 +246,7 @@ class TBody extends Control
      * Sets the alignment for all rows.
      * 
      * @param array $alignment Array of alignments for each column l(eft)|r(ight)|c(enter)
-     * @return $this
+     * @return static
      */
 	function SetAlignment($alignment)
 	{

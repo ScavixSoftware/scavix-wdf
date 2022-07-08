@@ -54,6 +54,7 @@ class uiButton extends uiControl
 	/**
 	 * Overrides <Control::Make> with own logic.
 	 * 
+	 * @deprecated Use <uiButton::Textual> instead
 	 * @param string $label Label
 	 * @param string $onclick OnClick JS code
 	 * @return uiButton The new button
@@ -74,7 +75,7 @@ class uiButton extends uiControl
 	 * 
 	 * @param string $label Label
 	 * @param string $onclick OnClick JS code
-	 * @return Button The new button
+	 * @return uiButton The new button
 	 */
 	static function Textual($label, $onclick = false)
 	{
@@ -87,7 +88,7 @@ class uiButton extends uiControl
 	 * Sets the <uiButton>s icon.
 	 * 
 	 * @param string $icon Valid <uiControl::Icon>
-	 * @return uiButton `$this`
+	 * @return static
 	 */
 	function setIcon($icon)
 	{
@@ -117,7 +118,7 @@ class uiButton extends uiControl
  	 * @param mixed $controller The controller to be loaded (can be <Renderable> or string)
 	 * @param string $method The method to be executed
 	 * @param array|string $data Optional data to be passed
-	 * @return uiButton `$this`
+	 * @return static
 	 */
 	function LinkTo($controller,$method='',$data=[])
 	{

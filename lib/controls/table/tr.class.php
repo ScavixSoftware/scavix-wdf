@@ -173,7 +173,7 @@ class Tr extends Control
      * Sets the alignment for all columns.
      * 
      * @param array $alignment Array of alignments for each column l(eft)|r(ight)|c(enter)
-     * @return $this
+     * @return static
      */
 	function SetAlignment($alignment)
 	{

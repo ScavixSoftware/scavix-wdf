@@ -71,7 +71,7 @@ abstract class PaymentProvider
 	
 	/**
 	 * Possibility to disable/enable the payment provider list
-	 * @return type 
+	 * @return bool 
 	 */
 	public function IsAvailable()
 	{
@@ -80,7 +80,7 @@ abstract class PaymentProvider
 	
 	/**
 	 * Handle the IPN (called DMN at g2s, ...) call from the payment provider
-	 * @param type $ipndata Array with IPN data (i.e. POST data) from payment provider
+	 * @param mixed $ipndata Array with IPN data (i.e. POST data) from payment provider
 	 * @return bool|string True if everything went well, errormessage as string otherwise 
 	 */
 	public function HandleIPN($ipndata)

@@ -98,7 +98,7 @@ class uiButtonSet extends uiControl
 	 * @param string $button_id the target button id
 	 * @param string $event a jQuery event e.g click
 	 * @param string $function JS code
-	 * @return uiButtonSet `$this`
+	 * @return static
 	 */
 	function AddEventToButton($button_id,$event,$function)
 	{
@@ -119,7 +119,7 @@ class uiButtonSet extends uiControl
 	 * 
 	 * @param string $button_id the target button id
 	 * @param string $label the new label
-	 * @return uiButtonSet `$this`
+	 * @return static
 	 */
 	function ChangeLabel($button_id,$label)
 	{

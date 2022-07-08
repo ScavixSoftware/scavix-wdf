@@ -120,7 +120,7 @@ class uiDatePicker extends uiControl
 	 * Sets the culture.
 	 * 
 	 * @param CultureInfo $cultureInfo The (new) culture
-	 * @return uiDatePicker `$this`
+	 * @return static
 	 */
 	function SetCulture($cultureInfo)
 	{
@@ -177,7 +177,7 @@ class uiDatePicker extends uiControl
     /**
      * Add default uiDatepicker settings to the given <HtmlPage>s JavaScript code.
      * 
-     * @param HtmlPage $page The HtmlPage
+     * @param \ScavixWDF\Base\HtmlPage $page The HtmlPage
      * @param CultureInfo $cultureInfo The <CultureInfo> to be default
      * @param array $options Default options
      * @return void

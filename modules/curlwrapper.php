@@ -218,11 +218,11 @@ function downloadData($url, $postdata = false, $request_header = [], $cacheTTLse
  * FEEL FREE TO EXTEND THIS FUNCTION TO SUPPORT OTHER AUTHENTICATION METHODS OR HTTP ERROR CODES!
  *
  * @param string $url URL to file/script to download
- * @param array|false $postdata Optional data to post to the URI
- * @param array|false $request_header Headers to send along with the request (one entry per header)
+ * @param array|bool $postdata Optional data to post to the URI
+ * @param array|bool $request_header Headers to send along with the request (one entry per header)
  * @param bool $follow_location If true follows redirects
  * @param string $cookie_file Name of the cookie file to use
- * @return array Array following the rules of the $_FILES superglobal (but without the first dimension) or FALSE if an error occured. Note that $_FILES may contain an error too!
+ * @return array|false Array following the rules of the $_FILES superglobal (but without the first dimension) or FALSE if an error occured. Note that $_FILES may contain an error too!
  */
 function downloadFile($url, $postdata = false, $request_header = [], $follow_location=true, $cookie_file=false)
 {
