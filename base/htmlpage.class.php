@@ -92,6 +92,9 @@ class HtmlPage extends Template implements ICallable
 	 */
 	function __construct($title="", $body_class=false)
 	{
+        if( current_event() == 'wdfgettext' )
+            system_exit($this->WdfGetText(Args::request('id','')));
+        
 		// this makes HtmlPage.tpl.php the 'one and only' template
 		// for all derivered classes, unless they override it after
 		// parent::__construct with $this->file = X
