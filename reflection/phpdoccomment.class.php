@@ -186,6 +186,7 @@ class PhpDocComment
 	 * <code php>
 	 * $dc->hasOne('internal','deprecated','override');
 	 * </code>
+	 * @param mixed ...$args Annotation names
 	 * @return bool true or false
 	 */
 	function hasOne(...$args)

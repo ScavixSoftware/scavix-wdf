@@ -50,6 +50,13 @@ class Wdf
     public static $Translation;
     
     private static $once_buffer = [];
+
+    /**
+     * Helper to easily check if something was already done.
+     * 
+     * @param mixed $id An ID value
+     * @return bool True, if has already been called with $id, else false
+     */
     public static function Once($id)
     {
         if( isset(self::$once_buffer[$id]) )
@@ -87,7 +94,19 @@ class Wdf
         return self::$buffers[$name];
     }
     
-    
+    /**
+     * Sets up a LOCK for a given name.
+     * 
+     * On Linux system uses the /run/lock folder to create a lock file. If this
+     * succeeds returns true. If not and a timeout is given will try for that amount
+     * of seconds. If still fails trhows an exception if $exceptiononfailure is true or returns false.
+     * In all other OS see <system_get_lock>().
+     * 
+     * @param string $name Lock name
+     * @param int $timeout Seconds to wait/retry (default 10)
+     * @param bool $exceptiononfailure If true will throw an exception if lock cannot be created (default: true)
+     * @return bool True on success, else false
+     */
     public static function GetLock($name,$timeout=10,$exceptiononfailure=true)
     {
         if( PHP_OS_FAMILY == "Linux" )
@@ -140,6 +159,11 @@ class Wdf
         return system_get_lock($name,\ScavixWDF\Model\DataSource::Get(),$timeout);
     }
     
+    /**
+     * Releases a LOCK.
+     * 
+     * @param string $name The LOCK name
+     */
     public static function ReleaseLock($name)
     {
         if( PHP_OS_FAMILY == "Linux" )
@@ -331,23 +355,35 @@ class WdfBuffer implements \Iterator, \JsonSerializable
         $this->position = 0;
     }
 
+    /**
+	 * @implements <Iterator::current>
+	 */
     #[\ReturnTypeWillChange]
     public function current()
     {
         return $this->get($this->key());
     }
 
+    /**
+	 * @implements <Iterator::key>
+	 */
     #[\ReturnTypeWillChange]
     public function key()
     {
         return $this->keys()[$this->position];
     }
 
+    /**
+	 * @implements <Iterator::next>
+	 */
     public function next():void
     {
         $this->position++;
     }
 
+    /**
+	 * @implements <Iterator::valid>
+	 */
     public function valid():bool
     {
         return isset($this->keys()[$this->position]);
@@ -388,6 +424,7 @@ class WdfException extends Exception
 	 * <code php>
 	 * ToDoException::Raise('implement myclass->mymethod()');
 	 * </code>
+     * @param mixed ...$args Messages to be concatenated
 	 * @return void
 	 */
 	public static function Raise(...$args)
@@ -421,6 +458,7 @@ class WdfException extends Exception
 	 * }catch(Exception $ex){ WdfException::Log("Weird:",$ex); }
 	 * </code>
 	 * Note that Raise method will log automatically, so this is mainly useful when silently catching exceptions.
+     * @param mixed ...$args Messages to be concatenated
 	 * @return void
 	 */
 	public static function Log(...$args)
@@ -537,6 +575,9 @@ class WdfDbException extends WdfException
         return $msg;
     }
     
+    /**
+     * @internal Wraps a \PDOException, optionally with the triggering statement
+     */
     public static function RaisePdoEx(\PDOException $ex, ?Model\ResultSet $statement = null)
     {
         $msg = self::_prepare($ex->getMessage(),$statement);
@@ -607,7 +648,10 @@ class WdfDbException extends WdfException
             return $this->statement->ErrorInfo();
         return ['','',"Error preparing the SQL statement. Most likely there's an error in the SQL syntax."];
     }
-    
+
+    /**
+     * @internal Helper method to detect if this represents an Exception indicating a duplicate key
+     */    
     function isDuplicateKeyException($key = false)
     {
         list($c1,$c2,$msg) = $this->getErrorInfo();
@@ -615,6 +659,9 @@ class WdfDbException extends WdfException
         return (preg_match($regex, $msg, $dummy) != false);
     }
     
+    /**
+     * @internal Helper method to detect if this represents an Exception indicating a missing table.
+     */
     function isTableNotExistException($table = false)
     {
         list($c1,$c2,$msg) = $this->getErrorInfo();

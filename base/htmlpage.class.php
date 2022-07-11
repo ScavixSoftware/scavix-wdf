@@ -386,6 +386,8 @@ class HtmlPage extends Template implements ICallable
 	}
 	
 	/**
+	 * @internal Will be called automatically if missing strings are detected browserside.
+	 * 
 	 * @attribute[RequestParam('id','string','')]
 	 */
 	function WdfGetText($id)

@@ -30,6 +30,8 @@ use ScavixWDF\Wdf;
 use ScavixWDF\WdfException;
 
 /**
+ * Handles the complete OAuth process.
+ * 
  * @suppress PHP0413
  */
 class OAuthHandler
@@ -76,6 +78,11 @@ class OAuthHandler
             WdfException::Raise("Missing clientSecret for OAuth provider ".$this->provider_name);
     }
     
+    /**
+     * Creates a provider-specific handler instance.
+     * 
+     * @return \League\OAuth2\Client\Provider\AbstractProvider|null Provider
+     */
     function getProviderInstance()
     {
         $map = ifavail(self::$map,$this->provider_name);
@@ -92,12 +99,21 @@ class OAuthHandler
         return new $map['cls']($this->provider_config);
     }
     
+    /**
+     * Creates an AccessToken from given data.
+     *
+     * @param array $data The token data
+     * @return \League\OAuth2\Client\Token\AccessToken The access token
+     */
     function getTokenInstance($data)
     {
         // todo: check map for special classes
         return new \League\OAuth2\Client\Token\AccessToken($data);
     }
     
+    /**
+     * Starts the OAuth process
+     */
     function authorize()
     {
         try
@@ -162,6 +178,12 @@ class OAuthHandler
         }
     }
     
+    /**
+     * Checks if the given model has valid oauth data.
+     * 
+     * @param OAuthStorageModel|false $model
+     * @return bool True or false
+     */
     function isAuthorized($model=false)
     {
         $model = $model?:OAuthStorageModel::Search($this->local_id,$this->provider_name)->current();

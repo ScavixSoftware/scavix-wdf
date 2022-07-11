@@ -55,6 +55,9 @@ abstract class WdfCronTask extends Task
         @chmod($fn, 0777);
     }
     
+    /**
+     * @internal WdfCronTask main loop, creates sub-tasks
+     */
     function Run($args)
     {
         $tasks = [];
@@ -67,6 +70,9 @@ abstract class WdfCronTask extends Task
             WdfTaskModel::RunInstance();
     }
     
+    /**
+     * @internal WdfCronTask sub-tasks main loop
+     */
     function RunInternal($args)
     {
         //log_debug(__METHOD__,$args);
@@ -80,5 +86,10 @@ abstract class WdfCronTask extends Task
         finally{ $this->done($interval); }
     }
     
+    /**
+     * Subclass must implement: Main-Loop
+     * 
+     * @param int $interval Interval this loop is called for (1,5,10,15,30,45,60 minutes)
+     */
     abstract function Process($interval);
 }

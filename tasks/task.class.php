@@ -76,6 +76,7 @@ abstract class Task
      * 
      * @param string $method Optional method name to be started.
      * @param bool $return_original If true and there's already another task present, return that one, else return a dummy if there's another one
+     * @param mixed ...$args Optional arguments
      * @return \ScavixWDF\Tasks\WdfTaskModel The new task or a dummy if already present or the one already present
      */
     public static function AsyncOnce($method='run', $return_original=false, $args = false) : WdfTaskModel
@@ -86,6 +87,12 @@ abstract class Task
         return WdfTaskModel::CreateOnce($name, $return_original)->SetArgs($args);
     }
     
+    /**
+     * Checks if another Task is already running.
+     * 
+     * @param string $method Task method to check for (default: run)
+     * @return bool true if present, else false
+     */
     public static function IsRunning($method='run')
     {
         $name = get_called_class()."-$method";

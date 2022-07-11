@@ -28,6 +28,8 @@ use ScavixWDF\Base\DateTimeEx;
 use ScavixWDF\OAuth\OAuthHandler;
 
 /**
+ * Represents a dataset in the wdf_oauthstore table.
+ * 
  * @suppress PHP0413
  */
 class OAuthStorageModel extends Model
@@ -51,12 +53,26 @@ class OAuthStorageModel extends Model
             );");
     }
     
+    /**
+     * Searches datasets for a local_id, optionally filtered for a provider.
+     * 
+     * @param mixed $local_id The local user ID
+     * @param string $provicer_name Optional provider filter
+     * @return OAuthStorageModel
+     */
     static function Search($local_id,$provider_name=false)
     {
         return OAuthStorageModel::Make()->eq('local_id',$local_id)
             ->if($provider_name)->eq('provider',$provider_name);
     }
-    
+
+    /**
+     * Generates a anonymous local ID.
+     * 
+     * This may be used later once the OAuth flow returns. 
+     * Use case: Registration with OAuth without local user account.
+     * @return mixed The local id
+     */
     static function GetAnonId()
     {
         $ds = DataSource::Get();
@@ -66,7 +82,13 @@ class OAuthStorageModel extends Model
         } while ($ds->ExecuteScalar('SELECT COUNT(*) FROM wdf_oauthstore WHERE local_id=? LIMIT 1', [$anonid]));
         return $anonid;
     }
-    
+
+    /**
+     * Change a (previously anonymous) local ID.
+     * 
+     * @param mixed $new_local_id The new ID for the dataset.
+     * @return static
+     */
     function ChangeLocalId($new_local_id)
     {
         $this->_ds->ExecuteSql(
@@ -81,6 +103,9 @@ class OAuthStorageModel extends Model
         return $this;
     }
     
+    /**
+     * @internal Updates this datasets oauth token data.
+     */
     function UpdateFromToken(\League\OAuth2\Client\Token\AccessToken $token)
     {
         $this->access_token = $token->getToken();
@@ -93,6 +118,9 @@ class OAuthStorageModel extends Model
         $this->Save();
     }
     
+    /**
+     * @internal Updates this datasets oauth owner data.
+     */
     function UpdateFromOwner(\League\OAuth2\Client\Provider\ResourceOwnerInterface $owner)
     {
         $data = $owner->toArray();
@@ -116,6 +144,11 @@ class OAuthStorageModel extends Model
         $this->Save();
     }
     
+    /**
+     * Return oauth token data.
+     * 
+     * @return array
+     */
     function GetTokenData()
     {
         $data = $this->AsArray('access_token','refresh_token','resource_owner_id');
@@ -123,6 +156,11 @@ class OAuthStorageModel extends Model
         return $data;
     }
     
+    /**
+     * Checks if this dataset still contains valid OAuth data.
+     * 
+     * @return bool True is valid, else false
+     */
     function Validate()
     {
         $handler = new OAuthHandler($this->local_id, $this->provider);

@@ -45,6 +45,11 @@ class uiDateTimePicker extends uiDatePicker
 		parent::__construct($value,$inline);
 	}
     
+    /**
+	 * Sets the date-time value.
+	 * 
+	 * @param string $value Valid date-time string representation
+	 */
     function setValue($value)
     {
         $value = ($value?:false);

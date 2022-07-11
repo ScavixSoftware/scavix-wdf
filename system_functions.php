@@ -157,6 +157,7 @@ function isDevOrBeta(){ return $_ENV['CURRENT_ENVIRONMENT'] == ENVIRONMENT_DEV |
  * measured performance agains direct assignment: it is about 5 times
  * slower on a Windows7 x64 system with 8GB RAM.
  * But for 1000 calls it just needs 5ms, so just leave me alone with that.
+ * @param mixed ...$args Path to setting and value
  * @return void
  */
 function cfg_set(...$args)
@@ -178,6 +179,7 @@ function cfg_set(...$args)
  * Sets a config value only if it has not been set
  * 
  * See cfg_set() for usage and performance thoughts
+ * @param mixed ...$args Path to setting and value
  * @return void
  */
 function cfg_setd(...$args)
@@ -199,6 +201,7 @@ function cfg_setd(...$args)
  * Adds an entry to a config value array
  * 
  * See cfg_set() for usage and performance thoughts
+ * @param mixed ...$args Path to setting and value
  * @return void
  */
 function cfg_add(...$args)
@@ -220,6 +223,7 @@ function cfg_add(...$args)
  * Gets a config value.
  * 
  * See cfg_set() for usage and performance thoughts
+ * @param mixed ...$args Path to setting
  * @return mixed Config value
  */
 function cfg_get(...$args)
@@ -241,6 +245,7 @@ function cfg_get(...$args)
  * Gets a config value and uses the last argument given as default if it is not set.
  * 
  * See cfg_set() for usage and performance thoughts
+ * @param mixed ...$args Path to setting and default value
  * @return mixed Config value
  */
 function cfg_getd(...$args)
@@ -262,6 +267,7 @@ function cfg_getd(...$args)
  * Deletes a config value
  * 
  * See cfg_set() for usage and performance thoughts
+ * @param mixed ...$args Path to setting
  * @return void
  */
 function cfg_del(...$args)
@@ -284,6 +290,7 @@ function cfg_del(...$args)
  * 
  * Last argument will be used as exception message.
  * See cfg_set() for usage and performance thoughts
+ * @param mixed ...$args Path to setting
  * @return void
  */
 function cfg_check(...$args)
@@ -390,6 +397,11 @@ function setAppVersion($major,$minor,$build,$codename="",$nc_salt=false)
 	$GLOBALS['APP_VERSION']['nc'] = 'nc'.substr(preg_replace('/[^0-9]/', '', md5($GLOBALS['APP_VERSION']['string'].$nc_salt)), 0, 8);
 }
 
+/**
+ * Updates the nc part of the global 'APP_VERSION'.
+ * 
+ * @param string $nc_salt Value to salt the NC with
+ */
 function updateAppNC($nc_salt)
 {
     if( $nc_salt )
@@ -535,6 +547,7 @@ function ends_iwith($string,...$end)
  * 
  * Use like this: `is_in('nice','Hello','nice','World')`
  * This is a shortcut for `in_array('nice',array('Hello','nice','World'))`.
+ * @param mixed ...$args Needle and values to compare with
  * @return bool true or false
  */
 function is_in(...$args)
@@ -555,6 +568,7 @@ function is_in(...$args)
  * contains('Hello nice World','some','other','nice','words'); // true
  * contains('Hello nice World','some','other','words'); // false
  * </code>
+ * @param mixed ...$args Needle and values to compare with
  * @return bool true or false
  */
 function contains(...$args)
@@ -1054,6 +1068,7 @@ function is_assoc($array)
  * $result = ifnull($data,'email','username','display_name','name');
  * // $result is now "Hello World!"
  * </code>
+ * @param mixed ...$args Subject and property names to check for values
  * @return mixed The first non-null value or null of none found
  */
 function ifnull(...$args)
@@ -1122,6 +1137,7 @@ function sif($condition,$true_value,$false_value)
  * if( isset($a) && is_array($a['system']) && isset($a['system']['data']) && $a['system']['data'] )
  *     log_debug("SysData",$a['system']['data']);
  * </code>
+ * @param mixed ...$args Subject and path to check
  * @return boolean True if the requested data is available, else false
  */
 function avail(...$args)
@@ -1152,6 +1168,7 @@ function avail(...$args)
  * 
  * See <ifnull> for a detailed description as this works the same way.
  * Difference is that this only checks against null but also if a value is set (weak comparison against false).
+ * @param mixed ...$args Subject and property names to check for values
  * @return mixed The first set value or null of none found
  */
 function ifavail(...$args)
@@ -1430,6 +1447,11 @@ function system_app_temp_dir($subfolder = '', $appendnc = true)
     return $folder;
 }
 
+/**
+ * Returns an array of key-value pairs representing MIME types (keys) and file extensions (values).
+ * 
+ * @return array
+ */
 function system_mime_map()
 {
     return $mime_map = [
@@ -1627,6 +1649,12 @@ function system_mime_to_extension($mime)
     return isset($mime_map[$mime]) === true ? $mime_map[$mime] : false;
 }
 
+/**
+ * Guesses a MIME type from a filename based on the file extension.
+ * 
+ * @param string $filename The filename to check
+ * @return string|false The detected MIME type or false
+ */
 function system_guess_mime($filename)
 {
     $mime_map = system_mime_map();

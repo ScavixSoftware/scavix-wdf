@@ -563,8 +563,9 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	}
 	
 	/**
-	 * Returns all column values.
+	 * Returns column values.
 	 * 
+	 * @param mixed ...$args Column names
 	 * @return array plain array of values
 	 */
 	public function FieldValues(...$args)
@@ -955,6 +956,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	/**
 	 * Returns all field values a array.
 	 * 
+	 * @param mixed ...$filter List of column names to return (each: if value present)
 	 * @return array Associative array of fieldname=>value pairs
 	 */
 	public function AsArray(...$filter)
@@ -978,6 +980,19 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
     
+	/**
+	 * Returns an array that may be used in other DB statements.
+	 * 
+	 * The returned array will be associative, the column names as keys will be prepended with ':'.
+	 * Sample usage:
+	 * <code php>
+	 * $model = new SomeModel();
+	 * $sql = "SELECT * FROM some_table WHERE id=:id";
+	 * DataSource::Get()->ExecuteSql($sql,$model->AsDbArgs('id'));
+	 * </code>
+	 * @param mixed ...$names List of column names to return (each: if value present)
+	 * @return array Associative array of fieldname=>value pairs
+	 */
     public function AsDbArgs(...$names)
     {
         if( count($names)>0 )
@@ -1105,6 +1120,11 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 	}
     
+	/**
+	 * Ends a condition sub-tree.
+	 * 
+	 * @return static
+	 */
     function end()
     {
         $res = clone $this;
@@ -1113,6 +1133,15 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
     }
     
+	/**
+	 * Add the nex following continion only if condition matches.
+	 * 
+	 * Sample:
+	 * <code php>
+	 * MyModel::Make()->eq('name','some name')->if($parent)->eq('parent_id',$parent);
+	 * </code>
+	 * @return static
+	 */
     function if($condition)
 	{
 		$res = clone $this;
@@ -1622,12 +1651,13 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	}
 
 	/**
-	 * Passes all given arguments as array to the Save method.
+	 * Passes all given arguments as column names to the Save method.
 	 *
 	 * Use it like this: `$model->Update('age','last_action');`
 	 * when you want to ensure that only these columns are written.
 	 * See <Model::Save>() for more information.
 	 *
+	 * @param mixed ...$args The columns names to save
 	 * @return Model `clone $this`
 	 * @throws WdfDbException
 	 */

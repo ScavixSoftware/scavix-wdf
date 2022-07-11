@@ -21,10 +21,15 @@
  * @copyright since 2019 Scavix Software GmbH & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-// see http://www.htmlist.com/development/extending-php-5-3-closures-with-serialization-and-reflection/
 
 namespace ScavixWDF\Base;
 
+/**
+ * Implements persistable closures.
+ * 
+ * @see http://www.htmlist.com/development/extending-php-5-3-closures-with-serialization-and-reflection/
+ * @todo Check if this is still needed in times of PHP8.1
+ */
 class WdfClosure
 {
 	protected $closure = NULL;
@@ -48,6 +53,9 @@ class WdfClosure
 		return $this->reflection->invokeArgs($args);
 	}
 
+	/**
+	 * @internal 
+	 */
 	public function getClosure()
 	{
 		return $this->closure;
@@ -75,11 +83,17 @@ class WdfClosure
 		return $code;
 	}
 
+	/**
+	 * @internal
+	 */
 	public function getCode()
 	{
 		return $this->code;
 	}
 
+	/**
+	 *  @internal
+	 */
 	public function getParameters()
 	{
 		return $this->reflection->getParameters();
@@ -116,6 +130,9 @@ class WdfClosure
 		return $used_vars;
 	}
 
+	/**
+	 * @internal
+	 */
 	public function getUsedVariables()
 	{
 		return $this->used_variables;

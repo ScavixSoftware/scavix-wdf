@@ -123,6 +123,11 @@ class LessCompiler extends \lessc implements \JsonSerializable
         });
     }
     
+    /**
+     * Set verbosity on/off.
+     * 
+     * @param bool $on True=on, False=off
+     */
     function setVerbose($on=true)
     {
         $this->verbose = $on;
@@ -141,6 +146,9 @@ class LessCompiler extends \lessc implements \JsonSerializable
     
     function makeParser($name): \lessc_parser
     {
+        /**
+         * Anonymous class acting as LESS parser
+         */
         return new class($this,$name,$this->preserveComments) extends \lessc_parser
         {
             public function __construct($compiler,$name,$preserveComments)
@@ -149,6 +157,9 @@ class LessCompiler extends \lessc implements \JsonSerializable
                 $this->writeComments = $preserveComments;
             }
             
+            /**
+             * @internal Overwritten to handle in-file verbosity flags
+             */
             function parse($str = null, $initialVariables = null)
             {
                 if( stripos("$str","verbose_compilation = on") !== false )
@@ -164,6 +175,9 @@ class LessCompiler extends \lessc implements \JsonSerializable
         };
     }
     
+    /**
+     * @internal Compiles a LESS file to $outfile
+     */
     function compileFile($fname, $outFname = null)
     {
         if( !$this->id || is_numeric($this->id) )
@@ -179,6 +193,9 @@ class LessCompiler extends \lessc implements \JsonSerializable
         return parent::compileFile($fname, $outFname);
     }
     
+    /**
+     * @internal Compiles LESS code
+     */
     function compile($string, $name = null)
     {
         $dirs = (array)$this->importDir;
@@ -200,6 +217,9 @@ class LessCompiler extends \lessc implements \JsonSerializable
         return "";
     }
     
+    /**
+     * @internal Overwritten to process variable injection
+     */
     function getRegisteredVariable($name)
     {
         if( isset($this->injected[$name]) )
@@ -209,6 +229,9 @@ class LessCompiler extends \lessc implements \JsonSerializable
         return false;
     }
     
+    /**
+     * @internal Overwritten to process variable injection
+     */
     function injectVariables($args)
     {
         if( count($args)<1 )
@@ -218,6 +241,9 @@ class LessCompiler extends \lessc implements \JsonSerializable
         $this->injecting = false;
     }
     
+    /**
+     * @internal Overwritten to catch some errors
+     */
     function get($name)
     {
         try
@@ -231,6 +257,9 @@ class LessCompiler extends \lessc implements \JsonSerializable
         return ["string","",[]];
     }
     
+    /**
+     * @internal Overwritten handle extended logic
+     */
     function set($name, $value)
     {
         $reg = false; $log = true;
@@ -282,6 +311,9 @@ class LessCompiler extends \lessc implements \JsonSerializable
         }
     }
 
+    /**
+     * @internal JSON serialization
+     */
     public function jsonSerialize(): mixed
     {
         return ['LessCompiler'=>$this->id];

@@ -105,6 +105,12 @@ class AjaxAction
 		return $dlg;
 	}
     
+	/**
+	 * Like <AjaxAction::Confirm>, but returning a Dialog that may/should be extended in code.
+	 * 
+	 * @see <AjaxAction::Confirm>
+	 * @return \ScavixWDF\JQueryUI\Dialog\uiFormDialog
+	 */
     public static function ConfirmDlg($text_base,$controller,$event='',$data=[])
 	{
 		$dlg = new \ScavixWDF\JQueryUI\Dialog\uiFormDialog("TITLE_$text_base");

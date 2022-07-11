@@ -39,16 +39,25 @@ namespace ScavixWDF\Tasks;
  */
 class TaskPool extends Task
 {
+    /**
+     * @internal Overwrites parent to fix 'run' method set up things.
+     */
     public static function Async($method = 'run'): WdfTaskModel
     {
         return parent::Async('run')->SetCascadeGo(false);
     }
     
+    /**
+     * @internal Overwrites parent to fix 'run' method set up things.
+     */
     public static function AsyncOnce($method = 'run', $return_original = false, $args = false): WdfTaskModel
     {    
         return parent::AsyncOnce('run', $return_original, $args)->SetCascadeGo(false);
     }
     
+    /**
+     * @internal TaskPool loop
+     */
     function Run($args)
     {
         $processors = max(1,min(100,intval(ifavail($args,'processors')?:'5')));

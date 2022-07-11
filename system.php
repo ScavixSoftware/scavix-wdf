@@ -603,6 +603,7 @@ function system_exit($result=null,$die=true)
  * Note: This function will call `system_exit()`!
  * @param string $reason The reason as human readable and hopefully understandable text
  * @param string $additional_message More details to be logged
+ * @param bool $log_error If true logs error to files, else just die
  * @return void
  */
 function system_die($reason,$additional_message='',$log_error=true)

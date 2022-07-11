@@ -411,6 +411,12 @@ class Localization
 		return self::getCultureInfo($cultures[0]);
 	}
 
+	/**
+	 * Returns a list of cultures the given currency is used in.
+	 * 
+	 * @param string $currency_code The currency to check
+	 * @return array string[] of currency codes
+	 */
 	public static function get_currency_culture_codes($currency_code)
 	{
 		return internal_getCulturesByCurrency($currency_code);

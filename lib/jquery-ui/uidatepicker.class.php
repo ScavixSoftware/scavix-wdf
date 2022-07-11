@@ -192,6 +192,11 @@ class uiDatePicker extends uiControl
         self::$DefaultCI = $cultureInfo;
     }
     
+	/**
+	 * Sets the date value.
+	 * 
+	 * @param string $value Valid date string representation
+	 */
     function setValue($value)
     {
         $value = ($value?:false);

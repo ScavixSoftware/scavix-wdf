@@ -297,6 +297,10 @@ class DataSource
         return "(`$field` IN(".implode(',',$r)."))";
     }
     
+	/**
+	 * Helper to create a valid 'column NOT IN(0,1,2)' sting.
+	 * @see <DataSource::BuildInContraint>
+	 */
     function BuildNotInContraint($field, $values)
     {
         if( !is_array($values) || count($values)==0 )
