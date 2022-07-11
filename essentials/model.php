@@ -144,7 +144,7 @@ function &model_datasource($name)
 		Wdf::$DataSources[$name] = $model_db;
 	}
     else
-        $model_deb = Wdf::$DataSources[$name];
+        $model_db = Wdf::$DataSources[$name];
 	return $model_db;
 }
 

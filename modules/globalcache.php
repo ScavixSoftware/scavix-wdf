@@ -171,7 +171,7 @@ function globalcache_set($key, $value, $ttl = false)
  * @param mixed $default a default return value if the key can not be found in the cache
  * @return mixed The object from the cache or `$default`
  * 
- * @suppress PHP0404,PHP0417,PHP0412
+ * @suppress PHP0404,PHP0417,PHP0412,PHP0423
  */
 function globalcache_get($key, $default = false)
 {

@@ -411,6 +411,11 @@ class Localization
 		return self::getCultureInfo($cultures[0]);
 	}
 
+	public static function get_currency_culture_codes($currency_code)
+	{
+		return internal_getCulturesByCurrency($currency_code);
+	}
+
 	/**
 	 * Returns all defined regions.
 	 * 

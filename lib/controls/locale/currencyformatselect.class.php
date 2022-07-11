@@ -32,6 +32,7 @@ namespace ScavixWDF\Controls\Locale;
 
 use ScavixWDF\Base\AjaxResponse;
 use ScavixWDF\Controls\Form\Select;
+use ScavixWDF\Localization\Localization;
  
 /**
  * Selector for currency formats.
@@ -77,12 +78,12 @@ class CurrencyFormatSelect extends Select
 	
 	private function getCurrencySamples($currency_code, $sample_value, $unique_values = false)
 	{
-		$cultures = internal_getCulturesByCurrency($currency_code);
+		$cultures = Localization::get_currency_culture_codes($currency_code);
 
 		$res = [];
 		foreach( $cultures as $culture_code )
 		{
-			$ci = \ScavixWDF\Localization\Localization::getCultureInfo($culture_code);
+			$ci = Localization::getCultureInfo($culture_code);
 			if( !$ci )
 				continue;
 
