@@ -70,7 +70,13 @@ function get_geo_location_by_ip($ip = false)
 		return $ret;
     
     global $CONFIG;
-    $binfile = $CONFIG['ip2location'][filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) ? 'ipv4_bin_file' : 'ipv6_bin_file'];
+    if(filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4))
+        $binfile = $CONFIG['ip2location']['ipv4_bin_file'];
+    elseif(filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6))
+        $binfile = $CONFIG['ip2location']['ipv6_bin_file'];
+    else
+        return false;
+        
     $ipdb = new \IP2Location\Database($binfile, \IP2Location\Database::FILE_IO);
     $ret = $ipdb->lookup($ip, \IP2Location\Database::ALL);
     if($ret === false)
