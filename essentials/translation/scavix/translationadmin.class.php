@@ -117,6 +117,9 @@ class TranslationAdmin extends TranslationAdminBase
 		return $sel;
 	}
 	
+    /**
+     * @internal Clears the JS Text buffer to get fresh results
+     */
     function ClearJsTextBuffer()
     {
         foreach( glob(system_app_temp_dir('js_strings',false)."*.js") as $jstf )

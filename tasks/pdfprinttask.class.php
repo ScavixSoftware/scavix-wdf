@@ -24,6 +24,11 @@
  */
 namespace ScavixWDF\Tasks;
 
+/**
+ * Wraps PDF printing using puppeteer
+ * 
+ * @see https://github.com/puppeteer/puppeteer
+ */
 class PdfPrintTask extends Task
 {
     const puppeteer_script = <<<'EOPS'
@@ -66,6 +71,9 @@ async function wdf_print()
 wdf_print();
 EOPS;
     
+    /**
+     * @internal Checks if puppeteer is installed correctly
+     */
     static function detectPuppeteer()
     {
         if( !preg_match('/^v\d+\.\d+\.\d+/i',shell_exec("node -v")) )
@@ -91,6 +99,11 @@ EOPS;
         \ScavixWDF\WdfException::Raise("Puppeteer not found!");
     }
     
+    /**
+     * Runs PDF creation.
+     * 
+     * @param array $args Named args: url=<url> pdf=<filename>
+     */
     function Run($args)
     {
         $url = ifavail($args,'url');
@@ -116,11 +129,23 @@ EOPS;
         }
     }
     
+    /**
+     * Helper method to detect active puppeteer calls.
+     * 
+     * May be used from within page renderer to detect if the call is from this task.
+     * @return bool true or false
+     */
     public static function IsPrinterCall()
     {
         return stripos(ifavail($_SERVER,'HTTP_USER_AGENT')?:'',"WDF/Puppeteer") > -1;
     }
     
+    /**
+     * Actual PDF creation.
+     * 
+     * This may be used sync from PHP code or async via Task.
+     * @return string|false Returns the PDF filename or false on error
+     */
     static function Url2Pdf($url)
     {
         $um = umask(0);

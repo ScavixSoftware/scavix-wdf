@@ -287,6 +287,13 @@ class ChartJS3 extends Control
         return $this->conf("options.$name",$value);
 	}
     
+    /**
+     * Adds a plugin to be loaded.
+     * 
+     * @todo AFAIK this is untested
+     * @param string $name Plugin name
+     * @return static
+     */
     function addPlugin($name)
     {
         $p = $this->conf("plugins")?:[];
@@ -482,12 +489,22 @@ class ChartJS3 extends Control
         return $this;
     }
     
+    /**
+     * Sets the chart colors.
+     * 
+     * @param array $colors 
+     */
     function setColors($colors)
     {
         $this->colors = $colors;
         return $this;
     }
 
+    /**
+     * Sets the named chart colors.
+     * 
+     * @param array $colors 
+     */
     function setNamedColors($colors)
     {
         $this->named_colors = $colors;
@@ -595,7 +612,7 @@ class ChartJS3 extends Control
      * Sets data for a Pie chart.
      * 
      * @param array $name_value_pairs key-value pairs of data
-     * @return $this
+     * @return static
      */
     function setPieData(array $name_value_pairs)
     {
@@ -611,6 +628,12 @@ class ChartJS3 extends Control
         return $this->xLabels($labels)->conf('data.datasets',$this->series);
     }
     
+    /**
+     * Appends data for a Pie chart.
+     * 
+     * @param array $name_value_pairs key-value pairs of data
+     * @return static
+     */
     function addPieData(array $name_value_pairs)
     {
         $labels = []; $this->series[] = ['isPieData'=>true,'data'=>[],'backgroundColor'=>[],'borderColor'=>[]];
@@ -870,12 +893,25 @@ class ChartJS3 extends Control
         return $this->conf('data');
     }
     
+    /**
+     * Sets if the chart should load it's data via AJAX.
+     * 
+     * @param string $url The data URL
+     * @param int $refresh_interval Optional interval to refresh the data (default: -1 = off)
+     * @return static
+     */
     public function setDelayed($url, $refresh_interval = -1)
     {
         // todo: see MultiSeriesTime for comment on how to delay better
         return $this->opt('refresh',['interval'=>$refresh_interval,'url'=>$url] );
     }
-    
+
+    /**
+     * Defines the drawing order of the data series.
+     * 
+     * @param array $names Seriesnames in correct order
+     * @return static
+     */
     public function setSeriesOrder(array $names)
     {
         $this->series_order = $names;

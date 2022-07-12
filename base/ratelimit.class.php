@@ -29,7 +29,7 @@ namespace ScavixWDF\Base;
  * 
  * You may define a RateLimit on the fly directly where it is needed:
  * <code php>
- * if( !RateLimit::Define('mycontroller1')->PerSecond(10,100)->Request(5) )
+ * if( !RateLimit::Define('mycontroller1')->PerSecond(10,100)->Reserve(5) )
  *     WdfException::Raise("429 Too Many Requests");
  * </code>
  * Or you may inhertit your own class with some predefined limits:
@@ -38,11 +38,11 @@ namespace ScavixWDF\Base;
  * {
  *     static function Dashboard()
  *     {
- *         return RateLimit::Define(__METHOD__)->PerSecond(5,5)->PerDay(1,1000)->Request(3);
+ *         return RateLimit::Define(__METHOD__)->PerSecond(5,5)->PerDay(1,1000)->Reserve(3);
  *     }
  *     static function Login()
  *     {
- *         if( !RateLimit::Define(__METHOD__)->PerSecond(5,5)->PerDay(1,1000)->Request(3) )
+ *         if( !RateLimit::Define(__METHOD__)->PerSecond(5,5)->PerDay(1,1000)->Reserve(3) )
  *             WdfException::Raise("429 Too Many Requests");
  *     }
  * }
@@ -74,18 +74,30 @@ class RateLimit extends \ScavixWDF\Model\Model
     
     protected function AlterTable(){}
     
+    /**
+     * @internal RateLimits are never saved like this
+     */
     final function Save($columns_to_update = false, &$changed = null)
     {
         log_warn("No need to call ".__METHOD__);
         return true;
     }
     
+    /**
+     * @internal RateLimits are never removed like this
+     */
     final function Delete()
     {
         log_warn("No need to call ".__METHOD__);
         return true;
     }
     
+    /**
+     * Entry point for method chaining a new rate limit.
+     * 
+     * @param string $name Name of the limit.
+     * @return static 
+     */
     public static function Define($name)
     {
         $res = new RateLimit();
@@ -93,7 +105,14 @@ class RateLimit extends \ScavixWDF\Model\Model
         $res->internal_name = $name;
         return $res;
     }
-       
+     
+    /**
+     * End point for method chaining.
+     * 
+     * Tries to reseve a 'slot' for this limit if possible for $timeout_seconds seconds.
+     * @param int $timeout_seconds Maximum secods to try for
+     * @return bool True if reserved successfully, else false
+     */
     public function Reserve($timeout_seconds=10)
     {
         $q = [];
@@ -132,8 +151,12 @@ class RateLimit extends \ScavixWDF\Model\Model
         return false;
     }
     
-    /***
+    /**
      * Limit to $limit calls per $seconds seconds
+     * 
+     * @param int $seconds Seconds
+     * @param int $limit Max calls per interval
+     * @return static
      */
     public function PerSeconds($seconds, $limit)
     {
@@ -141,27 +164,62 @@ class RateLimit extends \ScavixWDF\Model\Model
         krsort($this->limits);
         return $this;
     }
-    
+
+    /**
+     * Limit to $limit calls per $minute minutes
+     * 
+     * @param int $minutes Minutes
+     * @param int $limit Max calls per interval
+     * @return static
+     */
     public function PerMinutes($minutes, $limit)
     {
         return $this->PerSeconds($minutes*60, $limit);
     }
     
+    /**
+     * Limit to $limit calls per $hours hours
+     * 
+     * @param int $hours Hours
+     * @param int $limit Max calls per interval
+     * @return static
+     */
     public function PerHours($hours, $limit)
     {
         return $this->PerMinutes($hours*60, $limit);
     }
     
+    /**
+     * Limit to $limit calls per $days days
+     * 
+     * @param int $days Days
+     * @param int $limit Max calls per interval
+     * @return static
+     */
     public function PerDays($days, $limit)
     {
         return $this->PerHours($days*24, $limit);
     }
     
+    /**
+     * Limit to $limit calls per $months months
+     * 
+     * @param int $months Months
+     * @param int $limit Max calls per interval
+     * @return static
+     */
     public function PerMonths($months, $limit)
     {
         return $this->PerDays($months*30, $limit);
     }
     
+    /**
+     * Limit to $limit calls per $years years
+     * 
+     * @param int $years Years
+     * @param int $limit Max calls per interval
+     * @return static
+     */
     public function PerYears($years, $limit)
     {
         return $this->PerMonths($years*12, $limit);

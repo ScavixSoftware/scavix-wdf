@@ -343,9 +343,9 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	 * Overrides parent for buffering
 	 * 
 	 * See <PDOStatement::fetch>
-	 * @param int $fetch_style See php.net docs
-	 * @param int $cursor_orientation See php.net docs
-	 * @param int $cursor_offset See php.net docs
+	 * @param int $mode See php.net docs
+	 * @param int $cursorOrientation See php.net docs
+	 * @param int $cursorOffset See php.net docs
 	 * @return mixed See php.net docs
 	 */
     #[\ReturnTypeWillChange]

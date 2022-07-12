@@ -183,6 +183,13 @@ function clear_less_cache()
         @unlink($c);
 }
 
+/**
+ * Compiles LESS code to CSS.
+ * 
+ * @param string $less The LESS code
+ * @param bool $use_vars Switch if defined variables should be used (default: true).
+ * @return string The compiled CSS code
+ */
 function compile_less_code($less,$use_vars=false)
 {
 //    require_once(__DIR__.'/resources/lessphp/lessc.inc.php');

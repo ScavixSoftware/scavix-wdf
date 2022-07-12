@@ -138,6 +138,9 @@ class MySql implements IDatabaseDriver
 		return $res;
 	}
     
+	/**
+	 * @implements <IDatabaseDriver::getTableSchema>
+	 */
     function &getTableSchema($tablename)
 	{
         if( !$tablename )

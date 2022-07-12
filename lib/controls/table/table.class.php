@@ -419,6 +419,7 @@ class Table extends Control
 	/**
 	 * Takes all arguments given and uses each as row-title.
 	 * 
+	 * @param mixed ...$args Titles
 	 * @return static
 	 */
 	function SetHeader(...$args)
@@ -430,8 +431,9 @@ class Table extends Control
 	}
 	
 	/**
-	 * Takes all arguments given and uses each as row-title.
+	 * Takes all arguments given and uses each as cell-value to add a footer row.
 	 * 
+	 * @param mixed ...$args Cell-values
 	 * @return static
 	 */
 	function SetFooter(...$args)
@@ -457,6 +459,7 @@ class Table extends Control
 	/**
 	 * Adds a new row, takes all arguments given and uses each as new data-cell.
 	 * 
+	 * @param mixed ...$args Values for the new row
 	 * @return static
 	 */
 	function AddNewRow(...$args)
@@ -473,6 +476,7 @@ class Table extends Control
 	 * possible values: l, r, c (or: left, right, center) as strings
 	 * sample $tab->SetAlignment('l','l','c','r') when there are 4+ columns
 	 * to skip a column just pass an empty string: $tab->SetAlignment('l','','','r')
+	 * @param mixed ...$args Alignement values
 	 * @return static
 	 */
 	function SetAlignment(...$args)
@@ -495,6 +499,8 @@ class Table extends Control
 	 * possible values: see CellFormat class
 	 * sample $tab->SetFormat('int','f2') when there are 2+ columns
 	 * to skip a column just pass an empty string: $tab->SetFormat('int','','','f2')
+	 * 
+	 * @param mixed ...$args Format values
 	 * @return static
 	 */
 	function SetFormat(...$args)

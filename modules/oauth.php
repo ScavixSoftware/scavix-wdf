@@ -43,12 +43,26 @@ function oauth_init()
     }//else log_debug('OAuth not started');
 }
 
+/**
+ * Starts OAuth process.
+ * 
+ * @param mixed $local_id Local user identifier
+ * @param string $provider_name Name of the OAuth provider to be used
+ */
 function oauth_authorize($local_id, $provider_name, $provider_config=[])
 {
     $handler = new ScavixWDF\OAuth\OAuthHandler($local_id, $provider_name, $provider_config);
     $handler->authorize();
 }
 
+/**
+ * Add an OAuth provider config.
+ * 
+ * @param string $provider_name Name of the OAuth provider
+ * @param string $client_id Client ID
+ * @param string $client_secret Client Secret
+ * @param array $options More (optional) options
+ */
 function oauth_add_config($provider_name,$client_id,$client_secret,$options=[])
 {
     $options['clientId'] = $client_id;

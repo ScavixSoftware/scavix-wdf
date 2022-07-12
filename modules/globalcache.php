@@ -376,6 +376,7 @@ function globalcache_list_keys()
 }
 
 /**
+ * @internal Wrapper class for YAC
  * @suppress PHP0404,PHP0413
  */
 class WdfYacWrapper
@@ -431,6 +432,9 @@ class WdfYacWrapper
     }
 }
 
+/**
+ * @internal Wrapper class file-based caching
+ */
 class WdfFileCacheWrapper
 {                                                                   
     private $root;

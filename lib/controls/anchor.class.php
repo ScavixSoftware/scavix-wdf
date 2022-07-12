@@ -71,6 +71,15 @@ class Anchor extends Control
         return new Anchor("javascript:void(0)",$label);
     }
     
+	/**
+     * Shortcut to create textbased links.
+     * 
+     * @param string $label Link text
+	 * @param string $controller Target controller
+	 * @param string $event optional Target event
+	 * @param string|array $data optional URL parameters
+     * @return static
+     */
     public static function Link($label,$controller,$event="",$data="")
     {
         return new Anchor(buildQuery($controller,$event,$data),$label);

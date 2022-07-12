@@ -59,7 +59,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	/**
 	 * Static creator function.
 	 * 
-	 * @param string $title Title string
+	 * @param mixed ...$args Only one argument allowed: Title
 	 * @return GoogleVisualization Created control
 	 */
 	static function Make(...$args)
@@ -354,7 +354,9 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	/**
 	 * Sets the data header.
 	 * 
-	 * Calling this will set this into inline mdoe thus removing all database related settings (<GoogleVisualization::setDbQuery>).
+	 * Calling this will set this into inline mode thus removing all database related settings (<GoogleVisualization::setDbQuery>).
+	 * 
+	 * @param mixed ...$args Header-values
 	 * @return static
 	 */
 	function setDataHeader(...$args)
@@ -371,6 +373,8 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	 * 
 	 * If you did not yet specify a header this row will be used as it.
 	 * Calling this will set this into inline mdoe thus removing all database related settings (<GoogleVisualization::setDbQuery>).
+	 * 
+	 * @param mixed ...$args Data values
 	 * @return static
 	 */
 	function addDataRow(...$args)

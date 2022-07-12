@@ -51,7 +51,7 @@ function ip2location_init()
 /**
  * Resolves an IP address to a location.
  * 
- * @param string $ip_address IP address to check (defaults to <get_ip_address>)
+ * @param string $ip IP address to check (defaults to <get_ip_address>)
  * @return stdClass|false Object containing location information
  * 
  * @suppress PHP0413
@@ -92,6 +92,7 @@ function get_geo_location_by_ip($ip = false)
  * Returns the region name for the current IP address
  * 
  * See <get_ip_address>
+ * @param string $ip IP address to resolve (defaults to <get_ip_address>)
  * @return string|false Location name or empty string if unknown
  */
 function get_geo_region($ip = false)
@@ -123,7 +124,7 @@ function get_coordinates_by_ip($ip = false)
 /**
  * Resolves an IP address to a country code
  * 
- * @param string $ipaddr IP address to resolve (defaults to <get_ip_address>)
+ * @param string $ip IP address to resolve (defaults to <get_ip_address>)
  * @return array|false Country code or empty string if not found
  */
 function get_countrycode_by_ip($ip = false)
@@ -137,7 +138,7 @@ function get_countrycode_by_ip($ip = false)
 /**
  * Returns the country name from the current IP
  * 
- * See <get_ip_address>
+ * @param string $ip IP address to resolve (defaults to <get_ip_address>)
  * @return string|false Country name or empty string if unknown
  */
 function get_countryname_by_ip($ip = false)

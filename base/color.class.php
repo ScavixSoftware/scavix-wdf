@@ -183,6 +183,12 @@ class Color
         return "rgba($t)";
     }
     
+    /**
+     * Sets the alpha value of the color.
+     * 
+     * @param float|string $a Alpha value as float (0..1) or string (00..FF)
+     * @return static 
+     */
     public function setAlpha($a)
     {
         $c = new Color([0,0,0,$a],$a>1);
@@ -190,6 +196,13 @@ class Color
         return $this;
     }
     
+    /**
+     * Returns 'white' or 'black', which ever will be better readable if the given color is a background.
+     * 
+     * @param Color $c The background color
+     * @param int $swapvalue Value when the default 'black' is replaced by 'white' (default: 100)
+     * @return Color Black or White
+     */
     public static function matchingFont(Color $c, $swapvalue = 100)
     {
         if( ($c->r + $c->g + $c->b) / 3 > $swapvalue )
