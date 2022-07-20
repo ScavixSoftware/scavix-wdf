@@ -175,6 +175,7 @@ class MySql implements IDatabaseDriver
                 WdfDbException::Raise("Table `$tablename` not found!","PDO error info: ",$this->_pdo->errorInfo());
 
             $res->CreateCode = $tableSql->finishScalar(1);
+			$save_needed = true;
         }
         
         if( !count($res->Columns) )
@@ -209,11 +210,15 @@ class MySql implements IDatabaseDriver
                         $col->Type = 'json';
                 }
             }
+			$save_needed |= true;
         }
         if( isset($um) )
         {
-            $schema = ['create'=>$res->CreateCode,'columns'=>$res->Columns];
-            @file_put_contents($schemafile,serialize($schema));
+			if( isset($save_needed) && $save_needed )
+			{
+				$schema = ['create'=>$res->CreateCode,'columns'=>$res->Columns];
+				@file_put_contents($schemafile,serialize($schema));
+			}
             umask($um);
         }
 		return $res;
