@@ -133,8 +133,8 @@ class Localization
 			foreach( $langs as $k=>$v )
 			{
 				$v = explode(";",$v);
-				$w = isset($v[1]) && (substr($v[1], 0, 2) == "q=") ? substr($v[1], 2)  : 1;
-				$parts[$w * 100] = trim($v[0]);
+				$w = round(ceil((isset($v[1]) && (substr($v[1], 0, 2) == "q=")) ? (substr($v[1], 2) * 1000) : 1));
+				$parts[$w] = trim($v[0]);
 			}
 			// check for first valid language
 			foreach( $parts as $k=>$v )
