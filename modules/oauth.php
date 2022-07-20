@@ -51,7 +51,9 @@ function oauth_init()
  */
 function oauth_authorize($local_id, $provider_name, $provider_config=[])
 {
-    $handler = new ScavixWDF\OAuth\OAuthHandler($local_id, $provider_name, $provider_config);
+    $handler = in_object_storage('oauth_current_handler')
+        ?restore_object('oauth_current_handler')
+        :new ScavixWDF\OAuth\OAuthHandler($local_id, $provider_name, $provider_config);
     $handler->authorize();
 }
 

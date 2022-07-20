@@ -110,7 +110,8 @@ class OAuthStorageModel extends Model
     {
         $this->access_token = $token->getToken();
         $this->refresh_token = $token->getRefreshToken();
-        $this->expires = DateTimeEx::Make($token->getExpires());
+        $this->expires = $token->getExpires();
+        $this->expires = $this->expires?DateTimeEx::Make($this->expires):null;
         if( $token instanceof \League\OAuth2\Client\Token\ResourceOwnerAccessTokenInterface )
             $this->resourceowner_id = $token->getResourceOwnerId();
         

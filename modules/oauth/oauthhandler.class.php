@@ -56,6 +56,10 @@ class OAuthHandler
         'amazon'     => ['cls'=>'\MichaelKaefer\OAuth2\Client\Provider\Amazon',     'pkg'=>'michaelkaefer/oauth2-amazon' ],
         'salesforce' => ['cls'=>'\Stevenmaguire\OAuth2\Client\Provider\Salesforce', 'pkg'=>'stevenmaguire/oauth2-salesforce' ],
         //'' => ['cls'=>'', 'pkg'=>'' ],
+
+        // providers using the generic provider
+        //'monday' => ['cls'=>\ScavixWDF\OAuth\Provider\Monday::class, 'file'=>__DIR__.'/provider/monday.class.php' ],
+        'monday' => ['cls'=>'\League\OAuth2\Client\Provider\GenericProvider'],
     ];
     var $local_id, $provider_name, $provider_config, $state;
     
@@ -91,6 +95,8 @@ class OAuthHandler
             log_error("Unknown OAuth provider {$this->provider_name}. Implementation in WDF missing.");
             return null;
         }
+        if( isset($map['file']) && file_exists($map['file']) )
+            require_once($map['file']);
         if( !class_exists($map['cls']) )
         {
             log_error("OAuth provider {$this->provider_name} not found (composer require {$map['pkg']})");

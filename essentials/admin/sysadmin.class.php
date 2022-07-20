@@ -573,7 +573,6 @@ class SysAdmin extends HtmlPage
 	
     protected function GenerateBreadcrumbNavigation()
 	{
-		log_debug(__METHOD__);
 		$ret = '';
 		if(count($this->breadcrumbs) > 1)
 		{
