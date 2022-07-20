@@ -128,8 +128,9 @@ class LeafLet extends Control
         $opts = system_to_json($opts);
         
         $this->script("L.tileLayer('$url',$opts).addTo($map);");
-        $markers = "$('#{self}').data('markers')";
-        $this->script("var markers = new Array();");
+        // $markers = "$('#{self}').data('markers')";
+        if($this->_markers)
+            $this->script("var markers = new Array();");
 
         // add polygons
         foreach( $this->_polygons as $polygon )
@@ -166,7 +167,7 @@ class LeafLet extends Control
             $prms['q'] = $address;
             $tooltip = html_entity_decode(strip_tags(str_replace(["\r", "\n"], ["\\r", "\\n"], $title)));
             $popup = str_replace(["\r\n", "\r", "\n"], ["<br/>", "", ""], $title);
-            $cb = "if(r.length > 0) { L.marker([r[0].lat,r[0].lon],{title:'$tooltip'||r[0].display_name}).bindPopup('$popup'||r[0].display_name).addTo($map); }";
+            $cb = "if(r.length > 0) { al = true; {$map}.eachLayer(function(l) { if(typeof(l._latlng) != 'undefined') { if((l._latlng.lat == r[0].lat) && (l._latlng.lng == r[0].lon)) { al = false; }};}); if(!al) return; L.marker([r[0].lat,r[0].lon],{title:'$tooltip'||r[0].display_name}).bindPopup('$popup'||r[0].display_name).addTo($map); }";
             $city = '';
             if(strpos($address, ', ') !== false)
                 $city = array_last(explode(', ', $address));
@@ -174,8 +175,8 @@ class LeafLet extends Control
                 $cb .= " else { wdf.get('$q',".json_encode(['format'=>'json','limit'=>1,'q' => $city]).",function(r){ $cb }); }";
             $this->script("wdf.get('$q',".json_encode($prms).",function(r){ $cb; });");
         }
-        
-        $this->script("$('#{self}').data('markers', markers);");
+        if($this->_markers)
+            $this->script("$('#{self}').data('markers', markers);");
         
 //        $this->script("if(L.marker.length == 0) { $('#{self}').hide(); };");
 
