@@ -51,7 +51,7 @@ abstract class Task
      * 
      * Sample: `MyTask::Make()->DoWork();`
      * 
-     * @return \ScavixWDF\Tasks\Task
+     * @return static
      */
     public static function Make() : Task
     {

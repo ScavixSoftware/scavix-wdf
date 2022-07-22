@@ -163,7 +163,7 @@ class LeafLet extends Control
         $prms = ['format'=>'json','limit'=>1];
         foreach( $this->_addresses as $a )
         {
-            list($address,$title) = $a;
+            list($address,$title,$report_back_url) = $a;
             $prms['q'] = $address;
             $tooltip = html_entity_decode(strip_tags(str_replace(["\r", "\n"], ["\\r", "\\n"], $title)));
             $popup = str_replace(["\r\n", "\r", "\n"], ["<br/>", "", ""], $title);
@@ -173,6 +173,9 @@ class LeafLet extends Control
                 $city = array_last(explode(', ', $address));
             if($city != '')
                 $cb .= " else { wdf.get('$q',".json_encode(['format'=>'json','limit'=>1,'q' => $city]).",function(r){ $cb }); }";
+
+            if ($report_back_url)
+                $cb = "$.ajax({type:'POST',url:'$report_back_url',data:JSON.stringify(r),contentType:'application/json; charset=utf-8',dataType:'JSON'}); $cb";
             $this->script("wdf.get('$q',".json_encode($prms).",function(r){ $cb; });");
         }
         if($this->_markers)
@@ -250,9 +253,9 @@ class LeafLet extends Control
      * @param string $title An optional title
      * @return static
      */
-    function AddAddress($address,$title=false)
+    function AddAddress($address,$title=false,$report_back_url=false)
     {
-        $this->_addresses[] = [$address,$title?:''];
+        $this->_addresses[] = [$address,$title?:'',$report_back_url];
         return $this;
     }
     
