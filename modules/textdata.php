@@ -44,7 +44,7 @@ function textdata_init()
  * @param string $delimiter CSV delimiter used
  * @param string $enclosure CSV enclosure string
  * @param string $escape CSV escape string
- * @param string $callback Function to be called for each detected row
+ * @param string|\Closure $callback Function to be called for each detected row
  * @return array An array with one entry per line, each beeing an array of fields
  */
 function csv_to_array($csv, $delimiter = false, $enclosure = '"', $escape = '\\',$callback=false)
