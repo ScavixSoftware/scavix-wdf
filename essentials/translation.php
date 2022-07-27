@@ -180,6 +180,9 @@ function __translate_callback($matches)
 		case '[UC]':
 			$uppercase = true;
 			break;
+		case '[NO]':
+			// noop as separator for Texts containing others combined with '-'. Sample: TXT_ONE-TXT_TWO should be TXT_ONE[NO]-TXT_TWO
+			break;
 		default:
 			if( preg_match('/^\[.*\]$/', $mod) )
 				log_debug("Unknown translation modifier: $mod");
