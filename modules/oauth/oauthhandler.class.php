@@ -65,7 +65,6 @@ class OAuthHandler
     
     function __construct($local_id, $provider_name, $provider_config=[])
     {
-        log_debug(__METHOD__);
         $this->local_id = $local_id;
         $this->provider_name = $provider_name;
         $this->state = false;
@@ -127,7 +126,7 @@ class OAuthHandler
             if( isset($_GET['error_code']) )
             {
                 delete_object('oauth_current_handler');
-                log_debug(__METHOD__,'OAuth error',$this,$_GET);
+                log_error(__METHOD__,'OAuth error',$this,$_GET);
                 die();
             }
             
@@ -144,19 +143,19 @@ class OAuthHandler
                 $this->state = $provider->getState();
                 store_object($this,'oauth_current_handler');
                 
-                log_debug(__METHOD__,'STAGE1',$this);
+                log_ifdev(__METHOD__,'STAGE1',$this);
                 header('Location: ' . $authorizationUrl);
                 die();
             }
             elseif( !$this->state || ifavail($_GET,'state') !== $this->state )
             {
                 delete_object('oauth_current_handler');
-                log_debug(__METHOD__,'Invalid OAuth state',$this,$_GET);
+                log_error(__METHOD__,'Invalid OAuth state',$this,$_GET);
                 die();
             }
             else
             {
-                log_debug(__METHOD__,'STAGE2',$this);
+                log_ifdev(__METHOD__,'STAGE2',$this);
                 $token = $provider->getAccessToken('authorization_code', [
                     'code' => $_GET['code']
                 ]);
@@ -171,9 +170,9 @@ class OAuthHandler
                 {
                     $owner = $provider->getResourceOwner($token);
                     $model->UpdateFromOwner($owner);
-                } catch (Exception $ex) { log_debug($ex); }
+                } catch (Exception $ex) { log_ifdev($ex); }
                 
-                log_debug(__METHOD__,'Token',$token->jsonSerialize(),$token->getValues());
+                log_ifdev(__METHOD__,'Token',$token->jsonSerialize(),$token->getValues());
                 delete_object('oauth_current_handler');
             }
         }
@@ -216,7 +215,7 @@ class OAuthHandler
             {
                 $owner = $provider->getResourceOwner($token);
                 $model->UpdateFromOwner($owner);
-            } catch (Exception $ex) { log_debug($ex); }
+            } catch (Exception $ex) { log_ifdev($ex); }
             
             return true;
         }
