@@ -143,7 +143,8 @@ class OAuthHandler
                 $this->state = $provider->getState();
                 store_object($this,'oauth_current_handler');
                 
-                log_ifdev(__METHOD__,'STAGE1',$this);
+                if( isDev() )
+                    log_debug(__METHOD__,'STAGE1',$this);
                 header('Location: ' . $authorizationUrl);
                 die();
             }
@@ -155,7 +156,8 @@ class OAuthHandler
             }
             else
             {
-                log_ifdev(__METHOD__,'STAGE2',$this);
+                if( isDev() )
+                    log_debug(__METHOD__,'STAGE2',$this);
                 $token = $provider->getAccessToken('authorization_code', [
                     'code' => $_GET['code']
                 ]);
@@ -170,9 +172,15 @@ class OAuthHandler
                 {
                     $owner = $provider->getResourceOwner($token);
                     $model->UpdateFromOwner($owner);
-                } catch (Exception $ex) { log_ifdev($ex); }
+                }
+                catch (Exception $ex)
+                {
+                    if (isDev())
+                        log_debug($ex);
+                }
                 
-                log_ifdev(__METHOD__,'Token',$token->jsonSerialize(),$token->getValues());
+                if( isDev() )
+                    log_debug(__METHOD__,'Token',$token->jsonSerialize(),$token->getValues());
                 delete_object('oauth_current_handler');
             }
         }
@@ -215,7 +223,12 @@ class OAuthHandler
             {
                 $owner = $provider->getResourceOwner($token);
                 $model->UpdateFromOwner($owner);
-            } catch (Exception $ex) { log_ifdev($ex); }
+            }
+            catch (Exception $ex)
+            {
+                if (isDev())
+                    log_debug($ex);
+            }
             
             return true;
         }

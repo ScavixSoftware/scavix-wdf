@@ -570,7 +570,7 @@ class Table extends Control
 	 * will trigger an AJAX action.
 	 * @param string $icon Valid <uiControl::Icon>
 	 * @param string $label Action label (alt and tootltip text)
-	 * @param object $handler Object handling the action
+	 * @param object|string $handler Object handling the action
 	 * @param string $method Objects method that handles the action
 	 * @return static
 	 */
