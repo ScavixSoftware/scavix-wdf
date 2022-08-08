@@ -165,8 +165,8 @@ class LeafLet extends Control
         {
             list($address,$title,$report_back_url) = $a;
             $prms['q'] = $address;
-            $tooltip = html_entity_decode(strip_tags(str_replace(["\r", "\n"], ["\\r", "\\n"], $title)));
-            $popup = str_replace(["\r\n", "\r", "\n"], ["<br/>", "", ""], $title);
+            $tooltip = html_entity_decode(strip_tags(str_replace(["\r", "\n", "'"], ["\\r", "\\n", "\\'"], $title)));
+            $popup = str_replace(["\r\n", "\r", "\n", "'"], ["<br/>", "", "", "\\'"], $title);
             $cb = "if(r.length > 0) { al = true; {$map}.eachLayer(function(l) { if(typeof(l._latlng) != 'undefined') { if((l._latlng.lat == r[0].lat) && (l._latlng.lng == r[0].lon)) { al = false; }};}); if(!al) return; L.marker([r[0].lat,r[0].lon],{title:'$tooltip'||r[0].display_name}).bindPopup('$popup'||r[0].display_name).addTo($map); }";
             $city = '';
             if(strpos($address, ', ') !== false)
