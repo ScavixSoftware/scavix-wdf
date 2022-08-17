@@ -247,7 +247,23 @@ function get_timezone_by_ip($ip = false)
     foreach( $services as $url=>$cb )
     {
         $triedurls[] = $url;
-        $isDst = false; //date('I');
+        $isDst = date('I');
+
+        // better way to figure out if our german server is in summer time:
+        $year     = date('Y');
+        $timezone = 'Europe/Berlin';
+        $dt = new DateTimeZone($timezone);
+        $ts = $dt->getTransitions(mktime(0, 0, 0, 1, 1, $year), mktime(0, 0, 0, 12, 31, $year));
+        if (isset($ts[1]))
+        {
+            $offset = (($ts[1]['offset']-$ts[2]['offset'])/3600);
+            if($offset != 0)
+            {
+                if((date_create()->getTimestamp() >= date_create($ts[1]['time'])->getTimestamp()) && (date_create()->getTimestamp() <= date_create($ts[2]['time'])->getTimestamp()))
+                    $isDst = 1;
+            }
+        }
+
         if( $url == 'geo' ) // prepare geo search inline to only have overhead when we reach that case
         {
             $coords = get_coordinates_by_ip($ip);
@@ -277,7 +293,7 @@ function get_timezone_by_ip($ip = false)
         
         $resp = ($url ? downloadData($url, false, false, 60 * 60, 2) : false);
         $zone = $cb($resp);
-//        log_debug($ip, $url, $zone);
+    //    log_debug($ip, $url, $zone);
         if( $zone !== false )
         {
             if(strpos($zone[0], ':') !== false)
@@ -316,7 +332,7 @@ function get_timezone_by_ip($ip = false)
             }
             
 //            if(isDev())
-//                log_debug($url, $zone, $tz, $isDst);
+            //    log_debug($url, $zone, $tz, $isDst);
             cache_set($key, $zone[0], 24 * 60 * 60);
             return $zone[0];
         }
