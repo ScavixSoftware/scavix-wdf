@@ -116,7 +116,7 @@ class ChartJS3 extends Control
      */
     public static function StrPoint(string $x,float $y,$row=false)
     {
-        if( !in_array($x,self::$currentInstance->detectedCategories) )
+        if( self::$currentInstance && is_array(self::$currentInstance->detectedCategories) && !in_array($x,self::$currentInstance->detectedCategories) )
             self::$currentInstance->detectedCategories[] = $x;
         $pt = ['x'=>$x, 'y'=>$y];
         if( $row ) $pt['raw'] = $row;

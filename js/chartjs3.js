@@ -124,43 +124,54 @@
         
         _prepareColors: function(id,config)
         {
+            var process = function(k)
+            {
+                var dataset = this;
+                if( typeof dataset[k] == 'string' )
+                {
+                    var m = dataset[k].match(/var\((.*)\)/);
+                    if( !m ) return;
+                    
+                    var orig = dataset[k];
+                    dataset[k] = function()
+                    {
+                        var style = getComputedStyle($('#'+id).get(0));
+                        return orig.replace(/var\(.*\)/,style.getPropertyValue(m[1]));
+                    };
+                }
+                else if( typeof dataset[k] == 'object' && typeof dataset[k].forEach == 'function' )
+                {
+                    var orig = dataset[k];
+                    dataset[k] = function()
+                    {
+                        var style = getComputedStyle($('#'+id).get(0));
+                        var res = [];
+                        orig.forEach(function(value)
+                        {
+                            var m = value.match(/var\((.*)\)/);
+                            if( m ) 
+                                res.push(value.replace(/var\(.*\)/,style.getPropertyValue(m[1])));
+                            else
+                                res.push(value);
+                        });
+                        return res;
+                    };
+                }
+            };
+
             config.data.datasets.forEach(function(dataset)
             {
-                ['backgroundColor','borderColor','pointBackgroundColor','pointBorderColor'].forEach(function(k)
+                ['backgroundColor','borderColor','pointBackgroundColor','pointBorderColor','fill'].forEach(function(k)
                 {
                     if( !dataset[k] )
                         return;
-                    
-                    if( typeof dataset[k] == 'string' )
+                    if (k == 'fill' && typeof dataset[k] == 'object')
                     {
-                        var m = dataset[k].match(/var\((.*)\)/);
-                        if( !m ) return;
-                        
-                        var orig = dataset[k];
-                        dataset[k] = function()
-                        {
-                            var style = getComputedStyle($('#'+id).get(0));
-                            return orig.replace(/var\(.*\)/,style.getPropertyValue(m[1]));
-                        };
+                        process.call(dataset[k], 'above');
+                        process.call(dataset[k], 'below');
                     }
                     else
-                    {
-                        var orig = dataset[k];
-                        dataset[k] = function()
-                        {
-                            var style = getComputedStyle($('#'+id).get(0));
-                            var res = [];
-                            orig.forEach(function(value)
-                            {
-                                var m = value.match(/var\((.*)\)/);
-                                if( m ) 
-                                    res.push(value.replace(/var\(.*\)/,style.getPropertyValue(m[1])));
-                                else
-                                    res.push(value);
-                            });
-                            return res;
-                        };
-                    }
+                        process.call(dataset, k);
                 });
 			});
         },
@@ -206,7 +217,11 @@
         },
 		
 		getChart: function(id)
-		{
+        {
+            if (typeof id == 'object' && typeof id.attr == 'function')
+            {
+                id = $('canvas[id]', id).attr('id') || id.attr('id');
+            }
 			return this.charts[id] || null;
 		},
         
