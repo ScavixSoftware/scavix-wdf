@@ -155,7 +155,8 @@ class LeafLet extends Control
         foreach( $this->_markers as $m )
         {
             $opts = json_encode($m[2]);
-            $this->script("markers.push(L.marker([{$m[0]},{$m[1]}],$opts).bindPopup('{$m[2]['title']}').addTo($map));");
+            $title = urlencode($m[2]['title']);
+            $this->script("markers.push(L.marker([{$m[0]},{$m[1]}],$opts).bindPopup('{$title}').addTo($map));");
         }
 
         // add addresses
