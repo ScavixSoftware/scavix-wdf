@@ -877,12 +877,12 @@
             callback = method;
             method = false;
         }
-        if( this.length == 0)
+        if( $(this).length == 0)
         {
             wdf.processCallback(callback);
             return this;
         }
-		return this.each(function()
+		return $(this).each(function()
 		{
             var elem = $(this);
             
