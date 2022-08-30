@@ -124,6 +124,7 @@
         
         _prepareColors: function(id,config)
         {
+            var elem = id.get ? id.get(0) : $('#' + id).get(0);
             var process = function(k)
             {
                 var dataset = this;
@@ -135,7 +136,7 @@
                     var orig = dataset[k];
                     dataset[k] = function()
                     {
-                        var style = getComputedStyle($('#'+id).get(0));
+                        var style = getComputedStyle(elem);
                         return orig.replace(/var\(.*\)/,style.getPropertyValue(m[1]));
                     };
                 }
@@ -144,7 +145,7 @@
                     var orig = dataset[k];
                     dataset[k] = function()
                     {
-                        var style = getComputedStyle($('#'+id).get(0));
+                        var style = getComputedStyle(elem);
                         var res = [];
                         orig.forEach(function(value)
                         {
@@ -159,7 +160,7 @@
                 }
             };
 
-            config.data.datasets.forEach(function(dataset)
+            (config.data || config).datasets.forEach(function(dataset)
             {
                 ['backgroundColor','borderColor','pointBackgroundColor','pointBorderColor','fill'].forEach(function(k)
                 {
@@ -187,12 +188,15 @@
                 return false;
            
             $('<div data-text="'+item.text+'"/>')
-                .append($('<span/>').css('background-color',item.fillStyle))
+                .css('--border', "2px solid " + item.fillStyle)
+                .css('--background-color',item.fillStyle)
+                .append($('<span/>'))
                 .append(item.text)
                 .appendTo($glob)
                 .click(function()
                 {
-                    var lab = $(this).data('text');
+                    var lab = $(this).data('text'),
+                        hide = $(this).toggleClass('data-hidden').is('.data-hidden');
                     for( var cid in win.wdf.chartjs3.charts )
                     {
                         var c = win.wdf.chartjs3.charts[cid];
@@ -201,13 +205,14 @@
                         {
                             if( label != lab )
                                 return;
-                            c.toggleDataVisibility(i);
+                            if( c.getDataVisibility(i) == hide )
+                                c.toggleDataVisibility(i);
                         });
                         c.data.datasets.forEach(function(ds,i)
                         {
                             if( ds.label != lab )
                                 return;
-                            ds.hidden = !ds.hidden;
+                            ds.hidden = hide;
                         });
                         c.update();
                     }
@@ -230,7 +235,7 @@
             var res = this.stdTooltips(id);
             res.label = function(item)
             {
-                //console.log("pie.label",typeof(item.raw),item);
+                //wdf.debug("pie.label",typeof(item.raw),item);
                 if( typeof(item.raw) !== 'object' )
                     item.raw = {raw:item.raw};
                     
@@ -272,7 +277,7 @@
                 },
                 label: function(item)
                 {
-                    //console.log("std.label",item);
+                    //wdf.debug("std.label",item);
                     if( !item.raw.label )
                     {
                         var formatLine = function(chart,dataset,item)
@@ -292,10 +297,10 @@
                             item.chart.data.datasets.forEach(function(ds)
                             {
                                 temp.push( formatLine(item.chart, ds, ds.data[item.dataIndex]) );
-                                //console.log("pushed "+temp.length);
+                                //wdf.debug("pushed "+temp.length);
                             });
                             item.raw.label = temp;
-                            //console.log(item.raw.label);
+                            //wdf.debug(item.raw.label);
                         }
                         else
                         {
@@ -331,7 +336,7 @@
                 this.charts[id] = new Chart(c2s,raw);
                 var svg = c2s.getSerializedSvg(true);
                 $('#'+id).replaceWith(svg);
-                console.log("Rendered SVG chart ","W="+$wrap.width(),"H="+$wrap.height(),"T="+raw.type);
+                wdf.debug("Rendered SVG chart ","W="+$wrap.width(),"H="+$wrap.height(),"T="+raw.type);
             }
             this.charts = {};
         },
@@ -379,8 +384,20 @@
             var chart = wdf.chartjs3.getChart(id);
             if( wdf.chartjs3.dataEquals(chart.data,data) )
                 return;
+            
+            this._prepareColors(id,data);
             // todo: improve to detect changes only and change only that values -> better animations!
             chart.data = data;
+
+            if( chart.config.options.globalLegend )
+            {
+                var $glob = $('#chartjs3-global-legend');
+                chart.data.datasets.forEach(function(ds)
+                {
+                    $item = $('[data-text="' + ds.label + '"]', $glob);
+                    ds.hidden = $item.is('.data-hidden');
+                });
+            }            
             chart.update('none'); // remove 'none' once we have DIFFed data
         },
         

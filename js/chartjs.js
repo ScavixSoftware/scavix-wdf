@@ -127,7 +127,7 @@
             var res = this.stdTooltips(id);
             res.label = function(item, data)
             {
-                //console.log("pieLabel",items,data);
+                //wdf.debug("pieLabel",items,data);
                 var val = data.datasets[item.datasetIndex].data[item.index] || 0;
                 var sum = 0;
                 for(var i=0; i<data.datasets[item.datasetIndex].data.length; i++)
@@ -146,7 +146,7 @@
                 {
                     try
                     {
-                        //console.log("stdTitle",items,data);
+                        //wdf.debug("stdTitle",items,data);
                         var item = items[0] || false;
                         if( !item )
                             return "";
@@ -162,7 +162,7 @@
                 {
                     var n = wdf.chartjs._dataLabel(item,data);
                     if( n ) return n;
-                    //console.log("stdLabel");
+                    //wdf.debug("stdLabel");
                     n=data.datasets[item.datasetIndex].label||"";
                     return n&&(n+=": "),item.value==null?n+=item.yLabel:n+=item.value,n
                 }
@@ -175,7 +175,7 @@
                     {
                         var lab = wdf.chartjs._dataLabel(item,data);
                         if( lab ) return lab;
-                        //console.log("stdPercLabel",item,data);
+                        //wdf.debug("stdPercLabel",item,data);
                         lab = data.datasets[item.datasetIndex].label || '';
                         if( lab ) lab += ": ";
                         var val = item.yLabel || item.value || 0;

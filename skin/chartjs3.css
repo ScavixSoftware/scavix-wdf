@@ -35,6 +35,8 @@
     margin-bottom: 10px;
     display: flex;
     cursor: pointer;
+    --border: 0px solid white;
+    --background-color: white;
 }
 
 #chartjs3-global-legend > div:hover
@@ -47,4 +49,6 @@
     border: 1px solid black;
     width: 30px;
     margin-right: 5px;
+    border: var(--border);
+    background-color: var(--background-color);
 }
