@@ -4,7 +4,7 @@ wdf.RegisterElement('select','wdf-select2',class extends wdf.ExtendElement(HTMLS
     onReady()
     {
         this.config = JSON.parse(this.dataset.config) || {};
-        //console.log("Select 2 onReady");
+        //wdf.debug("Select 2 onReady");
       
         if( !this.config.templateResult ) this.config.templateResult = this.renderItem;
         if( !this.config.templateSelection ) this.config.templateSelection = this.renderItem;
@@ -14,14 +14,14 @@ wdf.RegisterElement('select','wdf-select2',class extends wdf.ExtendElement(HTMLS
             $(this).on("select2:select",function(evt){ var $element = $(evt.params.data.element); $element.detach(); $(this).append($element); $(this).trigger("change"); });
         if( this.config.selected )
         {
-            //console.log("preselecting",this.config.selected);
+            //wdf.debug("preselecting",this.config.selected);
             $(this).val(this.config.selected).trigger('change');
         }
     }
     
     renderItem(item)
     {
-        //console.log("renderItem",item);
+        //wdf.debug("renderItem",item);
         let res = $('');
         if( item.html )
             try{ res = $(item.html); }catch(e){ }

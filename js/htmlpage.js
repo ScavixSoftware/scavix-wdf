@@ -272,7 +272,6 @@
             {
                 if(location.hash && (location.hash != '#'))
                     location.hash = '';
-                //console.log("href change from "+location.href,"to "+href);
 				location.href = href;
                 if(location.hash && (location.hash != '#'))
                     location.reload();
@@ -783,7 +782,7 @@
 //                            break;
 //                        }
 //                    }
-                    console.log(event.state);
+                    wdf.debug(event.state);
                     $('html').replaceWith(event.state.data);
                 });
             }
