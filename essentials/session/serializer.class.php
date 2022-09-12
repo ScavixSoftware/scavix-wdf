@@ -243,7 +243,6 @@ class Serializer
     
 	private function Unser_Inner()
 	{
-        $start = microtime(true);
 		$orig_line = $this->Lines[$this->Index++];
 		if( $orig_line == "" )
 			return null;
@@ -255,7 +254,7 @@ class Serializer
 		{
             if( isset($line[1]) && $line[1]==':' )
             {
-            $type = $line[0];
+            	$type = $line[0];
                 $line = substr($line, 2);
             }
 		}
@@ -265,9 +264,6 @@ class Serializer
 			switch( $type )
 			{
                 case "$":
-//                    list($len,$line) = explode(":",$line,2);
-//                    while( strlen($line) < $len )
-//                        $line .= "\n".array_shift($this->Lines);
                     $res = str_replace(["\\r","\\n"], ["\r","\n"], $line);
                     return $res;
 				case 'S':
