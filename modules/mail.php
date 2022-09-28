@@ -53,6 +53,7 @@ function mail_init()
 /**
  * Prepares an email.
  * 
+ * @suppress PHP0416
  * @param string $recipient The mail recipient
  * @param string $subject The subject
  * @param string $message The message (may be HTML formatted)
@@ -181,6 +182,7 @@ function mail_prepare($recipient,$subject,$message,$plainmessage="",$attachments
 /**
  * Sends an email.
  * 
+ * @suppress PHP0416
  * @param mixed $recipient Email recipient as string. If $recipient is <PHPMailer> will ignore all other arguments and use this.
  * @param string $subject The subject
  * @param string $message The message (may be HTML formatted)

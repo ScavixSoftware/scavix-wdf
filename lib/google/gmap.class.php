@@ -200,6 +200,7 @@ class gMap extends GoogleControl
     /**
      * Finds a geolocation from a search string.
 	 * 
+     * @suppress PHP0416
      * @param string $search Search string
 	 * @return mixed An object containing formatted_address, latitude and longitude or false on error
      */

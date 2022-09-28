@@ -52,10 +52,15 @@ namespace ScavixWDF\Base;
  * // or even
  * MyLimits::Login();
  * </code>
+ * 
+ * @property string $name
+ * @property \ScavixWDF\Base\DateTimeEx|string $created
  */
 class RateLimit extends \ScavixWDF\Model\Model
 {
     private $limits = [];
+
+    var $internal_name;
     
     public function GetTableName() { return "wdf_ratelimits"; }
     

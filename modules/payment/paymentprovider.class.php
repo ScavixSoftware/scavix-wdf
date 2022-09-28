@@ -113,7 +113,7 @@ abstract class PaymentProvider
 		$q = [];
 		foreach( $this->data as $k=>$v )
 			$q[] = "$k=".urldecode($v);
-		redirect("$url?$q");
+        redirect("$url?" . implode("&", $q));
 	}
 	
 	protected function CheckoutForm($url)

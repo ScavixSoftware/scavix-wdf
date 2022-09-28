@@ -1,0 +1,31 @@
+################################################################################
+# Ignore some known warnings. You may use the first part                       #
+# of this file in your projects .editorconfig to ignore the same               #
+# kind of warnings there.                                                      #
+# The rest is framework specific, mostly for third party files                 #
+################################################################################
+
+[*.tpl.php]
+php_diagnostic_php0437 = false
+php_diagnostic_php0410 = false
+
+[*.php]
+php_diagnostic_php1409 = false
+
+
+################################################################################
+# Only framework specific setting below this point.                            #
+# DO NOT COPY!                                                                 #
+################################################################################
+
+[lessc.inc.php]
+php_diagnostic = false
+
+[cssmin.php]
+php_diagnostic = false
+
+[Browscap.php]
+php_diagnostic = false
+
+[lib/google/MC/**.php]
+php_diagnostic = false

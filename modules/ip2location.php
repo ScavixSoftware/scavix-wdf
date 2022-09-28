@@ -152,6 +152,7 @@ function get_countryname_by_ip($ip = false)
 /**
  * Returns the timezone for an IP address.
  * 
+ * @suppress PHP0416
  * @param string $ip IP address to check (defaults to <get_ip_address>)
  * @return string Timezone identifier or false on error
  */

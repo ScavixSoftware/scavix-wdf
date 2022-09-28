@@ -221,6 +221,7 @@ class PayPal extends PaymentProvider
 		}
 		
 		// check if the order amount does match (10% currency difference is ok)
+        // todo: Check if this is correct, because it needs 'amount_currency' to be set which is not part of IShopOrder
 		if($order->amount_currency > ($ipndata["payment_gross"] * 1.1) )
 		{
 			log_error("Wrong order payment amount in PayPal IPN call: ".$ipndata["payment_gross"]." instead of ".$order->amount_currency);

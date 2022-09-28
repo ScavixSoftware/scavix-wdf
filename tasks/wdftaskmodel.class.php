@@ -31,6 +31,17 @@ use ScavixWDF\Base\DateTimeEx;
 
 /**
  * @internal Model class representing tasks that can be handled asynchronously
+ * 
+ * @property int $id
+ * @property int $parent_task
+ * @property int $follow_deletion
+ * @property int $enabled
+ * @property \ScavixWDF\Base\DateTimeEx|string $created
+ * @property \ScavixWDF\Base\DateTimeEx|string $start
+ * @property \ScavixWDF\Base\DateTimeEx|string $assigned
+ * @property int $worker_pid
+ * @property string $name
+ * @property string $arguments
  */
 class WdfTaskModel extends Model
 {
