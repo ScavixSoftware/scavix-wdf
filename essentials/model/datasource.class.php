@@ -475,7 +475,7 @@ class DataSource
 	 * Executes a query and returns the first column of the first row.
 	 * 
 	 * @param string $sql SQL statement
-	 * @param array $prms Arguments for $sql
+	 * @param array|mixed $prms Arguments for $sql
 	 * @return mixed The first scalar
 	 */
 	function ExecuteScalar($sql,$prms=[])

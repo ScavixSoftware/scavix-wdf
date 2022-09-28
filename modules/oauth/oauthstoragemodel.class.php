@@ -31,6 +31,16 @@ use ScavixWDF\OAuth\OAuthHandler;
  * Represents a dataset in the wdf_oauthstore table.
  * 
  * @suppress PHP0413
+ * 
+ * @property int $local_id
+ * @property string $provider
+ * @property string $identifier
+ * @property string $access_token
+ * @property string $refresh_token
+ * @property \ScavixWDF\Base\DateTimeEx|string $expires
+ * @property string $resource_owner_id
+ * @property string $data
+ * @property string $owner_data
  */
 class OAuthStorageModel extends Model
 {
@@ -113,7 +123,7 @@ class OAuthStorageModel extends Model
         $this->expires = $token->getExpires();
         $this->expires = $this->expires?DateTimeEx::Make($this->expires):null;
         if( $token instanceof \League\OAuth2\Client\Token\ResourceOwnerAccessTokenInterface )
-            $this->resourceowner_id = $token->getResourceOwnerId();
+            $this->resource_owner_id = $token->getResourceOwnerId();
         
         $this->data = json_encode($token->getValues());
         $this->Save();

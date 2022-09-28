@@ -610,7 +610,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * @param string $sql Statement
 	 * @param array $args Arguments
 	 * @param DataSource $datasource Use this datasource
-	 * @return <Model> The result set
+	 * @return static The result set
 	 */
 	public static function &Query($sql,$args=[],$datasource=null)
 	{
@@ -635,7 +635,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * </code>
 	 * @param DataSource $datasource <DataSource> to bind to, defaults to <Model>::$DefaultDatasource
 	 * @param mixed $pk_value Primary key value
-	 * @return Model Returns the created model or null, if nothing can be found for a specified $pk_value
+	 * @return static Returns the created model or null, if nothing can be found for a specified $pk_value
 	 */
 	public static function &Make($datasource=null,$pk_value=false)
     {
@@ -676,7 +676,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * @param DataSource $datasource Optional datasource to assign to the created <Model>
 	 * @param bool $allFields If true, all data is taken to the result, not only that one that are present in the columns of the type
 	 * @param bool $className Optional classname to allow anonymous calls like `Model::MakeFromData`
-	 * @return Model subclass_of_Model The newly created typed <Model>
+	 * @return static The newly created typed <Model>
 	 */
 	public static function MakeFromData($data,$datasource=null,$allFields=false,$className=false)
 	{
@@ -718,7 +718,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * @param Model $model Object of (sub-)type <Model>
 	 * @param bool $allFields If true, all data is taken to the result, not only that one that are present in the columns of the type
 	 * @param string|bool $className Optional classname to allow anonymous calls like `Model::MakeFromData`
-	 * @return Model The typed object
+	 * @return static The typed object
 	 */
 	public static function CastFrom($model,$allFields=false,$className=false)
 	{
@@ -1576,7 +1576,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * 
 	 * All field values will be loaded from DB.
 	 * @param string $where WHERE-part of the SQL statement.
-	 * @param array $arguments Arguments used in $where
+	 * @param array|mixed $arguments Arguments used in $where
 	 * @return boolean true if dataset was found, else false
 	 */
 	public function Load($where, $arguments=false)

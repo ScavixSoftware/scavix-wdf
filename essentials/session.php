@@ -137,13 +137,12 @@ function equals(&$o1, &$o2, $compare_classes=true)
 	if( !($o1 instanceof Closure) && ($o2 instanceof Closure) )
 		return false;
 	if( ($o1 instanceof Closure) && ($o2 instanceof Closure) && $o1==$o2 )
-		return false;
-	
-	return (
-		isset($o1->_storage_id) &&
-		isset($o2->_storage_id) &&
-		$o1->_storage_id == $o2->_storage_id
-	);
+		return true;
+
+    return 
+        (ifavail($o1, '_storage_id') ?: '-1')
+        ==
+        (ifavail($o2, '_storage_id') ?: '-2');
 }
 
 /**

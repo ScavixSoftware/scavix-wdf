@@ -144,6 +144,9 @@ class LessCompiler extends \lessc implements \JsonSerializable
         log_error("[LESS][$this->id]",...$args);
     }
     
+    /**
+     * @suppress PHP0416
+     */
     function makeParser($name): \lessc_parser
     {
         /**

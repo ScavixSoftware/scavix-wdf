@@ -35,7 +35,10 @@ use ScavixWDF\Controls\Form\Select;
 use ScavixWDF\Controls\Table\DatabaseTable;
 
 class WdfListing extends Control implements \ScavixWDF\ICallable
-{    
+{
+    const GEAR_TOGGLE_ALL = 'toggle_all';
+    const GEAR_CHOOSE_OPTIONAL = 'choose_optional';
+
     var $datatype;
     var $datatable;
 
@@ -70,6 +73,9 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
 	var $ci;
     
     var $log_sql = false;
+
+    var $gear_mode = 'toggle_all';
+
     protected $log_sql_done = false;
     
     protected $onPreRender = false;
@@ -372,6 +378,9 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
 		return parent::PreRender($args);
 	}
     
+    /**
+     * @suppress PHP0406
+     */
     function WdfRender() 
     {
         if( $this->onPreRender )
@@ -509,6 +518,17 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             $this->formats[$name] = $format;
         return $this;
     }
+
+    function setGearMode($gear_mode, $optional_default=false)
+    {
+        $this->gear_mode = $gear_mode;
+        if( $gear_mode == self::GEAR_CHOOSE_OPTIONAL )
+        {
+            foreach( $this->optional_comluns as $n=>$d )
+                $this->setSetting("hidden_{$n}", $n != $optional_default);
+        }
+        return $this;
+    }
     
     function filterToVisible($key_value_pairs)
     {
@@ -570,6 +590,14 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
         }
         return $this;
     }
+
+    function clearColumns()
+    {
+        foreach (array_keys($this->columns) as $n)
+            if( $n != '__CHECKBOX__' )
+                $this->delColumn($n);
+        return $this;
+    }
     
     function delColumn($name)
     {
@@ -581,6 +609,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             if( isset($this->formats[$n]) ) unset($this->formats[$n]);
             if( isset($this->columnCallbacks[$n]) ) unset($this->columnCallbacks[$n]);
             if( isset($this->ColFormats[$index]) ) unset($this->ColFormats[$index]);
+            if( isset($this->optional_comluns[$n]) ) unset($this->optional_comluns[$n]);
         }
         return $this;
     }
@@ -755,6 +784,13 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
     
     protected function isVisible($column_name)
     {
+        if( $this->gear_mode == self::GEAR_CHOOSE_OPTIONAL )
+        {
+            if( !ifavail($this->optional_comluns, $column_name) )
+                return true;
+            // log_debug(__METHOD__, $column_name, $this->getSetting("hidden_{$column_name}", '???'));
+            return !$this->getSetting("hidden_{$column_name}",false);
+        }
         if( $this->hasSetting("hidden_{$column_name}") )
             return !$this->getSetting("hidden_{$column_name}",false);
         return !ifavail($this->optional_comluns,$column_name);
@@ -764,6 +800,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
     {
         $this->logSql("OnAddHeader");
         $links = $columns = [];
+        $choosemode = $this->gear_mode == self::GEAR_CHOOSE_OPTIONAL;
         
         foreach( $this->columns as $name=>$label )
         {
@@ -772,7 +809,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
                 'label'=>$label,
                 'visible'=> $this->isVisible($name)
             ];
-            if( $name !== '__CHECKBOX__' )
+            if( $name !== '__CHECKBOX__' && (!$choosemode || isset($this->optional_comluns[$name])) )
                 $columns[] = $c;
             if( !$c['visible'] )
                 continue;
@@ -802,7 +839,9 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             }
         }
         $wrap = Control::Make()->append(array_pop($links))->append('&nbsp;');
-        Anchor::Void("<span class='ui-icon ui-icon-gear'></span>")->data('column-state', $columns)->appendTo($wrap);
+        Anchor::Void("<span class='ui-icon ui-icon-gear'></span>")
+            ->data('column-state', $columns )
+            ->appendTo($wrap);
         
         $links[] = $wrap;
         
@@ -835,16 +874,27 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
      */
     function ToggleColumn($name)
     {
-        //log_debug(__METHOD__,$name);
-        if( $this->isVisible($name) )
+        if( $this->gear_mode == self::GEAR_CHOOSE_OPTIONAL )
         {
-            if( ifavail($this->optional_comluns,$name) )
-                $this->delSetting("hidden_{$name}",true);
-            else
-                $this->setSetting("hidden_{$name}",true);
+            if( $this->isVisible($name) ) // do not let user disable, but only choose another
+                return $this->table;
+
+            //$this->gear_mode_toggle_default = $name;
+            foreach( $this->optional_comluns as $n=>$d )
+                $this->setSetting("hidden_{$n}", $n != $name);
         }
         else
-            $this->setSetting("hidden_{$name}",false);
+        {
+            if( $this->isVisible($name) )
+            {
+                if( ifavail($this->optional_comluns,$name) )
+                    $this->delSetting("hidden_{$name}");
+                else
+                    $this->setSetting("hidden_{$name}",true);
+            }
+            else
+                $this->setSetting("hidden_{$name}",false);
+        }
         
         $this->table->header = false;
         $this->extendInnerTable();

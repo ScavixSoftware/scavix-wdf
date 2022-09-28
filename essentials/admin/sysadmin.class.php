@@ -546,6 +546,35 @@ class SysAdmin extends HtmlPage
         }
         $this->content("<pre id='table-code'>$create</pre><br/><br/>");
         
+        $properties = ["/**"];
+        foreach( $schema->Columns as $col )
+        {
+            switch( $col->Type )
+            {
+                case 'varchar':
+                case 'text':
+                case 'mediumtext':
+                case 'longtext':
+                case 'enum':
+                    $type = "string";
+                    break;
+                case 'timestamp':
+                case 'datetime':
+                case 'date':
+                case 'time':
+                    $type = "\ScavixWDF\Base\DateTimeEx|string";
+                    break;
+                case 'tinyint':
+                    $type = "int";
+                    break;
+                default:
+                    $type = $col->Type;
+                    break;
+            }
+            $properties[] = " * @property {$type} ".'$'."{$col->Name}";
+        }
+        $properties[] = " */";
+        $this->content("<pre>".implode("\n",$properties)."</pre><br/><br/>");
         
         
         $listing = \ScavixWDF\JQueryUI\uiDatabaseTable::Make($ds,false,$table)

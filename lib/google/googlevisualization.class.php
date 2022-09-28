@@ -105,6 +105,7 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	
 	/**
 	 * @override
+     * @suppress PHP0410
 	 */
 	function PreRender($args = [])
 	{

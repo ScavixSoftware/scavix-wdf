@@ -42,6 +42,9 @@ use ScavixWDF\WdfException;
  * 
  * See http://msdn.microsoft.com/en-us/library/system.globalization.cultureinfo%28v=vs.71%29.aspx
  * for some theory
+ * 
+ * @property string $TimeZone
+ * @property bool $AppendTimeZone
  */
 class CultureInfo
 {

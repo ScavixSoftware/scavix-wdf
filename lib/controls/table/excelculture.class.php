@@ -12,6 +12,8 @@ use ScavixWDF\Localization\Localization;
 class ExcelCulture extends CultureInfo
 {
 	private static $FORMAT_MAP = [];
+
+    var $LanguageCode;
 	
 	static function FromCode($code)
 	{
