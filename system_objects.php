@@ -411,6 +411,8 @@ interface ICallable {}
  */
 class WdfException extends Exception
 {
+    public $details = '';
+
 	private function ex()
 	{
 		$inner = $this->getPrevious();
@@ -538,7 +540,7 @@ class WdfDbException extends WdfException
         else
             $msg = "SQL Error occured. Please contact the technical team and tell them this error ID: $errid";
         
-        if( !self::$DISABLE_LOGGING && $statement )
+        if( $statement )
         {
             $trim_sql = function($s)
             {
@@ -568,11 +570,11 @@ class WdfDbException extends WdfException
             if( $msql != $sql )
                 $details .= "\nMerged: $msql";
             
-            log_error($details);
+            return [$msg, $details];
         }
             
         
-        return $msg;
+        return [$msg, ''];
     }
     
     /**
@@ -580,8 +582,9 @@ class WdfDbException extends WdfException
      */
     public static function RaisePdoEx(\PDOException $ex, ?Model\ResultSet $statement = null)
     {
-        $msg = self::_prepare($ex->getMessage(),$statement);
-        $res = new \ScavixWDF\WdfDbException($msg);
+        list($msg, $details) = self::_prepare($ex->getMessage(),$statement);
+        $res = new WdfDbException($msg);
+        $res->details = $details;
         $res->statement = $statement;
         throw $res;
 
@@ -595,8 +598,9 @@ class WdfDbException extends WdfException
         if(!($statement instanceof Model\ResultSet))
             $statement = new Model\ResultSet($statement->_ds, $statement);
         
-        $msg = self::_prepare(json_encode($statement->ErrorInfo()),$statement);
+        list($msg, $details) = self::_prepare(json_encode($statement->ErrorInfo()),$statement);
         $ex = new WdfDbException($msg);
+        $ex->details = $details;
         $ex->statement = $statement;
 		throw $ex;
 	}

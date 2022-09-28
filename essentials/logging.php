@@ -524,9 +524,13 @@ function logging_render_var($content,&$stack=[],$indent="")
 		{
 			$res[] = get_class($content).": ".$content->getMessageEx();
             if( isset($GLOBALS['logging_render_var_for_logger']) )
-                $res[] = $content->getTraceAsString();
+			{
+				if(avail($content, 'details'))
+					$res[] = $content->details;
+				$res[] = $content->getTraceAsString();
+			}
             elseif( isDev() )
-                $res[] = "in ".$content->getFileEx().":".$content->getLineEx();
+				$res[] = "in " . $content->getFileEx() . ":" . $content->getLineEx();
 		}
 		elseif( ($content instanceof Exception) || ($content instanceof Error) )
 		{

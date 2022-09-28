@@ -113,7 +113,7 @@ function isMinFirefox3(){ return browser_is('FIREFOX',3,true); }
 /**
  * @internal Fetches all browser information from `$_SERVER['HTTP_USER_AGENT']`
  */
-function browserDetails()
+function browserDetails($user_agent=null, $key=null)
 {
     $caps = Wdf::GetBuffer(__FUNCTION__)->get('caps',function()
     {
@@ -121,7 +121,18 @@ function browserDetails()
         $caps->remoteIniUrl = "http://browscap.org/stream?q=Lite_PHP_BrowsCapINI";
         return $caps;
     });
-    $bd = array_change_key_case($caps->getBrowser(null,true), CASE_LOWER);
+    $bd = array_change_key_case($caps->getBrowser($user_agent,true), CASE_LOWER);
+
+    if (ifavail($bd, 'browser') == 'Default Browser')
+        $bd = [];
+
+    $bd['name'] = implode(' ', array_filter(
+        [
+            ifavail($bd,'browser'),
+            ifavail($bd,'version'),
+            ifavail($bd,'platform'),
+        ]));
+
     if( !isset($bd['browser_name']) ) $bd['browser_name'] = "Unknown";
     if( !isset($bd['platform']) ) $bd['platform'] = "Unknown";
     if( !isset($bd['browser']) ) $bd['browser'] = "Unknown";
@@ -129,5 +140,6 @@ function browserDetails()
     $bd['agent']         = $bd['browser_name'];
     $bd['browser_id']    = strtoupper($bd['browser']);
     $bd['major_version'] = intval($bd['version']);
-    return $bd;
+
+    return $key?ifavail($bd,$key):$bd;
 }
