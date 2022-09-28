@@ -206,9 +206,10 @@ function global_exception_handler($ex)
 	{
 		// system_die will handle logging itself. perhaps restructure that to
 		// keep things in place and let that function only handle the exception
-		foreach( Wdf::$Logger as $l )
-			$l->fatal($ex);
-		system_die($ex,'',false);
+		// foreach( Wdf::$Logger as $l )
+		// 	$l->fatal($ex);
+		// system_die($ex,'',false);
+		system_die($ex);
 	}
 	catch(Exception $fatal)
 	{
@@ -237,8 +238,8 @@ function global_fatal_handler()
 	{
 		// system_die will handle logging itself. perhaps restructure that to
 		// keep things in place and let that function only handle the exception
-		foreach( Wdf::$Logger as $l )
-			$l->fatal($ex);
+		// foreach( Wdf::$Logger as $l )
+		// 	$l->fatal($ex);
 		system_die($ex, var_export($error, true));
 	}
 	catch(Exception $fatal)
@@ -523,22 +524,22 @@ function logging_render_var($content,&$stack=[],$indent="")
 		if( $content instanceof WdfException )
 		{
 			$res[] = get_class($content).": ".$content->getMessageEx();
+            if( isDev() )
+				$res[] = "in " . $content->getFileEx() . ":" . $content->getLineEx();
             if( isset($GLOBALS['logging_render_var_for_logger']) )
 			{
 				if(avail($content, 'details'))
 					$res[] = $content->details;
 				$res[] = $content->getTraceAsString();
 			}
-            elseif( isDev() )
-				$res[] = "in " . $content->getFileEx() . ":" . $content->getLineEx();
 		}
 		elseif( ($content instanceof Exception) || ($content instanceof Error) )
 		{
 			$res[] = get_class($content).": ".$content->getMessage();
+            if( isDev() )
+                $res[] = "in ".$content->getFile().":".$content->getLine();
             if( isset($GLOBALS['logging_render_var_for_logger']) )
                 $res[] = $content->getTraceAsString();
-            elseif( isDev() )
-                $res[] = "in ".$content->getFile().":".$content->getLine();
 		}
         elseif($content instanceof ScavixWDF\Base\DateTimeEx)
         {

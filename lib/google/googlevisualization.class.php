@@ -123,10 +123,11 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
             }
             
 			$id = $this->id; $d = "d$id"; $c = "c$id";
-            if(isset($this->gvOptions['isStacked']) && isset($this->gvOptions['colors']) && is_array($this->gvOptions['colors']) && (count($this->gvOptions['colors']) > 1))
+            if(!self::$UseMaterialDesign && isset($this->gvOptions['isStacked']) && isset($this->gvOptions['colors']) && is_array($this->gvOptions['colors']) && (count($this->gvOptions['colors']) > 1))
                 $opts = json_encode($this->gvOptions, JSON_FORCE_OBJECT);
             else
                 $opts = json_encode($this->gvOptions);
+			// log_debug($opts, $this->gvOptions, self::$Colors);
             $coldefs = false;
             if($this->_columnDef)
                 $coldefs = array_values($this->_columnDef);
