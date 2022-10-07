@@ -226,6 +226,9 @@ abstract class Renderable implements \JsonSerializable
 		return $js;
 	}
 	
+ /**
+  * @return array
+  */
 	protected function __collectResourcesInternal($template,&$static_stack = [])
 	{
         // kind of dirty hack to allow overrides in subclasses

@@ -3745,7 +3745,7 @@ function internal_getCultureCodeFromRegion($region)
 
 /**
  * @internal 
- * @suppress PHP0410
+ * @param string $code
  */
 function internal_getRegion($code)
 {
@@ -3884,7 +3884,7 @@ function internal_getRegion($code)
 
 /**
  * @internal 
- * @suppress PHP0410
+ * @param string $code
  */
 function internal_getRegionsForLanguage($code)
 {
@@ -3966,6 +3966,7 @@ function internal_getRegionsForLanguage($code)
 
 /**
  * @internal 
+ * @param string $code
  */
 function internal_getLanguage($code)
 {
@@ -4118,7 +4119,7 @@ function internal_getLanguage($code)
 
 /**
  * @internal 
- * @suppress PHP0410
+ * @param string $code
  */
 function internal_getCulturesByCurrency($code)
 {
