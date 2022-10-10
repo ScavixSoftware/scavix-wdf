@@ -164,12 +164,11 @@ function get_timezone_by_ip($ip = false)
 	if( !$ip )
 		return false;
 
-	if( starts_with($ip, "1.1 ") || starts_with($ip, "192.168.") || "$ip" === "undefined" )
+    if(!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE))
 		return false;
     
 	$key = "get_timezone_by_ip.".getAppVersion('nc')."-".$ip;
-    $ret = cache_get($key);
-	if( !isDev() && $ret )
+    if($ret = cache_get($key))
 		return $ret;
 //    log_debug($ip, $CONFIG['geoip']);
     
