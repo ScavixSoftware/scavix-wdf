@@ -695,11 +695,15 @@
                 },
                 below: function(element)
                 {
-                    return $toast.position({my:'left top',at:'left bottom+5px',of:element}).hide().go();
+                    return $toast.position({my:'left top',at:'left bottom+5px',of:$(element).last()}).hide().go();
                 },
                 rightOf: function(element)
                 {
-                    return $toast.position({my:'left center',at:'right+5px center',of:element}).hide().go();
+                    return $toast.position({my:'left center',at:'right+5px center',of:$(element).last()}).hide().go();
+                },
+                center: function ()
+                {
+                    return $toast.position({ my: 'center', at: 'center', of: window }).hide().go();
                 },
                 colorize: function(backgroundColor,fontColor)
                 {
