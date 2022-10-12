@@ -53,7 +53,7 @@ class Form extends Control
 	 * @param string $type See above for valid values
 	 * @param string $name name for the element created
 	 * @param string $value Value to be assigned (may be any valuetype)
-	 * @return Control The created control
+	 * @return Input|Control The created control
 	 */
 	function AddInput($type,$name,$value='')
 	{

@@ -555,7 +555,9 @@ class SysAdmin extends HtmlPage
                 case 'text':
                 case 'mediumtext':
                 case 'longtext':
+                case 'tinytext':
                 case 'enum':
+                case 'set':
                     $type = "string";
                     break;
                 case 'timestamp':
