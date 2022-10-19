@@ -52,7 +52,9 @@ class CliLogger extends Logger
 	 */
     public function write($severity=false,$log_trace=false,$a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)
 	{
-		$s = self::$LOG_SEVERITY?"[$severity]\t":"";
+		$s = "[" . date("Y-m-d H:i:s.m") . "]\t";
+		if(self::$LOG_SEVERITY)
+			$s .= "[$severity]\t";
         $log_trace = $severity == 'FATAL';
         
 		$entry = $this->prepare($severity,$log_trace,$a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10);
