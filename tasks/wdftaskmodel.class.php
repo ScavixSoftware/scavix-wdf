@@ -261,10 +261,11 @@ class WdfTaskModel extends Model
 
         foreach( $pids as $pp )
         {
-            $c = @file_get_contents("$pp");
+            $c = @file_get_contents("$pp");     
             if( $c && preg_match($filter,$c) )
                 $res[] = basename(dirname($pp));
         }
+        
         return $res;
     }
 	

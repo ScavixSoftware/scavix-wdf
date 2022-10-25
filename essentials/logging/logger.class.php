@@ -275,7 +275,7 @@ class Logger
 	{
 		$content = $this->prepare($severity,$log_trace,$a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10);
 		if( !$content ) return;
-		$content = $content->toReadable($log_trace);
+		$content = $content->toReadable();
         
         if( !$this->filename )
 		{
