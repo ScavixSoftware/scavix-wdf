@@ -117,16 +117,7 @@ class WdfResource implements ICallable
 
 		if( $res )
 		{
-            if(ends_iwith($res, '.css'))
-                header('Content-Type: text/css');
-            elseif(ends_iwith($res, '.png'))
-                header('Content-Type: image/png');
-            elseif(ends_iwith($res, '.jpg'))
-                header('Content-Type: image/jpeg');
-            elseif(ends_iwith($res, '.gif'))
-                header('Content-Type: image/gif');
-            elseif(ends_iwith($res, '.svg'))
-                header('Content-Type: image/svg+xml');
+            header('Content-Type: '.system_guess_mime($res));
             
 			WdfResource::ValidatedCacheResponse($res);
             die( $this->resolveUrls($res,dirname($url)) );
