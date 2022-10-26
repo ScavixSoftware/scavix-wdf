@@ -38,6 +38,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
 {
     const GEAR_TOGGLE_ALL = 'toggle_all';
     const GEAR_CHOOSE_OPTIONAL = 'choose_optional';
+    const GEAR_OFF = 'off';
 
     var $datatype;
     var $datatable;
@@ -839,10 +840,10 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             }
         }
         $wrap = Control::Make()->append(array_pop($links))->append('&nbsp;');
-        Anchor::Void("<span class='ui-icon ui-icon-gear'></span>")
-            ->data('column-state', $columns )
-            ->appendTo($wrap);
-        
+        if( $this->gear_mode != self::GEAR_OFF )
+            Anchor::Void("<span class='ui-icon ui-icon-gear'></span>")
+                ->data('column-state', $columns )
+                ->appendTo($wrap);
         $links[] = $wrap;
         
         $table->Header()->NewRow($links);
