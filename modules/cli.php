@@ -133,6 +133,7 @@ function cli_run_script($php_script_path, $args=[], $extended_data=false, $retur
 
     if( $return_cmdline )
         return $cmdline;
+
     exec($cmdline);
 }
 
