@@ -124,7 +124,7 @@ class Query
 		if( !$this->_statement->execute() )
         {
             log_debug("Query:",$this);
-			WdfDbException::RaiseStatement($this->_statement,true);
+			WdfDbException::RaiseStatement($this->_statement);
         }		
 		$res = $this->_statement->fetchAll(PDO::FETCH_CLASS,get_class($this->_object),$ctor_args);
 		return $res;

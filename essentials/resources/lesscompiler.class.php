@@ -163,17 +163,17 @@ class LessCompiler extends \lessc implements \JsonSerializable
             /**
              * @internal Overwritten to handle in-file verbosity flags
              */
-            function parse($str = null, $initialVariables = null)
+            function parse($buffer = null)
             {
-                if( stripos("$str","verbose_compilation = on") !== false )
+                if( stripos("$buffer","verbose_compilation = on") !== false )
                 {
                     $this->lessc->setVerbose();
                 }
-                elseif( stripos("$str","verbose_compilation = off") !== false )
+                elseif( stripos("$buffer","verbose_compilation = off") !== false )
                 {
                     $this->lessc->setVerbose(false);
                 }
-                return parent::parse($str, $initialVariables);
+                return parent::parse($buffer);
             }
         };
     }
