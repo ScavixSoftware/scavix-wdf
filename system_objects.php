@@ -508,7 +508,7 @@ class WdfException extends Exception
 	 * Calls this or the inner exceptions getTrace() method.
 	 * 
 	 * See http://www.php.net/manual/en/exception.gettrace.php
-	 * @return string Returns the Exception stack trace as an array
+	 * @return array Returns the Exception stack trace as an array
 	 */
 	public function getTraceEx(){ return $this->ex()->getTrace(); }
 }

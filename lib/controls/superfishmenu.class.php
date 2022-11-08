@@ -105,7 +105,7 @@ class SuperfishMenu extends Control
 	function DetectSelected()
 	{
 		$controller = strtolower(current_controller());
-		$event = current_event(true);
+		$event = current_event();
 		$data = md5(render_var($_GET));
 		
 		for( $level=1; $level<=6; $level++ )

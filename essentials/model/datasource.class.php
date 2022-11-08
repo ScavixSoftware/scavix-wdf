@@ -340,7 +340,7 @@ class DataSource
 		
 		$stmt = $this->Prepare($sql);
 		if( !$stmt->execute($parameter) )
-            WdfDbException::RaiseStatement($stmt,true);
+            WdfDbException::RaiseStatement($stmt);
 
 		$this->_last_affected_rows_count = $stmt->Count();
 		return $stmt;

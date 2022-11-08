@@ -200,7 +200,7 @@ function get_countrycode_by_ip($ipaddr = false)
  * See <get_ip_address>
  * @return string Country name or empty string if unknown
  * 
- * @suppress PHP0417,PHP0415
+ * @suppress PHP0417,PHP0415,PHP0443
  */
 function get_countryname_by_ip()
 {
