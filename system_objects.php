@@ -534,11 +534,10 @@ class WdfDbException extends WdfException
     
     private static function _prepare(string $message, ?Model\ResultSet $statement = null)
     {
-        $errid = uniqid();
         if( isDev() )
-            $msg = "SQL Error ($errid): $message";
+            $msg = "SQL Error: $message";
         else
-            $msg = "SQL Error occured. Please contact the technical team and tell them this error ID: $errid";
+            $msg = "SQL Error occured";
         
         if( $statement )
         {
@@ -564,7 +563,7 @@ class WdfDbException extends WdfException
             $args = $statement->GetArgs();
             $msql = $trim_sql($statement->GetMergedSql());
             
-            $details = "SQL Error $errid\nMessage: $message\nSQL: $sql";
+            $details = "Message: $message\nSQL: $sql";
             if( $args && count($args) )
                 $details .= "\nArguments: ".json_encode($args);
             if( $msql != $sql )

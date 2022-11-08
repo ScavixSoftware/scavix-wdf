@@ -602,15 +602,17 @@ function system_exit($result=null,$die=true)
  * for more about this.
  * Note: This function will call `system_exit()`!
  * @param string $reason The reason as human readable and hopefully understandable text
- * @param string $additional_message More details to be logged
+ * @param string $details_internal More details to be logged
  * @param bool $log_error If true logs error to files, else just die
  * @return void
  */
-function system_die($reason,$additional_message='',$log_error=true)
+function system_die($reason,$details_internal='',$log_error=true)
 {
+	$details_internal = '';
 	if( $reason instanceof Exception )
 	{
 		$stacktrace = ($reason instanceof WdfException)?$reason->getTraceEx():$reason->getTrace();
+		$details_internal = (($reason instanceof WdfException) && avail($reason, 'details'))?"\n".$reason->details:'';
 		$reason = logging_render_var($reason);
 	}
 
@@ -629,14 +631,14 @@ function system_die($reason,$additional_message='',$log_error=true)
     if( $log_error )
     {
         if( function_exists('log_fatal') )
-            log_fatal('Fatal system error (ErrorID: '.$errid.')'."\n".$reason."\n".$additional_message."\n".system_stacktrace_to_string($stacktrace));
+            log_fatal('Fatal system error (ErrorID: '.$errid.')'."\n".$reason.$details_internal."\n".system_stacktrace_to_string($stacktrace));
         else
-            error_log('Fatal system error (ErrorID: '.$errid.')'."\n".$reason."\n".$additional_message."\n".system_stacktrace_to_string($stacktrace));
+            error_log('Fatal system error (ErrorID: '.$errid.')'."\n".$reason.$details_internal."\n".system_stacktrace_to_string($stacktrace));
     }
     if( PHP_SAPI == 'cli' )
     {
         if(isDev())
-            $res = 'Fatal system error (ErrorID: '.$errid.')'."\n".$reason."\n".$additional_message."\n".system_stacktrace_to_string($stacktrace);
+            $res = 'Fatal system error (ErrorID: '.$errid.')'."\n".$reason.$details_internal."\n".system_stacktrace_to_string($stacktrace);
         else
             $res = 'Oh no! A fatal system error occured. Please try again. Contact our technical support if this problem occurs again (ErrorID: '.$errid.')';
 		system_exit("$res\n");
@@ -644,7 +646,7 @@ function system_die($reason,$additional_message='',$log_error=true)
     elseif( system_is_ajax_call() )
 	{
         if(isDev())
-            $res = AjaxResponse::Error('Fatal system error (ErrorID: '.$errid.')'."\n".$reason."\n".$additional_message."\n".system_stacktrace_to_string($stacktrace),true);
+            $res = AjaxResponse::Error('Fatal system error (ErrorID: '.$errid.')'."\n".$reason.$details_internal."\n".system_stacktrace_to_string($stacktrace),true);
         else
             $res = AjaxResponse::Error('Oh no! A fatal system error occured. Please try again. Contact our technical support if this problem occurs again (ErrorID: '.$errid.')',true);
 		system_exit($res->Render());
@@ -653,9 +655,9 @@ function system_die($reason,$additional_message='',$log_error=true)
 	{
 		$res  = "<html><head><style> * { font-family: Arial,sans-serif; } body { margin: 20px; } </style><title>Fatal system error</title></head>";
 		$res .= "<body>";
-		$res .= "<h1>Oh no! A fatal system error occured...</h1>";
+		$res .= "<h1>Oh no! A fatal system error occured... :-(</h1>";
 		if(isDev())
-			$res .= "ErrorID: {$errid}<br/><pre>$reason</pre><pre>$additional_message</pre><pre>".system_stacktrace_to_string($stacktrace)."</pre>";
+			$res .= "Error ID: {$errid}<br/><pre>$reason</pre>".($details_internal ? "<pre>$details_internal</pre>" : '')."<pre>".system_stacktrace_to_string($stacktrace)."</pre>";
 		else
             $res .= "<br/>Please try again.<br/>Contact our technical support if this problem occurs again (ErrorID: {$errid}).<br/><br/>Apologies for any inconveniences this may have caused you.";
 		$res .= "</body></html>";
