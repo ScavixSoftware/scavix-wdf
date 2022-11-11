@@ -106,6 +106,7 @@ class JSMin {
    *      ACTION_KEEP_A      Output A. Copy B to A. Get the next B.
    *      ACTION_DELETE_A    Copy B to A. Get the next B. (Delete A).
    *      ACTION_DELETE_A_B  Get the next B. (Delete B).
+   * @suppress PHP1404
   */
   protected function action($command) {
     switch($command) {
