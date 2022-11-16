@@ -50,16 +50,18 @@ class OAuthStorageModel extends Model
     {
         $this->_ds->ExecuteSql(
             "CREATE TABLE IF NOT EXISTS `wdf_oauthstore` (
-                `local_id` int NULL DEFAULT NULL,
-                `provider` VARCHAR(255) NULL DEFAULT NULL,
+                `local_id` INT(11) NOT NULL,
+                `provider` VARCHAR(255) NOT NULL,
                 `identifier` VARCHAR(255) NULL DEFAULT NULL,
                 `access_token` TEXT NULL DEFAULT NULL,
                 `refresh_token` TEXT NULL DEFAULT NULL,
+                `created` TIMESTAMP NULL DEFAULT current_timestamp(),
                 `expires` TIMESTAMP NULL DEFAULT NULL,
+                `deleted` TIMESTAMP NULL DEFAULT NULL,
                 `resource_owner_id` TEXT NULL DEFAULT NULL,
                 `data` TEXT NULL DEFAULT NULL,
                 `owner_data` TEXT NULL DEFAULT NULL,
-                PRIMARY KEY (`local_id`,`provider`)
+                PRIMARY KEY (`local_id`, `provider`) USING BTREE
             );");
     }
     
@@ -103,7 +105,7 @@ class OAuthStorageModel extends Model
     {
         $this->_ds->ExecuteSql(
             "DELETE FROM wdf_oauthstore WHERE provider=? AND local_id=?",
-            [$this->provider,$this->local_id]
+            [$this->provider,$new_local_id]
         );
         $this->_ds->ExecuteSql(
             "UPDATE wdf_oauthstore SET local_id=? WHERE provider=? AND identifier=? AND local_id=?",
