@@ -84,6 +84,7 @@ class DateTimeFormatSelect extends Select
 				$this->AddOption(json_encode(array($d,$t)), $sv);
 			}
 		}
+		store_object($this);
 	}
 	
 	/**

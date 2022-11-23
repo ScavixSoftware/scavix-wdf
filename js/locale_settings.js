@@ -49,10 +49,11 @@ var Locale_Settings_Init = function()
 		var lang = $(this);
 		$('select[data-role="region"]').each( function()
 		{
-			var reg = $(this);
-			$.post(q(this,'ListOptions'),{language:lang.val()},function(d){reg.html(d).change();} );
+			var sel = $(this);
+			var prevval = sel.val();
+			$.post(q(this, 'ListOptions'), { language: lang.val() }, function (d) { sel.html(d); if (sel.find('option[value="' + prevval + '"]').length) { sel.val(prevval); }; sel.change(); } );
 		});
-	});
+	}).change();
 	
 	$('select[data-role="region"]').change(function()
 	{
@@ -62,20 +63,22 @@ var Locale_Settings_Init = function()
 			cc += "-"+reg.val();
 		$('select[data-role="datetimeformat"]').each( function()
 		{
-			var dtf = $(this);
-			$.post(q(this,'ListOptions'),{culture_code:cc},function(d){dtf.html(d).change();} );
+			var sel = $(this);
+			var prevval = sel.val();
+			$.post(q(this,'ListOptions'),{culture_code:cc},function(d){ sel.html(d); if (sel.find('option[value="' + prevval + '"]').length) { sel.val(prevval); }; sel.change(); } );
 		});
-	});
+	}).change();
 	
 	$('select[data-role="currency"]').change(function()
 	{
 		var cur = $(this);
 		$('select[data-role="currenyformat"]').each( function()
 		{
-			var fmt = $(this);
-			$.post(q(this,'ListOptions'),{currency:cur.val()},function(d){fmt.html(d);} );
+			var sel = $(this);
+			var prevval = sel.val();
+			$.post(q(this,'ListOptions'),{currency:cur.val()},function(d){ sel.html(d); if (sel.find('option[value="' + prevval + '"]').length) { sel.val(prevval); }; } );
 		});
-	});
+	}).change();
 	
 	$('select[data-role="datetimeformat"]').change(function()
 	{

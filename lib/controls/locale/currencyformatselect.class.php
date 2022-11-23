@@ -57,6 +57,7 @@ class CurrencyFormatSelect extends Select
 		$samples = $this->getCurrencySamples($currency_code,1234.56,true);
 		foreach($samples as $code => $label)
 			$this->AddOption($code, $label);
+		store_object($this);
 	}
 	
 	/**

@@ -64,6 +64,7 @@ class CurrencySelect extends Select
 			$ci = Localization::get_currency_culture($code);
 			$this->AddOption($code, "{$ci->CurrencyFormat->Code} ({$ci->CurrencyFormat->Symbol})");
 		}
+		store_object($this);
 	}
 }
 

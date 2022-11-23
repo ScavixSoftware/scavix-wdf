@@ -98,6 +98,8 @@ class RegionSelect extends Select
 			foreach($sorted as $code=>$item)
 				$this->AddOption($code, $item['name']);
 		}
+
+		store_object($this);
 	}
 	
 	/**

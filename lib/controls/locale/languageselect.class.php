@@ -65,6 +65,7 @@ class LanguageSelect extends Select
 			$lang = Localization::getLanguageCulture($code);
 			$this->AddOption($code, "{$lang->NativeName} ({$lang->EnglishName})");
 		}
+		store_object($this);
 	}
 }
 

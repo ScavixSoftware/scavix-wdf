@@ -73,6 +73,7 @@ class TimezoneSelect extends Select
             if($tz)
                 $this->setValue($tz);
         }
+        store_object($this);
 	}
 }
 
