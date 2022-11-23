@@ -130,7 +130,7 @@ class RegionSelect extends Select
 		$sorted = [];
 		foreach($regions as $code)
 			$sorted[$code] = array("name"=>getString("TXT_COUNTRY_".strtoupper($code)),"code" => $code);
-		uasort($sorted, "RegionSelect::compareCountryNames");
+		uasort($sorted, __CLASS__."::compareCountryNames");
 
 		$res = [];
 		foreach($sorted as $code=>$item)
