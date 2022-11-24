@@ -414,7 +414,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             $this->table->PagerPrefix = $div;
         }        
         $this->store();
-        $this->logSql("WdfRender");
+        // $this->logSql("WdfRender");
         return parent::WdfRender();
     }
     
@@ -799,7 +799,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
     
     function OnAddHeader($table, $row)
     {
-        $this->logSql("OnAddHeader");
+        // $this->logSql("OnAddHeader");
         $links = $columns = [];
         $choosemode = $this->gear_mode == self::GEAR_CHOOSE_OPTIONAL;
         
@@ -979,7 +979,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
         
         $this->extendInnerTable();
         $this->store();
-        $this->logSql("Sort");
+        // $this->logSql("Sort");
         return $this->table;
     }
     
