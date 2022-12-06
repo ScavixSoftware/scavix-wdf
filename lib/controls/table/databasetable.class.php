@@ -583,14 +583,15 @@ class DatabaseTable extends Table implements ICallable
 			if( isset($this->ColFormats[$i]) )
 			{
 				$ef = $ci->GetExcelFormat($this->ColFormats[$i]);
-				$col = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($i);
-//				log_debug($i, $col, $this->ColFormats[$i], $ef);
+				$col = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($i + 1);
+				// log_debug($i, $col, $this->ColFormats[$i], $ef);
 				$sheet->getStyle("$col$first_data_row:$col$row")
 					->getNumberFormat()
 					->setFormatCode($ef);
 			}
 		}
         $sheet->freezePane('A2');
+        $sheet->setSelectedCell('A1');
 		
         if( isset(self::$export_def[$format]['metadata']) && is_array(self::$export_def[$format]['metadata']) )
         {
