@@ -33,7 +33,6 @@ namespace ScavixWDF\Controls\Table;
 use PDO;
 use ScavixWDF\ICallable;
 use ScavixWDF\Localization\CultureInfo;
-use ScavixWDF\Model\DataSource;
 
 default_string("TXT_NO_DATA_FOUND","no data found");
 

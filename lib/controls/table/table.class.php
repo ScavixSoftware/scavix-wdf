@@ -319,12 +319,14 @@ class Table extends Control
 	 */
 	function PreRender($args=[])
 	{
-        $opts = array
-        (
-            'top_pager' => $this->ItemsPerPage && !$this->HidePager && $this->PagerAtTop,
-            'bottom_pager' => $this->ItemsPerPage && !$this->HidePager
-        );
-        $this->data('options',$opts);
+		if ($this->ItemsPerPage && !$this->HidePager)
+		{
+			$opts = [
+				'top_pager' => $this->ItemsPerPage && !$this->HidePager && $this->PagerAtTop,
+				'bottom_pager' => $this->ItemsPerPage && !$this->HidePager
+			];
+			$this->data('options',$opts);
+		}
         $this->script("wdf.tables.init('#{self}');");
 		if( isset($this->RowOptions['hoverclass']) && $this->RowOptions['hoverclass'] )
 		{

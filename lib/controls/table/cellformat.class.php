@@ -30,7 +30,6 @@
  */
 namespace ScavixWDF\Controls\Table;
 
-use ScavixWDF\Localization\CultureInfo;
 
 /**
  * Handles cell formatting in a <Table>.

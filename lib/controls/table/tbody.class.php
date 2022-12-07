@@ -212,7 +212,7 @@ class TBody extends Control
                     $this->header->onclick = "";
 
 				$speed = "500";
-				$func = "function(){ $('#{$this->table->id}').click(); wdf.debug('Click invoked'); }";
+				$func = "function(){ $('#{$this->table->id}').click(); }";
 				$func = "setTimeout(unescape(".json_encode("$('#{$this->table->id}').click();")."),$speed+10);";
                 $this->header->onclick = "$func $(this).siblings('tr').css('display') == 'none' ? $(this).siblings('tr').fadeIn($speed) : $(this).siblings('tr').fadeOut($speed);".$this->header->onclick;
 
