@@ -46,6 +46,7 @@ class Label extends Control
 	{
 		parent::__construct("label");
 		$this->content($name);
-		$this->for = ($for instanceof Control)?$for->id:$for;
+        if( $for )
+		    $this->for = ($for instanceof Control)?$for->id:$for;
 	}
 }
