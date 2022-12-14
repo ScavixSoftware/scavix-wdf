@@ -129,7 +129,7 @@ function browserDetails($user_agent=null, $key=null)
     $bd['name'] = implode(' ', array_filter(
         [
             ifavail($bd,'browser'),
-            ifavail($bd,'version'),
+            ((avail($bd,'version') && ($bd['version'] != '0.0')) ? $bd['version'] : ''),
             ifavail($bd,'platform'),
         ]));
 
