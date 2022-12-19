@@ -42,7 +42,7 @@ class Control extends Renderable
     /**
      * Tags that need a closing tag wether there's content or not.
      */
-    protected static $html_close_tag_needed = ['span'=>1,'textarea'=>1,'div'=>1,'td'=>1,'select'=>1,'audio'=>1,'iframe'=>1,'i'=>1,'video'=>1,'button'=>1];
+    protected static $html_close_tag_needed = ['span'=>1,'textarea'=>1,'div'=>1,'td'=>1,'select'=>1,'audio'=>1,'iframe'=>1,'i'=>1,'video'=>1,'button'=>1,'form'=>1];
 
     /**
      * Tags that will NOT be echoed when there's no content
