@@ -118,7 +118,7 @@ function browserDetails($user_agent=null, $key=null)
     $caps = Wdf::GetBuffer(__FUNCTION__)->get('caps',function()
     {
         $caps = new \phpbrowscap\Browscap(system_app_temp_dir('', false));
-        $caps->remoteIniUrl = "http://browscap.org/stream?q=Lite_PHP_BrowsCapINI";
+        $caps->remoteIniUrl = "https://browscap.org/stream?q=Lite_PHP_BrowsCapINI";
         return $caps;
     });
     $bd = array_change_key_case($caps->getBrowser($user_agent,true), CASE_LOWER);
@@ -129,7 +129,7 @@ function browserDetails($user_agent=null, $key=null)
     $bd['name'] = implode(' ', array_filter(
         [
             ifavail($bd,'browser'),
-            ifavail($bd,'version'),
+            ((avail($bd,'version') && ($bd['version'] != '0.0')) ? $bd['version'] : ''),
             ifavail($bd,'platform'),
         ]));
 

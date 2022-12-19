@@ -69,6 +69,8 @@ class CurrencyFormat
 	 */
 	function Format($amount, $use_plain=false, $only_value=false)
 	{
+		if (!$amount)
+			$amount = 0;
 		if( $only_value )
         {
             $val = number_format($amount,$this->DecimalDigits,$this->DecimalSeparator,$this->GroupSeparator);
