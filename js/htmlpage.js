@@ -326,8 +326,27 @@
                             for(var i=0; i<s.data.length; i++)
                                 tmp[s.data[i].name] = s.data[i].value;
                             s.data = tmp;
+                            s.data.request_id = wdf.request_id;
                         }
-                        s.data.request_id = wdf.request_id;
+                        else if (s.data.jsonBody)
+                        {
+                            s.data.request_id = wdf.request_id;
+                            var data = new URLSearchParams();
+                            for (var n in s.data)
+                                if (n != 'jsonBody')
+                                    data.append(n, s.data[n]);
+                            s.contentType = 'application/json';
+                            s.data = JSON.stringify(s.data.jsonBody);
+                            if (data.entries.length > 0)
+                            {
+                                if (s.url.indexOf('?') >= 0)
+                                    s.url += "&" + data.toString();
+                                else
+                                    s.url += "?" + data.toString();
+                            }   
+                        }
+                        else
+                            s.data.request_id = wdf.request_id;
 
                         if( wdf.settings.session_name && wdf.settings.session_id )
                         {
@@ -810,7 +829,7 @@
                 constructor()
                 {
                     super();
-
+                    
                     this.lifecycle = 
                     {
                         'wdf-onconnected': function()
@@ -822,7 +841,7 @@
                                 this.id = this.autoId();
                                 this.setAttribute('id',this.id);
                             }
-                            if( typeof this.onReady === 'function' )
+                            if (typeof this.onReady === 'function')
                                 this.onReady();
                         }
                     };
@@ -834,7 +853,12 @@
                     {
                         case 'undefined': break;
                         case 'function':
-                            this.lifecycle[name].call(this);
+                            let me = this;
+                            wdf.defer(() => {
+                                me.lifecycle[name].call(me);
+                                this.lifecycle[name] = true;
+                            });
+                            break;
                         default: 
                             this.lifecycle[name] = true;
                             return;
