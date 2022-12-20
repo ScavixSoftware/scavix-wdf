@@ -712,9 +712,13 @@
                 {
                     return $toast.position({my:'center bottom',at:'center bottom-50px',of:window}).hide().go();
                 },
-                below: function(element)
+                below: function(element,edge='left')
                 {
-                    return $toast.position({my:'left top',at:'left bottom+5px',of:$(element).last()}).hide().go();
+                    return $toast.position({my:edge+' top',at:edge+' bottom+5px',of:$(element).last()}).hide().go();
+                },
+                leftOf: function(element)
+                {
+                    return $toast.position({my:'right center',at:'left-5px center',of:$(element).last()}).hide().go();
                 },
                 rightOf: function(element)
                 {
