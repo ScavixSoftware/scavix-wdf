@@ -40,7 +40,7 @@ class uiMessage extends uiControl
 	var $sub;
     var $messages = [];
 	
-	function __construct($message,$type='highlight',$closeable=true)
+	function __construct($message,$type='highlight',$closeable=true,$autoclose=false)
 	{
 		parent::__construct('div');
 		$this->class = "ui-widget ui-message";
@@ -51,6 +51,12 @@ class uiMessage extends uiControl
 		
 		$this->sub = $this->content( new Control('div') );
 		$this->sub->class = "ui-state-$type ui-corner-all";
+        if($autoclose)
+        {
+            if ($autoclose === true)
+                $autoclose = 10;
+            $this->sub->script("setTimeout(function() { $('#".$this->sub->id."').parent().slideUp('fast', function(){ $(this).remove(); }); }, ".intval($autoclose)."*1000);");
+        }
         if($closeable)
             $this->sub->content("<span class='ui-icon ui-icon-close' onclick=\"$(this).parent().parent().slideUp('fast', function(){ $(this).remove(); })\"></span>");
 		$this->sub->content("<p><span class='ui-icon ui-icon-$icon'></span>$message</p>");
@@ -66,9 +72,9 @@ class uiMessage extends uiControl
      * @param bool $closeable Display close button true|false
 	 * @return static A new uiMessage 
 	 */
-	static function Hint($message,$closeable=true)
+	static function Hint($message,$closeable=true,$autoclose=false)
 	{
-		return new uiMessage($message,'highlight',$closeable);
+		return new uiMessage($message,'highlight',$closeable,$autoclose);
 	}
 	
 	/**
@@ -78,9 +84,9 @@ class uiMessage extends uiControl
      * @param bool $closeable Display close button true|false
 	 * @return static A new uiMessage 
 	 */
-	static function Error($message,$closeable=true)
+	static function Error($message,$closeable=true,$autoclose=false)
 	{
-		return new uiMessage($message,'error',$closeable);
+		return new uiMessage($message,'error',$closeable,$autoclose);
 	}
 	
     /**
