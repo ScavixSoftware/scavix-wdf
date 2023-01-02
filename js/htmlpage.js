@@ -423,7 +423,7 @@
                                 }
                             }
 
-                            var param = json_result ? (json_result.html ? json_result.html : json_result) : null;
+                            var param = json_result ? (typeof(json_result.html)!='undefined' ? json_result.html : json_result) : null;
                             if( s.original_success || param )
                             {
                                 var wp = ajax_obj.wait();
