@@ -1454,7 +1454,7 @@ function system_app_temp_dir($subfolder = '', $appendnc = true)
  */
 function system_mime_map()
 {
-    return $mime_map = [
+    return [
         'video/3gpp2'                                                               => '3g2',
         'video/3gp'                                                                 => '3gp',
         'video/3gpp'                                                                => '3gp',
@@ -1528,7 +1528,8 @@ function system_mime_map()
         'video/mj2'                                                                 => 'jp2',
         'image/jpx'                                                                 => 'jp2',
         'image/jpm'                                                                 => 'jp2',
-        'image/jpeg'                                                                => 'jpeg',
+        'image/jpeg'                                                                => 'jpg',
+        // 'image/jpeg'                                                                => 'jpeg',
         'image/pjpeg'                                                               => 'jpeg',
         'application/x-javascript'                                                  => 'js',
         'application/json'                                                          => 'json',
@@ -1582,8 +1583,8 @@ function system_mime_map()
         'image/vnd.adobe.photoshop'                                                 => 'psd',
         'audio/x-realaudio'                                                         => 'ra',
         'audio/x-pn-realaudio'                                                      => 'ram',
-        'application/x-rar'                                                         => 'rar',
         'application/rar'                                                           => 'rar',
+        'application/x-rar'                                                         => 'rar',
         'application/x-rar-compressed'                                              => 'rar',
         'audio/x-pn-realaudio-plugin'                                               => 'rpm',
         'application/x-pkcs7'                                                       => 'rsa',
@@ -1602,9 +1603,9 @@ function system_mime_map()
         'text/x-vcard'                                                              => 'vcf',
         'application/videolan'                                                      => 'vlc',
         'text/vtt'                                                                  => 'vtt',
+        'audio/wav'                                                                 => 'wav',
         'audio/x-wav'                                                               => 'wav',
         'audio/wave'                                                                => 'wav',
-        'audio/wav'                                                                 => 'wav',
         'application/wbxml'                                                         => 'wbxml',
         'video/webm'                                                                => 'webm',
         'audio/x-ms-wma'                                                            => 'wma',
@@ -1627,8 +1628,8 @@ function system_mime_map()
         'text/xsl'                                                                  => 'xsl',
         'application/xspf+xml'                                                      => 'xspf',
         'application/x-compress'                                                    => 'z',
-        'application/x-zip'                                                         => 'zip',
         'application/zip'                                                           => 'zip',
+        'application/x-zip'                                                         => 'zip',
         'application/x-zip-compressed'                                              => 'zip',
         'application/s-compressed'                                                  => 'zip',
         'multipart/x-zip'                                                           => 'zip',
