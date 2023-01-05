@@ -57,6 +57,22 @@ define("ENVIRONMENT_LIVE",'live');
 if( !isset($_ENV['CURRENT_ENVIRONMENT']) )
     $_ENV['CURRENT_ENVIRONMENT'] = ENVIRONMENT_LIVE;
 
+function detectEnvironment($directory)
+{
+    // auto-detect DEV system: Check the filesystem up to '/' (max 10 folders away) for a file named '.scavixwdf.dev'
+    $i = 0;
+    do
+    {
+        $p = isset($p) ? dirname($p) : realpath($directory);
+        if( file_exists($p.(dirname($p)==$p?'':'/').".scavixwdf.dev") )
+        {
+            switchToDev();
+            break;
+        }
+    }
+    while (dirname($p) != $p && $i++<10);
+}
+
 /**
  * Sets the environment
  * 

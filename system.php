@@ -94,6 +94,8 @@ function system_config($filename,$reset_to_defaults=true)
 	global $CONFIG;
 	if( $reset_to_defaults )
 		system_config_default();
+
+    detectEnvironment(dirname($filename));
 	require_once($filename);
 }
 
@@ -305,7 +307,7 @@ function system_init($application_name, $skip_header = false, $logging_category=
 	{
 		$_SERVER['SCRIPT_URI'] = $_SERVER['SERVER_NAME'].$_SERVER['SCRIPT_NAME'];
 	}
-    
+
 	execute_hooks(HOOK_POST_INIT);
 }
 
@@ -608,7 +610,7 @@ function system_exit($result=null,$die=true)
  */
 function system_die($reason,$details_internal='',$log_error=true)
 {
-	$details_internal = '';
+    $details_internal = '';
 	if( $reason instanceof Exception )
 	{
 		$stacktrace = ($reason instanceof WdfException)?$reason->getTraceEx():$reason->getTrace();
@@ -619,14 +621,6 @@ function system_die($reason,$details_internal='',$log_error=true)
 	if( !isset($stacktrace) )
 		$stacktrace = debug_backtrace();
 
-	if( isset(Wdf::$Hooks[HOOK_SYSTEM_DIE]) && count(Wdf::$Hooks[HOOK_SYSTEM_DIE]) > 0 )
-	{
-		execute_hooks(HOOK_SYSTEM_DIE,array(
-			$reason,
-			$stacktrace
-		));
-	}
-
     $errid = uniqid();
     if( $log_error )
     {
@@ -635,6 +629,13 @@ function system_die($reason,$details_internal='',$log_error=true)
         else
             error_log('Fatal system error (ErrorID: '.$errid.')'."\n".$reason.$details_internal."\n".system_stacktrace_to_string($stacktrace));
     }
+    if( isset(Wdf::$Hooks[HOOK_SYSTEM_DIE]) && count(Wdf::$Hooks[HOOK_SYSTEM_DIE]) > 0 )
+	{
+		execute_hooks(HOOK_SYSTEM_DIE,array(
+			$reason,
+			$stacktrace
+		));
+	}
     if( PHP_SAPI == 'cli' )
     {
         if(isDev())
