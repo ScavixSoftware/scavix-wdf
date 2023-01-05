@@ -43,7 +43,7 @@ function ip2location_init()
 		WdfException::Raise("ip2location module: missing database BIN file. Get it from https://lite.ip2location.com/ip2location-lite");
     
 	if( !isset($CONFIG['ip2location']['autoload_file']) || !file_exists($CONFIG['ip2location']['autoload_file']) )
-		WdfException::Raise("ip2location module: autoload.php");
+		WdfException::Raise("ip2location module: missing autoloader at '".ifavail($CONFIG['ip2location'],'autoload_file')."'");
     
     require_once($CONFIG['ip2location']['autoload_file']);
 }

@@ -150,7 +150,8 @@ function equals(&$o1, &$o2, $compare_classes=true)
  */
 function session_sanitize()
 {
-	return Wdf::$SessionHandler->Sanitize();
+    if (isset(Wdf::$SessionHandler) && is_object(Wdf::$SessionHandler))
+	    return Wdf::$SessionHandler->Sanitize();
 }
 
 /**
@@ -160,7 +161,8 @@ function session_sanitize()
  */
 function session_kill_all()
 {
-	Wdf::$SessionHandler->KillAll();
+    if (isset(Wdf::$SessionHandler) && is_object(Wdf::$SessionHandler))
+	    Wdf::$SessionHandler->KillAll();
 }
 
 /**
@@ -168,7 +170,8 @@ function session_kill_all()
  */
 function session_keep_alive($request_key='PING')
 {
-	return Wdf::$SessionHandler->KeepAlive($request_key);
+    if (isset(Wdf::$SessionHandler) && is_object(Wdf::$SessionHandler))
+	    return Wdf::$SessionHandler->KeepAlive($request_key);
 }
 
 /**
@@ -190,7 +193,7 @@ function session_update($keep_alive=false)
 
         Wdf::$ObjectStore->Update($keep_alive);
     }
-    if(Wdf::$SessionHandler)
+    if (isset(Wdf::$SessionHandler) && is_object(Wdf::$SessionHandler))
         return Wdf::$SessionHandler->Update();
     return false;
 }
@@ -200,7 +203,9 @@ function session_update($keep_alive=false)
  */
 function request_id()
 {
-	return Wdf::$SessionHandler->RequestId();
+    if (isset(Wdf::$SessionHandler) && is_object(Wdf::$SessionHandler))
+        return Wdf::$SessionHandler->RequestId();
+    return md5("".microtime(true));
 }
 
 /**
@@ -258,7 +263,9 @@ function create_storage_id(&$obj)
  */
 function regenerate_session_id()
 {
-	return Wdf::$SessionHandler->RegenerateId();
+    if( isset(Wdf::$SessionHandler) && is_object(Wdf::$SessionHandler) )
+	    return Wdf::$SessionHandler->RegenerateId();
+    return false;
 }
 
 /**
@@ -266,7 +273,9 @@ function regenerate_session_id()
  */
 function generate_session_id()
 {
-	return Wdf::$SessionHandler->GenerateSessionId();
+    if( isset(Wdf::$SessionHandler) && is_object(Wdf::$SessionHandler) )
+	    return Wdf::$SessionHandler->GenerateSessionId();
+    return md5(time() . random_int(10000, 99999));
 }
 
 /**
