@@ -225,6 +225,20 @@ class PhpDocComment
 			return false;
 		return $tag[0]->desc;
 	}
+
+    function getTagValues($name)
+    {
+        return array_map(function ($t)
+        {
+            return $t->val;
+        }, $this->getTag($name, array('val')));
+    }
+
+    function getTags($name, $scheme)
+    {
+        return $this->getTag($name, $scheme);
+    }
+
 	
 	/**
 	 * Lists all param docs

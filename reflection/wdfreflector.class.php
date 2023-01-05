@@ -208,7 +208,7 @@ class WdfReflector extends ReflectionClass
 				$attr = $name."Attribute()";
 			}
 
-			if( !__search_file_for_class($name."Attribute") )
+			if( !class_exists(fq_class_name($name."Attribute")) && !__search_file_for_class($name."Attribute") )
 			{
 				if( $name!='NoMinify' )
 					log_trace("Invalid Attribute: $m ({$name}Attribute) found in Comment '$comment'");
