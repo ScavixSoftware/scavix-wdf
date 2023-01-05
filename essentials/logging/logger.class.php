@@ -131,8 +131,14 @@ class Logger
 	
 	protected function ensureFile()
 	{
+        $touch = function ()
+        {
+            if (!@file_exists($this->filename))
+                @touch($this->filename);
+        };
+        
 		if( isset($this->filename) && $this->filename )
-			return;
+			return $touch();
 
 		if( !isset($this->filename_pattern) || !$this->filename_pattern )
 			$this->filename = ini_get('error_log');
@@ -140,7 +146,7 @@ class Logger
 		{
 			$this->filename = $this->path.'/'.$this->filename_pattern;
 			if( !preg_match_all('/{(.+)}/U', $this->filename_pattern, $matches, PREG_SET_ORDER) )
-				return;
+				return $touch();
 
 			foreach( $matches as $m )
 			{
@@ -158,6 +164,7 @@ class Logger
 				}
 			}
 		}
+        $touch();
 	}
 	
     /**
