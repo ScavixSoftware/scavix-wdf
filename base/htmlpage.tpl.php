@@ -58,7 +58,7 @@ $(function(){
 <?php if( count($docready) > 0 ): ?>
 	wdf.ready.add(function()
 	{
-	<?=implode((isDev() ? "\n" : ""),$docready);?>
+	<?=implode("\n",$docready);?>
 <? if( isset($_SESSION['wdf_translator_mode']) && $_SESSION['wdf_translator_mode'] && isset($GLOBALS['translation']['strings']) ):
     $translations = cache_get('wdf_translator_strings', false);
     if(!$translations)

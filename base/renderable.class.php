@@ -136,6 +136,9 @@ abstract class Renderable implements \JsonSerializable
         return ['class'=> get_class($this),'id'=>$this->_storage_id,'parent'=>$this->_parent,'content'=>isset($this->content)?$this->content:null];
     }
     
+	/**
+	 * @return string
+	 */
     function __toString()
     {
         $p = is_object($this->_parent)?$this->_parent->_storage_id:'';
