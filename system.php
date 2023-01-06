@@ -586,9 +586,13 @@ function system_exit($result=null,$die=true)
 			$response = __translate($result);
 	}
 
-    translation_add_unknown_strings();
-	model_store();
-	session_update();
+    if( function_exists('translation_add_unknown_strings') )
+        translation_add_unknown_strings();
+    if( function_exists('model_store') )
+        model_store();
+    if( function_exists('session_update') )
+        session_update();
+        
 	execute_hooks(HOOK_PRE_FINISH,array($response));
 	
 	if( $die )

@@ -58,7 +58,10 @@ function resources_init()
 		$CONFIG['resources'][$i]['url'] = $CONFIG['system']['url_root'].$conf['url'];
 	}
     
-    $path = Phar::running()?:realpath(__DIR__."/../");
+    if(class_exists('Phar'))
+        $path = Phar::running()?:realpath(__DIR__."/../");
+    else
+        $path = realpath(__DIR__."/../");
 	
 	$CONFIG['resources'][] = array
 	(

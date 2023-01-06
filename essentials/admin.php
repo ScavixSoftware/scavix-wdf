@@ -43,7 +43,7 @@ function admin_init()
         
         if( (!isset($CONFIG['system']['admin']['credentials']) || count($CONFIG['system']['admin']['credentials']) == 0 )
 		    &&
-            (!$CONFIG['system']['admin']['username'] || !$CONFIG['system']['admin']['username'])
+            (!$CONFIG['system']['admin']['username'] || !$CONFIG['system']['admin']['password'])
           )
 			WdfException::Raise("System admin needs username and password to be set!");
 		
