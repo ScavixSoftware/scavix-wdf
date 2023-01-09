@@ -1,10 +1,9 @@
 <?php
 /**
-* This file is part of project "MyTeambook"
-* Copyright (c) since 2020 Scavix Software GmbH & Co. KG
+* Copyright (c) since 2022 Scavix Software GmbH & Co. KG
 *
 * @author Scavix Software GmbH & Co. KG https://www.scavix.com <info@scavix.com>
-* @copyright since 2020 Scavix Software GmbH & Co. KG
+* @copyright since 2022 Scavix Software GmbH & Co. KG
 */
 namespace ScavixWDF\Controls\Form;
 
