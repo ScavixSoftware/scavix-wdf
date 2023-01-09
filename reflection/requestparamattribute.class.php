@@ -84,7 +84,7 @@ class RequestParamAttribute extends WdfAttribute
 	 * @param array $data Combined request data
 	 * @param array $args resulting typed values
      * @param bool $is_last TRUE if this is the last arguement (used for nameless argument passing)
-	 * @return boolean|string true if everything went fine, an error string if not
+	 * @return bool|string true if everything went fine, an error string if not
 	 */
 	function UpdateArgs($data, &$args, $is_last = false)
 	{		

@@ -236,7 +236,7 @@ class CultureInfo
 	 * 
 	 * Sample: 'en' is parent of 'en-US'
 	 * @param mixed $child Culture code or <CultureInfo> object
-	 * @return boolean true or false
+	 * @return bool true or false
 	 */
 	function IsParentOf($child)
 	{

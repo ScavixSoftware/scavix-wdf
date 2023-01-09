@@ -89,7 +89,7 @@ function creditcard_getnames()
  * @param string $cardname Card name
  * @param int $errornumber <b>OUT</b> The error number
  * @param string $errortext <b>OUT</b> The error message
- * @return boolean true or false
+ * @return bool true or false
  */
 function creditcard_check ($cardnumber, $cardname, &$errornumber, &$errortext) {
 

@@ -242,7 +242,7 @@ class SMTP
      * @param integer $timeout How long to wait for the connection to open
      * @param array $options An array of options for stream_context_create()
      * @access public
-     * @return boolean
+     * @return bool
      */
     public function connect($host, $port = null, $timeout = 30, $options = [])
     {
@@ -329,7 +329,7 @@ class SMTP
     /**
      * Initiate a TLS (encrypted) session.
      * @access public
-     * @return boolean
+     * @return bool
      */
     public function startTLS()
     {
@@ -561,7 +561,7 @@ class SMTP
     /**
      * Check connection state.
      * @access public
-     * @return boolean True if connected.
+     * @return bool True if connected.
      */
     public function connected()
     {
@@ -611,7 +611,7 @@ class SMTP
      * Implements rfc 821: DATA <CRLF>
      * @param string $msg_data Message data to send
      * @access public
-     * @return boolean
+     * @return bool
      */
     public function data($msg_data)
     {
@@ -700,7 +700,7 @@ class SMTP
      * and RFC 2821 EHLO.
      * @param string $host The host name or IP to connect to
      * @access public
-     * @return boolean
+     * @return bool
      */
     public function hello($host = '')
     {
@@ -715,7 +715,7 @@ class SMTP
      * @param string $hello The HELO string
      * @param string $host The hostname to say we are
      * @access protected
-     * @return boolean
+     * @return bool
      */
     protected function sendHello($hello, $host)
     {
@@ -780,7 +780,7 @@ class SMTP
      * Implements rfc 821: MAIL <SP> FROM:<reverse-path> <CRLF>
      * @param string $from Source address of this message
      * @access public
-     * @return boolean
+     * @return bool
      */
     public function mail($from)
     {
@@ -798,7 +798,7 @@ class SMTP
      * Implements from rfc 821: QUIT <CRLF>
      * @param boolean $close_on_error Should the connection close if an error occurs?
      * @access public
-     * @return boolean
+     * @return bool
      */
     public function quit($close_on_error = true)
     {
@@ -818,7 +818,7 @@ class SMTP
      * Implements from rfc 821: RCPT <SP> TO:<forward-path> <CRLF>
      * @param string $address The address the message is being sent to
      * @access public
-     * @return boolean
+     * @return bool
      */
     public function recipient($address)
     {
@@ -834,7 +834,7 @@ class SMTP
      * Abort any transaction that is currently in progress.
      * Implements rfc 821: RSET <CRLF>
      * @access public
-     * @return boolean True on success.
+     * @return bool True on success.
      */
     public function reset()
     {
@@ -847,7 +847,7 @@ class SMTP
      * @param string $commandstring The actual command to send
      * @param integer|array $expect One or more expected integer success codes
      * @access protected
-     * @return boolean True on success.
+     * @return bool True on success.
      */
     protected function sendCommand($command, $commandstring, $expect)
     {
@@ -912,7 +912,7 @@ class SMTP
      * Implements rfc 821: SAML <SP> FROM:<reverse-path> <CRLF>
      * @param string $from The address the message is from
      * @access public
-     * @return boolean
+     * @return bool
      */
     public function sendAndMail($from)
     {
@@ -923,7 +923,7 @@ class SMTP
      * Send an SMTP VRFY command.
      * @param string $name The name to verify
      * @access public
-     * @return boolean
+     * @return bool
      */
     public function verify($name)
     {
@@ -934,7 +934,7 @@ class SMTP
      * Send an SMTP NOOP command.
      * Used to keep keep-alives alive, doesn't actually do anything
      * @access public
-     * @return boolean
+     * @return bool
      */
     public function noop()
     {
@@ -948,7 +948,7 @@ class SMTP
      * and _may_ be implemented in future
      * Implements from rfc 821: TURN <CRLF>
      * @access public
-     * @return boolean
+     * @return bool
      */
     public function turn()
     {
@@ -1103,7 +1103,7 @@ class SMTP
 
     /**
      * Get VERP address generation mode.
-     * @return boolean
+     * @return bool
      */
     public function getVerp()
     {

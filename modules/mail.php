@@ -188,7 +188,7 @@ function mail_prepare($recipient,$subject,$message,$plainmessage="",$attachments
  * @param string $message The message (may be HTML formatted)
  * @param string $plainmessage Optional plain message (may differ from $message)
  * @param array $attachments Array of filenames to attach
- * @return boolean|string true on success or string on error
+ * @return bool|string true on success or string on error
  */
 function mail_send($recipient,$subject="",$message="",$plainmessage="",$attachments=[])
 {
@@ -229,7 +229,7 @@ function is_mail($string)
  * 
  * @param string $email Value to check
  * @param bool $check_dns_too If true will check the domain part for valid DNS records too
- * @return boolean true or false
+ * @return bool true or false
  */
 function mail_validate($email,$check_dns_too=true)
 {

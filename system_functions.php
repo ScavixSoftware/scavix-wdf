@@ -1154,7 +1154,7 @@ function sif($condition,$true_value,$false_value)
  *     log_debug("SysData",$a['system']['data']);
  * </code>
  * @param mixed ...$args Subject and path to check
- * @return boolean True if the requested data is available, else false
+ * @return bool True if the requested data is available, else false
  */
 function avail(...$args)
 {

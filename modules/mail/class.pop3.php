@@ -135,7 +135,7 @@ class POP3
      * @param string $username
      * @param string $password
      * @param integer $debug_level
-     * @return boolean
+     * @return bool
      */
     public static function popBeforeSmtp(
         $host,
@@ -160,7 +160,7 @@ class POP3
      * @param string $username
      * @param string $password
      * @param integer $debug_level
-     * @return boolean
+     * @return bool
      */
     public function authorise($host, $port = false, $timeout = false, $username = '', $password = '', $debug_level = 0)
     {
@@ -202,7 +202,7 @@ class POP3
      * @param string $host
      * @param integer|boolean $port
      * @param integer $tval
-     * @return boolean
+     * @return bool
      */
     public function connect($host, $port = false, $tval = 30)
     {
@@ -261,7 +261,7 @@ class POP3
      * @access public
      * @param string $username
      * @param string $password
-     * @return boolean
+     * @return bool
      */
     public function login($username = '', $password = '')
     {
@@ -342,7 +342,7 @@ class POP3
      * Checks the POP3 server response.
      * Looks for for +OK or -ERR.
      * @param string $string
-     * @return boolean
+     * @return bool
      * @access protected
      */
     protected function checkResponse($string)

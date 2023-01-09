@@ -525,7 +525,7 @@ class Localization
      * Converts 2-letter to 3-letter country codes and vice-versa.
      * 
      * @param string $country_code country code.
-     * @return boolean|string Returns 2-letter if 3-letter was given, or vice-versa, or false if invalid
+     * @return bool|string Returns 2-letter if 3-letter was given, or vice-versa, or false if invalid
      */
 	public static function convert_countrycode($country_code)
 	{

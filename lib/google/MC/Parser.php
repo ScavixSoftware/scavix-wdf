@@ -208,7 +208,7 @@ class MC_Parser {
     
     /**
      * Simple test for whether a character is a whitespace character
-     * @return boolean
+     * @return bool
      */
     public static function isWhitespace($test) {
         return (strpos(self::$whitespace, $test) !== false);

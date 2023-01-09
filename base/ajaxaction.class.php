@@ -127,7 +127,7 @@ class AjaxAction
 	 * 
 	 * See <AjaxAction::Confirm>
 	 * @param string $text_base Text base the user confirmed
-	 * @return boolean True if user clicked OK
+	 * @return bool True if user clicked OK
 	 */
 	public static function IsConfirmed($text_base)
 	{

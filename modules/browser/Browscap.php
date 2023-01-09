@@ -719,7 +719,7 @@ class Browscap
      *
      * @param $cache_file
      * 
-     * @return boolean
+     * @return bool
      */
     protected function _loadCache($cache_file)
     {

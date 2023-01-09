@@ -151,7 +151,7 @@ interface IShopOrder
 	
 	/**
 	 * Checks if VAT needs to be paid.
-	 * @return boolean true or false
+	 * @return bool true or false
 	 */
 	function DoAddVat();
 }

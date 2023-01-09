@@ -51,7 +51,7 @@ class PhpDocComment
 	 * 
 	 * See <WdfReflector::getCommentObject> for how to use this best.
 	 * @param string $comment Valid DocComment string
-	 * @return boolean|PhpDocComment False on error, else a PhpDocComment object
+	 * @return bool|PhpDocComment False on error, else a PhpDocComment object
 	 */
 	static function Parse($comment)
 	{

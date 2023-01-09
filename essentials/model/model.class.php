@@ -908,7 +908,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
      * Checks if a column has changed.
      * 
      * @param string $col Name of the column to check
-     * @return boolean true if changed, else false
+     * @return bool true if changed, else false
      */
     public function HasChanged($col)
     {
@@ -1577,7 +1577,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * All field values will be loaded from DB.
 	 * @param string $where WHERE-part of the SQL statement.
 	 * @param array|mixed $arguments Arguments used in $where
-	 * @return boolean true if dataset was found, else false
+	 * @return bool true if dataset was found, else false
 	 */
 	public function Load($where, $arguments=false)
 	{
@@ -1610,7 +1610,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 *
 	 * @param array $columns_to_update (Optional) If given only these fields will be updated. If not Model tries to detect changed columns automatically.
 	 * @param array $changed (Optional) Save will fill this array with all changes in the form ['name'=>['old','new'],...]
-	 * @return boolean In fact always true, WdfDbException will be thrown in error case
+	 * @return bool In fact always true, WdfDbException will be thrown in error case
 	 * @throws WdfDbException
 	 */
 	public function Save($columns_to_update=false, &$changed=null)
@@ -1670,7 +1670,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	/**
 	 * Deletes this model from the database.
 	 * 
-	 * @return boolean true or false
+	 * @return bool true or false
 	 */
 	public function Delete()
 	{

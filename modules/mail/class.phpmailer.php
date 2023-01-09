@@ -661,7 +661,7 @@ class PHPMailer
      * @param string $header Additional Header(s)
      * @param string $params Params
      * @access private
-     * @return boolean
+     * @return bool
      */
     private function mailPassthru($to, $subject, $body, $header, $params)
     {
@@ -790,7 +790,7 @@ class PHPMailer
      * Add a "To" address.
      * @param string $address The email address to send to
      * @param string $name
-     * @return boolean true on success, false if address already used or invalid in some way
+     * @return bool true on success, false if address already used or invalid in some way
      */
     public function addAddress($address, $name = '')
     {
@@ -802,7 +802,7 @@ class PHPMailer
      * @note: This function works with the SMTP mailer on win32, not with the "mail" mailer.
      * @param string $address The email address to send to
      * @param string $name
-     * @return boolean true on success, false if address already used or invalid in some way
+     * @return bool true on success, false if address already used or invalid in some way
      */
     public function addCC($address, $name = '')
     {
@@ -814,7 +814,7 @@ class PHPMailer
      * @note: This function works with the SMTP mailer on win32, not with the "mail" mailer.
      * @param string $address The email address to send to
      * @param string $name
-     * @return boolean true on success, false if address already used or invalid in some way
+     * @return bool true on success, false if address already used or invalid in some way
      */
     public function addBCC($address, $name = '')
     {
@@ -825,7 +825,7 @@ class PHPMailer
      * Add a "Reply-To" address.
      * @param string $address The email address to reply to
      * @param string $name
-     * @return boolean true on success, false if address already used or invalid in some way
+     * @return bool true on success, false if address already used or invalid in some way
      */
     public function addReplyTo($address, $name = '')
     {
@@ -841,7 +841,7 @@ class PHPMailer
      * @param string $address The email address to send, resp. to reply to
      * @param string $name
      * @throws phpmailerException
-     * @return boolean true on success, false if address already used or invalid in some way
+     * @return bool true on success, false if address already used or invalid in some way
      * @access protected
      */
     protected function addOrEnqueueAnAddress($kind, $address, $name)
@@ -885,7 +885,7 @@ class PHPMailer
      * @param string $address The email address to send, resp. to reply to
      * @param string $name
      * @throws phpmailerException
-     * @return boolean true on success, false if address already used or invalid in some way
+     * @return bool true on success, false if address already used or invalid in some way
      * @access protected
      */
     protected function addAnAddress($kind, $address, $name = '')
@@ -984,7 +984,7 @@ class PHPMailer
      * @param string $name
      * @param boolean $auto Whether to also set the Sender address, defaults to true
      * @throws phpmailerException
-     * @return boolean
+     * @return bool
      */
     public function setFrom($address, $name = '', $auto = true)
     {
@@ -1034,7 +1034,7 @@ class PHPMailer
      * * `php` Use PHP built-in FILTER_VALIDATE_EMAIL;
      * * `html5` Use the pattern given by the HTML5 spec for 'email' type form input elements.
      * * `noregex` Don't use a regex: super fast, really dumb.
-     * @return boolean
+     * @return bool
      * @static
      * @access public
      */
@@ -1169,7 +1169,7 @@ class PHPMailer
      * Create a message and send it.
      * Uses the sending method specified by $Mailer.
      * @throws phpmailerException
-     * @return boolean false on error - See the ErrorInfo property for details of the error.
+     * @return bool false on error - See the ErrorInfo property for details of the error.
      */
     public function send()
     {
@@ -1191,7 +1191,7 @@ class PHPMailer
     /**
      * Prepare a message for sending.
      * @throws phpmailerException
-     * @return boolean
+     * @return bool
      */
     public function preSend()
     {
@@ -1286,7 +1286,7 @@ class PHPMailer
      * Actually send a message.
      * Send the email via the selected mechanism
      * @throws phpmailerException
-     * @return boolean
+     * @return bool
      */
     public function postSend()
     {
@@ -1325,7 +1325,7 @@ class PHPMailer
      * @see PHPMailer::$Sendmail
      * @throws phpmailerException
      * @access protected
-     * @return boolean
+     * @return bool
      */
     protected function sendmailSend($header, $body)
     {
@@ -1394,7 +1394,7 @@ class PHPMailer
      * @link http://www.php.net/manual/en/book.mail.php
      * @throws phpmailerException
      * @access protected
-     * @return boolean
+     * @return bool
      */
     protected function mailSend($header, $body)
     {
@@ -1455,7 +1455,7 @@ class PHPMailer
      * @throws phpmailerException
      * @uses SMTP
      * @access protected
-     * @return boolean
+     * @return bool
      */
     protected function smtpSend($header, $body)
     {
@@ -1518,7 +1518,7 @@ class PHPMailer
      * @uses SMTP
      * @access public
      * @throws phpmailerException
-     * @return boolean
+     * @return bool
      */
     public function smtpConnect($options = [])
     {
@@ -1648,7 +1648,7 @@ class PHPMailer
      * The default language is English.
      * @param string $langcode ISO 639-1 2-character language code (e.g. French is "fr")
      * @param string $lang_path Path to the language file directory, with trailing separator (slash)
-     * @return boolean
+     * @return bool
      * @access public
      */
     public function setLanguage($langcode = 'en', $lang_path = '')
@@ -2387,7 +2387,7 @@ class PHPMailer
      * @param string $type File extension (MIME) type.
      * @param string $disposition Disposition to use
      * @throws phpmailerException
-     * @return boolean
+     * @return bool
      */
     public function addAttachment($path, $name = '', $encoding = 'base64', $type = '', $disposition = 'attachment')
     {
@@ -2710,7 +2710,7 @@ class PHPMailer
      * Check if a string contains multi-byte characters.
      * @access public
      * @param string $str multi-byte text to wrap encode
-     * @return boolean
+     * @return bool
      */
     public function hasMultiBytes($str)
     {
@@ -2724,7 +2724,7 @@ class PHPMailer
     /**
      * Does a string contain any 8-bit chars (in any charset)?
      * @param string $text
-     * @return boolean
+     * @return bool
      */
     public function has8bitChars($text)
     {
@@ -2913,7 +2913,7 @@ class PHPMailer
      * @param string $encoding File encoding (see $Encoding).
      * @param string $type File MIME type.
      * @param string $disposition Disposition to use
-     * @return boolean True on successfully adding an attachment
+     * @return bool True on successfully adding an attachment
      */
     public function addEmbeddedImage($path, $cid, $name = '', $encoding = 'base64', $type = '', $disposition = 'inline')
     {
@@ -2958,7 +2958,7 @@ class PHPMailer
      * @param string $encoding File encoding (see $Encoding).
      * @param string $type MIME type.
      * @param string $disposition Disposition to use
-     * @return boolean True on successfully adding an attachment
+     * @return bool True on successfully adding an attachment
      */
     public function addStringEmbeddedImage(
         $string,
@@ -2990,7 +2990,7 @@ class PHPMailer
     /**
      * Check if an inline attachment is present.
      * @access public
-     * @return boolean
+     * @return bool
      */
     public function inlineImageExists()
     {
@@ -3004,7 +3004,7 @@ class PHPMailer
 
     /**
      * Check if an attachment (non-inline) is present.
-     * @return boolean
+     * @return bool
      */
     public function attachmentExists()
     {
@@ -3018,7 +3018,7 @@ class PHPMailer
 
     /**
      * Check if this message has an alternative body set.
-     * @return boolean
+     * @return bool
      */
     public function alternativeExists()
     {
@@ -3212,7 +3212,7 @@ class PHPMailer
     /**
      * Check if an error occurred.
      * @access public
-     * @return boolean True if an error did occur.
+     * @return bool True if an error did occur.
      */
     public function isError()
     {
@@ -3564,7 +3564,7 @@ class PHPMailer
      * @access public
      * @param string $name The property name to set
      * @param mixed $value The value to set the property to
-     * @return boolean
+     * @return bool
      * @TODO Should this not be using the __set() magic function?
      */
     public function set($name, $value = '')
@@ -3784,7 +3784,7 @@ class PHPMailer
     /**
      * Detect if a string contains a line longer than the maximum line length allowed.
      * @param string $str
-     * @return boolean
+     * @return bool
      * @static
      */
     public static function hasLineLongerThanMax($str)

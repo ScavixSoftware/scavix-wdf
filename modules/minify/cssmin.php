@@ -201,7 +201,7 @@ abstract class aCssMinifierPlugin
 	 * Apply the plugin to the token.
 	 * 
 	 * @param aCssToken $token Token to process
-	 * @return boolean Return TRUE to break the processing of this token; FALSE to continue
+	 * @return bool Return TRUE to break the processing of this token; FALSE to continue
 	 */
 	abstract public function apply(aCssToken &$token);
 	/**
@@ -577,7 +577,7 @@ class CssVariablesMinifierPlugin extends aCssMinifierPlugin
 	 * Implements {@link aCssMinifierPlugin::minify()}.
 	 * 
 	 * @param aCssToken $token Token to process
-	 * @return boolean Return TRUE to break the processing of this token; FALSE to continue
+	 * @return bool Return TRUE to break the processing of this token; FALSE to continue
 	 */
 	public function apply(aCssToken &$token)
 		{
@@ -1589,7 +1589,7 @@ class CssParser
 	 * Returns if the current state equals the passed state.
 	 * 
 	 * @param integer $state State to compare with the current state
-	 * @return boolean TRUE is the state equals to the passed state; FALSE if not
+	 * @return bool TRUE is the state equals to the passed state; FALSE if not
 	 */
 	public function isState($state)
 		{
@@ -2209,7 +2209,7 @@ class CssMin
 	/**
 	 * Returns if there were errors.
 	 * 
-	 * @return boolean
+	 * @return bool
 	 */
 	public static function hasErrors()
 		{
@@ -2297,7 +2297,7 @@ class CssMin
 	 * --
 	 * 
 	 * @param boolean $to
-	 * @return boolean
+	 * @return bool
 	 */
 	public static function setVerbose($to)
 		{
@@ -2708,7 +2708,7 @@ class CssConvertRgbColorsMinifierPlugin extends aCssMinifierPlugin
 	 * Implements {@link aCssMinifierPlugin::minify()}.
 	 * 
 	 * @param aCssToken $token Token to process
-	 * @return boolean Return TRUE to break the processing of this token; FALSE to continue
+	 * @return bool Return TRUE to break the processing of this token; FALSE to continue
 	 */
 	public function apply(aCssToken &$token)
 		{
@@ -2943,7 +2943,7 @@ class CssConvertNamedColorsMinifierPlugin extends aCssMinifierPlugin
 	 * Implements {@link aCssMinifierPlugin::minify()}.
 	 * 
 	 * @param aCssToken $token Token to process
-	 * @return boolean Return TRUE to break the processing of this token; FALSE to continue
+	 * @return bool Return TRUE to break the processing of this token; FALSE to continue
 	 */
 	public function apply(aCssToken &$token)
 		{
@@ -3419,7 +3419,7 @@ class CssConvertHslColorsMinifierPlugin extends aCssMinifierPlugin
 	 * Implements {@link aCssMinifierPlugin::minify()}.
 	 * 
 	 * @param aCssToken $token Token to process
-	 * @return boolean Return TRUE to break the processing of this token; FALSE to continue
+	 * @return bool Return TRUE to break the processing of this token; FALSE to continue
 	 */
 	public function apply(aCssToken &$token)
 		{
@@ -3590,7 +3590,7 @@ class CssConvertFontWeightMinifierPlugin extends aCssMinifierPlugin
 	 * Implements {@link aCssMinifierPlugin::minify()}.
 	 * 
 	 * @param aCssToken $token Token to process
-	 * @return boolean Return TRUE to break the processing of this token; FALSE to continue
+	 * @return bool Return TRUE to break the processing of this token; FALSE to continue
 	 */
 	public function apply(aCssToken &$token)
 		{
@@ -3665,7 +3665,7 @@ class CssCompressUnitValuesMinifierPlugin extends aCssMinifierPlugin
 	 * Implements {@link aCssMinifierPlugin::minify()}.
 	 * 
 	 * @param aCssToken $token Token to process
-	 * @return boolean Return TRUE to break the processing of this token; FALSE to continue
+	 * @return bool Return TRUE to break the processing of this token; FALSE to continue
 	 */
 	public function apply(aCssToken &$token)
 		{
@@ -3713,7 +3713,7 @@ class CssCompressExpressionValuesMinifierPlugin extends aCssMinifierPlugin
 	 * Implements {@link aCssMinifierPlugin::minify()}.
 	 * 
 	 * @param aCssToken $token Token to process
-	 * @return boolean Return TRUE to break the processing of this token; FALSE to continue
+	 * @return bool Return TRUE to break the processing of this token; FALSE to continue
 	 */
 	public function apply(aCssToken &$token)
 		{
@@ -3775,7 +3775,7 @@ class CssCompressColorValuesMinifierPlugin extends aCssMinifierPlugin
 	 * Implements {@link aCssMinifierPlugin::minify()}.
 	 * 
 	 * @param aCssToken $token Token to process
-	 * @return boolean Return TRUE to break the processing of this token; FALSE to continue
+	 * @return bool Return TRUE to break the processing of this token; FALSE to continue
 	 */
 	public function apply(aCssToken &$token)
 		{
