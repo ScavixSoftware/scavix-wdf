@@ -442,6 +442,9 @@ class WdfException extends Exception
 		}
 		$message = implode("\t",$msgs);
 		
+        /**
+         * @var WdfException $classname 
+         */
 		$classname = get_called_class();
 		if( $inner_exception )
 			throw new $classname($message,$inner_exception->getCode(),$inner_exception);
