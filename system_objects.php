@@ -428,6 +428,7 @@ class WdfException extends Exception
 	 * </code>
      * @param mixed ...$args Messages to be concatenated
 	 * @return void
+     * @suppress PHP1402
 	 */
 	public static function Raise(...$args)
 	{
