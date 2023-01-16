@@ -311,6 +311,11 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
         $obj = new $cls();
         return $obj->GetTableName();            
     }
+
+    protected function resetExtension()
+    {
+        $this->extended = false;
+    }
     
     private $extended = false;
     function extendInnerTable()
@@ -331,16 +336,17 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             );
             if( count($sumcols)> 0 )
             {
+                $sql = preg_replace("/(\/\*BEG-ORDER\*\/)(.*)(\/\*END-ORDER\*\/)/", '$1$3', $sql);
                 $sql = str_replace('SELECT * ', 'SELECT '.implode(',', array_map(function($c) { return "`$c`"; }, $sumcols)).' ', $sql);
                 $sums = $this->ds->ExecuteSql("SELECT ".implode(",", array_map(function($c) { return "sum(`$c`) as '{$c}'"; }, $sumcols))." FROM( {$sql} )as x")->current();
 
-                $footer = $this->table->Footer();
+                $footer = $this->table->Footer(true);
                 $cols = $this->visibleColumns();
                 $row = $footer->NewRow(array_fill(0,count($cols),''));
                 foreach( $sums as $name=>$val)
                 {
                     $i = array_search($name, $cols);
-                    if( $i !== false )
+                    if ($i !== false)
                         $row->GetCell($i)->SetContent($val);
                 }
                 if( count($this->summary_names) > 0 )
@@ -727,12 +733,14 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
         
         if( $label && $url )
             return $this->addMultiAction($label,$url);
+        $this->resetExtension();
         return $this;
     }
     
     function addMultiAction($label,$url)
     {
         $this->_multiactions[$label] = $url;
+        $this->resetExtension();
         return $this;
     }
     
