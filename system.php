@@ -412,7 +412,7 @@ function system_instanciate_controller($controller_id)
 	elseif( class_exists($controller_id) )
 		$res = new $controller_id();
 	else
-		WdfException::Raise("ACCESS DENIED: Unknown controller '$controller_id'");
+		WdfException::Raise("ACCESS DENIED: Unknown controller '$controller_id'","REQ=",$_REQUEST);
 	
 	if( system_is_ajax_call() )
 	{

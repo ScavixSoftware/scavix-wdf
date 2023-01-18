@@ -155,7 +155,8 @@ class MySql implements IDatabaseDriver
         {
             $um = umask(0);
             $dir = '/run/shm/wdf-'.md5(__SCAVIXWDF__.(defined("DATABASE_VERSION")?'-'.DATABASE_VERSION:''));
-            @mkdir($dir,0777,true);
+            if( !file_exists($dir) )
+                @mkdir($dir,0777,true);
             
             $schemafile = $dir."/".md5($this->_ds->GetDsn()."/$tablename").".schema";
             $age = time() - @filemtime($schemafile);

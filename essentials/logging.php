@@ -172,13 +172,12 @@ function global_error_handler($errno, $errstr, $errfile, $errline)
 	// As we skip E_STRICT check that too. 
     // E_STRICT has been changed to E_WARNING in php7 (see https://www.php.net/manual/de/migration70.incompatible.php)
     // so we ignore the "Declaration of ... should be compatible with" warnings in live systems
-	if ( (($errno & error_reporting()) == 0) || ($errno == E_STRICT) || (!isDev() && ($errno == E_WARNING) && (strpos($errstr, 'Declaration of ') === 0) && (strpos($errstr, ' should be compatible with ') !== false)) )
-        return;
-	
-    // PHP 8.0 will throw Exceptions on LSP violations, so log and hunt them
-//    if( strpos($errstr, 'Declaration of') === 0 && strpos($errstr,'should be compatible with') !== false )
-//        return true;
-    
+    if ((($errno & error_reporting()) == 0) || ($errno == E_STRICT) || (($errno == E_WARNING) && (strpos($errstr, 'Declaration of ') === 0) && (strpos($errstr, ' should be compatible with ') !== false)))
+    {
+        if( !isDev() || stripos($errstr,'ScavixWDF\Model\PdoLayer::prepare') > 0 )
+            return;
+    }
+        
     $sev = 'NOTICE';
 	foreach( $error_names as $n )
     {

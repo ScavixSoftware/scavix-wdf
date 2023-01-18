@@ -1432,13 +1432,13 @@ function system_app_temp_dir($subfolder = '', $appendnc = true)
     if(!ends_with($basedir, '/'))
         $basedir .= '/';
 
-    if( substr(sprintf('%o', @fileperms($basedir)), -4) != '0777' )
+    if (substr(sprintf('%o', @fileperms($basedir)), -3) != '777')
         @chmod($basedir, 0777);
 
     if($appendnc)
         $basedir .= getAppVersion('nc').'/';
     
-    if( substr(sprintf('%o', @fileperms($basedir)), -4) != '0777' )
+    if( substr(sprintf('%o', @fileperms($basedir)), -3) != '777' )
         @chmod($basedir, 0777);
     
     $folder = $basedir.($subfolder ?: '');
@@ -1453,11 +1453,11 @@ function system_app_temp_dir($subfolder = '', $appendnc = true)
         if(!@mkdir($folder, 0777, true))
             WdfException::Raise('Unable to create app temp folder: '.$folder);
     }
-    if( substr(sprintf('%o', @fileperms($folder)), -4) != '0777' )
+    if( substr(sprintf('%o', @fileperms($folder)), -3) != '777' )
     {
         @chmod($folder, 0777);
         clearstatcache(true,$folder);
-        if( substr(sprintf('%o', @fileperms($folder)), -4) != '0777' )
+        if( substr(sprintf('%o', @fileperms($folder)), -3) != '777' )
             WdfException::Raise('App temp folder is not writable: '.$folder);
     }
     return $folder;

@@ -114,7 +114,8 @@ class Wdf
             $lock = md5($name);
             $dir = '/run/lock/wdf-'.md5(__SCAVIXWDF__);
             $um = umask(0);
-            @mkdir($dir,0777,true);
+            if( !file_exists($dir) )
+                @mkdir($dir,0777,true);
             $end = time()+$timeout;
             do
             {
@@ -441,16 +442,19 @@ class WdfException extends Exception
 			else 
 				$msgs[] = logging_render_var($m);
 		}
-		$message = implode("\t",$msgs);
+        $message = array_shift($msgs);
 		
         /**
          * @var WdfException $classname 
          */
 		$classname = get_called_class();
 		if( $inner_exception )
-			throw new $classname($message,$inner_exception->getCode(),$inner_exception);
+			$ex =  new $classname($message,$inner_exception->getCode(),$inner_exception);
 		else
-			throw new $classname($message);
+			$ex = new $classname($message);
+
+        $ex->details = implode("\t",$msgs);
+        throw $ex;
 	}
 	
 	/**
