@@ -62,6 +62,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
     var $_multiselectname = false;
     var $_multiselectidcolumn = 'id';
     var $_multiactions = [];
+    var $_groupMultiActionsTreshold = 0;
     
     var $columnCallbacks = [];
     var $rowCallbacks = [];
@@ -412,11 +413,22 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             if( $this->table->ResultSet->Count() == 0 )
                 $div->css('display', 'none');
             $n = $this->_multiselectname;
-            foreach( $this->_multiactions as $label=>$url )
-                Anchor::Make('javascript:void(0)',$label)
-                    ->attr('onclick',"$('#{$this->table->id}').overlay(); var d={all_selected:$('[name=\"{$n}_all\"]').prop('checked'),multi:'$n',$n:$('[name=\"$n\"]:checked').map(function() { return $(this).val(); }).get()}; wdf.post('$url',d,function(r){ $('#{$this->table->id}').overlay('remove'); $('body').append(r); })")
-                    ->appendTo($div);
-                    
+
+            if( $this->_groupMultiActionsTreshold>0 && count($this->_multiactions)>=$this->_groupMultiActionsTreshold )
+            {
+                $masel = Select::Make()->appendTo($div)
+                    ->AddOption('',tds("TXT_CHOOSE_MULTI_ACTION","(choose action)"))
+                    ->attr("onchange","$('#{$this->table->id}').overlay(); var d={all_selected:$('[name=\"{$n}_all\"]').prop('checked'),multi:'$n',$n:$('[name=\"$n\"]:checked').map(function() { return $(this).val(); }).get()}; wdf.post($(this).val(),d,function(r){ $('#{$this->table->id}').overlay('remove'); $('body').append(r); }); $(this).val('');");
+                foreach ($this->_multiactions as $label => $url)
+                    $masel->AddOption($url, $label);
+            }
+            else
+            {
+                foreach ($this->_multiactions as $label => $url)
+                    Anchor::Make('javascript:void(0)', $label)
+                        ->attr('onclick', "$('#{$this->table->id}').overlay(); var d={all_selected:$('[name=\"{$n}_all\"]').prop('checked'),multi:'$n',$n:$('[name=\"$n\"]:checked').map(function() { return $(this).val(); }).get()}; wdf.post('$url',d,function(r){ $('#{$this->table->id}').overlay('remove'); $('body').append(r); })")
+                        ->appendTo($div);
+            }       
             $this->table->PagerPrefix = $div;
         }        
         $this->store();
@@ -1268,5 +1280,14 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
         });
         
         WdfListing::$Exporting = false;
+    }
+
+    function setMultiActionGrouping($on=true, int $treshold=2)
+    {
+        if ($on)
+            $this->_groupMultiActionsTreshold = max(1, $treshold);
+        else
+            $this->_groupMultiActionsTreshold = 0;
+        return $this;
     }
 }

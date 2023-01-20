@@ -1438,7 +1438,7 @@ function system_app_temp_dir($subfolder = '', $appendnc = true)
     if($appendnc)
         $basedir .= getAppVersion('nc').'/';
     
-    if( substr(sprintf('%o', @fileperms($basedir)), -3) != '777' )
+    if( file_exists($basedir) && substr(sprintf('%o', @fileperms($basedir)), -3) != '777' )
         @chmod($basedir, 0777);
     
     $folder = $basedir.($subfolder ?: '');
