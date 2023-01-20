@@ -156,7 +156,8 @@ class FilesStore extends ObjectStore
         }
         else
         {
-            $data = @file_get_contents($this->getFile($id));
+            $fn = $this->getFile($id);
+            $data = file_exists($fn) ? @file_get_contents($fn) : false;
             if( $data )
             {
                 $this->_stats(__METHOD__,$start);
