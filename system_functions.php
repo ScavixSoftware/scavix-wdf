@@ -1204,7 +1204,7 @@ function ifavail(...$args)
 		return null;
 	}
 	foreach( $args as $n )
-		if( avail($data,$n) )
+		if( ($n!==false) && !is_null($n) && avail($data,$n) )
 			return $data->$n;
 	return null;
 }

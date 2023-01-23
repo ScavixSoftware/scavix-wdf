@@ -159,7 +159,7 @@ class MySql implements IDatabaseDriver
                 @mkdir($dir,0777,true);
             
             $schemafile = $dir."/".md5($this->_ds->GetDsn()."/$tablename").".schema";
-            $age = time() - @filemtime($schemafile);
+            $age = file_exists($schemafile)?(time() - @filemtime($schemafile)):9999;
             if( $age < 300 )
             {
                 $schema = @unserialize(@file_get_contents($schemafile))?:[];

@@ -1,0 +1,84 @@
+
+[is="wdf-toggle"]
+{
+    --icon-checked: url("data:image/svg+xml,%3C?xml version='1.0' encoding='utf-8'?%3E %3Csvg%3E%3C/svg%3E");
+    --icon-unchecked: url("data:image/svg+xml,%3C?xml version='1.0' encoding='utf-8'?%3E %3Csvg%3E%3C/svg%3E");
+    --icon-thumb-checked: url("data:image/svg+xml,%3C?xml version='1.0' encoding='utf-8'?%3E %3Csvg%3E%3C/svg%3E");
+    --icon-thumb-unchecked: url("data:image/svg+xml,%3C?xml version='1.0' encoding='utf-8'?%3E %3Csvg%3E%3C/svg%3E");
+    --color-checked: #2ecc71;
+    --color-unchecked: #e74c3c;
+    --color-thumb-checked: #fff;
+    --color-thumb-unckecked: #fff;
+
+    display: flex;
+    align-items: center;
+
+    > label
+    {
+        margin-right: 0.5em;
+    }
+    > div
+    {
+        width: 4em;
+        height: 2em;
+        border-radius: 2em;
+        display: inline-block;
+        position: relative;
+        background-image : var(--icon-unchecked);
+        background-repeat: no-repeat;
+        background-position: 2.5em center;
+        background-color: var(--color-unchecked);
+        background-size: 1.5em;
+        cursor: pointer;
+        -webkit-transition: background-color .40s ease-in-out;
+        -moz-transition: background-color .40s ease-in-out;
+        -o-transition: background-color .40s ease-in-out;
+        transition: background-color .40s ease-in-out;
+        cursor:pointer;
+
+        span
+        {
+            width: 1.5em;
+            height: 1.5em;
+            background-image : var(--icon-thumb-unchecked);
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: var(--color-thumb-unckecked);
+            background-size: 1em;
+            border-radius: 50%;
+            display: inline-block;
+            position: absolute;
+            left: 0.3em;
+            top: 50%;
+            margin-top: -0.75em;
+            -webkit-transition: all .30s ease-in-out;
+            -moz-transition: all .30s ease-in-out;
+            -o-transition: all .30s ease-in-out;
+            transition: all .30s ease-in-out;
+        }
+        input
+        {
+            position: absolute;
+            left:0;
+            right:0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            z-index: 9;
+            cursor:pointer;
+            -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+        }
+    }
+    &.active > div
+    {
+        background-position: 0.5em center;
+        background-image: var(--icon-checked);
+        background-color: var(--color-checked);
+        span
+        {
+            background-image : var(--icon-thumb-checked);
+            background-color: var(--color-thumb-checked);
+            left: 2.2em;
+        }
+    }
+}
