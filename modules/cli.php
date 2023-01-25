@@ -230,7 +230,7 @@ function cli_execute()
             case 'dbtask':       $class = \ScavixWDF\Tasks\DbTask::class; break;
             case 'pdfprinttask': $class = \ScavixWDF\Tasks\PdfPrintTask::class; break;
             case 'task':         $class = \ScavixWDF\Tasks\Task::class; break;
-            case 'wdfcronmodel': $class = \ScavixWDF\Tasks\WdfCronTask::class; break;
+            case 'wdfcrontask':  $class = \ScavixWDF\Tasks\WdfCronTask::class; break;
             case 'wdftaskmodel': $class = \ScavixWDF\Tasks\WdfTaskModel::class; break;
         }
     }
