@@ -109,6 +109,10 @@ class AjaxAction
 	 * Like <AjaxAction::Confirm>, but returning a Dialog that may/should be extended in code.
 	 * 
 	 * @see <AjaxAction::Confirm>
+	 * @param string $text_base Text constants basename (like CONFIRMATION). Confirmation will need TITLE_$text_base and TXT_$text_base
+	 * @param mixed $controller Controller for OK action
+	 * @param string $event Method for OK action
+	 * @param string|array $data Data for OK action
 	 * @return \ScavixWDF\JQueryUI\Dialog\uiFormDialog
 	 */
     public static function ConfirmDlg($text_base,$controller,$event='',$data=[])

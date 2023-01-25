@@ -252,6 +252,7 @@ class LeafLet extends Control
      * Will use geolocation API to resolve the address to a marker.
      * @param string $address The address as string
      * @param string $title An optional title
+     * @param bool|string $report_back_url URL to post detection results to (from Javascript) or false to disable
      * @return static
      */
     function AddAddress($address,$title=false,$report_back_url=false)

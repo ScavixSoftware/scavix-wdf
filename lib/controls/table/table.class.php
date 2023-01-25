@@ -647,6 +647,7 @@ class Table extends Control
 	 * @param int $items_per_page Items per page to be displayed
 	 * @param int $current_page One (1) based index of current page
 	 * @param int $max_pages_to_show Maximum links to pages to be shown
+     * @param mixed ...$toomany Catches cases where deprecated method structure is used in call. If present raises an exception.
 	 * @return static
 	 */
 	function AddPager($items_per_page = 15, $current_page=false, $max_pages_to_show=10, ...$toomany)

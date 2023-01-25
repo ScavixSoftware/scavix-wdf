@@ -57,6 +57,16 @@ define("ENVIRONMENT_LIVE",'live');
 if( !isset($_ENV['CURRENT_ENVIRONMENT']) )
     $_ENV['CURRENT_ENVIRONMENT'] = ENVIRONMENT_LIVE;
 
+/**
+ * Autodetect DEV envrironment.
+ * 
+ * This is done by searching up the folder tree for a file named `.scavixwdf.dev`.
+ * If present, <switchToDev> is called.
+ * Note: This function is called automatically, so please just dont call it!
+ * 
+ * @param string $directory Starting point to search for
+ * @return void
+ */
 function detectEnvironment($directory)
 {
     // auto-detect DEV system: Check the filesystem up to '/' (max 10 folders away) for a file named '.scavixwdf.dev'
@@ -417,6 +427,7 @@ function setAppVersion($major,$minor,$build,$codename="",$nc_salt=false)
  * Updates the nc part of the global 'APP_VERSION'.
  * 
  * @param string $nc_salt Value to salt the NC with
+ * @return void
  */
 function updateAppNC($nc_salt)
 {

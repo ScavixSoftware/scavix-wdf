@@ -103,6 +103,7 @@ EOPS;
      * Runs PDF creation.
      * 
      * @param array $args Named args: url=<url> pdf=<filename>
+     * @return void
      */
     function Run($args)
     {
@@ -144,6 +145,7 @@ EOPS;
      * Actual PDF creation.
      * 
      * This may be used sync from PHP code or async via Task.
+     * @param string $url The URL to render as PDF
      * @return string|false Returns the PDF filename or false on error
      */
     static function Url2Pdf($url)

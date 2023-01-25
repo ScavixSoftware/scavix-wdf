@@ -164,6 +164,7 @@ class Wdf
      * Releases a LOCK.
      * 
      * @param string $name The LOCK name
+     * @return bool True if successful, else false
      */
     public static function ReleaseLock($name)
     {
@@ -179,6 +180,7 @@ class Wdf
             return false;
         }
         system_release_lock($name,\ScavixWDF\Model\DataSource::Get());
+        return true;
     }
 }
 
@@ -351,6 +353,9 @@ class WdfBuffer implements \Iterator, \JsonSerializable
         return $default;
     }
     
+    /**
+     * @implements <Iterator::rewind>
+     */
     public function rewind():void
     {
         $this->position = 0;

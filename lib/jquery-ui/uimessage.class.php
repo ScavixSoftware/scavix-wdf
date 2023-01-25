@@ -70,6 +70,7 @@ class uiMessage extends uiControl
 	 * 
 	 * @param string $message Hint text
      * @param bool $closeable Display close button true|false
+     * @param int|bool $autoclose If int, represents the number of seconds until autoclose. If True will be 10 seconds, if false autoclose is disabled.
 	 * @return static A new uiMessage 
 	 */
 	static function Hint($message,$closeable=true,$autoclose=false)
@@ -82,6 +83,7 @@ class uiMessage extends uiControl
 	 * 
 	 * @param string $message Error text
      * @param bool $closeable Display close button true|false
+     * @param int|bool $autoclose If int, represents the number of seconds until autoclose. If True will be 10 seconds, if false autoclose is disabled.
 	 * @return static A new uiMessage 
 	 */
 	static function Error($message,$closeable=true,$autoclose=false)

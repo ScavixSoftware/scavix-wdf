@@ -44,6 +44,9 @@ use ScavixWDF\OAuth\OAuthHandler;
  */
 class OAuthStorageModel extends Model
 {
+    /**
+     * @implements <Model::GetTableName()>
+     */
     public function GetTableName() { return "wdf_oauthstore"; }
 
     protected function CreateTable()
@@ -69,7 +72,7 @@ class OAuthStorageModel extends Model
      * Searches datasets for a local_id, optionally filtered for a provider.
      * 
      * @param mixed $local_id The local user ID
-     * @param string $provicer_name Optional provider filter
+     * @param string $provider_name Optional provider filter
      * @return OAuthStorageModel
      */
     static function Search($local_id,$provider_name=false)

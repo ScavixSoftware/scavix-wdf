@@ -90,6 +90,7 @@ abstract class WdfCronTask extends Task
      * Subclass must implement: Main-Loop
      * 
      * @param int $interval Interval this loop is called for (1,5,10,15,30,45,60 minutes)
+     * @return void
      */
     abstract function Process($interval);
 }

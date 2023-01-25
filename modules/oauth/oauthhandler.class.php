@@ -117,7 +117,9 @@ class OAuthHandler
     }
     
     /**
-     * Starts the OAuth process
+     * Starts the OAuth process.
+     * 
+     * @return void;
      */
     function authorize()
     {
@@ -194,7 +196,7 @@ class OAuthHandler
     /**
      * Checks if the given model has valid oauth data.
      * 
-     * @param OAuthStorageModel|false $model
+     * @param OAuthStorageModel|false $model Optional model with stored oauth data
      * @return bool True or false
      */
     function isAuthorized($model=false)

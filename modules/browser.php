@@ -30,6 +30,11 @@ use ScavixWDF\Wdf;
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
+/**
+ * Initializes the browser module.
+ * 
+ * @return void
+ */
 function browser_init()
 {
     require_once(__DIR__.'/browser/Browscap.php');

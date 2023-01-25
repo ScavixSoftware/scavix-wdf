@@ -226,6 +226,20 @@ class PhpDocComment
 		return $tag[0]->desc;
 	}
 
+    /**
+     * Returns an array of all tags values.
+     * 
+     * Sample:
+     * <code php>
+     * // @bla value1
+     * // @bla value2
+     * $docComment->getTagValues('bla');
+     * // returns ['value1','value2']
+     * </code>
+     * 
+     * @param mixed $name Tag name
+     * @return array Array of tag values
+     */
     function getTagValues($name)
     {
         return array_map(function ($t)
@@ -234,6 +248,18 @@ class PhpDocComment
         }, $this->getTag($name, array('val')));
     }
 
+    /**
+     * Returns tags with a given name.
+     * 
+     * Sample:
+     * <code php>
+     * $docComment->getTags('param',array('type','var','desc'));
+     * </code>
+     * 
+     * @param string $name Tag name
+     * @param array $scheme Array of properties the pure description shall be split into
+     * @return array Array of associative arrays with tag data
+     */
     function getTags($name, $scheme)
     {
         return $this->getTag($name, $scheme);
@@ -255,6 +281,8 @@ class PhpDocComment
 			$param->typeArray = explode('|', $param->type);
 			sort($param->typeArray);
 			$param->type = implode("|", $param->typeArray);
+            if( avail($param,'var') )
+                $param->var = trim($param->var, '.');
 		}
 		return $res;
 	}

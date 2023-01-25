@@ -279,7 +279,7 @@ class DataSource
 	}
     
     /**
-     * Helper to create a valid 'column IN(0,1,2)' sting.
+     * Helper to create a valid 'column IN(0,1,2)' string.
      * 
      * If given value is not an array or if it is empty will return '(0=1)' as valid SQL string.
      * 
@@ -298,8 +298,12 @@ class DataSource
     }
     
 	/**
-	 * Helper to create a valid 'column NOT IN(0,1,2)' sting.
+	 * Helper to create a valid 'column NOT IN(0,1,2)' string.
+     * 
 	 * @see <DataSource::BuildInContraint>
+     * @param string $field Column name
+     * @param mixed $values Values or null or false
+     * @return string Valid constraint string
 	 */
     function BuildNotInContraint($field, $values)
     {
