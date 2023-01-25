@@ -130,7 +130,7 @@ class SqLite implements IDatabaseDriver
 		$tableSql = $this->_pdo->query(
 			'SELECT sql FROM sqlite_master WHERE type="table" AND name = "'.$tablename.'"'
 		)->fetch();
-		$tableSql = $tableSql['sql'];
+		$tableSql = isset($tableSql['sql'])?$tableSql['sql']:false;
 
 		if( !$tableSql )
 			WdfDbException::Raise("Table `$tablename` not found!","PDO error info: ",$this->_pdo->errorInfo());
@@ -264,8 +264,11 @@ class SqLite implements IDatabaseDriver
 				$sql = "INSERT INTO `".$model->GetTableName()."`";
 			else
 				$sql  = "INSERT INTO `".$model->GetTableName()."`(".implode(",",$all).")VALUES(".implode(',',$vals).")";
-		}		
-		return new ResultSet($this->_ds, $this->_pdo->prepare($sql));
+		}
+        $stmt = $this->_pdo->prepare($sql);
+        if (!$stmt)
+            WdfDbException::Raise("SQL Error",$sql);
+		return new ResultSet($this->_ds, $stmt);
 	}
 	
 	/**

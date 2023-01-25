@@ -27,8 +27,8 @@ namespace ScavixWDF\Tasks;
 /**
  * Entrypoint for a central cron handler.
  * 
- * To use this implement you own 'cron' class extenting from <WdfCronTask> and
- * implement the abstract 'Process' method. It receives the interval in minutes
+ * To use this implement your own 'cron' class extenting from <WdfCronTask> and
+ * implement the 'Process' method. It receives the interval in minutes
  * that triggered the current run.
  * Then `crontab -e` and add a minutley call to the task like this:
  * <code>
@@ -40,14 +40,19 @@ namespace ScavixWDF\Tasks;
  */
 abstract class WdfCronTask extends Task
 {
-    private function mustRun($interval)
+    private function nextRun($interval)
     {
         $fn = system_app_temp_dir('cron', false)."data.$interval";
-        $next = intval(@file_get_contents($fn)?:'0');
+        return intval(@file_get_contents($fn)?:'0');
+    }
+    
+    private function mustRun($interval)
+    {
+        $next = $this->nextRun($interval);
         //log_debug("Next run $interval",date("Y-m-d H:i:s",$next),intval($next) < time());
         return $next <= time() || $next-time()<5;
     }
-    
+
     private function done($interval)
     {
         $fn = system_app_temp_dir('cron', false)."data.$interval";
@@ -77,7 +82,7 @@ abstract class WdfCronTask extends Task
     {
         //log_debug(__METHOD__,$args);
         $interval = ifavail($args,'interval')?:60;
-        if( !$this->mustRun($interval) )
+        if( !ifavail($args,'triggered') && !$this->mustRun($interval) )
             return;
         try
         {
@@ -93,4 +98,47 @@ abstract class WdfCronTask extends Task
      * @return void
      */
     abstract function Process($interval);
+
+    function Status($args)
+    {
+        foreach( [1,5,10,15,30,45,60] as $interval )
+        {
+            $fn = system_app_temp_dir('cron', false)."data.$interval";
+			$next = intval(@file_get_contents($fn)?:'0');
+            if( $next )
+            {
+                log_info("{$interval}min", date("y-m-d H:i:s", $next), "(in " . ($next - time()) . "sec)");
+            }
+			else
+                log_warn("{$interval}min",'<not scheduled>');
+        }
+    }
+
+    function Trigger($args)
+    {
+        $tasks = [];
+        do
+        {
+            $interval = array_shift($args) ?: 0;
+            if (is_in($interval, 1, 5, 10, 15, 30, 45, 60))
+            {
+                $next = $this->nextRun($interval);
+                if (!$next || $next-time() > 5)
+                {
+                    log_info("Triggering {$interval}min cron...");
+                    $tasks[] = static::Async('RunInternal')
+                        ->SetArg('interval', $interval)
+                        ->SetArg('triggered', 1)
+                        ->Go(false);
+                }
+            }
+            elseif( $interval )
+            {
+                log_warn("Invalid interval '$interval'. Syntax: wdfcron-trigger (1|5|10|15|30|45|60)");
+            }
+        }
+        while ($interval);
+        if( count($tasks) )
+            WdfTaskModel::RunInstance();
+    }
 }

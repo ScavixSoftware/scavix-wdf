@@ -220,7 +220,7 @@ function cli_execute()
     $class = fq_class_name($simpleclass);
     if( !class_exists($class) )
     {
-        $class = fq_class_name("{$simpleclass}task");
+        $class = fq_class_name(ends_iwith($simpleclass, "task") ? $simpleclass : "{$simpleclass}task");
         // hardcoded wdf task shortcuts
         switch( strtolower($class) )
         {
