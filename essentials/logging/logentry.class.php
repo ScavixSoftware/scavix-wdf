@@ -45,9 +45,9 @@ class LogEntry
     public $trace;
     public $message;
     
-    function __construct($severity,$categories,$trace,$message,$max_trace_depth)
+    function __construct($time,$severity,$categories,$trace,$message,$max_trace_depth)
     {
-        $this->datetime = time();
+        $this->datetime = $time;
         $this->categories = $categories;
         $this->severity = $severity;
         $this->trace = $trace?$this->cleanupTrace($trace,$max_trace_depth):false;
@@ -139,10 +139,14 @@ class LogEntry
 	 */
     public function toReadable()
     {
-        $content = date("[Y-m-d H:i:s.m]",$this->datetime);
-		$content .= " [{$this->severity}]";
-		$content .= " (".implode(",",$this->categories).")";
-		$content .= "\t{$this->message}";
+        $content = ($this->datetime)
+            ? date("[Y-m-d H:i:s.m]", $this->datetime).' '
+            : '';
+        if( $this->severity )
+		    $content .= "[{$this->severity}] ";
+        if( is_array($this->categories) )
+		    $content .= "(".implode(",",$this->categories).") ";
+		$content .= "{$this->message}";
 		if( $this->trace )
 			$content .= "\n".$this->parseTrace($this->trace);
         return $content;
@@ -164,9 +168,10 @@ class LogEntry
 		$res = new stdClass();
 		$res->dt = date("c",$this->datetime);
 		$res->cat = [];
-		foreach( array_values($this->categories) as $v )
-			if( $v )
-                $res->cat[] = utf8_encode("$v");
+        if( is_array($this->categories) )
+            foreach( array_values($this->categories) as $v )
+                if( $v )
+                    $res->cat[] = utf8_encode("$v");
 		$res->sev = utf8_encode($this->severity);
 		$res->msg = utf8_encode($this->message);
         if( logging_mem_ok() )

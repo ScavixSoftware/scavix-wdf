@@ -100,6 +100,18 @@ function logging_add_logger($alias,$conf)
 }
 
 /**
+ * Remove a logger.
+ * 
+ * @param string $alias Name for the logger
+ * @return void
+ */
+function logging_remove_logger($alias)
+{
+    if (isset(Wdf::$Logger[$alias]))
+        unset(Wdf::$Logger[$alias]);
+}
+
+/**
  * Returns a logger.
  * 
  * @param string $alias Name of the logger to get

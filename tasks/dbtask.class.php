@@ -25,6 +25,7 @@
 namespace ScavixWDF\Tasks;
 
 use ScavixWDF\Model\DataSource;
+use ScavixWDF\Wdf;
 
 /**
  * @internal CLI only Task run `php index.php db` for info
@@ -175,6 +176,8 @@ class DbTask extends Task
     
     function ProcessWdfTasks($args)
     {
+        if (count(Wdf::$Logger) > 1)
+            logging_remove_logger('cli');
         logging_add_category(getmypid());
         $ttl = intval(array_shift($args)?:0)?:0;
         $eol = time() + $ttl;

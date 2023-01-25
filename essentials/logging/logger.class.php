@@ -42,6 +42,8 @@ namespace ScavixWDF\Logging;
  * @property int $max_filesize
  * @property int $keep_for_days
  * @property int $max_trace_depth
+ * @property bool $log_date
+ * @property bool $log_categories
  * @property bool $log_severity
  */
 class Logger
@@ -79,12 +81,18 @@ class Logger
 	
     protected $path = false;
     protected $filename;
-	
+
 	protected function __construct($config)
 	{
 		if( !is_array($config) )
 			$config = include($config);
-		
+
+        $config = array_merge([
+            'log_date' => true,
+            'log_categories' => true,
+            'log_severity' => true,
+        ], $config);
+
 		foreach( $config as $k=>$v )
 			$this->$k = $v;
 		
@@ -261,12 +269,14 @@ class Logger
 		if( !is_null($a10) ) $parts[] = $this->render($a10);
 
 		$max_trace_depth = isset($this->max_trace_depth)?$this->max_trace_depth:5;
+        $time = (isset($this->log_date) && $this->log_date)?time():false;
 		$severity = (isset($this->log_severity) && $this->log_severity)?$severity:false;
+		$categories = (isset($this->log_categories) && $this->log_categories)?$this->categories:false;
 		
 		if( $log_trace )
-			$entry = new LogEntry($severity, $this->categories, debug_backtrace(), implode("\t",$parts), $max_trace_depth);
+			$entry = new LogEntry($time,$severity, $categories, debug_backtrace(), implode("\t",$parts), $max_trace_depth);
 		else
-			$entry = new LogEntry($severity, $this->categories, false, implode("\t",$parts), $max_trace_depth);
+			$entry = new LogEntry($time,$severity, $categories, false, implode("\t",$parts), $max_trace_depth);
 		return $entry;
     }
     

@@ -54,7 +54,11 @@ function cli_init()
     if( defined('STDOUT') )
     {
         classpath_add(__DIR__.'/cli');
-        logging_add_logger('cli',['class' => \ScavixWDF\CLI\CliLogger::class]);
+        logging_add_logger('cli',[
+            'class' => \ScavixWDF\CLI\CliLogger::class,
+            'log_date' => false,
+            'log_categories' => false,
+        ]);
         register_hook_function(HOOK_SYSTEM_DIE, function($args){ die("\n"); });
     }
 
