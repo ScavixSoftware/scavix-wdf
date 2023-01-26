@@ -627,9 +627,31 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             if( isset($this->alignments[$n]) ) unset($this->alignments[$n]);
             if( isset($this->formats[$n]) ) unset($this->formats[$n]);
             if( isset($this->columnCallbacks[$n]) ) unset($this->columnCallbacks[$n]);
-            if( isset($this->ColFormats[$index]) ) unset($this->ColFormats[$index]);
+            if( isset($this->table->ColFormats[$index]) ) unset($this->table->ColFormats[$index]);
             if( isset($this->optional_comluns[$n]) ) unset($this->optional_comluns[$n]);
         }
+        return $this;
+    }
+
+    function moveColumn($colToMoveName, $insertBeforeName)
+    {
+        $colnames = array_diff(array_keys($this->columns),[$colToMoveName]);
+        $i = array_search($insertBeforeName,$colnames);
+        array_splice($colnames,$i,0,[$colToMoveName]);
+        $buf = array_fill_keys(['columns', 'alignments', 'formats', 'columnCallbacks', 'optional_comluns'], []);
+        $ColFormats = [];
+        foreach ($colnames as $i=>$n)
+        {
+            foreach( $buf as $prop=>$data )
+                if( isset($this->$prop[$n]) )
+                    $buf[$prop][$n] = $this->$prop[$n];
+            $index = array_search($n, array_keys($this->columns));
+            if( isset($this->table->ColFormats[$index]) )
+                $ColFormats[$i] = $this->table->ColFormats[$index];
+        }
+        foreach ($buf as $prop => $data)
+            $this->$prop = $data;
+        $this->table->ColFormats = $ColFormats;
         return $this;
     }
     
