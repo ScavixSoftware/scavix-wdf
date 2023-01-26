@@ -467,6 +467,11 @@ class ChartJS3 extends Control
         return $this;
     }
     
+    /**
+     * Sets Y-Axis to be a percentual scale.
+     * 
+     * @return $this
+     */
     function setPercentAxesY()
     {
         if( $this->opt("percentScale",true)->percentizeData() )
@@ -492,7 +497,8 @@ class ChartJS3 extends Control
     /**
      * Sets the chart colors.
      * 
-     * @param array $colors 
+     * @param array $colors Array of color valus
+     * @return $this
      */
     function setColors($colors)
     {
@@ -503,7 +509,8 @@ class ChartJS3 extends Control
     /**
      * Sets the named chart colors.
      * 
-     * @param array $colors 
+     * @param array $colors Associative array of color valus
+     * @return $this
      */
     function setNamedColors($colors)
     {
@@ -577,7 +584,7 @@ class ChartJS3 extends Control
      * @param string $series_row Name of the field with the series name
      * @param string $x_value_row Name of the field with the x-values
      * @param string $y_value_row Name of the field with the y-values
-     * @param string|Callable $pointType Optional name of the Point handler or a callable receiving $row,$series,$series_row_name,$x_value_row_name,$y_value_row_name
+     * @param string|\Closure $pointType Optional name of the Point handler or a callable receiving $row,$series,$series_row_name,$x_value_row_name,$y_value_row_name
      * @return $this
      */
     function setSeriesData(iterable $data, string $series_row, string $x_value_row, string $y_value_row, $pointType="StrPoint")

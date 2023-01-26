@@ -59,7 +59,7 @@ $(function(){
 	wdf.ready.add(function()
 	{
 	<?=implode("\n",$docready);?>
-<? if( isset($_SESSION['wdf_translator_mode']) && $_SESSION['wdf_translator_mode'] && isset($GLOBALS['translation']['strings']) ):
+<?php if( isset($_SESSION['wdf_translator_mode']) && $_SESSION['wdf_translator_mode'] && isset($GLOBALS['translation']['strings']) ):
     $translations = cache_get('wdf_translator_strings', false);
     if(!$translations)
     {
@@ -100,7 +100,7 @@ $(function(){
         else
             wdf.translator_hint.hide();
     });
-<? endif;?>
+<?php endif;?>
 	});
 <?php endif; ?>
 	<?=$wdf_init?>

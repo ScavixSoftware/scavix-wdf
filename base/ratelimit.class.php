@@ -62,6 +62,9 @@ class RateLimit extends \ScavixWDF\Model\Model
 
     var $internal_name;
     
+    /**
+     * @implements <Model::GetTableName()>
+     */
     public function GetTableName() { return "wdf_ratelimits"; }
     
     protected function CreateTable()

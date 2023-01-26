@@ -268,7 +268,9 @@ class Control extends Renderable
 	 * Control::Make('div')->content('Doh!');
 	 * TextInput::Make()->css('width','300px');
 	 * </code>
-	 * @param string $tag Optional HTML tag name (like div, span, a, img,...)
+	 * Arguments will be passed to constructor.
+     * 
+     * @param mixed ...$args Arguments as described
 	 * @return static The created control
 	 */
 	public static function Make(...$args)
@@ -512,6 +514,7 @@ class Control extends Renderable
 	 * 
      * This work exaclty like <Control::attr> but with all the data-* attributes.
      * 
+     * @param mixed ...$args Arguments as described
 	 * @return static|mixed `$this`, a data-attribute value or an array of data-attributes
 	 */
 	function data(...$args)
@@ -559,6 +562,7 @@ class Control extends Renderable
 	 * 4. $c->attr(['name'=>'myname','href'=>'my.domain']) sets 'name' and 'href' attribute values
 	 * 
 	 * Note: Will return `$this` in cases 3. and 4. (the set cases).
+     * @param mixed ...$args Arguments as described
 	 * @return static|mixed `$this`, an attribute value or an array of attribute values
 	 */
 	function attr(...$args)
@@ -597,7 +601,10 @@ class Control extends Renderable
     }
     
 	/**
+     * Overrides <Renderable::capture> to ensure a valid `id`.
+     * 
 	 * @see <Renderable::capture>
+     * @param static $variable Variable to assign `$this` to
 	 * @return static
 	 */
     function capture(&$variable)

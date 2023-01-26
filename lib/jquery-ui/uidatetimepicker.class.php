@@ -49,6 +49,7 @@ class uiDateTimePicker extends uiDatePicker
 	 * Sets the date-time value.
 	 * 
 	 * @param string $value Valid date-time string representation
+     * @return void
 	 */
     function setValue($value)
     {

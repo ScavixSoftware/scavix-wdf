@@ -379,7 +379,7 @@ abstract class Renderable implements \JsonSerializable
 	 * <code php>
 	 * TextInput::Make()->capture($tb)->appendTo($some_container)->par()->prepend($tb->CreateLabel('enter mail:'));
 	 * </code>
-	 * @param Renderable $variable Variable to assign `$this` to
+	 * @param static $variable Variable to assign `$this` to
 	 * @return static
 	 */
 	function capture(&$variable)
@@ -590,7 +590,7 @@ abstract class Renderable implements \JsonSerializable
 	 * Inserts something to the contents of this Renderable.
 	 * 
 	 * @param mixed $content Content to be prepended
-	 * @param int|Renderable $index Zero base index where to insert OR Renderable to insert before
+	 * @param int|static $index Zero base index where to insert OR Renderable to insert before
 	 * @return static
 	 */
 	function insert($content,$index)

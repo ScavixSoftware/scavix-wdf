@@ -196,6 +196,7 @@ class uiDatePicker extends uiControl
 	 * Sets the date value.
 	 * 
 	 * @param string $value Valid date string representation
+     * @return void
 	 */
     function setValue($value)
     {

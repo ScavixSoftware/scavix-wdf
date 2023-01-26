@@ -90,7 +90,7 @@ class DateTimeFormat
 	/**
 	 * Formats a detetime value to a string.
 	 * 
-	 * @param int|array|DateTime $date Time value (see <time>)
+	 * @param int|array|\DateTime $date Time value (see <time>)
 	 * @param int $format_id Format identifier (one of the DateTimeFormta::DT_* constants)
 	 * @return string Formatted string
 	 */

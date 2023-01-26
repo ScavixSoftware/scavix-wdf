@@ -48,6 +48,8 @@ function oauth_init()
  * 
  * @param mixed $local_id Local user identifier
  * @param string $provider_name Name of the OAuth provider to be used
+ * @param array $provider_config Provider specific config (key-value-pairs)
+ * @return void
  */
 function oauth_authorize($local_id, $provider_name, $provider_config=[])
 {
@@ -64,6 +66,7 @@ function oauth_authorize($local_id, $provider_name, $provider_config=[])
  * @param string $client_id Client ID
  * @param string $client_secret Client Secret
  * @param array $options More (optional) options
+ * @return void
  */
 function oauth_add_config($provider_name,$client_id,$client_secret,$options=[])
 {

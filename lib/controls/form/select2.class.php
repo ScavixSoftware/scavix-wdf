@@ -50,7 +50,7 @@ class Select2 extends Select
     /**
      * Sets the current value.
      * 
-     * @param mixed $value
+     * @param mixed $value The value
      * @return static
      */
     function setValue($value)
