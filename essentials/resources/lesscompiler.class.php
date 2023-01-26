@@ -108,15 +108,25 @@ class LessCompiler extends \lessc implements \JsonSerializable
             $mime = system_guess_mime($fn);
             if( "image/svg+xml" == $mime )
             {
-                $c = file_get_contents($fn);
-                $c = preg_replace('/<!--.*-->/', '', $c);
+                $c = trim(file_get_contents($fn));
+
+                $c = preg_replace('|.*(<svg.+/svg>).*|is', '$1', $c);
+                $c = preg_replace('/<!--.*-->/is', '', $c);
                 $c = preg_replace('/[\r\n\t]/', ' ', $c);
                 $c = preg_replace('/\s\s+/', ' ', $c);
-                $c = str_replace(
-                    ['"',"%"  ,"#"  ,'{'  ,'}'  ,'<'  ,'>'],
-                    ["'","%25","%23","%7B","%7D","%3C","%3E"], 
-                    $c);
-                return "url(\"data:$mime,$c\")";
+                $c = preg_replace('/>\s</is', '><', $c);
+                
+                $c = base64_encode($c);
+                return "url(\"data:$mime;base64,$c\")";
+                
+                // this seems to produce invaid data in some rare cases
+                // could not find out why. at this point the base64 overhead
+                // over urlencoded is about 20%, we need to live with that.
+                // $c = str_replace(
+                //     ['"',"%"  ,"#"  ,'{'  ,'}'  ,'<'  ,'>'  , '&'  ,' '],
+                //     ["'","%25","%23","%7B","%7D","%3C","%3E", "%26", "%20"], 
+                //     $c);
+                // return "url(\"data:$mime,$c\")";
             }
             $c = base64_encode(file_get_contents($fn));
             return "url(\"data:$mime;base64,$c\")";
