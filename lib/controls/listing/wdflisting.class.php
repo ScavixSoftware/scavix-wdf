@@ -467,9 +467,9 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
         return $this;
     }
     
-    function addPager($items_per_page)
+    function addPager($items_per_page, $allow_reset_pager = true)
 	{
-		return $this->setItemsPerPage($items_per_page);
+		return $this->setItemsPerPage($items_per_page, $allow_reset_pager);
 	}
     
     function ResetPager()
@@ -479,10 +479,10 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
         return $this;
     }
 	
-    function setItemsPerPage($perpage)
+    function setItemsPerPage($perpage, $allow_reset_pager = true)
     {
         if( !self::$ShowCompleteData )
-            $this->table->AddPager($perpage, self::$SettingsSnapshotRestored?false:1);
+            $this->table->AddPager($perpage, ($allow_reset_pager && !self::$SettingsSnapshotRestored)?1:false);
         return $this;
     }
     
