@@ -69,6 +69,19 @@ wdf.ready.add(function()
         },
         init: function()
         {
+            $('.listing.multiselect .thead .td:first-child input[type="checkbox"][data-multicheckboxname]')
+                .off('click.multiselect')
+                .on('click.multiselect', function(e)
+                {
+                    var multiselname = $(this).attr('data-multicheckboxname');        
+                    $('[name="' + multiselname + '"]').prop('checked', $(this).prop('checked'));
+                    e.stopPropagation();
+                });
+                
+            $('.listing.multiselect .td:first-child, .listing.multiselect .td:first-child td')
+                .off('click.multiselect')
+                .on('click.multiselect', function(e) { e.stopPropagation(); });
+
             $(document)
                 .off('click.columnstate','.listing .thead .tr .td [data-column-state]')
                 .on('click.columnstate','.listing .thead .tr .td [data-column-state]', function(e)
@@ -266,19 +279,6 @@ wdf.ready.add(function()
             });
         }
     };
-    
-    $('.listing.multiselect .thead .td:first-child input[type="checkbox"][data-multicheckboxname]')
-        .off('click.multiselect')
-        .on('click.multiselect', function(e)
-        {
-            var multiselname = $(this).attr('data-multicheckboxname');        
-            $('[name="' + multiselname + '"]').prop('checked', $(this).prop('checked'));
-            e.stopPropagation();
-        });
-        
-    $('.listing.multiselect .td:first-child, .listing.multiselect .td:first-child td')
-        .off('click.multiselect')
-        .on('click.multiselect', function(e) { e.stopPropagation(); });
     
     wdf.listings.init();
     wdf.ajaxReady.add(wdf.listings.init);
