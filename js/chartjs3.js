@@ -142,21 +142,24 @@
                 }
                 else if( typeof dataset[k] == 'object' && typeof dataset[k].forEach == 'function' )
                 {
-                    var orig = dataset[k];
-                    dataset[k] = function()
-                    {
-                        var style = getComputedStyle(elem);
-                        var res = [];
-                        orig.forEach(function(value)
+                    var orig = dataset[k], needed = false;
+
+                    orig.forEach(function (value) { needed |= !!value.match(/var\((.*)\)/); });
+                    if( needed )
+                        dataset[k] = function()
                         {
-                            var m = value.match(/var\((.*)\)/);
-                            if( m ) 
-                                res.push(value.replace(/var\(.*\)/,style.getPropertyValue(m[1])));
-                            else
-                                res.push(value);
-                        });
-                        return res;
-                    };
+                            var style = getComputedStyle(elem);
+                            var res = [];
+                            orig.forEach(function(value)
+                            {
+                                var m = value.match(/var\((.*)\)/);
+                                if( m ) 
+                                    res.push(value.replace(/var\(.*\)/,style.getPropertyValue(m[1])));
+                                else
+                                    res.push(value);
+                            });
+                            return res;
+                        };
                 }
             };
 
@@ -232,85 +235,91 @@
         
         pieTooltips: function(id)
         {
-            var res = this.stdTooltips(id);
-            res.label = function(item)
+            try
             {
-                //wdf.debug("pie.label",typeof(item.raw),item);
-                if( typeof(item.raw) !== 'object' )
-                    item.raw = {raw:item.raw};
-                    
-                if( !item.raw.label )
+                var res = this.stdTooltips(id);
+                res.label = function (item)
                 {
-                    var val = item.parsed || 0;
-                    var sum = 0;
-                    for(var i=0; i<item.dataset.data.length; i++)
-                        sum += item.dataset.data[i];
-                    var perc = val/sum*100;
-                    item.raw.label = val + " ("+(Math.round(perc * 100) / 100)+"%)";
+                    //wdf.debug("pie.label",typeof(item.raw),item);
+                    if (typeof (item.raw) !== 'object')
+                        item.raw = { raw: item.raw };
+                        
+                    if (!item.raw.label)
+                    {
+                        var val = item.parsed || 0;
+                        var sum = 0;
+                        for (var i = 0; i < item.dataset.data.length; i++)
+                            sum += item.dataset.data[i];
+                        var perc = val / sum * 100;
+                        item.raw.label = val + " (" + (Math.round(perc * 100) / 100) + "%)";
+                    }
+                    return item.raw.label;
                 }
-                return item.raw.label;
-            }
-            return res;
+                return res;
+            } catch (ex) { console.log("chartjs3.pieTooltips Exception:", ex); }
         },
         
         stdTooltips: function(id)
         {
-            var res =
+            try
             {
-                title: function(items)
+                var res =
                 {
-                    if( typeof(items[0].raw) !== 'object' )
-                        items[0].raw = {raw:items[0].raw};
-                    if( !items[0].raw.title ) 
-                    {                    
-                        if( items[0].chart.data.datasets.length > 1 )
-                            items[0].raw.title = wdf.chartjs3._dtFormat(items[0].label);
-                        else
-                        {
-                            var t = (items.length > 1)
-                                ?items[0].label || items[0].dataset.label || '' // return X label on multi-series tooltips
-                                :items[0].dataset.label || items[0].label || '';
-                            items[0].raw.title = wdf.chartjs3._dtFormat(t);
-                        }
-                    }
-                    return items[0].raw.title;
-                },
-                label: function(item)
-                {
-                    //wdf.debug("std.label",item);
-                    if( !item.raw.label )
+                    title: function(items)
                     {
-                        var formatLine = function(chart,dataset,item)
-                        {
-                            var val = (chart.options.percentScale)
-                                ?item.raw.yval+' ('+Math.round(item.raw.y)+'%)'
-                                :item.formattedValue;
-                            var l = (chart.config.data.datasets.length > 1)
-                                ?dataset.label || item.label || ''
-                                :item.label || dataset.label || '';
-                            
-                            return wdf.chartjs3._dtFormat(l) +": "+ (val || item.y);
-                        };
-                        
-                        if( false && item.parsed._stacks && item.chart.data.datasets.length > 1 )
-                        {                            var temp = [];
-                            item.chart.data.datasets.forEach(function(ds)
+                        if( typeof(items[0].raw) !== 'object' )
+                            items[0].raw = {raw:items[0].raw};
+                        if( !items[0].raw.title ) 
+                        {                    
+                            if( items[0].chart.data.datasets.length > 1 )
+                                items[0].raw.title = wdf.chartjs3._dtFormat(items[0].label);
+                            else
                             {
-                                temp.push( formatLine(item.chart, ds, ds.data[item.dataIndex]) );
-                                //wdf.debug("pushed "+temp.length);
-                            });
-                            item.raw.label = temp;
-                            //wdf.debug(item.raw.label);
+                                var t = (items.length > 1)
+                                    ?items[0].label || items[0].dataset.label || '' // return X label on multi-series tooltips
+                                    :items[0].dataset.label || items[0].label || '';
+                                items[0].raw.title = wdf.chartjs3._dtFormat(t);
+                            }
                         }
-                        else
+                        return items[0].raw.title;
+                    },
+                    label: function(item)
+                    {
+                        //wdf.debug("std.label",item);
+                        if( !item.raw.label )
                         {
-                            item.raw.label = formatLine(item.chart,item.dataset,item);
+                            var formatLine = function(chart,dataset,item)
+                            {
+                                var val = (chart.options.percentScale)
+                                    ?item.raw.yval+' ('+Math.round(item.raw.y)+'%)'
+                                    :item.formattedValue;
+                                var l = (chart.config.data.datasets.length > 1)
+                                    ?dataset.label || item.label || ''
+                                    :item.label || dataset.label || '';
+                                
+                                return wdf.chartjs3._dtFormat(l) +": "+ (val || item.y);
+                            };
+                            
+                            if( false && item.parsed._stacks && item.chart.data.datasets.length > 1 )
+                            {                            var temp = [];
+                                item.chart.data.datasets.forEach(function(ds)
+                                {
+                                    temp.push( formatLine(item.chart, ds, ds.data[item.dataIndex]) );
+                                    //wdf.debug("pushed "+temp.length);
+                                });
+                                item.raw.label = temp;
+                                //wdf.debug(item.raw.label);
+                            }
+                            else
+                            {
+                                item.raw.label = formatLine(item.chart,item.dataset,item);
+                            }
                         }
+                        return item.raw.label;
                     }
-                    return item.raw.label;
-                }
-            };
-            return res;
+                };
+                return res;
+            } catch (ex) { console.log("chartjs3.stdTooltips Exception:", ex); }
         },
         
         convertToSvg: function()
