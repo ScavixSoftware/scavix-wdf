@@ -155,12 +155,11 @@ class MySql implements IDatabaseDriver
         {
             $um = umask(0);
             $dir = '/run/shm/wdf-'.md5(__SCAVIXWDF__.(defined("DATABASE_VERSION")?'-'.DATABASE_VERSION:''));
-            if( !file_exists($dir) )
-                @mkdir($dir,0777,true);
+            @mkdir($dir,0777,true);
             
             $schemafile = $dir."/".md5($this->_ds->GetDsn()."/$tablename").".schema";
-            $age = file_exists($schemafile)?(time() - @filemtime($schemafile)):9999;
-            if( $age < 300 )
+            $fmt = @filemtime($schemafile);
+            if( $fmt && ((time()-$fmt) < 300) )
             {
                 $schema = @unserialize(@file_get_contents($schemafile))?:[];
                 $res->CreateCode = isset($schema['create'])?$schema['create']:'';

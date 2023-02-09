@@ -141,7 +141,7 @@ class Logger
 	{
         $touch = function ()
         {
-            if (!@file_exists($this->filename))
+            if (!file_exists($this->filename))
                 @touch($this->filename);
         };
         
@@ -246,8 +246,8 @@ class Logger
 				
 		if( !isset($this->filename) )
 			$this->ensureFile();
-		if( !file_exists($this->filename) )
-			touch($this->filename);
+		// if( !file_exists($this->filename) )
+		// 	touch($this->filename);
 		if( (fileperms($this->filename) & 0777) != 0777 )
         {
             $um = umask(0);

@@ -69,6 +69,7 @@ if( !isset($_ENV['CURRENT_ENVIRONMENT']) )
  */
 function detectEnvironment($directory)
 {
+    
     // auto-detect DEV system: Check the filesystem up to '/' (max 10 folders away) for a file named '.scavixwdf.dev'
     $i = 0;
     do
@@ -1449,7 +1450,7 @@ function system_app_temp_dir($subfolder = '', $appendnc = true)
     if($appendnc)
         $basedir .= getAppVersion('nc').'/';
     
-    if( file_exists($basedir) && substr(sprintf('%o', @fileperms($basedir)), -3) != '777' )
+    if( substr(sprintf('%o', @fileperms($basedir)), -3) != '777' )
         @chmod($basedir, 0777);
     
     $folder = $basedir.($subfolder ?: '');

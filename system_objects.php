@@ -114,8 +114,7 @@ class Wdf
             $lock = md5($name);
             $dir = '/run/lock/wdf-'.md5(__SCAVIXWDF__);
             $um = umask(0);
-            if( !file_exists($dir) )
-                @mkdir($dir,0777,true);
+            @mkdir($dir,0777,true);
             $end = time()+$timeout;
             do
             {

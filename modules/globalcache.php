@@ -447,8 +447,7 @@ class WdfFileCacheWrapper
         $this->map = [];
         $this->root = sys_get_temp_dir()."/wdf_globalcache/{$key_prefix}";
         $um = umask(0);
-        if( !file_exists($this->root) )
-            @mkdir($this->root,0777,true);
+        @mkdir($this->root,0777,true);
         umask($um);
     }                                                                           
 
@@ -476,8 +475,6 @@ class WdfFileCacheWrapper
     {
         $exists = false;
         $file = "{$this->root}/".md5($key);
-        if( !is_file($file) )
-            return $default;
 
         $filemtime = @filemtime($file);
         if( isset($this->map[$key]) && $this->map[$key]['filemtime'] == $filemtime )
@@ -509,8 +506,7 @@ class WdfFileCacheWrapper
     public function delete($key)
     {                                              
         $file = "{$this->root}/".md5($key);
-        if( is_file($file) )
-            @unlink($file);
+        @unlink($file);
         if( isset($this->map[$key]) ) 
             unset( $this->map[$key]);
     }
