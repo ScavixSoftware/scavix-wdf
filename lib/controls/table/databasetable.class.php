@@ -589,7 +589,8 @@ class DatabaseTable extends Table implements ICallable
 					->setFormatCode($ef);
 			}
 		}
-        $sheet->freezePane('A2');
+		if(count($head_rows))
+        	$sheet->freezePane('A2');
         $sheet->setSelectedCell('A1');
 		
         if( isset(self::$export_def[$format]['metadata']) && is_array(self::$export_def[$format]['metadata']) )
