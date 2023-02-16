@@ -85,18 +85,15 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	{
 		if( is_array($arguments) )
         {
-            if( stripos($sql,"?") !== false )
-                foreach( $arguments as $a )
-                {
-                    $a = is_null($a)?"null":(is_numeric($a)?"$a":"'".$ds->EscapeArgument($a)."'");
-                    $sql = preg_replace('/\?/', $a, $sql, 1);
-                }
-            else
-                foreach( $arguments as $n=>$a )
-                {
-                    $a = is_null($a)?"null":(is_numeric($a)?"$a":"'".$ds->EscapeArgument($a)."'");
-                    $sql = str_replace("$n", $a, $sql);
-                }
+            $hasqm = ( stripos($sql,"?") !== false );
+			foreach( $arguments as $a )
+			{
+				$a = is_null($a)?"null":((is_numeric($a) && (strpos($a, '+') === false)) ?"$a":"'".$ds->EscapeArgument($a)."'");
+				if($hasqm)
+					$sql = preg_replace('/\?/', $a, $sql, 1);
+				else
+					$sql = str_replace("$n", $a, $sql);
+			}
         }
 		return $sql;
 	}
