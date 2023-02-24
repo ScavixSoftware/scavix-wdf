@@ -114,12 +114,14 @@ class Query
 		$this->_statement = $this->_ds->Prepare($sql);
 		foreach( $this->_values as $i=>$v )
 		{
-			if( is_integer($v) )
-				$this->_statement->bindValue($i+1,$v,PDO::PARAM_INT);
+			if (is_integer($v))
+				$this->_statement->bindValue($i + 1, $v, PDO::PARAM_INT);
 			elseif( $v instanceof DateTime )
 				$this->_statement->bindValue($i+1,$v->format("Y-m-d H:i:s"));
+			elseif(is_string($v))
+				$this->_statement->bindValue($i + 1, $v, PDO::PARAM_STR);
 			else
-				$this->_statement->bindValue($i+1,$v);
+				$this->_statement->bindValue($i + 1, $v);
 		}
 		if( !$this->_statement->execute() )
         {

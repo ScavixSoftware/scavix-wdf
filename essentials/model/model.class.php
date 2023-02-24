@@ -424,10 +424,15 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		switch( $t )
 		{
 			case 'int':
+			case 'tinyint':
+			case 'smallint':
+			case 'mediumint':
+			case 'bigint':
 			case 'integer':
 				return intval($value);
 			case 'float':
 			case 'double':
+			case 'decimal':
 				return floatval($value);
 			case 'date':
                 try
@@ -453,6 +458,13 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 				break;
             case 'json':
                 return is_null($value)?null:json_encode($value);
+			case 'varchar':
+			case 'char':
+			case 'tinytext':
+			case 'text':
+			case 'mediumtext':
+			case 'longtext':
+				return $value.'';
 		}
 		return $value;
 	}
