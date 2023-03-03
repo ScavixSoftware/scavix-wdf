@@ -251,9 +251,7 @@ function system_is_module_loaded($mod)
 function system_init($application_name, $skip_header = false, $logging_category=false)
 {
 	global $CONFIG;
-	$thispath = __DIR__;
-	if(!isset($_SESSION["system_internal_cache"]))
-		$_SESSION["system_internal_cache"] = [];
+	$thispath = __DIR__;	
 
 	$CONFIG['system']['application_name'] = $application_name;
 	if(!isset($CONFIG['model']['internal']['connection_string']))
@@ -1380,13 +1378,31 @@ function is_host($host_or_ip)
  */
 function cache_get($key,$default=false,$use_global_cache=true,$use_session_cache=true)
 {
-    if( $use_session_cache && isset($_SESSION["system_internal_cache"][$key]) )
-		return session_unserialize($_SESSION["system_internal_cache"][$key]);
+	if ($use_session_cache && isset($_SESSION["system_internal_cache"][$key]))
+	{
+		if(is_array($_SESSION["system_internal_cache"][$key]))
+		{
+			if (avail($_SESSION["system_internal_cache"][$key], 'valid_until') && ($_SESSION["system_internal_cache"][$key]['valid_until'] < time()))
+				unset($_SESSION["system_internal_cache"][$key]);
+			else
+				return session_unserialize($_SESSION["system_internal_cache"][$key]['data']);
+		}
+		else
+			return session_unserialize($_SESSION["system_internal_cache"][$key]);
+	}
 	if( $use_global_cache && system_is_module_loaded('globalcache') )
     {
         $res = globalcache_get($key,$default);
-        if( $use_session_cache && $res !== $default )
-            $_SESSION["system_internal_cache"][$key] = session_serialize($res);
+		// if ($use_session_cache)
+		// {
+		// 	if ($res == $default)
+		// 	{
+		// 		if(isset($_SESSION["system_internal_cache"][$key]))
+		// 			unset($_SESSION["system_internal_cache"][$key]);
+		// 	}
+		// 	else
+		// 		$_SESSION["system_internal_cache"][$key] = ['data' => session_serialize($res)];
+		// }
 		return $res;
     }
     return $default;
@@ -1414,9 +1430,12 @@ function cache_set($key,$value,$ttl=false,$use_global_cache=true,$use_session_ca
 
     if( $use_session_cache && function_exists('session_serialize') )
     {
-        if( !isset($_SESSION['system_internal_cache']) || !is_array($_SESSION['system_internal_cache']) )
-            $_SESSION['system_internal_cache'] = [];
-		$_SESSION["system_internal_cache"][$key] = session_serialize($value);
+		if (!isset($_SESSION['system_internal_cache']) || !is_array($_SESSION['system_internal_cache']))
+			$_SESSION['system_internal_cache'] = [];
+		if($ttl && ($ttl > 0))
+			$_SESSION["system_internal_cache"][$key] = ['valid_until' => time() + $ttl, 'data' =>  session_serialize($value)];
+		else
+			$_SESSION["system_internal_cache"][$key] = ['data' =>  session_serialize($value)];
     }
 }
 

@@ -77,8 +77,12 @@ class DateTimeEx extends DateTime
 				return clone $source;
 			if( $source instanceof DateTime )
 				return new DateTimeEx( $source->format('c') );
-			if( is_numeric($source) )
-				return new DateTimeEx( date('c',intval("$source")) );
+			if (is_numeric($source))
+			{
+				if (intval("$source") > 253370764800)		// if timestamp is in milliseconds, convert it to seconds
+					$source = round($source / 1000);
+				return new DateTimeEx(date('c', intval("$source")));
+			}
 			return new DateTimeEx($source);
 		}
 		return new DateTimeEx();

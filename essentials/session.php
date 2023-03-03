@@ -96,6 +96,12 @@ function session_run()
     
     if( !isset($_SESSION[$GLOBALS['CONFIG']['session']['prefix']."object_access"]) )
         $_SESSION[$GLOBALS['CONFIG']['session']['prefix']."object_access"] = [];
+
+	if (!isset($_SESSION["system_internal_cache"]))
+	{
+		error_log('creating system_internal_cache');
+		$_SESSION["system_internal_cache"] = [];
+	}
 }
 
 /**
