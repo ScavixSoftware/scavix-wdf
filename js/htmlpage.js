@@ -52,14 +52,16 @@
                 {
                     req.addEventListener("progress", function(evt)
                     {
-                        that.progress(evt);
+                        if(that.progress)
+                            that.progress(evt);
                     },false);
                 }
                 if( req.upload.addEventListener)
                 {
                     req.upload.addEventListener("progress", function(evt)
                     {
-                        that.progressUpload(evt);
+                        if(that.progressUpload)
+                            that.progressUpload(evt);
                     },false);
                 }
             }
