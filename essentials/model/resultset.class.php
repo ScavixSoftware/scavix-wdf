@@ -315,20 +315,21 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
             }
             catch(\PDOException $ex)
             {
-                // rethrow as WdfDbException to get more details
-                \ScavixWDF\WdfDbException::RaisePdoEx($ex,$this);
-            }
-            
-            // this is MySQL deadlock
-            if( $result === false && $deadlock_retries++<5 )
-            {
-                $ei = $this->_stmt->errorInfo();
-                if( $ei && isset($ei[1]) && $ei[1] == 1213 )
-                {
-                    usleep(10000);
-                    continue;
-                }
-            }
+				// this is MySQL deadlock
+				if( $deadlock_retries++<5 )
+				{
+					$ei = $this->_stmt->errorInfo();
+					if( $ei && isset($ei[1]) && $ei[1] == 1213 )
+					{
+						usleep(10000);
+						continue;
+					}
+				}
+
+				// rethrow as WdfDbException to get more details
+				\ScavixWDF\WdfDbException::RaisePdoEx($ex,$this);
+			}
+				
             break;
         }
         while(true);
