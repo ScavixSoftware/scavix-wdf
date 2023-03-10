@@ -132,14 +132,13 @@ function system_config_default($reset = true)
 	$CONFIG['class_path']['content'][] = __DIR__.'/lib/jquery-ui/slider/';
 	$CONFIG['class_path']['content'][] = __DIR__.'/lib/widgets/';
 	$CONFIG['class_path']['content'][] = __DIR__.'/lib/google/';
-	$CONFIG['class_path']['content'][] = __DIR__.'/lib/fusioncharts/';
 
-	$CONFIG['class_path']['order'] = array('system','model','content');
+	$CONFIG['class_path']['order'] = ['system','model','content'];
 
 	$CONFIG['system']['path_root'] = __DIR__;
 
 	$CONFIG['requestparam']['ignore_case'] = true;
-	$CONFIG['requestparam']['tagstostrip'] = array('script');
+	$CONFIG['requestparam']['tagstostrip'] = ['script'];
 
 	$CONFIG['model']['internal']['auto_create_tables'] = true;
 	$CONFIG['model']['internal']['datasource_type']    = 'DataSource';	
@@ -1378,7 +1377,7 @@ function is_host($host_or_ip)
  */
 function cache_get($key,$default=false,$use_global_cache=true,$use_session_cache=true)
 {
-	if ($use_session_cache && isset($_SESSION["system_internal_cache"][$key]))
+	if ($use_session_cache && isset($_SESSION["system_internal_cache"][$key]) && function_exists('session_unserialize'))
 	{
 		if(is_array($_SESSION["system_internal_cache"][$key]))
 		{
@@ -1433,9 +1432,9 @@ function cache_set($key,$value,$ttl=false,$use_global_cache=true,$use_session_ca
 		if (!isset($_SESSION['system_internal_cache']) || !is_array($_SESSION['system_internal_cache']))
 			$_SESSION['system_internal_cache'] = [];
 		if($ttl && ($ttl > 0))
-			$_SESSION["system_internal_cache"][$key] = ['valid_until' => time() + $ttl, 'data' =>  session_serialize($value)];
+			$_SESSION["system_internal_cache"][$key] = ['valid_until' => time() + $ttl, 'data' => session_serialize($value)];
 		else
-			$_SESSION["system_internal_cache"][$key] = ['data' =>  session_serialize($value)];
+			$_SESSION["system_internal_cache"][$key] = ['data' => session_serialize($value)];
     }
 }
 

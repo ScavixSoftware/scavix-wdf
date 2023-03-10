@@ -95,7 +95,7 @@ function resourceExists($filename, $return_url = false, $as_local_path = false, 
 	global $CONFIG;
     
 	$cnc = substr(appendVersion('/'),1);
-	$key = (isSSL()?"resource_ssl_$filename":"resource_$filename")."_{$cnc}".($as_local_path?"_l":"");
+	$key = md5((isSSL()?"resource_ssl_$filename":"resource_$filename")."_{$cnc}".($as_local_path?"_l":"").$CONFIG['system']['url_root']);
 	if( !$nocache && (($res = cache_get($key)) !== false) )
 		return $return_url?$res:($res != "0");
 
