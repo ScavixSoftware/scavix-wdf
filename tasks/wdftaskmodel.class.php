@@ -61,11 +61,11 @@ class WdfTaskModel extends Model
     protected function CreateTable()
     {
         $this->_ds->ExecuteSql(
-            "CREATE TABLE IF NOT EXISTS `wdf_tasks` (
+            "CREATE TABLE `wdf_tasks` (
                 `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
                 `parent_task` INT(11) UNSIGNED NULL DEFAULT NULL,
-                `follow_deletion` TINYINT(1) UNSIGNED NULL DEFAULT 0,
-                `enabled` TINYINT(4) NULL DEFAULT 0,
+                `follow_deletion` TINYINT(1) UNSIGNED NULL DEFAULT '0',
+                `enabled` TINYINT(4) NULL DEFAULT '0',
                 `created` DATETIME NULL DEFAULT NULL,
                 `start` DATETIME NULL DEFAULT NULL,
                 `assigned` DATETIME NULL DEFAULT NULL,
@@ -73,8 +73,13 @@ class WdfTaskModel extends Model
                 `name` VARCHAR(255) NULL DEFAULT NULL,
                 `arguments` VARCHAR(21000) NULL DEFAULT NULL,
                 PRIMARY KEY (`id`),
-                INDEX `enabled_workerpid_parenttask_id` (`enabled`, `worker_pid`, `parent_task`, `id`)
-            ) ENGINE=MEMORY ;");
+                INDEX `enabled_workerpid_parenttask_id` (`enabled`, `worker_pid`, `parent_task`, `id`),
+                INDEX `worker_pid` (`worker_pid`, `assigned`),
+                INDEX `name` (`name`),
+                INDEX `parent_task` (`parent_task`)
+            )
+            ENGINE=MEMORY;
+            ");
     }
 	
     public function Save($columns_to_update = false, &$changed=null)
