@@ -93,9 +93,11 @@ abstract class Task
      * @param string $method Task method to check for (default: run)
      * @return bool true if present, else false
      */
-    public static function IsRunning($method='run')
+    public static function IsRunning($method='run', $args = false)
     {
         $name = get_called_class()."-$method";
+        if($args)
+            $name .= '-'.md5(serialize($args));
         return !!WdfTaskModel::Make()->eq('name',$name)->scalar('id');
     }
     
