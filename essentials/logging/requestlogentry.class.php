@@ -106,15 +106,17 @@ class RequestLogEntry extends Model
     }
     
     protected function SaveToDB($data=[])
-    {
+    {        
         if( !($this->_ds->Driver instanceof \ScavixWDF\Model\Driver\MySql) )
             return;
         
         $this->started = microtime(true); // not in DB!
-//        $this->created = 'NOW(3)';
         $this->session_id = session_id();
         $this->ip = get_ip_address();
-        $this->url = ifavail(\ScavixWDF\Wdf::$Request,'URL')?:system_current_request(true);
+        $url = ifavail(\ScavixWDF\Wdf::$Request,'URL')?:system_current_request(true);
+        if (($rooturl = cfg_get('system', 'url_root')) && starts_iwith($url, $rooturl))
+            $url = substr($url, strlen($rooturl)-1);
+        $this->url = $url;
         $post = $_POST;
         if(count($post) == 0)
         {
@@ -147,7 +149,6 @@ class RequestLogEntry extends Model
             }
             catch(\ScavixWDF\WdfDbException $ex)
             {
-//                log_debug(__METHOD__, $ex->getErrorInfo());
                 if($ex->isTableNotExistException('wdf_requests'))
 				{
 					$this->CreateTable();
