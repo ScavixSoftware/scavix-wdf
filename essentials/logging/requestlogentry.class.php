@@ -105,7 +105,7 @@ class RequestLogEntry extends Model
         $entry->SaveToDB();
     }
     
-    protected function SaveToDB($data=[])
+    protected function SaveToDB($data=[], $url = false)
     {        
         if( !($this->_ds->Driver instanceof \ScavixWDF\Model\Driver\MySql) )
             return;
@@ -113,10 +113,16 @@ class RequestLogEntry extends Model
         $this->started = microtime(true); // not in DB!
         $this->session_id = session_id();
         $this->ip = get_ip_address();
-        $url = ifavail(\ScavixWDF\Wdf::$Request,'URL')?:system_current_request(true);
-        if (($rooturl = cfg_get('system', 'url_root')) && starts_iwith($url, $rooturl))
-            $url = substr($url, strlen($rooturl)-1);
+        if (!$url)
+        {
+            $url = ifavail(\ScavixWDF\Wdf::$Request, 'URL') ?: system_current_request(true);
+            $url = substr($url, strpos($url,"/",strpos($url, "://") + 3));
+        }
         $this->url = $url;
+        
+        if( $this->Blacklisted() )
+            return;
+        
         $post = $_POST;
         if(count($post) == 0)
         {
@@ -126,9 +132,6 @@ class RequestLogEntry extends Model
         }
         $this->post = json_encode($this->obfuscateData($post));
         $id = md5($this->ip.'-'.$this->url.'-'.$this->post.'-'.$this->started);
-        
-        if( $this->Blacklisted() )
-            return;
         
         foreach( $data as $k=>$v )
             $this->$k = $v;
