@@ -319,9 +319,9 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 				if( $deadlock_retries++<5 )
 				{
 					$ei = $this->_stmt->errorInfo();
-					if( $ei && isset($ei[1]) && $ei[1] == 1213 )
+					if( $ei && isset($ei[1]) && is_in($ei[1], 1213, 1205) )
 					{
-						usleep(10000);
+						usleep(10 * 1000);
 						continue;
 					}
 				}
