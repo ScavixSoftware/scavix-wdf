@@ -555,17 +555,25 @@ class ChartJS3 extends Control
      * @param iterable $data The actual data
      * @param string $x_value_row Name of the field that represents the series name
      * @param string $pointType Optional classname of the Point handler
+     * @param Closure $pointdatacallback Optional closure receiving $row,$series,$x_value_row_name
      * @return $this
      */
-    function setChartData(iterable $data, string $x_value_row, $pointType="StrPoint")
+    function setChartData(iterable $data, string $x_value_row, $pointType="StrPoint", $pointdatacallback = false)
     {
-        return $this->fill(function($series)use($data, $x_value_row, $pointType)
+        return $this->fill(function($series)use($data, $x_value_row, $pointType, $pointdatacallback)
         {
             $d = []; 
             foreach( $data as $r ) 
             {
-                if( is_callable($pointType) )
-                    $d[] = $pointType($r,$series,$x_value_row);
+                if( $pointdatacallback && is_callable($pointdatacallback) )
+                {
+                    $v = isset($r[$series])?$r[$series]:0;
+                    $d[] = array_merge(ChartJS3::$pointType($r[$x_value_row],floatval($v)), $pointdatacallback($r, $series, $x_value_row)); 
+                }
+                elseif (is_callable($pointType))
+                {
+                    $d[] = $pointType($r, $series, $x_value_row);
+                }
                 elseif( isset($r[$series]) )
                 {
                     $v = isset($r[$series])?$r[$series]:0;
@@ -584,17 +592,18 @@ class ChartJS3 extends Control
      * @param string $series_row Name of the field with the series name
      * @param string $x_value_row Name of the field with the x-values
      * @param string $y_value_row Name of the field with the y-values
-     * @param string|\Closure $pointType Optional name of the Point handler or a callable receiving $row,$series,$series_row_name,$x_value_row_name,$y_value_row_name
+     * @param string $pointType Optional classname of the Point handler
+     * @param Closure $pointdatacallback Optional closure receiving $row,$series,$series_row_name,$x_value_row_name,$y_value_row_name
      * @return $this
      */
-    function setSeriesData(iterable $data, string $series_row, string $x_value_row, string $y_value_row, $pointType="StrPoint")
+    function setSeriesData(iterable $data, string $series_row, string $x_value_row, string $y_value_row, $pointType="StrPoint", $pointdatacallback = false)
     {   
         $series = [];
         foreach( $data as $r )
             $series[] = $r[$series_row];
         
         $this->setSeries(array_filter(array_unique($series)));
-        return $this->fill(function($series)use($data, $series_row, $x_value_row, $y_value_row, $pointType)
+        return $this->fill(function($series)use($data, $series_row, $x_value_row, $y_value_row, $pointType, $pointdatacallback)
         {
             $d = []; 
             foreach( $data as $r ) 
@@ -602,7 +611,12 @@ class ChartJS3 extends Control
                 if( ifavail($r,$series_row) != $series )
                     continue;
                 
-                if( is_callable($pointType) )
+                if( $pointdatacallback && is_callable($pointdatacallback) )
+                {
+                    $v = isset($r[$series])?$r[$series]:0;
+                    $d[] = array_merge(ChartJS3::$pointType($r[$x_value_row],floatval($v)), $pointdatacallback($r,$series,$series_row,$x_value_row,$y_value_row)); 
+                }
+                elseif( is_callable($pointType) )
                     $d[] = $pointType($r,$series,$series_row,$x_value_row,$y_value_row);
                 else
                 {
