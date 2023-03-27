@@ -172,7 +172,7 @@ class RequestLogEntry extends Model
     protected function obfuscateData(array $data): array
     {
         foreach( $data as $k=>$v )
-            if( stripos($k,'pass') )
+            if( stripos($k,'pass') !== false )
                 $data[$k] = '***';
             else if( is_string($v) && starts_iwith($v,"data:") ) 
                 $data[$k] = substr($v,0,30)."-TRUNCATED";
