@@ -1873,11 +1873,17 @@ function fq_class_name($classname)
  */
 function system_process_running($pid)
 {
-    $stat = @file_get_contents("/proc/$pid/stat");
-    if( !$stat ) return false;
-    $d = sscanf($stat,"%d %s %c %d");
-    if( !isset($d[2]) ) return false;
-    return $d[2]=='S' || $d[2]=='R' || $d[2]=='D';
+    if (PHP_OS_FAMILY == "Linux")
+    {
+        $stat = @file_get_contents("/proc/$pid/stat");
+        if (!$stat)
+            return false;
+        $d = sscanf($stat, "%d %s %c %d");
+        if (!isset($d[2]))
+            return false;
+        return $d[2] == 'S' || $d[2] == 'R' || $d[2] == 'D';
+    }
+    return strpos(shell_exec("tasklist /FI \"PID eq $pid\" /FO \"CSV\" /NH"), "\"$pid\"");
 }
 
 /**
