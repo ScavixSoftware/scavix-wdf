@@ -52,6 +52,16 @@ class ClearTask extends Task
         cache_clear();
         log_info("Cache cleared");
     }
+
+    function CleanupGlobal()
+    {
+        if (system_is_module_loaded("globalcache"))
+        {
+            globalcache_clear(true);
+            log_info("Globalcache cleaned up");
+        }
+        else log_info("Globalcache not loaded");
+    }
     
     function Requests()
     {
