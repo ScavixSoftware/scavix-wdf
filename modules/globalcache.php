@@ -31,6 +31,7 @@
  * @SuppressWarnings
  */
 
+use ScavixWDF\Wdf;
 use ScavixWDF\WdfException;
 
 define('globalcache_CACHE_OFF',0);
@@ -227,7 +228,7 @@ function globalcache_get($key, $default = false)
  * 
  * @suppress PHP0404,PHP0417
  */
-function globalcache_clear()
+function globalcache_clear($expired_only=false)
 {
     if( !hook_already_fired(HOOK_POST_INIT) )
         return false;
@@ -238,16 +239,19 @@ function globalcache_clear()
 		case globalcache_CACHE_OFF:
 			return true;
 
-		case globalcache_CACHE_APC:
+        case globalcache_CACHE_APC:
+            if ($expired_only)
+                return true; // apc handles expiry itself
 			return apc_clear_cache('user');
         
         case globalcache_CACHE_YAC:
         case globalcache_CACHE_FILES:
-			return $CONFIG['globalcache']['handler']->flush();
+			return $CONFIG['globalcache']['handler']->clear($expired_only);
         
         case globalcache_CACHE_DB:
             $ds = model_datasource($CONFIG['globalcache']['datasource']);
-			try{ $ds->ExecuteSql("DELETE FROM wdf_cache"); }catch(Exception $ex){}
+            $sql = $expired_only ? "DELETE FROM wdf_cache WHERE valid_until<now()" : "DELETE FROM wdf_cache";
+			try{ $ds->ExecuteSql($sql); }catch(Exception $ex){}
 			break;
 	}
 	return false;
@@ -416,9 +420,11 @@ class WdfYacWrapper
         $this->yac->delete($this->getKey($key));
     }
     
-    function flush()
+    function clear($expired_only)
     {
+        // ignore expired_only as Yac should handle itself
         $this->yac->flush();
+        return true;
     }
     
     function info()
@@ -449,12 +455,42 @@ class WdfFileCacheWrapper
         $um = umask(0);
         @mkdir($this->root,0777,true);
         umask($um);
-    }                                                                           
+        
+        if( $this->get('WdfFileCacheWrapper::NextCleanup',0,$ex) < time() )
+        {
+            if( $lock = Wdf::GetLock(__METHOD__,0,false) )
+            {
+                $this->set('WdfFileCacheWrapper::NextCleanup', strtotime('midnight + 23 hour'));
+                log_debug("WdfFileCacheWrapper starting auto-cleanup");
+                $this->clear(true,1);
+                Wdf::ReleaseLock($lock);
+            }
+            else
+                log_debug("Another process currently cleaning up....");
+        }
+    }
+
+    protected function getPath($key)
+    {
+        $file = md5($key);
+        $dir = "{$this->root}/" . substr($file, 0, 2);// . '/' . substr($file, 2, 2);
+        $um = umask(0);
+        @mkdir($dir, 0777, true);
+        umask($um);
+        return "$dir/$file";
+    }
+
+    protected function unpack($file)
+    {
+        $c = @file_get_contents($file);
+        if (!$c)
+            return null;
+        return session_unserialize($c);
+    }
 
     public function set($key, $val, $ttl = 0)
-    {                              
-        $eol = time() + $ttl;
-        $file = md5($key);
+    {
+        $eol = time() + (($ttl <= 0) ? 86400 : $ttl);
         $val = array(
             'expiry' => $eol>time()?$eol:false,
             'key' => $key,
@@ -462,9 +498,8 @@ class WdfFileCacheWrapper
         );
         // Write to temp file first to ensure atomicity
         $um = umask(0);
-        $dest = "{$this->root}/$file";
+        $dest = $this->getPath($key);
         $tmp = $dest . '.' . uniqid('', true) . '.tmp';
-        //file_put_contents($tmp, '<?php $val = session_unserialize(base64_decode("'.base64_encode(session_serialize($val)).'"));', LOCK_EX);
         file_put_contents($tmp, session_serialize($val), LOCK_EX);
         rename($tmp, $dest);
         umask($um);
@@ -474,22 +509,14 @@ class WdfFileCacheWrapper
     public function get($key,$default,&$exists)
     {
         $exists = false;
-        $file = "{$this->root}/".md5($key);
+        $file = $this->getPath($key);
 
         $filemtime = @filemtime($file);
         if( isset($this->map[$key]) && $this->map[$key]['filemtime'] == $filemtime )
             return $this->map[$key]['data'];
         
-        $c = @file_get_contents($file);
-        if (!$c)
-            return $default;
-        $val = session_unserialize($c);
-//        log_debug($key, $val);
-
-        if (!isset($val))
-            return $default;
-
-        if ( isset($val['key']) && $val['key'] != $key ) 
+        $val = $this->unpack($file);
+        if (!isset($val['key']) || $val['key'] != $key ) 
             return $default;
         
         if (!$val['expiry'] || $val['expiry'] > time()) 
@@ -505,41 +532,68 @@ class WdfFileCacheWrapper
 
     public function delete($key)
     {                                              
-        $file = "{$this->root}/".md5($key);
+        $file = $this->getPath($key);
         @unlink($file);
         if( isset($this->map[$key]) ) 
             unset( $this->map[$key]);
     }
     
-    function flush()
+    function clear($expired_only, $ttl = 10)
     {
-        foreach( glob("{$this->root}/*") as $f )
-            if( is_file($f) )
-                @unlink($f);
+        $forced_end = time() + $ttl;
+        system_walk_files($this->root, '*', function ($file)use($expired_only, $forced_end, $ttl)
+        {
+            if( $expired_only )
+            {
+                $val = $this->unpack($file);
+                if( !isset($val['expiry']) || !$val['expiry'] || $val['expiry'] > time() ) 
+                    return;
+                //usleep(100000);
+            }
+            @unlink($file);
+
+            if( time()>$forced_end )
+            {
+                log_debug("WdfFileCacheWrapper::clear() unfinished after {$ttl}s, let others work too");
+                $this->set('WdfFileCacheWrapper::NextCleanup', time());
+                return false;
+            }
+        });
         $this->map = [];
+        return true;
     }
     
-    function info()
+    function info($include_keys=true)
     {
-        return [
-            'map_size'=>count($this->map),
-            'keys'=>$this->keys()
+        $r = [
+            'map_size' => count($this->map),
+            'entries' => 0,
+            'next_cleanup' => date("c", $this->get('WdfFileCacheWrapper::NextCleanup', time(), $ex)),
+            'next_cleanup_file' => $this->getPath('WdfFileCacheWrapper::NextCleanup'),
         ];
+        if ($include_keys)
+        {
+            $keys = $this->keys();
+            $r['entries'] = count($keys);
+            $r['keys'] = $keys;
+        }
+        else
+            system_walk_files($this->root, '*', function ($file) use (&$r)
+            {
+                $r['entries']++;
+            });
+        return $r;
     }
     
     function keys()
     {
         $ret = [];
-        foreach( glob("{$this->root}/*") as $file )
-            if( is_file($file) )
-            {
-                $c = @file_get_contents($file);
-                if (!$c)
-                    continue;
-                $val = session_unserialize($c);
-                if( isset($val['key']) )
-                    $ret[] = $val['key'];
-            }
+        system_walk_files($this->root, '*', function ($file)use(&$ret)
+        {
+            $val = $this->unpack($file);
+            if( isset($val['key']) )
+                $ret[] = $val['key'];
+        });
         return $ret;
     }
-}    
+}

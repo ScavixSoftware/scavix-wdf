@@ -979,6 +979,18 @@ function system_glob_rec($directory='',$pattern='*.*')
 	return $files;
 }
 
+function system_walk_files($folder, $pattern, $callback, $recursive = true)
+{
+    $iti = new RecursiveDirectoryIterator($folder);
+    foreach(new RecursiveIteratorIterator($iti) as $file)
+    {
+        $fn = basename("$file");
+        if (!is_in($fn, '.', '..') && fnmatch($pattern, $fn))
+            if (false === $callback("$file"))
+                break;
+    }
+}
+
 /**
  * Checks if WDF_FEATURES_REWRITE is on
  * 
