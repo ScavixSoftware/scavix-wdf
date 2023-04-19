@@ -465,8 +465,6 @@ class WdfFileCacheWrapper
                 $this->clear(true,1);
                 Wdf::ReleaseLock($lock);
             }
-            else
-                log_debug("Another process currently cleaning up....");
         }
     }
 
