@@ -22,6 +22,8 @@
  * @copyright since 2019 Scavix Software GmbH & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
+use ScavixWDF\Session\CliObjectStore;
+use ScavixWDF\Session\CliSession;
 
 /**
  * Initializes the CLI module.
@@ -67,6 +69,10 @@ function cli_init()
     create_class_alias(\ScavixWDF\Tasks\CreateTask::class,'createtask');
     create_class_alias(\ScavixWDF\Tasks\DbTask::class,'dbtask');
     create_class_alias(\ScavixWDF\Tasks\TaskPool::class,'taskpool');
+
+    global $CONFIG;
+    $CONFIG['session']['handler'] = CliSession::class;
+    $CONFIG['session']['object_store'] = CliObjectStore::class;
 }
 
 /**

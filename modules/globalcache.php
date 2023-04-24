@@ -538,8 +538,9 @@ class WdfFileCacheWrapper
     
     function clear($expired_only, $ttl = 10)
     {
+        $count = 0;
         $forced_end = time() + $ttl;
-        system_walk_files($this->root, '*', function ($file)use($expired_only, $forced_end, $ttl)
+        system_walk_files($this->root, '*', function ($file)use($expired_only, $forced_end, $ttl,&$count)
         {
             if( $expired_only )
             {
@@ -549,10 +550,12 @@ class WdfFileCacheWrapper
                 //usleep(100000);
             }
             @unlink($file);
+            log_debug($file);
+            $count++;
 
             if( time()>$forced_end )
             {
-                log_debug("WdfFileCacheWrapper::clear() unfinished after {$ttl}s, let others work too");
+                log_debug("WdfFileCacheWrapper::clear() unfinished after {$ttl}s (and $count files), let others work too");
                 $this->set('WdfFileCacheWrapper::NextCleanup', time());
                 return false;
             }
