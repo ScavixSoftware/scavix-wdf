@@ -461,7 +461,7 @@ class WdfFileCacheWrapper
             if( $lock = Wdf::GetLock(__METHOD__,0,false) )
             {
                 $this->set('WdfFileCacheWrapper::NextCleanup', strtotime('midnight + 23 hour'));
-                log_debug("WdfFileCacheWrapper starting auto-cleanup");
+                //log_debug("WdfFileCacheWrapper starting auto-cleanup");
                 $this->clear(true,1);
                 Wdf::ReleaseLock($lock);
             }
@@ -478,21 +478,26 @@ class WdfFileCacheWrapper
         return "$dir/$file";
     }
 
-    protected function unpack($file)
+    protected function unpack($file, $metadata_only = false)
     {
         $c = @file_get_contents($file);
         if (!$c)
             return null;
-        return session_unserialize($c);
+        $res = session_unserialize($c);
+        if (!isset($data['exp']) && isset($res['expiry']))
+            $res['exp'] = $res['expiry'];
+        elseif( !$metadata_only )
+            $res['data'] = session_unserialize($res['data']);
+        return $res;
     }
 
     public function set($key, $val, $ttl = 0)
     {
         $eol = time() + (($ttl <= 0) ? 86400 : $ttl);
         $val = array(
-            'expiry' => $eol>time()?$eol:false,
+            'exp' => $eol>time()?$eol:false,
             'key' => $key,
-            'data' => $val,
+            'data' => session_serialize($val),
         );
         // Write to temp file first to ensure atomicity
         $um = umask(0);
@@ -517,7 +522,7 @@ class WdfFileCacheWrapper
         if (!isset($val['key']) || $val['key'] != $key ) 
             return $default;
         
-        if (!$val['expiry'] || $val['expiry'] > time()) 
+        if (!$val['exp'] || $val['exp'] > time()) 
         {
             $this->map[$key] = $val;
             $this->map[$key]['filemtime'] = $filemtime;
@@ -544,18 +549,18 @@ class WdfFileCacheWrapper
         {
             if( $expired_only )
             {
-                $val = $this->unpack($file);
-                if( !isset($val['expiry']) || !$val['expiry'] || $val['expiry'] > time() ) 
+                $val = $this->unpack($file,true);
+                if( !isset($val['exp']) || !$val['exp'] || $val['exp'] > time() ) 
                     return;
                 //usleep(100000);
             }
             @unlink($file);
-            log_debug($file);
+            //log_debug($file);
             $count++;
 
             if( time()>$forced_end )
             {
-                log_debug("WdfFileCacheWrapper::clear() unfinished after {$ttl}s (and $count files), let others work too");
+                //log_debug("WdfFileCacheWrapper::clear() unfinished after {$ttl}s (and $count files), let others work too");
                 $this->set('WdfFileCacheWrapper::NextCleanup', time());
                 return false;
             }
@@ -591,7 +596,7 @@ class WdfFileCacheWrapper
         $ret = [];
         system_walk_files($this->root, '*', function ($file)use(&$ret)
         {
-            $val = $this->unpack($file);
+            $val = $this->unpack($file,true);
             if( isset($val['key']) )
                 $ret[] = $val['key'];
         });
