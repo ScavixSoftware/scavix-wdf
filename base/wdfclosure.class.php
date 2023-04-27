@@ -106,8 +106,8 @@ class WdfClosure
 		if ( ! $use_index)
 			return [];
 
-        if( !preg_match('/function\([^\)]*\)\s*use\s*\(([^\)]+)\)/U',$this->code,$m) )
-            return;
+		if (!preg_match('/function\s*\([^\)]*\)\s*use\s*\(([^\)]+)\)/U', $this->code, $m))
+			return;
         
         $vars = explode(',',$m[1]);
         
