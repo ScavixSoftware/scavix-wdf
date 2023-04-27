@@ -212,7 +212,7 @@ class gMap extends GoogleControl
         
         $ret = new stdClass();
         $geourl = "https://maps.google.com/maps/api/geocode/xml?key=".$CONFIG['google']['maps']['apikey']."&address=".urlencode($search);
-        $xmlsrc = utf8_encode(file_get_contents($geourl));
+        $xmlsrc = file_get_contents($geourl);
         try {
             $xml = simplexml_load_string($xmlsrc);
         }
