@@ -126,7 +126,7 @@ class CellFormat
 	 * Formats a given string.
 	 * 
 	 * @param string $full_content The string to format
-	 * @param CultureInfo $culture <CultureInfo> object or false if not present
+	 * @param \ScavixWDF\Localization\CultureInfo $culture <CultureInfo> object or false if not present
 	 * @return string The formatted string
 	 */
 	function FormatContent($full_content,$culture=false)

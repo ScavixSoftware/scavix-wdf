@@ -73,7 +73,7 @@ class DatabaseTable extends Table implements ICallable
     var $SlimSerialization = false;
 
 	/**
-	 * @param DataSource $datasource DataSource to use
+	 * @param \ScavixWDF\Model\DataSource $datasource DataSource to use
 	 * @param string $datatype Datatype to be rendered
 	 * @param string $datatable Data tyble to be rendered
 	 */
