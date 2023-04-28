@@ -57,21 +57,21 @@ class DateTimeFormat
 			"t2","t1"
 		);
 
-	var $MonthNames;
-	var $ShortMonthNames;
-	var $GenitiveMonthNames;
-	var $DayNames;
-	var $ShortDayNames;
-	var $FirstDayOfWeek;
-	var $FullDateTimePattern;
-	var $LongDatePattern;
-	var $LongTimePattern;
-	var $MonthDayPattern;
-	var $ShortDatePattern;
-	var $ShortTimePattern;
-	var $YearMonthPattern;
-	var $AM;
-	var $PM;
+	public $MonthNames;
+	public $ShortMonthNames;
+	public $GenitiveMonthNames;
+	public $DayNames;
+	public $ShortDayNames;
+	public $FirstDayOfWeek;
+	public $FullDateTimePattern;
+	public $LongDatePattern;
+	public $LongTimePattern;
+	public $MonthDayPattern;
+	public $ShortDatePattern;
+	public $ShortTimePattern;
+	public $YearMonthPattern;
+	public $AM;
+	public $PM;
 
 	function  __construct($fdow="",$fdtp="",$ldp="",$ltp="",$mdp="",$sdp="",$stp="",$ymp="",$am="",$pm="")
 	{

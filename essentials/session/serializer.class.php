@@ -52,11 +52,11 @@ use Serializable;
  */
 class Serializer
 {
-	var $Stack;
-	var $clsmap;
-	var $sleepmap;
-	var $Lines;
-    var $Index;
+	public $Stack;
+	public $clsmap;
+	public $sleepmap;
+	public $Lines;
+    public $Index;
     
     public static $unserializing_level = 0;
 

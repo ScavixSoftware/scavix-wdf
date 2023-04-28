@@ -37,10 +37,10 @@ namespace ScavixWDF\Localization;
  */
 class RegionInfo
 {
-	var $Code;
-	var $EnglishName;
-	var $NativeName;
-	var $KnownCultures;
+	public $Code;
+	public $EnglishName;
+	public $NativeName;
+	public $KnownCultures;
 
 	function  __construct($code="",$english="",$native="",$cultures="")
 	{

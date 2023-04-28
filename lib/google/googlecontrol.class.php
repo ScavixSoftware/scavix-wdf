@@ -43,7 +43,7 @@ class GoogleControl extends Control
 	private static $_delayedHookAdded = false;
 	private $disposed = false;
 	private $frozen = true;
-	var $_culture = false;
+	public $_culture = false;
     private $gchartsversion = false;
 	
 	/**

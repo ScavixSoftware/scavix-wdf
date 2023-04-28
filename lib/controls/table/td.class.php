@@ -38,10 +38,10 @@ use ScavixWDF\Base\Control;
  */
 class Td extends Control
 {
-    var $options = false;
-	var $CellFormat = false;
+    public $options = false;
+	public $CellFormat = false;
 	
-	var $colspan = "";
+	public $colspan = "";
 
 	/**
 	 * @param array $options No valid options defined yet

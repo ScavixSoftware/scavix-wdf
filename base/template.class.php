@@ -41,8 +41,8 @@ use ScavixWDF\WdfException;
  */
 class Template extends Renderable
 {
-	var $_data = [];
-	var $file = "";
+	public $_data = [];
+	public $file = "";
     
     function __toString()
     {

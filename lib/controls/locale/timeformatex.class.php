@@ -43,8 +43,8 @@ use ScavixWDF\Localization\Localization;
  */
 class TimeFormatEx extends Control
 {
-	var $culture_code;
-	var $timezone;
+	public $culture_code;
+	public $timezone;
 	
 	/**
 	 * @param string $culture_code Code of current <CultureInfo>

@@ -36,15 +36,15 @@ namespace ScavixWDF\Localization;
  */
 class CurrencyFormat
 {
-	var $DecimalDigits;
-	var $DecimalSeparator;
-	var $GroupSeparator;
-	var $Symbol;
-	var $Code;
-	var $PositiveFormat;
-	var $NegativeFormat;
-	var $EnglishName;
-	var $NativeName;
+	public $DecimalDigits;
+	public $DecimalSeparator;
+	public $GroupSeparator;
+	public $Symbol;
+	public $Code;
+	public $PositiveFormat;
+	public $NegativeFormat;
+	public $EnglishName;
+	public $NativeName;
 
 	function  __construct($digits="",$decsep="",$groupsep="",$symbol="",$isosymbol="",$pos="",$neg="",$english="",$native="")
 	{

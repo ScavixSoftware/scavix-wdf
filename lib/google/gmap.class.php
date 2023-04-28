@@ -42,12 +42,12 @@ class gMap extends GoogleControl
 	const HYBRID = 'google.maps.MapTypeId.HYBRID';
 	const TERRAIN = 'google.maps.MapTypeId.TERRAIN';
 	
-	var $gmOptions = array('language'=>'en','region'=>'DE');
+	public $gmOptions = array('language'=>'en','region'=>'DE');
 	private $_basicOptions = array('center'=>'new google.maps.LatLng(-34.397, 150.644)','zoom'=>13,'mapTypeId'=>self::ROADMAP,'scrollwheel'=>false);
 	private $_markers = [];
 	private $_addresses = [];
 	
-	var $AutoShowHints = false;
+	public $AutoShowHints = false;
 	
 	/**
 	 * @param array $options See https://developers.google.com/maps/documentation/javascript/tutorial#MapOptions

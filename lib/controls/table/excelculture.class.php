@@ -40,7 +40,7 @@ class ExcelCulture extends CultureInfo
 {
 	private static $FORMAT_MAP = [];
 
-    var $LanguageCode;
+    public $LanguageCode;
 	
 	static function FromCode($code)
 	{

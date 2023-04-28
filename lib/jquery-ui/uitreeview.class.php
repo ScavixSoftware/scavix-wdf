@@ -41,8 +41,8 @@ use ScavixWDF\Base\Control;
  */
 class uiTreeView extends uiControl
 {
-	var $Url = false;
-	var $NodeSelected = false;
+	public $Url = false;
+	public $NodeSelected = false;
 
 	/**
 	 * @param string $url Optional URL to load data from
@@ -94,11 +94,11 @@ class uiTreeView extends uiControl
  */
 class uiTreeNode extends Control
 {
-	var $tree = false;
-	var $text = false;
-	var $hasChildren = false;
-	var $expanded = "closed";
-	var $children = false;
+	public $tree = false;
+	public $text = false;
+	public $hasChildren = false;
+	public $expanded = "closed";
+	public $children = false;
 
 	/**
 	 * No need to call this manually, use <uiTreeView::AddRootNode>() instead.

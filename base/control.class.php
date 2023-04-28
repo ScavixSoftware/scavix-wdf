@@ -154,13 +154,13 @@ class Control extends Renderable
     protected static $html_universals_keys = [];
     protected static $html_attributes_keys = [];
     
-	var $Tag = "";
+	public $Tag = "";
 	
-	var $_css = [];
-	var $_attributes = [];
-	var $_data_attributes = [];
+	public $_css = [];
+	public $_attributes = [];
+	public $_data_attributes = [];
 	
-	var $_skipRendering = false;
+	public $_skipRendering = false;
     
     function __toString()
     {

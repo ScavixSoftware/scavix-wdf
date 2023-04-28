@@ -61,7 +61,7 @@ class OAuthHandler
         //'monday' => ['cls'=>\ScavixWDF\OAuth\Provider\Monday::class, 'file'=>__DIR__.'/provider/monday.class.php' ],
         'monday' => ['cls'=>'\League\OAuth2\Client\Provider\GenericProvider'],
     ];
-    var $local_id, $provider_name, $provider_config, $state;
+    public $local_id, $provider_name, $provider_config, $state;
     
     function __construct($local_id, $provider_name, $provider_config=[])
     {

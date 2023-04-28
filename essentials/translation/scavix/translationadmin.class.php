@@ -50,7 +50,7 @@ use ScavixWDF\WdfException;
  */
 class TranslationAdmin extends TranslationAdminBase
 {
-	var $ds;
+	public $ds;
 	
 	function __construct($title = "", $body_class = false)
     {

@@ -50,9 +50,9 @@ namespace ScavixWDF\Controls\Table;
  */
 class CellFormat
 {
-    var $format = false;
-    var $blank_if_false = false;
-	var $conditional_css = [];
+    public $format = false;
+    public $blank_if_false = false;
+	public $conditional_css = [];
     private $content;
 
 	function __construct($format=false,$blank_if_false=false,$conditional_css=[])

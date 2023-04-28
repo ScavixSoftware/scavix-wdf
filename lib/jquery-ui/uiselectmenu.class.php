@@ -38,7 +38,7 @@ use ScavixWDF\Base\Control;
  */
 class uiSelectMenu extends uiControl
 {
-	var $_icons = [];
+	public $_icons = [];
 
 	/**
 	 * @param array $options See http://www.filamentgroup.com/lab/jquery_ui_selectmenu_an_aria_accessible_plugin_for_styling_a_html_select/

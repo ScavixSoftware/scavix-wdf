@@ -35,8 +35,8 @@ use ScavixWDF\WdfException;
  */
 class AjaxResponse
 {
-	var $_data = false;
-	var $_text = false;
+	public $_data = false;
+	public $_text = false;
 	private $_translated = false;
 	
 	/**

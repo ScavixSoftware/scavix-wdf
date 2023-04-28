@@ -36,10 +36,10 @@ namespace ScavixWDF\Localization;
  */
 class NumberFormat
 {
-	var $DecimalDigits;
-	var $DecimalSeparator;
-	var $GroupSeparator;
-	var $NegativeFormat;
+	public $DecimalDigits;
+	public $DecimalSeparator;
+	public $GroupSeparator;
+	public $NegativeFormat;
 
 	function  __construct($digits="",$decsep="",$groupsep="",$neg="")
 	{

@@ -45,14 +45,14 @@ define("WDF_HTMLPAGE_TEMPLATE", __DIR__."/htmlpage.tpl.php");
  */
 class HtmlPage extends Template implements ICallable
 {
-	var $meta = [];
-	var $js = [];
-	var $css = [];
-	var $docready = [];
-	var $inlineheaderpre = false;
-	var $inlineheader = false;
-	var $plaindocready = [];
-	var $wdf_settings = array('focus_first_input'=>true);
+	public $meta = [];
+	public $js = [];
+	public $css = [];
+	public $docready = [];
+	public $inlineheaderpre = false;
+	public $inlineheader = false;
+	public $plaindocready = [];
+	public $wdf_settings = array('focus_first_input'=>true);
     
     public static $RENDER_NOSCRIPT = true;
     public static $DOCTYPE = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
@@ -61,7 +61,7 @@ class HtmlPage extends Template implements ICallable
 	 * Setting this to a filename (relative to class) will load it as subtemplate
 	 * @var bool|string Templatename or false
 	 */
-	var $SubTemplate = false;
+	public $SubTemplate = false;
     
     public static $POLYFILLS = [];
     

@@ -36,11 +36,11 @@ namespace ScavixWDF\Localization;
  */
 class PercentFormat
 {
-	var $DecimalDigits;
-	var $DecimalSeparator;
-	var $GroupSeparator;
-	var $PositiveFormat;
-	var $NegativeFormat;
+	public $DecimalDigits;
+	public $DecimalSeparator;
+	public $GroupSeparator;
+	public $PositiveFormat;
+	public $NegativeFormat;
 
 	function  __construct($digits="",$decsep="",$groupsep="",$percpos="",$percneg="")
 	{

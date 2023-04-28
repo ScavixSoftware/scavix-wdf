@@ -125,7 +125,7 @@ class uiControl extends Control
 		'grip-diagonal-se'
 	);
 	protected $Options = [];
-	var $InitFunctionName;
+	public $InitFunctionName;
 	
 	function __construct($tag = "")
 	{

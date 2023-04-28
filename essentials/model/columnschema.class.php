@@ -37,13 +37,13 @@ namespace ScavixWDF\Model;
  */
 class ColumnSchema
 {
-	var $Name;
-	var $Type;
-	var $Size;
-	var $Null;
-	var $Key;
-	var $Default;
-	var $Extra;
+	public $Name;
+	public $Type;
+	public $Size;
+	public $Null;
+	public $Key;
+	public $Default;
+	public $Extra;
 	
     function __construct($name)
     {

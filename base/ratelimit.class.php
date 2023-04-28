@@ -60,7 +60,7 @@ class RateLimit extends \ScavixWDF\Model\Model
 {
     private $limits = [];
 
-    var $internal_name;
+    public $internal_name;
     
     /**
      * @implements <Model::GetTableName()>

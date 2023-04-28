@@ -42,10 +42,10 @@ use ScavixWDF\Wdf;
  */
 class RequestParamAttribute extends WdfAttribute
 {
-	var $Name = null;
-	var $Type = null;
-	var $Default = null;
-	var $Filter = null;
+	public $Name = null;
+	public $Type = null;
+	public $Default = null;
+	public $Filter = null;
 
 	function __construct($name,$type=null,$default=null,$filter=null)
 	{

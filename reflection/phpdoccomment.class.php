@@ -39,10 +39,10 @@ use stdClass;
  */
 class PhpDocComment
 {
-	var $ShortDesc = "";
-	var $LongDesc = "";
-	var $Tags = [];
-	var $Attributes = [];
+	public $ShortDesc = "";
+	public $LongDesc = "";
+	public $Tags = [];
+	public $Attributes = [];
     
     private $_tagbuf;
 	
@@ -376,7 +376,7 @@ class PhpDocComment
 		return $desc;
 	}
 	
-	var $entities = false;
+	public $entities = false;
 	private function mdEscapeEntity(&$data,$what)
 	{
 		$data["<$what>"] = htmlspecialchars("<$what>");

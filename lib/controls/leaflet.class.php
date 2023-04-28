@@ -49,9 +49,9 @@ class LeafLet extends Control
     protected $_polygons = [];
     protected $autoZoom = true;
 
-    var $AutoShowHints = false; // useless gMap compat
+    public $AutoShowHints = false; // useless gMap compat
 
-    var $TileProvider = 'openstreetmap';
+    public $TileProvider = 'openstreetmap';
     protected static $providers =
     [
         'openstreetmap' =>

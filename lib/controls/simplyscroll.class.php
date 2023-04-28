@@ -42,7 +42,7 @@ use ScavixWDF\Base\Control;
  */
 class SimplyScroll extends Control
 {
-	var $Options = [];
+	public $Options = [];
 
 	/**
 	 * @param array $options SimplyScroll options (see http://logicbox.net/jquery/simplyscroll)

@@ -38,7 +38,7 @@ namespace ScavixWDF\Reflection;
  */
 class ResourceAttribute extends WdfAttribute
 {
-	var $Path;
+	public $Path;
 	
 	function __construct($path)
 	{

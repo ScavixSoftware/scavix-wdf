@@ -47,7 +47,7 @@ use ScavixWDF\Controls\Table\Table;
  */
 class SysAdmin extends HtmlPage
 {
-	var $PrefedinedCacheSearches = array('autoload_template','autoload_class',
+	public $PrefedinedCacheSearches = array('autoload_template','autoload_class',
 		'lang_','method_','ref_attr_','resource_','filemtime_','doccomment_','DB_Cache_');
     
     protected $_contentdiv = false;

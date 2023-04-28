@@ -36,7 +36,7 @@ use ScavixWDF\Base\Control;
  */
 class uiAccordion extends uiControl
 {
-	var $_sections = [];
+	public $_sections = [];
 	
 	/**
 	 * @param array $options See http://api.jqueryui.com/accordion/

@@ -1048,7 +1048,7 @@ function force_array($data)
  * There are situations where PHP provides you with stdClasses where you want your own type.
  * This function casts any object into another one:
  * <code php>
- * class SomeClass { var $someProperty; }
+ * class SomeClass { public $someProperty; }
  * class SomeOtherClass { }
  * $std = json_decode('{"someProperty":"someValue"}');
  * $typed = castObject($std,'SomeClass');

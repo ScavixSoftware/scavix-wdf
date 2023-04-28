@@ -48,23 +48,23 @@ use ScavixWDF\WdfException;
  */
 class CultureInfo
 {
-	var $Code;
-	var $ParentCode;
-	var $Iso2;
-	var $EnglishName;
-	var $NativeName;
+	public $Code;
+	public $ParentCode;
+	public $Iso2;
+	public $EnglishName;
+	public $NativeName;
 
-	var $DateTimeFormat;
-	var $CurrencyFormat;
-	var $PercentFormat;
-	var $NumberFormat;
-	var $IsRTL;
+	public $DateTimeFormat;
+	public $CurrencyFormat;
+	public $PercentFormat;
+	public $NumberFormat;
+	public $IsRTL;
 
-	var $Region;
-	var $Parent;
+	public $Region;
+	public $Parent;
 
-	var $DefaultDateFormat = DateTimeFormat::DF_SHORTDATE;
-	var $DefaultTimeFormat = DateTimeFormat::DF_SHORTTIME;
+	public $DefaultDateFormat = DateTimeFormat::DF_SHORTDATE;
+	public $DefaultTimeFormat = DateTimeFormat::DF_SHORTTIME;
 	
 	private $_alwaysConvertTimesToTimezone = false;
 	

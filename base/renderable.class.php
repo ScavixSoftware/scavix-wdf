@@ -36,11 +36,11 @@ use ScavixWDF\WdfException;
  */
 abstract class Renderable implements \JsonSerializable
 {
-	var $_translate = true;
-	var $_storage_id;
-	var $_parent = false;
-	var $_content = [];
-	var $_script = [];
+	public $_translate = true;
+	public $_storage_id;
+	public $_parent = false;
+	public $_content = [];
+	public $_script = [];
     
     public static $SLIM_SERIALIZER = false;
     public static $SLIM_SERIALIZER_RUN = 0;

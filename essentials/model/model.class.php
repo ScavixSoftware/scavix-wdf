@@ -100,16 +100,16 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	/**
 	 * @var SelectQuery|bool
 	 */
-	var $_query = false;
+	public $_query = false;
 	protected $_results = false;
 	protected $_index = 0;
 	protected $_fieldValues = [];
 	protected $_dbValues = [];
 	
-	var $_querySql = false;
-	var $_queryArgs = [];
+	public $_querySql = false;
+	public $_queryArgs = [];
 	
-	var $_saved = false;
+	public $_saved = false;
 
 	/**
 	 * @implements <Iterator::rewind>

@@ -37,8 +37,8 @@ namespace ScavixWDF\Tasks;
  */
 abstract class Task
 {
-    var $model;
-    var $ds;
+    public $model;
+    public $ds;
     
     function __construct(WdfTaskModel $model=null)
     {

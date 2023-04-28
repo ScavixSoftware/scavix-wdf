@@ -42,7 +42,7 @@ use ScavixWDF\Localization\Localization;
  */
 class DateTimeFormatSelect extends Select
 {
-	var $culture_code;
+	public $culture_code;
 	
 	/**
 	 * @param string $culture_code Culture code (see <CultureInfo>)

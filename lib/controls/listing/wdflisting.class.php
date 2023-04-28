@@ -40,43 +40,43 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
     const GEAR_CHOOSE_OPTIONAL = 'choose_optional';
     const GEAR_OFF = 'off';
 
-    var $datatype;
-    var $datatable;
+    public $datatype;
+    public $datatable;
 
-    var $columns = [];
-    var $optional_comluns = [];
-    var $alignments = [];
-    var $formats = [];
-    var $controller;
-    var $readonly = false;
-    var $javascript = false;
-    var $exportable = false;
-    var $sortable = true;
-    var $persistance_key;
-	var $persistkeyextra = '';
-    var $details_event = 'details';
-    var $details_args = ['uid' => 'uid'];
-    var $details_link = false;
-    var $default_order = false;
+    public $columns = [];
+    public $optional_comluns = [];
+    public $alignments = [];
+    public $formats = [];
+    public $controller;
+    public $readonly = false;
+    public $javascript = false;
+    public $exportable = false;
+    public $sortable = true;
+    public $persistance_key;
+	public $persistkeyextra = '';
+    public $details_event = 'details';
+    public $details_args = ['uid' => 'uid'];
+    public $details_link = false;
+    public $default_order = false;
     
-    var $_multiselectname = false;
-    var $_multiselectidcolumn = 'id';
-    var $_multiactions = [];
-    var $_groupMultiActionsTreshold = 0;
+    public $_multiselectname = false;
+    public $_multiselectidcolumn = 'id';
+    public $_multiactions = [];
+    public $_groupMultiActionsTreshold = 0;
     
-    var $columnCallbacks = [];
-    var $rowCallbacks = [];
-    var $rowDataCallbacks = [];
-    var $colClasses = [];
+    public $columnCallbacks = [];
+    public $rowCallbacks = [];
+    public $rowDataCallbacks = [];
+    public $colClasses = [];
     
-    var $summary = [];
-    var $summary_names = [];
-    var $ds = false;
-	var $ci;
+    public $summary = [];
+    public $summary_names = [];
+    public $ds = false;
+	public $ci;
     
-    var $log_sql = false;
+    public $log_sql = false;
 
-    var $gear_mode = 'toggle_all';
+    public $gear_mode = 'toggle_all';
 
     protected $log_sql_done = false;
     
@@ -88,7 +88,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
 	/**
 	 * @var uiDatabaseTable
 	 */
-    var $table;
+    public $table;
 	
 	public static function Make(...$args)
 	{
@@ -662,7 +662,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
         return $this;
     }
     
-    var $filter = false;
+    public $filter = false;
     function setFilter($sql, $params = [], $replace=false)
     {
         if( $sql instanceof WdfListingFilter )

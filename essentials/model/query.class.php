@@ -40,22 +40,22 @@ use ScavixWDF\WdfDbException;
  */
 class Query
 {
-	var $_object = false;
+	public $_object = false;
 	/**
 	 * @var DataSource|bool
 	 */
-	var $_ds = false;
-	var $_knownmodels = [];
+	public $_ds = false;
+	public $_knownmodels = [];
 
-	var $_initialSequence = false;
-	var $_where = false;
+	public $_initialSequence = false;
+	public $_where = false;
 
-	var $_values = [];
+	public $_values = [];
 
 	/**
 	 * @var ResultSet|bool
 	 */
-	var $_statement = false;
+	public $_statement = false;
 
     function __construct(&$obj,&$datasource,$conditions_separator="WHERE")
 	{
@@ -381,12 +381,12 @@ class Query
  */
 class ConditionTree
 {
-	var $_firstToken = "WHERE";
-	var $_operator = "AND";
-	var $_conditions = [];
-	var $_maxConditions = -1;
-	var $_current = false;
-	var $_parent = false;
+	public $_firstToken = "WHERE";
+	public $_operator = "AND";
+	public $_conditions = [];
+	public $_maxConditions = -1;
+	public $_current = false;
+	public $_parent = false;
 
 	function __construct($conditionCount = -1,$operator = "AND", $firstToken = "WHERE")
 	{
@@ -486,11 +486,11 @@ class ConditionTree
  */
 class Condition
 {
-	var $_operator;
-	var $_op1;
-	var $_op2;
-	var $_pre;
-	var $_suf;
+	public $_operator;
+	public $_op1;
+	public $_op2;
+	public $_pre;
+	public $_suf;
 
 	function __construct($operator="AND",$op1="",$op2 = "?",$prefix="",$suffix="")
 	{

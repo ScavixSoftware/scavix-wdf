@@ -47,7 +47,7 @@ class uiStarSelect extends uiControl
 	private $_value = 3;
 	public $_content;
 
-	var $_scale = array(
+	public $_scale = array(
 		1=>"TXT_VERY_POOR",
 		2=>"TXT_NOT_THAT_BAD",
 		3=>"TXT_AVERAGE",

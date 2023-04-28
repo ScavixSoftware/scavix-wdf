@@ -37,7 +37,7 @@ use ScavixWDF\Base\Renderable;
  */
 class uiTabs extends uiControl
 {
-	var $list;
+	public $list;
 
 	/**
 	 * @param array $options See http://api.jqueryui.com/tabs/

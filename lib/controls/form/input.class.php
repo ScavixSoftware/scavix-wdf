@@ -39,7 +39,7 @@ use ScavixWDF\Base\Control;
  */
 class Input extends Control
 {
-	var $Label = false;
+	public $Label = false;
 	
 	function __construct()
 	{

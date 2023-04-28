@@ -42,16 +42,16 @@ use ScavixWDF\Base\DateTimeEx;
  */
 class ChartJS3 extends Control
 {
-    var $chart_title, $canvas;
-    var $series = [];
-    var $config = [];
-    var $detectedCategories = [];
-    var $detectedDateseries = false;
-    var $colorRange = false;
-    var $xMin = false, $xMax = false;
-    var $query = false;
-    var $colors, $named_colors;
-    var $series_order;
+    public $chart_title, $canvas;
+    public $series = [];
+    public $config = [];
+    public $detectedCategories = [];
+    public $detectedDateseries = false;
+    public $colorRange = false;
+    public $xMin = false, $xMax = false;
+    public $query = false;
+    public $colors, $named_colors;
+    public $series_order;
     
     protected static $currentInstance;
     

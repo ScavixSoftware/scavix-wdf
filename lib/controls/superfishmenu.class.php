@@ -144,11 +144,11 @@ class SuperfishMenu extends Control
  */
 class SuperfishMenuItem extends Control
 {
-	var $is_parent = true;
-	var $sub = false;
-	var $controller = false;
-	var $event = false;
-	var $data = false;
+	public $is_parent = true;
+	public $sub = false;
+	public $controller = false;
+	public $event = false;
+	public $data = false;
 	
 	/**
 	 * @param string $label Item label

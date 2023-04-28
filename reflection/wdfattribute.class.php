@@ -47,11 +47,11 @@ namespace ScavixWDF\Reflection;
  */
 class WdfAttribute
 {
-	var $Reflector = null;
-	var $Class = null;
-	var $Object = null;
-	var $Method = null;
-	var $Field = null;
+	public $Reflector = null;
+	public $Class = null;
+	public $Object = null;
+	public $Method = null;
+	public $Field = null;
     
 	function __construct() {}
 	
