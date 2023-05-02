@@ -61,6 +61,23 @@ use function unserializer_active;
  */
 abstract class Model implements Iterator, Countable, ArrayAccess
 {
+    /**
+     * ATM this is crap. We'll need some kind of database schema description
+     * to be able to map models to tables and on the same time ensure table structure.
+     * That way we will get real Code-First ORM.
+     */
+    static function TryGetClassFromTablename($tablename, $ds = null): string
+    {
+        $ds = $ds ?: DataSource::Get();
+        $db = $ds->Database();
+        foreach (self::$_schemaCache as $k => $v)
+        {
+            if (starts_with($k, $db) && $v->Name == $tablename)
+                return substr($k, strlen($db));
+        }
+        return '';
+    }
+
 	/**
 	 * Derivered classes must implement this and return the table name they are stored in.
 	 * 
@@ -1774,4 +1791,28 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			$this->_results[$i] = $callback($this->_results[$i]);
 		return $this;
 	}
+
+    function __get($name)
+    {
+        if( isDev() && ($cn = get_class_simple($this)) && \ScavixWDF\Wdf::Once("$cn/$name") )
+            log_debug("Please define property '{$cn}->{$name}'");
+        return isset($this->_fieldValues[$name]) ? $this->_fieldValues[$name] : null;
+    }
+
+    function __set($name, $value)
+    {
+        if( isDev() && ($cn = get_class_simple($this)) && \ScavixWDF\Wdf::Once("$cn/$name") )
+            log_debug("Please define property '{$cn}->{$name}'");
+        $this->_fieldValues[$name] = $value;
+    }
+
+    function __isset($name)
+    {
+        return isset($this->_fieldValues[$name]);
+    }
+
+    function __unset($name)
+    {
+        unset($this->_fieldValues[$name]);
+    }
 }
