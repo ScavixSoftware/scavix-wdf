@@ -37,6 +37,7 @@ use ScavixWDF\Controls\Form\Form;
 use ScavixWDF\Controls\Form\Select;
 use ScavixWDF\Controls\Form\TextInput;
 use ScavixWDF\Controls\Table\Table;
+use ScavixWDF\Model\Model;
 
 /**
  * ScavixWDF sysadmin page
@@ -547,6 +548,7 @@ class SysAdmin extends HtmlPage
         $this->content("<pre id='table-code'>$create</pre><br/><br/>");
         
         $properties = ["/**"];
+        $fields = [];
         foreach( $schema->Columns as $col )
         {
             switch( $col->Type )
@@ -574,10 +576,23 @@ class SysAdmin extends HtmlPage
                     break;
             }
             $properties[] = " * @property {$type} ".'$'."{$col->Name}";
+            $fields[] = "/** @var {$type} */";
+            $fields[] = 'public $'.$col->Name.';';
+            $fields[] = '';
         }
         $properties[] = " */";
-        $this->content("<pre>".implode("\n",$properties)."</pre><br/><br/>");
-        
+
+        $cls = '';//perhaps we'll have a nice mapping later //str_replace("Model", "", Model::TryGetClassFromTablename($schema->Name));
+        $properties = implode("\n",$properties);
+        $fields = implode("\n\t",$fields);
+        $code = <<<EOT
+            trait {$cls}Schema
+            {
+            \t$fields
+            \tfunction GetTableName():string { return '{$schema->Name}'; }
+            }
+            EOT;
+        $this->content("<pre>$code</pre><br/><br/>");
         
         $listing = \ScavixWDF\JQueryUI\uiDatabaseTable::Make($ds,false,$table)
             ->AddPager()
