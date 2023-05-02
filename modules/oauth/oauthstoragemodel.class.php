@@ -31,19 +31,39 @@ use ScavixWDF\OAuth\OAuthHandler;
  * Represents a dataset in the wdf_oauthstore table.
  * 
  * @suppress PHP0413
- * 
- * @property int $local_id
- * @property string $provider
- * @property string $identifier
- * @property string $access_token
- * @property string $refresh_token
- * @property \ScavixWDF\Base\DateTimeEx|string $expires
- * @property string $resource_owner_id
- * @property string $data
- * @property string $owner_data
  */
 class OAuthStorageModel extends Model
 {
+	/** @var int */
+	public $local_id;
+	
+	/** @var string */
+	public $provider;
+	
+	/** @var string */
+	public $identifier;
+	
+	/** @var string */
+	public $access_token;
+	
+	/** @var string */
+	public $refresh_token;
+	
+	/** @var \ScavixWDF\Base\DateTimeEx|string */
+	public $expires;
+	
+	/** @var \ScavixWDF\Base\DateTimeEx|string */
+	public $deleted;
+	
+	/** @var string */
+	public $resource_owner_id;
+	
+	/** @var string */
+	public $data;
+	
+	/** @var string */
+	public $owner_data;
+    
     /**
      * @implements <Model::GetTableName()>
      */

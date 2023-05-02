@@ -29,7 +29,7 @@ namespace ScavixWDF\Base;
  * 
  * You may define a RateLimit on the fly directly where it is needed:
  * <code php>
- * if( !RateLimit::Define('mycontroller1')->PerSecond(10,100)->Reserve(5) )
+ * if( !RateLimit::Define('mycontroller1')->PerSeconds(10,100)->Reserve(5) )
  *     WdfException::Raise("429 Too Many Requests");
  * </code>
  * Or you may inhertit your own class with some predefined limits:
@@ -38,11 +38,11 @@ namespace ScavixWDF\Base;
  * {
  *     static function Dashboard()
  *     {
- *         return RateLimit::Define(__METHOD__)->PerSecond(5,5)->PerDay(1,1000)->Reserve(3);
+ *         return RateLimit::Define(__METHOD__)->PerSeconds(5,5)->PerDays(1,1000)->Reserve(3);
  *     }
  *     static function Login()
  *     {
- *         if( !RateLimit::Define(__METHOD__)->PerSecond(5,5)->PerDay(1,1000)->Reserve(3) )
+ *         if( !RateLimit::Define(__METHOD__)->PerSeconds(5,5)->PerDays(1,1000)->Reserve(3) )
  *             WdfException::Raise("429 Too Many Requests");
  *     }
  * }
@@ -53,19 +53,23 @@ namespace ScavixWDF\Base;
  * MyLimits::Login();
  * </code>
  * 
- * @property string $name
- * @property \ScavixWDF\Base\DateTimeEx|string $created
  */
 class RateLimit extends \ScavixWDF\Model\Model
 {
-    private $limits = [];
-
-    public $internal_name;
+	/** @var string */
+	public $name;
+	
+	/** @var \ScavixWDF\Base\DateTimeEx|string */
+	public $created;
     
     /**
      * @implements <Model::GetTableName()>
      */
     public function GetTableName() { return "wdf_ratelimits"; }
+    
+    private $limits = [];
+
+    public $internal_name;
     
     protected function CreateTable()
     {

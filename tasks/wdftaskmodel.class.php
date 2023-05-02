@@ -31,20 +31,39 @@ use ScavixWDF\Base\DateTimeEx;
 
 /**
  * @internal Model class representing tasks that can be handled asynchronously
- * 
- * @property int $id
- * @property int $parent_task
- * @property int $follow_deletion
- * @property int $enabled
- * @property \ScavixWDF\Base\DateTimeEx|string $created
- * @property \ScavixWDF\Base\DateTimeEx|string $start
- * @property \ScavixWDF\Base\DateTimeEx|string $assigned
- * @property int $worker_pid
- * @property string $name
- * @property string $arguments
  */
 class WdfTaskModel extends Model
 {
+	/** @var int */
+	public $id;
+	
+	/** @var int */
+	public $parent_task;
+	
+	/** @var int */
+	public $follow_deletion;
+	
+	/** @var int */
+	public $enabled;
+	
+	/** @var \ScavixWDF\Base\DateTimeEx|string */
+	public $created;
+	
+	/** @var \ScavixWDF\Base\DateTimeEx|string */
+	public $start;
+	
+	/** @var \ScavixWDF\Base\DateTimeEx|string */
+	public $assigned;
+	
+	/** @var int */
+	public $worker_pid;
+	
+	/** @var string */
+	public $name;
+	
+	/** @var string */
+	public $arguments;
+
     private $isVirtual = false, $prevent_duplicate = false, $cascade_go = true;
     public static $PROCESS_FILTER = 'db-processwdftasks';
     public static $MAX_PROCESSES = 10;
@@ -151,9 +170,9 @@ class WdfTaskModel extends Model
 	
 	public function SetArg($name,$value)
 	{
-		$this->arguments = unserialize($this->arguments);
-		$this->arguments[$name] = $value;
-		$this->arguments = serialize($this->arguments);
+		$args = unserialize($this->arguments);
+		$args[$name] = $value;
+		$this->arguments = serialize($args);
 		return $this;
 	}
     
