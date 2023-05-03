@@ -50,6 +50,9 @@ class OAuthStorageModel extends Model
 	public $refresh_token;
 	
 	/** @var \ScavixWDF\Base\DateTimeEx|string */
+	public $created;
+	
+	/** @var \ScavixWDF\Base\DateTimeEx|string */
 	public $expires;
 	
 	/** @var \ScavixWDF\Base\DateTimeEx|string */
