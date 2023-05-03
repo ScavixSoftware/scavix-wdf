@@ -65,20 +65,13 @@ function resources_init()
 	
 	$CONFIG['resources'][] = array
 	(
-		'ext' => 'js',
-		'path' => $path.'/js',
-		'url' => $CONFIG['resources_system_url_root'].'js/',
-		'append_nc' => true,
-	);
-	$CONFIG['resources'][] = array
-	(
-		'ext' => 'css|png|jpg|jpeg|gif|svg|htc|ico|less',
-		'path' => $path.'/skin',
-		'url' => $CONFIG['resources_system_url_root'].'skin/',
+		'ext' => 'js|css|png|jpg|jpeg|gif|svg|htc|ico|less',
+		'path' => $path.'/res',
+		'url' => $CONFIG['resources_system_url_root'].'res/',
 		'append_nc' => true,
 	);
 	
-	$CONFIG['class_path']['system'][] = __DIR__.'/resources/';;
+	$CONFIG['class_path']['system'][] = __DIR__.'/resources/';
 }
 
 /**
