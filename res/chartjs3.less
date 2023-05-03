@@ -1,0 +1,56 @@
+
+.chartjs3
+{
+    .caption
+    {
+        margin-top: 10px;
+        margin-bottom: 5px;
+    }
+    .caption:empty
+    {
+        display: none;
+    }
+    .wrap
+    {
+        position: relative;
+    }
+}
+
+#chartjs3-global-legend
+{
+    z-index: 1000;
+    position: fixed;
+    right: 20px;
+    bottom: 10px;
+    background-color: white;
+    padding: 10px;
+    padding-right: 0px;
+    padding-bottom: 0px;
+    border: 1px solid lightgray;
+    display: flex;
+    flex-wrap: wrap;
+
+    > div
+    {
+        margin-right: 10px;
+        margin-bottom: 10px;
+        display: flex;
+        cursor: pointer;
+        --border: 0px solid white;
+        --background-color: white;
+    }
+
+    > div:hover
+    {
+        text-decoration: underline;
+    }
+
+    > div > span
+    {
+        border: 1px solid black;
+        width: 30px;
+        margin-right: 5px;
+        border: var(--border);
+        background-color: var(--background-color);
+    }
+}
