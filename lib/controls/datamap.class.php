@@ -29,9 +29,9 @@ use ScavixWDF\Base\Control;
 /**
  * Datamap wrapper for https://github.com/markmarkoh/datamaps
  * 
- * @attribute[Resource('d3.min.js')]
- * @attribute[Resource('topojson.min.js')]
- * @attribute[Resource('datamaps.world.min.js')]
+ * @attribute[Resource('datamap/d3.min.js')]
+ * @attribute[Resource('datamap/topojson.min.js')]
+ * @attribute[Resource('datamap/datamaps.world.min.js')]
  */
 class Datamap extends Control
 {

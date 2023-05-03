@@ -40,7 +40,6 @@ define("WDF_HTMLPAGE_TEMPLATE", __DIR__."/htmlpage.tpl.php");
  * 
  * Will perform all rendering and collect js, css, meta and more.
  * @attribute[Resource('jquery.js')]
- * @attribute[Resource('jquery.json.js')]
  * @attribute[Resource('htmlpage.js')]
  */
 class HtmlPage extends Template implements ICallable
