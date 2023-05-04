@@ -757,9 +757,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		
 		if( $allFields )
 		{
-			$columns = array_diff(
-				array_keys(get_object_vars($model)),
-				array_keys(get_object_vars($res))
+            $source_columns = ($model instanceof CommonModel) ?$model->_fieldValues: get_object_vars($model);
+            $columns = array_filter(
+                array_keys($source_columns),
+                function ($k) { return !starts_with($k, '_'); }
 			);
 		}
 		else
@@ -767,8 +768,9 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		
 		foreach( $columns as $cn )
 		{
-			if( isset($model->$cn) )
-				$res->$cn = $model->$cn;
+            if (isset($model->$cn))
+                $res->$cn = $model->$cn;
+                
 			$i = array_search($cn, $pks);
 			if( $i !== false )
 				unset($pks[$i]);
@@ -1794,7 +1796,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
     private function __log_dynamic_property_access($name)
     {
-        if (isDev() && ($cn = get_class_simple($this)) && \ScavixWDF\Wdf::Once("$cn/$name"))
+        if (isDev() && ($cn = get_class_simple($this)) && \ScavixWDF\Wdf::Once("log-dynamic/$cn/$name"))
         {
             if( !($this instanceof CommonModel) && strpos($name,'(')===false )
                 log_debug("Please define property '{$cn}->{$name}'");
