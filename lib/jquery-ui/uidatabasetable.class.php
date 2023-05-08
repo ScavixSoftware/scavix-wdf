@@ -33,7 +33,7 @@ use ScavixWDF\Controls\Table\DatabaseTable;
  * Wrapper class to ensure jQueryUI is loaded.
  * 
  * @attribute[Resource('jquery-ui/jquery-ui.js')] 
- * @attribute[Resource('jquery-ui/jquery-ui.css')] 
+ * @attribute[Resource('jquery-ui/jquery-ui.less')] 
  */
 class uiDatabaseTable extends DatabaseTable
 {

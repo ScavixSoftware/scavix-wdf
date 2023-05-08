@@ -35,7 +35,7 @@ use ScavixWDF\WdfException;
  * 
  * This ensures that all resources are loaded. Also provides some basic methods for Icon handling.
  * @attribute[Resource('jquery-ui/jquery-ui.js')] 
- * @attribute[Resource('jquery-ui/jquery-ui.css')] 
+ * @attribute[Resource('jquery-ui/jquery-ui.less')] 
  */
 class uiControl extends Control
 {
