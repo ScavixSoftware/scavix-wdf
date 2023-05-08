@@ -1,4 +1,7 @@
 
+@chartjs-global-legend-background: #fff;
+@chartjs-global-legend-border: lightgray;
+
 .chartjs3
 {
     .caption
@@ -18,15 +21,18 @@
 
 #chartjs3-global-legend
 {
+    --chartjs-global-legend-background: @chartjs-global-legend-background;
+    --chartjs-global-legend-border: @chartjs-global-legend-border;
+    
     z-index: 1000;
     position: fixed;
     right: 20px;
     bottom: 10px;
-    background-color: white;
+    background-color: var(--chartjs-global-legend-background);
     padding: 10px;
     padding-right: 0px;
     padding-bottom: 0px;
-    border: 1px solid lightgray;
+    border: 1px solid var(--chartjs-global-legend-border);
     display: flex;
     flex-wrap: wrap;
 
@@ -47,10 +53,9 @@
 
     > div > span
     {
-        border: 1px solid black;
+        border: 1px solid var(--border);
         width: 30px;
         margin-right: 5px;
-        border: var(--border);
         background-color: var(--background-color);
     }
 }

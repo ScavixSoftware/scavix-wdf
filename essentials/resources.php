@@ -103,6 +103,9 @@ function resourceExists($filename, $return_url = false, $as_local_path = false, 
 		
 		if( $as_local_path )
 			return $conf['path'].'/'.$filename;
+
+        if ($ext == 'less')
+            $conf['url'] = $CONFIG['resources_system_url_root'] . 'res/';
 			
 		$nc = $conf['append_nc']?$cnc:'';
 		$res = can_nocache()

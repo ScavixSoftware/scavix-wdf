@@ -38,10 +38,10 @@
  * handling things like indentation.
  */
 class lessc {
-	static public $VERSION = "v0.5.0";
+	public static $VERSION = "v0.5.0";
 
-	static public $TRUE = array("keyword", "true");
-	static public $FALSE = array("keyword", "false");
+	public static $TRUE = array("keyword", "true");
+	public static $FALSE = array("keyword", "false");
 
     protected $env = null;
 	protected $libFunctions = [];
@@ -64,7 +64,7 @@ class lessc {
 	protected $sourceParser = null;
 	protected $sourceLoc = null;
 
-	static protected $nextImportId = 0; // uniquely identify imports
+	protected static $nextImportId = 0; // uniquely identify imports
 
 	// attempts to find the path of an import url, returns null for css files
 	protected function findImport($url) {
@@ -82,12 +82,12 @@ class lessc {
 		return is_file($name);
 	}
 
-	static public function compressList($items, $delim) {
+	public static function compressList($items, $delim) {
 		if (!isset($items[1]) && isset($items[0])) return $items[0];
 		else return array('list', $delim, $items);
 	}
 
-	static public function preg_quote($what) {
+	public static function preg_quote($what) {
 		return preg_quote($what, '/');
 	}
 
@@ -571,7 +571,7 @@ class lessc {
 			return true; // not having enough is handled above
 		} else {
 			$numMatched = $i + 1;
-			// greater than becuase default values always match
+			// greater than because default values always match
 			return $numMatched >= count($orderedArgs);
 		}
 	}
@@ -775,7 +775,7 @@ class lessc {
 		case "comment":
 			$out->lines[] = $prop[1];
 			break;
-		case "import";
+		case "import":
 			list(, $importPath, $importId) = $prop;
 			$importPath = $this->reduce($importPath);
 
@@ -1301,7 +1301,7 @@ class lessc {
 					$name = $name . ": ";
 				}
 
-				$this->throwError("${name}expecting $expectedArgs arguments, got $numValues");
+				$this->throwError("{$name}expecting $expectedArgs arguments, got $numValues");
 			}
 
 			return $values;
@@ -1647,7 +1647,7 @@ class lessc {
 		}
 
 		// type based operators
-		$fname = "op_${ltype}_${rtype}";
+		$fname = "op_{$ltype}_{$rtype}";
 		if (is_callable(array($this, $fname))) {
 			$out = $this->$fname($op, $left, $right);
 			if (!is_null($out)) return $out;
@@ -1969,15 +1969,15 @@ class lessc {
 
 		if (is_string($in)) {
 			$root = $in;
-		} elseif (is_array($in) and isset($in['root'])) {
-			if ($force or ! isset($in['files'])) {
+		} elseif (is_array($in) && isset($in['root'])) {
+			if ($force || ! isset($in['files'])) {
 				// If we are forcing a recompile or if for some reason the
 				// structure does not contain any file information we should
 				// specify the root to trigger a rebuild.
 				$root = $in['root'];
-			} elseif (isset($in['files']) and is_array($in['files'])) {
+			} elseif (isset($in['files']) && is_array($in['files'])) {
 				foreach ($in['files'] as $fname => $ftime ) {
-					if (!file_exists($fname) or filemtime($fname) > $ftime) {
+					if (!file_exists($fname) || filemtime($fname) > $ftime) {
 						// One of the files we knew about previously has changed
 						// so we should look at our incoming root again.
 						$root = $in['root'];
@@ -2119,7 +2119,7 @@ class lessc {
 		return $less->cachedCompile($in, $force);
 	}
 
-	static protected $cssColors = array(
+	protected static $cssColors = array(
 		'aliceblue' => '240,248,255',
 		'antiquewhite' => '250,235,215',
 		'aqua' => '0,255,255',
@@ -2274,9 +2274,9 @@ class lessc {
 // responsible for taking a string of LESS code and converting it into a
 // syntax tree
 class lessc_parser {
-	static protected $nextBlockId = 0; // used to uniquely identify blocks
+	protected static $nextBlockId = 0; // used to uniquely identify blocks
 
-	static protected $precedence = array(
+	protected static $precedence = array(
 		'=<' => 0,
 		'>=' => 0,
 		'=' => 0,
@@ -2290,18 +2290,18 @@ class lessc_parser {
 		'%' => 2,
 	);
 
-	static protected $whitePattern;
-	static protected $commentMulti;
+	protected static $whitePattern;
+	protected static $commentMulti;
 
-	static protected $commentSingle = "//";
-	static protected $commentMultiLeft = "/*";
-	static protected $commentMultiRight = "*/";
+	protected static $commentSingle = "//";
+	protected static $commentMultiLeft = "/*";
+	protected static $commentMultiRight = "*/";
 
 	// regex string to match any of the operators
-	static protected $operatorString;
+	protected static $operatorString;
 
 	// these properties will supress division unless it's inside parenthases
-	static protected $supressDivisionProps =
+	protected static $supressDivisionProps =
 		array('/border-radius$/i', '/^font$/i');
 
 	protected $blockDirectives = array("font-face", "keyframes", "page", "-moz-document", "viewport", "-moz-viewport", "-o-viewport", "-ms-viewport");
@@ -2319,7 +2319,7 @@ class lessc_parser {
 	protected $inParens = false;
 
 	// caches preg escaped literals
-	static protected $literalCache = [];
+	protected static $literalCache = [];
 
 	public function __construct($lessc, $sourceName = null) {
 		$this->eatWhiteDefault = true;

@@ -1,14 +1,23 @@
 
+@toggle-icon-checked: url("data:image/svg+xml,%3C?xml version='1.0' encoding='utf-8'?%3E %3Csvg%3E%3C/svg%3E");
+@toggle-icon-unchecked: url("data:image/svg+xml,%3C?xml version='1.0' encoding='utf-8'?%3E %3Csvg%3E%3C/svg%3E");
+@toggle-icon-thumb-checked: url("data:image/svg+xml,%3C?xml version='1.0' encoding='utf-8'?%3E %3Csvg%3E%3C/svg%3E");
+@toggle-icon-thumb-unchecked: url("data:image/svg+xml,%3C?xml version='1.0' encoding='utf-8'?%3E %3Csvg%3E%3C/svg%3E");
+@toggle-color-checked: #2ecc71;
+@toggle-color-unchecked: #e74c3c;
+@toggle-color-thumb-checked: #fff;
+@toggle-color-thumb-unchecked: #fff;
+
 [is="wdf-toggle"]
 {
-    --icon-checked: url("data:image/svg+xml,%3C?xml version='1.0' encoding='utf-8'?%3E %3Csvg%3E%3C/svg%3E");
-    --icon-unchecked: url("data:image/svg+xml,%3C?xml version='1.0' encoding='utf-8'?%3E %3Csvg%3E%3C/svg%3E");
-    --icon-thumb-checked: url("data:image/svg+xml,%3C?xml version='1.0' encoding='utf-8'?%3E %3Csvg%3E%3C/svg%3E");
-    --icon-thumb-unchecked: url("data:image/svg+xml,%3C?xml version='1.0' encoding='utf-8'?%3E %3Csvg%3E%3C/svg%3E");
-    --color-checked: #2ecc71;
-    --color-unchecked: #e74c3c;
-    --color-thumb-checked: #fff;
-    --color-thumb-unckecked: #fff;
+    --icon-checked: @toggle-icon-checked;
+    --icon-unchecked: @toggle-icon-unchecked;
+    --icon-thumb-checked: @toggle-icon-thumb-checked;
+    --icon-thumb-unchecked: @toggle-icon-thumb-unchecked;
+    --color-checked: @toggle-color-checked;
+    --color-unchecked: @toggle-color-unchecked;
+    --color-thumb-checked: @toggle-color-thumb-checked;
+    --color-thumb-unchecked: @toggle-color-thumb-unchecked;
 
     display: flex;
     align-items: center;
@@ -43,7 +52,7 @@
             background-image : var(--icon-thumb-unchecked);
             background-repeat: no-repeat;
             background-position: center;
-            background-color: var(--color-thumb-unckecked);
+            background-color: var(--color-thumb-unchecked);
             background-size: 1em;
             border-radius: 50%;
             display: inline-block;

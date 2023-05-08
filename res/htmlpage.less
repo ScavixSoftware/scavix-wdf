@@ -1,7 +1,13 @@
+
+@wdf-overlay-background: rgba(0,0,0,0.2);
+@wdf-overlay-color: #FFF;
+
 .wdf_overlay
 {
+    --wdf-overlay-background: @wdf-overlay-background;
+    
     position: absolute;
-	background-color: rgba(0,0,0,0.2);
+	background-color: var(--wdf-overlay-background);
     z-index: 99999;
     display: flex;
     justify-content: center;
@@ -26,6 +32,8 @@
 /* @see htmlpage.js -> $.fn.overlay */
 .lds-ripple
 {
+    --wdf-overlay-color: @wdf-overlay-color;
+    
     display: inline-block;
     position: relative;
     width: 80px;
@@ -34,7 +42,7 @@
     div
     {
         position: absolute;
-        border: 4px solid #fff;
+        border: 4px solid var(--wdf-overlay-color);
         opacity: 1;
         border-radius: 50%;
         animation: lds-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;

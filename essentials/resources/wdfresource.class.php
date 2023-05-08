@@ -138,6 +138,13 @@ class WdfResource implements ICallable
 		$file_key = md5($file.serialize($vars).serialize($dirs).substr(appendVersion('/'),1));
 		
 		$less = resFile(basename($file),true);
+        if( !$less )
+        {
+            $parts = explode("/", $file);
+            while (count($parts) && is_in(strtolower($parts[0]), 'wdfresource', 'res', 'compileless', 'skin'))
+                array_shift($parts);
+            $less = resFile(implode("/",$parts),true);
+        }
 		$tmpfolder = system_app_temp_dir('less',false);
 		$css = $tmpfolder.$file_key.'.css';
 		$cacheFile = $tmpfolder.$file_key.'.cache';
@@ -154,7 +161,7 @@ class WdfResource implements ICallable
 		$compiler->setVariables($vars);
         if( $dirs )
             $compiler->setImportDir(array_merge([''],$dirs));
-        
+
         $newCache = $compiler->cachedCompile($cache);
 		if( !is_array($cache) || $newCache["updated"] > $cache["updated"] )
 		{
