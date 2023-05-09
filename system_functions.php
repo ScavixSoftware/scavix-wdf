@@ -1188,7 +1188,12 @@ function avail(...$args)
 	$ar = array_shift($args);
 	if( !is_array($ar) && !is_object($ar) )
 		return false;
-	$ar = (array)$ar;
+    if ($ar instanceof \ScavixWDF\Model\Model)
+    {
+        if (avail($ar->_fieldValues, ...$args))
+            return true;
+    }
+    $ar = (array) $ar;
 	$l = array_pop($args);
 	foreach( $args as $a )
 	{

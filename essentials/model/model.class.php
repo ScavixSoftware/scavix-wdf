@@ -120,7 +120,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	public $_query = false;
 	protected $_results = false;
 	protected $_index = 0;
-	protected $_fieldValues = [];
+	public $_fieldValues = [];
 	protected $_dbValues = [];
 	
 	public $_querySql = false;
@@ -1794,9 +1794,11 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $this;
 	}
 
-    private function __log_dynamic_property_access($name)
+    public static $LOG_DYNAMIC_PROPERTY_ACCESS = false;
+
+    protected function __log_dynamic_property_access($name)
     {
-        if (isDev() && ($cn = get_class_simple($this)) && \ScavixWDF\Wdf::Once("log-dynamic/$cn/$name"))
+        if ( Model::$LOG_DYNAMIC_PROPERTY_ACCESS && isDev() && ($cn = get_class_simple($this)) && \ScavixWDF\Wdf::Once("log-dynamic/$cn/$name"))
         {
             if( !($this instanceof CommonModel) && strpos($name,'(')===false )
                 log_debug("Please define property '{$cn}->{$name}'");
