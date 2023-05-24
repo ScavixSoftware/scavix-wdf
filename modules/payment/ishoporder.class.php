@@ -32,6 +32,7 @@ namespace ScavixWDF\Payment;
 
 /**
  * Order <Model>s must implement this interface.
+ * @property mixed $amount_currency
  */
 interface IShopOrder
 {

@@ -1796,6 +1796,9 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
     public static $LOG_DYNAMIC_PROPERTY_ACCESS = false;
 
+    /**
+     * @suppress PHP6601
+     */
     protected function __log_dynamic_property_access($name)
     {
         if ( Model::$LOG_DYNAMIC_PROPERTY_ACCESS && isDev() && ($cn = get_class_simple($this)) && \ScavixWDF\Wdf::Once("log-dynamic/$cn/$name"))

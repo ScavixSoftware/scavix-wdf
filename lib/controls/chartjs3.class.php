@@ -592,7 +592,7 @@ class ChartJS3 extends Control
      * @param string $series_row Name of the field with the series name
      * @param string $x_value_row Name of the field with the x-values
      * @param string $y_value_row Name of the field with the y-values
-     * @param string $pointType Optional classname of the Point handler
+     * @param callable|string $pointType Optional classname of the Point handler
      * @param Closure $pointdatacallback Optional closure receiving $row,$series,$series_row_name,$x_value_row_name,$y_value_row_name
      * @return $this
      */
