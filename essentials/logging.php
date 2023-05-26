@@ -215,6 +215,8 @@ function global_error_handler($errno, $errstr, $errfile, $errline)
                 $line = $file->fgets();
                 if (strpos($line, '@' . substr($errstr, 0, 6)) !== false) // @ is used, ignore
                     return;
+                if (strpos($line, '@\\' . substr($errstr, 0, 6)) !== false) // @ is used, ignore
+                    return;
             }
             //$errline .= " un@".system_stacktrace_to_string(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
         }
