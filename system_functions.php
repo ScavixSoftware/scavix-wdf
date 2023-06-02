@@ -1707,3 +1707,14 @@ function system_guess_mime($filename)
     $ext = pathinfo($filename,PATHINFO_EXTENSION);
     return array_search($ext,$mime_map);
 }
+
+function array_clean_assoc_or_sequence($array)
+{
+    if (!is_assoc($array))
+        return $array;
+
+    if( count(array_filter(array_map('is_numeric',array_keys($array)))) == count($array) )
+        return array_values($array);
+
+    return $array;
+}
