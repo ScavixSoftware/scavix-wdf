@@ -175,13 +175,18 @@ function cli_run_taskprocessor($runtime_seconds=null)
 /**
  * @internal Used to check if processes are already active
  */
-function cli_get_processes($filter=false, $test_myself=false)
+function cli_get_processes($filter=false, $test_myself=false, $use_extended_filter=true)
 {
     if( !function_exists('posix_isatty') )
         ScavixWDF\WdfException::Raise("CLI module cannot run on windows");
 
-    $ini = preg_quote(system_app_temp_dir('',false),"/");
-    $filter = "\-c\s+{$ini}".($filter?(".*".preg_quote($filter,"/").".*"):'');
+    if ($use_extended_filter)
+    {
+        $ini = preg_quote(system_app_temp_dir('', false), "/");
+        $filter = "\-c\s+{$ini}" . ($filter ? (".*" . preg_quote($filter, "/") . ".*") : '');
+    }
+    else
+        $filter = ($filter ? (".*" . preg_quote($filter, "/") . ".*") : '');
 
     $res = [];
     $out = shell_exec("ps -Af");
