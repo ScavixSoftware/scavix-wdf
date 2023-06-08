@@ -175,7 +175,7 @@ function cli_run_taskprocessor($runtime_seconds=null)
 /**
  * @internal Used to check if processes are already active
  */
-function cli_get_processes($filter=false, $test_myself=false, $use_extended_filter=true)
+function cli_get_processes($filter=false, $test_myself=false, $use_extended_filter=true, $skip_parents=true)
 {
     if( !function_exists('posix_isatty') )
         ScavixWDF\WdfException::Raise("CLI module cannot run on windows");
@@ -195,7 +195,7 @@ function cli_get_processes($filter=false, $test_myself=false, $use_extended_filt
     {
         foreach( $m[1] as $p )
         {
-            if( !in_array($p,$m[2]) )
+            if( !$skip_parents || !in_array($p,$m[2]) )
                 $res[] = $p;
         }
     }
