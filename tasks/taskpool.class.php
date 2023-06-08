@@ -39,6 +39,13 @@ namespace ScavixWDF\Tasks;
  */
 class TaskPool extends Task
 {
+    public static function Reusable($name)
+    {
+        $res = self::Async();
+        $res->name .= "-$name";
+        return WdfTaskModel::Make()->eq('name', $res->name)->current() ?: $res;
+    }
+
     /**
      * @internal Overwrites parent to fix 'run' method set up things.
      */
@@ -61,7 +68,7 @@ class TaskPool extends Task
     function Run($args)
     {
         $processors = max(1,min(100,intval(ifavail($args,'processors')?:'5')));
-        $delay = max(100,min(10000,intval(ifavail($args,'delay')?:'1000')));
+        $delay = max(1000,min(10000,intval(ifavail($args,'delay')?:'1000')));
         
         $task_ids = WdfTaskModel::Make()->eq('parent_task',$this->model->id)->enumerate('id');
         if( count($task_ids) <= $processors )

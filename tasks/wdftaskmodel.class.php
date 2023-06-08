@@ -239,7 +239,7 @@ class WdfTaskModel extends Model
 	
 	public function Go($run_instance=true,$depth=0)
 	{
-        if( !$this->isVirtual )
+        if( !$this->isVirtual && $this->enabled == 0 )
         {
             $this->enabled = 1;
             
@@ -267,7 +267,7 @@ class WdfTaskModel extends Model
                         $t->Go(false,$depth);
             }
         }
-		if( $run_instance )
+		if( $run_instance && !avail($this,'worker_pid') )
 			WdfTaskModel::RunInstance();
 		return $this;
 	}
@@ -325,11 +325,15 @@ class WdfTaskModel extends Model
 		$wpid = getmypid();
         try
         {
+            $where = "enabled=1 AND isnull(worker_pid) AND isnull(parent_task) AND isnull(assigned) AND (ISNULL(start) OR start<=now())";
+
+            $ids = DataSource::Get()->ExecuteSql("SELECT id FROM wdf_tasks WHERE $where ORDER BY id DESC LIMIT 10")->Enumerate('id');
+            if (count($ids) == 0)
+                return false;
+                
             DataSource::Get()->ExecuteSql(
                 "UPDATE wdf_tasks SET worker_pid=?, assigned=now() WHERE 
-                    enabled=1 AND isnull(worker_pid) AND isnull(parent_task) AND
-                    isnull(assigned) AND
-                    (ISNULL(start) OR start<=now()) 
+                    $where AND id IN(".implode(",",$ids).")
                     ORDER BY id DESC LIMIT 1"
                 ,$wpid);
         }
