@@ -196,27 +196,31 @@ function global_error_handler($errno, $errstr, $errfile, $errline)
         if( $errfile && $errline )
         {
             $entry = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)[1];
-            foreach ([[$errfile,$errline], [$entry['file'],$entry['line']]] as list($fn, $ln))
+            foreach ([[$errfile,$errline], [$entry['file'],$entry['line']]] as list($fn, $lineNo))
             {
-                $ln--;
-                $file = new SplFileObject($fn);
-                if (version_compare(PHP_VERSION, '8.0.1', '>=') || $ln == 0)
-                    $file->seek($ln);
-                else
+                for ($seek = 1; $seek < 10; $seek++) // seek back 10 lines to find function call with args on next lines
                 {
-                    if ($ln == 1)
-                    {
-                        $file->rewind();
-                        $file->fgets();
-                    }
+                    $ln = $lineNo - $seek;
+                    $file = new SplFileObject($fn);
+                    if (version_compare(PHP_VERSION, '8.0.1', '>=') || $ln == 0)
+                        $file->seek($ln);
                     else
-                        $file->seek($ln - 1);
+                    {
+                        if ($ln == 1)
+                        {
+                            $file->rewind();
+                            $file->fgets();
+                        }
+                        else
+                            $file->seek($ln - 1);
+                    }
+                    $line = $file->fgets();
+                    //$errline .= " un@check=$fn:$ln=$line\n";
+                    if (strpos($line, '@' . substr($errstr, 0, 6)) !== false) // @ is used, ignore
+                        return;
+                    if (strpos($line, '@\\' . substr($errstr, 0, 6)) !== false) // @ is used, ignore
+                        return;
                 }
-                $line = $file->fgets();
-                if (strpos($line, '@' . substr($errstr, 0, 6)) !== false) // @ is used, ignore
-                    return;
-                if (strpos($line, '@\\' . substr($errstr, 0, 6)) !== false) // @ is used, ignore
-                    return;
             }
             //$errline .= " un@".system_stacktrace_to_string(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
         }
