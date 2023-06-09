@@ -43,7 +43,12 @@ class TaskPool extends Task
     {
         $res = self::Async();
         $res->name .= "-$name";
-        return WdfTaskModel::Make()->eq('name', $res->name)->current() ?: $res;
+        if( $cur = WdfTaskModel::Make()->eq('name', $res->name)->current() )
+        {
+            $cur->RecreateOnSave = true;
+            return $cur;
+        }
+        return $res;
     }
 
     /**

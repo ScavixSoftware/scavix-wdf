@@ -64,6 +64,8 @@ class WdfTaskModel extends Model
 	/** @var string */
 	public $arguments;
 
+    public $RecreateOnSave = false;
+
     private $isVirtual = false, $prevent_duplicate = false, $cascade_go = true;
     public static $PROCESS_FILTER = 'db-processwdftasks';
     public static $MAX_PROCESSES = 10;
@@ -107,6 +109,19 @@ class WdfTaskModel extends Model
         {
 //            log_debug("Skipping Save for virtual task");
             return true;
+        }
+        if( $this->RecreateOnSave )
+        {
+            $still_present = $this->_ds->ExecuteScalar("SELECT count(*) FROM wdf_tasks WHERE id=?", [$this->id]);
+            if (!$still_present)
+            {
+                $this->_saved = false;
+                $this->_dbValues = [];
+                $this->enabled = 0;
+                $this->worker_pid = null;
+                $this->assigned = null;
+                //log_debug("Ensuring re-save for taskmodel");
+            }
         }
         return parent::Save($columns_to_update, $changed);
     }
@@ -239,7 +254,7 @@ class WdfTaskModel extends Model
 	
 	public function Go($run_instance=true,$depth=0)
 	{
-        if( !$this->isVirtual && $this->enabled == 0 )
+        if( !$this->isVirtual && ($this->enabled == 0 || avail($this,'worker_pid')) )
         {
             $this->enabled = 1;
             
@@ -386,7 +401,7 @@ class WdfTaskModel extends Model
                 foreach( WdfTaskModel::Make()->eq('parent_task',$this->id)->eq('enabled',0) as $t )		
                     $t->Go(false);
             }
-			$this->Delete();
+            $this->Delete();
 		}
 		else
 		{
