@@ -141,10 +141,51 @@ function cli_run_script($php_script_path, $args=[], $extended_data=false, $retur
 
     $cmdline = "nohup php -c $ini $cmd $grep>>$out 2>&1 &";
 
+    if (cli_running_as_sudo())
+        $cmdline = str_replace("nohup php -c", "nohup sudo php -c", $cmdline);
+
     if( $return_cmdline )
         return $cmdline;
 
     exec($cmdline);
+}
+
+function cli_list_processes()
+{
+    $res = [];
+    $out = shell_exec("ps -A -o ppid,pid,cmd");
+    if( preg_match_all('/(\d+)\s+(\d+)\s+(.*)/m',$out,$m) )
+    {
+        foreach ($m[2] as $i => $pid)
+            $res[$pid] = ['pid' => $pid, 'ppid' => $m[1][$i], 'cmd' => $m[3][$i]];
+    }
+    return $res;
+}
+
+function cli_running_as_sudo($pid=false)
+{
+    static $depth = 0;
+    static $procs = [];
+
+    if( !$pid )
+        $pid = getmypid();
+
+    if ( $pid == getmypid() && posix_getuid() !== 0)
+        return false;
+
+    if( $depth == 0)
+        $procs = cli_list_processes();
+
+    if (!isset($procs[$pid]))
+        return false;
+
+    if (isset($procs[$pid]) && starts_iwith($procs[$pid]['cmd'], 'sudo '))
+        return true;
+
+    $depth++;
+    $res = cli_running_as_sudo($procs[$pid]['ppid']);
+    $depth--;
+    return $res;
 }
 
 /**
