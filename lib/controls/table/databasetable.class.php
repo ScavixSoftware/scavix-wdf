@@ -446,7 +446,8 @@ class DatabaseTable extends Table implements ICallable
             if($this->alignments)
                 $this->SetAlignment($this->alignments);
 			if( $this->ItemsPerPage )
-				$this->HidePager = false;
+                if( !$this->_parent || !($this->par() instanceof \ScavixWDF\Controls\Listing\WdfListing) ) // do not touch HidePager if this is part of a listing
+	    			$this->HidePager = false;
         }
 		parent::PreRender($args);
 	}
