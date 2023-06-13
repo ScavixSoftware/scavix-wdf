@@ -42,16 +42,16 @@ use ScavixWDF\Base\DateTimeEx;
  */
 class ChartJS3 extends Control
 {
-    var $chart_title, $canvas;
-    var $series = [];
-    var $config = [];
-    var $detectedCategories = [];
-    var $detectedDateseries = false;
-    var $colorRange = false;
-    var $xMin = false, $xMax = false;
-    var $query = false;
-    var $colors, $named_colors;
-    var $series_order;
+    public $chart_title, $canvas;
+    public $series = [];
+    public $config = [];
+    public $detectedCategories = [];
+    public $detectedDateseries = false;
+    public $colorRange = false;
+    public $xMin = false, $xMax = false;
+    public $query = false;
+    public $colors, $named_colors;
+    public $series_order;
     
     protected static $currentInstance;
     
@@ -592,7 +592,7 @@ class ChartJS3 extends Control
      * @param string $series_row Name of the field with the series name
      * @param string $x_value_row Name of the field with the x-values
      * @param string $y_value_row Name of the field with the y-values
-     * @param string $pointType Optional classname of the Point handler
+     * @param callable|string $pointType Optional classname of the Point handler
      * @param Closure $pointdatacallback Optional closure receiving $row,$series,$series_row_name,$x_value_row_name,$y_value_row_name
      * @return $this
      */

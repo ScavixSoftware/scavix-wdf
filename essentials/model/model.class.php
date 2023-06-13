@@ -61,6 +61,23 @@ use function unserializer_active;
  */
 abstract class Model implements Iterator, Countable, ArrayAccess
 {
+    /**
+     * ATM this is crap. We'll need some kind of database schema description
+     * to be able to map models to tables and on the same time ensure table structure.
+     * That way we will get real Code-First ORM.
+     */
+    static function TryGetClassFromTablename($tablename, $ds = null): string
+    {
+        $ds = $ds ?: DataSource::Get();
+        $db = $ds->Database();
+        foreach (self::$_schemaCache as $k => $v)
+        {
+            if (starts_with($k, $db) && $v->Name == $tablename)
+                return substr($k, strlen($db));
+        }
+        return '';
+    }
+
 	/**
 	 * Derivered classes must implement this and return the table name they are stored in.
 	 * 
@@ -100,16 +117,16 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	/**
 	 * @var SelectQuery|bool
 	 */
-	var $_query = false;
+	public $_query = false;
 	protected $_results = false;
 	protected $_index = 0;
-	protected $_fieldValues = [];
+	public $_fieldValues = [];
 	protected $_dbValues = [];
 	
-	var $_querySql = false;
-	var $_queryArgs = [];
+	public $_querySql = false;
+	public $_queryArgs = [];
 	
-	var $_saved = false;
+	public $_saved = false;
 
 	/**
 	 * @implements <Iterator::rewind>
@@ -740,9 +757,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		
 		if( $allFields )
 		{
-			$columns = array_diff(
-				array_keys(get_object_vars($model)),
-				array_keys(get_object_vars($res))
+            $source_columns = ($model instanceof CommonModel) ?$model->_fieldValues: get_object_vars($model);
+            $columns = array_filter(
+                array_keys($source_columns),
+                function ($k) { return !starts_with($k, '_'); }
 			);
 		}
 		else
@@ -750,8 +768,9 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		
 		foreach( $columns as $cn )
 		{
-			if( isset($model->$cn) )
-				$res->$cn = $model->$cn;
+            if (isset($model->$cn))
+                $res->$cn = $model->$cn;
+                
 			$i = array_search($cn, $pks);
 			if( $i !== false )
 				unset($pks[$i]);
@@ -1774,4 +1793,40 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			$this->_results[$i] = $callback($this->_results[$i]);
 		return $this;
 	}
+
+    public static $LOG_DYNAMIC_PROPERTY_ACCESS = false;
+
+    /**
+     * @suppress PHP6601
+     */
+    protected function __log_dynamic_property_access($name)
+    {
+        if ( Model::$LOG_DYNAMIC_PROPERTY_ACCESS && isDev() && ($cn = get_class_simple($this)) && \ScavixWDF\Wdf::Once("log-dynamic/$cn/$name"))
+        {
+            if( !($this instanceof CommonModel) && strpos($name,'(')===false )
+                log_debug("Please define property '{$cn}->{$name}'");
+        }
+    }
+
+    function __get($name)
+    {
+        $this->__log_dynamic_property_access($name);
+        return isset($this->_fieldValues[$name]) ? $this->_fieldValues[$name] : null;
+    }
+
+    function __set($name, $value)
+    {
+        $this->__log_dynamic_property_access($name);
+        $this->_fieldValues[$name] = $value;
+    }
+
+    function __isset($name)
+    {
+        return isset($this->_fieldValues[$name]);
+    }
+
+    function __unset($name)
+    {
+        unset($this->_fieldValues[$name]);
+    }
 }

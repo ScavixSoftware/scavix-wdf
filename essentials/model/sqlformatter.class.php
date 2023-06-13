@@ -449,7 +449,7 @@ class SqlFormatter
     /**
      * Format the whitespace in a SQL string to make it easier to read.
      *
-     * @param String  $string    The SQL string
+     * @param string  $string    The SQL string
      * @param boolean $highlight If true, syntax highlighting will also be performed
      *
      * @return String The SQL string with HTML styles and formatting wrapped in a <pre> tag

@@ -38,7 +38,7 @@ use ScavixWDF\Base\Control;
  */
 class ColGroup extends Control
 {
-    var $current_col = false;
+    public $current_col = false;
 
 	function __construct()
 	{

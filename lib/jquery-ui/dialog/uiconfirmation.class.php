@@ -41,7 +41,7 @@ class uiConfirmation extends uiDialog
 {
 	const OK_CANCEL = 1;
 	const YES_NO = 2;
-	var $Mode;
+	public $Mode;
 	
 	/**
 	 * Creates a new uiConfirmation object.

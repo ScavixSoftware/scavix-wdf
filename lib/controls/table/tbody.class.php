@@ -40,12 +40,12 @@ class TBody extends Control
 {
 	private $table = false;
 
-    var $options = false;
-    var $header = false;
-    var $current_row = false;
-    var $current_cell = false;
+    public $options = false;
+    public $header = false;
+    public $current_row = false;
+    public $current_cell = false;
 
-	var $RowOptions = [];
+	public $RowOptions = [];
 
 	/**
 	 * Constructs a new <TBody>.

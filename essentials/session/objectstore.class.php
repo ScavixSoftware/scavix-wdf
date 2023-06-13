@@ -40,7 +40,7 @@ abstract class ObjectStore
     public static $buffer = [];
     public static $ids = [];
     
-    var $Statistics = [];
+    public $Statistics = [];
     
     protected function _stats($name,$started)
     {

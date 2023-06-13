@@ -44,17 +44,17 @@ abstract class GoogleVisualization extends GoogleControl implements ICallable
 	public static $DefaultDatasource = false;
 	public static $Colors;
 	
-	var $_columnDef = false;
-	var $_data = [];
-	var $_rowCallbacks = [];
-	var $_roleCallbacks = [];
+	public $_columnDef = false;
+	public $_data = [];
+	public $_rowCallbacks = [];
+	public $_roleCallbacks = [];
 	
-	var $_entities = [];
-	var $_ds;
+	public $_entities = [];
+	public $_ds;
 	
-	var $gvType;
-	var $gvOptions;
-	var $gvQuery;
+	public $gvType;
+	public $gvOptions;
+	public $gvQuery;
 	
 	/**
 	 * Static creator function.

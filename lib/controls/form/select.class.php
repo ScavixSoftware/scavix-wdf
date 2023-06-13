@@ -38,9 +38,9 @@ use ScavixWDF\Base\Control;
  */
 class Select extends Control
 {
-	var $_first_option_value = false;
-	var $_options = [];
-	var $_current = false;
+	public $_first_option_value = false;
+	public $_options = [];
+	public $_current = false;
 
 	/**
 	 * @param string $name The name

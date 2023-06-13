@@ -157,7 +157,7 @@ class LogEntry
 	 */
 	function serialize()
 	{
-        if( !function_exists('utf8_encode') )
+        if( !function_exists('simplexml_load_file') )
             return "missing php-xml";
         
         if( class_exists("\\ScavixWDF\\Base\\Renderable") )
@@ -171,9 +171,9 @@ class LogEntry
         if( is_array($this->categories) )
             foreach( array_values($this->categories) as $v )
                 if( $v )
-                    $res->cat[] = utf8_encode("$v");
-		$res->sev = utf8_encode($this->severity);
-		$res->msg = utf8_encode($this->message);
+                    $res->cat[] = "$v";
+		$res->sev = $this->severity;
+		$res->msg = $this->message;
         if( logging_mem_ok() )
             $res->trace = $this->trace;
         else

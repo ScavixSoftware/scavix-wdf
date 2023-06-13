@@ -38,10 +38,10 @@ use ScavixWDF\Base\Control;
  */
 class Tr extends Control
 {
-//    var $row_groups = [];
-    var $options = false;
-    var $current_cell = false;
-	var $model = false;
+//    public $row_groups = [];
+    public $options = false;
+    public $current_cell = false;
+	public $model = false;
     
     public static $CURRENTLY_ODD = false;
 

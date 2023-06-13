@@ -50,9 +50,9 @@ namespace ScavixWDF\Controls\Table;
  */
 class CellFormat
 {
-    var $format = false;
-    var $blank_if_false = false;
-	var $conditional_css = [];
+    public $format = false;
+    public $blank_if_false = false;
+	public $conditional_css = [];
     private $content;
 
 	function __construct($format=false,$blank_if_false=false,$conditional_css=[])
@@ -126,7 +126,7 @@ class CellFormat
 	 * Formats a given string.
 	 * 
 	 * @param string $full_content The string to format
-	 * @param CultureInfo $culture <CultureInfo> object or false if not present
+	 * @param \ScavixWDF\Localization\CultureInfo $culture <CultureInfo> object or false if not present
 	 * @return string The formatted string
 	 */
 	function FormatContent($full_content,$culture=false)

@@ -40,7 +40,7 @@ use ScavixWDF\WdfException;
  */
 class DbSession extends SessionBase
 {
-	var $ds;
+	public $ds;
 
 	function __construct()
 	{

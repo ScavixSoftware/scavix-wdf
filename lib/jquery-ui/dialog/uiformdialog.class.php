@@ -35,7 +35,7 @@ default_string('TITLE_DIALOG', 'Dialog');
  */
 class uiFormDialog extends uiDialog
 {
-    var $form;
+    public $form;
     
 	function __construct($title,$width = 450, $height = 300)
     {

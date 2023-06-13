@@ -217,7 +217,7 @@ class WdfReflector extends ReflectionClass
 			
 			$parts = explode("(",$attr,2);
 
-			/** @var $attr WdfAttribute */
+			/** @var WdfAttribute $attr */
 			$attr = fq_class_name($parts[0])."(".$parts[1];
 			eval('$attr = new '.$attr.';');
 			

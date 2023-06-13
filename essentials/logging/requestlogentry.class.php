@@ -31,19 +31,33 @@ use Swoole\MySQL\Exception;
 
 /**
  * Represents an entry in the wdf_requests table.
- * 
- * @property string $id
- * @property \ScavixWDF\Base\DateTimeEx|string $created
- * @property float $ms
- * @property string $session_id
- * @property int $user_id
- * @property string $ip
- * @property string $url
- * @property string $post
- * @property string $result
  */
 class RequestLogEntry extends Model
 {
+	/** @var string */
+	public $id;
+	
+	/** @var \ScavixWDF\Base\DateTimeEx|string */
+	public $created;
+	
+	/** @var float */
+	public $ms;
+	
+	/** @var string */
+	public $session_id;
+	
+	/** @var string */
+	public $ip;
+	
+	/** @var string */
+	public $url;
+	
+	/** @var string */
+	public $post;
+	
+	/** @var string */
+	public $result;
+
     protected $started;
     protected $handled = false;
     protected static $Current = false;

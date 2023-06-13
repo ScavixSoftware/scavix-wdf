@@ -12,8 +12,8 @@ use ScavixWDF\Base\Control;
  */
 class Toggle extends Control
 {
-    var $cb, $thumb, $label;
-    var $Options = [];
+    public $cb, $thumb, $label;
+    public $Options = [];
     
 	function __construct($name = false)
 	{

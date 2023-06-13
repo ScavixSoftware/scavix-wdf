@@ -43,7 +43,7 @@ namespace ScavixWDF\Model;
  */
 class CommonModel extends Model
 {
-	var $_tableName = false;
+	public $_tableName = false;
 	
 	/**
 	 * Returns the table name

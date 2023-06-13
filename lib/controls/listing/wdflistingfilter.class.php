@@ -31,10 +31,10 @@ use ScavixWDF\JQueryUI\uiDateTimePicker;
 
 class WdfListingFilter extends Template
 {
-    var $prefix = "";
-    var $sql_builders = [];
-    var $listings = [];
-    var $onoffs = [];
+    public $prefix = "";
+    public $sql_builders = [];
+    public $listings = [];
+    public $onoffs = [];
 
     function __construct($controller,$method='',$object=false)
     {

@@ -40,7 +40,7 @@ class uiDialog extends uiControl
 {
 	protected $Buttons = [];
 	protected $CloseButton = null;
-	var $CloseButtonAction = null;
+	public $CloseButtonAction = null;
     
     public static $DESTROY_ON_CLOSE = false;        // destroy the dialog when it's closed. To keep backward-comaptibility, this new beahviour can only be enabled manually
 

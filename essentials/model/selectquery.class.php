@@ -35,11 +35,11 @@ namespace ScavixWDF\Model;
  */
 class SelectQuery extends Query
 {
-	var $_groupBy = [];
-	var $_having = false;
-	var $_orderBy = [];
-	var $_limit = [];
-	var $_join = [];
+	public $_groupBy = [];
+	public $_having = false;
+	public $_orderBy = [];
+	public $_limit = [];
+	public $_join = [];
 
 	function __construct(&$obj=null,&$datasource=null,$select_statement=false)
 	{

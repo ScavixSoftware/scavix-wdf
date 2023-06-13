@@ -43,36 +43,36 @@ use ScavixWDF\WdfException;
 class Table extends Control
 {
 	/** @var THead */
-    var $header;
+    public $header;
 	/** @var TFoot */
-    var $footer;
-	var $colgroup = false;
-    var $current_row_group = false;
-    var $current_row = false;
-    var $current_cell = false;
-    var $alignments = false;
+    public $footer;
+	public $colgroup = false;
+    public $current_row_group = false;
+    public $current_row = false;
+    public $current_cell = false;
+    public $alignments = false;
 
-    var $Caption = false;
+    public $Caption = false;
 
-	var $RowGroupOptions = [];
-	var $RowOptions = [];
-	var $ColFormats = [];
-	var $Culture = false;
+	public $RowGroupOptions = [];
+	public $RowOptions = [];
+	public $ColFormats = [];
+	public $Culture = false;
 	
-	var $DataCallback = false;
+	public $DataCallback = false;
 	
-	var $ItemsPerPage = false;
-	var $CurrentPage = false;
-	var $MaxPagesToShow = false;
-	var $TotalItems = false;
-	var $HidePager = false;
-    var $PagerAtTop = false;
-    var $ShowTotalText = false;
+	public $ItemsPerPage = false;
+	public $CurrentPage = false;
+	public $MaxPagesToShow = false;
+	public $TotalItems = false;
+	public $HidePager = false;
+    public $PagerAtTop = false;
+    public $ShowTotalText = false;
     
-    var $PersistName = false;
-    var $force_ajax_dependenciesloading = false;
+    public $PersistName = false;
+    public $force_ajax_dependenciesloading = false;
     
-    var $OnPageChanged;
+    public $OnPageChanged;
 	
 	function __construct()
 	{
@@ -532,10 +532,10 @@ class Table extends Control
 		return $this;
 	}
 	
-	var $_actions = false;
-	var $_rowModels = [];
-	var $_actionHandler = [];
-	var $_sortHandler = false;
+	public $_actions = false;
+	public $_rowModels = [];
+	public $_actionHandler = [];
+	public $_sortHandler = false;
 	
 	/**
 	 * Adds a data object to the current row.
@@ -746,7 +746,7 @@ class Table extends Control
         $this->TriggerOnPageChanged();
 	}
 	
-    var $PagerPrefix = false;
+    public $PagerPrefix = false;
 	protected function RenderPager()
 	{
 		$pages = ceil($this->TotalItems / $this->ItemsPerPage);

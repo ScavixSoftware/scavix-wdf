@@ -421,7 +421,7 @@ class MySql implements IDatabaseDriver
                 :$sql_columns;
             
             $ok = $this->_ds->ExecuteScalar("SELECT count(1) FROM ($sql) AS x",
-                is_null($input_arguments)?[]:array_values($input_arguments)
+                is_null($input_arguments)?[]:array_clean_assoc_or_sequence($input_arguments)
             );
             $total = intval($ok);
             if( $ok === false )

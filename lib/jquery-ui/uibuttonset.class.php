@@ -37,7 +37,7 @@ use ScavixWDF\Controls\Form\RadioButton;
  */
 class uiButtonSet extends uiControl
 {
-	var $buttons = [];
+	public $buttons = [];
 
 	function __construct()
 	{

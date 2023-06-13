@@ -39,8 +39,8 @@ use PDO;
  */
 class PdoLayer extends PDO
 {
-    var $Driver = false;
-    var $LastPreparedSqlCode = false;
+    public $Driver = false;
+    public $LastPreparedSqlCode = false;
 	/**
 	 * Overrides parent to perform preparations
 	 * 

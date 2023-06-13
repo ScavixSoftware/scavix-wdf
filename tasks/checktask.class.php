@@ -41,7 +41,7 @@ class CheckTask extends Task
         
         $status = [];
         $status["php-curl"]    = function_exists('curl_init')?'ok':"CURL is missing, required for some features";
-        $status["php-xml"]     = function_exists('utf8_encode')?'ok':"XML is missing, required for some features";
+        $status["php-xml"]     = function_exists('simplexml_load_file')?'ok':"XML is missing, required for some features";
         $status["php-sqlite3"] = extension_loaded('pdo_sqlite')?'ok':"(optional) SQLite driver is missing";
         $status["php-mysql"]   = extension_loaded('pdo_mysql')?'ok':"(optional) MySQL driver is missing";
         

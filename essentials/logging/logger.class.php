@@ -36,18 +36,28 @@ namespace ScavixWDF\Logging;
  * Do not use this directly but the functions in logging.php instead.
  * Will ensure that logging information is writte to specified files.
  * Will also take care of rotating the logs and cleaning up old logfiles.
- * 
- * @property string $min_severity
- * @property string $filename_pattern
- * @property int $max_filesize
- * @property int $keep_for_days
- * @property int $max_trace_depth
- * @property bool $log_date
- * @property bool $log_categories
- * @property bool $log_severity
  */
 class Logger
 {
+    /** @var string */
+    protected $min_severity;
+    /** @var string */
+    protected $filename_pattern;
+    /** @var string */
+    protected $class;
+    /** @var int */
+    protected $max_filesize;
+    /** @var int */
+    protected $keep_for_days;
+    /** @var int */
+    protected $max_trace_depth;
+    /** @var bool */
+    protected $log_date;
+    /** @var bool */
+    protected $log_categories;
+    /** @var bool */
+    protected $log_severity;
+
     public static $severity_map =
     [
         'NOTICE'     => 'DEBUG',

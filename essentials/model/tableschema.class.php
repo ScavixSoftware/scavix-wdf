@@ -41,11 +41,11 @@ class TableSchema
 	static $_colMapPri = [];
 	
 	private $_ds;
-	var $_cacheKey;
+	public $_cacheKey;
 	
-    var $CreateCode;
-	var $Name;
-	var $Columns;
+    public $CreateCode;
+	public $Name;
+	public $Columns;
 	
     function __construct($datasource,$tableName)
     {

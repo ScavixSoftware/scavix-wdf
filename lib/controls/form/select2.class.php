@@ -15,7 +15,7 @@ namespace ScavixWDF\Controls\Form;
  */
 class Select2 extends Select
 {
-    var $Options = [];
+    public $Options = [];
     
 	function __construct($name = false)
 	{

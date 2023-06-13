@@ -697,7 +697,7 @@ function strip_only(&$str, $tags)
 		return $str;
     if(!is_array($tags))
 	{
-        $tags = (strpos($str, '>') !== false ? explode('>', str_replace('<', '', $tags)) : array($tags));
+        $tags = (strpos($str, '>') !== false ? explode('>', str_replace('<', '', $tags.'')) : array($tags));
         if(end($tags) == '') array_pop($tags);
     }
 
@@ -979,6 +979,18 @@ function system_glob_rec($directory='',$pattern='*.*')
 	return $files;
 }
 
+function system_walk_files($folder, $pattern, $callback, $recursive = true)
+{
+    $iti = new RecursiveDirectoryIterator($folder);
+    foreach(new RecursiveIteratorIterator($iti) as $file)
+    {
+        $fn = basename("$file");
+        if (!is_in($fn, '.', '..') && fnmatch($pattern, $fn))
+            if (false === $callback("$file"))
+                break;
+    }
+}
+
 /**
  * Checks if WDF_FEATURES_REWRITE is on
  * 
@@ -1036,7 +1048,7 @@ function force_array($data)
  * There are situations where PHP provides you with stdClasses where you want your own type.
  * This function casts any object into another one:
  * <code php>
- * class SomeClass { var $someProperty; }
+ * class SomeClass { public $someProperty; }
  * class SomeOtherClass { }
  * $std = json_decode('{"someProperty":"someValue"}');
  * $typed = castObject($std,'SomeClass');
@@ -1176,7 +1188,12 @@ function avail(...$args)
 	$ar = array_shift($args);
 	if( !is_array($ar) && !is_object($ar) )
 		return false;
-	$ar = (array)$ar;
+    if ($ar instanceof \ScavixWDF\Model\Model)
+    {
+        if (avail($ar->_fieldValues, ...$args))
+            return true;
+    }
+    $ar = (array) $ar;
 	$l = array_pop($args);
 	foreach( $args as $a )
 	{
@@ -1689,4 +1706,15 @@ function system_guess_mime($filename)
     $mime_map = system_mime_map();
     $ext = pathinfo($filename,PATHINFO_EXTENSION);
     return array_search($ext,$mime_map);
+}
+
+function array_clean_assoc_or_sequence($array)
+{
+    if (!is_assoc($array))
+        return $array;
+
+    if( count(array_filter(array_map('is_numeric',array_keys($array)))) == count($array) )
+        return array_values($array);
+
+    return $array;
 }

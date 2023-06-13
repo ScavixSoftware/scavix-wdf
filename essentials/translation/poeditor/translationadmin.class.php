@@ -40,7 +40,7 @@ use ScavixWDF\WdfException;
  */
 class TranslationAdmin extends TranslationAdminBase
 {
-	var $Lasterror = "";
+	public $Lasterror = "";
 	
     function __construct($title = "", $body_class = false)
     {

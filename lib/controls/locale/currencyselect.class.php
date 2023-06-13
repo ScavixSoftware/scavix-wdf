@@ -40,7 +40,7 @@ use ScavixWDF\Localization\Localization;
  */
 class CurrencySelect extends Select
 {
-	var $current_currency_code = false;
+	public $current_currency_code = false;
 	
 	/**
 	 * @param string $current_currency_code Currently selected currency

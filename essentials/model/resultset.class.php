@@ -693,8 +693,8 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
  */
 class WdfPdoStatement extends PDOStatement
 {
-	var $_ds = null;
-	var $_pdo = null;
+	public $_ds = null;
+	public $_pdo = null;
 	
 	protected function __construct($datasource,$pdo)
 	{

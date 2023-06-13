@@ -29,7 +29,7 @@ namespace ScavixWDF\Base;
  */
 class Color
 {
-    var $r, $g, $b, $a;
+    public $r, $g, $b, $a;
     
     protected function __construct($parts,$convert_alpha=false)
     {
@@ -221,7 +221,7 @@ namespace ScavixWDF\Base\Color;
  */
 class ColorRange
 {
-    var $from, $to, $min, $max;
+    public $from, $to, $min, $max;
     
     function __toString()
     {

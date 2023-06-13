@@ -47,8 +47,8 @@ namespace ScavixWDF\Logging;
  */
 class LogReport
 {
-	var $Name = "LogReport";
-	var $Lines = [];
+	public $Name = "LogReport";
+	public $Lines = [];
 	
 	public function __construct($name)
 	{

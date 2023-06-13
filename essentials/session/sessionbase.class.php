@@ -42,8 +42,8 @@ use ScavixWDF\WdfException;
  */
 abstract class SessionBase
 {
-    var $store;
-    var $I;
+    public $store;
+    public $I;
     
     protected static $session_request_id = false;
     

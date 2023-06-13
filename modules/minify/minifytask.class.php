@@ -32,7 +32,7 @@ class MinifyTask extends Task
     }
     
     private $paths = false, $base_name=false, $minify=true, $randomnc=false, $base_url=false;
-    var $Results = ['js'=>[],'css'=>[]];
+    public $Results = ['js'=>[],'css'=>[]];
     
     private function prepare($args=[])
     {

@@ -46,34 +46,34 @@ class DatabaseTable extends Table implements ICallable
 	const PB_STRIPHTML = 0x01;
 	const PB_HTMLSPECIALCHARS = 0x02;
 
-	var $DataSource = false;
-	var $ResultSet = false;
-	var $DataTable = false;
-	var $Sql = false;
-	var $CacheExecute = false;
+	public $DataSource = false;
+	public $ResultSet = false;
+	public $DataTable = false;
+	public $Sql = false;
+	public $CacheExecute = false;
 
-	var $Columns = false;
-	var $Join = false;
-	var $Where = false;
-	var $GroupBy = false;
-	var $Having = false;
-	var $OrderBy = false;
-	var $Limit = false;
+	public $Columns = false;
+	public $Join = false;
+	public $Where = false;
+	public $GroupBy = false;
+	public $Having = false;
+	public $OrderBy = false;
+	public $Limit = false;
 
-	var $OnAddHeader = false;
-	var $OnAddRow = false;
-	var $OnAddFooter = false;
-	var $ExecuteSqlHandler = false;
+	public $OnAddHeader = false;
+	public $OnAddRow = false;
+	public $OnAddFooter = false;
+	public $ExecuteSqlHandler = false;
 
 	public $noDataAsRow = false;
 	public $contentNoData = "TXT_NO_DATA_FOUND";
 
-	var $ParsingBehaviour = self::PB_HTMLSPECIALCHARS;
+	public $ParsingBehaviour = self::PB_HTMLSPECIALCHARS;
     
-    var $SlimSerialization = false;
+    public $SlimSerialization = false;
 
 	/**
-	 * @param DataSource $datasource DataSource to use
+	 * @param \ScavixWDF\Model\DataSource $datasource DataSource to use
 	 * @param string $datatype Datatype to be rendered
 	 * @param string $datatable Data tyble to be rendered
 	 */
@@ -664,7 +664,7 @@ class DatabaseTable extends Table implements ICallable
 		return parent::RenderPager();
 	}
     
-    var $logIfSlow = false;
+    public $logIfSlow = false;
     
     /**
      * Write a log information if querying was slow.
