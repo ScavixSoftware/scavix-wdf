@@ -167,7 +167,7 @@ function cli_running_as_sudo($pid=false)
     static $depth = 0;
     static $procs = [];
 
-    if( !$pid )
+    if( $pid === false )
         $pid = getmypid();
 
     if ( $pid == getmypid() && posix_getuid() !== 0)
