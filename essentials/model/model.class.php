@@ -1242,6 +1242,21 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	}
 	
 	/**
+	 * Check if a field has NOT a BINARY value.
+	 * 
+	 * @param string $property Property-/Fieldname
+	 * @param mixed $value Value to check for
+	 * @return Model `clone $this`
+	 */
+	public function notBinary($property,$value)
+	{
+		$res = clone $this;
+		$res->__ensureSelect();
+		$res->_query->notBinary($this->__ensureFieldname($property),$this->__toTypedSQLValue($property,$value));
+		return $res;
+	}
+	
+	/**
 	 * Check if a fields value is lower than or equal to something.
 	 * 
 	 * @param string $property Property-/Fieldname
@@ -1316,6 +1331,23 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$res->_query->andX(2);
 		$res->_query->equal($this->__ensureFieldname($property),$this->__toTypedSQLValue($property,$value));
 		$res->_query->binary($this->__ensureFieldname($property),$this->__toTypedSQLValue($property,$value));
+		return $res;
+	}
+	
+	/**
+	 * Check if a fields value is binary NOT equal to another value.
+	 * 
+	 * @param string $property Property-/Fieldname
+	 * @param mixed $value Value to check against
+	 * @return Model `clone $this`
+	 */
+	public function neqBinary($property,$value)
+	{
+		$res = clone $this;
+		$res->__ensureSelect();
+		$res->_query->andX(2);
+		$res->_query->notEqual($this->__ensureFieldname($property),$this->__toTypedSQLValue($property,$value));
+		$res->_query->notBinary($this->__ensureFieldname($property),$this->__toTypedSQLValue($property,$value));
 		return $res;
 	}
 
