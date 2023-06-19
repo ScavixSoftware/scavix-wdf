@@ -74,16 +74,21 @@ class TaskPool extends Task
     {
         $processors = max(1, min(100, intval(ifavail($args, 'processors') ?: '5')));
         $delay = max(1000, min(10000, intval(ifavail($args, 'delay') ?: '1000')));
+        $min_tasks_required = $processors;
 
-        while (true)
+        while (true) // Loop for Reusable pools, (re-)load child-tasks from DB
         {
             $task_ids = WdfTaskModel::Make()->eq('parent_task', $this->model->id)->enumerate('id');
-            if (count($task_ids) <= $processors)
+            if (count($task_ids) <= $min_tasks_required)
                 break;
 
+            // After initial comparison check again existance of at least one child task.
+            // This is needed to minimize hanging tasks created for a reusable pool.
+            $min_tasks_required = 0; 
             $tasks = [];
 
-            while (count($task_ids) > 0)
+            // Inner loop: Load and release some tasks and keep that number running while there are some in the preloaded IDs
+            while (count($task_ids) > 0) 
             {
                 while (count($tasks) < $processors)
                 {
@@ -94,15 +99,15 @@ class TaskPool extends Task
                         $task->Save();
                         $task->Go();
                         $tasks[] = $task->id;
-                        //                    log_debug("Started one task");
                     }
                     else
                         break;
                 }
                 usleep($delay * 1000);
+
+                // Check if the currently monitored tasks are still present in DB (so: running)
                 $present = WdfTaskModel::Make()->in('id', $tasks)->enumerate('id');
                 $tasks = array_intersect($tasks, $present);
-                //            log_debug("Still running ".count($tasks)." of max $processors",$present);
             }
         }
     }
