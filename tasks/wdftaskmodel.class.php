@@ -28,6 +28,7 @@ use ScavixWDF\Model\DataSource;
 use ScavixWDF\Model\Model;
 use ScavixWDF\WdfDbException;
 use ScavixWDF\Base\DateTimeEx;
+use ScavixWDF\WdfException;
 
 /**
  * @internal Model class representing tasks that can be handled asynchronously
@@ -123,7 +124,22 @@ class WdfTaskModel extends Model
                 //log_debug("Ensuring re-save for taskmodel");
             }
         }
-        return parent::Save($columns_to_update, $changed);
+        try
+        {
+            $ret = parent::Save($columns_to_update, $changed);
+        }
+        catch(WdfDbException $ex)
+        {
+            if($ex->isDuplicateKeyException('PRIMARY') && (strpos($this->name, 'TaskPool-') !== false))
+            {
+                // special handling for reusable taskpool tasks. Just ignore this exception.
+            }
+            else
+            {
+                throw $ex;
+            }
+        }
+        return $ret;
     }
     
     public static function HasToDo()
