@@ -690,7 +690,7 @@
                 'z-index': '1000'
             };
             
-            var $toast = $('<div/>').append(text).appendTo('body').css(css);
+            var $toast = $('<div class="wdftoast" />').append(text).appendTo('body').css(css);
             $.extend($toast,
             {
                 go: function()
