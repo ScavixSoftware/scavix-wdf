@@ -124,6 +124,7 @@ class WdfTaskModel extends Model
                 //log_debug("Ensuring re-save for taskmodel");
             }
         }
+        $ret = false;
         try
         {
             $ret = parent::Save($columns_to_update, $changed);
