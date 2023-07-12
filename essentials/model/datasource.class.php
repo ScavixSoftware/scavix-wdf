@@ -156,6 +156,33 @@ class DataSource
 		}
 		$this->Driver->initDriver($this,$this->_pdo);
     }
+
+    function Reconnect()
+    {
+        try{ 
+			$this->_pdo = new PdoLayer($this->_dsn,$this->_username,$this->_password); 
+		}catch(Exception $ex){ WdfDbException::Raise("Error connecting database",$this->_dsn,$ex); }
+		if( !$this->_pdo )
+			WdfDbException::Raise("Something went horribly wrong with the PdoLayer");
+		$this->_pdo->setAttribute( PDO::ATTR_STATEMENT_CLASS, array( "\\ScavixWDF\\Model\\WdfPdoStatement", array($this,$this->_pdo) ) );
+
+		$driver = $this->_pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+		switch( $driver )
+		{
+			case 'sqlite': 
+                // trick out the autoloader as it consults the cache which needs a model thus circular...
+                require_once(__DIR__.'/driver/sqlite.class.php');
+                $this->Driver = new SqLite(); 
+                break;
+			case 'mysql': 
+                // trick out the autoloader as it consults the cache which needs a model thus circular...
+                require_once(__DIR__.'/driver/mysql.class.php');
+                $this->Driver = new MySql(); 
+                break;
+			default: WdfDbException::Raise("Unknown DB driver: $driver");
+		}
+		$this->Driver->initDriver($this,$this->_pdo);
+    }
 	
 	function __get($varname)
 	{

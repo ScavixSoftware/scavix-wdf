@@ -281,6 +281,18 @@ class Query
                 $this->_values[] = $value;
 		}			
 	}
+	
+	function notBinary($property,$value)
+	{
+		//debug("equal($property,$value)");
+		if( $value instanceof ColumnAttribute )
+			$this->__conditionTree()->Add(new Condition("!=",$property,$value,"BINARY "));
+		else
+		{
+			if( $this->__conditionTree()->Add(new Condition("!=",$property,"?","BINARY ")) )
+                $this->_values[] = $value;
+		}			
+	}
 
 	function like($property,$value,$flipped=false)
 	{

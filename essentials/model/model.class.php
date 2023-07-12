@@ -120,7 +120,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	public $_query = false;
 	protected $_results = false;
 	protected $_index = 0;
-	protected $_fieldValues = [];
+	public $_fieldValues = [];
 	protected $_dbValues = [];
 	
 	public $_querySql = false;
@@ -1242,6 +1242,21 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	}
 	
 	/**
+	 * Check if a field has NOT a BINARY value.
+	 * 
+	 * @param string $property Property-/Fieldname
+	 * @param mixed $value Value to check for
+	 * @return Model `clone $this`
+	 */
+	public function notBinary($property,$value)
+	{
+		$res = clone $this;
+		$res->__ensureSelect();
+		$res->_query->notBinary($this->__ensureFieldname($property),$this->__toTypedSQLValue($property,$value));
+		return $res;
+	}
+	
+	/**
 	 * Check if a fields value is lower than or equal to something.
 	 * 
 	 * @param string $property Property-/Fieldname
@@ -1316,6 +1331,23 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$res->_query->andX(2);
 		$res->_query->equal($this->__ensureFieldname($property),$this->__toTypedSQLValue($property,$value));
 		$res->_query->binary($this->__ensureFieldname($property),$this->__toTypedSQLValue($property,$value));
+		return $res;
+	}
+	
+	/**
+	 * Check if a fields value is binary NOT equal to another value.
+	 * 
+	 * @param string $property Property-/Fieldname
+	 * @param mixed $value Value to check against
+	 * @return Model `clone $this`
+	 */
+	public function neqBinary($property,$value)
+	{
+		$res = clone $this;
+		$res->__ensureSelect();
+		$res->_query->andX(2);
+		$res->_query->notEqual($this->__ensureFieldname($property),$this->__toTypedSQLValue($property,$value));
+		$res->_query->notBinary($this->__ensureFieldname($property),$this->__toTypedSQLValue($property,$value));
 		return $res;
 	}
 
@@ -1794,9 +1826,14 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $this;
 	}
 
-    private function __log_dynamic_property_access($name)
+    public static $LOG_DYNAMIC_PROPERTY_ACCESS = false;
+
+    /**
+     * @suppress PHP6601
+     */
+    protected function __log_dynamic_property_access($name)
     {
-        if (isDev() && ($cn = get_class_simple($this)) && \ScavixWDF\Wdf::Once("log-dynamic/$cn/$name"))
+        if ( Model::$LOG_DYNAMIC_PROPERTY_ACCESS && isDev() && ($cn = get_class_simple($this)) && \ScavixWDF\Wdf::Once("log-dynamic/$cn/$name"))
         {
             if( !($this instanceof CommonModel) && strpos($name,'(')===false )
                 log_debug("Please define property '{$cn}->{$name}'");

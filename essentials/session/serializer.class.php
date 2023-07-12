@@ -186,7 +186,7 @@ class Serializer
 					return "d:\n";
 				return "d:$dtres\n";
 			}
-			if( $data instanceof Reflector )
+			if( $data instanceof WdfReflector )
 				return "y:".$data->getName()."\n";
 			if( $data instanceof SimpleXMLElement )
 				return "z:".addcslashes($data->asXML(),"\n")."\n";

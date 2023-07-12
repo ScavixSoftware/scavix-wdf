@@ -299,7 +299,7 @@ class Template extends Renderable
 			$this->file = WDF_HTMLPAGE_TEMPLATE;
 		}
 
-		$__template_file = __autoload__template($this,$this->file);
+		$__template_file = __autoload__template($this, $this->SubTemplate ?: $this->file);
 		if( $__template_file === false )
 			WdfException::Raise("Template for class '".get_class($this)."' not found: ".$this->file);
 

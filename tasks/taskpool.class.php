@@ -39,6 +39,18 @@ namespace ScavixWDF\Tasks;
  */
 class TaskPool extends Task
 {
+    public static function Reusable($name)
+    {
+        $res = self::Async();
+        $res->name .= "-$name";
+        if( $cur = WdfTaskModel::Make()->eq('name', $res->name)->current() )
+        {
+            $cur->RecreateOnSave = true;
+            return $cur;
+        }
+        return $res;
+    }
+
     /**
      * @internal Overwrites parent to fix 'run' method set up things.
      */
@@ -60,35 +72,43 @@ class TaskPool extends Task
      */
     function Run($args)
     {
-        $processors = max(1,min(100,intval(ifavail($args,'processors')?:'5')));
-        $delay = max(100,min(10000,intval(ifavail($args,'delay')?:'1000')));
-        
-        $task_ids = WdfTaskModel::Make()->eq('parent_task',$this->model->id)->enumerate('id');
-        if( count($task_ids) <= $processors )
-            return;
-        
-        $tasks = [];
-        
-        while( count($task_ids)>0 )
+        $processors = max(1, min(100, intval(ifavail($args, 'processors') ?: '5')));
+        $delay = max(1000, min(10000, intval(ifavail($args, 'delay') ?: '1000')));
+        $min_tasks_required = $processors;
+
+        while (true) // Loop for Reusable pools, (re-)load child-tasks from DB
         {
-            while( count($tasks) < $processors )
+            $task_ids = WdfTaskModel::Make()->eq('parent_task', $this->model->id)->enumerate('id');
+            if (count($task_ids) <= $min_tasks_required)
+                break;
+
+            // After initial comparison check again existance of at least one child task.
+            // This is needed to minimize hanging tasks created for a reusable pool.
+            $min_tasks_required = 0; 
+            $tasks = [];
+
+            // Inner loop: Load and release some tasks and keep that number running while there are some in the preloaded IDs
+            while (count($task_ids) > 0) 
             {
-                $task = WdfTaskModel::Make()->eq('id',array_shift($task_ids)?:0)->current();
-                if( $task )
+                while (count($tasks) < $processors)
                 {
-                    $task->parent_task = null;
-                    $task->Save();
-                    $task->Go();
-                    $tasks[] = $task->id;
-//                    log_debug("Started one task");
+                    $task = WdfTaskModel::Make()->eq('id', array_shift($task_ids) ?: 0)->current();
+                    if ($task)
+                    {
+                        $task->parent_task = null;
+                        $task->Save();
+                        $task->Go();
+                        $tasks[] = $task->id;
+                    }
+                    else
+                        break;
                 }
-                else
-                    break;
+                usleep($delay * 1000);
+
+                // Check if the currently monitored tasks are still present in DB (so: running)
+                $present = WdfTaskModel::Make()->in('id', $tasks)->enumerate('id');
+                $tasks = array_intersect($tasks, $present);
             }
-            usleep($delay*1000);
-            $present = WdfTaskModel::Make()->in('id',$tasks)->enumerate('id');
-            $tasks = array_intersect($tasks, $present);
-//            log_debug("Still running ".count($tasks)." of max $processors",$present);
         }
     }
 }

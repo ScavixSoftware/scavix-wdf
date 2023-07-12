@@ -105,6 +105,7 @@ function system_config($filename,$reset_to_defaults=true)
  * Just sets some useful default values. This is also a good reference of the basic system variables.
  * @param bool $reset If true resets the config completely to default, extends/overwrites only if false
  * @return void
+ * @suppress PHP0443
  */
 function system_config_default($reset = true)
 {

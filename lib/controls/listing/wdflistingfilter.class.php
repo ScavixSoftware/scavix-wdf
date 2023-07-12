@@ -27,14 +27,13 @@ use ScavixWDF\Base\Args;
 use ScavixWDF\Base\Template;
 use ScavixWDF\Base\WdfClosure;
 use ScavixWDF\Controls\Form\TextInput;
-use ScavixWDF\JQueryUI\uiDateTimePicker;
 
 class WdfListingFilter extends Template
 {
     public $prefix = "";
     public $sql_builders = [];
     public $listings = [];
-    public $onoffs = [];
+    // public $onoffs = [];
 
     function __construct($controller,$method='',$object=false)
     {
@@ -121,6 +120,8 @@ class WdfListingFilter extends Template
     protected function addInput($control,$sql_builder,$return_self=true)
     {
         $name = $control->attr('name');
+        if(ends_with($name, '[]'))
+            $name = substr($name, 0, -2);
         $this->sql_builders[$name] = $sql_builder;
         $this->add2var('inputs',$control);
 
@@ -128,8 +129,8 @@ class WdfListingFilter extends Template
         if( $val )
             $this->persist($name, $val);
         
-        if( $control instanceof \ScavixWDF\Controls\Form\CheckBox )
-            $this->onoffs[] = $name;
+        // if( $control instanceof \ScavixWDF\Controls\Form\CheckBox )
+        //     $this->onoffs[] = $name;
 
         return $return_self?$this:$control;
     }

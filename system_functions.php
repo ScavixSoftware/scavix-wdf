@@ -1188,7 +1188,12 @@ function avail(...$args)
 	$ar = array_shift($args);
 	if( !is_array($ar) && !is_object($ar) )
 		return false;
-	$ar = (array)$ar;
+    if ($ar instanceof \ScavixWDF\Model\Model)
+    {
+        if (avail($ar->_fieldValues, ...$args))
+            return true;
+    }
+    $ar = (array) $ar;
 	$l = array_pop($args);
 	foreach( $args as $a )
 	{
@@ -1701,4 +1706,15 @@ function system_guess_mime($filename)
     $mime_map = system_mime_map();
     $ext = pathinfo($filename,PATHINFO_EXTENSION);
     return array_search($ext,$mime_map);
+}
+
+function array_clean_assoc_or_sequence($array)
+{
+    if (!is_assoc($array))
+        return $array;
+
+    if( count(array_filter(array_map('is_numeric',array_keys($array)))) == count($array) )
+        return array_values($array);
+
+    return $array;
 }

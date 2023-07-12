@@ -37,7 +37,13 @@ class CliSession extends PhpSession
 {
     function __construct()
     {
+        global $CONFIG;
         $_SESSION = [];
+        if ((session_name() != $CONFIG['session']['session_name']) || (session_id() == ""))
+        {
+            $name = $CONFIG['session']['session_name'];
+            session_name($name);
+        }
     }
 
 	/**

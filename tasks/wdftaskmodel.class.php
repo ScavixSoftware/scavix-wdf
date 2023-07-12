@@ -28,6 +28,7 @@ use ScavixWDF\Model\DataSource;
 use ScavixWDF\Model\Model;
 use ScavixWDF\WdfDbException;
 use ScavixWDF\Base\DateTimeEx;
+use ScavixWDF\WdfException;
 
 /**
  * @internal Model class representing tasks that can be handled asynchronously
@@ -63,6 +64,8 @@ class WdfTaskModel extends Model
 	
 	/** @var string */
 	public $arguments;
+
+    public $RecreateOnSave = false;
 
     private $isVirtual = false, $prevent_duplicate = false, $cascade_go = true;
     public static $PROCESS_FILTER = 'db-processwdftasks';
@@ -108,7 +111,36 @@ class WdfTaskModel extends Model
 //            log_debug("Skipping Save for virtual task");
             return true;
         }
-        return parent::Save($columns_to_update, $changed);
+        if( $this->RecreateOnSave )
+        {
+            $still_present = $this->_ds->ExecuteScalar("SELECT count(*) FROM wdf_tasks WHERE id=?", [$this->id]);
+            if (!$still_present)
+            {
+                $this->_saved = false;
+                $this->_dbValues = [];
+                $this->enabled = 0;
+                $this->worker_pid = null;
+                $this->assigned = null;
+                //log_debug("Ensuring re-save for taskmodel");
+            }
+        }
+        $ret = false;
+        try
+        {
+            $ret = parent::Save($columns_to_update, $changed);
+        }
+        catch(WdfDbException $ex)
+        {
+            if($ex->isDuplicateKeyException('PRIMARY') && (strpos($this->name, 'TaskPool-') !== false))
+            {
+                // special handling for reusable taskpool tasks. Just ignore this exception.
+            }
+            else
+            {
+                throw $ex;
+            }
+        }
+        return $ret;
     }
     
     public static function HasToDo()
@@ -239,7 +271,7 @@ class WdfTaskModel extends Model
 	
 	public function Go($run_instance=true,$depth=0)
 	{
-        if( !$this->isVirtual )
+        if( !$this->isVirtual && ($this->enabled == 0 || avail($this,'worker_pid')) )
         {
             $this->enabled = 1;
             
@@ -267,7 +299,7 @@ class WdfTaskModel extends Model
                         $t->Go(false,$depth);
             }
         }
-		if( $run_instance )
+		if( $run_instance && !avail($this,'worker_pid') )
 			WdfTaskModel::RunInstance();
 		return $this;
 	}
@@ -325,11 +357,15 @@ class WdfTaskModel extends Model
 		$wpid = getmypid();
         try
         {
+            $where = "enabled=1 AND isnull(worker_pid) AND isnull(parent_task) AND isnull(assigned) AND (ISNULL(start) OR start<=now())";
+
+            $ids = DataSource::Get()->ExecuteSql("SELECT id FROM wdf_tasks WHERE $where ORDER BY id DESC LIMIT 10")->Enumerate('id');
+            if (count($ids) == 0)
+                return false;
+                
             DataSource::Get()->ExecuteSql(
                 "UPDATE wdf_tasks SET worker_pid=?, assigned=now() WHERE 
-                    enabled=1 AND isnull(worker_pid) AND isnull(parent_task) AND
-                    isnull(assigned) AND
-                    (ISNULL(start) OR start<=now()) 
+                    $where AND id IN(".implode(",",$ids).")
                     ORDER BY id DESC LIMIT 1"
                 ,$wpid);
         }
@@ -382,7 +418,7 @@ class WdfTaskModel extends Model
                 foreach( WdfTaskModel::Make()->eq('parent_task',$this->id)->eq('enabled',0) as $t )		
                     $t->Go(false);
             }
-			$this->Delete();
+            $this->Delete();
 		}
 		else
 		{
