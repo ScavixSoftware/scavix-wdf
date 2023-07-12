@@ -941,7 +941,7 @@ function system_spl_autoload($class_name)
 			$array = explode('\\',$class_name);
 			$class_name = $array[count($array)-1]; ;
 		}
-        $file = __search_file_for_class($class_name);
+        $file = __search_file_for_class($class_name) ?: __search_file_for_class($class_name, "trait.php");
         if( $file && is_readable($file) )
 		{
 			$pre = get_declared_classes();
