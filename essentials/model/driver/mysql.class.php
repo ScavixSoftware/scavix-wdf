@@ -164,6 +164,7 @@ class MySql implements IDatabaseDriver
                 $schema = @unserialize(@file_get_contents($schemafile))?:[];
                 $res->CreateCode = isset($schema['create'])?$schema['create']:'';
                 $res->Columns = isset($schema['columns'])?$schema['columns']:[];
+                $res->Keys = isset($schema['columns'])?$schema['keys']:[];
             }
         }
         
@@ -180,7 +181,7 @@ class MySql implements IDatabaseDriver
         
         if( !count($res->Columns) )
         {
-            $sql = "show columns from `$tablename`";
+            $sql = "show full columns from `$tablename`";
             foreach($this->_pdo->query($sql)->finishAll() as $row)
             {
                 $size = false;
@@ -191,6 +192,8 @@ class MySql implements IDatabaseDriver
                 }
                 if( $row['Key'] == 'PRI' )
                     $row['Key'] = 'PRIMARY';
+                elseif( $row['Key'] == 'UNI' )
+                    $row['Key'] = 'UNIQUE';
 
                 $col = new ColumnSchema($row['Field']);
                 $col->Type = $row['Type'];
@@ -199,6 +202,7 @@ class MySql implements IDatabaseDriver
                 $col->Key = $row['Key'];
                 $col->Default = $row['Default'];
                 $col->Extra = $row['Extra'];
+                $col->Comment = $row['Comment'];
                 $res->Columns[] = $col;
 
                 if( $col->Type == 'longtext' )
@@ -210,13 +214,27 @@ class MySql implements IDatabaseDriver
                         $col->Type = 'json';
                 }
             }
-			$save_needed |= true;
+			$save_needed = true;
         }
+
+        if( !count($res->Keys) )
+        {
+            $sql = "show keys from `$tablename`";
+            foreach ($this->_pdo->query($sql)->finishAll() as $row)
+            {
+                $keyName = $row['Key_name'];
+                if (!isset($res->Keys[$keyName]))
+                    $res->Keys[$keyName] = ['unique' => $row['Non_unique'] == '0', 'columns' => []];
+                $res->Keys[$keyName]['columns'][] = $row['Column_name'];
+            }
+            $save_needed = true;
+        }
+
         if( isset($um) )
         {
 			if( isset($save_needed) && $save_needed )
 			{
-				$schema = ['create'=>$res->CreateCode,'columns'=>$res->Columns];
+				$schema = ['create'=>$res->CreateCode,'columns'=>$res->Columns,'keys'=>$res->Keys];
 				@file_put_contents($schemafile,serialize($schema));
 			}
             umask($um);

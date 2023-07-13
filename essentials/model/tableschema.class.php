@@ -46,12 +46,14 @@ class TableSchema
     public $CreateCode;
 	public $Name;
 	public $Columns;
+    public $Keys;
 	
     function __construct($datasource,$tableName)
     {
 		$this->_ds = $datasource;
         $this->Name = $tableName;
 		$this->Columns = [];
+        $this->Keys = [];
 		$this->_cacheKey = $this->_ds->Database().$this->Name;
     }
 	

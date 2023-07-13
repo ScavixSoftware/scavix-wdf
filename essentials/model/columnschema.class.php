@@ -44,6 +44,7 @@ class ColumnSchema
 	public $Key;
 	public $Default;
 	public $Extra;
+    public $Comment;
 	
     function __construct($name)
     {

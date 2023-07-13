@@ -143,9 +143,23 @@ class SqLite implements IDatabaseDriver
 			$col = new ColumnSchema($row['name']);
 			$col->Type = $row['type'];
 			$col->Null = $row['notnull'] == 0;
-			$col->Key = ($row['pk']==1)?"PRIMARY":null;
+			$col->Key = ($row['pk']>0)?"PRIMARY":null;
 			$res->Columns[] = $col;
 		}
+
+        $sql = "SELECT il.name as index_name, ii.name as column_name, CASE il.origin when 'pk' then 1 else 0 END as is_primary_key, il.[unique] as is_unique
+                FROM sqlite_master AS m, pragma_index_list(m.name) AS il, pragma_index_info(il.name) AS ii
+                WHERE m.type = 'table' AND m.tbl_name = '{$tablename}'
+                GROUP BY m.tbl_name,il.name,ii.name,il.origin,il.partial,il.seq
+                ORDER BY index_name, ii.seqno";
+        foreach($this->_pdo->query($sql) as $row)
+        {
+            $keyName = $row['is_primary_key'] ? 'PRIMARY' : $row['index_name'];
+            if (!isset($res->Keys[$keyName]))
+                $res->Keys[$keyName] = ['unique' => $row['is_unique']>0, 'columns' => []];
+            $res->Keys[$keyName]['columns'][] = $row['column_name'];
+        }
+
 		return $res;
 	}
 
