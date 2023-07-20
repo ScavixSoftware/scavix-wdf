@@ -633,44 +633,44 @@ function render_var($content)
  * Starts a named timer.
  * 
  * @param string $name Name of the timer
- * @return string Timer-Identifier
+ * @return string Timer name (the $name parameter)
  */
 function start_timer($name)
 {
-    $id = uniqid();
-    Wdf::$Timer[$id] = [ [$name,microtime(true),0] ];
-    return $id;
+    // $id = uniqid();
+    Wdf::$Timer[$name] = [ [$name,microtime(true),0] ];
+    return $name;
 }
 
 /**
  * Set a marker in a named timer.
  * 
- * @param string $id Timer-Identifier
+ * @param string $name Timer  name
  * @param string $label Label to be written
  * @return void
  */
-function hit_timer($id,$label='(no label)')
+function hit_timer($name,$label='(no label)')
 {
-    if( !isset(Wdf::$Timer[$id]) )
+    if (!isset(Wdf::$Timer[$name]))
         return;
-    list($name,$start,$dur) = array_last(Wdf::$Timer[$id]);
-    Wdf::$Timer[$id][] = [$label,microtime(true),round((microtime(true)-$start)*1000)];
+    list($name,$start,$dur) = array_last(Wdf::$Timer[$name]);
+    Wdf::$Timer[$name][] = [$label,microtime(true),round((microtime(true)-$start)*1000)];
 }
 
 /**
  * Finishes a timer and writes it to log.
  * 
- * @param string $id Timer-Identifier
+ * @param string $name Timer name
  * @param int $min_ms Minimum milliseconds that must be reached for the timer to be written to log
  * @return void
  */
-function finish_timer($id,$min_ms = false)
+function finish_timer($name,$min_ms = false)
 {
-    if( !isset(Wdf::$Timer[$id]) )
+    if( !isset(Wdf::$Timer[$name]) )
         return;
-    $trace = Wdf::$Timer[$id];
+    $trace = Wdf::$Timer[$name];
     list($name,$start,$dur) = array_shift($trace);
-    unset(Wdf::$Timer[$id]);
+    unset(Wdf::$Timer[$name]);
     
     $ms = round((microtime(true)-$start)*1000);
     if( !$min_ms || $ms >= $min_ms )
