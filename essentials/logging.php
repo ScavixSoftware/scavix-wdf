@@ -633,12 +633,14 @@ function render_var($content)
  * Starts a named timer.
  * 
  * @param string $name Name of the timer
+ * @param string $label Optional label, defaults to $name
  * @return string Timer name (the $name parameter)
  */
-function start_timer($name)
+function start_timer($name, $label=false)
 {
-    // $id = uniqid();
-    Wdf::$Timer[$name] = [ [$name,microtime(true),0] ];
+    if (!$label)
+        $label = $name;
+    Wdf::$Timer[$name] = [ [$label,microtime(true),0] ];
     return $name;
 }
 
@@ -653,7 +655,7 @@ function hit_timer($name,$label='(no label)')
 {
     if (!isset(Wdf::$Timer[$name]))
         return;
-    list($name,$start,$dur) = array_last(Wdf::$Timer[$name]);
+    $start = array_last(Wdf::$Timer[$name])[1];
     Wdf::$Timer[$name][] = [$label,microtime(true),round((microtime(true)-$start)*1000)];
 }
 
@@ -669,7 +671,7 @@ function finish_timer($name,$min_ms = false)
     if( !isset(Wdf::$Timer[$name]) )
         return;
     $trace = Wdf::$Timer[$name];
-    list($name,$start,$dur) = array_shift($trace);
+    list($label,$start,$dur) = array_shift($trace);
     unset(Wdf::$Timer[$name]);
     
     $ms = round((microtime(true)-$start)*1000);
@@ -678,6 +680,6 @@ function finish_timer($name,$min_ms = false)
         $trace = array_map(function($a){ return "{$a[2]}ms for {$a[0]}"; },$trace);
         array_unshift($trace, "started ".date("H:i:s",(int)$start));
         $trace[] = "{$ms}ms total";
-        log_debug("Timer finish:\t$name\n\t".implode("\n\t",$trace));
+        log_debug("Timer finish:\t$label\n\t".implode("\n\t",$trace));
     }
 }
