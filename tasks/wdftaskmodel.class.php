@@ -67,7 +67,7 @@ class WdfTaskModel extends Model
 
     public $RecreateOnSave = false;
 
-    private $isVirtual = false, $prevent_duplicate = false, $cascade_go = true;
+    private $isVirtual = false, $prevent_duplicate = false, $cascade_go = true, $children = [];
     public static $PROCESS_FILTER = 'db-processwdftasks';
     public static $MAX_PROCESSES = 10;
     
@@ -246,6 +246,7 @@ class WdfTaskModel extends Model
             $task->Save();
             if($task->isVirtual)
                 $this->isVirtual = true;
+            $task->children[] = $this;
 			$task = ifavail($task,'id');
         }
 		if( !$task )
@@ -294,9 +295,18 @@ class WdfTaskModel extends Model
             else
             {
                 $this->Save();
-                if( $this->cascade_go && $depth++ < 50 ) // limit depth to 50 to avoid too large trees
-                    foreach( WdfTaskModel::Make()->eq('parent_task',$this->id)->eq('enabled',0) as $t )		
-                        $t->Go(false,$depth);
+                if ($this->cascade_go)
+                {
+                    if ($depth++ < 50) // limit depth to 50 to avoid too large trees)
+                        foreach (WdfTaskModel::Make()->eq('parent_task', $this->id)->eq('enabled', 0) as $t)
+                            $t->Go(false, $depth);
+                }
+                else
+                {
+                    // at least save children to not loose "->Delay" and stuff
+                    foreach ($this->children as $ch)
+                        $ch->Save();
+                }
             }
         }
 		if( $run_instance && !avail($this,'worker_pid') )
@@ -415,8 +425,13 @@ class WdfTaskModel extends Model
             else
             {
                 // make sure children are enabled if (for whatever reason) they are not
-                foreach( WdfTaskModel::Make()->eq('parent_task',$this->id)->eq('enabled',0) as $t )		
+                $children = WdfTaskModel::Make()->eq('parent_task', $this->id)->eq('enabled', 0)
+                    ->orX(2)->isNull('start')->isPast('start');
+                foreach ($children as $t)
+                {
                     $t->Go(false);
+                    log_debug("Releasing {$t->is}",$t->AsArray());
+                }
             }
             $this->Delete();
 		}
