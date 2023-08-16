@@ -430,7 +430,7 @@ class WdfTaskModel extends Model
                 foreach ($children as $t)
                 {
                     $t->Go(false);
-                    log_debug("Releasing {$t->is}",$t->AsArray());
+                    // log_debug("Releasing {$t->is}",$t->AsArray());
                 }
             }
             $this->Delete();
