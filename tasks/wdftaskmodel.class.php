@@ -114,6 +114,7 @@ class WdfTaskModel extends Model
         if( $this->RecreateOnSave )
         {
             $still_present = $this->_ds->ExecuteScalar("SELECT count(*) FROM wdf_tasks WHERE id=?", [$this->id]);
+            // log_debug('RecreateOnSave', $this->id, $this->name, $still_present, $this->children);
             if (!$still_present)
             {
                 $this->_saved = false;
@@ -124,6 +125,7 @@ class WdfTaskModel extends Model
                 //log_debug("Ensuring re-save for taskmodel");
             }
         }
+
         $ret = false;
         try
         {
@@ -134,6 +136,7 @@ class WdfTaskModel extends Model
             if($ex->isDuplicateKeyException('PRIMARY') && (strpos($this->name, 'TaskPool-') !== false))
             {
                 // special handling for reusable taskpool tasks. Just ignore this exception.
+                //log_debug($ex);
             }
             else
             {
@@ -301,11 +304,18 @@ class WdfTaskModel extends Model
                         foreach (WdfTaskModel::Make()->eq('parent_task', $this->id)->eq('enabled', 0) as $t)
                             $t->Go(false, $depth);
                 }
-                else
+                elseif(count($this->children))
                 {
                     // at least save children to not loose "->Delay" and stuff
                     foreach ($this->children as $ch)
+                    {
+                        if (!avail($ch, 'parent_task')) // the parent task id might not have been yet available at setting DependsOn()
+                        {
+                            // log_debug(__METHOD__, "Setting parent_task to {$this->id} for child {$ch->id}", $ch->name, $this->name);
+                            $ch->parent_task = $this->id;
+                        }
                         $ch->Save();
+                    }
                 }
             }
         }
@@ -425,12 +435,11 @@ class WdfTaskModel extends Model
             else
             {
                 // make sure children are enabled if (for whatever reason) they are not
-                $children = WdfTaskModel::Make()->eq('parent_task', $this->id)->eq('enabled', 0)
-                    ->orX(2)->isNull('start')->isPast('start');
+                $children = WdfTaskModel::Make()->eq('parent_task', $this->id)->eq('enabled', 0); //    ->orX(2)->isNull('start')->isPast('start');
                 foreach ($children as $t)
                 {
                     $t->Go(false);
-                    // log_debug("Releasing {$t->is}",$t->AsArray());
+                    // log_debug("Releasing {$t->id} for parent {$this->id}",$t->AsArray());
                 }
             }
             $this->Delete();
@@ -462,7 +471,7 @@ class WdfTaskModel extends Model
 			log_error("Task was processed but could not be deleted from DB. Disabling to stop chain");
 			return false;
 		}
-        $this->_ds->ExecuteSql("UPDATE wdf_tasks SET parent_task=null WHERE parent_task=?",$this->id);
+        $this->_ds->ExecuteSql("UPDATE wdf_tasks SET parent_task=null, enabled=1 WHERE parent_task=?", [$this->id]);
 		return true;
 	}
 	
