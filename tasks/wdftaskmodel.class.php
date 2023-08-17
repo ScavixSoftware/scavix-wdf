@@ -28,7 +28,6 @@ use ScavixWDF\Model\DataSource;
 use ScavixWDF\Model\Model;
 use ScavixWDF\WdfDbException;
 use ScavixWDF\Base\DateTimeEx;
-use ScavixWDF\WdfException;
 
 /**
  * @internal Model class representing tasks that can be handled asynchronously
@@ -70,6 +69,8 @@ class WdfTaskModel extends Model
     private $isVirtual = false, $prevent_duplicate = false, $cascade_go = true, $children = [];
     public static $PROCESS_FILTER = 'db-processwdftasks';
     public static $MAX_PROCESSES = 10;
+
+    private static $_checkedprocs = [];
     
 	public function GetTableName() { return 'wdf_tasks'; }
     
@@ -153,12 +154,41 @@ class WdfTaskModel extends Model
     
 	public static function RunInstance($runtime_seconds=null)
 	{
-        if( count(self::getRunningProcessors()) < self::$MAX_PROCESSES )
+        // $t = start_timer("processors");
+        $cnt = 0; //count(self::getRunningProcessors());
+
+        $filter = '/'.preg_quote(CLI_SELF,'/').".*".preg_quote(self::$PROCESS_FILTER,'/').'/i';
+        $filterlen = strlen(str_replace("\\", "", $filter)) - 3;
+        foreach( glob("/proc/*/cmdline") as $pp )
         {
-            if( !function_exists("cli_run_taskprocessor") )
-                system_load_module('modules/cli.php');
-            cli_run_taskprocessor($runtime_seconds);
+            if(isset(self::$_checkedprocs[$pp]))
+            {
+                if (self::$_checkedprocs[$pp])
+                {
+                    if ($cnt++ >= self::$MAX_PROCESSES)
+                        return;
+                }
+                else
+                    continue;
+            }
+            $c = @file_get_contents("$pp");
+            if ($c && (strlen($c) > $filterlen) && preg_match($filter, $c))
+            {
+                self::$_checkedprocs[$pp] = true;
+                if ($cnt++ >= self::$MAX_PROCESSES)
+                    return;
+            }
+            else
+                self::$_checkedprocs[$pp] = false;
         }
+
+        // hit_timer("processors", "cnt: $cnt max: ".self::$MAX_PROCESSES);
+
+        if( !function_exists("cli_run_taskprocessor") )
+            system_load_module('modules/cli.php');
+        cli_run_taskprocessor($runtime_seconds);
+        
+        // finish_timer($t);
 	}
 	
     public static function CreateOnce($name, $return_original=false)
@@ -327,18 +357,17 @@ class WdfTaskModel extends Model
     private static function getRunningProcessors($pids=false)
     {
         $filter = '/'.preg_quote(CLI_SELF,'/').".*".preg_quote(self::$PROCESS_FILTER,'/').'/i';
+        $filterlen = strlen(str_replace("\\", "", $filter)) - 3;
         $res = [];
         if( $pids )
-        {
             $pids = array_map(function($p){ return "/proc/$p/cmdline"; },$pids);
-        }
         else
             $pids = glob("/proc/*/cmdline");
 
         foreach( $pids as $pp )
         {
-            $c = @file_get_contents("$pp");     
-            if( $c && preg_match($filter,$c) )
+            $c = @file_get_contents("$pp");
+            if ($c && (strlen($c) > $filterlen) && preg_match($filter, $c))
                 $res[] = basename(dirname($pp));
         }
         
