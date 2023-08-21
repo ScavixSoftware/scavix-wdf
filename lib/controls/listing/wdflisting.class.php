@@ -1089,7 +1089,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
                 continue;
             
             if( isset($this->columnCallbacks[$name]) )
-                $row[$name] = $this->columnCallbacks[$name](ifavail($row,$name),$row);
+                $row[$name] = $this->columnCallbacks[$name]((isset($row[$name]) ? $row[$name] : null),$row);
             
             switch($name)
             {
@@ -1299,8 +1299,8 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             
             foreach($row as $k => $val)
             {
-                if( isset($lst->columnCallbacks[$k]) )
-                    $val = $lst->columnCallbacks[$k]($val,$row);
+                if (isset($lst->columnCallbacks[$k]))
+                    $val = $lst->columnCallbacks[$k]($val, $row);
                 if( is_string($val) )
                     $val = __translate($val);
                 $row[$k] = ($val ? strip_tags(str_replace(['&nbsp;', '<br/>', '<br>'], [' ', ', ', ', '], $val)) : $val);
