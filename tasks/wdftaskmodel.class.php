@@ -155,11 +155,37 @@ class WdfTaskModel extends Model
 	public static function RunInstance($runtime_seconds=null)
 	{
         // $t = start_timer("processors");
-        $cnt = 0; //count(self::getRunningProcessors());
+
+        // $cnt = count(self::getRunningProcessors());      // too slow...
 
         $filter = '/'.preg_quote(CLI_SELF,'/').".*".preg_quote(self::$PROCESS_FILTER,'/').'/i';
+        $cnt = 0;
         $filterlen = strlen(str_replace("\\", "", $filter)) - 3;
-        foreach( glob("/proc/*/cmdline") as $pp )
+
+        // foreach(array_filter(explode("\n", shell_exec('ps -C php -o pid=,cmd=')."\n")) as $proc)
+        // {
+        //     list($pp, $c) = explode(' ', $proc, 2);
+        //     if(isset(self::$_checkedprocs[$pp]))
+        //     {
+        //         if (self::$_checkedprocs[$pp])
+        //         {
+        //             if ($cnt++ >= self::$MAX_PROCESSES)
+        //                 return;
+        //         }
+        //         else
+        //             continue;
+        //     }
+        //     if ($c && (strlen($c) > $filterlen) && preg_match($filter, $c))
+        //     {
+        //         self::$_checkedprocs[$pp] = true;
+        //         if ($cnt++ >= self::$MAX_PROCESSES)
+        //             return;
+        //     }
+        //     else
+        //         self::$_checkedprocs[$pp] = false;
+        // }
+
+        foreach( glob("/proc/[0-9]*/cmdline") as $pp )
         {
             if(isset(self::$_checkedprocs[$pp]))
             {
