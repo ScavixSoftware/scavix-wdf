@@ -198,8 +198,16 @@ class WdfTaskModel extends Model
                     continue;
             }
             $c = @file_get_contents("$pp");
-            if ($c && (strlen($c) > $filterlen) && preg_match($filter, $c))
+            if ($c && (strlen($c) > $filterlen)) //preg_match($filter, $c))
             {
+                // $c = str_replace("\0", " ", $c);
+                $f1 = strpos($c, CLI_SELF);
+                if ($f1 === false)
+                    continue;
+                $f2 = strpos($c, self::$PROCESS_FILTER);
+                if (($f2 === false) || ($f1 > $f2))
+                    continue;
+                // log_debug($f1, $f2, CLI_SELF, $c);
                 self::$_checkedprocs[$pp] = true;
                 if ($cnt++ >= self::$MAX_PROCESSES)
                     return;
