@@ -678,7 +678,7 @@ function finish_timer($name,$min_ms = false)
     if( !$min_ms || $ms >= $min_ms )
     {
         $trace = array_map(function($a){ return "{$a[2]}ms for {$a[0]}"; },$trace);
-        array_unshift($trace, "started ".date("H:i:s",(int)$start));
+        array_unshift($trace, "started ".date("H:i:s.v",(int)$start));
         $trace[] = "{$ms}ms total";
         log_debug("Timer finish:\t$label\n\t".implode("\n\t",$trace));
     }
