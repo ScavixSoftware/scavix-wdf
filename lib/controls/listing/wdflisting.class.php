@@ -382,7 +382,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
 	function PreRender($args=[])
 	{
 		if( $this->sortable )
-			$this->script("$(document).on('click', '#{$this->id} a[data-sort]', function(e){ e.preventDefault(); wdf.post('{$this->id}/sort',{name:$(this).data('sort')},function(d){ if(d) wdf.tables.update('#{$this->table->id}',d); }); });");
+			$this->script("$(document).on('click', '#{$this->id} a[data-sort]', function(e){ e.preventDefault(); wdf.post('{$this->id}/sort',{name:$(this).data('sort')},function(d){ if(d) wdf.tables.update('#{$this->table->id}',d,function(){ wdf.listings.init(); } ); }); });");
 		return parent::PreRender($args);
 	}
     
