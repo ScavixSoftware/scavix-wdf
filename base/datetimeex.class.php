@@ -368,4 +368,14 @@ class DateTimeEx extends DateTime
             return $this < self::Today();
 		return $this < self::Now();
 	}
+
+    public function getTimestampMs()
+    {
+        return intval($this->format('Uv'));
+    }
+
+    public function formatIso8601()
+    {
+        return $this->format('Y-m-d\TH:i:s.v') . 'Z';
+    }
 }
