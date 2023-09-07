@@ -340,7 +340,6 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
                 $sql = preg_replace("/(\/\*BEG-ORDER\*\/)(.*)(\/\*END-ORDER\*\/)/", '$1$3', $sql);
                 $sql = str_replace('SELECT * ', 'SELECT '.implode(',', array_map(function($c) { return "`$c`"; }, $sumcols)).' ', $sql);
                 $sums = $this->ds->ExecuteSql("SELECT ".implode(",", array_map(function($c) { return "sum(`$c`) as '{$c}'"; }, $sumcols))." FROM( {$sql} )as x")->current();
-
                 $footer = $this->table->Footer(true);
                 $cols = $this->visibleColumns();
                 $row = $footer->NewRow(array_fill(0,count($cols),''));
@@ -754,6 +753,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             $this->table->ResetPager();
         $this->table->header = false;
         $this->table->footer = false;
+        $this->resetExtension();
 
         if ($this->filter instanceof WdfListingFilter)
         {
