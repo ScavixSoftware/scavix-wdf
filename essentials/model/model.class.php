@@ -1842,12 +1842,27 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
     function __get($name)
     {
+        if (\ScavixWDF\Reflection\WdfReflector::GetInstance($this)->hasProperty($name))
+        {
+            if( isset($this->_fieldValues[$name]) )
+            {
+                $this->$name = $this->_fieldValues[$name];
+                unset($this->_fieldValues[$name]);
+                return $this->$name;
+            }
+            return null;
+        }
         $this->__log_dynamic_property_access($name);
         return isset($this->_fieldValues[$name]) ? $this->_fieldValues[$name] : null;
     }
 
     function __set($name, $value)
     {
+        if (\ScavixWDF\Reflection\WdfReflector::GetInstance($this)->hasProperty($name))
+        {
+            $this->$name = $value;
+            return;
+        }
         $this->__log_dynamic_property_access($name);
         $this->_fieldValues[$name] = $value;
     }
