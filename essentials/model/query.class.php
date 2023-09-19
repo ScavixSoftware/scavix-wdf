@@ -533,7 +533,7 @@ class ConditionArgument
 {
     public $name, $value, $pattern;
 
-    public function __construct(string $name, mixed $value, string $pattern = '')
+    public function __construct(string $name, $value, $pattern = '')
     {
         $this->name = $name;
         $this->value = $value;
