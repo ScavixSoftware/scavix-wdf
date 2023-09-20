@@ -343,7 +343,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$this->__init_db_values();
 	}
 	
-	function __init_db_values($known_as_empty=false, $convert_now_values=false)
+	function __init_db_values($known_as_empty=false, $convert_now_values=false, $column_filter=false)
 	{
 		$this->_saved = !$known_as_empty;
 		$this->_dbValues = [];
@@ -352,6 +352,9 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		foreach( $this->_tableSchema->Columns as $column )
 		{
             $col = $column->Name;
+            if (is_array($column_filter) && !in_array($col, $column_filter))
+                continue;
+
 			if( $known_as_empty )
 			{
 				$this->$col = null;
@@ -1709,7 +1712,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
                 return true;
             }
 		}
-		$this->__init_db_values(false,true);
+		$this->__init_db_values(false,true,$columns_to_update);
 		return true;
 	}
 
