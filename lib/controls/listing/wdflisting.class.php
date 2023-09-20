@@ -342,12 +342,20 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
                 $sums = $this->ds->ExecuteSql("SELECT ".implode(",", array_map(function($c) { return "sum(`$c`) as '{$c}'"; }, $sumcols))." FROM( {$sql} )as x")->current();
                 $footer = $this->table->Footer(true);
                 $cols = $this->visibleColumns();
-                $row = $footer->NewRow(array_fill(0,count($cols),''));
-                foreach( $sums as $name=>$val)
+                $plain_sum_count = count(array_filter(array_keys($sums), function ($c) { return !avail($this->summary_names, $c); }));
+                if ($plain_sum_count > 0)
                 {
-                    $i = array_search($name, $cols);
-                    if ($i !== false)
-                        $row->GetCell($i)->SetContent($val);
+                    $row = $footer->NewRow(array_fill(0, count($cols), ''));
+                    foreach ($sums as $name => $val)
+                    {
+                        if (avail($this->summary_names, $name))
+                            continue;
+                        $i = array_search($name, $cols);
+                        if ($i !== false)
+                        {
+                            $row->GetCell($i)->SetContent($val);
+                        }
+                    }
                 }
                 if( count($this->summary_names) > 0 )
                 {
@@ -372,10 +380,12 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
                 }
             }
         }
+        $formats = [];
+        foreach( $this->formats as $n=>$v )
+            $formats[$n] = $v ?: ifavail($this->columnCallbacks,$n);
+
         $this->table->SetAlignment( array_values($this->filterToVisible($this->alignments)) );
-        $this->table->SetFormat( array_values($this->filterToVisible($this->formats)) );
-        
-        //$this->table->header = false;
+        $this->table->SetFormat( array_values($this->filterToVisible($formats)) );
     }
 	
 	function PreRender($args=[])
