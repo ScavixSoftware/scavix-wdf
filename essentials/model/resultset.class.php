@@ -88,7 +88,10 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
             $hasqm = ( stripos($sql,"?") !== false );
 			foreach( $arguments as $n => $a )
 			{
-				$a = is_null($a)?"null":((is_numeric($a) && (strpos($a, '+') === false)) ?"$a":"'".$ds->EscapeArgument($a)."'");
+                $args = [];
+                foreach( force_array($a,false) as $arg )
+                    $args[] = is_null($arg)?"null":((is_numeric($arg) && (strpos($arg, '+') === false)) ?"$arg":"'".$ds->EscapeArgument($arg)."'");
+                $a = implode(",",$args);
 				if($hasqm)
 					$sql = preg_replace('/\?/', $a, $sql, 1);
 				else
@@ -308,10 +311,12 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
         {
             try
             {
+                // $sqt = start_timer(__METHOD__." " . $this->_sql_used);
                 if( is_null($input_parameters) )
                     $result = $this->_stmt->execute();
                 else
                     $result = $this->_stmt->execute($input_parameters);
+                // finish_timer($sqt,10000);
             }
             catch(\PDOException $ex)
             {

@@ -1033,12 +1033,13 @@ function natksort(&$array)
  * If fact does this: `return is_array($data)?$data:array($data);`
  * Note that for `is_null($data)` force_array will return an empty `[]`
  * @param mixed $data Anything you want to be an array if it is not aready
+ * @param bool $empty_for_null If true and $data is `null` it will return `[]`, else will return `[null]`
  * @return array The resulting array
  */
-function force_array($data)
+function force_array($data, $empty_for_null=true)
 {
-	if( is_null($data) )
-		return [];
+    if (is_null($data) && $empty_for_null)
+        return [];
 	return is_array($data)?$data:array($data);
 }
 

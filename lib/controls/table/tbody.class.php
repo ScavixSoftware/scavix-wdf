@@ -93,9 +93,9 @@ class TBody extends Control
 		if( $data )
 		{
             $i = 0;
-			foreach( force_array($data) as $rowdata )
+			foreach( force_array($data, false) as $rowdata )
             {
-				$cell = $this->current_row->NewCell($rowdata);
+                $cell = $this->current_row->NewCell(is_null($rowdata) ? false : $rowdata);
                 if($this->table && $this->table->colgroup && isset($this->table->colgroup->_content[$i]) &&
 					isset($this->table->colgroup->_content[$i]->_attributes["align"]) && $this->table->colgroup->_content[$i]->_attributes["align"] )
                     $cell->align = $this->table->colgroup->_content[$i]->_attributes["align"];

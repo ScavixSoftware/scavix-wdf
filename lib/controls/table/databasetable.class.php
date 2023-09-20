@@ -579,7 +579,7 @@ class DatabaseTable extends Table implements ICallable
         
 		for($i=0;$i<=$max_cell; $i++)
 		{
-			$sheet->getColumnDimensionByColumn($i)->setAutoSize(true);
+			$sheet->getColumnDimensionByColumn($i + 1)->setAutoSize(true);
 			if( isset($this->ColFormats[$i]) )
 			{
 				$ef = $ci->GetExcelFormat($this->ColFormats[$i]);

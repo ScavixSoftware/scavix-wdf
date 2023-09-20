@@ -343,7 +343,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$this->__init_db_values();
 	}
 	
-	function __init_db_values($known_as_empty=false, $convert_now_values=false)
+	function __init_db_values($known_as_empty=false, $convert_now_values=false, $column_filter=false)
 	{
 		$this->_saved = !$known_as_empty;
 		$this->_dbValues = [];
@@ -352,6 +352,9 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		foreach( $this->_tableSchema->Columns as $column )
 		{
             $col = $column->Name;
+            if (is_array($column_filter) && !in_array($col, $column_filter))
+                continue;
+
 			if( $known_as_empty )
 			{
 				$this->$col = null;
@@ -647,7 +650,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$res = new $className($datasource);
 		$res->__ensureSelect($sql);
 		//$sql = preg_replace('/^select\s(.*)\swhere\s/Ui','',$sql);
-		$res->_query->sql($sql,force_array($args));
+		$res->_query->sql($sql,force_array($args, false));
 		return $res;
 	}
 
@@ -1206,7 +1209,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
 		$res = clone $this;
 		$res->__ensureSelect();
-		$res->_query->sql($sql_statement_part,force_array($args));
+		$res->_query->sql($sql_statement_part,force_array($args, false));
 		return $res;
 	}
 
@@ -1709,7 +1712,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
                 return true;
             }
 		}
-		$this->__init_db_values(false,true);
+		$this->__init_db_values(false,true,$columns_to_update);
 		return true;
 	}
 
@@ -1842,12 +1845,27 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
     function __get($name)
     {
+        if (\ScavixWDF\Reflection\WdfReflector::GetInstance($this)->hasProperty($name))
+        {
+            if( isset($this->_fieldValues[$name]) )
+            {
+                $this->$name = $this->_fieldValues[$name];
+                unset($this->_fieldValues[$name]);
+                return $this->$name;
+            }
+            return null;
+        }
         $this->__log_dynamic_property_access($name);
         return isset($this->_fieldValues[$name]) ? $this->_fieldValues[$name] : null;
     }
 
     function __set($name, $value)
     {
+        if (\ScavixWDF\Reflection\WdfReflector::GetInstance($this)->hasProperty($name))
+        {
+            $this->$name = $value;
+            return;
+        }
         $this->__log_dynamic_property_access($name);
         $this->_fieldValues[$name] = $value;
     }

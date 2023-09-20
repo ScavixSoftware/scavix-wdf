@@ -140,7 +140,7 @@ class LogEntry
     public function toReadable()
     {
         $content = ($this->datetime)
-            ? date("[Y-m-d H:i:s.m]", $this->datetime).' '
+            ? date("[Y-m-d H:i:s.v]", $this->datetime).' '
             : '';
         if( $this->severity )
 		    $content .= "[{$this->severity}] ";

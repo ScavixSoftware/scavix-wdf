@@ -340,7 +340,6 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
                 $sql = preg_replace("/(\/\*BEG-ORDER\*\/)(.*)(\/\*END-ORDER\*\/)/", '$1$3', $sql);
                 $sql = str_replace('SELECT * ', 'SELECT '.implode(',', array_map(function($c) { return "`$c`"; }, $sumcols)).' ', $sql);
                 $sums = $this->ds->ExecuteSql("SELECT ".implode(",", array_map(function($c) { return "sum(`$c`) as '{$c}'"; }, $sumcols))." FROM( {$sql} )as x")->current();
-
                 $footer = $this->table->Footer(true);
                 $cols = $this->visibleColumns();
                 $row = $footer->NewRow(array_fill(0,count($cols),''));
@@ -382,7 +381,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
 	function PreRender($args=[])
 	{
 		if( $this->sortable )
-			$this->script("$(document).on('click', '#{$this->id} a[data-sort]', function(e){ e.preventDefault(); wdf.post('{$this->id}/sort',{name:$(this).data('sort')},function(d){ if(d) wdf.tables.update('#{$this->table->id}',d); }); });");
+			$this->script("$(document).on('click', '#{$this->id} a[data-sort]', function(e){ e.preventDefault(); wdf.post('{$this->id}/sort',{name:$(this).data('sort')},function(d){ if(d) wdf.tables.update('#{$this->table->id}',d,function(){ wdf.listings.init(); } ); }); });");
 		return parent::PreRender($args);
 	}
     
@@ -754,6 +753,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             $this->table->ResetPager();
         $this->table->header = false;
         $this->table->footer = false;
+        $this->resetExtension();
 
         if ($this->filter instanceof WdfListingFilter)
         {
@@ -1089,7 +1089,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
                 continue;
             
             if( isset($this->columnCallbacks[$name]) )
-                $row[$name] = $this->columnCallbacks[$name](ifavail($row,$name),$row);
+                $row[$name] = $this->columnCallbacks[$name]((isset($row[$name]) ? $row[$name] : null),$row);
             
             switch($name)
             {
@@ -1299,8 +1299,8 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             
             foreach($row as $k => $val)
             {
-                if( isset($lst->columnCallbacks[$k]) )
-                    $val = $lst->columnCallbacks[$k]($val,$row);
+                if (isset($lst->columnCallbacks[$k]))
+                    $val = $lst->columnCallbacks[$k]($val, $row);
                 if( is_string($val) )
                     $val = __translate($val);
                 $row[$k] = ($val ? strip_tags(str_replace(['&nbsp;', '<br/>', '<br>'], [' ', ', ', ', '], $val)) : $val);

@@ -34,7 +34,7 @@ namespace ScavixWDF\Admin;
  */
 class SysAdminUser 
 {
-    public $username, $role, $properties;
+    public $username, $role, $properties, $_storage_id;
     
 	function __construct($data=[])
     {

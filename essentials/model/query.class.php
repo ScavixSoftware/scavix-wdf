@@ -78,6 +78,12 @@ class Query
 	{
 		return $this->_initialSequence . $this->__generateSql();
 	}
+
+    protected $argNameCounter = 0;
+    protected function argName()
+    {
+        return ":a" . str_pad("" . $this->argNameCounter++, 3, "0", STR_PAD_LEFT);
+    }
 	
 	public function GetSql()
 	{
@@ -104,24 +110,23 @@ class Query
 	{
 		$sql = $injected_sql?$injected_sql:$this->__toString();
 		if( $injected_arguments )
-		{
-			if( is_array($injected_arguments) )
-				$this->_values = $injected_arguments;
-			else
-				$this->_values = array($injected_arguments);
-		}
+            $this->_values = is_array($injected_arguments)?$injected_arguments:[$injected_arguments];
+        else
+            $this->_values = $this->_where->__getArgs();
 
 		$this->_statement = $this->_ds->Prepare($sql);
-		foreach( $this->_values as $i=>$v )
+		foreach( $this->_values as $n=>$v )
 		{
+            if ( strpos($sql, $n) === false)
+                continue;
 			if (is_integer($v))
-				$this->_statement->bindValue($i + 1, $v, PDO::PARAM_INT);
+				$this->_statement->bindValue($n, $v, PDO::PARAM_INT);
 			elseif( $v instanceof DateTime )
-				$this->_statement->bindValue($i+1,$v->format("Y-m-d H:i:s"));
+				$this->_statement->bindValue($n, $v->format("Y-m-d H:i:s"));
 			elseif(is_string($v))
-				$this->_statement->bindValue($i + 1, $v, PDO::PARAM_STR);
+				$this->_statement->bindValue($n, $v, PDO::PARAM_STR);
 			else
-				$this->_statement->bindValue($i + 1, $v);
+				$this->_statement->bindValue($n, $v);
 		}
 		if( !$this->_statement->execute() )
         {
@@ -192,199 +197,140 @@ class Query
 		$this->__conditionTree()->Nest(1,"IF",!!$condition);
 	}
 
-	function sql($sql,$args=[])
+	function sql($sql,$arguments=[])
 	{
-		if( $this->__conditionTree()->Add($sql) )
-            foreach( $args as $v ) $this->_values[] = $v;
+        $args = [];
+        if (strpos($sql, "?") !== false)
+        {
+            $sql = preg_replace_callback('/\?/', function ($m) use (&$args, &$arguments)
+            {
+                $n = $this->argName();
+                $args[$n] = new ConditionArgument($n, array_shift($arguments));
+                return $n;
+            }, $sql);
+        }
+        else
+        {
+            foreach ($arguments as $n => $v)
+            {
+                if (!starts_with($n, ':'))
+                    $n = ":$n";
+                $args[$n] = new ConditionArgument($n, $v);
+            }
+        }
+        $this->__conditionTree()->Add(new Condition("SQL", $sql, $args));
 	}
+
+    protected function stdOp($op, $property, $value, $value_is_sql=false, $prefix='', $suffix='')
+    {
+        if ($value instanceof ColumnAttribute || $value_is_sql)
+            $this->__conditionTree()->Add(new Condition($op, $property, $value, $prefix, $suffix));
+        else
+        {
+            $value = ($value instanceof ConditionArgument) ? $value : new ConditionArgument($this->argName(), $value);
+            $this->__conditionTree()->Add(new Condition($op, $property, $value, $prefix, $suffix));
+        }
+    }
 
 	function equal($property,$value,$value_is_sql=false)
 	{
-		//debug("equal($property,$value)");
-		if( $value instanceof ColumnAttribute || $value_is_sql )
-			$this->__conditionTree()->Add(new Condition("=",$property,$value));
-		else
-		{
-			if( $this->__conditionTree()->Add(new Condition("=",$property)) )
-                $this->_values[] = $value;
-		}			
+        $this->stdOp('=', $property, $value, $value_is_sql);
 	}
 	
-	function notEqual($property,$value)
+	function notEqual($property,$value,$value_is_sql=false)
 	{
-		//debug("equal($property,$value)");
-		if( $value instanceof ColumnAttribute )
-			$this->__conditionTree()->Add(new Condition("!=",$property,$value));
-		else
-		{
-			if( $this->__conditionTree()->Add(new Condition("!=",$property)) )
-                $this->_values[] = $value;
-		}			
+        $this->stdOp('!=', $property, $value, $value_is_sql);
 	}
 	
 	function greaterThan($property,$value,$value_is_sql=false)
 	{
-		//debug("equal($property,$value)");
-		if( $value instanceof ColumnAttribute || $value_is_sql )
-			$this->__conditionTree()->Add(new Condition(">",$property,$value));
-		else
-		{
-			if( $this->__conditionTree()->Add(new Condition(">",$property)) )
-                $this->_values[] = $value;
-		}			
+		$this->stdOp('>', $property, $value, $value_is_sql);
 	}
 	
-	function greaterThanOrEqualTo($property,$value)
+	function greaterThanOrEqualTo($property,$value,$value_is_sql=false)
 	{
-		//debug("equal($property,$value)");
-		if( $value instanceof ColumnAttribute )
-			$this->__conditionTree()->Add(new Condition(">=",$property,$value));
-		else
-		{
-			if( $this->__conditionTree()->Add(new Condition(">=",$property)) )
-                $this->_values[] = $value;
-		}			
+		$this->stdOp('>=', $property, $value, $value_is_sql);
 	}
 	
-	function lowerThan($property,$value)
+	function lowerThan($property,$value,$value_is_sql=false)
 	{
-		//debug("equal($property,$value)");
-		if( $value instanceof ColumnAttribute )
-			$this->__conditionTree()->Add(new Condition("<",$property,$value));
-		else
-		{
-			if( $this->__conditionTree()->Add(new Condition("<",$property))) 
-                $this->_values[] = $value;
-		}			
+		$this->stdOp('<', $property, $value, $value_is_sql);
 	}
 	
-	function lowerThanOrEqualTo($property,$value)
+	function lowerThanOrEqualTo($property,$value,$value_is_sql=false)
 	{
-		//debug("equal($property,$value)");
-		if( $value instanceof ColumnAttribute )
-			$this->__conditionTree()->Add(new Condition("<=",$property,$value));
-		else
-		{
-			if( $this->__conditionTree()->Add(new Condition("<=",$property)) )
-                $this->_values[] = $value;
-		}			
+		$this->stdOp('<=', $property, $value, $value_is_sql);
 	}
 	
-	function binary($property,$value)
+	function binary($property,$value,$value_is_sql=false)
 	{
-		//debug("equal($property,$value)");
-		if( $value instanceof ColumnAttribute )
-			$this->__conditionTree()->Add(new Condition("=",$property,$value,"BINARY "));
-		else
-		{
-			if( $this->__conditionTree()->Add(new Condition("=",$property,"?","BINARY ")) )
-                $this->_values[] = $value;
-		}			
+        $this->stdOp('=', $property, $value, $value_is_sql,"BINARY ");
 	}
 	
-	function notBinary($property,$value)
+	function notBinary($property,$value,$value_is_sql=false)
 	{
-		//debug("equal($property,$value)");
-		if( $value instanceof ColumnAttribute )
-			$this->__conditionTree()->Add(new Condition("!=",$property,$value,"BINARY "));
-		else
-		{
-			if( $this->__conditionTree()->Add(new Condition("!=",$property,"?","BINARY ")) )
-                $this->_values[] = $value;
-		}			
+		$this->stdOp('!=', $property, $value, $value_is_sql,"BINARY ");
 	}
 
 	function like($property,$value,$flipped=false)
 	{
-		if( $value instanceof ColumnAttribute )
-			$this->__conditionTree()->Add(new Condition("LIKE",$property,$value));
-		else
-		{
-			if( $flipped )
-			{
-				if( $this->__conditionTree()->Add(new Condition("LIKE","?",$value)) )
-                    $this->_values[] = $property;
-			}
-			else
-			{
-				if( $this->__conditionTree()->Add(new Condition("LIKE",$property)) )
-                    $this->_values[] = $value;
-			}
-		}			
+        if ($flipped)
+            $this->stdOp('LIKE', new ConditionArgument($this->argName(), $property), $value);
+        else
+            $this->stdOp('LIKE', $property, $value);
 	}
 
 	function rlike($property,$value,$flipped=false)
 	{
-		if( $value instanceof ColumnAttribute )
-			$this->__conditionTree()->Add(new Condition("RLIKE",$property,$value));
-		else
-		{
-			if( $flipped )
-			{
-				if( $this->__conditionTree()->Add(new Condition("RLIKE","?",$value)) ) 
-                    $this->_values[] = $property;
-			}
-			else
-			{
-				if( $this->__conditionTree()->Add(new Condition("RLIKE",$property)) )
-                    $this->_values[] = $value;
-			}
-		}
+        if ($flipped)
+            $this->stdOp('RLIKE', new ConditionArgument($this->argName(), $property), $value);
+        else
+            $this->stdOp('RLIKE', $property, $value);
 	}
 
 	public function in($property,$values)
 	{
 		if( count($values) == 0 )
 			return;
-
-		if( !is_array($values) )
-			$values = array($values);
-		if( $this->__conditionTree()->Add(new Condition("IN",$property,array_fill(0,count($values),"?"))) )
-            foreach( $values as $value )
-                $this->_values[] = $value;
+        $args = [];
+        foreach( is_array($values)?$values:[$values]  as $value )
+            $args[] = new ConditionArgument($this->argName(), $value);
+        $this->__conditionTree()->Add(new Condition('IN', $property, $args));
 	}
 	
 	public function notIn($property,$values)
 	{
 		if( count($values) == 0 )
 			return;
-
-		if( !is_array($values) )
-			$values = array($values);
-		if( $this->__conditionTree()->Add(new Condition("NOT IN",$property,array_fill(0,count($values),"?"))) ) 
-            foreach( $values as $value )
-                $this->_values[] = $value;
+        $args = [];
+        foreach( is_array($values)?$values:[$values]  as $value )
+            $args[] = new ConditionArgument($this->argName(), $value);
+        $this->__conditionTree()->Add(new Condition('NOT IN', $property, $args));
 	}
 
 	public function isNull($property)
 	{
-		$this->__conditionTree()->Add(new Condition("IS",$property,"NULL"));
+        $this->stdOp('IS', $property, null);
 	}
 
 	public function notNull($property)
 	{
-		$this->__conditionTree()->Add(new Condition("IS NOT",$property,"NULL"));
+        $this->stdOp('IS NOT', $property, NULL);
 	}
 	
 	public function newerThan($property,$value,$interval)
 	{
-		if( $this->__conditionTree()->Add(new Condition(">",$property,"NOW() - INTERVAL ? $interval")) )
-            $this->_values[] = $value;
+        $this->stdOp('>', $property, new ConditionArgument($this->argName(), $value, "NOW() - INTERVAL ? $interval"));
 	}
 	
 	public function olderThan($property,$value,$interval)
 	{
-		if( $this->__conditionTree()->Add(new Condition("<",$property,"NOW() - INTERVAL ? $interval")) ) 
-            $this->_values[] = $value;
+        $this->stdOp('<', $property, new ConditionArgument($this->argName(), $value, "NOW() - INTERVAL ? $interval"));
 	}
 	
 	public function noop()
 	{
-		if( $this->__conditionTree()->Add(new Condition("=","?","?")) )
-        {
-            $this->_values[] = 1;
-            $this->_values[] = 1;
-        }
+        $this->sql('1=1', []);
 	}
 }
 
@@ -438,7 +384,7 @@ class ConditionTree
         {
             if( count($sql) != 1 )
                 \ScavixWDF\WdfException::Raise("Cannot handle more that 1 conditions in matched 'if' tree, use andX/orX/...");
-            if( !$this->_firstToken )
+            if (!$this->_firstToken)
                 return "";
             return "({$sql[0]})";
         }
@@ -449,6 +395,19 @@ class ConditionTree
 			$sql = " {$this->_firstToken} ".implode(" {$this->_operator} ",$sql);
 		return $sql;
 	}
+
+    function __getArgs($log = false)
+    {
+        $args = [];
+        foreach ($this->_conditions as $c)
+        {
+            if( $c instanceof ConditionTree )
+                $args += $c->__getArgs($log);
+            if( $c instanceof Condition )
+                $args += $c->__getArgs($log);
+        }
+        return $args;
+    }
 
 	function __ensureClose()
 	{
@@ -511,12 +470,23 @@ class Condition
 		$this->_op2 = $op2;
 		$this->_pre = $prefix;
 		$this->_suf = $suffix;
+
+        if ($op1 == "?" || $op2 == "?")
+            WdfDbException::Raise("Stop calling with ?, use ConditionArgument class instead",$operator,$op1,$op2,$prefix,$suffix);
 	}
 
 	function __toSql()
 	{
-		if( is_array($this->_op2) )
-			return "{$this->_op1}{$this->_operator}(".implode(",",$this->_op2).")";
+        if ($this->_operator == " SQL ")
+            return "{$this->_op1}";
+
+        if (is_array($this->_op2))
+        {
+            $op2 = [];
+            foreach ($this->_op2 as $o)
+                $op2[] = "$o";
+            return "{$this->_op1}{$this->_operator}(" . implode(",", $op2) . ")";
+        }
 		return "{$this->_pre}{$this->_op1}{$this->_operator}{$this->_op2}{$this->_suf}";
 	}
 
@@ -525,13 +495,55 @@ class Condition
 		return;
 		foreach( $knownModels as &$km )
 		{
-			if( $this->_op1 != "?" )
+			if( !($this->_op1 instanceof ConditionArgument) )
 			{
 				$this->_op1 = $km->FullQualifiedFieldName($this->_op1);
 				continue;
 			}
-			if( $this->_op2 != "?" )
+			if( !($this->_op2 instanceof ConditionArgument) )
 				$this->_op2 = $km->FullQualifiedFieldName($this->_op2);
 		}
 	}
+
+    function __getArgs($log = false)
+    {
+        $args = [];
+        $this->__fillArgs($args, $this->_op1, $log);
+        $this->__fillArgs($args, $this->_op2, $log);
+        if( $log )
+            log_debug(__METHOD__, $args);
+        return $args;
+    }
+
+    private function __fillArgs(&$args, $obj, $log = false)
+    {
+        if( $log )
+            log_debug(__METHOD__, $obj, $args);
+        if ($obj instanceof ConditionArgument)
+        {
+            $args[$obj->name] = $obj->value;
+        }
+        elseif (is_array($obj))
+            foreach ($obj as $o)
+                $this->__fillArgs($args, $o, $log);
+    }
+}
+
+class ConditionArgument
+{
+    public $name, $value, $pattern;
+
+    public function __construct(string $name, $value, $pattern = '')
+    {
+        $this->name = $name;
+        $this->value = $value;
+        $this->pattern = $pattern;
+    }
+
+    function __toString()
+    {
+        if ($this->pattern)
+            return str_replace("?", $this->name, $this->pattern);
+        return $this->name;
+    }
 }

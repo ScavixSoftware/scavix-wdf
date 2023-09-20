@@ -28,7 +28,6 @@ use ScavixWDF\Model\DataSource;
 use ScavixWDF\Model\Model;
 use ScavixWDF\WdfDbException;
 use ScavixWDF\Base\DateTimeEx;
-use ScavixWDF\WdfException;
 
 /**
  * @internal Model class representing tasks that can be handled asynchronously
@@ -67,9 +66,11 @@ class WdfTaskModel extends Model
 
     public $RecreateOnSave = false;
 
-    private $isVirtual = false, $prevent_duplicate = false, $cascade_go = true;
+    private $isVirtual = false, $prevent_duplicate = false, $cascade_go = true, $children = [];
     public static $PROCESS_FILTER = 'db-processwdftasks';
     public static $MAX_PROCESSES = 10;
+
+    private static $_checkedprocs = [];
     
 	public function GetTableName() { return 'wdf_tasks'; }
     
@@ -114,6 +115,7 @@ class WdfTaskModel extends Model
         if( $this->RecreateOnSave )
         {
             $still_present = $this->_ds->ExecuteScalar("SELECT count(*) FROM wdf_tasks WHERE id=?", [$this->id]);
+            // log_debug('RecreateOnSave', $this->id, $this->name, $still_present, $this->children);
             if (!$still_present)
             {
                 $this->_saved = false;
@@ -124,6 +126,7 @@ class WdfTaskModel extends Model
                 //log_debug("Ensuring re-save for taskmodel");
             }
         }
+
         $ret = false;
         try
         {
@@ -134,6 +137,7 @@ class WdfTaskModel extends Model
             if($ex->isDuplicateKeyException('PRIMARY') && (strpos($this->name, 'TaskPool-') !== false))
             {
                 // special handling for reusable taskpool tasks. Just ignore this exception.
+                //log_debug($ex);
             }
             else
             {
@@ -150,12 +154,75 @@ class WdfTaskModel extends Model
     
 	public static function RunInstance($runtime_seconds=null)
 	{
-        if( count(self::getRunningProcessors()) < self::$MAX_PROCESSES )
+        // $t = start_timer("processors");
+
+        // $cnt = count(self::getRunningProcessors());      // too slow...
+
+        $filter = '/'.preg_quote(CLI_SELF,'/').".*".preg_quote(self::$PROCESS_FILTER,'/').'/i';
+        $cnt = 0;
+        $filterlen = strlen(str_replace("\\", "", $filter)) - 3;
+
+        // foreach(array_filter(explode("\n", shell_exec('ps -C php -o pid=,cmd=')."\n")) as $proc)
+        // {
+        //     list($pp, $c) = explode(' ', $proc, 2);
+        //     if(isset(self::$_checkedprocs[$pp]))
+        //     {
+        //         if (self::$_checkedprocs[$pp])
+        //         {
+        //             if ($cnt++ >= self::$MAX_PROCESSES)
+        //                 return;
+        //         }
+        //         else
+        //             continue;
+        //     }
+        //     if ($c && (strlen($c) > $filterlen) && preg_match($filter, $c))
+        //     {
+        //         self::$_checkedprocs[$pp] = true;
+        //         if ($cnt++ >= self::$MAX_PROCESSES)
+        //             return;
+        //     }
+        //     else
+        //         self::$_checkedprocs[$pp] = false;
+        // }
+
+        foreach( glob("/proc/[0-9]*/cmdline") as $pp )
         {
-            if( !function_exists("cli_run_taskprocessor") )
-                system_load_module('modules/cli.php');
-            cli_run_taskprocessor($runtime_seconds);
+            if(isset(self::$_checkedprocs[$pp]))
+            {
+                if (self::$_checkedprocs[$pp])
+                {
+                    if ($cnt++ >= self::$MAX_PROCESSES)
+                        return;
+                }
+                else
+                    continue;
+            }
+            $c = @file_get_contents("$pp");
+            if ($c && (strlen($c) > $filterlen)) //preg_match($filter, $c))
+            {
+                // $c = str_replace("\0", " ", $c);
+                $f1 = strpos($c, CLI_SELF);
+                if ($f1 === false)
+                    continue;
+                $f2 = strpos($c, self::$PROCESS_FILTER);
+                if (($f2 === false) || ($f1 > $f2))
+                    continue;
+                // log_debug($f1, $f2, CLI_SELF, $c);
+                self::$_checkedprocs[$pp] = true;
+                if ($cnt++ >= self::$MAX_PROCESSES)
+                    return;
+            }
+            else
+                self::$_checkedprocs[$pp] = false;
         }
+
+        // hit_timer("processors", "cnt: $cnt max: ".self::$MAX_PROCESSES);
+
+        if( !function_exists("cli_run_taskprocessor") )
+            system_load_module('modules/cli.php');
+        cli_run_taskprocessor($runtime_seconds);
+        
+        // finish_timer($t);
 	}
 	
     public static function CreateOnce($name, $return_original=false)
@@ -246,6 +313,7 @@ class WdfTaskModel extends Model
             $task->Save();
             if($task->isVirtual)
                 $this->isVirtual = true;
+            $task->children[] = $this;
 			$task = ifavail($task,'id');
         }
 		if( !$task )
@@ -294,9 +362,25 @@ class WdfTaskModel extends Model
             else
             {
                 $this->Save();
-                if( $this->cascade_go && $depth++ < 50 ) // limit depth to 50 to avoid too large trees
-                    foreach( WdfTaskModel::Make()->eq('parent_task',$this->id)->eq('enabled',0) as $t )		
-                        $t->Go(false,$depth);
+                if ($this->cascade_go)
+                {
+                    if ($depth++ < 50) // limit depth to 50 to avoid too large trees)
+                        foreach (WdfTaskModel::Make()->eq('parent_task', $this->id)->eq('enabled', 0) as $t)
+                            $t->Go(false, $depth);
+                }
+                elseif(count($this->children))
+                {
+                    // at least save children to not loose "->Delay" and stuff
+                    foreach ($this->children as $ch)
+                    {
+                        if (!avail($ch, 'parent_task')) // the parent task id might not have been yet available at setting DependsOn()
+                        {
+                            // log_debug(__METHOD__, "Setting parent_task to {$this->id} for child {$ch->id}", $ch->name, $this->name);
+                            $ch->parent_task = $this->id;
+                        }
+                        $ch->Save();
+                    }
+                }
             }
         }
 		if( $run_instance && !avail($this,'worker_pid') )
@@ -307,18 +391,17 @@ class WdfTaskModel extends Model
     private static function getRunningProcessors($pids=false)
     {
         $filter = '/'.preg_quote(CLI_SELF,'/').".*".preg_quote(self::$PROCESS_FILTER,'/').'/i';
+        $filterlen = strlen(str_replace("\\", "", $filter)) - 3;
         $res = [];
         if( $pids )
-        {
             $pids = array_map(function($p){ return "/proc/$p/cmdline"; },$pids);
-        }
         else
             $pids = glob("/proc/*/cmdline");
 
         foreach( $pids as $pp )
         {
-            $c = @file_get_contents("$pp");     
-            if( $c && preg_match($filter,$c) )
+            $c = @file_get_contents("$pp");
+            if ($c && (strlen($c) > $filterlen) && preg_match($filter, $c))
                 $res[] = basename(dirname($pp));
         }
         
@@ -415,8 +498,12 @@ class WdfTaskModel extends Model
             else
             {
                 // make sure children are enabled if (for whatever reason) they are not
-                foreach( WdfTaskModel::Make()->eq('parent_task',$this->id)->eq('enabled',0) as $t )		
+                $children = WdfTaskModel::Make()->eq('parent_task', $this->id)->eq('enabled', 0); //    ->orX(2)->isNull('start')->isPast('start');
+                foreach ($children as $t)
+                {
                     $t->Go(false);
+                    // log_debug("Releasing {$t->id} for parent {$this->id}",$t->AsArray());
+                }
             }
             $this->Delete();
 		}
@@ -447,7 +534,7 @@ class WdfTaskModel extends Model
 			log_error("Task was processed but could not be deleted from DB. Disabling to stop chain");
 			return false;
 		}
-        $this->_ds->ExecuteSql("UPDATE wdf_tasks SET parent_task=null WHERE parent_task=?",$this->id);
+        $this->_ds->ExecuteSql("UPDATE wdf_tasks SET parent_task=null, enabled=1 WHERE parent_task=?", [$this->id]);
 		return true;
 	}
 	
