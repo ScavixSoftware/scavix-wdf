@@ -89,7 +89,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 			foreach( $arguments as $n => $a )
 			{
                 $args = [];
-                foreach( force_array($a) as $arg )
+                foreach( force_array($a,false) as $arg )
                     $args[] = is_null($arg)?"null":((is_numeric($arg) && (strpos($arg, '+') === false)) ?"$arg":"'".$ds->EscapeArgument($arg)."'");
                 $a = implode(",",$args);
 				if($hasqm)

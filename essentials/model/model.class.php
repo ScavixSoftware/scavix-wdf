@@ -647,7 +647,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$res = new $className($datasource);
 		$res->__ensureSelect($sql);
 		//$sql = preg_replace('/^select\s(.*)\swhere\s/Ui','',$sql);
-		$res->_query->sql($sql,force_array($args));
+		$res->_query->sql($sql,force_array($args, false));
 		return $res;
 	}
 
@@ -1206,7 +1206,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
 		$res = clone $this;
 		$res->__ensureSelect();
-		$res->_query->sql($sql_statement_part,force_array($args));
+		$res->_query->sql($sql_statement_part,force_array($args, false));
 		return $res;
 	}
 
