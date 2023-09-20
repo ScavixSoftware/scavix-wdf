@@ -46,7 +46,7 @@ class uiDatabaseTable extends DatabaseTable
 		$this->addClass('ui-widget ui-widget-content ui-corner-all');
 		if( $this->header ) $this->header->addClass('ui-widget-header');
 		if( $this->Caption ) $this->Caption->addClass('ui-widget-header');
-		if( $this->footer ) $this->footer->addClass('ui-widget-content');
+		if( $this->footer ) $this->footer->addClass('ui-widget-header');
 		return parent::WdfRender();
 	}
 }
