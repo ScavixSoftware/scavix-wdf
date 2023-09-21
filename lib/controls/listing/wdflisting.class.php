@@ -337,6 +337,10 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             );
             if( count($sumcols)> 0 )
             {
+                $formats = [];
+                foreach( $this->formats as $n=>$v )
+                    $formats[$n] = $v ?: ifavail($this->columnCallbacks,$n);
+
                 $sql = preg_replace("/(\/\*BEG-ORDER\*\/)(.*)(\/\*END-ORDER\*\/)/", '$1$3', $sql);
                 $sql = str_replace('SELECT * ', 'SELECT '.implode(',', array_map(function($c) { return "`$c`"; }, $sumcols)).' ', $sql);
                 $sums = $this->ds->ExecuteSql("SELECT ".implode(",", array_map(function($c) { return "sum(`$c`) as '{$c}'"; }, $sumcols))." FROM( {$sql} )as x")->current();
@@ -353,6 +357,11 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
                         $i = array_search($name, $cols);
                         if ($i !== false)
                         {
+                            if ($f = ifavail($formats, $name))
+                            {
+                                $f = new \ScavixWDF\Controls\Table\CellFormat($f);
+                                $val = $f->FormatContent($val, $this->ci);
+                            }
                             $row->GetCell($i)->SetContent($val);
                         }
                     }
@@ -380,12 +389,9 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
                 }
             }
         }
-        $formats = [];
-        foreach( $this->formats as $n=>$v )
-            $formats[$n] = $v ?: ifavail($this->columnCallbacks,$n);
 
         $this->table->SetAlignment( array_values($this->filterToVisible($this->alignments)) );
-        $this->table->SetFormat( array_values($this->filterToVisible($formats)) );
+        $this->table->SetFormat( array_values($this->filterToVisible($this->formats)) );
     }
 	
 	function PreRender($args=[])
