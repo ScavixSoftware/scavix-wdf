@@ -164,7 +164,7 @@ class MySql implements IDatabaseDriver
                 $schema = @unserialize(@file_get_contents($schemafile))?:[];
                 $res->CreateCode = isset($schema['create'])?$schema['create']:'';
                 $res->Columns = isset($schema['columns'])?$schema['columns']:[];
-                $res->Keys = isset($schema['columns'])?$schema['keys']:[];
+                $res->Keys = isset($schema['keys'])?$schema['keys']:[];
             }
         }
         
@@ -217,7 +217,7 @@ class MySql implements IDatabaseDriver
 			$save_needed = true;
         }
 
-        if( !count($res->Keys) )
+		if( !count($res->Keys) )
         {
             $sql = "show keys from `$tablename`";
             foreach ($this->_pdo->query($sql)->finishAll() as $row)
