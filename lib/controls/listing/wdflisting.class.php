@@ -433,7 +433,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             {
                 $masel = Select::Make()->appendTo($div)
                     ->AddOption('',tds("TXT_CHOOSE_MULTI_ACTION","(choose action)"))
-                    ->attr("onchange","$('#{$this->table->id}').overlay(); var d={all_selected:$('[name=\"{$n}_all\"]').prop('checked'),multi:'$n',$n:$('[name=\"$n\"]:checked').map(function() { return $(this).val(); }).get()}; wdf.post($(this).val(),d,function(r){ $('#{$this->table->id}').overlay('remove'); $('body').append(r); }); $(this).val('');");
+                    ->attr("onchange","$('#{$this->table->id}').overlay(); var d={all_selected:$('[name=\"{$n}_all\"]', '#{$this->table->id}').prop('checked'),multi:'$n',$n:$('[name=\"$n\"]:checked', '#{$this->table->id}').map(function() { return $(this).val(); }).get()}; wdf.post($(this).val(),d,function(r){ $('#{$this->table->id}').overlay('remove'); $('body').append(r); }); $(this).val('');");
                 foreach ($this->_multiactions as $label => $url)
                     $masel->AddOption($url, $label);
             }
@@ -441,7 +441,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
             {
                 foreach ($this->_multiactions as $label => $url)
                     Anchor::Make('javascript:void(0)', $label)
-                        ->attr('onclick', "$('#{$this->table->id}').overlay(); var d={all_selected:$('[name=\"{$n}_all\"]').prop('checked'),multi:'$n',$n:$('[name=\"$n\"]:checked').map(function() { return $(this).val(); }).get()}; wdf.post('$url',d,function(r){ $('#{$this->table->id}').overlay('remove'); $('body').append(r); })")
+                        ->attr('onclick', "$('#{$this->table->id}').overlay(); var d={all_selected:$('[name=\"{$n}_all\"]', '#{$this->table->id}').prop('checked'),multi:'$n',$n:$('[name=\"$n\"]:checked', '#{$this->table->id}').map(function() { return $(this).val(); }).get()}; wdf.post('$url',d,function(r){ $('#{$this->table->id}').overlay('remove'); $('body').append(r); })")
                         ->appendTo($div);
             }       
             $this->table->PagerPrefix = $div;
