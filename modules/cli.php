@@ -284,6 +284,7 @@ function cli_execute()
             case 'task':         $class = \ScavixWDF\Tasks\Task::class; break;
             case 'wdfcrontask':  $class = \ScavixWDF\Tasks\WdfCronTask::class; break;
             case 'wdftaskmodel': $class = \ScavixWDF\Tasks\WdfTaskModel::class; break;
+            case 'folderarchivetask': $class = \ScavixWDF\Uploads\FolderArchiveTask::class; break;
         }
     }
 
