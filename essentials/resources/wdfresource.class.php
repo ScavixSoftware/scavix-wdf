@@ -100,13 +100,9 @@ class WdfResource implements ICallable
             
 			WdfResource::ValidatedCacheResponse($res);
 			readfile($res);
+            die();
 		}
-        else
-        {
-            $protocol = ifavail($_SERVER, 'SERVER_PROTOCOL') ?: 'HTTP/1.1';
-            header("$protocol 404 Not Found", true, 404);
-        }
-		die();
+        system_die_http(404);
 	}
 	
 	/**
@@ -125,12 +121,7 @@ class WdfResource implements ICallable
 			WdfResource::ValidatedCacheResponse($res);
             die( $this->resolveUrls($res,dirname($url)) );
 		}
-        else
-        {
-            $protocol = ifavail($_SERVER, 'SERVER_PROTOCOL') ?: 'HTTP/1.1';
-            header("$protocol 404 Not Found", true, 404);
-        }
-		die();
+        system_die_http(404);
 	}
 	
 	/**

@@ -277,7 +277,9 @@ class DataSource
 	 */
 	function EscapeArgument($value)
 	{
-		$res = $this->_pdo->quote($value);
+        if( !is_string($value) )
+            log_warn(__METHOD__." needs string argument, will be enforces in future versions");
+		$res = $this->_pdo->quote("$value");
 		return substr($res, 1, strlen($res)-2);
 	}
 	
@@ -289,7 +291,9 @@ class DataSource
 	 */
 	function QuoteArgument($value)
 	{
-		return $this->_pdo->quote($value);
+        if( !is_string($value) )
+            log_warn(__METHOD__." needs string argument, will be enforces in future versions");
+		return $this->_pdo->quote("$value");
 	}
 	
 	/**

@@ -982,7 +982,7 @@ function system_glob_rec($directory='',$pattern='*.*')
 function system_walk_files($folder, $pattern, $callback, $recursive = true)
 {
     $iti = new RecursiveDirectoryIterator($folder);
-    foreach(new RecursiveIteratorIterator($iti) as $file)
+    foreach(new RecursiveIteratorIterator($iti,RecursiveIteratorIterator::LEAVES_ONLY,RecursiveIteratorIterator::CATCH_GET_CHILD) as $file)
     {
         $fn = basename("$file");
         if (!is_in($fn, '.', '..') && fnmatch($pattern, $fn))
