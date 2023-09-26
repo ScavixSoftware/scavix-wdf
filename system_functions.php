@@ -1704,9 +1704,18 @@ function system_mime_to_extension($mime)
  */
 function system_guess_mime($filename)
 {
+    if (function_exists('finfo_open'))
+    {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mime = finfo_file($finfo, $filename);
+        if (system_mime_to_extension($mime) == pathinfo($filename, PATHINFO_EXTENSION))
+            return $mime;
+    }
+    else
+        $mime = '';
     $mime_map = system_mime_map();
     $ext = pathinfo($filename,PATHINFO_EXTENSION);
-    return array_search($ext,$mime_map);
+    return array_search($ext, $mime_map) ?: $mime;
 }
 
 function array_clean_assoc_or_sequence($array)
