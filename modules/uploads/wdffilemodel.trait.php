@@ -56,7 +56,7 @@ trait WdfFileModel
 
     protected function getFolderArchive()
     {
-        $name = explode("/", $this->path)[0];
+        $name = explode("/", ltrim($this->path,'/'))[0];
         try
         {
             return new WdfFolderArchive(__FILES__ . "/$name");
@@ -254,14 +254,14 @@ trait WdfFileModel
 
 	function GetFullPath()
 	{
-		return __FILES__."/{$this->path}";
+		return __FILES__."/".ltrim($this->path,"/");
 	}
 
     function Exists()
 	{
 		$res = file_exists($this->GetFullPath());
         if (!$res && $fa = $this->getFolderArchive())
-            $res = $fa->contains($this->path);
+            $res = $fa->contains(ltrim($this->path,"/"));
         return $res;
 	}
     
@@ -285,11 +285,15 @@ trait WdfFileModel
         {
             if( $fa = $this->getFolderArchive() )
             {
-                if (!$fa->contains($this->path))
+                if (!$fa->contains(ltrim($this->path,"/")))
                     system_die_http(404);
-                file_put_contents($file, $fa->get($this->path));
+                $um = umask(0);
+                if( !file_exists(dirname($file)) )
+                    mkdir(dirname($file), 0777, true);
+                file_put_contents($file, $fa->get(ltrim($this->path,"/")));
+                umask($um);
             }
-            if (!file_exists($file) )
+            if (!file_exists($file))
                 system_die_http(404);
         }
         

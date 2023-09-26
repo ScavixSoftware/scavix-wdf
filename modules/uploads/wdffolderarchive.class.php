@@ -36,6 +36,13 @@ class WdfFolderArchive
 
 	function __construct($folder)
     {
+        if( !realpath($folder) && file_exists(realpath("$folder.7z")) )
+        {
+            log_debug("Creating folder '{$folder}' according to present 7z file");
+            $um = umask(0);
+            mkdir($folder, 0777);
+            umask($um);
+        }
         $this->folder = $this->canonialPath(realpath($folder) ?: '');
         $this->lastError = '';
 

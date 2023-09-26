@@ -25,7 +25,6 @@
 
 namespace ScavixWDF\Uploads;
 
-use FileModel;
 use ScavixWDF\Tasks\Task;
 use ScavixWDF\WdfException;
 

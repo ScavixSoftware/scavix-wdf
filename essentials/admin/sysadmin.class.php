@@ -553,6 +553,7 @@ class SysAdmin extends HtmlPage
         {
             switch( $col->Type )
             {
+                case 'char':
                 case 'varchar':
                 case 'text':
                 case 'mediumtext':
@@ -569,20 +570,31 @@ class SysAdmin extends HtmlPage
                     $type = "\ScavixWDF\Base\DateTimeEx|string";
                     break;
                 case 'tinyint':
+                case 'bigint':
                     $type = "int";
                     break;
                 default:
                     $type = $col->Type;
                     break;
             }
+            $valid_name = preg_replace('/[^a-zA-Z0-9_]/','_',$col->Name);
+            if( preg_match('/^[0-9]/',$valid_name) )
+                $valid_name = "_$valid_name";
             $properties[] = " * @property {$type} ".'$'."{$col->Name}";
             $fields[] = "/** @var {$type} */";
-            $fields[] = 'public $'.$col->Name.';';
+            $fields[] = 'public $'.$valid_name.';';
+            if( $valid_name != $col->Name )
+            {
+                $fields[] = "// Note: Real name is '{$col->Name}', but that contains characters that are not allowed in PHP property names.";
+            }
             $fields[] = '';
         }
         $properties[] = " */";
 
-        $cls = '';//perhaps we'll have a nice mapping later //str_replace("Model", "", Model::TryGetClassFromTablename($schema->Name));
+        $cls = str_replace(' ','',ucwords(str_replace('_', ' ', rtrim($table,'s'))));
+        //perhaps we'll have a better mapping later
+        // $cls = str_replace("Model", "", Model::TryGetClassFromTablename($schema->Name));
+
         $properties = implode("\n",$properties);
         $fields = implode("\n\t",$fields);
         $code = <<<EOT
