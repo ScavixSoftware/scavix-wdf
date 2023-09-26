@@ -46,23 +46,29 @@ class FolderArchiveTask extends Task
             if (time() > $end)
                 return false;
         });
+        $fa->removeEmptyLocalFolders();
     }
 
-    public static function MoveSomeFiles($folder, $maxfiles, $maxruntime)
+    public static function MoveSomeFiles($folder, $maxfiles, $maxruntime, $verbose = false)
     {
-        self::eachFiles($folder, false, true, $maxfiles, $maxruntime, function ($in_arch, $local, $fa)
+        self::eachFiles($folder, false, true, $maxfiles, $maxruntime, function ($in_arch, $local, $fa)use($verbose)
         {
-            log_debug("Updating file {$local}");
-            $fa->updateFile($local);
+            if( $fa->updateFile($local) )
+            {
+                @unlink($local);
+                if( $verbose )
+                    log_debug("Archived and removed local copy of {$local}");
+            }
         });
     }
 
-    public static function DeleteSomeArchivedLocally($folder, $maxfiles, $maxruntime)
+    public static function DeleteSomeArchivedLocally($folder, $maxfiles, $maxruntime, $verbose = false)
     {
-        self::eachFiles($folder, true, true, $maxfiles, $maxruntime, function ($in_arch, $local, $fa)
+        self::eachFiles($folder, true, true, $maxfiles, $maxruntime, function ($in_arch, $local, $fa)use($verbose)
         {
-            log_debug("Removing local file {$local}");
             @unlink($local);
+            if( $verbose )
+                log_debug("Removed local copy of archived file {$local}");
         });
     }
 
@@ -93,15 +99,23 @@ class FolderArchiveTask extends Task
                 echo("$file\n");
             return;
         }
+        $wrap = new class
+        {
+            use WdfFileModel;
+            function fs($size)
+            {
+                return self::FormatSize($size);
+            }
+        };
         foreach( WdfFolderArchive::CreateFromBaseFolder(__FILES__) as $fa ) 
         {
             $a = "{$fa->folder}.7z";
             if (!file_exists($a))
             {
-                log_debug("$a", '(not found)');
+                echo("$a\t(not found)\n");
                 continue;
             }
-            log_debug("$a", WdfFileModel::FormatSize(filesize($a)), date("Y-m-d H:i:s", filemtime($a)));
+            echo("$a\t".$wrap->fs(filesize($a))."\t".date("Y-m-d H:i:s", filemtime($a))."\n");
         }
     }
 
@@ -110,19 +124,30 @@ class FolderArchiveTask extends Task
         $fa = $this->getFolderArchive($args);
         if (!$fa)
         {
-            log_info("folderarchive-update <folder> [mode=(copy|move)]", "Updates the archive with (missing/updated) files from disk (can last quite long!). If mode is 'move' files will be removed after beein archived.");
+            log_info("folderarchive-update <folder> [mode=(copy|move|clean)]", "Updates the archive with (missing/updated) files from disk (can last quite long!). If mode is 'move' files will be removed after beein archived.");
             return;
         }
-        
-        $fa->updateAll();
-        if ($this->getArg($args,'mode',1) == 'move')
+
+        $mode = $this->getArg($args, 'mode', 1) ?: 'copy';
+
+        if( is_in($mode,'copy','move') )
         {
-            // log_debug("Scanning for files to remove...");
+            $files = $fa->updateAll();
+            log_debug("Updated ".count($files)." files",$files);
+            //foreach( $files as $file )
+        }
+
+        if( is_in($mode,'move','clean') )
+        {
+            log_debug("Scanning for files to remove...");
             $fa->forEach(true, true, function ($in_ach, $local_file)
             {
-                log_debug("removing '$local_file'");
-                @unlink($local_file);
+                if (@unlink($local_file))
+                    log_debug("Removed local copy of archived file {$local_file}");
+                else
+                    log_warn("Cannot remove file {$local_file}");
             });
+            $fa->removeEmptyLocalFolders();
         }
     }
 

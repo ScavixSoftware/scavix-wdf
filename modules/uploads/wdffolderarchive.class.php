@@ -47,9 +47,19 @@ class WdfFolderArchive
         $this->lastError = '';
 
         if (is_file($this->folder) && ends_iwith($this->folder, ".7z"))
+        {
             $this->folder = substr($this->folder, 0, -3);
+            if( !file_exists($this->folder) )
+            {
+                log_debug("Creating folder '{$this->folder}' for given present 7z file");
+                $um = umask(0);
+                mkdir($this->folder, 0777);
+                umask($um);
+            }
+        }
+
         if (!is_dir($this->folder))
-            WdfException::Raise("Folder '$folder' not found");
+            WdfException::Raise("Folder '$folder' not found ({$this->folder})");
     }
 
     static function CreateFromBaseFolder($folder):array
@@ -394,7 +404,7 @@ class WdfFolderArchive
             {
                 $local = $this->makeFullPath($relative);
                 $exists = in_array($local, $files[$this->folder]);
-                if( ($present_local && !$exists) || (!$present_local && $exists) )
+                if (($present_local && !$exists) || (!$present_local && $exists))
                     continue;
                 if (false === $callback($relative,$present_local?$local:false,$this))
                     return;
@@ -413,5 +423,19 @@ class WdfFolderArchive
             }
             return;
         }
+    }
+
+    function removeEmptyLocalFolders()
+    {
+        // see https://stackoverflow.com/a/1833681
+        $loop = function ($path)use(&$loop)
+        {
+            $empty = true;
+            foreach (glob("$path/*") as $file) 
+                $empty &= is_dir($file) && $loop($file);
+            return $empty && (is_readable($path) && count(scandir($path)) == 2) && @rmdir($path);
+        };
+        foreach( glob("{$this->folder}/*",GLOB_ONLYDIR) as $dir )
+            $loop($dir);
     }
 }

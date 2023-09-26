@@ -27,7 +27,6 @@ namespace ScavixWDF\Uploads;
 
 use Exception;
 use ScavixWDF\Base\DateTimeEx;
-use ScavixWDF\Model\Model;
 use ScavixWDF\Wdf;
 use ScavixWDF\WdfDbException;
 use ScavixWDF\WdfException;
@@ -313,4 +312,16 @@ trait WdfFileModel
         }
         die();
 	}
+
+    function getContent()
+    {
+        if (file_exists($this->GetFullPath()))
+            return file_get_contents($this->GetFullPath());
+        if ($fa = $this->getFolderArchive())
+        {
+            if ($fa->contains(ltrim($this->path, '/')))
+                return $fa->get(ltrim($this->path, '/'));
+        }
+        return null;
+    }
 }
