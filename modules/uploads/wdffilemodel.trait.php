@@ -34,8 +34,26 @@ use ScavixWDF\WdfException;
 
 /**
  */
-class WdfFileModel extends Model
+trait WdfFileModel 
 {
+    /** @var int */
+	public $id;
+
+    /** @var \ScavixWDF\Base\DateTimeEx|string */
+	public $created;
+
+    /** @var string */
+	public $name;
+
+    /** @var string */
+	public $path;
+
+    /** @var string */
+	public $mime;
+
+    /** @var int */
+	public $size;
+
     protected function getFolderArchive()
     {
         $name = explode("/", $this->path)[0];
