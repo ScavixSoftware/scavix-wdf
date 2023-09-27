@@ -381,7 +381,6 @@ class WdfFolderArchive
     function forEach(bool $present_in_archive, bool $present_local, $callback, $force_local_scan = false)
     {
         $archived = $this->listOrContains(false,false);
-        // hit_timer("WdfFolderArchive","forEach: list archive");
 
         static $files = [];
         if (!isset($files[$this->folder]))
@@ -393,10 +392,7 @@ class WdfFolderArchive
             {
                 $files[$this->folder][] = $this->canonialPath($file);
             });
-            // hit_timer("WdfFolderArchive", "forEach: update local");
         }
-        // else
-        //     hit_timer("WdfFolderArchive", "forEach: using buffered local");
         
         if( $present_in_archive )
         {

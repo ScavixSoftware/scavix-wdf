@@ -374,7 +374,8 @@ class DataSource
 			$parameter = array($parameter);
 		
 		$stmt = $this->Prepare($sql);
-		if( !$stmt->execute($parameter) )
+
+		if( !$stmt->ExecuteWithArguments($parameter) )
             WdfDbException::RaiseStatement($stmt);
 
 		$this->_last_affected_rows_count = $stmt->Count();
@@ -419,6 +420,7 @@ class DataSource
 	
 	/**
 	 * @shortcut to <DataSource::DLookUp> but uses cache
+     * @deprecated (2023/09) Use CacheExecuteScalar instead
 	 */
 	function CacheDLookUp($field_name, $table_name = "", $where_condition = "", $parameter = [],$lifetime=300)
 	{
@@ -516,7 +518,7 @@ class DataSource
 	function ExecuteScalar($sql,$prms=[])
 	{
 		$stmt = $this->Prepare($sql);
-		$stmt->execute($prms);
+		$stmt->ExecuteWithArguments($prms);
 		$this->_last_affected_rows_count = $stmt->Count();
         $stmt->FetchMode = PDO::FETCH_NUM;
 		return $stmt->fetchScalar();
@@ -553,6 +555,7 @@ class DataSource
 	
 	/**
 	 * @shortcut <DataSource::ExecuteScalar>
+     * @deprecated (2023/09) Use ExecuteScalar instead
 	 */
 	function GetOne($sql,$prms=[])
 	{
@@ -561,6 +564,7 @@ class DataSource
 	
 	/**
 	 * @shortcut for <DataSource::ExecuteScalar>
+     * @deprecated (2023/09) Use ExecuteScalar instead
 	 */
 	function DLookUp($field_name, $table_name = "", $where_condition = "", $parameter = [])
 	{
@@ -582,7 +586,7 @@ class DataSource
 	function PageExecute($sql,$items_per_page,$page,$parameter=[])
 	{
 		$stmt = $this->Driver->getPagedStatement($sql,$page,$items_per_page);
-		if( !$stmt->execute($parameter) )
+		if( !$stmt->ExecuteWithArguments($parameter) )
 			log_error("SQL Error: $sql", $stmt->ErrorOutput(), $parameter);
 		$this->_last_affected_rows_count = $stmt->Count();
 		return $stmt;
@@ -590,6 +594,7 @@ class DataSource
 	
 	/**
 	 * @shortcut <DataSource::ExecuteSql>
+     * @deprecated (2023/09) Use ExecuteSql instead
 	 */
 	function Execute($sql,$args=[])
 	{
@@ -623,6 +628,7 @@ class DataSource
 	
 	/**
 	 * @shortcut <DataSource::getAffectedRowsCount>
+     * @deprecated (2023/09) Use getAffectedRowsCount instead
 	 */
 	function Affected_Rows()
 	{

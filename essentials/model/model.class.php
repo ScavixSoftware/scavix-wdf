@@ -1693,7 +1693,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		if( !$stmt )
 			return true; // nothing to save
         
-		if( !$stmt->execute($args) )
+		if( !$stmt->ExecuteWithArguments($args) )
 			WdfDbException::RaiseStatement($stmt);
 
 		$pkcols = $this->GetPrimaryColumns();
@@ -1742,7 +1742,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
 		$args = [];
 		$stmt = $this->_ds->Driver->getDeleteStatement($this,$args);
-		if( !$stmt || !$stmt->execute($args) )
+		if( !$stmt || !$stmt->ExecuteWithArguments($args) )
 		{
 			if( $stmt )
 				log_error(get_class($this)."->Delete failed: ",$stmt->ErrorOutput());

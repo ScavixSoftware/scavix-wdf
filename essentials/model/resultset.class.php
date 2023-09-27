@@ -90,7 +90,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 			{
                 $args = [];
                 foreach( force_array($a,false) as $arg )
-                    $args[] = is_null($arg)?"null":((is_numeric($arg) && (strpos($arg, '+') === false)) ?"$arg":"'".$ds->EscapeArgument($arg)."'");
+                    $args[] = is_null($arg)?"null":((is_numeric($arg) && (strpos($arg, '+') === false)) ?"$arg":"'".$ds->EscapeArgument("$arg")."'");
                 $a = implode(",",$args);
 				if($hasqm)
 					$sql = preg_replace('/\?/', $a, $sql, 1);
@@ -175,6 +175,35 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	{
 		return ResultSet::MergeSql($this->_ds,$this->GetSql(),$this->_arguments_used);
 	}
+
+    function ExecuteWithArguments($arguments)
+    {
+        if (isDev())
+        {
+            start_timer("WdfSqlPerformance");
+            $sql = $this->GetSql();
+            foreach (array_clean_assoc_or_sequence(force_array($arguments,false)) as $n => $v)
+            {
+                if (is_numeric($n))
+                    $n = $n + 1;
+                elseif (strpos($sql, $n) === false)
+                    continue;
+
+                if (is_integer($v))
+                    $this->bindValue($n, $v, PDO::PARAM_INT);
+                elseif ($v instanceof DateTime)
+                    $this->bindValue($n, $v->format("Y-m-d H:i:s"));
+                elseif (is_string($v))
+                    $this->bindValue($n, $v, PDO::PARAM_STR);
+                else
+                    $this->bindValue($n, $v);
+            }
+            $res = $this->execute();
+            finish_timer("WdfSqlPerformance", 5000);
+            return $res;
+        }
+        return $this->execute(array_clean_assoc_or_sequence(force_array($arguments,false)));
+    }
 
 	/**
 	 * Savely serializes this object
@@ -311,12 +340,11 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
         {
             try
             {
-                // $sqt = start_timer(__METHOD__." " . $this->_sql_used);
                 if( is_null($input_parameters) )
                     $result = $this->_stmt->execute();
                 else
                     $result = $this->_stmt->execute($input_parameters);
-                // finish_timer($sqt,10000);
+                hit_timer("WdfSqlPerformance", $this->_sql_used);
             }
             catch(\PDOException $ex)
             {
@@ -599,7 +627,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 			else
 			{
 				$stmt = $this->_pdo->prepare("SELECT count(*) FROM( {$this->_sql_used} ) as x");
-				$stmt->execute($this->_arguments_used);
+				$stmt->ExecuteWithArguments($this->_arguments_used);
 				$this->_rowCount = $stmt->finishScalar();
 			}
 		}
