@@ -91,7 +91,7 @@ class RateLimit extends \ScavixWDF\Model\Model
      */
     final function Save($columns_to_update = false, &$changed = null)
     {
-        log_warn("No need to call ".__METHOD__);
+        log_warn("No need to call ".__METHOD__." in ".system_get_caller());
         return true;
     }
     
@@ -100,7 +100,7 @@ class RateLimit extends \ScavixWDF\Model\Model
      */
     final function Delete()
     {
-        log_warn("No need to call ".__METHOD__);
+        log_warn("No need to call ".__METHOD__." in ".system_get_caller());
         return true;
     }
     

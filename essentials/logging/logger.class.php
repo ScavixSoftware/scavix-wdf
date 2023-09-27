@@ -364,38 +364,38 @@ class Logger
 	/**
 	 * @shortcut Logs to severity TRACE
 	 */
-	function trace($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null) 
-	{ $this->write("TRACE",true,$a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10); }
+	function trace(...$args) 
+	{ $this->write("TRACE",true,...$args); }
 	
 	/**
 	 * @shortcut Logs to severity DEBUG
 	 */
-	function debug($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null) 
-	{ $this->write("DEBUG",false,$a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10); }
+	function debug(...$args) 
+	{ $this->write("DEBUG",false,...$args); }
 	
 	/**
 	 * @shortcut Logs to severity INFO
 	 */
-	function info($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null) 
-	{ $this->write( "INFO",false,$a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10); }
+	function info(...$args) 
+	{ $this->write( "INFO",false,...$args); }
 	
 	/**
 	 * @shortcut Logs to severity WARN
 	 */
-	function warn($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null) 
-	{ $this->write( "WARN",false,$a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10); }
+	function warn(...$args) 
+	{ $this->write( "WARN",false,...$args); }
 	
 	/**
 	 * @shortcut Logs to severity ERROR
 	 */
-	function error($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null) 
-	{ $this->write("ERROR",true,$a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10); }
+	function error(...$args) 
+	{ $this->write("ERROR",true,...$args); }
 	
 	/**
 	 * @shortcut Logs to severity FATAL
 	 */
-	function fatal($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null) 
-	{ $this->write("FATAL",true,$a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10); }
+	function fatal(...$args) 
+	{ $this->write("FATAL",true,...$args); }
 	
 	/**
 	 * Writes a <LogReport> to the log.

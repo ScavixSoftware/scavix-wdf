@@ -94,7 +94,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
 	{
         $controller = $datatype = $table = false;
 		if( count($args)>3 )
-            log_warn(__METHOD__.": Calling with more that 3 arguments is obsolete. Use setter methods for assignment!",$args);
+            log_warn(__METHOD__.": Calling with more that 3 arguments is obsolete. Use setter methods for assignment!","Called from ".system_get_caller());
 
         if( count($args)>2 )
 		{

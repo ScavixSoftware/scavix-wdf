@@ -1728,3 +1728,19 @@ function array_clean_assoc_or_sequence($array)
 
     return $array;
 }
+
+function system_get_caller($detailed = false)
+{
+    $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+    while (count($trace) < 3)
+        $trace[] = ['file' => '(unknown)', 'line' => '(unknown)', 'function' => '(unknown)'];
+    if (starts_with($trace[1]['file'], dirname(__SCAVIXWDF__)))
+        $loc = ltrim(str_replace(dirname(__SCAVIXWDF__), '', $trace[1]['file']), '\\/');
+    else
+        $loc = $trace[1]['file'];
+    $loc .= ":" . $trace[1]['line'];
+    return $detailed ? [
+        'location' => $loc,
+        'caller' => avail($trace[2], 'type') ? $trace[2]['class'] . $trace[2]['type'] . $trace[2]['function'] : $trace[2]['function']
+    ] : $loc;
+}

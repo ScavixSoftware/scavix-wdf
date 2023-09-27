@@ -391,64 +391,64 @@ function logging_set_user($object_storage_id='user',$fieldname='username')
 /**
  * @shortcut Logs to specified severity
  */
-function log_write($severity,$a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)
+function log_write($severity,...$args)
 {
 	foreach( Wdf::$Logger as $l )
-		$l->write(strtoupper($severity),false,$a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10);
+		$l->write(strtoupper($severity),false,...$args);
 }
 
 /**
  * @shortcut Logs to severity TRACE
  */
-function log_trace($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)
+function log_trace(...$args)
 {
 	foreach( Wdf::$Logger as $l )
-		$l->trace($a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10);
+		$l->trace(...$args);
 }
 
 /**
  * @shortcut Logs to severity DEBUG
  */
-function log_debug($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)
+function log_debug(...$args)
 {
 	foreach( Wdf::$Logger as $l )
-		$l->debug($a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10);
+		$l->debug(...$args);
 }
 
 /**
  * @shortcut Logs to severity INFO
  */
-function log_info($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)
+function log_info(...$args)
 {
 	foreach( Wdf::$Logger as $l )
-		$l->info($a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10);
+		$l->info(...$args);
 }
 
 /**
  * @shortcut Logs to severity WARN
  */
-function log_warn($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)
+function log_warn(...$args)
 {
 	foreach( Wdf::$Logger as $l )
-		$l->warn($a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10);
+		$l->warn(...$args);
 }
 
 /**
  * @shortcut Logs to severity ERROR
  */
-function log_error($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)
+function log_error(...$args)
 {
 	foreach( Wdf::$Logger as $l )
-		$l->error($a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10);
+		$l->error(...$args);
 }
 
 /**
  * @shortcut Logs to severity FATAL
  */
-function log_fatal($a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)
+function log_fatal(...$args)
 {
 	foreach( Wdf::$Logger as $l )
-		$l->fatal($a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10);
+		$l->fatal(...$args);
 }
 
 /**
@@ -479,10 +479,10 @@ function log_return($label,$value)
  * @param_array mixed $a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10 Values to be logged
  * @return bool Returns the $condition itself (true|false)
  */
-function log_if($condition,$a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)
+function log_if($condition,...$args)
 {
 	if( $condition )
-		log_debug($a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10);
+		log_debug(...$args);
 	return $condition;
 }
 
@@ -500,10 +500,10 @@ function log_if($condition,$a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null
  * @param_array mixed $a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10 Values to be logged
  * @return bool
  */
-function log_if_not($condition,$a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)
+function log_if_not($condition,...$args)
 {
 	if( !$condition )
-		log_debug($a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10);
+		log_debug(...$args);
 	return $condition;
 }
 

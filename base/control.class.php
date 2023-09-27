@@ -472,7 +472,7 @@ class Control extends Renderable
 	 */
 	function setData($name,$value)
 	{
-        log_warn("Calling Control::setData is obsolete, use Control::data instead");
+        log_warn("Control::setData is obsolete, use Control::data instead. Called from ".system_get_caller());
 		if( is_array($value) || is_object($value) )
 			$this->_data_attributes[$name] = system_to_json($value);
 		else
