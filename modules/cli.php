@@ -129,7 +129,7 @@ function cli_run_script($php_script_path, $args=[], $extended_data=false, $retur
             else
                 $merged[] = "{$k}={$v}";
         }
-        
+
         $cmd .= " ".implode(" ", array_unique($merged));
     }
 
@@ -231,7 +231,7 @@ function cli_get_processes($filter=false, $test_myself=false, $use_extended_filt
 
     $res = [];
     $out = shell_exec("ps -Af");
-    //log_debug("$filter",$out);
+    // log_debug("$filter",$out);
     if( preg_match_all('/\n[^\s+]*\s+(\d+)\s+(\d+)\s+.*'.$filter.'/i',$out,$m) )
     {
         foreach( $m[1] as $p )
@@ -294,7 +294,7 @@ function cli_execute()
 		$ref = new ReflectionClass($class);
         if( !$ref->isSubclassOf(\ScavixWDF\Tasks\Task::class) )
             \ScavixWDF\WdfException::Raise("Invalid task processor '$class' found in file '".$ref->getFilename()."'");
-		
+
         $task = new $class();
 
         $ref = new ReflectionMethod($task, $method);

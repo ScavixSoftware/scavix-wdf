@@ -67,13 +67,13 @@ class Query
 			$this->_knownmodels = array($obj);
 		}
 	}
-    
+
     public function __clone()
 	{
 		if( $this->_where )
             $this->_where = unserialize(serialize($this->_where));
 	}
-	
+
 	function __toString()
 	{
 		return $this->_initialSequence . $this->__generateSql();
@@ -84,7 +84,7 @@ class Query
     {
         return ":a" . str_pad("" . $this->argNameCounter++, 3, "0", STR_PAD_LEFT);
     }
-	
+
 	public function GetSql()
 	{
 		if( !$this->_statement )
@@ -98,7 +98,7 @@ class Query
 			return [];
 		return $this->_statement->GetArgs();
 	}
-	
+
 	public function GetPagingInfo($key=false)
 	{
 		if( !$this->_statement )
@@ -115,30 +115,30 @@ class Query
             $this->_values = $this->_where->__getArgs();
 
 		$this->_statement = $this->_ds->Prepare($sql);
-        if (isDev())
+        // if (isDev())
             $exec = $this->_statement->ExecuteWithArguments($this->_values);
-        else
-        {
-            foreach ($this->_values as $n => $v)
-            {
-                if (strpos($sql, $n) === false)
-                    continue;
-                if (is_integer($v))
-                    $this->_statement->bindValue($n, $v, PDO::PARAM_INT);
-                elseif ($v instanceof DateTime)
-                    $this->_statement->bindValue($n, $v->format("Y-m-d H:i:s"));
-                elseif (is_string($v))
-                    $this->_statement->bindValue($n, $v, PDO::PARAM_STR);
-                else
-                    $this->_statement->bindValue($n, $v);
-            }
-            $exec = $this->_statement->execute();
-        }
+        // else
+        // {
+        //     foreach ($this->_values as $n => $v)
+        //     {
+        //         if (strpos($sql, $n) === false)
+        //             continue;
+        //         if (is_integer($v))
+        //             $this->_statement->bindValue($n, $v, PDO::PARAM_INT);
+        //         elseif ($v instanceof DateTime)
+        //             $this->_statement->bindValue($n, $v->format("Y-m-d H:i:s"));
+        //         elseif (is_string($v))
+        //             $this->_statement->bindValue($n, $v, PDO::PARAM_STR);
+        //         else
+        //             $this->_statement->bindValue($n, $v);
+        //     }
+        //     $exec = $this->_statement->execute();
+        // }
 		if( !$exec )
         {
             // log_debug("Query:",$this);
 			WdfDbException::RaiseStatement($this->_statement);
-        }		
+        }
 		$res = $this->_statement->fetchAll(PDO::FETCH_CLASS,get_class($this->_object),$ctor_args);
 		return $res;
 	}
@@ -172,7 +172,7 @@ class Query
 	{
 		$this->_where = new ConditionTree(-1,$defaultOperator);
 	}
-    
+
 	function andAll()
 	{
 		$this->__conditionTree()->SetOperator("AND");
@@ -192,12 +192,12 @@ class Query
 	{
 		$this->__conditionTree()->Nest($count,"OR");
 	}
-    
+
     function end()
     {
         $this->__conditionTree()->Close();
     }
-	
+
     function if($condition)
 	{
 		$this->__conditionTree()->Nest(1,"IF",!!$condition);
@@ -242,37 +242,37 @@ class Query
 	{
         $this->stdOp('=', $property, $value, $value_is_sql);
 	}
-	
+
 	function notEqual($property,$value,$value_is_sql=false)
 	{
         $this->stdOp('!=', $property, $value, $value_is_sql);
 	}
-	
+
 	function greaterThan($property,$value,$value_is_sql=false)
 	{
 		$this->stdOp('>', $property, $value, $value_is_sql);
 	}
-	
+
 	function greaterThanOrEqualTo($property,$value,$value_is_sql=false)
 	{
 		$this->stdOp('>=', $property, $value, $value_is_sql);
 	}
-	
+
 	function lowerThan($property,$value,$value_is_sql=false)
 	{
 		$this->stdOp('<', $property, $value, $value_is_sql);
 	}
-	
+
 	function lowerThanOrEqualTo($property,$value,$value_is_sql=false)
 	{
 		$this->stdOp('<=', $property, $value, $value_is_sql);
 	}
-	
+
 	function binary($property,$value,$value_is_sql=false)
 	{
         $this->stdOp('=', $property, $value, $value_is_sql,"BINARY ");
 	}
-	
+
 	function notBinary($property,$value,$value_is_sql=false)
 	{
 		$this->stdOp('!=', $property, $value, $value_is_sql,"BINARY ");
@@ -303,7 +303,7 @@ class Query
             $args[] = new ConditionArgument($this->argName(), $value);
         $this->__conditionTree()->Add(new Condition('IN', $property, $args));
 	}
-	
+
 	public function notIn($property,$values)
 	{
 		if( count($values) == 0 )
@@ -323,17 +323,17 @@ class Query
 	{
         $this->stdOp('IS NOT', $property, NULL);
 	}
-	
+
 	public function newerThan($property,$value,$interval)
 	{
         $this->stdOp('>', $property, new ConditionArgument($this->argName(), $value, "NOW() - INTERVAL ? $interval"));
 	}
-	
+
 	public function olderThan($property,$value,$interval)
 	{
         $this->stdOp('<', $property, new ConditionArgument($this->argName(), $value, "NOW() - INTERVAL ? $interval"));
 	}
-	
+
 	public function noop()
 	{
         $this->sql('1=1', []);
@@ -394,7 +394,7 @@ class ConditionTree
                 return "";
             return "({$sql[0]})";
         }
-			
+
 		if( $this->_parent )
 			$sql = "(".implode(" {$this->_operator} ",$sql).")";
 		else
@@ -450,7 +450,7 @@ class ConditionTree
 		$this->_current = $this->_current->_conditions[count($this->_current->_conditions)-1];
 		$this->_current->_parent = $mem;
 	}
-    
+
     function Close()
     {
         $this->_current->_maxConditions = count($this->_current->_conditions);

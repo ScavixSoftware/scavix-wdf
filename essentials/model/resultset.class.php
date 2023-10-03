@@ -38,7 +38,7 @@ use ScavixWDF\Model\Driver\MySql;
 
 /**
  * This is our own Statement class
- * 
+ *
  * There are some difficulties with PHPs PDOStatement class as it will not allow us to override all methods (Traversable hides Iterator).
  * So we cannot simply inherit from there, but must wrap it.
  */
@@ -56,12 +56,12 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	private $_loaded_from_cache = false;
 	private $_data_fetched = false;
 	private $_rowCount = false;
-	
+
 	/*--- Compatibility to old model ---*/
 	private $_current = false;
-	
+
 	public $FetchMode = PDO::FETCH_ASSOC;
-	
+
 	function __construct(DataSource $ds=null, WdfPdoStatement $statement=null)
 	{
 		$this->_ds = $ds;
@@ -71,10 +71,10 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 			$this->_pdo = $statement->_pdo;
 		}
 	}
-	
+
 	/**
 	 * Merges arguments into an SQL statement.
-	 * 
+	 *
 	 * Note that this is meant for debug output only!
 	 * @param DataSource $ds <DataSource> used to escape the arguments (<DataSource::EscapeArgument>)
 	 * @param string $sql SQL statement
@@ -100,10 +100,10 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
         }
 		return $sql;
 	}
-	
+
 	/**
 	 * Returns the last statement and the error info
-	 * 
+	 *
 	 * Will combine that into a string for easy output
 	 * @return string SQL[newline]ErrorInfo
 	 */
@@ -111,30 +111,30 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	{
 		return render_var($this->_stmt->errorInfo())."\n".$this->_sql_used;
 	}
-    
+
     /**
 	 * Returns the error info
-	 * 
+	 *
 	 * @return array ErrorInfo
 	 */
 	public function ErrorInfo()
 	{
 		return $this->_stmt->errorInfo();
 	}
-	
+
 	/**
 	 * Returns if there was an error
-	 * 
+	 *
 	 * @return bool true if there was an error
 	 */
 	public function HadError()
 	{
 		return ($this->_stmt->errorCode() != '00000');
 	}
-	
+
 	/**
 	 * Logs this statement
-	 * 
+	 *
 	 * Sometimes you will need to debug specific statements. This method will create a logentry with the SQL query, the arguments used
 	 * and try to combine it for easy copy+paste from log to your sql tool (for retry).
      * @param string $label Optional label to use as prefix for the log entry
@@ -148,7 +148,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
         else
             log_debug("{$label}SQL: ".SqlFormatter::format($this->_sql_used, false));
 	}
-	
+
 	/**
 	 * Gets the query used
 	 * @return string SQL query
@@ -166,7 +166,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	{
 		return $this->_arguments_used;
 	}
-    
+
     /**
 	 * Gets the merged query used (inline arguments)
 	 * @return string SQL query
@@ -178,8 +178,8 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 
     function ExecuteWithArguments($arguments)
     {
-        if (isDev())
-        {
+        // if (isDev())
+        // {
             start_timer("WdfSqlPerformance");
             $sql = $this->GetSql();
             foreach (array_clean_assoc_or_sequence(force_array($arguments,false)) as $n => $v)
@@ -201,13 +201,13 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
             $res = $this->execute();
             finish_timer("WdfSqlPerformance", 5000);
             return $res;
-        }
-        return $this->execute(array_clean_assoc_or_sequence(force_array($arguments,false)));
+        // }
+        // return $this->execute(array_clean_assoc_or_sequence(force_array($arguments,false)));
     }
 
 	/**
 	 * Savely serializes this object
-	 * 
+	 *
 	 * This is mainly needed for query caching
 	 * @return string serialized data string
 	 */
@@ -215,7 +215,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	{
 		return serialize($this->__serialize());
 	}
-    
+
     function __serialize() : array
     {
         return [
@@ -230,10 +230,10 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 			'df' => $this->_data_fetched
         ];
     }
-    
+
     /**
 	 * Savely unserializes this object
-	 * 
+	 *
 	 * This is mainly needed for query caching.
      * @param string $data Serialized data, see result of <ResultSet::serialize>
 	 * @return void
@@ -244,7 +244,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 		$buf = unserialize($data);
 		$this->__unserialize($buf);
 	}
-    
+
     function __unserialize(array $data)
     {
         $this->_ds = model_datasource($data['ds']);
@@ -260,10 +260,10 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 		if( isset($this->_rowbuffer[$this->_index]) )
 			$this->_current = $this->_rowbuffer[$this->_index];
     }
-	
+
 	/**
 	 * Creates a ResultSet from a serialized data string
-	 * 
+	 *
 	 * This is mainly needed for query caching
 	 * @param string $data serialized data string
 	 * @return ResultSet Restored ResultSet object
@@ -285,15 +285,15 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 			$res->_current = $res->_rowbuffer[$res->_index];
 		return $res;
 	}
-	
+
 	/**
 	 * Overrides parent to capture arguments
-	 * 
+	 *
 	 * We want to know which arguments are used, so we need to capture theme here
 	 * before passing control to parents method.
 	 * See <PDOStatement::bindvalue>
 	 * @param string $parameter Parameter identifier. For a prepared statement using named placeholders, this will be a parameter name of the form :name. For a prepared statement using question mark placeholders, this will be the 1-indexed position of the parameter
-	 * @param mixed $value The value to bind to the parameter. 
+	 * @param mixed $value The value to bind to the parameter.
 	 * @param int $data_type Explicit data type for the parameter using the PDO::PARAM_* constants
 	 * @return bool true or false
 	 */
@@ -308,10 +308,10 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 		else
 			return $this->_stmt->bindValue($parameter, $value, $data_type);
 	}
-	
+
 	/**
 	 * Overrides parent to capture query and arguments
-	 * 
+	 *
 	 * We want to know which query and arguments are used, so we need to capture theme here
 	 * before passing control to parents method.
 	 * See <PDOStatement::execute>
@@ -322,7 +322,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	{
 		if( !is_null($input_parameters) && !is_array($input_parameters) )
 			$input_parameters = array($input_parameters);
-		
+
 		$this->_sql_used = $this->_stmt->queryString;
 		if( !is_null($input_parameters) )
 		{
@@ -331,10 +331,10 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 			else
 				$this->_arguments_used = array_merge($this->_arguments_used,$input_parameters);
 		}
-		
+
 		if( $this->_ds )
 			$this->_ds->LastStatement = $this;
-		
+
         $deadlock_retries = 0;
         do
         {
@@ -344,7 +344,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
                     $result = $this->_stmt->execute();
                 else
                     $result = $this->_stmt->execute($input_parameters);
-                hit_timer("WdfSqlPerformance", $this->_sql_used);
+                hit_timer("WdfSqlPerformance", $this->_sql_used); //.(($this->_arguments_used != null) ? ' ('.var_export($this->_arguments_used, true).')' : ''));
             }
             catch(\PDOException $ex)
             {
@@ -362,17 +362,17 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 				// rethrow as WdfDbException to get more details
 				\ScavixWDF\WdfDbException::RaisePdoEx($ex,$this);
 			}
-				
+
             break;
         }
         while(true);
-                
+
 		return $result;
 	}
-	
+
 	/**
 	 * Overrides parent for buffering
-	 * 
+	 *
 	 * See <PDOStatement::fetch>
 	 * @param int $mode See php.net docs
 	 * @param int $cursorOrientation See php.net docs
@@ -394,13 +394,13 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 			$this->_current = false;
 			return false;
 		}
-		
+
 		if( $mode == null && $this->FetchMode )
 			$mode = $this->FetchMode;
-		
+
 		$this->_current = $this->_stmt->fetch(
             is_null($mode)?PDO::FETCH_DEFAULT:$mode,
-            is_null($cursorOrientation)?PDO::FETCH_ORI_NEXT:$cursorOrientation, 
+            is_null($cursorOrientation)?PDO::FETCH_ORI_NEXT:$cursorOrientation,
             is_null($cursorOffset)?0:$cursorOffset
         );
 		if( $this->_current !== false )
@@ -410,10 +410,10 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 		}
 		return $this->_current;
 	}
-	
+
 	/**
 	 * Overrides parent for buffering
-	 * 
+	 *
 	 * See <PDOStatement::fetchall>
 	 * @param int $fetch_style See php.net docs
 	 * @param int $column_index See php.net docs
@@ -423,10 +423,10 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	function fetchAll($fetch_style = null, $column_index = null, $ctor_args = null)
 	{
 		$this->_data_fetched = true;
-		
+
 		if( $this->_loaded_from_cache )
 			return $this->_rowbuffer;
-		
+
 		if( $fetch_style == null && $this->FetchMode )
 			$fetch_style = $this->FetchMode;
 
@@ -435,9 +435,9 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 		if( $fetch_style == PDO::FETCH_CLASS && Model::$DefaultDatasource != $this->_ds )
 		{
 			$mem_def_db = Model::$DefaultDatasource;
-			Model::$DefaultDatasource = $this->_ds;			
+			Model::$DefaultDatasource = $this->_ds;
 		}
-		
+
 		// weird calling because PHP doesnt know the nullarray type so we cannot just put null valued arguments to the parent
 		if( is_null($ctor_args) )
 			if( is_null($column_index) )
@@ -449,13 +449,13 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 				$this->_rowbuffer = $this->_stmt->fetchAll($fetch_style,$column_index);
 		else
 			$this->_rowbuffer = $this->_stmt->fetchAll($fetch_style, $column_index, $ctor_args);
-		
+
 		if( count($this->_rowbuffer) > 0 )
 		{
 			$this->_index = 0;
 			$this->_current = $this->_rowbuffer[$this->_index];
 		}
-		
+
 		// call init method on objects after they are loaded. Other methods do not work as documented :(
 		if( $fetch_style == PDO::FETCH_CLASS )
 		{
@@ -465,13 +465,13 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 				$this->_rowbuffer[$i]->__constructed($this->_ds);
 				$this->_rowbuffer[$i]->__init_db_values();
 			}
-			
+
 			if( isset($mem_def_db) )
 				Model::$DefaultDatasource = $mem_def_db;
 		}
 		return $this->_rowbuffer;
 	}
-	
+
 	/**
 	 * @shortcut <ResultSet::fetchAll>.
 	 */
@@ -479,19 +479,19 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	{
         if( !$this->_data_fetched )
 			$this->fetchAll();
-        
+
         if( !$className )
             return $this->_rowbuffer;
-        
+
         $res = [];
         foreach( $this->_rowbuffer as $row )
             $res[] = Model::MakeFromData($row, $this->_ds, true, $className);
         return $res;
 	}
-	
+
 	/**
 	 * Returns a scalar value
-	 * 
+	 *
 	 * Will return the first result rows $column.
 	 * @param int $column Column index
 	 * @return mixed The value or false on error
@@ -505,10 +505,10 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 			return false;
 		return $row[$column];
 	}
-	
+
 	/**
 	 * Returns a row
-	 * 
+	 *
 	 * Will return the first result row as array.
 	 * Useful when for example querying for min/max values like this:
 	 * <code php>
@@ -524,10 +524,10 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 			return false;
 		return $assoc?$row:array_values($row);
 	}
-	
+
 	/**
 	 * Returns information about paging
-	 * 
+	 *
 	 * Result will be an array with these keys: 'rows_per_page', 'current_page', 'total_pages', 'total_rows', 'offset'
 	 * @param mixed $key If given returns one of the keys value only
 	 * @return array Paging info
@@ -544,10 +544,10 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 			return $this->_paging_info[$key];
 		return $this->_paging_info;
 	}
-	
+
 	/**
 	 * Returns all values for a specified column
-	 * 
+	 *
 	 * Will build an array with all values for the specified column in this result sets rows.
 	 * <code php>
 	 * $ids = $dataSource->ExecuteSql("SELECT * FROM my_table WHERE id<1000")->Enumerate("id");
@@ -579,10 +579,10 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 		}
 		return $res;
 	}
-	
+
 	/**
 	 * Calls a callback function for each result dataset.
-	 * 
+	 *
 	 * Callback function will receive each row as array and must return the (eventually changed) array.
 	 * Note that this method will not clone the result, but return the object itself!
 	 * @param mixed $callback Anonymous callback function
@@ -592,7 +592,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	{
 		if( !$this->_data_fetched )
 			$this->fetchAll();
-		
+
 		$cnt = count($this->_rowbuffer);
 		if( $cnt > 0 )
 		{
@@ -602,17 +602,17 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Returns the number of affected rows.
-	 * 
+	 *
 	 * @return int Number of affected rows
 	 */
 	function Count()
 	{
 		return $this->rowCount();
 	}
-	
+
 	/**
 	 * @override Make sure that SqLite returns something on SELECT statements too
 	 */
@@ -633,7 +633,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 		}
 		return $this->_rowCount;
 	}
-    
+
     /**
      * @internal Closes the inner statements cursor if present
      */
@@ -728,20 +728,20 @@ class WdfPdoStatement extends PDOStatement
 {
 	public $_ds = null;
 	public $_pdo = null;
-	
+
 	protected function __construct($datasource,$pdo)
 	{
 		$this->_ds = $datasource;
 		$this->_pdo = $pdo;
 	}
-    
+
     function finishAll()
     {
         $res = $this->fetchAll();
         $this->closeCursor();
         return $res;
     }
-    
+
     function finishScalar($column_index=0)
     {
         $res = $this->fetchColumn($column_index);
