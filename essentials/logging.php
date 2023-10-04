@@ -677,9 +677,13 @@ function finish_timer($name,$min_ms = false)
     $ms = round((microtime(true)-$start)*1000);
     if( !$min_ms || $ms >= $min_ms )
     {
-        $trace = array_map(function($a){ return "{$a[2]}ms for {$a[0]}"; },$trace);
+        $pad = strlen("$ms");
+        $trace = array_map(function ($a) use ($pad)
+        {
+            return str_pad($a[2], $pad, ' ', STR_PAD_LEFT) . " ms for {$a[0]}"; 
+        }, $trace);
         array_unshift($trace, "started ".date("H:i:s.v",(int)$start));
-        $trace[] = "{$ms}ms total";
+        $trace[] = "{$ms} ms total";
         log_debug("Timer finish:\t$label\n\t".implode("\n\t",$trace));
     }
 }
