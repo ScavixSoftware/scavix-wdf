@@ -47,9 +47,9 @@ class TraceLogger extends Logger
 	 * @param_array mixed $a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10 Data to be logged
 	 * @return void
 	 */
-    public function write($severity=false,$log_trace=false,$a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)
+    public function write($severity=false,$log_trace=false,...$args)
 	{
-		$content = $this->prepare($severity,true,$a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10);
+		$content = $this->prepare($severity,true,...$args);
 		if( !$content ) return;
 		$content = $content->serialize();
 		@file_put_contents($this->filename, "$content\n", FILE_APPEND);

@@ -241,7 +241,7 @@ class Logger
         return $r;
 	}
 	
-	protected function prepare($severity=false,$log_trace=false,$a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)
+	protected function prepare($severity=false,$log_trace=false,...$args)
 	{
 		// translate PHP severities like NOTICE,... to our own
 		if( isset(Logger::$severity_map[$severity]))
@@ -266,17 +266,7 @@ class Logger
             umask($um);
         }
 		
-		$parts = [];
-		if( !is_null( $a1) ) $parts[] = $this->render( $a1);
-		if( !is_null( $a2) ) $parts[] = $this->render( $a2);
-		if( !is_null( $a3) ) $parts[] = $this->render( $a3);
-		if( !is_null( $a4) ) $parts[] = $this->render( $a4);
-		if( !is_null( $a5) ) $parts[] = $this->render( $a5);
-		if( !is_null( $a6) ) $parts[] = $this->render( $a6);
-		if( !is_null( $a7) ) $parts[] = $this->render( $a7);
-		if( !is_null( $a8) ) $parts[] = $this->render( $a8);
-		if( !is_null( $a9) ) $parts[] = $this->render( $a9);
-		if( !is_null($a10) ) $parts[] = $this->render($a10);
+		$parts = array_map([$this,'render'], $args);
 
 		$max_trace_depth = isset($this->max_trace_depth)?$this->max_trace_depth:5;
         $time = (isset($this->log_date) && $this->log_date)?time():false;
@@ -298,9 +288,9 @@ class Logger
 	 * @param_array mixed $a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10 Data to be logged
 	 * @return void
 	 */
-    public function write($severity=false,$log_trace=false,$a1=null,$a2=null,$a3=null,$a4=null,$a5=null,$a6=null,$a7=null,$a8=null,$a9=null,$a10=null)
+    public function write($severity=false,$log_trace=false,...$args)
 	{
-		$content = $this->prepare($severity,$log_trace,$a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10);
+		$content = $this->prepare($severity,$log_trace,...$args);
 		if( !$content ) return;
 		$content = $content->toReadable();
         
