@@ -54,7 +54,7 @@ function timeframe_init()
 }
 
 /**
- * @deprecated Should become useless once <TimeFrame> is rewritten
+ * @deprecated (2013/02) Should become useless once <TimeFrame> is rewritten
  */
 interface ITimeframeDataobject
 {
@@ -63,7 +63,7 @@ interface ITimeframeDataobject
 }
 
 /**
- * @deprecated This is really oldschool calculating. Better reimplement using the <DateTimeEx> features. Also need to get rid of the <ITimeframeDataobject> binding to the UI.
+ * @deprecated (2013/02) This is really oldschool calculating. Better reimplement using the <DateTimeEx> features. Also need to get rid of the <ITimeframeDataobject> binding to the UI.
  */
 class TimeFrame
 {

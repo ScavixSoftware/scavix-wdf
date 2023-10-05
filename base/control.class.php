@@ -468,7 +468,7 @@ class Control extends Renderable
 	 * @param string $name Data name
 	 * @param mixed $value Data value (<system_to_json> will be used for arrays and objects) 
 	 * @return static
-     * @deprecated Use <Control::data> instead
+     * @deprecated (2021/10) Use <Control::data> instead
 	 */
 	function setData($name,$value)
 	{

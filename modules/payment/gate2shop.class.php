@@ -37,7 +37,7 @@ use ScavixWDF\WdfException;
 /**
  * Gate2Shop payment provider.
  * 
- * @deprecated Unused and untested for a long time
+ * @deprecated (2022/07) Unused and untested for a long time
  */
 class Gate2Shop extends PaymentProvider
 {

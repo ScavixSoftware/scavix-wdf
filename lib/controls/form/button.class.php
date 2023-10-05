@@ -65,7 +65,7 @@ class Button extends Input
 	/**
 	 * Overrides <Control::Make> with own logic.
 	 * 
-     * @deprecated This hides the parent Make method and should not be used anymore
+     * @deprecated (2021/05) This hides the parent Make method and should not be used anymore
 	 * @param string $label Label
 	 * @param string $onclick OnClick JS code
 	 * @return Button The new button

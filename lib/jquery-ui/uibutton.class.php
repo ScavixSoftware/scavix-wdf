@@ -54,7 +54,7 @@ class uiButton extends uiControl
 	/**
 	 * Overrides <Control::Make> with own logic.
 	 * 
-	 * @deprecated Use <uiButton::Textual> instead
+	 * @deprecated (2022/07) Use <uiButton::Textual> instead
 	 * @param string $label Label
 	 * @param string $onclick OnClick JS code
 	 * @return uiButton The new button

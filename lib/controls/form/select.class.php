@@ -80,7 +80,7 @@ class Select extends Control
 	}
 	
 	/**
-	 * @deprecated Use <Select::setValue> instead
+	 * @deprecated (2021/03) Use <Select::setValue> instead
 	 */
 	function SetCurrentValue($value)
 	{
@@ -202,7 +202,7 @@ class Select extends Control
     /**
      * Created and return a <Select> control.
      * 
-	 * @deprecated Use Make and method-chaining instead
+	 * @deprecated (2022/07) Use Make and method-chaining instead
      * @param array $options Options
      * @param string $name Optional name attribute
      * @param string $selected Selected value

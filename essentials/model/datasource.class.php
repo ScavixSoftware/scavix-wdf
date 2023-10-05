@@ -318,7 +318,7 @@ class DataSource
      * @param mixed $values Values or null or false
      * @return string Valid constraint string
      */
-    function BuildInContraint($field, $values)
+    function BuildInConstraint($field, $values)
     {
         if( !is_array($values) || count($values)==0 )
             return "(0=1)";
@@ -326,6 +326,14 @@ class DataSource
         foreach( $values as $v )
             $r[] = $this->QuoteArgument($v);
         return "(`$field` IN(".implode(',',$r)."))";
+    }
+
+    /**
+     * @deprecated (2023/10) Typo in name, use BuildInConstraint instead.
+     */
+    function BuildInContraint($field, $values)
+    {
+        return $this->BuildInConstraint($field, $values);
     }
     
 	/**
@@ -336,7 +344,7 @@ class DataSource
      * @param mixed $values Values or null or false
      * @return string Valid constraint string
 	 */
-    function BuildNotInContraint($field, $values)
+    function BuildNotInConstraint($field, $values)
     {
         if( !is_array($values) || count($values)==0 )
             return "(1=1)";
@@ -344,6 +352,14 @@ class DataSource
         foreach( $values as $v )
             $r[] = $this->QuoteArgument($v);
         return "(`$field` NOT IN(".implode(',',$r)."))";
+    }
+
+    /**
+     * @deprecated (2023/10) Typo in name, use BuildNotInConstraint instead.
+     */
+    function BuildNotInContraint($field, $values)
+    {
+        return $this->BuildNotInConstraint($field, $values);
     }
 
 	/**

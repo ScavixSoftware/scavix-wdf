@@ -304,7 +304,7 @@ class LeafLet extends Control
     }
 
     /**
-     * @deprecated
+     * @deprecated (2020/10) This method does nothing. It's just there to be compatible with the gMap control.
      */
     function setType($type) { return $this->_voidHint(); }
 

@@ -190,7 +190,7 @@ class TranslationAdmin extends TranslationAdminBase
     }
 
     /**
-     * @deprecated
+     * @deprecated (2020/10) 
      */
     public function Import($languages = false, $clearbeforeimport = false): void
     {
