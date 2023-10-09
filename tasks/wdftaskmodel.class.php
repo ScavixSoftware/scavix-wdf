@@ -36,31 +36,31 @@ class WdfTaskModel extends Model
 {
 	/** @var int */
 	public $id;
-	
+
 	/** @var int */
 	public $parent_task;
-	
+
 	/** @var int */
 	public $follow_deletion;
-	
+
 	/** @var int */
 	public $enabled;
-	
+
 	/** @var \ScavixWDF\Base\DateTimeEx|string */
 	public $created;
-	
+
 	/** @var \ScavixWDF\Base\DateTimeEx|string */
 	public $start;
-	
+
 	/** @var \ScavixWDF\Base\DateTimeEx|string */
 	public $assigned;
-	
+
 	/** @var int */
 	public $worker_pid;
-	
+
 	/** @var string */
 	public $name;
-	
+
 	/** @var string */
 	public $arguments;
 
@@ -71,16 +71,16 @@ class WdfTaskModel extends Model
     public static $MAX_PROCESSES = 10;
 
     private static $_checkedprocs = [];
-    
+
 	public function GetTableName() { return 'wdf_tasks'; }
-    
+
     function __construct($datasource = null)
     {
         parent::__construct($datasource);
         if( !function_exists("cli_run_taskprocessor") )
             system_load_module('modules/cli.php');
     }
-    
+
     protected function CreateTable()
     {
         $this->_ds->ExecuteSql(
@@ -104,7 +104,7 @@ class WdfTaskModel extends Model
             ENGINE=MEMORY;
             ");
     }
-	
+
     public function Save($columns_to_update = false, &$changed=null)
     {
         if( $this->isVirtual )
@@ -146,12 +146,12 @@ class WdfTaskModel extends Model
         }
         return $ret;
     }
-    
+
     public static function HasToDo()
     {
         return !!DataSource::Get()->ExecuteScalar("SELECT count(*) FROM wdf_tasks WHERE enabled=1 AND ISNULL(parent_task)");
     }
-    
+
 	public static function RunInstance($runtime_seconds=null)
 	{
         // $t = start_timer("processors");
@@ -221,15 +221,15 @@ class WdfTaskModel extends Model
         if( !function_exists("cli_run_taskprocessor") )
             system_load_module('modules/cli.php');
         cli_run_taskprocessor($runtime_seconds);
-        
+
         // finish_timer($t);
 	}
-	
+
     public static function CreateOnce($name, $return_original=false)
     {
         return self::Create($name,true,false,$return_original);
     }
-    
+
 	public static function Create($name,$only_if_not_running=false,$virtual=false,$return_original=false)
 	{
         //log_debug(__METHOD__,$name,$only_if_not_running,$virtual);
@@ -266,7 +266,7 @@ class WdfTaskModel extends Model
         }
 		return $tn;
 	}
-	
+
 	public function SetArg($name,$value)
 	{
 		$args = unserialize($this->arguments);
@@ -274,13 +274,13 @@ class WdfTaskModel extends Model
 		$this->arguments = serialize($args);
 		return $this;
 	}
-    
+
     public function SetArgs($arguments)
     {
         $this->arguments = serialize($arguments?:[]);
 		return $this;
     }
-    
+
     public function GetArg($name,$default=false)
     {
         $args = unserialize($this->arguments);
@@ -291,19 +291,19 @@ class WdfTaskModel extends Model
     {
         return unserialize($this->arguments);
     }
-    
+
     public function SetCascadeGo($on=true)
     {
         $this->cascade_go = $on;
         return $this;
     }
-    
+
     public function PreventDuplicate()
     {
         $this->prevent_duplicate = true;
         return $this;
     }
-    
+
 	public function DependsOn($task,$follow_deletion=true)
 	{
 		if( $task instanceof Task )
@@ -323,26 +323,26 @@ class WdfTaskModel extends Model
 		$this->Save();
 		return $this;
 	}
-	
+
 	public function Delay($seconds)
 	{
         if( $seconds > 0 )
             $this->start = "NOW()+INTERVAL $seconds SECOND";
 		return $this;
 	}
-    
+
     public function SetStart($start)
 	{
 		$this->start = DateTimeEx::Make($start);
 		return $this;
 	}
-	
+
 	public function Go($run_instance=true,$depth=0)
 	{
         if( !$this->isVirtual && ($this->enabled == 0 || avail($this,'worker_pid')) )
         {
             $this->enabled = 1;
-            
+
             if( $this->prevent_duplicate )
             {
                 $q = WdfTaskModel::Make()->eq('name',$this->name)->eq('arguments',$this->arguments);
@@ -352,7 +352,7 @@ class WdfTaskModel extends Model
             }
             else
                 $other = false;
-            
+
             if( $other )
             {
                 if( isset($this->id) )
@@ -387,7 +387,7 @@ class WdfTaskModel extends Model
 			WdfTaskModel::RunInstance();
 		return $this;
 	}
-    
+
     private static function getRunningProcessors($pids=false)
     {
         $filter = '/'.preg_quote(CLI_SELF,'/').".*".preg_quote(self::$PROCESS_FILTER,'/').'/i';
@@ -404,16 +404,16 @@ class WdfTaskModel extends Model
             if ($c && (strlen($c) > $filterlen) && preg_match($filter, $c))
                 $res[] = basename(dirname($pp));
         }
-        
+
         return $res;
     }
-	
+
     public static function FreeOrphans()
     {
         $ds = DataSource::Get();
-        
+
         //$ds->ExecuteSql("UPDATE wdf_tasks SET parent_task=null WHERE parent_task IS NOT NULL AND parent_task NOT IN(SELECT id FROM wdf_tasks)");
-        
+
         $test = $ds->ExecuteSql("SELECT DISTINCT worker_pid FROM wdf_tasks WHERE worker_pid IS NOT NULL")->Enumerate('worker_pid');
         //$tasks = self::getRunningProcessors($test);
         $tasks = array_filter($test,'system_process_running');
@@ -423,18 +423,18 @@ class WdfTaskModel extends Model
         {
             $debug = $ds->ExecuteSql("SELECT * FROM wdf_tasks WHERE (assigned<NOW()-INTERVAL 5 SECOND) AND worker_pid IN($pids)")->results();
             $rs = $ds->ExecuteSql(
-                "UPDATE wdf_tasks SET worker_pid=null, assigned=null WHERE 
+                "UPDATE wdf_tasks SET worker_pid=null, assigned=null WHERE
                  (assigned<NOW()-INTERVAL 5 SECOND) AND worker_pid IN($pids)"
                 );
             if( $rs && $rs->Count() )
                 log_debug("Restarted ".$rs->Count()." tasks whose workers ($pids) did not exist anymore",$debug);
-            
+
             $rs = $ds->ExecuteSql("UPDATE wdf_tasks SET assigned=null WHERE isnull(worker_pid)");
             if( $rs && $rs->Count() )
                 log_debug("Restarted ".$rs->Count()." tasks that were assigend but to noone");
         }
     }
-    
+
 	public static function Reserve()
 	{
 		$wpid = getmypid();
@@ -445,9 +445,9 @@ class WdfTaskModel extends Model
             $ids = DataSource::Get()->ExecuteSql("SELECT id FROM wdf_tasks WHERE $where ORDER BY id DESC LIMIT 10")->Enumerate('id');
             if (count($ids) == 0)
                 return false;
-                
+
             DataSource::Get()->ExecuteSql(
-                "UPDATE wdf_tasks SET worker_pid=?, assigned=now() WHERE 
+                "UPDATE wdf_tasks SET worker_pid=?, assigned=now() WHERE
                     $where AND id IN(".implode(",",$ids).")
                     ORDER BY id DESC LIMIT 1"
                 ,$wpid);
@@ -461,7 +461,7 @@ class WdfTaskModel extends Model
         }
 		return WdfTaskModel::Make()->eq('worker_pid',$wpid)->current();
 	}
-	
+
 	public function Run($inline=false)
 	{
         if( $this->isVirtual )
@@ -471,11 +471,11 @@ class WdfTaskModel extends Model
         }
         list($name,$method) = explode("-","{$this->name}-run");
 		$args = unserialize($this->arguments);
-		
+
 		if( is_subclass_of($name, \ScavixWDF\Tasks\Task::class) )
 		{
             $worker = new $name($this);
-			
+
             if( !method_exists($worker, $method) )
             {
                 log_debug("Method $name::$method does not exist, falling back to 'run'");
@@ -484,11 +484,11 @@ class WdfTaskModel extends Model
             $exectime = microtime(true);
 			$worker->$method($args);
             $exectime = round((microtime(true) - $exectime) * 1000);
-            
+
             $start = DateTimeEx::Make(ifavail($this,'start','created'));
             $runtime = max($exectime,round((microtime(true) - $start->getTimestamp()) * 1000));
             $worker->Finished($method,$runtime,$exectime);
-            
+
             if( $inline )
             {
                 // seeems unused. todo: check and remove
@@ -516,7 +516,7 @@ class WdfTaskModel extends Model
 			log_error("Task processor not found: '$name'. Disabling to stop chain");
 		}
 	}
-	
+
     /**
      * @override <Model::Delete>
      */
@@ -524,7 +524,7 @@ class WdfTaskModel extends Model
 	{
         if( $this->isVirtual )
             return true;
-        
+
 		if( !parent::Delete() )
 		{
             $this->assigned = NULL;
@@ -537,33 +537,34 @@ class WdfTaskModel extends Model
         $this->_ds->ExecuteSql("UPDATE wdf_tasks SET parent_task=null, enabled=1 WHERE parent_task=?", [$this->id]);
 		return true;
 	}
-	
+
     /**
      * Deletes all children of this WdfTaskModel.
-     * 
+     *
      * @param bool $delete_self Delete itself too?
      * @param bool $complete If true deletes tasks that are marked to follow deletion of this one
      * @return void
      */
 	function DeleteChildren($delete_self=false,$complete=false)
 	{
+        // log_debug(__METHOD__, $this, $delete_self, $complete);
         if( $this->isVirtual )
             return;
-        
+
 		$q = WdfTaskModel::Make()->eq('parent_task',$this->id);
 		if( !$complete )
 			$q = $q->eq('follow_deletion',1);
 		foreach( $q as $t )
-			$t->DeleteChildren(true);
+			$t->DeleteChildren(true, $complete);
 		if( $delete_self )
 			$this->Delete();
 	}
-    
+
     /**
      * Adds a child task.
-     * 
+     *
      * If no arguments are given, will copy arguments of this task to the child.
-     * 
+     *
      * @param string $name Task name
      * @param array $args Optional arguments.
      * @return WdfTaskModel $this
@@ -573,10 +574,10 @@ class WdfTaskModel extends Model
         $this->CreateChild($name,$args);
         return $this;
     }
-    
+
     /**
      * Creates a child task and returns it.
-     * 
+     *
      * @param string $name Task name
      * @param array $args Optional arguments.
      * @param bool $only_if_not_running Creates a virtual dummy child, if there's already another task with the same name.
@@ -590,7 +591,7 @@ class WdfTaskModel extends Model
             return WdfTaskModel::Create($name,null,$only_if_not_running,true)->SetArgs($args)->DependsOn($this);
         return WdfTaskModel::Create($name,null,$only_if_not_running)->SetArgs($args)->DependsOn($this);
     }
-    
+
     /**
      * @shortcut <WdfTaskModel::CreateChildOnce> with `$only_if_not_running=true`
      */
@@ -598,7 +599,7 @@ class WdfTaskModel extends Model
     {
         return $this->CreateChild($name, $args, true);
     }
-    
+
     function Repeat($delay_seconds=0)
     {
         $r = $this->GetArg('repetition',0)+1;
