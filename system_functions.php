@@ -48,7 +48,7 @@ define("HOOK_SYSTEM_DIE",999);
  * Some quick markers to be able to switch application behaviour.
  * Typical code sits in config.php (that's why this block is defined here)
  * and looks like this:
- * 
+ *
  */
 define("ENVIRONMENT_DEV",'dev');
 define("ENVIRONMENT_BETA",'beta');
@@ -59,17 +59,17 @@ if( !isset($_ENV['CURRENT_ENVIRONMENT']) )
 
 /**
  * Autodetect DEV envrironment.
- * 
+ *
  * This is done by searching up the folder tree for a file named `.scavixwdf.dev`.
  * If present, <switchToDev> is called.
  * Note: This function is called automatically, so please just dont call it!
- * 
+ *
  * @param string $directory Starting point to search for
  * @return void
  */
 function detectEnvironment($directory)
 {
-    
+
     // auto-detect DEV system: Check the filesystem up to '/' (max 10 folders away) for a file named '.scavixwdf.dev'
     $i = 0;
     do
@@ -86,7 +86,7 @@ function detectEnvironment($directory)
 
 /**
  * Sets the environment
- * 
+ *
  * Possible values are ENVIRONMENT_DEV, ENVIRONMENT_BETA, ENVIRONMENT_SANDBOX or ENVIRONMENT_LIVE
  * @param string $value The new value
  * @return void
@@ -95,7 +95,7 @@ function setEnvironment($value){ $_ENV['CURRENT_ENVIRONMENT'] = $value; }
 
 /**
  * Returns the currently set environment
- * 
+ *
  * Possible values are ENVIRONMENT_DEV, ENVIRONMENT_BETA, ENVIRONMENT_SANDBOX or ENVIRONMENT_LIVE
  * @return string The current environment
  */
@@ -103,70 +103,70 @@ function getEnvironment(){ return $_ENV['CURRENT_ENVIRONMENT']; }
 
 /**
  * Shortcut for <setEnvironment>(ENVIRONMENT_DEV);
- * 
+ *
  * see there for more details
  * @return void
  */
 function switchToDev(){ $_ENV['CURRENT_ENVIRONMENT'] = ENVIRONMENT_DEV; }
 /**
  * Shortcut for <setEnvironment>(ENVIRONMENT_BETA);
- * 
+ *
  * see there for more details
  * @return void
  */
 function switchToBeta(){ $_ENV['CURRENT_ENVIRONMENT'] = ENVIRONMENT_BETA; }
 /**
  * Shortcut for setEnvironment(ENVIRONMENT_SANDBOX);
- * 
+ *
  * see there for more details
  * @return void
  */
 function switchToSandbox(){ $_ENV['CURRENT_ENVIRONMENT'] = ENVIRONMENT_SANDBOX; }
 /**
  * Shortcut for setEnvironment(ENVIRONMENT_LIVE);
- * 
+ *
  * see there for more details
  * @return void
  */
 function switchToLive(){ $_ENV['CURRENT_ENVIRONMENT'] = ENVIRONMENT_LIVE; }
 /**
  * Checks current environment
- * 
+ *
  * Checks if current environment is ENVIRONMENT_DEV
  * @return bool true or false
  */
 function isDev(){ return $_ENV['CURRENT_ENVIRONMENT'] == ENVIRONMENT_DEV; }
 /**
  * Checks current environment
- * 
+ *
  * Checks if current environment is ENVIRONMENT_BETA
  * @return bool true or false
  */
 function isBeta(){ return $_ENV['CURRENT_ENVIRONMENT'] == ENVIRONMENT_BETA; }
 /**
  * Checks current environment
- * 
+ *
  * Checks if current environment is ENVIRONMENT_SANDBOX
  * @return bool true or false
  */
 function isSandbox(){ return $_ENV['CURRENT_ENVIRONMENT'] == ENVIRONMENT_SANDBOX; }
 /**
  * Checks current environment
- * 
+ *
  * Checks if current environment is ENVIRONMENT_LIVE
  * @return bool true or false
  */
 function isLive(){ return $_ENV['CURRENT_ENVIRONMENT'] == ENVIRONMENT_LIVE; }
 /**
  * Checks current environment
- * 
+ *
  * Checks if current environment is not ENVIRONMENT_LIVE
  * @return bool true or false
  */
 function isNotLive(){ return $_ENV['CURRENT_ENVIRONMENT'] != ENVIRONMENT_LIVE; }
 /**
  * Checks current environment
- * 
+ *
  * Checks if current environment is ENVIRONMENT_DEV or ENVIRONMENT_BETA
  * @return bool true or false
  */
@@ -174,7 +174,7 @@ function isDevOrBeta(){ return $_ENV['CURRENT_ENVIRONMENT'] == ENVIRONMENT_DEV |
 
 /**
  * Sets a config value.
- * 
+ *
  * uses given arguments for key path like this:
  * <code php>
  * cfg_set('system','use_cfg','really',true);
@@ -204,7 +204,7 @@ function cfg_set(...$args)
 
 /**
  * Sets a config value only if it has not been set
- * 
+ *
  * See cfg_set() for usage and performance thoughts
  * @param mixed ...$args Path to setting and value
  * @return void
@@ -226,7 +226,7 @@ function cfg_setd(...$args)
 
 /**
  * Adds an entry to a config value array
- * 
+ *
  * See cfg_set() for usage and performance thoughts
  * @param mixed ...$args Path to setting and value
  * @return void
@@ -248,7 +248,7 @@ function cfg_add(...$args)
 
 /**
  * Gets a config value.
- * 
+ *
  * See cfg_set() for usage and performance thoughts
  * @param mixed ...$args Path to setting
  * @return mixed Config value
@@ -270,7 +270,7 @@ function cfg_get(...$args)
 
 /**
  * Gets a config value and uses the last argument given as default if it is not set.
- * 
+ *
  * See cfg_set() for usage and performance thoughts
  * @param mixed ...$args Path to setting and default value
  * @return mixed Config value
@@ -292,7 +292,7 @@ function cfg_getd(...$args)
 
 /**
  * Deletes a config value
- * 
+ *
  * See cfg_set() for usage and performance thoughts
  * @param mixed ...$args Path to setting
  * @return void
@@ -314,7 +314,7 @@ function cfg_del(...$args)
 
 /**
  * Checks if a config is set and throws an exception if not.
- * 
+ *
  * Last argument will be used as exception message.
  * See cfg_set() for usage and performance thoughts
  * @param mixed ...$args Path to setting
@@ -337,12 +337,12 @@ function cfg_check(...$args)
 
 /**
  * Adds a resource dir
- * 
+ *
  * @see prepend_resource_dir
  * @param string $path Path in local filesystem
  * @param string $url Relative URL how this can be reached
  * @param string $append_nc Use nocache handling true|false
- * @param string $ext Pipe (|) separated list of filename extensions 
+ * @param string $ext Pipe (|) separated list of filename extensions
  * @return void
  */
 function add_resource_dir($path,$url,$append_nc=true,$ext=false)
@@ -354,12 +354,12 @@ function add_resource_dir($path,$url,$append_nc=true,$ext=false)
 
 /**
  * Prepends a resource dir
- * 
+ *
  * @see add_resource_dir
  * @param string $path Path in local filesystem
  * @param string $url Relative URL how this can be reached
  * @param string $append_nc Use nocache handling true|false
- * @param string $ext Pipe (|) separated list of filename extensions 
+ * @param string $ext Pipe (|) separated list of filename extensions
  * @return void
  */
 function prepend_resource_dir($path,$url,$append_nc=true,$ext=false)
@@ -373,11 +373,11 @@ function prepend_resource_dir($path,$url,$append_nc=true,$ext=false)
 
 /**
  * Adds a WdfResource controlled resource dir
- * 
+ *
  * @see add_resource_dir
  * @param string $path Path in local filesystem
  * @param string $append_nc Use nocache handling true|false
- * @param string $ext Pipe (|) separated list of filename extensions 
+ * @param string $ext Pipe (|) separated list of filename extensions
  * @return void
  */
 function add_wdfresource_dir($path,$append_nc=true,$ext=false)
@@ -387,11 +387,11 @@ function add_wdfresource_dir($path,$append_nc=true,$ext=false)
 
 /**
  * Prepends a WdfResource controlled resource dir
- * 
+ *
  * @see prepend_resource_dir
  * @param string $path Path in local filesystem
  * @param string $append_nc Use nocache handling true|false
- * @param string $ext Pipe (|) separated list of filename extensions 
+ * @param string $ext Pipe (|) separated list of filename extensions
  * @return void
  */
 function prepend_wdfresource_dir($path,$append_nc=true,$ext=false)
@@ -401,7 +401,7 @@ function prepend_wdfresource_dir($path,$append_nc=true,$ext=false)
 
 /**
  * Sets the application version.
- * 
+ *
  * Use this when you update your app to a new version. It will create a new
  * nocache argument too so that all dependent files will be reloaded by your clients.
  * Will also affect minify module!
@@ -426,7 +426,7 @@ function setAppVersion($major,$minor,$build,$codename="",$nc_salt=false)
 
 /**
  * Updates the nc part of the global 'APP_VERSION'.
- * 
+ *
  * @param string $nc_salt Value to salt the NC with
  * @return void
  */
@@ -438,7 +438,7 @@ function updateAppNC($nc_salt)
 
 /**
  * Gets the application version.
- * 
+ *
  * If key is given, returns that part only.
  * @param string $key 'major','minor','build' or 'codename'
  * @return mixed Version array or the requested part of it
@@ -447,7 +447,7 @@ function getAppVersion($key=false)
 {
 	if( !isset($GLOBALS['APP_VERSION']) )
 		setAppVersion (0, 0, 0, "default");
-	
+
 	if( $key && isset($GLOBALS['APP_VERSION'][$key]) )
 		return $GLOBALS['APP_VERSION'][$key];
 	return $GLOBALS['APP_VERSION'];
@@ -455,7 +455,7 @@ function getAppVersion($key=false)
 
 /**
  * Check if SSL is in use
- * 
+ *
  * Returns true when the current request is SSL secured, else false
  * @return bool true or false
  */
@@ -466,8 +466,8 @@ function isSSL()
 
 /**
  * Returns current URL scheme
- * 
- * That is one of http, https, http:// or https:// 
+ *
+ * That is one of http, https, http:// or https://
  * @param bool $append_slashes If true appends '//' to the result
  * @return string The current scheme
  */
@@ -480,7 +480,7 @@ function urlScheme($append_slashes=false)
 
 /**
  * Ensures that the given path ends with a directory separator
- * 
+ *
  * As Windows works fine with '/' and all others use '/' we just use that instead
  * of `DIRECTORY_SEPARATOR`. That one actually makes problems in some cases.
  * @param string $path Path to be checked
@@ -500,7 +500,7 @@ function system_ensure_path_ending(&$path, $make_realpath=false)
 
 /**
  * Checks if a string starts with another one.
- * 
+ *
  * Shortcut for the lazy ones: `return strpos($string,$start) === 0`
  * You may also call this function with more parameters. In that case will check if
  * $string starts with any of the given strings: `$hit = starts_with('hello world','wow','rl','hello');`
@@ -533,7 +533,7 @@ function starts_iwith($string,...$start)
 
 /**
  * Checks if a string ends with another one.
- * 
+ *
  * Shortcut for the lazy ones: `return substr($string,strlen($string)-strlen($end)) == $end`
  * You may also call this function with more parameters. In that case will check if
  * $string ends with any of the given strings: `$hit = ends_with('hello world','wow','rl','ld');`
@@ -553,7 +553,7 @@ function ends_with($string,...$end)
 
 /**
  * Checks if a string ends with another one.
- * 
+ *
  * Same as <ends_with> but ignores case.
  * @param string $string String to check
  * @param string $end The end to be checked
@@ -572,7 +572,7 @@ function ends_iwith($string,...$end)
 
 /**
  * Tests if the first given argument is one of the others.
- * 
+ *
  * Use like this: `is_in('nice','Hello','nice','World')`
  * This is a shortcut for `in_array('nice',array('Hello','nice','World'))`.
  * @param mixed ...$args Needle and values to compare with
@@ -586,11 +586,11 @@ function is_in(...$args)
 
 /**
  * Tests if the first given argument contains one of the others.
- * 
+ *
  * First argument may be an array or a string.
  * If array, all entries will be checked for equality with at least one of the other given arguments.
  * If string, <contains> performs a <stripos> check with each other given argument and returns true if at least one matched.
- * Use like this: 
+ * Use like this:
  * <code php>
  * contains(array('Hello','nice','World'),'some','other','nice','words'); // true
  * contains('Hello nice World','some','other','nice','words'); // true
@@ -622,7 +622,7 @@ function contains(...$args)
 
 /**
  * Returns array value at key if it exists, else default is returned.
- * 
+ *
  * This is shortcut for `$val = (array_key_exists($key,$array) && $array[$key])?$array[$key]:$default;`
  * @param array $array The source array
  * @param mixed $key The key to be checked
@@ -638,10 +638,10 @@ function array_val($array,$key,$default=null)
 
 /**
  * Checks if an array contains key and if the value is needle
- * 
+ *
  * This is shortcut for
  * <code php>
- * if( array_key_exists($key,$array) && $array[$key]==$needle  ) 
+ * if( array_key_exists($key,$array) && $array[$key]==$needle  )
  *     ...;
  * </code>
  * @param array $array The source array
@@ -658,7 +658,7 @@ function array_val_is($array,$key,$needle)
 
 /**
  * Tests if 'we are' currently handling an ajax request
- * 
+ *
  * This is done by checking the `$_SERVER` variable and the request_id.
  * We set the request_id in plain requests in the SESSION and add it to AJAX requests so we can compare those two here.
  * @return bool true or false
@@ -685,7 +685,7 @@ function system_is_ajax_call()
 
 /**
  * Strips given tags from string
- * 
+ *
  * See http://www.php.net/manual/en/function.strip-tags.php#93567
  * @param string $str String to strip
  * @param array $tags Tags to be stripped
@@ -719,7 +719,7 @@ function strip_only(&$str, $tags)
 
 /**
  * Returns the ordinal number for a char
- * 
+ *
  * Code 'stolen' from php.net ;)
  * The following uniord function is simpler and more efficient than any of the ones suggested without
  * depending on mbstring or iconv.
@@ -736,7 +736,7 @@ function uniord($c)
 //    $k1 = ord(substr($k, 0, 1));
 //    $k2 = ord(substr($k, 1, 1));
 //    return $k2 * 256 + $k1;
-    
+
 	$h = ord($c[0]);
 	if ($h <= 0x7F) {
 		return $h;
@@ -758,7 +758,7 @@ function uniord($c)
 
 /**
  * Here's a PHP function which does just that when given a UTF-8 encoded string.
- * 
+ *
  * It's probably not the best way to do it, but it works:
  * See http://www.iamcal.com/understanding-bidirectional-text/
  * Uncommented PDF correction because it's too weak and kills some currency symbols in CurrencyFormat::Format
@@ -821,7 +821,7 @@ function unicode_cleanup_rtl($data)
 
 /**
  * Cleans an UTF8 string
- * 
+ *
  * See http://stackoverflow.com/a/3742879
  * @param string $str String to clean
  * @return string The clean string
@@ -833,7 +833,7 @@ function utf8_clean($str)
 
 /**
  * Return the client's IP address
- * 
+ *
  * Quite some logic to get that behind load-balancers and some proxies, but
  * works fine now ;)
  * @return string IP address
@@ -911,7 +911,7 @@ function get_ip_address()
 
 /**
  * Add a path to the classpath for autoloading classes
- * 
+ *
  * You can add complete trees with this when letting $recursive be true.
  * @param string $path folder name
  * @param bool $recursive add subfolders too?
@@ -927,7 +927,7 @@ function classpath_add($path, $recursive=true, $part=false)
 	$CONFIG['class_path'][$part][] = $path;
 	if( !in_array($part, $CONFIG['class_path']['order']) )
 		$CONFIG['class_path']['order'][] = $part;
-			
+
 	if( $recursive && is_dir($path) )
 	{
 		foreach( system_glob($path.'*', GLOB_MARK|GLOB_ONLYDIR|GLOB_NOSORT) as $sub )
@@ -937,7 +937,7 @@ function classpath_add($path, $recursive=true, $part=false)
 
 /**
  * Find pathnames matching a pattern.
- * 
+ *
  * glob() cant be used directly in foreach when [open_basedir](http://www.php.net/manual/en/ini.core.php#ini.open-basedir) is set.
  * See https://bugs.php.net/bug.php?id=47358 and <glob>
  * @param string $pattern The pattern. No tilde expansion or parameter substitution is done.
@@ -954,7 +954,7 @@ function system_glob($pattern, $flags = 0)
 
 /**
  * Lists all files of a directory recursively.
- * 
+ *
  * Note that default pattern in *.* thus only listing files with a dot in the name.
  * If you change that to '*' everything will be returned.
  * We use *.* a common filter for all files (yes, we know that this is wrong).
@@ -993,7 +993,7 @@ function system_walk_files($folder, $pattern, $callback, $recursive = true)
 
 /**
  * Checks if WDF_FEATURES_REWRITE is on
- * 
+ *
  * You can set it in .htaccess with `SetEnv WDF_FEATURES_REWRITE on`
  * Note that this check is case sensitive, so 'on' really means 'on' and not 'On' or '1'!
  * @return bool true or false
@@ -1002,7 +1002,7 @@ function can_rewrite(){ return array_val_is($_SERVER,'WDF_FEATURES_REWRITE','on'
 
 /**
  * Checks if WDF_FEATURES_NOCACHE is on
- * 
+ *
  * You can set it in .htaccess with `SetEnv WDF_FEATURES_NOCACHE on`
  * Note that this check is case sensitive, so 'on' really means 'on' and not 'On' or '1'!
  * @return bool true or false
@@ -1011,7 +1011,7 @@ function can_nocache(){ return array_val_is($_SERVER,'WDF_FEATURES_NOCACHE','on'
 
 /**
  * Natural sorts an array by it's keys.
- * 
+ *
  * This is a slightly modified version of one found in the PHP documentation.
  * See http://www.php.net/manual/en/function.ksort.php#54319
  * @param array $array Array to be sorted
@@ -1029,7 +1029,7 @@ function natksort(&$array)
 
 /**
  * Wraps something into an array if needed.
- * 
+ *
  * If fact does this: `return is_array($data)?$data:array($data);`
  * Note that for `is_null($data)` force_array will return an empty `[]`
  * @param mixed $data Anything you want to be an array if it is not aready
@@ -1045,7 +1045,7 @@ function force_array($data, $empty_for_null=true)
 
 /**
  * Casts an object to another type.
- * 
+ *
  * There are situations where PHP provides you with stdClasses where you want your own type.
  * This function casts any object into another one:
  * <code php>
@@ -1073,7 +1073,7 @@ function castObject($instance, $className)
 
 /**
  * Returns the classname for the given object.
- * 
+ *
  * This function ignores all namespace stuff and only return the good old classname.
  * Not sure if we will need it for a longer time, but in fact it IS needed for namespace redesign.
  * @param object $object The object to get the classname from
@@ -1089,7 +1089,7 @@ function get_class_simple($object, $lower_case=false)
 
 /**
  * Checks if an array is associative.
- * 
+ *
  * Stolen from [stackoverflow.com](http://stackoverflow.com/questions/173400/php-arrays-a-good-way-to-check-if-an-array-is-associative-or-sequential/4254008#4254008)
  * @param array $array Input array
  * @return bool true if $array contains at least one key that is not numeric
@@ -1101,7 +1101,7 @@ function is_assoc($array)
 
 /**
  * Returns the first property of an object that is not null.
- * 
+ *
  * Requires at least two parameters. The first must be an object or array to check.
  * All others represent property/key names that shall be checked for existance.
  * <code php>
@@ -1115,10 +1115,10 @@ function is_assoc($array)
 function ifnull(...$args)
 {
 	$data = array_shift($args);
-	
+
 	if( count($args) == 0 )
 		ScavixWDF\WdfException::Raise("ifnull needs at least one argument");
-	
+
 	if( is_array($data) )
 		$data = (object)$data;
 	if( !is_object($data) )
@@ -1136,7 +1136,7 @@ function ifnull(...$args)
 
 /**
  * Shorthand IF function.
- * 
+ *
  * This function is something similar to the ?: syntax for IF control structures.
  * Complicated to explain, here's a sample:
  * <code php>
@@ -1157,7 +1157,7 @@ function sif($condition,$true_value,$false_value)
 
 /**
  * Returns true if an object's/array's property/key is set.
- * 
+ *
  * <avail> is a shorthand function to recursively check if an object property or array key is present and set.
  * It needs at least two arguments: The object/array to check and a property/key to check. If you want to check
  * more deeply just add more arguments.
@@ -1211,7 +1211,7 @@ function avail(...$args)
 
 /**
  * Returns the first property of an object that is available.
- * 
+ *
  * See <ifnull> for a detailed description as this works the same way.
  * Difference is that this only checks against null but also if a value is set (weak comparison against false).
  * @param mixed ...$args Subject and property names to check for values
@@ -1220,10 +1220,10 @@ function avail(...$args)
 function ifavail(...$args)
 {
 	$data = array_shift($args);
-	
+
 	if( count($args) == 0 )
 		ScavixWDF\WdfException::Raise("ifavail needs at least one argument");
-	
+
 	if( is_array($data) )
 		$data = (object)$data;
 	if( !is_object($data) )
@@ -1349,7 +1349,7 @@ if( !function_exists('idn_to_utf8') )
                 );
         }
     }
-    
+
     /**
      * @internal Use own implementation if missing
      */
@@ -1358,7 +1358,7 @@ if( !function_exists('idn_to_utf8') )
 
 /**
  * Returns the first element of a given array.
- * 
+ *
  * @param array $array The array
  * @return mixed The first element
  */
@@ -1375,7 +1375,7 @@ function array_first($array)
 
 /**
  * Returns the last element of a given array.
- * 
+ *
  * @param array $array The array
  * @return mixed The last element
  */
@@ -1392,7 +1392,7 @@ function array_last($array)
 
 /**
  * Returns part of an array.
- * 
+ *
  * @param array $array The array
  * @param array $keys Array of keys you want to get
  * @return mixed Array of keys to return values for
@@ -1404,9 +1404,9 @@ function sub_array($array,$keys=[])
 
 /**
  * Returns the last requested file from a given URL.
- * 
+ *
  * Can handle "?wdf_route=" requests too, so is used in resource-collecting.
- * 
+ *
  * @param string $url The URL to parse
  * @return string The file path
  */
@@ -1414,7 +1414,7 @@ function get_requested_file($url)
 {
     if( strpos($url,'?wdf_route=') === false )
         return parse_url($url,PHP_URL_PATH);
-    
+
     parse_str(array_last(explode("?",$url,2)),$res);
     return $res['wdf_route'];
 }
@@ -1442,7 +1442,7 @@ if( !function_exists('getallheaders') )
 
 /**
  * Returns the app-specific temp folder. Creates it with 777 if it doesn't exist
- * 
+ *
  * @param string $subfolder Subfolder under the temp folder
  * @param bool $appendnc Append the current nc to the folder so that data is gone when nc changes
  * @return string The full path to the (sub-)folder
@@ -1450,7 +1450,7 @@ if( !function_exists('getallheaders') )
 function system_app_temp_dir($subfolder = '', $appendnc = true)
 {
     global $CONFIG;
-    
+
     if($subfolder)
     {
         if(starts_with($subfolder, '/'))
@@ -1467,10 +1467,10 @@ function system_app_temp_dir($subfolder = '', $appendnc = true)
 
     if($appendnc)
         $basedir .= getAppVersion('nc').'/';
-    
+
     if( substr(sprintf('%o', @fileperms($basedir)), -3) != '777' )
         @chmod($basedir, 0777);
-    
+
     $folder = $basedir.($subfolder ?: '');
     $folder = str_replace(['..'], [''], $folder);
     $folder = (stripos(PHP_OS, 'WIN') === 0)
@@ -1495,7 +1495,7 @@ function system_app_temp_dir($subfolder = '', $appendnc = true)
 
 /**
  * Returns an array of key-value pairs representing MIME types (keys) and file extensions (values).
- * 
+ *
  * @return array
  */
 function system_mime_map()
@@ -1685,7 +1685,7 @@ function system_mime_map()
 
 /**
  * Return file extension based on mimetype.
- * 
+ *
  * @see https://gist.github.com/alexcorvi/df8faecb59e86bee93411f6a7967df2c#gistcomment-2722664
  * @param string $mime Given mime type
  * @return string|bool extendion or false
@@ -1698,7 +1698,7 @@ function system_mime_to_extension($mime)
 
 /**
  * Guesses a MIME type from a filename based on the file extension.
- * 
+ *
  * @param string $filename The filename to check
  * @return string|false The detected MIME type or false
  */
@@ -1729,9 +1729,11 @@ function array_clean_assoc_or_sequence($array)
     return $array;
 }
 
-function system_get_caller($detailed = false)
+function system_get_caller($skip = 0, $detailed = false)
 {
     $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+    if( $skip>0 )
+        array_splice($trace, 0, min(count($trace), $skip));
     while (count($trace) < 3)
         $trace[] = ['file' => '(unknown)', 'line' => '(unknown)', 'function' => '(unknown)'];
     if (starts_with($trace[1]['file'], dirname(__SCAVIXWDF__)))
