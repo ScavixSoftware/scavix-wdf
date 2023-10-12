@@ -29,15 +29,15 @@
 
 
 (function(win,$,undefined)
-{ 
-    var document = win.document, 
-        location = document.location, 
-        console = win.console, 
+{
+    var document = win.document,
+        location = document.location,
+        console = win.console,
         Promise = win.Promise,
         URLSearchParams = win.URLSearchParams,
         Math = win.Math,
         originalXhr = $.ajaxSettings.xhr;
-        
+
     $.ajaxSetup(
     {
         cache:false,
@@ -68,20 +68,20 @@
             return req;
         }
     });
-        
-	var wdf = win.wdf = 
+
+	var wdf = win.wdf =
 	{
 		/* see http://api.jquery.com/jQuery.Callbacks/ */
 		ready: $.Callbacks('unique memory'),
 		ajaxReady: $.Callbacks('unique'),  // fires without args, just notifier
 		ajaxError: $.Callbacks('unique'),  // fires with args (XmlHttpRequest object, TextStatus, ResponseText)
 		exception: $.Callbacks('unique'),  // fires with string arg containing the message
-		
+
 		arg: function(name,url)
 		{
             if( !url ) url = location.search;
             url = url.split('?',2).pop();
-            
+
             if( typeof(URLSearchParams) === 'undefined' )
             {
                 var tmp, items = url.split("&");
@@ -95,13 +95,13 @@
             }
             return (new URLSearchParams(url)).get(name);
 		},
-        
+
         args: function(url)
 		{
             if( !url ) url = location.search;
             url = url.split('?',2).pop();
             var r = {};
-            
+
             if( typeof(URLSearchParams) === 'undefined' )
             {
                 var tmp, items = url.split("&");
@@ -116,17 +116,17 @@
             {
                 r[name] = val;
             });
-			    
+
             return r;
 		},
-		
+
 		validateHref: function(href)
 		{
 			if( this.settings.rewrite || typeof href != 'string' || href.match(/\?wdf_route/) )
 				return href;
             if( this.settings.site_root != href.substr(0,this.settings.site_root.length) )
                 return href;
-            
+
 			href = href.substr(this.settings.site_root.length);
 			var parts = href.split("/");
 			var url_path = this.settings.site_root + '?wdf_route='+encodeURIComponent((parts[0]||'')+"/"+(parts[1]||'')+"/");
@@ -137,14 +137,14 @@
 			}
 			return url_path;
 		},
-		
+
 		setCallbackDefault: function(name, func)
 		{
 			wdf[name].empty().add( func );
 			wdf[name]._add = wdf[name].add;
 			wdf[name].add = function( fn ){ wdf[name].empty()._add(fn); wdf[name].add = wdf[name]._add; delete(wdf[name]._add); };
 		},
-		
+
 		init: function(settings)
 		{
 			// prepare settings object
@@ -163,20 +163,20 @@
 			settings.url_path = settings.site_root + settings.route;
 			settings.focus_first_input = (settings.focus_first_input === undefined)?true:settings.focus_first_input;
 			settings.ajax_include_credentials = (settings.ajax_include_credentials === undefined)?false:settings.ajax_include_credentials;
-			
+
 			// Init
 			this.settings = settings;
 			this.request_id = settings.request_id;
-            
+
 			this.private.initLogging();
             if( !settings.skip_ajax_handling )
                 this.private.initAjax(settings.skip_dependency_loading);
-			
+
             wdf.get = this.private.ajax_function('get');
             wdf.post = this.private.ajax_function('post');
-			
-			// Shortcuts for current controller 
-			this.controller = 
+
+			// Shortcuts for current controller
+			this.controller =
             {
                 get: function( handler, data, callback )
 				{
@@ -209,10 +209,10 @@
                     }
                 });
 			}
-			
+
             this.resetPing();
 			this.setCallbackDefault('exception', function(msg){ alert(msg); });
-            
+
             if( !this.settings.rewrite ) // for now only for non-rewrite environments, theoretically this is generic
             {
                 // Edit GET forms: move args from their actions to hidden inputs
@@ -227,10 +227,10 @@
                     $(this).attr('action',a[0]);
                 });
             }
-            
+
 			this.ready.fire();
 		},
-		
+
 		resetPing: function()
 		{
             if( wdf.settings.no_ping )
@@ -246,7 +246,7 @@
 		{
 			this.redirect(this.settings.url_path);
 		},
-		
+
 		redirect: function(href,data)
 		{
 			if( typeof href == 'object' )
@@ -255,10 +255,10 @@
 				href = this.settings.url_path;
 			}
 			href = this.validateHref(href);
-			
+
 			if( !href.match(/\/\//) )
 				href = this.settings.site_root + href;
-			
+
 			if( typeof data == 'object' )
 			{
 				var cleaned = {};
@@ -267,7 +267,7 @@
 						cleaned[i] = data[i];
 				href += (this.settings.rewrite?"?":"&")+$.param(cleaned);
 			}
-			
+
 			if( location.href == href )
 				location.reload();
 			else
@@ -279,7 +279,7 @@
                     location.reload();
             }
 		},
-		
+
         private:
         {
             ajax_function: function(name)
@@ -345,7 +345,7 @@
                                     s.url += "&" + data.toString();
                                 else
                                     s.url += "?" + data.toString();
-                            }   
+                            }
                         }
                         else
                             s.data.request_id = wdf.request_id;
@@ -435,7 +435,7 @@
                                         s.original_success(param, status, ajax_obj);
                                     else if( param )
                                         $('body').append(param);
-                                    
+
                                     if( s.waitPromiseCounter == 1 )
                                         wp.done();
                                 });
@@ -491,17 +491,17 @@
                 wdf.info = function(){ perform_logging('info',arguments); };
             }
         },
-		
+
 		showScrollListLoadAnim: function()
 		{
 			$('#scrollloader_overlay_anim').fadeIn();
 		},
-		
+
 		resetScrollListLoader: function()
 		{
 			wdf.initScrollListLoader();
 		},
-		
+
 		scrollListLoaderHref: false,
 		scrollListLoaderContainer: false,
 		scrollListLoaderOffset: false,
@@ -510,7 +510,7 @@
 			if( href ) wdf.scrollListLoaderHref = this.validateHref(href);
 			wdf.scrollListLoaderContainer = target_container || wdf.scrollListLoaderContainer || 'body';
 			wdf.scrollListLoaderOffset = offset || 1;
-			
+
 			var trigger = $('#scrollloader_overlay_anim');
 			if( trigger.length === 0 )
 				trigger = $('<div/>').attr('id', 'scrollloader_overlay_anim').addClass('wdf_overlay_anim loadMoreContent_removable_trigger').insertAfter(wdf.scrollListLoaderContainer);
@@ -519,18 +519,18 @@
 			{
                 if( ($(win).scrollTop() + $(win).height()) < (trigger.position().top + trigger.height()) )
 					return;
-				
+
 				wdf.showScrollListLoadAnim();
 				$(win).unbind('scroll.loadMoreContent', scroll_handler);
 				wdf.get(wdf.scrollListLoaderHref,{offset:wdf.scrollListLoaderOffset},function(result)
 				{
 					if( typeof(result) != 'string' || result == "" )
 						return;
-                    
+
 					wdf.scrollListLoaderOffset++;
 					$(wdf.scrollListLoaderContainer).append(result);
 					$(win).unbind('scroll.loadMoreContent', scroll_handler).bind('scroll.loadMoreContent', scroll_handler);
-					
+
                     if( ($(win).scrollTop() + $(win).height()) >= (trigger.position().top + trigger.height()) )
                         scroll_handler();		// keep loading until it fills the page
 				});
@@ -538,7 +538,7 @@
 			$(win).bind('scroll.loadMoreContent', scroll_handler);
 			scroll_handler();		// load more content if page not filled yet
 		},
-		
+
 		stopScrollListLoader: function()
 		{
 			var trigger = $('#scrollloader_overlay_anim');
@@ -546,7 +546,7 @@
 				trigger = $('.loadMoreContent_removable_trigger');
 			trigger.fadeOut();
 		},
-        
+
         whenAvailable: function(name, callback)
         {
             win.setTimeout(function()
@@ -557,7 +557,7 @@
                     win.setTimeout(arguments.callee, 10);
             }, 10);
         },
-        
+
         getScrollParent: function(node)
         {
             if( node == null )
@@ -567,13 +567,13 @@
             else
                 return wdf.getScrollParent(node.parentNode);
         },
-        
+
         isScrolledIntoView: function (elem)
         {
             wdf.warn("wdf.isScrolledIntoView is deprecated, use $(elem).isScrolledIntoView() instead.");
             return $(elem).isScrolledIntoView();
         },
-        
+
         wait: function(timeout)
         {
             var res = new Promise(function(resolve,reject)
@@ -582,7 +582,7 @@
                 {
                     if( !res.terminate )
                         setTimeout(wait, 50);
-                    else if( res.terminate == 1 ) 
+                    else if( res.terminate == 1 )
                         return resolve();
                 };
                 setTimeout(wait, 50);
@@ -605,10 +605,10 @@
                     return result;
                 }
             });
-            
+
             return res;
         },
-        
+
         defer: function(callback,delay)
         {
             var context = win;
@@ -619,7 +619,7 @@
             }
             if( typeof callback == "string" )
                 callback = context[callback];
-                
+
             var res = wdf.wait(delay||1);
             if( (delay||0)>0 )
                 res.done = function(){};
@@ -628,20 +628,20 @@
             res.args = function()
             {
                 res.prms = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
-                res.done(); 
+                res.done();
                 return res;
             };
             return res;
         },
-        
+
         processCallback: function()
         {
             var args = (arguments.length === 1 ? [arguments[0]] : Array.apply(null, arguments));
-            
+
             var callback;
             if( args.length > 0 )
                 callback = args.shift();
-            
+
             if( !callback ) return;
             if( typeof callback == 'function' )
             {
@@ -652,7 +652,7 @@
                 return callback.done(args);
             }
         },
-        
+
         getProp: function (obj, props, def)
         {
             var isar = Object.prototype.toString.call(obj) == "[object Array]";
@@ -661,10 +661,10 @@
                 props = props.split(".");
             else if (typeof props === "number")
                 props = [props];
-            
+
             if( isar )
                 props = props.map(function(p){ return parseInt(p); });
-            
+
             var get = function(obj, pa, def)
             {
                 if (obj === undefined || obj === null)
@@ -675,7 +675,7 @@
             };
             return get(obj, props, def);
         },
-        
+
         toast: function(text,duration,speed)
         {
             var s = speed || 400, dur = duration || 3000;
@@ -689,7 +689,7 @@
                 'font-weight': '1em',
                 'z-index': '1000'
             };
-            
+
             var $toast = $('<div class="wdftoast" />').append(text).appendTo('body').css(css);
             $.extend($toast,
             {
@@ -732,7 +732,7 @@
                 },
                 colorize: function(backgroundColor,fontColor)
                 {
-                    if( backgroundColor[0] == '#' ) 
+                    if( backgroundColor[0] == '#' )
                         backgroundColor = backgroundColor.substr(1);
                     if( backgroundColor.length == 3)
                         backgroundColor = backgroundColor.replace(/(.)(.)(.)/,'$1$1$2$2$3$3');
@@ -744,18 +744,18 @@
                         'background-color': 'rgba('+rgb+',0.7)',
                         'box-shadow': 'rgba('+rgb+',1) 0px 0px 3px 3px',
                         'color': fontColor
-                    }); 
+                    });
                 },
                 red: function()
-                { 
+                {
                     return $toast.colorize('#f4351f','#000');
                 },
                 yellow: function()
-                { 
+                {
                     return $toast.colorize('#dad55e','#000');
                 },
                 green: function()
-                { 
+                {
                     return $toast.colorize('#60d124','#000');
                 }
             });
@@ -778,7 +778,7 @@
                     });
                     return t;
                 }
-            
+
                 if( wdf.controller )
                 {
                     wdf.controller.get('wdfgettext',{id:name},function(d)
@@ -819,15 +819,15 @@
             var id = Math.random().toString(36).substr(2)+Math.random().toString(36).substr(2);
             state = {id: id,data:html,prevurl:location.href};
             wdf.pushedStates.push(state);
-            
+
             win.history.pushState({}, '', '#'+id);
         },
-        
+
         RegisterElement: function(extends_tag,element_name,definition)
         {
             customElements.define(element_name,definition,{ extends: extends_tag });
         },
-        
+
         ExtendElement: function(superclass)
         {
             return class extends superclass
@@ -835,8 +835,8 @@
                 constructor()
                 {
                     super();
-                    
-                    this.lifecycle = 
+
+                    this.lifecycle =
                     {
                         'wdf-onconnected': function()
                         {
@@ -859,13 +859,11 @@
                     {
                         case 'undefined': break;
                         case 'function':
-                            let me = this;
-                            wdf.defer(() => {
-                                me.lifecycle[name].call(me);
-                                this.lifecycle[name] = true;
-                            });
+                            let me = this, cb = this.lifecycle[name];
+                            this.lifecycle[name] = true;
+                            wdf.defer(() => { cb.call(me); });
                             break;
-                        default: 
+                        default:
                             this.lifecycle[name] = true;
                             return;
                     }
@@ -887,7 +885,7 @@
             };
         }
 	};
-	
+
 	if( typeof win.Debug != "function" )
 	{
 		win.Debug = function()
@@ -895,14 +893,14 @@
 			wdf.debug("Deprecated debug function called! Use wdf.debug() instead.");
 		};
 	}
-	
+
 	$.fn.enumAttr = function(attr_name)
 	{
 		var attr = [];
 		this.each( function(){ if( $(this).attr(attr_name) ) attr.push($(this).attr(attr_name)); } );
 		return attr;
 	};
-	
+
 	$.fn.overlay = function(method,callback)
 	{
         if( !callback && typeof method == 'function' )
@@ -918,7 +916,7 @@
 		return $(this).each(function()
 		{
             var elem = $(this);
-            
+
 			if( method === 'remove' )
 			{
                 elem.removeData('resize_wdf_overlay');
@@ -935,7 +933,7 @@
 			}
 			var isTab = elem.is('.table'),
                 topleft = elem, bottomright = elem;
-                
+
             if( isTab )
             {
                 if( elem.prev('.pager').length>0 )
@@ -943,7 +941,7 @@
                 if( elem.next('.pager').length>0 )
                     bottomright = elem.next('.pager');
             }
-            
+
             var ol = $('<div class="wdf_overlay"/>')
                 .append('<div class="lds-ripple"><div></div><div></div></div>')
 				.appendTo(elem).show()
@@ -953,7 +951,7 @@
                 {
                     wdf.processCallback(callback);
                 });
-            
+
             var resizer = function()
             {
                 if( !elem.data('resize_wdf_overlay') )
@@ -963,7 +961,7 @@
                     tl = topleft.get(0).getBoundingClientRect(),
                     br = bottomright.get(0).getBoundingClientRect(),
                     rect = {
-                        left: tl.left + win.pageXOffset - offset.left, 
+                        left: tl.left + win.pageXOffset - offset.left,
                         top: tl.top + win.pageYOffset - offset.top,
                         width: Math.max(e.right,tl.right,br.right) - Math.min(e.left,tl.left,br.left),
                         height: Math.max(e.bottom,tl.bottom,br.bottom) - Math.min(e.top,tl.top,br.top)
@@ -980,7 +978,7 @@
                     rect.left = 0;
                     rect.width = Math.min(rect.width,$(win).width());
                 }
-                
+
                 ol.css(rect);
                 setTimeout(resizer,100);
             };
@@ -988,7 +986,7 @@
             resizer();
 		});
 	};
-	
+
     $.fn.posFrom = function(elem,xOffset,yOffset)
 	{
         var e = $(elem).get(0), r = e?e.getBoundingClientRect():{left:0,top:0};
@@ -997,7 +995,7 @@
 			$(this).css({left: r.left+win.pageXOffset+(xOffset||0), top: r.top+win.pageYOffset+(yOffset||0)});
 		});
 	};
-    
+
 	$.fn.sizeFrom = function(elem,add_width,add_height)
 	{
 		return this.each(function()
@@ -1005,13 +1003,13 @@
 			$(this).width( elem.width() + (add_width||0) ).height( elem.height() + (add_height||0) );
 		});
 	};
-    
+
     $.fn.removeDialog = function()
     {
         try{ $(this).dialog("close"); }catch(noop){}
         $(this).remove();
     };
-    
+
     $.fn.isScrolledIntoView = function()
     {
         var docViewTop = $(win).scrollTop();
