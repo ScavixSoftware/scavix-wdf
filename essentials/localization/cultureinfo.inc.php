@@ -3155,7 +3155,7 @@ function internal_getCultureInfo($cultureCode)
                                 return $regions[0]->DefaultCulture();
                         }
                     }
-                    if(!in_array($cultureCode, ['ig', 'bs']))         // don't log the ones we know are faulty
+                    if(!in_array($cultureCode, ['ig', 'bs', 'iv']))         // don't log the ones we know are faulty
                     {
                         $key = __METHOD__.' unknown culture: '.$cultureCode;
                         if(!globalcache_get($key))
@@ -3667,9 +3667,8 @@ function internal_getCultureCodeFromRegion($region)
 		case 'SY': return array('syr-SY','ar-SY');
 		case 'MV': return array('dv-MV');
 		case 'IQ': return array('ar-IQ');
-		case 'CN':
-		case 'ZH':
-			return array('zh-CN','mn-Mong-CN','ii-CN','bo-CN','ug-CN');
+		case 'CN': return array('zh-CN','mn-Mong-CN','ii-CN','bo-CN','ug-CN');
+		case 'ZH': return array('zh-CN');
 		case 'CH': return array('de-CH','it-CH','fr-CH','rm-CH');
 		case 'GB': return array('en-GB','gd-GB','cy-GB');
 		case 'MX': return array('es-MX');
