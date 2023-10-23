@@ -31,14 +31,14 @@
 namespace ScavixWDF\Localization;
 
 /**
- * @internal 
+ * @internal
  * @suppress PHP0419
  */
 function internal_getCultureInfo($cultureCode)
 {
     if(stripos("$cultureCode", '.utf-8'))          // might be something like "en_US.UTF-8"
         $cultureCode = str_ireplace('.utf-8', '', "$cultureCode");
-    
+
 	switch( strtolower( str_replace("_", "-", "$cultureCode")) )
 	{
 		case 'en-us':
@@ -3121,12 +3121,12 @@ function internal_getCultureInfo($cultureCode)
 			$ci->Region = internal_getRegion('US');
 			$ci->Parent = internal_getLanguage('es');
 			return $ci;
-			
+
 		case '':
 		case '*':
 			return false;
 			break;
-            
+
         default:
             // this might be only a language, so get the default region
             $regions = internal_getRegionsForLanguage($cultureCode);
@@ -3165,15 +3165,15 @@ function internal_getCultureInfo($cultureCode)
                         }
                     }
 					return false;
-				} 
-            }                
+				}
+            }
             break;
 	}
 	return false;
 }
 
 /**
- * @internal 
+ * @internal
  */
 function internal_getDateTimeFormat($cultureCode)
 {
@@ -3606,7 +3606,7 @@ function internal_getDateTimeFormat($cultureCode)
 }
 
 /**
- * @internal 
+ * @internal
  */
 function internal_getCultureCodeFromRegion($region)
 {
@@ -3667,7 +3667,9 @@ function internal_getCultureCodeFromRegion($region)
 		case 'SY': return array('syr-SY','ar-SY');
 		case 'MV': return array('dv-MV');
 		case 'IQ': return array('ar-IQ');
-		case 'CN': return array('zh-CN','mn-Mong-CN','ii-CN','bo-CN','ug-CN');
+		case 'CN':
+		case 'ZH':
+			return array('zh-CN','mn-Mong-CN','ii-CN','bo-CN','ug-CN');
 		case 'CH': return array('de-CH','it-CH','fr-CH','rm-CH');
 		case 'GB': return array('en-GB','gd-GB','cy-GB');
 		case 'MX': return array('es-MX');
@@ -3744,7 +3746,7 @@ function internal_getCultureCodeFromRegion($region)
 }
 
 /**
- * @internal 
+ * @internal
  * @param string $code
  */
 function internal_getRegion($code)
@@ -3883,7 +3885,7 @@ function internal_getRegion($code)
 }
 
 /**
- * @internal 
+ * @internal
  * @param string $code
  */
 function internal_getRegionsForLanguage($code)
@@ -3965,7 +3967,7 @@ function internal_getRegionsForLanguage($code)
 }
 
 /**
- * @internal 
+ * @internal
  * @param string $code
  */
 function internal_getLanguage($code)
@@ -4038,8 +4040,8 @@ function internal_getLanguage($code)
 		case 'syr': return new CultureInfo('syr','','syr','Syriac','ܣܘܪܝܝܐ','1');
 		case 'dv': return new CultureInfo('dv','','dv','Divehi','ދިވެހިބަސް','1');
 		case 'zh-chs': return new CultureInfo('zh-CHS','zh-Hans','zh','Chinese (Simplified)','中文(简体)','0');
-		case 'es': 
-		case 'ast': 
+		case 'es':
+		case 'ast':
             return new CultureInfo('es','','es','Spanish','Español','0');
 		case 'sr': return new CultureInfo('sr','','sr','Serbian','Srpski','0');
 		case 'am-et': return internal_getCultureInfo('am-ET');
@@ -4118,7 +4120,7 @@ function internal_getLanguage($code)
 }
 
 /**
- * @internal 
+ * @internal
  * @param string $code
  */
 function internal_getCulturesByCurrency($code)
@@ -4233,7 +4235,7 @@ function internal_getCulturesByCurrency($code)
 }
 
 /**
- * @internal 
+ * @internal
  */
 function internal_getAllCurrencyCodes()
 {
@@ -4241,7 +4243,7 @@ function internal_getAllCurrencyCodes()
 }
 
 /**
- * @internal 
+ * @internal
  */
 function internal_getAllCultureCodes()
 {
@@ -4249,7 +4251,7 @@ function internal_getAllCultureCodes()
 }
 
 /**
- * @internal 
+ * @internal
  */
 function internal_getAllRegionCodes()
 {
@@ -4257,7 +4259,7 @@ function internal_getAllRegionCodes()
 }
 
 /**
- * @internal 
+ * @internal
  */
 function internal_getAllLanguageCodes()
 {
