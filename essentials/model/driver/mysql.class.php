@@ -31,6 +31,7 @@
 namespace ScavixWDF\Model\Driver;
 
 use DateTime;
+use Exception;
 use PDO;
 use ScavixWDF\Model\ColumnSchema;
 use ScavixWDF\Model\ResultSet;
@@ -40,7 +41,7 @@ use ScavixWDF\WdfDbException;
 
 /**
  * MySQL database driver.
- * 
+ *
  */
 class MySql implements IDatabaseDriver
 {
@@ -57,12 +58,12 @@ class MySql implements IDatabaseDriver
 		$this->_ds = $datasource;
 		$this->_pdo = $pdo;
         if(isset($CONFIG['model'][$datasource->_storage_id]) && isset($CONFIG['model'][$datasource->_storage_id]['bufferedquery']) && $CONFIG['model'][$datasource->_storage_id]['bufferedquery'])
-            $this->_pdo->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true); 
-        
+            $this->_pdo->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
+
         $charset = 'utf8';
         if(isset($CONFIG['model'][$datasource->_storage_id]) && isset($CONFIG['model'][$datasource->_storage_id]['charset']) && $CONFIG['model'][$datasource->_storage_id]['charset'])
             $charset = $CONFIG['model'][$datasource->_storage_id]['charset'];
-        
+
         $mode = $this->_pdo->query("SELECT @@SESSION.sql_mode; SET CHARACTER SET $charset; SET NAMES $charset;")
             ->finishScalar();
         if( stripos($mode,"STRICT_ALL_TABLES")!==false || stripos($mode,"STRICT_TRANS_TABLES")!==false )
@@ -106,7 +107,7 @@ class MySql implements IDatabaseDriver
 		$sql = "show columns from `$tablename`";
 		foreach($this->_pdo->query($sql)->finishAll() as $row)
 		{
-			
+
 			$size = false;
 			if( preg_match('/([a-zA-Z]+)\(*(\d*)\)*/',$row['Type'],$match) )
 			{
@@ -124,20 +125,26 @@ class MySql implements IDatabaseDriver
 			$col->Default = $row['Default'];
 			$col->Extra = $row['Extra'];
 			$res->Columns[] = $col;
-            
+
             if( $col->Type == 'longtext' )
             {
-                $db = $this->_ds->Database();
-                $sql = "SELECT 1 FROM information_schema.CHECK_CONSTRAINTS cc WHERE cc.CONSTRAINT_SCHEMA='$db' AND cc.TABLE_NAME='$tablename' AND cc.CHECK_CLAUSE LIKE 'json_valid(%'";
-                $q = $this->_pdo->query($sql);
-                if( $q && $q->finishScalar() )
-                    $col->Type = 'json';
+				try
+				{
+					$db = $this->_ds->Database();
+					$sql = "SELECT 1 FROM information_schema.CHECK_CONSTRAINTS cc WHERE cc.CONSTRAINT_SCHEMA='$db' AND cc.TABLE_NAME='$tablename' AND cc.CHECK_CLAUSE LIKE 'json_valid(%'";
+					$q = $this->_pdo->query($sql);
+					if( $q && $q->finishScalar() )
+						$col->Type = 'json';
+				}
+				catch (Exception $e)
+				{
+				}
             }
 		}
 
 		return $res;
 	}
-    
+
 	/**
 	 * @implements <IDatabaseDriver::getTableSchema>
 	 */
@@ -156,7 +163,7 @@ class MySql implements IDatabaseDriver
             $um = umask(0);
             $dir = '/run/shm/wdf-'.md5(__SCAVIXWDF__.(defined("DATABASE_VERSION")?'-'.DATABASE_VERSION:''));
             @mkdir($dir,0777,true);
-            
+
             $schemafile = $dir."/".md5($this->_ds->GetDsn()."/$tablename").".schema";
             $fmt = @filemtime($schemafile);
             if( $fmt && ((time()-$fmt) < 300) )
@@ -167,7 +174,7 @@ class MySql implements IDatabaseDriver
                 $res->Keys = isset($schema['keys'])?$schema['keys']:[];
             }
         }
-        
+
         if( !$res->CreateCode )
         {
             $sql = 'SHOW CREATE TABLE `'.$tablename.'`';
@@ -178,7 +185,7 @@ class MySql implements IDatabaseDriver
             $res->CreateCode = $tableSql->finishScalar(1);
 			$save_needed = true;
         }
-        
+
         if( !count($res->Columns) )
         {
             $sql = "show full columns from `$tablename`";
@@ -207,11 +214,17 @@ class MySql implements IDatabaseDriver
 
                 if( $col->Type == 'longtext' )
                 {
-                    $db = $this->_ds->Database();
-                    $sql = "SELECT 1 FROM information_schema.CHECK_CONSTRAINTS cc WHERE cc.CONSTRAINT_SCHEMA='$db' AND cc.TABLE_NAME='$tablename' AND cc.CHECK_CLAUSE LIKE 'json_valid(%'";
-                    $q = $this->_pdo->query($sql);
-                    if( $q && $q->finishScalar() )
-                        $col->Type = 'json';
+					try
+					{
+						$db = $this->_ds->Database();
+						$sql = "SELECT 1 FROM information_schema.CHECK_CONSTRAINTS cc WHERE cc.CONSTRAINT_SCHEMA='$db' AND cc.TABLE_NAME='$tablename' AND cc.CHECK_CLAUSE LIKE 'json_valid(%'";
+						$q = $this->_pdo->query($sql);
+						if ($q && $q->finishScalar())
+							$col->Type = 'json';
+					}
+					catch (Exception $e)
+					{
+					}
                 }
             }
 			$save_needed = true;
@@ -261,7 +274,7 @@ class MySql implements IDatabaseDriver
 	{
         if(isset($this->_tableexistbuffer[$tablename]))
             return $this->_tableexistbuffer[$tablename];
-        
+
         $sql = 'SHOW TABLES LIKE ?';
 		$stmt = $this->_pdo->prepare($sql);
 		$stmt->setFetchMode(PDO::FETCH_NUM);
@@ -273,7 +286,7 @@ class MySql implements IDatabaseDriver
 		$ret = is_array($row) && count($row)>0;
         $this->_tableexistbuffer[$tablename] = $ret;
         return $ret;
-        
+
 //        $sql = 'SHOW TABLES LIKE '.$this->_pdo->quote($tablename).';';
 //        return $this->_pdo->exec($sql) > 0;
 	}
@@ -313,7 +326,7 @@ class MySql implements IDatabaseDriver
 		{
 			if( isset($pks2[$col]) || !$model->HasColumn($col) )
 				continue;
-			
+
 			// isset returns false too if $this->$col is set to NULL, so we need some more logic here
 			if( !isset($model->$col) )
 			{
@@ -325,7 +338,7 @@ class MySql implements IDatabaseDriver
 				if( !isset($ovars[$col]) )
 					continue;
 			}
-			
+
 			$tv = $model->TypedValue($col);
 			if( is_string($tv) && (starts_iwith($tv,"now()") || starts_iwith($tv,"current_timestamp()")) )
 			{
@@ -350,12 +363,12 @@ class MySql implements IDatabaseDriver
 					$args["$argn"] = @json_encode($args["$argn"]);
 			}
 		}
-		
+
 		if( $model->_saved )
 		{
 			if( count($cols) == 0 )
 				return false;
-			
+
 			$sql  = "UPDATE `".$model->GetTableName()."`";
 			$sql .= " SET ".implode(",",$cols);
 			$sql .= " WHERE ".implode(" AND ",$pkcols);
@@ -370,14 +383,14 @@ class MySql implements IDatabaseDriver
 		}
 		return new ResultSet($this->_ds, $this->_pdo->prepare($sql));
 	}
-	
+
 	/**
 	 * @implements <IDatabaseDriver::getDeleteStatement>
 	 */
 	function getDeleteStatement($model,&$args)
 	{
 		$pks = $model->GetPrimaryColumns();
-		$cols = [];		
+		$cols = [];
 		foreach( $pks as $col )
 		{
 			if( isset($model->$col) )
@@ -388,11 +401,11 @@ class MySql implements IDatabaseDriver
 		}
 		if( count($cols) == 0 )
 			return false;
-		
+
 		$sql = "DELETE FROM `".$model->GetTableName()."` WHERE ".implode(" AND ",$cols)." LIMIT 1";
 		return new ResultSet($this->_ds, $this->_pdo->prepare($sql));
 	}
-	
+
 	/**
 	 * @implements <IDatabaseDriver::getPagedStatement>
 	 */
@@ -405,7 +418,7 @@ class MySql implements IDatabaseDriver
 		$sql .= " LIMIT $offset,$items_per_page";
 		return new ResultSet($this->_ds, $this->_pdo->prepare($sql));
 	}
-	
+
 	/**
 	 * @implements <IDatabaseDriver::getPagingInfo>
 	 */
@@ -413,7 +426,7 @@ class MySql implements IDatabaseDriver
 	{
 		if( !preg_match('/LIMIT\s+([\d\s,]+)/i', $sql, $amounts) )
 			return false;
-		
+
 		$amounts = explode(",",$amounts[1]);
 		if( count($amounts) > 1 )
 			list($offset,$length) = $amounts;
@@ -421,13 +434,13 @@ class MySql implements IDatabaseDriver
 			list($offset,$length) = array(0,$amounts[0]);
 		$offset = intval($offset);
 		$length = intval($length);
-		
+
         $key = 'DB_Cache_FoundRows_'.md5($sql.serialize($input_arguments));
         $found_rows = cache_get($key,false,false,true);
         if( $found_rows === false )
         {
             $sql = preg_replace("/(\/\*BEG-ORDER\*\/)(.*)(\/\*END-ORDER\*\/)/",'', $sql);
-            
+
             $sql_limit = preg_replace("/\/\*BEG-LIMIT\*\/.+\/\*END-LIMIT\*\//",'', $sql);
             $sql = ($sql_limit == $sql)
                 ?preg_replace('/LIMIT[\s0-9,]+$/i','',$sql)
@@ -437,7 +450,7 @@ class MySql implements IDatabaseDriver
             $sql = ($sql_columns == $sql)
                 ?((stripos($sql, 'select * from') === 0)?"SELECT 1 FROM".substr($sql,13):$sql)
                 :$sql_columns;
-            
+
             $ok = $this->_ds->ExecuteScalar("SELECT count(1) FROM ($sql) AS x",
                 is_null($input_arguments)?[]:array_clean_assoc_or_sequence($input_arguments)
             );
@@ -449,7 +462,7 @@ class MySql implements IDatabaseDriver
         }
         else
             $total = intval($found_rows);
-        
+
 		return array
 		(
 			'rows_per_page'=> $length,
@@ -459,7 +472,7 @@ class MySql implements IDatabaseDriver
 			'offset'       => $offset,
 		);
 	}
-	
+
 	/**
 	 * @implements <IDatabaseDriver::Now>
 	 */
@@ -469,7 +482,7 @@ class MySql implements IDatabaseDriver
             return 'NOW()';
 		return "(NOW() + INTERVAL $seconds_to_add SECOND)";
 	}
-    
+
 	/**
 	 * @implements <IDatabaseDriver::PreprocessSql>
 	 */
