@@ -327,6 +327,10 @@ class MySql implements IDatabaseDriver
 			if( isset($pks2[$col]) || !$model->HasColumn($col) )
 				continue;
 
+            /* DEPRECATED! We do not set dynamic properties anymore but handle them via __get/__set.
+                           This dynamic-property based handling produces errors when values are set to NULL because 'get_object_vars' will not return them anymore.
+                           On the other hand, it is simply not needed because of the __get/__set handling.
+
 			// isset returns false too if $this->$col is set to NULL, so we need some more logic here
 			if( !isset($model->$col) )
 			{
@@ -338,6 +342,7 @@ class MySql implements IDatabaseDriver
 				if( !isset($ovars[$col]) )
 					continue;
 			}
+            */
 
 			$tv = $model->TypedValue($col);
 			if( is_string($tv) && (starts_iwith($tv,"now()") || starts_iwith($tv,"current_timestamp()")) )

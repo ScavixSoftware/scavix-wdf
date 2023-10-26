@@ -49,7 +49,7 @@ use function unserializer_active;
 
 /**
  * This is base class for data objects.
- * 
+ *
  * It provides all the stuff to handle DB access really simple following the
  * ActiveRecord paradigm.
  * Implements Iterator, Countable and ArrayAccess for ease of use in for and foreach loops.
@@ -80,14 +80,14 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
 	/**
 	 * Derivered classes must implement this and return the table name they are stored in.
-	 * 
+	 *
 	 * @return string Table name
 	 */
 	abstract function GetTableName();
-    
+
 	/**
 	 * Derivered classes can override this to create their table.
-	 * 
+	 *
 	 * @return void
 	 */
     protected function CreateTable(){}
@@ -97,7 +97,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 */
 	public static $DefaultDatasource = false;
     public static $SaveDelayed = false;
-	
+
 	protected static $_schemaCache = [];
 	protected static $_typeMap = [];
 	protected $_className = false;
@@ -122,34 +122,34 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	protected $_index = 0;
 	public $_fieldValues = [];
 	protected $_dbValues = [];
-	
+
 	public $_querySql = false;
 	public $_queryArgs = [];
-	
+
 	public $_saved = false;
 
 	/**
 	 * @implements <Iterator::rewind>
 	 */
 	function rewind():void { $this->_index = 0; }
-	
+
 	/**
 	 * @implements <Iterator::current>
 	 */
     #[\ReturnTypeWillChange]
     function current(){ $this->__ensureResults(); return isset($this->_results[$this->_index])?$this->_results[$this->_index]:null; }
-	
+
 	/**
 	 * @implements <Iterator::key>
 	 */
     #[\ReturnTypeWillChange]
     function key() { return $this->_index; }
-	
+
 	/**
 	 * @implements <Iterator::next>
 	 */
     function next():void { $this->_index++; }
-	
+
 	/**
 	 * @implements <Iterator::valid>
 	 */
@@ -166,7 +166,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		else
 			$this->$offset = $value;
 	}
-	
+
 	/**
 	 * @implements <ArrayAccess::offsetExists>
 	 */
@@ -177,7 +177,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			return isset($this->_results[$offset]);
 		return isset($this->$offset);
 	}
-	
+
 	/**
 	 * @implements <ArrayAccess::offsetUnset>
 	 */
@@ -189,7 +189,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		else
 			unset($this->$offset);
 	}
-	
+
 	/**
 	 * @implements <ArrayAccess::offsetGet>
 	 */
@@ -204,14 +204,14 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
 	/**
 	 * Returns the amount of results in the current query.
-	 * 
+	 *
 	 * @return int Amount of results
 	 */
 	function count():int { $this->__ensureResults(); return count($this->_results); }
-	
+
 	/**
 	 * Returns an array containing all results.
-	 * 
+	 *
 	 * In fact you may use the <Model> itself in foreach loops or stuff, but sometimes
 	 * it is better to get a plain array. For example if you need to test with `is_array`.
 	 * @return array Array of results (may be empty)
@@ -220,15 +220,15 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
 		if( $this->_query )
 		{
-			$this->__ensureResults(); 
+			$this->__ensureResults();
 			return $this->_results;
 		}
 		return array($this);
 	}
-	
+
 	/**
 	 * Enumerates all values from a column of the current result.
-	 * 
+	 *
 	 * <code php>
 	 * $emails = MyModel::Make()->lt('id',1000)->enumerate('email',true);
 	 * </code>
@@ -244,7 +244,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
         {
 			if( $distinct && in_array($tmp->$property_or_fieldname, $res) )
 				continue;
-            
+
             if( $key_column_name && is_string($key_column_name) )
                 $res[$tmp->$key_column_name] = $tmp->$property_or_fieldname;
             else
@@ -255,24 +255,24 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
 	/**
 	 * Returns true is this is a query, false if this represents a datatset
-	 * 
+	 *
 	 * @return bool true or false
 	 */
 	public function IsQuery()
 	{
 		return $this->_query;
 	}
-	
+
 	/**
 	 * Returns true is this is a dataset, false if this represents a query
-	 * 
+	 *
 	 * @return bool true or false
 	 */
 	public function IsRow()
 	{
 		return !$this->IsQuery();
 	}
-	
+
 	/**
 	 * @shortcut <ResultSet::LogDebug>
 	 */
@@ -281,7 +281,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$this->__ensureResults();
 		$this->_ds->LastStatement->LogDebug();
 	}
-    
+
     function __toString()
     {
         return get_class($this)." ".json_encode($this->AsArray());
@@ -312,12 +312,12 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		else
 			$this->__constructed($datasource);
 	}
-	
+
 	function __constructed($datasource=null)
 	{
 		if( $datasource && !($datasource instanceof DataSource) )
 			WdfDbException::Raise("Invalid argument. Object of type DataSource expected",$datasource);
-		
+
         $this->_ds = $datasource;
 		if( $this->_ds )
 		{
@@ -329,7 +329,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		else
 			log_trace("Missing datasource argument");
     }
-	
+
 	function __wakeup()
 	{
 		if( isset($this->_query) )
@@ -342,7 +342,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			$this->$cn = $q->$cn;
 		$this->__init_db_values();
 	}
-	
+
 	function __init_db_values($known_as_empty=false, $convert_now_values=false, $column_filter=false)
 	{
 		$this->_saved = !$known_as_empty;
@@ -370,12 +370,12 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			}
 		}
 	}
-	
+
 	private function __typeOf($column_name)
 	{
 		if( isset(self::$_typeMap[$this->_cacheKey][$column_name]) )
 			self::$_typeMap[$this->_cacheKey][$column_name];
-				
+
 		if( !$this->_tableSchema )
 			$this->__ensureTableSchema();
 		if( $res = $this->_tableSchema->TypeOf($column_name) )
@@ -390,21 +390,21 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		}
 		return false;
 	}
-	
+
 	private function __typedValue($column_name,$convert_now_value=false)
 	{
 		if( !isset($this->$column_name) )
 			return null;
 		return $this->__toTypedValue($column_name, $this->$column_name,$convert_now_value);
 	}
-	
+
 	private function __toTypedValue($column_name,$value, $convert_now_value=false)
 	{
 		if( isset(self::$_typeMap[$this->_cacheKey][$column_name]) )
 			$t = self::$_typeMap[$this->_cacheKey][$column_name];
 		else
 			$t = $this->__typeOf($column_name);
-		
+
 		switch( $t )
 		{
 			case 'int':
@@ -433,14 +433,14 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		}
 		return $value;
 	}
-	
+
 	private function __toTypedSQLValue($column_name,$value)
 	{
 		if( isset(self::$_typeMap[$this->_cacheKey][$column_name]) )
 			$t = self::$_typeMap[$this->_cacheKey][$column_name];
 		else
 			$t = $this->__typeOf($column_name);
-		
+
 		switch( $t )
 		{
 			case 'int':
@@ -496,23 +496,23 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$this->_results = false;
 		$this->_index = 0;
 	}
-	
+
 	protected function __ensureTableSchema()
 	{
         if( $this->_tableSchema )
 			return $this->_tableSchema;
-		
+
 		if( !$this->_ds )
 			WdfDbException::Raise("Missing Datasource");
-		
+
 		if( !isset(self::$_schemaCache[$this->_cacheKey]) )
 		{
 			$dbex = false;
             $tab = $this->GetTableName();
             try
             {
-                self::$_schemaCache[$this->_cacheKey] 
-                    = $this->_tableSchema 
+                self::$_schemaCache[$this->_cacheKey]
+                    = $this->_tableSchema
                     = $this->_ds->Driver->getTableSchema($tab);
             }
             catch(\PDOException $dbex){}
@@ -522,8 +522,8 @@ abstract class Model implements Iterator, Countable, ArrayAccess
                 if( !$this->_ds->Driver->tableExists($tab) )
                 {
                     $this->CreateTable();
-                    self::$_schemaCache[$this->_cacheKey] 
-                        = $this->_tableSchema 
+                    self::$_schemaCache[$this->_cacheKey]
+                        = $this->_tableSchema
                         = $this->_ds->Driver->getTableSchema($tab);
                 }
                 else
@@ -536,10 +536,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		}
 		if( !($this->_tableSchema) )
 			WdfDbException::Raise("Error using table schema");
-		
+
 		return $this->_tableSchema;
 	}
-	
+
 	protected function __ensureResults($ctor_args=null)
 	{
 		if( $this->_results === false )
@@ -549,10 +549,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			$this->_index = 0;
 		}
 	}
-	
+
 	/**
 	 * Returns a single value from the first result object in the query.
-	 * 
+	 *
 	 * <code php>
 	 * $name = $ds->Query('sometable')->eq('id')->scalar('name');
 	 * </code>
@@ -584,7 +584,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		}
 		return $default;
 	}
-	
+
 	/**
 	 * @shortcut <ResultSet::GetPagingInfo>
 	 */
@@ -593,10 +593,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$this->__ensureResults();
 		return $this->_query->GetPagingInfo($key);
 	}
-	
+
 	/**
 	 * Returns column values.
-	 * 
+	 *
 	 * @param mixed ...$args Column names
 	 * @return array plain array of values
 	 */
@@ -607,7 +607,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			$res[] = $this->__typedValue($col);
 		return $res;
 	}
-	
+
 	/**
 	 * @internal Wrapper around private method to allow overriding without breaking internal functionality
 	 */
@@ -615,7 +615,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
 		return $this->__typeOf($column_name);
 	}
-	
+
 	/**
 	 * @internal Wrapper around private method to allow overriding without breaking internal functionality
 	 */
@@ -634,10 +634,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$res->__ensureSelect();
 		return $res;
 	}
-	
+
 	/**
 	 * Queries the database for <Model>s but using an SQL statement.
-	 * 
+	 *
 	 * Use this if you do not like the QueryBuilder or if you have really complicated queries.
 	 * @param string $sql Statement
 	 * @param array $args Arguments
@@ -656,7 +656,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
 	/**
 	 * Static creator method for easy Model instaciation and instant method chaining
-	 * 
+	 *
 	 * <code php>
 	 * $new_datasets = MyModelClass::Make()->youngerThan('created',1,'month');
 	 * </code>
@@ -692,10 +692,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			$res->__init_db_values(true);
 		return $res;
     }
-	
+
 	/**
 	 * Creates a typed <Model> object from array-based data.
-	 * 
+	 *
 	 * You may optionally add a datasource.
 	 * <code php>
 	 * function make_new_contact(array $data)
@@ -703,7 +703,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 *     ContactModel::MakeFromData($data)->Save();
 	 * }
 	 * </code>
-	 * 
+	 *
 	 * @param array $data Associative array with data
 	 * @param DataSource $datasource Optional datasource to assign to the created <Model>
 	 * @param bool $allFields If true, all data is taken to the result, not only that one that are present in the columns of the type
@@ -716,7 +716,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		/** @var Model $res */
 		$res = new $className($datasource);
 		$pks = $res->GetPrimaryColumns();
-        
+
         if( $allFields )
 		{
 			$columns = array_diff(
@@ -726,7 +726,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		}
 		else
 			$columns = $res->GetColumnNames();
-        
+
 		foreach( $columns as $cn )
 		{
 			if( isset($data[$cn]) )
@@ -739,10 +739,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$res->_saved = count($pks)==0;
 		return $res;
 	}
-	
+
 	/**
 	 * Typecasts a <Model> (sub-)class to another type.
-	 * 
+	 *
 	 * <code php>
 	 * $entry = $ds->Query('my_table')->eq('id',1)->current(); // $entry is instance of CommonModel
 	 * $entry = MyTableModel::CastFrom($entry);                // now it is type of MyTableModel
@@ -757,7 +757,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
         $className = $className?$className:get_called_class();
 		$res = new $className($model->_ds);
 		$pks = $res->GetPrimaryColumns();
-		
+
 		if( $allFields )
 		{
             $source_columns = ($model instanceof CommonModel) ?$model->_fieldValues: get_object_vars($model);
@@ -768,12 +768,12 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		}
 		else
 			$columns = $res->GetColumnNames();
-		
+
 		foreach( $columns as $cn )
 		{
             if (isset($model->$cn))
                 $res->$cn = $model->$cn;
-                
+
 			$i = array_search($cn, $pks);
 			if( $i !== false )
 				unset($pks[$i]);
@@ -782,10 +782,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$res->_saved = count($pks)==0;
 		return $res;
 	}
-	
+
 	/**
 	 * Static tool method to ensure $value is of type <DateTimeEx>.
-	 * 
+	 *
 	 * @param mixed $value Some value representing a datetime
 	 * @param bool $convert_now_to_value if true will check if `$value=='now()'` and if so return `new DateTimeEx` instead of `'now()'`
 	 * @return mixed <DateTimeEx> value or 'now()' if $convert_now_to_value is fale and value is 'now()'
@@ -841,10 +841,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		}
 		return new DateTimeEx($value);
 	}
-	
+
 	/**
 	 * Returns the names of all primary columns.
-	 * 
+	 *
 	 * @return array List of all columns that belong to the primary key
 	 */
 	public function GetPrimaryColumns()
@@ -854,8 +854,8 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
 	/**
 	 * Returns a list of column names.
-	 * 
-	 * If $changed_only is true will only return names of fields which values have been changed compared to the saved values.	 * 
+	 *
+	 * If $changed_only is true will only return names of fields which values have been changed compared to the saved values.	 *
 	 * @param bool $changed_only Return only changed columns names
 	 * @return array A list of column names
 	 */
@@ -863,7 +863,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
 		if( !$changed_only )
 			return $this->__ensureTableSchema()->ColumnNames();
-		
+
 		$res = [];
 		//$cols = array_diff(array_keys(get_object_vars($this)), array_keys(get_class_vars(get_class($this))));
 		foreach( $this->__ensureTableSchema()->Columns as $column )
@@ -878,17 +878,17 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 					$v1 = $this->__typedValue($col);
 					if( $v1 instanceof DateTime )
 						$v1 = $v1->format('U');
-					
+
 					$v2 = $this->__toTypedValue($col,$this->_dbValues[$col]);
 					if( $v2 instanceof DateTime )
 						$v2 = $v2->format('U');
-					
+
                     if( $column->Type == 'json' )
                     {
                         $v1 = @json_encode($v1);
                         $v2 = @json_encode($v2);
-                    }               
-                    
+                    }
+
 					if( $v1 != $v2 )
 						$res[] = $col;
 				}
@@ -902,10 +902,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $res;
 		//return array_keys($this->_changedColumns);
     }
-    
+
     /**
      * Returns an array of changes.
-     * 
+     *
      * The result is an array with column names as keys and each element
      * an array of the old an the new value.
      * @return array Array containing all changes
@@ -916,7 +916,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		foreach( $this->GetColumnNames(true) as $col )
 		{
             $type = $this->TypeOf($col);
-            
+
             $v1 = $this->__typedValue($col);
             if( $v1 instanceof DateTime )
                 $v1 = $v1->format('U');
@@ -937,10 +937,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		}
 		return $res;
     }
-    
+
     /**
      * Checks if a column has changed.
-     * 
+     *
      * @param string $col Name of the column to check
      * @return bool true if changed, else false
      */
@@ -950,7 +950,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
         {
             if( !isset($this->_dbValues[$col]) )
                 return true;
-         
+
             $v1 = $this->$col;
             if( $v1 instanceof DateTime )
                 $v1 = $v1->format('U');
@@ -966,7 +966,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
 	/**
 	 * Checks if this <Model> has a column $name.
-	 * 
+	 *
 	 * @param string $name Column name to check for
 	 * @return bool true or false
 	 */
@@ -977,7 +977,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
 	/**
 	 * Creates a full qualified fieldname.
-	 * 
+	 *
 	 * That is ```tablename`.field_name``
 	 * @param string $name Name to FQ
 	 * @return string FQ fieldname
@@ -986,10 +986,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
 		return "`{$this->GetTableName()}`.".$this->__ensureFieldname($name);
 	}
-	
+
 	/**
 	 * Returns all field values a array.
-	 * 
+	 *
 	 * @param mixed ...$filter List of column names to return (each: if value present)
 	 * @return array Associative array of fieldname=>value pairs
 	 */
@@ -1000,7 +1000,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		{
             if( count($filter)==1 && is_array($filter[0]) )
                 $filter = $filter[0];
-                
+
 			foreach( $filter as $cn )
 				if( isset($this->$cn) )
 					$res[$cn] = $this->__typedValue($cn);
@@ -1013,10 +1013,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		}
 		return $res;
 	}
-    
+
 	/**
 	 * Returns an array that may be used in other DB statements.
-	 * 
+	 *
 	 * The returned array will be associative, the column names as keys will be prepended with ':'.
 	 * Sample usage:
 	 * <code php>
@@ -1042,10 +1042,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
             array_values($d)
         );
     }
-	
+
 	/**
 	 * Uses <system_sanitize_parameters> to sanitze all field values.
-	 * 
+	 *
 	 * @deprecated (2022/07) This uses a non existant function, so atm does nothing
 	 * @return void
 	 */
@@ -1072,7 +1072,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
 	/**
 	 * Ensures a valid select query.
-	 * 
+	 *
 	 * Similar to <Model::noop> but will not add the `1=1` condition.
 	 * @return Model `clone $this`
 	 */
@@ -1085,7 +1085,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
 	/**
 	 * Marks that from now on all following conditions will be `AND` combined.
-	 * 
+	 *
 	 * Note that this is default behaviour!
 	 * <code php>
 	 * $q1 = MyModel::Make()->andAll()->eq('id',1)->gt('sort',2);
@@ -1104,7 +1104,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
 	/**
 	 * Marks that from now on all following conditions will be `OR` combined.
-	 * 
+	 *
 	 * <code php>
 	 * $q = MyModel::Make()->orAll()->eq('id',1)->eq('id',2);
 	 * </code>
@@ -1120,7 +1120,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
 	/**
 	 * Marks that the next X conditions will be `AND` combined.
-	 * 
+	 *
 	 * <code php>
 	 * $q1 = MyModel::Make()->orAll()->eq('id',1)->andX(2)->gt('sort',2)->lt('sort',10);
 	 * // SELECT FROM my_model WHERE id=1 OR (sort>2 AND sort<10)
@@ -1138,7 +1138,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
 	/**
 	 * Marks that the next X conditions will be `OR` combined.
-	 * 
+	 *
 	 * <code php>
 	 * $q1 = MyModel::Make()->orX(2)->eq('id',1)->andX(2)->gt('sort',2)->lt('sort',10);
 	 * // SELECT FROM my_model WHERE id=1 OR (sort>2 AND sort<10)
@@ -1153,10 +1153,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$res->_query->orX($count);
 		return $res;
 	}
-    
+
 	/**
 	 * Ends a condition sub-tree.
-	 * 
+	 *
 	 * @return static
 	 */
     function end()
@@ -1166,10 +1166,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$res->_query->end();
 		return $res;
     }
-    
+
 	/**
 	 * Add the nex following continion only if condition matches.
-	 * 
+	 *
 	 * Sample:
 	 * <code php>
 	 * MyModel::Make()->eq('name','some name')->if($parent)->eq('parent_id',$parent);
@@ -1186,7 +1186,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
 	/**
 	 * Adds a HAVING statement.
-	 * 
+	 *
 	 * @param string $defaultOperator 'AND' or 'OR'
 	 * @return Model `clone $this`
 	 */
@@ -1197,10 +1197,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$res->_query->having($defaultOperator);
 		return $res;
 	}
-	
+
 	/**
 	 * Adds a raw SQL part to the statement.
-	 * 
+	 *
 	 * @param string $sql_statement_part The raw SQL code
 	 * @param array $args The arguments of the raw SQL query part
 	 * @return Model `clone $this`
@@ -1215,7 +1215,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
 	/**
 	 * Check if a field has a value.
-	 * 
+	 *
 	 * @param string $property Property-/Fieldname
 	 * @param mixed $value Value to check for
 	 * @param bool $value_is_sql if true, $value is treaded as SQL keyword/function/... and will remain unescaped (sample: now())
@@ -1228,10 +1228,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$res->_query->equal($res->__ensureFieldname($property),$value_is_sql?$value:$res->__toTypedSQLValue($property,$value),$value_is_sql);
 		return $res;
 	}
-	
+
 	/**
 	 * Check if a field has NOT a value.
-	 * 
+	 *
 	 * @param string $property Property-/Fieldname
 	 * @param mixed $value Value to check for
 	 * @return Model `clone $this`
@@ -1243,10 +1243,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$res->_query->notEqual($this->__ensureFieldname($property),$this->__toTypedSQLValue($property,$value));
 		return $res;
 	}
-	
+
 	/**
 	 * Check if a field has NOT a BINARY value.
-	 * 
+	 *
 	 * @param string $property Property-/Fieldname
 	 * @param mixed $value Value to check for
 	 * @return Model `clone $this`
@@ -1258,10 +1258,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$res->_query->notBinary($this->__ensureFieldname($property),$this->__toTypedSQLValue($property,$value));
 		return $res;
 	}
-	
+
 	/**
 	 * Check if a fields value is lower than or equal to something.
-	 * 
+	 *
 	 * @param string $property Property-/Fieldname
 	 * @param mixed $value Value to check against
 	 * @return Model `clone $this`
@@ -1273,10 +1273,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$res->_query->lowerThanOrEqualTo($this->__ensureFieldname($property),$this->__toTypedSQLValue($property,$value));
 		return $res;
 	}
-	
+
 	/**
 	 * Check if a fields value is lower than something.
-	 * 
+	 *
 	 * @param string $property Property-/Fieldname
 	 * @param mixed $value Value to check against
 	 * @return Model `clone $this`
@@ -1288,10 +1288,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$res->_query->lowerThan($this->__ensureFieldname($property),$this->__toTypedSQLValue($property,$value));
 		return $res;
 	}
-	
+
 	/**
 	 * Check if a fields value is greater than or equal to something.
-	 * 
+	 *
 	 * @param string $property Property-/Fieldname
 	 * @param mixed $value Value to check against
 	 * @return Model `clone $this`
@@ -1303,10 +1303,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$res->_query->greaterThanOrEqualTo($this->__ensureFieldname($property),$this->__toTypedSQLValue($property,$value));
 		return $res;
 	}
-	
+
 	/**
 	 * Check if a fields value is greater than something.
-	 * 
+	 *
 	 * @param string $property Property-/Fieldname
 	 * @param mixed $value Value to check against
      * @param bool $value_is_sql if true, $value is treaded as SQL keyword/function/... and will fremain unescaped (sample: now())
@@ -1319,10 +1319,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$res->_query->greaterThan($this->__ensureFieldname($property),$value_is_sql?$value:$this->__toTypedSQLValue($property,$value),$value_is_sql);
 		return $res;
 	}
-	
+
 	/**
 	 * Check if a fields value is binary equal to another value.
-	 * 
+	 *
 	 * @param string $property Property-/Fieldname
 	 * @param mixed $value Value to check against
 	 * @return Model `clone $this`
@@ -1336,10 +1336,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$res->_query->binary($this->__ensureFieldname($property),$this->__toTypedSQLValue($property,$value));
 		return $res;
 	}
-	
+
 	/**
 	 * Check if a fields value is binary NOT equal to another value.
-	 * 
+	 *
 	 * @param string $property Property-/Fieldname
 	 * @param mixed $value Value to check against
 	 * @return Model `clone $this`
@@ -1356,7 +1356,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
 	/**
 	 * Check if a fields value is LIKE another value.
-	 * 
+	 *
 	 * See http://www.w3schools.com/sql/sql_like.asp
 	 * @param string $property Property-/Fieldname
 	 * @param mixed $value Value to check against
@@ -1376,7 +1376,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
 	/**
 	 * Check if a fields value is RLIKE another value.
-	 * 
+	 *
 	 * MySQL specific: see http://dev.mysql.com/doc/refman/5.1/en/regexp.html
 	 * @todo Check how <SqLite> must handle this. Perhaps use <IDatabaseDriver::PreprocessSql>?
 	 * @param string $property Property-/Fieldname
@@ -1397,7 +1397,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
 	/**
 	 * Checks if a fields value is one of the $values.
-	 * 
+	 *
 	 * @param string $property Property-/Fieldname
 	 * @param array $values Array of values to check against
 	 * @return Model `clone $this`
@@ -1412,10 +1412,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			$res->_query->sql("0=1"); // false condition if there's nothing in the values
 		return $res;
 	}
-	
+
 	/**
 	 * Checks if a fields value is NOT one of the $values.
-	 * 
+	 *
 	 * @param string $property Property-/Fieldname
 	 * @param array $values Array of values to check against
 	 * @return Model `clone $this`
@@ -1433,7 +1433,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
 	/**
 	 * Checks if a fields value is NULL.
-	 * 
+	 *
 	 * @param string $property Property-/Fieldname
 	 * @return Model `clone $this`
 	 */
@@ -1447,7 +1447,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
 	/**
 	 * Checks if a fields value is NOT NULL.
-	 * 
+	 *
 	 * @param string $property Property-/Fieldname
 	 * @return Model `clone $this`
 	 */
@@ -1461,7 +1461,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
 	/**
 	 * Adds a orderBy statement to the query.
-	 * 
+	 *
 	 * @param string $property Property-/Fieldname to order by
 	 * @param string $direction 'ASC' or 'DESC'
 	 * @param bool $checkfieldname Check the fieldname or not (true|false)
@@ -1474,10 +1474,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$res->_query->orderBy(((starts_iwith($property, 'FIELD(') || !$checkfieldname) ? $property : $this->__ensureFieldname($property)),$direction);
 		return $res;
 	}
-	
+
 	/**
 	 * Like <Model::orderBy> but adds 'ORDER BY rand()'.
-	 * 
+	 *
 	 * @return Model `clone $this`
 	 */
 	public function shuffle()
@@ -1490,7 +1490,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
 	/**
 	 * Adds a groupBy statement to the query.
-	 * 
+	 *
 	 * @param string $property Property-/Fieldname to group by
 	 * @return Model `clone $this`
 	 */
@@ -1512,7 +1512,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
 	/**
 	 * Adds paging to the query.
-	 * 
+	 *
 	 * @param int $offset Zero-based offset
 	 * @param int $items Maximum items to return
 	 * @return Model `clone $this`
@@ -1527,7 +1527,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
 	/**
 	 * Join two database tables.
-	 * 
+	 *
 	 * @param string $direction E.g. 'LEFT', 'RIGHT' or 'FULL'. Also 'LEFT OUTER'.
 	 * @param Model $model An instance of a Model subclass.
 	 * @return Model `clone $this`
@@ -1539,10 +1539,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$res->_query->join($direction,$model);
 		return $res;
 	}
-	
+
 	/**
 	 * Condition: column $property must be datetime and it's value newer than given interval
-	 * 
+	 *
 	 * See <DateTimeEx::youngerThan>
 	 * @param string $property Properpy-/Fieldname
 	 * @param int $value Offset value
@@ -1556,10 +1556,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$res->_query->newerThan($property,$value,$interval);
 		return $res;
 	}
-	
+
 	/**
 	 * Condition: column $property must be datetime and it's value older than given interval
-	 * 
+	 *
 	 * See <DateTimeEx::olderThan>
 	 * @param string $property Properpy-/Fieldname
 	 * @param int $value Offset value
@@ -1573,7 +1573,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$res->_query->olderThan($property,$value,$interval);
 		return $res;
 	}
-	
+
 	/**
 	 * @shortcut <Model::olderThan>($property,0,'second')
 	 */
@@ -1581,7 +1581,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
 		return $this->olderThan($property, '0', 'second');
 	}
-	
+
 	/**
 	 * Filters by date values in the future
 	 * @shortcut <Model::newerThan>($property,0,'second')
@@ -1590,10 +1590,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
 		return $this->newerThan($property, '0', 'second');
 	}
-	
+
 	/**
 	 * Filters by "the given date is between start & end".
-     * 
+     *
      * @param string $startfieldname Name of the column containing the start date(-time)
      * @param string $endfieldname  Name of the column containing the end date(-time)
      * @param mixed $date The date value to be chacked against
@@ -1605,10 +1605,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
         return $this->lte($startfieldname, $date->Format('Y-m-d').' 00:00:00')
                 ->orX(2)->isNull($endfieldname)->gte($endfieldname, $date->Format('Y-m-d'));
 	}
-		
+
 	/**
 	 * This is just a 'no operation' method.
-	 * 
+	 *
 	 * You may use to ensure there's a valid query built by adding `1=1` to the conditions
 	 * <code php>
 	 * $q = MyModel::Make()->noop();
@@ -1624,7 +1624,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$res->_query->noop();
 		return $res;
 	}
-	
+
 	/**
 	 * @internal Returns the name of the assigned <DataSource> (the alias)
 	 */
@@ -1636,10 +1636,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			return self::$DefaultDatasource->_storage_id;
 		WdfDbException::Raise("Model has no valid DataSource");
 	}
-	
+
 	/**
 	 * Loads a Model using SQL.
-	 * 
+	 *
 	 * All field values will be loaded from DB.
 	 * @param string $where WHERE-part of the SQL statement.
 	 * @param array|mixed $arguments Arguments used in $where
@@ -1649,7 +1649,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
 		$q = new SelectQuery($this, $this->_ds);
 		$sql = $q->__toString()." WHERE ".$where;
-		
+
 		if( $arguments !== false && !is_array($arguments) ) $arguments = array($arguments);
 		$q = $this->_ds->ExecuteSql($sql,$arguments);
 		if( $q->rowCount() > 0 )
@@ -1664,7 +1664,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		}
 		else
 			$this->__init_db_values(true);
-		
+
 		return false;
 	}
 
@@ -1683,16 +1683,16 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
         if( $changed !== null )
             $buf = $this->GetChanges();
-        
+
         if( $columns_to_update !== false && !is_array($columns_to_update) )
             WdfException::Raise("Please specify 'columns_to_update' as array");
-        
+
 		$args = [];
 		$stmt = $this->_ds->Driver->getSaveStatement($this,$args,$columns_to_update);
 
 		if( !$stmt )
 			return true; // nothing to save
-        
+
 		if( !$stmt->ExecuteWithArguments($args) )
 			WdfDbException::RaiseStatement($stmt);
 
@@ -1702,7 +1702,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			$id = $pkcols[0];
 			if( !isset($this->$id) )
 				$this->$id = $this->_ds->LastInsertId();
-            
+
             if( isset($buf) && count($args)>0 )
             {
                 $this->Load("{$pkcols[0]}=?",[$this->$id]);
@@ -1732,10 +1732,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$this->Save($args);
 		return $this;
 	}
-	
+
 	/**
 	 * Deletes this model from the database.
-	 * 
+	 *
 	 * @return bool true or false
 	 */
 	public function Delete()
@@ -1752,10 +1752,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Selects Models from the database with a partial SQL statement.
-	 * 
+	 *
 	 * @param string $where WHERE-part of the SQL statement.
 	 * @param array $prms Arguments used in $where
 	 * @return array Array of <Model> datasets
@@ -1766,37 +1766,37 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		$q = new SelectQuery($this, $this->_ds);
 		return $q->__execute($sql, $prms);
 	}
-	
+
 	/**
 	 * @shortcut <Model::equal>($property,$value,$value_is_sql)
 	 */
 	function eq($property,$value,$value_is_sql=false) { return $this->equal($property,$value,$value_is_sql); }
-	
+
 	/**
 	 * @shortcut <Model::notEqual>($property,$value)
 	 */
 	function neq($property,$value) { return $this->notEqual($property,$value); }
-	
+
 	/**
 	 * @shortcut <Model::lowerThanOrEqualTo>($property,$value)
 	 */
-	function lte($property,$value) { return $this->lowerThanOrEqualTo($property,$value); }	
-	
+	function lte($property,$value) { return $this->lowerThanOrEqualTo($property,$value); }
+
 	/**
 	 * @shortcut <Model::newerThan>($property, $value, $interval)
 	 */
 	public function yt($property,$value,$interval){ return $this->newerThan($property, $value, $interval); }
-	
+
 	/**
 	 * @shortcut <Model::newerThan>($property, $value, $interval)
-	 */	
+	 */
 	public function youngerThan($property,$value,$interval){ return $this->newerThan($property, $value, $interval); }
-	
+
 	/**
 	 * @shortcut <Model::olderThan>($property, $value, $interval)
 	 */
-	public function ot($property,$value,$interval){ return $this->olderThan($property, $value, $interval); }	
-	
+	public function ot($property,$value,$interval){ return $this->olderThan($property, $value, $interval); }
+
 	/**
 	 * @shortcut <Model::lowerThan>($property, $value)
 	 */
@@ -1811,10 +1811,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * @shortcut <Model::greaterThan>($property, $value)
 	 */
 	function gt($property,$value,$value_is_sql=false) { return $this->greaterThan($property,$value,$value_is_sql); }
-	
+
 	/**
 	 * Calls a callback function for each result dataset.
-	 * 
+	 *
 	 * Callback function will receive each row as <Model> object and must return the (eventually changed) <Model> object.
 	 * Note that this method will not clone the result, but return the object itself!
 	 * @param mixed $callback Anonymous callback function
@@ -1872,7 +1872,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
     function __isset($name)
     {
-        return isset($this->_fieldValues[$name]);
+        return array_key_exists($name,$this->_fieldValues);
     }
 
     function __unset($name)

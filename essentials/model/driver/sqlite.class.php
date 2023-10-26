@@ -36,7 +36,7 @@ use ScavixWDF\Model\ColumnSchema;
 use ScavixWDF\Model\ResultSet;
 use ScavixWDF\Model\TableSchema;
 use ScavixWDF\WdfDbException;
- 
+
 /**
  * SqLite database driver.
 
@@ -100,7 +100,7 @@ class SqLite implements IDatabaseDriver
             $res->CreateCode = "/* cannot create table without name */";
             return $res;
         }
-        
+
 		if( strtolower($tablename) == 'sqlite_master' )
 		{
 			$res = new TableSchema($this->_ds, $tablename);
@@ -125,8 +125,8 @@ class SqLite implements IDatabaseDriver
 			$col->Null = true;
 			$res->Columns[] = $col;
 			return $res;
-		}		
-		
+		}
+
 		$tableSql = $this->_pdo->query(
 			'SELECT sql FROM sqlite_master WHERE type="table" AND name = "'.$tablename.'"'
 		)->fetch();
@@ -233,17 +233,24 @@ class SqLite implements IDatabaseDriver
 		{
 			if( in_array($col,$pks) || !$model->HasColumn($col) )
 				continue;
-			
+
+			/* DEPRECATED! We do not set dynamic properties anymore but handle them via __get/__set.
+                           This dynamic-property based handling produces errors when values are set to NULL because 'get_object_vars' will not return them anymore.
+                           On the other hand, it is simply not needed because of the __get/__set handling.
+
 			// isset returns false too if $this->$col is set to NULL, so we need some more logic here
 			if( !isset($model->$col) )
 			{
 				if( !isset($ovars) )
+				{
 					$ovars = get_object_vars($model);
-				
-				if( !array_key_exists($col,$ovars) )
+					$ovars = array_combine(array_keys($ovars),array_fill(0,count($ovars),true));
+				}
+				if( !isset($ovars[$col]) )
 					continue;
 			}
-			
+            */
+
 			$tv = $model->TypedValue($col);
 			if( is_string($tv) && strtolower($tv)=="now()" )
 			{
@@ -257,17 +264,17 @@ class SqLite implements IDatabaseDriver
 				$all[] = "`$col`";
 				$vals[] = ":$col";
 				$args[":$col"] = $tv;
-			
+
 				if( $args[":$col"] instanceof DateTime )
 					$args[":$col"] = $args[":$col"]->format("c");
 			}
 		}
-		
+
 		if( $model->_saved )
 		{
 			if( count($cols) == 0 )
 				return false;
-			
+
 			$sql  = "UPDATE `".$model->GetTableName()."`";
 			$sql .= " SET ".implode(",",$cols);
 			$sql .= " WHERE ".implode(" AND ",$pkcols);
@@ -284,14 +291,14 @@ class SqLite implements IDatabaseDriver
             WdfDbException::Raise("SQL Error",$sql);
 		return new ResultSet($this->_ds, $stmt);
 	}
-	
+
 	/**
 	 * @implements <IDatabaseDriver::getDeleteStatement>
 	 */
 	function getDeleteStatement($model,&$args)
 	{
 		$pks = $model->GetPrimaryColumns();
-		$cols = [];		
+		$cols = [];
 		foreach( $pks as $col )
 		{
 			if( isset($model->$col) )
@@ -302,11 +309,11 @@ class SqLite implements IDatabaseDriver
 		}
 		if( count($cols) == 0 )
 			return false;
-		
+
 		$sql = "DELETE FROM `".$model->GetTableName()."` WHERE ".implode(" AND ",$cols);
 		return new ResultSet($this->_ds, $this->_pdo->prepare($sql));
 	}
-	
+
 	/**
 	 * @implements <IDatabaseDriver::getPagedStatement>
 	 */
@@ -317,15 +324,15 @@ class SqLite implements IDatabaseDriver
 		$sql .= " LIMIT $offset,$items_per_page";
 		return new ResultSet($this->_ds, $this->_pdo->prepare($sql));
 	}
-	
+
 	/**
 	 * @implements <IDatabaseDriver::getPagingInfo>
 	 */
 	function getPagingInfo($sql,$input_arguments=null)
-	{ 
+	{
 		if( !preg_match('/LIMIT\s+([\d\s,]+)/i', $sql, $amounts) )
 			return false;
-		
+
 		$amounts = explode(",",$amounts[1]);
 		if( count($amounts) > 1 )
 			list($offset,$length) = $amounts;
@@ -333,13 +340,13 @@ class SqLite implements IDatabaseDriver
 			list($offset,$length) = array(0,$amounts[0]);
 		$offset = intval($offset);
 		$length = intval($length);
-		
+
 		$sql = preg_replace('/LIMIT\s+[\d\s,]+/i', '', $sql);
 		$sql = "SELECT count(*) FROM ($sql) AS x";
 		$stmt = $this->_pdo->prepare($sql);
 		$stmt->ExecuteWithArguments($input_arguments);
 		$total = intval($stmt->fetchColumn());
-		
+
 		return array
 		(
 			'rows_per_page'=> $length,
@@ -349,7 +356,7 @@ class SqLite implements IDatabaseDriver
 			'offset'       => $offset,
 		);
 	}
-	
+
 	/**
 	 * @implements <IDatabaseDriver::Now>
 	 */
@@ -358,7 +365,7 @@ class SqLite implements IDatabaseDriver
 		$seconds_to_add = ($seconds_to_add>=0)?"+$seconds_to_add":"-$seconds_to_add";
 		return "(datetime('now','$seconds_to_add seconds','localtime'))";
 	}
-    
+
 	/**
 	 * @implements <IDatabaseDriver::PreprocessSql>
 	 */
