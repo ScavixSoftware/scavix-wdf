@@ -362,7 +362,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			}
 			else
 			{
-				$this->$col = !isset($this->$col)?null:$this->__typedValue($col,$convert_now_values); // do not use $this->TypedValue because may be overridden
+				$this->$col = $this->__typedValue($col,$convert_now_values); // do not use $this->TypedValue because may be overridden
                 if( $column->Type == 'json' && (is_object($this->$col) || is_array($this->$col)) )
                     $this->_dbValues[$col] = json_decode(json_encode($this->$col));
                 else
@@ -398,41 +398,41 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $this->__toTypedValue($column_name, $this->$column_name,$convert_now_value);
 	}
 
-	private function __toTypedValue($column_name,$value, $convert_now_value=false)
-	{
-		if( isset(self::$_typeMap[$this->_cacheKey][$column_name]) )
-			$t = self::$_typeMap[$this->_cacheKey][$column_name];
-		else
-			$t = $this->__typeOf($column_name);
+    private function __toTypedValue($column_name, $value, $convert_now_value = false)
+    {
+        if (isset(self::$_typeMap[$this->_cacheKey][$column_name]))
+            $t = self::$_typeMap[$this->_cacheKey][$column_name];
+        else
+            $t = $this->__typeOf($column_name);
 
-		switch( $t )
-		{
-			case 'int':
-			case 'integer':
-				return intval($value);
-			case 'float':
-			case 'double':
-				return floatval($value);
-			case 'date':
-			case 'time':
-			case 'datetime':
-			case 'timestamp':
-				try
-				{
-					return Model::EnsureDateTime($value,$convert_now_value);
-				}
-				catch(Exception $ex)
-				{
-					WdfException::Log("date/time error with value (".gettype($value).")$value",$ex);
-				}
-				break;
+        switch ($t)
+        {
+            case 'int':
+            case 'integer':
+                return intval($value);
+            case 'float':
+            case 'double':
+                return floatval($value);
+            case 'date':
+            case 'time':
+            case 'datetime':
+            case 'timestamp':
+                try
+                {
+                    return Model::EnsureDateTime($value, $convert_now_value);
+                }
+                catch (Exception $ex)
+                {
+                    WdfException::Log("date/time error with value (" . gettype($value) . ")$value", $ex);
+                }
+                break;
             case 'json':
                 return is_string($value)
-                    ?(@json_decode($value)?:$value)
-                    :$value;
-		}
-		return $value;
-	}
+                    ? (@json_decode($value) ?: $value)
+                    : $value;
+        }
+        return $value;
+    }
 
 	private function __toTypedSQLValue($column_name,$value)
 	{
@@ -729,7 +729,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
 		foreach( $columns as $cn )
 		{
-			if( isset($data[$cn]) )
+			if( array_key_exists($cn,$data) )
 				$res->$cn = $data[$cn];
 			$i = array_search($cn, $pks);
 			if( $i !== false )
@@ -771,7 +771,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
 		foreach( $columns as $cn )
 		{
-            if (isset($model->$cn))
+            if ( $model->HasValue($cn) )
                 $res->$cn = $model->$cn;
 
 			$i = array_search($cn, $pks);
@@ -869,9 +869,9 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		foreach( $this->__ensureTableSchema()->Columns as $column )
 		{
             $col = $column->Name;
-			if( isset($this->$col) )
+			if( $this->HasValue($col) )
 			{
-				if( !isset($this->_dbValues[$col]) )
+				if( !array_key_exists($col,$this->_dbValues) )
 					$res[] = $col;
 				else
 				{
@@ -893,11 +893,8 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 						$res[] = $col;
 				}
 			}
-			else
-			{
-				if( isset($this->_dbValues[$col]) )
-					$res[] = $col;
-			}
+			elseif( array_key_exists($col,$this->_dbValues) )
+                $res[] = $col;
 		}
 		return $res;
 		//return array_keys($this->_changedColumns);
@@ -923,7 +920,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
             elseif( $type=='json' )
                 $v1 = @json_encode($v1);
 
-            if( isset($this->_dbValues[$col]) )
+            if( array_key_exists($col,$this->_dbValues) )
             {
                 $v2 = $this->__toTypedValue($col,$this->_dbValues[$col]);
                 if( $v2 instanceof DateTime )
@@ -946,9 +943,9 @@ abstract class Model implements Iterator, Countable, ArrayAccess
      */
     public function HasChanged($col)
     {
-        if( isset($this->$col) )
+        if( $this->HasValue($col) )
         {
-            if( !isset($this->_dbValues[$col]) )
+            if( !array_key_exists($col,$this->_dbValues) )
                 return true;
 
             $v1 = $this->$col;
@@ -961,7 +958,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
             return $v1 != $v2;
         }
-        return isset($this->_dbValues[$col]);
+        return array_key_exists($col,$this->_dbValues);
     }
 
 	/**
@@ -1002,7 +999,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess
                 $filter = $filter[0];
 
 			foreach( $filter as $cn )
-				if( isset($this->$cn) )
+				if( $this->HasValue($cn) )
 					$res[$cn] = $this->__typedValue($cn);
 		}
 		else
