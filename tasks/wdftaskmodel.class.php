@@ -470,7 +470,7 @@ class WdfTaskModel extends Model
             return;
         }
         list($name,$method) = explode("-","{$this->name}-run");
-		$args = unserialize($this->arguments);
+        $args = isset($this->arguments) ? unserialize($this->arguments) : [];
 
 		if( is_subclass_of($name, \ScavixWDF\Tasks\Task::class) )
 		{

@@ -324,7 +324,7 @@ class MySql implements IDatabaseDriver
 		$columns_to_update = $columns_to_update?$columns_to_update:$model->GetColumnNames(true);
 		foreach( $columns_to_update as $col )
 		{
-			if( isset($pks2[$col]) || !$model->HasColumn($col) )
+			if( isset($pks2[$col]) || !$model->HasColumn($col) || !$model->HasValue($col) )
 				continue;
 
             /* DEPRECATED! We do not set dynamic properties anymore but handle them via __get/__set.

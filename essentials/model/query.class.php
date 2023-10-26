@@ -115,25 +115,7 @@ class Query
             $this->_values = $this->_where->__getArgs();
 
 		$this->_statement = $this->_ds->Prepare($sql);
-        // if (isDev())
-            $exec = $this->_statement->ExecuteWithArguments($this->_values);
-        // else
-        // {
-        //     foreach ($this->_values as $n => $v)
-        //     {
-        //         if (strpos($sql, $n) === false)
-        //             continue;
-        //         if (is_integer($v))
-        //             $this->_statement->bindValue($n, $v, PDO::PARAM_INT);
-        //         elseif ($v instanceof DateTime)
-        //             $this->_statement->bindValue($n, $v->format("Y-m-d H:i:s"));
-        //         elseif (is_string($v))
-        //             $this->_statement->bindValue($n, $v, PDO::PARAM_STR);
-        //         else
-        //             $this->_statement->bindValue($n, $v);
-        //     }
-        //     $exec = $this->_statement->execute();
-        // }
+        $exec = $this->_statement->ExecuteWithArguments($this->_values);
 		if( !$exec )
         {
             // log_debug("Query:",$this);

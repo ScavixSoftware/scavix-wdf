@@ -323,8 +323,8 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		{
 			if( !isset($this->_cacheKey) || !$this->_cacheKey )
 				$this->_cacheKey = $this->_ds->Database().$this->_className;
-			if( !unserializer_active() )
-				$this->__ensureTableSchema();
+            if (!unserializer_active())
+                $this->__ensureTableSchema();
 		}
 		else
 			log_trace("Missing datasource argument");
@@ -1872,11 +1872,18 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
     function __isset($name)
     {
-        return array_key_exists($name,$this->_fieldValues);
+        return isset($this->_fieldValues[$name]);
     }
 
     function __unset($name)
     {
         unset($this->_fieldValues[$name]);
+    }
+
+    function HasValue($name)
+    {
+        return isset($this->name)
+            || array_key_exists($name, $this->_fieldValues)
+            || array_key_exists($name,get_object_vars($this));
     }
 }
