@@ -1734,6 +1734,8 @@ function system_get_caller($skip = 0, $detailed = false)
     $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
     if( $skip>0 )
         array_splice($trace, 0, min(count($trace), $skip));
+    while (count($trace)>1 && (!isset($trace[1]['file']) || starts_with($trace[1]['file'], __SCAVIXWDF__)) )
+        array_shift($trace);
     while (count($trace) < 3)
         $trace[] = ['file' => '(unknown)', 'line' => '(unknown)', 'function' => '(unknown)'];
     if (starts_with($trace[1]['file'], dirname(__SCAVIXWDF__)))
@@ -1741,6 +1743,7 @@ function system_get_caller($skip = 0, $detailed = false)
     else
         $loc = $trace[1]['file'];
     $loc .= ":" . $trace[1]['line'];
+
     return $detailed ? [
         'location' => $loc,
         'caller' => avail($trace[2], 'type') ? $trace[2]['class'] . $trace[2]['type'] . $trace[2]['function'] : $trace[2]['function']

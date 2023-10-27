@@ -181,7 +181,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
         // if (isDev())
         // {
             start_timer("WdfSqlPerformance");
-            hit_timer("WdfSqlPerformance", system_get_caller(1));
+            hit_timer("WdfSqlPerformance", system_get_caller());
             $sql = $this->GetSql();
             foreach (array_clean_assoc_or_sequence(force_array($arguments,false)) as $n => $v)
             {
