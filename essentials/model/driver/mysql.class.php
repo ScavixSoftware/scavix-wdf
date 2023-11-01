@@ -353,7 +353,7 @@ class MySql implements IDatabaseDriver
 			}
 			else
 			{
-                $argn = ":arg".($argnum++);
+                $argn = ":arg".sprintf('%07d', (++$argnum));
 				$cols[] = "`$col`=$argn";
 				$all[] = "`$col`";
 				$vals[] = "$argn";
