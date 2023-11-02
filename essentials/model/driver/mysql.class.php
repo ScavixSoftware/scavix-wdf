@@ -302,7 +302,6 @@ class MySql implements IDatabaseDriver
 	 */
 	function getSaveStatement($model,&$args,$columns_to_update=false)
 	{
-        $argnum = 0;
 		$cols = [];
 		$pks = $model->GetPrimaryColumns();
 		$all = [];
@@ -351,9 +350,14 @@ class MySql implements IDatabaseDriver
 				$all[] = "`$col`";
 				$vals[] = "$tv";
 			}
+            elseif( is_null($tv) && ($cd = $model->GetTableSchema()->GetColumn($col)) && !$cd->IsNullAllowed() )
+            {
+                if( !$cd->HasDefault() )
+                    log_warn("NULL value is not allowed for column '$col' (" . system_get_caller() . ")");
+            }
 			else
 			{
-                $argn = ":arg".sprintf('%07d', (++$argnum));
+                $argn = ":a".sprintf('%03d', count($cols));
 				$cols[] = "`$col`=$argn";
 				$all[] = "`$col`";
 				$vals[] = "$argn";

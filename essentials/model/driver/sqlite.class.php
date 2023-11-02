@@ -258,6 +258,11 @@ class SqLite implements IDatabaseDriver
 				$all[] = "`$col`";
 				$vals[] = "datetime('now')";
 			}
+            elseif( is_null($tv) && ($cd = $model->GetTableSchema()->GetColumn($col)) && !$cd->IsNullAllowed() )
+            {
+                if( !$cd->HasDefault() )
+                    log_warn("NULL value is not allowed for column '$col' (" . system_get_caller() . ")");
+            }
 			else
 			{
 				$cols[] = "`$col`=:$col";

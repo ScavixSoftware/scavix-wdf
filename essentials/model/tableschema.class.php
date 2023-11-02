@@ -39,15 +39,15 @@ class TableSchema
 	static $_colMap = [];
 	static $_hasColMap = [];
 	static $_colMapPri = [];
-	
+
 	private $_ds;
 	public $_cacheKey;
-	
+
     public $CreateCode;
 	public $Name;
 	public $Columns;
     public $Keys;
-	
+
     function __construct($datasource,$tableName)
     {
 		$this->_ds = $datasource;
@@ -56,10 +56,10 @@ class TableSchema
         $this->Keys = [];
 		$this->_cacheKey = $this->_ds->Database().$this->Name;
     }
-	
+
 	/**
 	 * Gets the type of a column.
-	 * 
+	 *
 	 * @param string $column_name Column name to get type for
 	 * @return string Type identifier
 	 */
@@ -78,10 +78,10 @@ class TableSchema
 		}
 		return isset(self::$_typeMap[$this->_cacheKey][$column_name])?self::$_typeMap[$this->_cacheKey][$column_name]:false;
 	}
-	
+
 	/**
 	 * Returns a list of column names.
-	 * 
+	 *
 	 * @return array All column names
 	 */
 	function ColumnNames()
@@ -98,10 +98,10 @@ class TableSchema
 		}
 		return self::$_colMap[$this->_cacheKey];
 	}
-	
+
 	/**
 	 * Returns all columns that belong to the primary key.
-	 * 
+	 *
 	 * @return array All PK columns
 	 */
 	function PrimaryColumnNames()
@@ -115,10 +115,10 @@ class TableSchema
 		}
 		return self::$_colMapPri[$this->_cacheKey];
 	}
-	
+
 	/**
 	 * Checks if the given column exists.
-	 * 
+	 *
 	 * @param string $column_name Column to check
 	 * @return bool true or false
 	 */
@@ -127,5 +127,13 @@ class TableSchema
 		if( !isset(self::$_hasColMap[$this->_cacheKey]) )
 			$this->ColumnNames();
 		return isset(self::$_hasColMap[$this->_cacheKey][$column_name]);
+	}
+
+    function GetColumn($column_name)
+	{
+        foreach ($this->Columns as $c)
+            if ($c->Name == $column_name)
+                return $c;
+        return false;
 	}
 }

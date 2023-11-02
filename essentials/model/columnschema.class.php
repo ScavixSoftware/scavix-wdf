@@ -32,7 +32,7 @@ namespace ScavixWDF\Model;
 
 /**
  * Schema of a database column
- * 
+ *
  * Will be created from the DB and used to automatically detect columns and their types.
  */
 class ColumnSchema
@@ -45,15 +45,15 @@ class ColumnSchema
 	public $Default;
 	public $Extra;
     public $Comment;
-	
+
     function __construct($name)
     {
         $this->Name = $name;
     }
-	
+
 	/**
 	 * Checks if this column belongs to the primary key
-	 * 
+	 *
 	 * In fact just `return $this->Key == "PRIMARY";`
 	 * @return bool true or false
 	 */
@@ -61,4 +61,14 @@ class ColumnSchema
 	{
 		return $this->Key == "PRIMARY";
 	}
+
+    function IsNullAllowed()
+    {
+        return avail($this, 'Null') && is_in(strtolower($this->Null), '1', 'yes');
+    }
+
+    function HasDefault()
+    {
+        return isset($this->Default);
+    }
 }

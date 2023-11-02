@@ -852,6 +852,11 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $this->__ensureTableSchema()->PrimaryColumnNames();
 	}
 
+    public function GetTableSchema()
+	{
+        return $this->__ensureTableSchema();
+	}
+
 	/**
 	 * Returns a list of column names.
 	 *

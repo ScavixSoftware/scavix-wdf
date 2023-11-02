@@ -79,10 +79,19 @@ class Query
 		return $this->_initialSequence . $this->__generateSql();
 	}
 
+    protected $argNamePrefix = 'a';
+    protected $argNameLength = 2;
     protected $argNameCounter = 0;
     protected function argName()
     {
-        return ":a" . str_pad("" . $this->argNameCounter++, 3, "0", STR_PAD_LEFT);
+        if( $this->argNameCounter > 99 && $this->argNameLength == 2 )
+        {
+            $this->argNamePrefix = chr(ord($this->argNamePrefix) + 1);
+            $this->argNameCounter = 0;
+            if( $this->argNamePrefix == 'z' )
+                $this->argNameLength = 9;
+        }
+        return ":{$this->argNamePrefix}" . str_pad("" . $this->argNameCounter++, $this->argNameLength, "0", STR_PAD_LEFT);
     }
 
 	public function GetSql()
