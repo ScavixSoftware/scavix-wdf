@@ -350,13 +350,25 @@ class MySql implements IDatabaseDriver
 				$all[] = "`$col`";
 				$vals[] = "$tv";
 			}
-            elseif( is_null($tv) && ($cd = $model->GetTableSchema()->GetColumn($col)) && !$cd->IsNullAllowed() )
-            {
-                if( !$cd->HasDefault() )
-                    log_warn("NULL value is not allowed for column '$col' (" . system_get_caller() . ")");
-            }
 			else
 			{
+                if( is_null($tv) && ($cd = $model->GetTableSchema()->GetColumn($col)) )
+                {
+                    if( $cd->IsNullAllowed() )
+                    {
+                        if( $cd->HasDefault() && !$model->_saved )
+                        {
+                            //log_debug("New Dataset, so ignoring NULL value for column '$col' (" . system_get_caller() . ")");
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        if( !$cd->HasDefault() )
+                            log_warn("NULL value is not allowed for column '$col' (" . system_get_caller() . ")");
+                        continue;
+                    }
+                }
                 $argn = ":a".sprintf('%03d', count($cols));
 				$cols[] = "`$col`=$argn";
 				$all[] = "`$col`";
