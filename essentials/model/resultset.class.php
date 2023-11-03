@@ -178,32 +178,32 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 
     function ExecuteWithArguments($arguments)
     {
-        // if (isDev())
-        // {
-            start_timer("WdfSqlPerformance");
-            hit_timer("WdfSqlPerformance", system_get_caller());
-            $sql = $this->GetSql();
-            foreach (array_clean_assoc_or_sequence(force_array($arguments,false)) as $n => $v)
-            {
-                if (is_numeric($n))
-                    $n = $n + 1;
-                elseif (strpos($sql, $n) === false)
-                    continue;
+		if(DataSource::$LogSlowQueries)
+		{
+			start_timer("WdfSqlPerformance");
+			hit_timer("WdfSqlPerformance", system_get_caller());
+		}
+		$sql = $this->GetSql();
+		foreach (array_clean_assoc_or_sequence(force_array($arguments,false)) as $n => $v)
+		{
+			if (is_numeric($n))
+				$n = $n + 1;
+			elseif (strpos($sql, $n) === false)
+				continue;
 
-                if (is_integer($v))
-                    $this->bindValue($n, $v, PDO::PARAM_INT);
-                elseif ($v instanceof DateTime)
-                    $this->bindValue($n, $v->format("Y-m-d H:i:s"));
-                elseif (is_string($v))
-                    $this->bindValue($n, $v, PDO::PARAM_STR);
-                else
-                    $this->bindValue($n, $v);
-            }
-            $res = $this->execute();
-            finish_timer("WdfSqlPerformance", 5000);
-            return $res;
-        // }
-        // return $this->execute(array_clean_assoc_or_sequence(force_array($arguments,false)));
+			if (is_integer($v))
+				$this->bindValue($n, $v, PDO::PARAM_INT);
+			elseif ($v instanceof DateTime)
+				$this->bindValue($n, $v->format("Y-m-d H:i:s"));
+			elseif (is_string($v))
+				$this->bindValue($n, $v, PDO::PARAM_STR);
+			else
+				$this->bindValue($n, $v);
+		}
+		$res = $this->execute();
+		if(DataSource::$LogSlowQueries)
+			finish_timer("WdfSqlPerformance", DataSource::$LogSlowQueriesSeconds * 1000);
+		return $res;
     }
 
 	/**

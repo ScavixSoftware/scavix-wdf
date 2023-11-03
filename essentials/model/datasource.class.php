@@ -38,25 +38,28 @@ use ScavixWDF\WdfDbException;
 
 /**
  * Provides access to a database.
- * 
+ *
  * Use this to execute SQL statements directly when you need to do so.
  */
-class DataSource 
+class DataSource
 {
     private $_dsn;
 	private $_username;
 	private $_password;
     private $_pdo;
-	
+
 	private $_last_affected_rows_count = 0;
-	
+
     public $_storage_id;
 	public $Driver;
 	public $LastStatement;
-    
+
+	static $LogSlowQueries = false;
+	static $LogSlowQueriesSeconds = 5;
+
 	/**
 	 * Returns a <DataSource> by name.
-	 * 
+	 *
 	 * You may use this as alternative for <Model>::$DefaultDatasource by ignoring the $name parameter;
 	 * <code php>
 	 * $a = Model::$DefaultDatasource;
@@ -82,7 +85,7 @@ class DataSource
 
 	/**
 	 * Sets the default datasource.
-	 * 
+	 *
 	 * This is nicer alternative to setting <Model>::$DefaultDatasource manually.
 	 * <code php>
 	 * $ds = Datasource::SetDefault('system');
@@ -102,23 +105,23 @@ class DataSource
 		Model::$DefaultDatasource = $ds;
 		return $ds;
 	}
-    
+
     function __toString()
     {
         return get_class($this)."({$this->_storage_id})";
     }
-	
+
     function __construct($alias=false, $dsn=false, $username=false, $password=false)
     {
 		if( !$alias || !$dsn )
 			return;
-		
+
 		$test = parse_url($dsn);
 		if( isset($test['host']) )
 		{
 			if( $username || $password )
 				log_warn("Oldschool DSN overrides username and/or password given");
-			
+
 			if( $test['scheme'] == 'sqlite' )
 				$dsn = str_replace("://",":",$dsn);
 			else
@@ -126,14 +129,14 @@ class DataSource
 			$username = ifavail($test,'user');
 			$password = ifavail($test,'pass');
 		}
-		
+
         $this->_storage_id = $alias;
         $this->_dsn = $dsn;
 		$this->_username = $username;
 		$this->_password = $password;
-		
-        try{ 
-			$this->_pdo = new PdoLayer($dsn,$username,$password); 
+
+        try{
+			$this->_pdo = new PdoLayer($dsn,$username,$password);
 		}catch(Exception $ex){ WdfDbException::Raise("Error connecting database",$dsn,$ex); }
 		if( !$this->_pdo )
 			WdfDbException::Raise("Something went horribly wrong with the PdoLayer");
@@ -142,15 +145,15 @@ class DataSource
 		$driver = $this->_pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
 		switch( $driver )
 		{
-			case 'sqlite': 
+			case 'sqlite':
                 // trick out the autoloader as it consults the cache which needs a model thus circular...
                 require_once(__DIR__.'/driver/sqlite.class.php');
-                $this->Driver = new SqLite(); 
+                $this->Driver = new SqLite();
                 break;
-			case 'mysql': 
+			case 'mysql':
                 // trick out the autoloader as it consults the cache which needs a model thus circular...
                 require_once(__DIR__.'/driver/mysql.class.php');
-                $this->Driver = new MySql(); 
+                $this->Driver = new MySql();
                 break;
 			default: WdfDbException::Raise("Unknown DB driver: $driver");
 		}
@@ -159,8 +162,8 @@ class DataSource
 
     function Reconnect()
     {
-        try{ 
-			$this->_pdo = new PdoLayer($this->_dsn,$this->_username,$this->_password); 
+        try{
+			$this->_pdo = new PdoLayer($this->_dsn,$this->_username,$this->_password);
 		}catch(Exception $ex){ WdfDbException::Raise("Error connecting database",$this->_dsn,$ex); }
 		if( !$this->_pdo )
 			WdfDbException::Raise("Something went horribly wrong with the PdoLayer");
@@ -169,21 +172,21 @@ class DataSource
 		$driver = $this->_pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
 		switch( $driver )
 		{
-			case 'sqlite': 
+			case 'sqlite':
                 // trick out the autoloader as it consults the cache which needs a model thus circular...
                 require_once(__DIR__.'/driver/sqlite.class.php');
-                $this->Driver = new SqLite(); 
+                $this->Driver = new SqLite();
                 break;
-			case 'mysql': 
+			case 'mysql':
                 // trick out the autoloader as it consults the cache which needs a model thus circular...
                 require_once(__DIR__.'/driver/mysql.class.php');
-                $this->Driver = new MySql(); 
+                $this->Driver = new MySql();
                 break;
 			default: WdfDbException::Raise("Unknown DB driver: $driver");
 		}
 		$this->Driver->initDriver($this,$this->_pdo);
     }
-	
+
 	function __get($varname)
 	{
 		/*--- Compatibility to old model ---*/
@@ -192,12 +195,12 @@ class DataSource
 			case "DB": return $this;
 		}
 	}
-	
+
 	function __sleep()
 	{
 		return array('_storage_id');
 	}
-	
+
 	function __wakeup()
 	{
 		global $CONFIG;
@@ -223,7 +226,7 @@ class DataSource
 		else
 			register_hook(HOOK_POST_INITSESSION,$this,'__wakeup_extended');
 	}
-	
+
 	function __wakeup_extended()
 	{
 		$name = explode("::",$this->_storage_id,2);
@@ -238,7 +241,7 @@ class DataSource
 		$this->_pdo = $ds->_pdo;
 		$this->Driver = $ds->Driver;
 	}
-	
+
 	function __equals(&$ds)
 	{
 		if( !is_object($ds) || get_class($this) != get_class($ds) )
@@ -246,30 +249,30 @@ class DataSource
 
 		return $this->_dsn == $ds->_dsn && $this->_username == $ds->_username && $this->_password == $ds->_password;
 	}
-    
+
     /**
      * Closes this datasource.
-     * 
+     *
      * @return void
      */
     function Close()
     {
         $this->_pdo = null;
     }
-	
+
 	/**
 	 * Returns the DSN
-	 * 
+	 *
 	 * @return string The Dsn
 	 */
 	function GetDsn()
 	{
 		return $this->_dsn;
 	}
-	
+
 	/**
 	 * Escapes an argument
-	 * 
+	 *
 	 * The result will not contain escaping chars, but only perform an 'inner escaping'.
 	 * This is basically `substr($this->Quote,1,-1)`
 	 * @param string $value Argument to be escaped
@@ -282,10 +285,10 @@ class DataSource
 		$res = $this->_pdo->quote("$value");
 		return substr($res, 1, strlen($res)-2);
 	}
-	
+
 	/**
 	 * Quotes an argument
-	 * 
+	 *
 	 * @param string $value The argument to quote
 	 * @return string The quoted argument
 	 */
@@ -295,10 +298,10 @@ class DataSource
             log_warn(__METHOD__." needs string argument, will be enforces in future versions. Called from ".system_get_caller());
 		return $this->_pdo->quote("$value");
 	}
-	
+
 	/**
 	 * Quotes a column name
-	 * 
+	 *
 	 * @param string $column The column name to quote
 	 * @return string The quoted column name
 	 */
@@ -308,12 +311,12 @@ class DataSource
             $column = '`'.$column.'`';
 		return $column;
 	}
-    
+
     /**
      * Helper to create a valid 'column IN(0,1,2)' string.
-     * 
+     *
      * If given value is not an array or if it is empty will return '(0=1)' as valid SQL string.
-     * 
+     *
      * @param string $field Column name
      * @param mixed $values Values or null or false
      * @return string Valid constraint string
@@ -335,10 +338,10 @@ class DataSource
     {
         return $this->BuildInConstraint($field, $values);
     }
-    
+
 	/**
 	 * Helper to create a valid 'column NOT IN(0,1,2)' string.
-     * 
+     *
 	 * @see <DataSource::BuildInContraint>
      * @param string $field Column name
      * @param mixed $values Values or null or false
@@ -364,7 +367,7 @@ class DataSource
 
 	/**
 	 * Prepares a statement
-	 * 
+	 *
 	 * @param string $sql SQL statement
 	 * @return ResultSet Prepared statement
 	 */
@@ -388,7 +391,7 @@ class DataSource
 	{
 		if( !is_array($parameter) )
 			$parameter = array($parameter);
-		
+
 		$stmt = $this->Prepare($sql);
 
 		if( !$stmt->ExecuteWithArguments($parameter) )
@@ -413,10 +416,10 @@ class DataSource
 	{
 		if( !system_is_module_loaded('globalcache') || $lifetime === 0 )
 			return $this->ExecuteSql($sql, $prms);
-        
+
         if( $lifetime === false )
             $lifetime = cfg_getd('model','cache_ttl',300);
-		
+
 		$key = 'DB_Cache_Sql_'.md5( $sql.serialize($prms).$lifetime );
 		$null = null;
 		if( is_null($res = cache_get($key, $null, true, false)) )
@@ -433,7 +436,7 @@ class DataSource
 			$res = ResultSet::restore($res);
 		return $res;
 	}
-	
+
 	/**
 	 * @shortcut to <DataSource::DLookUp> but uses cache
      * @deprecated (2023/09) Use CacheExecuteScalar instead
@@ -442,7 +445,7 @@ class DataSource
 	{
 		if( !system_is_module_loaded('globalcache') || $lifetime === 0 )
 			return $this->DLookUp($field_name, $table_name, $where_condition, $parameter);
-		
+
 		$key = 'DB_Cache_Look_'.md5( $field_name.$table_name.$where_condition.serialize($parameter).$lifetime );
 		$null = null;
 		if( is_null($res = cache_get($key, $null, true, false)) )
@@ -452,10 +455,10 @@ class DataSource
 		}
 		return $res;
 	}
-	
+
 	/**
 	 * Entry point for anonymous queries.
-	 * 
+	 *
 	 * If you dont want to write a <Model> class for a table you can use this method to create an anonymous query:
 	 * <code php>
 	 * $entries = $dataSource->Query('my_bog_entries')->youngerThan('created',1,'month');
@@ -467,10 +470,10 @@ class DataSource
 	{
 		return new CommonModel($this,$tablename);
 	}
-	
+
 	/**
 	 * Creates a typed <Model> from an array of data values.
-	 * 
+	 *
 	 * Not nice, but fast.
 	 * @param string $type Type of <Model> class to create
 	 * @param array $fields Data for the new model, keys must be columns, values will be assigned
@@ -487,10 +490,10 @@ class DataSource
 				$obj->$k = $v;
 		return $obj;
 	}
-	
+
 	/**
 	 * Checks if a table exists.
-	 * 
+	 *
 	 * @param string $name Name of table to check
 	 * @return bool true or false
 	 */
@@ -498,10 +501,10 @@ class DataSource
 	{
 		return $this->Driver->tableExists($name);
 	}
-	
+
 	/**
 	 * Return now how the database sees it.
-	 * 
+	 *
 	 * @param int $seconds_to_add Offset to now in seconds, may be negative too.
 	 * @return string String representing now
 	 */
@@ -511,10 +514,10 @@ class DataSource
 		$rs = $this->CacheExecuteSql("SELECT $sql as dt",[],1);
 		return $rs['dt'];
 	}
-	
+
 	/**
 	 * Returns the table where a <Model> is stored.
-	 * 
+	 *
 	 * @param string $type Classname of <Model> to check
 	 * @return string Table name
 	 */
@@ -523,10 +526,10 @@ class DataSource
 		$obj = new $type($this);
 		return $obj->GetTableName();
 	}
-	
+
 	/**
 	 * Executes a query and returns the first column of the first row.
-	 * 
+	 *
 	 * @param string $sql SQL statement
 	 * @param array|mixed $prms Arguments for $sql
 	 * @return mixed The first scalar
@@ -539,10 +542,10 @@ class DataSource
         $stmt->FetchMode = PDO::FETCH_NUM;
 		return $stmt->fetchScalar();
 	}
-	
+
 	/**
 	 * Same as ExecuteScalar, but uses the cache.
-	 * 
+	 *
 	 * @param string $sql SQL statement
 	 * @param array $prms Arguments for $sql
 	 * @param int $lifetime Lifetime in seconds
@@ -555,10 +558,10 @@ class DataSource
 
         if( $lifetime === false )
             $lifetime = cfg_getd('model','cache_ttl',300);
-        
+
         $sess = $lifetime === 's';
         $glob = !$sess;
-        
+
 		$key = 'SB_Cache_Scalar_'.md5( $sql.serialize($prms).$lifetime );
 		$null = null;
 		if( is_null($res = cache_get($key, $null, $glob, $sess)) )
@@ -568,7 +571,7 @@ class DataSource
 		}
 		return $res;
 	}
-	
+
 	/**
 	 * @shortcut <DataSource::ExecuteScalar>
      * @deprecated (2023/09) Use ExecuteScalar instead
@@ -577,7 +580,7 @@ class DataSource
 	{
 		return $this->ExecuteScalar($sql,$prms);
 	}
-	
+
 	/**
 	 * @shortcut for <DataSource::ExecuteScalar>
      * @deprecated (2023/09) Use ExecuteScalar instead
@@ -588,10 +591,10 @@ class DataSource
 		$res = $this->ExecuteScalar($sql,$parameter);
 		return $res===false?null:$res;
 	}
-	
+
 	/**
 	 * Executes a pages query.
-	 * 
+	 *
 	 * This will add LIMIT stuff to the statement.
 	 * @param string $sql SQL statement
 	 * @param int $items_per_page Items per page
@@ -607,7 +610,7 @@ class DataSource
 		$this->_last_affected_rows_count = $stmt->Count();
 		return $stmt;
 	}
-	
+
 	/**
 	 * @shortcut <DataSource::ExecuteSql>
      * @deprecated (2023/09) Use ExecuteSql instead
@@ -616,10 +619,10 @@ class DataSource
 	{
 		return $this->ExecuteSql($sql,$args);
 	}
-	
+
 	/**
 	 * Returns the last errormessage, if any.
-	 * 
+	 *
 	 * @return string The last error or false
 	 */
 	function ErrorMsg()
@@ -631,17 +634,17 @@ class DataSource
 			return false;
 		return $ei[2];
 	}
-	
+
 	/**
 	 * Gets the amount of rows affected by the last query.
-	 * 
+	 *
 	 * @return int Number of affected rows
 	 */
 	function getAffectedRowsCount()
 	{
 		return $this->_last_affected_rows_count;
 	}
-	
+
 	/**
 	 * @shortcut <DataSource::getAffectedRowsCount>
      * @deprecated (2023/09) Use getAffectedRowsCount instead
@@ -650,10 +653,10 @@ class DataSource
 	{
 		return $this->getAffectedRowsCount();
 	}
-	
+
 	/**
 	 * Returns the database host.
-	 * 
+	 *
 	 * @return string The host or false (for example sqlite has no host)
 	 */
 	function Host()
@@ -662,30 +665,30 @@ class DataSource
 			return false;
 		return trim($m[1]);
 	}
-	
+
 	/**
 	 * Returns the database username.
-	 * 
+	 *
 	 * @return string The username
 	 */
 	function Username()
 	{
 		return $this->_username;
 	}
-	
+
 	/**
 	 * Returns the database password.
-	 * 
+	 *
 	 * @return string The password
 	 */
 	function Password()
 	{
 		return $this->_password;
 	}
-	
+
 	/**
 	 * Returns the database name.
-	 * 
+	 *
 	 * @return string The name
 	 */
 	function Database()
@@ -694,10 +697,10 @@ class DataSource
 			return false;
 		return trim($m[1]);
 	}
-	
+
 	/**
 	 * Returns the id of the last inserted row.
-	 * 
+	 *
 	 * @param string $table The table to get last insert id for
 	 * @return mixed The last insert id
 	 */
@@ -705,7 +708,7 @@ class DataSource
 	{
 		return $this->_pdo->lastInsertId($table);
 	}
-    
+
     /**
      * @shortcut <ResultSet::LogDebug>
      * @param string $label
@@ -716,7 +719,7 @@ class DataSource
 		if( $this->LastStatement )
             $this->LastStatement->LogDebug($label);
 	}
-    
+
     /**
      * @shortcut <system_get_lock>
      */
@@ -725,7 +728,7 @@ class DataSource
         $lock = (strlen($name)<500)?$name:sha1($name);
         return system_get_lock($lock,$this,$timeout);
     }
-    
+
     /**
      * @shortcut <system_release_lock>
      */
