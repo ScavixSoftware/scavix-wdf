@@ -28,7 +28,7 @@
  * @copyright since 2019 Scavix Software GmbH & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
-       
+
 define('FRAMEWORK_LOADED','uSI7hcKMQgPaPKAQDXg5');
 define('__SCAVIXWDF__',__DIR__);
 date_default_timezone_set("Europe/Berlin");
@@ -53,7 +53,7 @@ if( !isset($argv) && isset($_SERVER['argv']) )
     $argc = max(1,count($argv));
 }
 
-// Moved here from cli module to make sure SERVER var is same as in calling (apache env) process. 
+// Moved here from cli module to make sure SERVER var is same as in calling (apache env) process.
 // This is needed to make all dependent configs/modules/... work as expected.
 if( PHP_SAPI == 'cli' )
 {
@@ -82,8 +82,8 @@ elseif( !defined("NO_CONFIG_NEEDED") )
 	system_die("No valid configuration found!");
 
 /**
- * Loads a config file. 
- * 
+ * Loads a config file.
+ *
  * Should not be used if a config file is present in root path.
  * @param string $filename Full path to the config file
  * @param bool $reset_to_defaults If true resets the complete config to the one to read
@@ -101,7 +101,7 @@ function system_config($filename,$reset_to_defaults=true)
 
 /**
  * Resets the global $CONFIG variable to defauls values.
- * 
+ *
  * Just sets some useful default values. This is also a good reference of the basic system variables.
  * @param bool $reset If true resets the config completely to default, extends/overwrites only if false
  * @return void
@@ -142,7 +142,7 @@ function system_config_default($reset = true)
 	$CONFIG['requestparam']['tagstostrip'] = ['script'];
 
 	$CONFIG['model']['internal']['auto_create_tables'] = true;
-	$CONFIG['model']['internal']['datasource_type']    = 'DataSource';	
+	$CONFIG['model']['internal']['datasource_type']    = 'DataSource';
 	$CONFIG['model']['internal']['debug']			   = false;
 
 	$CONFIG['system']['application_name'] = 'wdf_application';
@@ -196,7 +196,7 @@ function system_config_default($reset = true)
 
 /**
  * Loads a module.
- * 
+ *
  * Use this to manually load a module. You can also add it to the config so that
  * system_init() loads it automatically.
  * @param string $path_to_module Complete path to module file
@@ -209,7 +209,7 @@ function system_load_module($path_to_module)
 
     if( $mod == "mod_phpexcel" )
         WdfException::Raise("PHPExcel module has bee removed. Use PhpSpreadsheet instead.");
-    
+
 	if(system_is_module_loaded($mod))
 		return;
 
@@ -227,7 +227,7 @@ function system_load_module($path_to_module)
 
 /**
  * Checks if a module is already loaded.
- * 
+ *
  * Looks into `Wdf::$Modules` if there's a key named `$mod`.
  * @param string $mod The name of the module (not the path!)
  * @return bool true or false
@@ -239,7 +239,7 @@ function system_is_module_loaded($mod)
 
 /**
  * Initializes the Scavix ScavixWDF.
- * 
+ *
  * This is one of two essential functions you must know about.
  * Initializes the complete ScavixWDF, loads all essentials and defined modules and initializes them,
  * prepares the session and writes out some headers (from config too).
@@ -251,7 +251,7 @@ function system_is_module_loaded($mod)
 function system_init($application_name, $skip_header = false, $logging_category=false)
 {
 	global $CONFIG;
-	$thispath = __DIR__;	
+	$thispath = __DIR__;
 
 	$CONFIG['system']['application_name'] = $application_name;
 	if(!isset($CONFIG['model']['internal']['connection_string']))
@@ -271,7 +271,7 @@ function system_init($application_name, $skip_header = false, $logging_category=
     // on posix systems: automatically load cli-module when we are actually in cli
     if( PHP_SAPI=='cli' && !function_exists('cli_init') )
         system_load_module('modules/cli.php');
-    
+
 	if( $logging_category )
 		logging_add_category($logging_category);
 	logging_set_user(); // works as both (session and logging) are now essentials
@@ -287,7 +287,7 @@ function system_init($application_name, $skip_header = false, $logging_category=
 		elseif( file_exists( "$mod") )
 			system_load_module("$mod");
 	}
-    
+
 	if( isset($_REQUEST['request_id']) )
 		session_keep_alive();
 
@@ -311,7 +311,7 @@ function system_init($application_name, $skip_header = false, $logging_category=
 
 /**
  * Parses the request and returns a controller/event pair (if present).
- * 
+ *
  * Note that your .htaccess files must contain these lines:
  * <code>
  * SetEnv WDF_FEATURES_REWRITE on
@@ -335,7 +335,7 @@ function system_parse_request_path()
 			unset($_GET['wdf_route']);
 			return ['ScavixWDF\WdfResource','CompileLess'];
 		}
-		
+
 		// now for the normal processing
 		if( isset($GLOBALS['CONFIG']['wdf_route_parser']) )
         {
@@ -363,7 +363,7 @@ function system_parse_request_path()
                         $event = $path[1];
                     else
                         $offset = 1;
-                    
+
 					if( count($path)>$offset )
 					{
 						foreach( array_slice($path,$offset) as $ra )
@@ -380,7 +380,7 @@ function system_parse_request_path()
 
 	if( !isset($controller) || !$controller )
     {
-		$controller = Args::request('page', cfg_get('system','default_page')); // really oldschool	
+		$controller = Args::request('page', cfg_get('system','default_page')); // really oldschool
         Wdf::$Request->UsingDefaultPage = true;
     }
 	if( !isset($event) || !$event )
@@ -388,7 +388,7 @@ function system_parse_request_path()
 		$event = Args::request('event', cfg_get('system','default_event')); // really oldschool
         Wdf::$Request->UsingDefaultEvent = true;
     }
-	
+
 	$pattern = '/[^A-Za-z0-9\-_\\\\]/';
 	$controller = substr(preg_replace($pattern, "", $controller), 0, 256);
 	$event = substr(preg_replace($pattern, "", $event), 0, 256);
@@ -397,7 +397,7 @@ function system_parse_request_path()
 
 /**
  * Instanciates the previously chosen controller
- * 
+ *
  * Checks what is requested: and object from the object-store, a controller via classname and loads/instaciates it.
  * Will also die in AJAX requests when something weird is called or throw an exception if in normal mode.
  * @param mixed $controller_id Whatever system_parse_request_path() returned
@@ -411,7 +411,7 @@ function system_instanciate_controller($controller_id)
 		$res = new $controller_id();
 	else
 		WdfException::Raise("ACCESS DENIED: Unknown controller '$controller_id'","REQ=",$_REQUEST);
-	
+
 	if( system_is_ajax_call() )
 	{
 		if( !($res instanceof Renderable) && !($res instanceof WdfResource) )
@@ -422,13 +422,13 @@ function system_instanciate_controller($controller_id)
 	}
 	else if( !($res instanceof ICallable) )
 		WdfException::Raise("ACCESS DENIED: $controller_id is no ICallable");
-	
+
 	return $res;
 }
 
 /**
  * Executes the current request.
- * 
+ *
  * This is the second of two essential functions.
  * It runs the actual execution. If fact it is the only place where you will
  * find an `echo` in the ScavixWDF code.
@@ -438,7 +438,7 @@ function system_execute()
 {
 	session_sanitize();
 	execute_hooks(HOOK_POST_INITSESSION);
-    
+
     if( PHP_SAPI == 'cli' && function_exists('cli_execute') )
         cli_execute();
 
@@ -457,28 +457,28 @@ function system_execute()
 	list($current_controller,$current_event) = system_parse_request_path();
     Wdf::$Request->CurrentController = $current_controller;
     Wdf::$Request->CurrentEvent = $current_event;
-    
+
     execute_hooks(HOOK_PRE_CONSTRUCT,array($current_controller,$current_event));
 
-	Wdf::$Request->CurrentController = $current_controller 
+	Wdf::$Request->CurrentController = $current_controller
         = system_instanciate_controller($current_controller);
-    
+
     if( system_method_exists($current_controller,'__translate_event') )
 		$current_event = call_user_func([$current_controller,'__translate_event'],$current_event);
-    
+
 	if( !(system_method_exists($current_controller,$current_event) ||
 		(system_method_exists($current_controller,'__method_exists') && $current_controller->__method_exists($current_event) )) )
 	{
-		Wdf::$Request->CurrentEvent = $current_event 
+		Wdf::$Request->CurrentEvent = $current_event
             = cfg_get('system','default_event');
 	}
 
 	if( !isset($GLOBALS['wdf_route']) ) // compat
 		$GLOBALS['wdf_route'] = array($current_controller,$current_event); // compat
-    
+
     if( !isset(Wdf::$Request->Route) )
         Wdf::$Request->Route = array($current_controller,$current_event);
-    
+
 	if( system_method_exists($current_controller,$current_event) ||
 		(system_method_exists($current_controller,'__method_exists') && $current_controller->__method_exists($current_event) ) )
 	{
@@ -491,7 +491,7 @@ function system_execute()
 
 /**
  * Executes the given request.
- * 
+ *
  * Will parse the target class/method for required parameters
  * and prepare the data given in the $_REQUEST variable to match them.
  * @param string $target_class Name of the class
@@ -532,7 +532,7 @@ function system_invoke_request($target_class,$target_event,$pre_execute_hook_typ
 
 /**
  * Terminats the current run and presents a result to the browser.
- * 
+ *
  * @param mixed $result The result that shall be passed to the browser
  * @param bool $die If true uses <die>() for output, else uses <echo>()
  * @return void
@@ -540,14 +540,14 @@ function system_invoke_request($target_class,$target_event,$pre_execute_hook_typ
 function system_exit($result=null,$die=true)
 {
     execute_hooks(HOOK_POST_EXECUTE);
-    
+
 	if( !isset($result) || !$result )
 		$result = current_controller(false);
+	$response = '';
 
     if( PHP_SAPI == 'cli' )
-    {
         die("Missing CLI handling, cannot render HTML here\n");
-    }
+
 	if( system_is_ajax_call() )
 	{
 		if( $result instanceof AjaxResponse )
@@ -573,7 +573,7 @@ function system_exit($result=null,$die=true)
         $_SESSION['latest_requests'][$_SESSION['request_id']] = [current_controller(),current_event(),$_GET,$_POST];
         while( count($_SESSION['latest_requests']) > 20 )
             array_shift($_SESSION['latest_requests']);
-        
+
 		if( $result instanceof Renderable)
 		{
 			$response = $result->WdfRenderAsRoot();
@@ -590,9 +590,9 @@ function system_exit($result=null,$die=true)
         model_store();
     if( function_exists('session_update') )
         session_update();
-        
-	execute_hooks(HOOK_PRE_FINISH,array($response));
-	
+
+	execute_hooks(HOOK_PRE_FINISH, [$response]);
+
 	if( $die )
 		die($response);
 	echo $response;
@@ -600,7 +600,7 @@ function system_exit($result=null,$die=true)
 
 /**
  * Terminats the current run.
- * 
+ *
  * Will be called from exception and error handlers. You may, call this directly, but we
  * recommend to throw an exception instead. See the WdfException class and it's Raise() method
  * for more about this.
@@ -737,7 +737,7 @@ function system_die_http($code)
 
 /**
  * Registers a function to be executed on a system hook.
- * 
+ *
  * Note that this registers a function! If you want an objects method to be executed, see `register_hook()`.
  * @param int $type Valid hook type (see the HOOK_* constants)
  * @param string|\Closure $handler_method name of function to call
@@ -752,7 +752,7 @@ function register_hook_function($type,$handler_method,$prepend=false)
 
 /**
  * Registers a method to be executed on a system hook.
- * 
+ *
  * Note that this registers an objects method! If you want function to be executed, see `register_hook_function()`.
  * @param int $type Valid hook type (see the HOOK_* constants)
  * @param object $handler_obj The object containig the handler method
@@ -774,7 +774,7 @@ function register_hook($type,&$handler_obj,$handler_method,$prepend=false)
 
 /**
  * Removes previously registered hook handler from all hook types.
- * 
+ *
  * This is automatically called when content is removed from <Renderable> objects to avoid performing actions on objects that are not part
  * of the DOM anymore.
  * @param object $handler_obj The object taht shall be removed from the hanlder stack
@@ -786,14 +786,14 @@ function release_hooks($handler_obj)
 		foreach( $stack as $i=>$def )
 			if( is_array($def) && ($def[0] == $handler_obj) )
 				unset( Wdf::$Hooks[$type][$i] );
-			
+
 	foreach( Wdf::$Hooks as $type=>$stack )
 		Wdf::$Hooks[$type] = array_values($stack);
 }
 
 /**
  * Executes a system hook (calls all registered handlers).
- * 
+ *
  * This is very internal, but no magic: just loops all registered handlers and calls them.
  * Arguments given vary from hook_type to hook_type.
  * @param int $type Valid hook type (see the HOOK_* constants)
@@ -807,14 +807,14 @@ function execute_hooks($type,$arguments = [])
 	Wdf::$Hooks['fired'][$type] = $type;
 	if( !isset(Wdf::$Hooks[$type]) )
     	return;
-    
+
 	is_valid_hook_type($type);
 
 	$loghooks = $CONFIG['system']['hook_logging'];
-	
+
 	if( $loghooks )
 		log_debug("BEGIN ".hook_type_to_string($type));
-	
+
 	// note: as hooks may be added to the chain do not remove the count(...) here: it may grow!
 	for($i=0; $i<count(Wdf::$Hooks[$type]); $i++)
 	{
@@ -850,7 +850,7 @@ function execute_hooks($type,$arguments = [])
 
 /**
  * Checks if a given int is a valid hook type.
- * 
+ *
  * Checks a given integer if it represents a valid hook_type.
  * @param int $type Value to be checked against valid hook type (see the HOOK_* constants)
  * @return bool true if valid
@@ -871,7 +871,7 @@ function is_valid_hook_type($type)
 
 /**
  * Returns the string representation of an int hook type.
- * 
+ *
  * In fact just returns the constant name as a string, so
  * <code php>
  * echo (hook_type_to_string(HOOK_POST_INIT) == 'HOOK_POST_INIT')?'true':'false';
@@ -902,11 +902,11 @@ function hook_type_to_string($type)
 
 /**
  * Checks if the hook of the given type is already fired
- * 
+ *
  * Sometimes you'll need to know the step of the current execution. You may use this function
  * to check which hooks have already been fired.
  * @param int $type Hook Type
- * @return bool true|bool 
+ * @return bool true|bool
  */
 function hook_already_fired($type)
 {
@@ -917,7 +917,7 @@ function hook_already_fired($type)
 
 /**
  * Checks if there is a handler bound to a HOOK
- * 
+ *
  * Checks if there's at least one handler registered for the hook
  * @param int $type Hook Type
  * @return bool true|bool
@@ -929,9 +929,9 @@ function hook_bound($type)
 
 /**
  * Returns a string representation of the given stacktrace
- * 
+ *
  * This is kind of internal, but may be of use. We shift the stacktrace a bit to have more information
- * in each line that belong together. 
+ * in each line that belong together.
  * @param array $stacktrace Use debug_backtrace() to get this
  * @return string The stacktrace-string
  */
@@ -949,7 +949,7 @@ function system_stacktrace_to_string($stacktrace)
 			$function = $t1['class'].$t1['type'].$t1['function'];
 		else
 			$function = $t1['function'];
-		
+
 		if( isset($t0['file']) && isset($t0['line']) )
 		{
 			$rp_file = $t0['file'];
@@ -991,7 +991,7 @@ function __set_classpath_order($class_path_order)
 
 /**
  * Called whenever a class shall be instanciated but there's no definition found
- * 
+ *
  * See http://www.php.net/manual/de/function.spl-autoload-register.php
  * @param string $class_name Name of the class to load
  * @return void
@@ -1014,7 +1014,7 @@ function system_spl_autoload($class_name)
 			$pre = get_declared_classes();
             require_once($file);
 			$post = array_unique(array_diff(get_declared_classes(), $pre));
-			
+
 			foreach( $post as $cd )
 			{
 				$d = explode("\\",$cd);
@@ -1031,7 +1031,7 @@ function system_spl_autoload($class_name)
 
             if( !isset($def) )
                 $def = array_pop($post);
-			
+
 			if( !isset($orig) && !$def ) // plain class requested AND file was already included, so search up the declared classes and alias
 			{
 				foreach( array_reverse($pre) as $c )
@@ -1053,7 +1053,7 @@ function system_spl_autoload($class_name)
 				}
 			}
 		}
-    } 
+    }
     catch(Exception $ex)
     { WdfException::Log("system_spl_autoload",$ex); };
 }
@@ -1067,7 +1067,7 @@ spl_autoload_register("system_spl_autoload",true,true);
  */
 function __autoload__template($controller,$template_name)
 {
-	global $CONFIG; 
+	global $CONFIG;
 	if( is_object($controller) )
 		$class = strtolower(get_class($controller));
 	else
@@ -1139,7 +1139,7 @@ function __search_file_for_class($class_name,$extension="class.php",$classpath_l
     $r = cache_get($key);
     if( $r !== false )
         return $r;
-    
+
 	$class_name_lc = strtolower($class_name);
 
 	$short_class_name = "";
@@ -1201,7 +1201,7 @@ function __search_file_for_class($class_name,$extension="class.php",$classpath_l
 
 /**
  * Builds a request.
- * 
+ *
  * This is quite basic and used very often. It will return an URL to the given controller.
  * It checks if the routing features are enabled and ensures the the URLs are working!
  * @param mixed $controller The page to be loaded (can be <Renderable> or string)
@@ -1222,10 +1222,10 @@ function buildQuery($controller,$event="",$data="", $url_root=false)
             store_object($controller);
 		$controller = $controller->_storage_id;
     }
-	
+
     if(substr($controller, 0, 4) == "http" || substr($controller, 0, 2) == "//")
         return $controller;
-	
+
 	// allow buildQuery('controller/method')
 	if( is_string($controller) && $event=="" && $data=="" && !$url_root )
 	{
@@ -1257,13 +1257,13 @@ function buildQuery($controller,$event="",$data="", $url_root=false)
 		}
 		$data = http_build_query($data);
 	}
-	
+
 	if( !can_rewrite() )
 	{
 		$data = http_build_query(array('wdf_route'=>$route)).($data?"&$data":"");
 		$route = "";
 	}
-	
+
 	if( isDev() && isset($_REQUEST["XDEBUG_PROFILE"]) )
         $data .= ($data?"&":"")."XDEBUG_PROFILE";
 
@@ -1274,7 +1274,7 @@ function buildQuery($controller,$event="",$data="", $url_root=false)
 
 /**
  * Builds a query for the current page.
- * 
+ *
  * Calls buildQuery internally to build an URL to the current route.
  * @param string|array $data Additional data
  * @return string A complete Request (for use as HREF)
@@ -1294,7 +1294,7 @@ function samePage($data="")
 
 /**
  * Executed a header redirect to another page.
- * 
+ *
  * Calls buildQuery internally to build an URL to the current route, but will also work
  * if `$controller` already is an URL.
  * Note: Will terminate the current processing silently and sent a "Location" header!
@@ -1317,19 +1317,19 @@ function redirect($controller,$event="",$data="",$url_root=false)
 		$url = buildQuery($controller,$event,$data,$url_root);
 
     translation_add_unknown_strings();
-    
+
     // As discussed this breaks when AJAX request shall be redirected itself.
     // Trying to redirect if HTML is rendered in Ajax context, see <system_exit>.
 //    if( system_is_ajax_call() )
 //        system_exit(AjaxResponse::Redirect($url));
-    
+
 	header("Location: ".$url);
     system_exit('Location: '.$url);
 }
 
 /**
  * Generates random string in the given length.
- * 
+ *
  * Can be used as password, sessionid, ticket....
  * @param int $len The length of the return string
  * @param int $case_sensitive If FALSE, only upper case chars are used. Applies only if $chars is not given
@@ -1361,8 +1361,8 @@ function generatePW($len = 8, $case_sensitive=true, $chars='')
 }
 
 /**
- * Appends a version parameter to a link. 
- * 
+ * Appends a version parameter to a link.
+ *
  * This is useful to avoid browser-side CSS and JS caching.
  * @param string $href The URL
  * @return string A new URL appended the nocache string
@@ -1371,7 +1371,7 @@ function appendVersion($href)
 {
 	if( !isset($GLOBALS['APP_VERSION']) )
 		setAppVersion (0, 0, 0, "default");
-	
+
 	if( !$href || $href[0] == '/' )
 		return "/{$GLOBALS['APP_VERSION']['nc']}$href";
 	return "{$GLOBALS['APP_VERSION']['nc']}/$href";
@@ -1379,7 +1379,7 @@ function appendVersion($href)
 
 /**
  * Checks a string and returns true if it is UTF-8 encoded
- * 
+ *
  * This performs some dirty checks and tries to detect if the given string is UTF8 encoded
  * @param string $string String to check
  * @return bool True if UTF-8
@@ -1399,7 +1399,7 @@ function detectUTF8($string)
 
 /**
  * Returns an array containing the parameters of the referrer string.
- * 
+ *
  * If $part is given (and set in data) will only return this value.
  * @param string $part Name of URL parameter to get
  * @return string|array Value of URL parameter $part if given, else array of all URL parameters
@@ -1423,7 +1423,7 @@ function referrer($part='')
 
 /**
  * Checks wether the calling IP address matches the given host od IP.
- * 
+ *
  * May be useful to detect known IP addresses/hosts easily
  * @param string $host_or_ip Hostname or IP to be checked
  * @return bool true or false
@@ -1440,10 +1440,10 @@ function is_host($host_or_ip)
 
 /**
  * Returns a value from the wdf cache.
- * 
+ *
  * There are multiple caches: SESSION and global.
  * Global cache required additional globalcache module to be loaded.
- * Will only consult globalcache if `$use_global_cache` is true and `$use_session_cache` is false or 
+ * Will only consult globalcache if `$use_global_cache` is true and `$use_session_cache` is false or
  * the object is not found in the SESSION cache
  * @param string $key Identifies what you want
  * @param mixed $default The default value you want if key is not present in the cache
@@ -1485,7 +1485,7 @@ function cache_get($key,$default=false,$use_global_cache=true,$use_session_cache
 
 /**
  * Stores a string value into the internal cache.
- * 
+ *
  * Noting to say. Just stores where you want.
  * @param string $key a key for the value
  * @param mixed $value the value to store
@@ -1516,7 +1516,7 @@ function cache_set($key,$value,$ttl=false,$use_global_cache=true,$use_session_ca
 
 /**
  * Removes an entry from the cache
- * 
+ *
  * Will simply do nothing if there's nothing stored for the key.
  * @param string $key The key identifiying the entry
  * @return void
@@ -1531,7 +1531,7 @@ function cache_del($key)
 
 /**
  * Clears the cache
- * 
+ *
  * Note that calling this will NOT clear the complete `$_SESSION` variale, but only
  * `$_SESSION["system_internal_cache"]`.
  * @param bool $global_cache If true clears the global cache (see globalcache module)
@@ -1542,9 +1542,9 @@ function cache_clear($global_cache=true, $session_cache=true)
 {
     if( $session_cache )
 		$_SESSION["system_internal_cache"] = [];
-    
+
     unset($_SESSION['js_strings_version']); // force JS string regeneration
-        
+
     if( $global_cache && system_is_module_loaded('globalcache') )
 		globalcache_clear();
     clear_less_cache();
@@ -1552,7 +1552,7 @@ function cache_clear($global_cache=true, $session_cache=true)
 
 /**
  * Returns a list of all keys in the cache
- * 
+ *
  * Note that the returned array contains all key that are in one of the requested stores.
  * Means that there may be keys that are only in SESSION, but not in globalcache.
  * @param bool $global_cache If true checks the global cache (see globalcache module)
@@ -1564,17 +1564,17 @@ function cache_list_keys($global_cache=true, $session_cache=true)
     $res = ($session_cache&&isset($_SESSION["system_internal_cache"]))
         ?array_keys($_SESSION["system_internal_cache"])
         :[];
-	
+
 	if( $global_cache && system_is_module_loaded('globalcache') )
 		$res = array_merge($res, globalcache_list_keys() );
-       
+
 	sort($res);
 	return array_unique($res);
 }
 
 /**
  * Returns the current chosen controller
- * 
+ *
  * Note that if you request a controller object (`$as_string==false`) that may still be a string, if it has not been
  * instaciated yet!
  * @param bool $as_string If true will return the classname (or id if it is from object store)
@@ -1595,7 +1595,7 @@ function current_controller($as_string=true)
 
 /**
  * Returns the current chosen event
- * 
+ *
  * This can return an empty string if there's no current event or if that has not yet been parsed or if it simply IS an empty string.
  * @return string The current event
  */
@@ -1606,7 +1606,7 @@ function current_event()
 
 /**
  * Returns the current url
- * 
+ *
  * @return string The current url
  */
 function current_url()
@@ -1616,7 +1616,7 @@ function current_url()
 
 /**
  * Returns information about the current request.
- * 
+ *
  * If the current request is an AJAX request, it returns info about the last 'normal' call.
  * @param bool $as_url If true will return a string URL containing all the GET parametes
  * @return array|string Array with (string)controller,(string)method,(array)get and (array)post
@@ -1645,7 +1645,7 @@ function system_current_request($as_url=false)
 
 /**
  * Returns the value of a given class constant.
- * 
+ *
  * Will check against name match and will use endswith to try to find
  * names without prefix.
  * Check is case insensitive!
@@ -1665,7 +1665,7 @@ function constant_from_name($class_name_or_object,$constant_name)
 
 /**
  * Returns the name of a given class constant.
- * 
+ *
  * Will check all constant values and return the first match.
  * @param string $class_name name of the class containing the constant
  * @param mixed $constant_value value of the constant to get
@@ -1683,7 +1683,7 @@ function name_from_constant($class_name,$constant_value,$prefix=false)
 
 /**
  * Wrapper for json_encode that ensures JS functions are not quoted.
- * 
+ *
  * Will detect code that starts with '[jscode]' or 'function('
  * Example:
  * <code php>
@@ -1723,7 +1723,7 @@ function system_to_json($value)
 
 /**
  * Calls an objects method with given arguments
- * 
+ *
  * `call_user_func_array` does not allow byref arguments since 5.3 anymore
  * so we wrap this in our own funtion. This is even faster then `call_user_func_array`.
  * @param object $object Object to call methos in
@@ -1733,34 +1733,34 @@ function system_to_json($value)
  */
 function system_call_user_func_array_byref(&$object, $funcname, &$args)
 {
-	switch(count($args)) 
+	switch(count($args))
 	{
-		case 0: 
-			return $object->{$funcname}(); 
-		case 1: 
-			return $object->{$funcname}($args[0]); 
-		case 2: 
-			return $object->{$funcname}($args[0], $args[1]); 
-		case 3: 
-			return $object->{$funcname}($args[0], $args[1], $args[2]); 
-		case 4: 
-			return $object->{$funcname}($args[0], $args[1], $args[2], $args[3]); 
-		case 5: 
-			return $object->{$funcname}($args[0], $args[1], $args[2], $args[3], $args[4]); 
-		case 6: 
-			return $object->{$funcname}($args[0], $args[1], $args[2], $args[3], $args[4], $args[5]); 
-		case 7: 
-			return $object->{$funcname}($args[0], $args[1], $args[2], $args[3], $args[4], $args[5], $args[6]); 
-		case 8: 
-			return $object->{$funcname}($args[0], $args[1], $args[2], $args[3], $args[4], $args[5], $args[6], $args[7]); 
-		default: 
-			return call_user_func_array(array($object, $funcname), $args);  
+		case 0:
+			return $object->{$funcname}();
+		case 1:
+			return $object->{$funcname}($args[0]);
+		case 2:
+			return $object->{$funcname}($args[0], $args[1]);
+		case 3:
+			return $object->{$funcname}($args[0], $args[1], $args[2]);
+		case 4:
+			return $object->{$funcname}($args[0], $args[1], $args[2], $args[3]);
+		case 5:
+			return $object->{$funcname}($args[0], $args[1], $args[2], $args[3], $args[4]);
+		case 6:
+			return $object->{$funcname}($args[0], $args[1], $args[2], $args[3], $args[4], $args[5]);
+		case 7:
+			return $object->{$funcname}($args[0], $args[1], $args[2], $args[3], $args[4], $args[5], $args[6]);
+		case 8:
+			return $object->{$funcname}($args[0], $args[1], $args[2], $args[3], $args[4], $args[5], $args[6], $args[7]);
+		default:
+			return call_user_func_array(array($object, $funcname), $args);
 	}
 }
 
 /**
  * Checks if a method exists in a class.
- * 
+ *
  * This performs cached searches, so it is faster than native method_exists function when called
  * multiple times.
  * @param mixed $object_or_classname Object or classname to check
@@ -1771,7 +1771,7 @@ function system_method_exists($object_or_classname,$method_name)
 {
 	if( is_array($object_or_classname) || (is_scalar($object_or_classname) && !is_string($object_or_classname)) )
 		return false;
-	
+
 	$key = 'method_exists_'.session_name().'-'.getAppVersion('nc').'-'.(is_string($object_or_classname)?$object_or_classname:get_class($object_or_classname)).'.'.$method_name;
 	$ret = cache_get($key);
 	if( $ret !== false )
@@ -1783,7 +1783,7 @@ function system_method_exists($object_or_classname,$method_name)
 
 /**
  * Shuffle an array and preserve key=>value binding
- * 
+ *
  * http://www.php.net/manual/en/function.shuffle.php#94697
  * @param array $array Array to be shuffled
  * @return void
@@ -1799,7 +1799,7 @@ function shuffle_assoc(&$array)
 
 /**
  * Renders a complete object tree.
- * 
+ *
  * This means that the tree is checked for Renderable objects, arrays and so on
  * and all the needed actions are triggered recursively.
  * @param array $array_of_objects Array of objects
@@ -1809,7 +1809,7 @@ function system_render_object_tree($array_of_objects)
 {
 	if( !isset($GLOBALS['system_render_object_tree_stack']) )
 		$GLOBALS['system_render_object_tree_stack'] = [];
-	
+
 	$res = [];
 	foreach( $array_of_objects as $key=>&$val )
 	{
@@ -1838,13 +1838,13 @@ function system_render_object_tree($array_of_objects)
 
 /**
  * Encodes a string for output to the browser.
- * 
+ *
  * This function basically uses htmlentities to savely encode output thus avoiding XSS attacks.
  * If recursively walks given arrays/objects and is able to encode <Model> objects properties only.
  * It also avoid double encoding $values.
- * 
+ *
  * Note that <Model> objects that are assigned to <Control>s or <Template>s are automatically encoded by the WDF.
- * 
+ *
  * @param mixed $value Value or array/object of values to be encoded
  * @param bool $encode_models_only If true only properties of <Model> objects are encoded
  * @return mixed The encoded value(s)
@@ -1853,10 +1853,10 @@ function system_encode_for_output($value,$encode_models_only=false)
 {
 	if( !$encode_models_only && is_string($value) )
 		return htmlentities($value,ENT_COMPAT | ENT_HTML401,"UTF-8",false);
-    
+
     if( is_object($value) )
         $value = clone($value);
-    
+
 	if( $value instanceof ScavixWDF\Model\Model )
 	{
 		foreach( $value->GetColumnNames() as $col )
@@ -1888,7 +1888,7 @@ function create_class_alias($original,$alias,$strong=false)
 	{
 		if( Wdf::$ClassAliases[$alias] == $original )
 			return;
-		
+
 		if( !is_array(Wdf::$ClassAliases[$alias]) )
 			Wdf::$ClassAliases[$alias] = array(Wdf::$ClassAliases[$alias]);
         elseif( in_array($original,Wdf::$ClassAliases[$alias]) )
@@ -1930,7 +1930,7 @@ function fq_class_name($classname)
         case 'redisstore':                return '\\ScavixWDF\\Session\\RedisStore';
         case 'filesstore':                return '\\ScavixWDF\\Session\\FilesStore';
 	}
-	
+
 	if( isset(Wdf::$ClassAliases[$cnl]) )
 	{
 		if( is_array(Wdf::$ClassAliases[$cnl]) )
@@ -1942,7 +1942,7 @@ function fq_class_name($classname)
 
 /**
  * Checks if a process it still running.
- * 
+ *
  * Note that this depends on <shell_exec>(), so make sure it not  disabled in `php.ini`.
  * @param int $pid Process id to check
  * @return bool true if running, else false
@@ -1964,7 +1964,7 @@ function system_process_running($pid)
 
 /**
  * Creates a named lock.
- * 
+ *
  * This is useful in some special cases where different PHP processes are creating for example datasets that must be
  * unique. So use it like this:
  * <code php>
@@ -1990,9 +1990,9 @@ function system_get_lock($name,$datasource='internal',$timeout=10)
         `created` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (`lockname`)
         ) ENGINE=MEMORY;");
-	
+
 	$start = microtime(true);
-	
+
 	$args = array($name,getmypid());
 	do
 	{
@@ -2002,7 +2002,7 @@ function system_get_lock($name,$datasource='internal',$timeout=10)
 			if( microtime(true)-$start > $timeout)
 				WdfException::Raise("Timeout while awaiting the lock '$name'");
 		}
-		
+
 		foreach( $ds->ExecuteSql("SELECT pid FROM wdf_locks")->Enumerate('pid') as $pid )
 		{
 			if( !system_process_running($pid) )
@@ -2017,7 +2017,7 @@ function system_get_lock($name,$datasource='internal',$timeout=10)
         {
             $cnt = 0;
         }
-		
+
 		if( $cnt == 0 && $timeout <= 0 )
 			return false;
 	}while( $cnt == 0 );
@@ -2026,7 +2026,7 @@ function system_get_lock($name,$datasource='internal',$timeout=10)
 
 /**
  * Releases a named lock.
- * 
+ *
  * See <system_get_lock>() for details about this.
  * @param string $name Name of the lock to release
  * @param mixed $datasource Name of datasource to use or <DataSource> object itself.
