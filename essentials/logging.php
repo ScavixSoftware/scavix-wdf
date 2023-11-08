@@ -36,13 +36,13 @@ use ScavixWDF\WdfException;
 
 /**
  * Initializes the logging mechanism.
- * 
+ *
  * Will use the ini_get('error_log') setting to ensure working logger
  * functionality by default.
  * You may configure multiple loggers of different classes, default is 'Logger'.
  * Specify configuration in CONFIG variable as follows:
  * $CONFIG['system']['logging'][&lt;alias&gt;] = array(&lt;key&gt; => &lt;value&gt;);
- * &lt;alias&gt; is a meanful name for the logger (in fact it can be used to log to only 
+ * &lt;alias&gt; is a meanful name for the logger (in fact it can be used to log to only
  * one logger instead of logging to all).
  * Rest is an array of key-value pairs.
  * Following keys are supported:
@@ -59,29 +59,29 @@ use ScavixWDF\WdfException;
 function logging_init()
 {
 	global $CONFIG;
-	
+
 	// remove error module from module-auto-load config and fake that it has been loaded
         if( isset($CONFIG['system']['modules']) && is_array($CONFIG['system']['modules']) )
             $CONFIG['system']['modules'] = array_diff($CONFIG['system']['modules'],array('error'));
-	
+
 	require_once(__DIR__.'/logging/logentry.class.php');
 	require_once(__DIR__.'/logging/logreport.class.php');
 	require_once(__DIR__.'/logging/logger.class.php');
 	require_once(__DIR__.'/logging/tracelogger.class.php');
     classpath_add(__DIR__.'/logging',true,'system');
-	
+
 	// default logger if nothing configured uses defined php error_log (see Logger constructor)
 	// no further limits and/or features are enabled, so plain logging is active
 	if( !isset($CONFIG['system']['logging']) )
 		$CONFIG['system']['logging'] = array('default' => []);
-	
+
 	foreach( $CONFIG['system']['logging'] as $alias=>$conf )
 		Wdf::$Logger[$alias] = Logger::Get($conf);
-	
+
 	ini_set("display_errors", 0);
 	ini_set("log_errors", 1);
 	error_reporting(E_ALL);
-	
+
 	set_error_handler('global_error_handler');
 	set_exception_handler('global_exception_handler');
 	register_shutdown_function('global_fatal_handler');
@@ -89,7 +89,7 @@ function logging_init()
 
 /**
  * Add a logger.
- * 
+ *
  * @param string $alias Name for the logger
  * @param array $conf Configuration as described in <loggin_init>
  * @return void
@@ -101,7 +101,7 @@ function logging_add_logger($alias,$conf)
 
 /**
  * Remove a logger.
- * 
+ *
  * @param string $alias Name for the logger
  * @return void
  */
@@ -113,7 +113,7 @@ function logging_remove_logger($alias)
 
 /**
  * Returns a logger.
- * 
+ *
  * @param string $alias Name of the logger to get
  * @return Logger
  */
@@ -124,7 +124,7 @@ function logging_get_logger($alias)
 
 /**
  * Registers a class to act as request logger.
- * 
+ *
  * @see <RequestLogEntry>
  * @param string $classname Classname of the handler, must be subclass of <RequestLogEntry>
  * @return void
@@ -136,7 +136,7 @@ function register_request_logger($classname)
 
 /**
  * Checks if there's enough memory.
- * 
+ *
  * @return bool true if ok, else false
  */
 function logging_mem_ok()
@@ -180,8 +180,8 @@ function global_error_handler($errno, $errstr, $errfile, $errline)
     //       See code below for handling this
 	if ( error_reporting() == 0 )
         return;
-	
-	// As we skip E_STRICT check that too. 
+
+	// As we skip E_STRICT check that too.
     // E_STRICT has been changed to E_WARNING in php7 (see https://www.php.net/manual/de/migration70.incompatible.php)
     // so we ignore the "Declaration of ... should be compatible with" warnings in live systems
     if ((($errno & error_reporting()) == 0) || ($errno == E_STRICT) || (($errno == E_WARNING) && (strpos($errstr, 'Declaration of ') === 0) && (strpos($errstr, ' should be compatible with ') !== false)))
@@ -225,7 +225,7 @@ function global_error_handler($errno, $errstr, $errfile, $errline)
             //$errline .= " un@".system_stacktrace_to_string(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
         }
     }
-        
+
     $sev = 'NOTICE';
 	foreach( $error_names as $n )
     {
@@ -276,7 +276,7 @@ function global_fatal_handler()
 {
     if( !system_is_ajax_call() && function_exists('session_update') )
         session_update();
-    
+
 	$error = error_get_last();
 	if(($error === NULL) || ($error['type'] !== E_ERROR))
 		return;
@@ -302,17 +302,17 @@ function global_fatal_handler()
 
 /**
  * Extends a logger with a named variable.
- * 
- * You may use this to recreate the logfile name. 
+ *
+ * You may use this to recreate the logfile name.
  * Variables used here will match placeholders in the logfile name (see filename_pattern config key).
  * Currently all classes derivered from Logger know about the SERVER variable, so
  * all keys in there will work without the need to call logging_extend_logger.
- * 
+ *
  * Samples:
  * 'error{REMOTE_ADDR}.log' will become 'error_192.168.1.123.log'
  * 'error{REMOTE_ADDR}{username}.log' will become 'error_192.168.1.123.log' until you call
  * logging_extend_logger(&lt;alias&gt;,'username','daniels') and the be 'error_192.168.1.123_daniels.log'.
- * 
+ *
  * Note that setting extensions is only supported on a per logger basis, so you'll need
  * a valid alias as set in initial configuration.
  * @param string $alias The loggers alias name
@@ -328,7 +328,7 @@ function logging_extend_logger($alias,$key,$value)
 
 /**
  * Adds a category to all loggers.
- * 
+ *
  * @param string $name Category to add
  * @return void
  */
@@ -340,7 +340,7 @@ function logging_add_category($name)
 
 /**
  * Removes a category from all loggers.
- * 
+ *
  * @param string $name Category to remove
  * @return void
  */
@@ -352,7 +352,7 @@ function logging_remove_category($name)
 
 /**
  * Sets the minimum severity to log.
- * 
+ *
  * @param string $min_severity A valid severity string
  * @return bool
  */
@@ -369,10 +369,10 @@ function logging_set_level($min_severity = "INFO")
 
 /**
  * Tries to set up a category for a logged in user.
- * 
- * Checks the object store for an object with id $object_storage_id 
+ *
+ * Checks the object store for an object with id $object_storage_id
  * that contains a field $fieldname. Then adds content of that field as category to all loggers.
- * 
+ *
  * Note: This will NOT extend the logger with information as logging_extend_logger does!
  * @param string $object_storage_id Storage ID of the object to check for
  * @param string $fieldname Name of field/property to use as category ('name' will use $obj->name as category)
@@ -453,7 +453,7 @@ function log_fatal(...$args)
 
 /**
  * Logs the $label and $value arguments and then returns the $value argument.
- * 
+ *
  * Use case:
  * <code php>
  * function x($a){ return log_return("this is a",$a); }
@@ -470,7 +470,7 @@ function log_return($label,$value)
 
 /**
  * Calls log_debug if the condition is TRUE and then returns the condition.
- * 
+ *
  * Use case:
  * <code php>
  * log_if( !isset($some_var), "Missing data");
@@ -488,7 +488,7 @@ function log_if($condition,...$args)
 
 /**
  * Calls log_debug if the condition is FALSE and then returns the condition.
- * 
+ *
  * Use case:
  * <code php>
  * if( log_if_not( isset($some_var), "Missing data") )
@@ -509,7 +509,7 @@ function log_if_not($condition,...$args)
 
 /**
  * Starts a report named $name
- * 
+ *
  * Returns an object of type <LogReport>, see doc there.
  * Use log_report to finally write the report to logs.
  * @param string $name Report name
@@ -523,7 +523,7 @@ function log_start_report($name)
 
 /**
  * Writes a log-report to the logs.
- * 
+ *
  * Use <log_start_report> to generate a report.
  * @param LogReport $report The report to log
  * @param string $severity Severity to log to
@@ -537,7 +537,7 @@ function log_report(LogReport $report, $severity="TRACE")
 
 /**
  * Renders a variable into a string representation.
- * 
+ *
  * Feel free to use alias function <render_var> instead as it is shorter
  * @param mixed $content Content to be rendered
  * @param array $stack IGNORE (just to detect circular references)
@@ -548,7 +548,7 @@ function logging_render_var($content,&$stack=[],$indent="")
 {
     if( !logging_mem_ok() )
         return "*OUTOFMEM*";
-    
+
 	foreach( $stack as $s )
 	{
 		if( $s === $content )
@@ -558,12 +558,12 @@ function logging_render_var($content,&$stack=[],$indent="")
 	if( is_array($content) )
 	{
 		if( count($content) == 0 )
-			return "*EmptyArray*";
-		$res[] = "Array(".count($content).")\n$indent(";
+			return "(array[0])";
+		$res[] = "(array[".count($content)."])\n$indent{";
 //		$stack[] = $content; // trying to ignore recursion as i'm not sure if this may happen with arrays-only
 		foreach( $content as $i=>$val )
 			$res[] = $indent."\t[$i]: ".logging_render_var($val,$stack,$indent."\t");
-		$res[] = $indent.")";
+		$res[] = $indent."}";
 	}
 	elseif( is_object($content) )
 	{
@@ -590,12 +590,12 @@ function logging_render_var($content,&$stack=[],$indent="")
 		}
         elseif($content instanceof ScavixWDF\Base\DateTimeEx)
         {
-            $res[] = get_class($content).": ".(var_export((array) $content, true));
+            $res[] = "(" . get_class_simple($content) . ")" . $content->format("Uv [c T]");
         }
 		else
 		{
 			$is_renderable = $content instanceof ScavixWDF\Base\Renderable;
-			$res[] = "Object(".get_class($content).")\n$indent{";
+			$res[] = "(".get_class($content).")\n$indent{";
 			foreach( get_object_vars($content) as $name=>$val )
 			{
 				if( $is_renderable )
@@ -631,7 +631,7 @@ function render_var($content)
 
 /**
  * Starts a named timer.
- * 
+ *
  * @param string $name Name of the timer
  * @param string $label Optional label, defaults to $name
  * @return string Timer name (the $name parameter)
@@ -646,7 +646,7 @@ function start_timer($name, $label=false)
 
 /**
  * Set a marker in a named timer.
- * 
+ *
  * @param string $name Timer  name
  * @param string $label Label to be written
  * @return void
@@ -661,7 +661,7 @@ function hit_timer($name,$label='(no label)')
 
 /**
  * Finishes a timer and writes it to log.
- * 
+ *
  * @param string $name Timer name
  * @param int $min_ms Minimum milliseconds that must be reached for the timer to be written to log
  * @return void
@@ -673,14 +673,14 @@ function finish_timer($name,$min_ms = false)
     $trace = Wdf::$Timer[$name];
     list($label,$start,$dur) = array_shift($trace);
     unset(Wdf::$Timer[$name]);
-    
+
     $ms = round((microtime(true)-$start)*1000);
     if( !$min_ms || $ms >= $min_ms )
     {
         $pad = strlen("$ms");
         $trace = array_map(function ($a) use ($pad)
         {
-            return str_pad($a[2], $pad, ' ', STR_PAD_LEFT) . " ms for {$a[0]}"; 
+            return str_pad($a[2], $pad, ' ', STR_PAD_LEFT) . " ms for {$a[0]}";
         }, $trace);
         array_unshift($trace, "started ".date("H:i:s.v",(int)$start));
         $trace[] = "{$ms} ms total";
