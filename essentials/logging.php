@@ -233,6 +233,7 @@ function global_error_handler($errno, $errstr, $errfile, $errline)
 		{
 			$sev = explode("_",$n); // to break *_* severity from global handler that uses PHP error codes like USER_NOTICE, CORE_ERROR,...
 			$sev = $sev[count($sev)-1];
+            $errno = $n;
 			break;
 		}
     }
@@ -559,11 +560,19 @@ function logging_render_var($content,&$stack=[],$indent="")
 	{
 		if( count($content) == 0 )
 			return "(array[0])";
-		$res[] = "(array[".count($content)."])\n$indent{";
-//		$stack[] = $content; // trying to ignore recursion as i'm not sure if this may happen with arrays-only
-		foreach( $content as $i=>$val )
-			$res[] = $indent."\t[$i]: ".logging_render_var($val,$stack,$indent."\t");
-		$res[] = $indent."}";
+        if( count($content) < 2 )
+        {
+            foreach ($content as $i => $val)
+                $res[] = "(array[1]){ [$i]:" . logging_render_var($val, $stack, $indent . "\t") . " }";
+        }
+        else
+        {
+            $res[] = "(array[" . count($content) . "])\n$indent{";
+            //		$stack[] = $content; // trying to ignore recursion as i'm not sure if this may happen with arrays-only
+            foreach ($content as $i => $val)
+                $res[] = $indent . "\t[$i]: " . logging_render_var($val, $stack, $indent . "\t");
+            $res[] = $indent . "}";
+        }
 	}
 	elseif( is_object($content) )
 	{

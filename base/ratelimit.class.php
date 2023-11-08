@@ -26,7 +26,7 @@ namespace ScavixWDF\Base;
 
 /**
  * Tool class to help stop flooding systems.
- * 
+ *
  * You may define a RateLimit on the fly directly where it is needed:
  * <code php>
  * if( !RateLimit::Define('mycontroller1')->PerSeconds(10,100)->Reserve(5) )
@@ -52,25 +52,25 @@ namespace ScavixWDF\Base;
  * // or even
  * MyLimits::Login();
  * </code>
- * 
+ *
  */
 class RateLimit extends \ScavixWDF\Model\Model
 {
 	/** @var string */
 	public $name;
-	
+
 	/** @var \ScavixWDF\Base\DateTimeEx|string */
 	public $created;
-    
+
     /**
      * @implements <Model::GetTableName()>
      */
     public function GetTableName() { return "wdf_ratelimits"; }
-    
+
     private $limits = [];
 
     public $internal_name;
-    
+
     protected function CreateTable()
     {
         $this->_ds->ExecuteSql(
@@ -83,9 +83,9 @@ class RateLimit extends \ScavixWDF\Model\Model
             ENGINE=MEMORY ;");
         $this->AlterTable();
     }
-    
+
     protected function AlterTable(){}
-    
+
     /**
      * @internal RateLimits are never saved like this
      */
@@ -94,7 +94,7 @@ class RateLimit extends \ScavixWDF\Model\Model
         log_warn("No need to call ".__METHOD__." in ".system_get_caller());
         return true;
     }
-    
+
     /**
      * @internal RateLimits are never removed like this
      */
@@ -103,12 +103,12 @@ class RateLimit extends \ScavixWDF\Model\Model
         log_warn("No need to call ".__METHOD__." in ".system_get_caller());
         return true;
     }
-    
+
     /**
      * Entry point for method chaining a new rate limit.
-     * 
+     *
      * @param string $name Name of the limit.
-     * @return static 
+     * @return static
      */
     public static function Define($name)
     {
@@ -117,23 +117,24 @@ class RateLimit extends \ScavixWDF\Model\Model
         $res->internal_name = $name;
         return $res;
     }
-     
+
     /**
      * End point for method chaining.
-     * 
+     *
      * Tries to reseve a 'slot' for this limit if possible for $timeout_seconds seconds.
      * @param int $timeout_seconds Maximum secods to try for
+     * @param bool $verbose If true will <log_debug> if Reserve fails
      * @return bool True if reserved successfully, else false
      */
-    public function Reserve($timeout_seconds=10)
+    public function Reserve($timeout_seconds=10, $verbose = true)
     {
         $q = [];
         foreach( $this->limits as $s=>$l )
             $q[] = "SUM(IF(age < $s,1,0)) as '$s'";
         $sql = "SELECT SQL_NO_CACHE ".implode(",",$q)." FROM (SELECT timestampdiff(second,created,now()) as age FROM wdf_ratelimits WHERE name='{$this->name}') as x";
-        
+
         $maxage = array_first(array_keys($this->limits));
-        
+
         $end = time() + $timeout_seconds;
         do
         {
@@ -142,30 +143,31 @@ class RateLimit extends \ScavixWDF\Model\Model
                 usleep(10000);
                 continue;
             }
-            $this->_ds->Execute("DELETE FROM wdf_ratelimits WHERE name='{$this->name}' AND created<NOW()-INTERVAL $maxage SECOND");
+            $this->_ds->ExecuteSql("DELETE FROM wdf_ratelimits WHERE name='{$this->name}' AND created<NOW()-INTERVAL $maxage SECOND");
             $ok = true;
             $count = $this->_ds->ExecuteSql($sql)->current();
             foreach( $this->limits as $seconds=>$limit )
                 $ok &= $count[$seconds] < $limit;
-            
+
             if( $ok )
             {
-                $this->_ds->Execute("INSERT INTO wdf_ratelimits(name)VALUES('{$this->name}')");
+                $this->_ds->ExecuteSql("INSERT INTO wdf_ratelimits(name)VALUES('{$this->name}')");
                 \ScavixWDF\Wdf::ReleaseLock($this->name);
                 return true;
             }
-            
+
             \ScavixWDF\Wdf::ReleaseLock($this->name);
             usleep(500000);
         }
         while( time() < $end );
-        log_trace(__METHOD__, 'unable to reserve', $this);
+        if ($verbose)
+            log_debug(__METHOD__ . " failed, internal_name={$this->internal_name}, caller=" . system_get_caller());
         return false;
     }
-    
+
     /**
      * Limit to $limit calls per $seconds seconds
-     * 
+     *
      * @param int $seconds Seconds
      * @param int $limit Max calls per interval
      * @return static
@@ -179,7 +181,7 @@ class RateLimit extends \ScavixWDF\Model\Model
 
     /**
      * Limit to $limit calls per $minute minutes
-     * 
+     *
      * @param int $minutes Minutes
      * @param int $limit Max calls per interval
      * @return static
@@ -188,10 +190,10 @@ class RateLimit extends \ScavixWDF\Model\Model
     {
         return $this->PerSeconds($minutes*60, $limit);
     }
-    
+
     /**
      * Limit to $limit calls per $hours hours
-     * 
+     *
      * @param int $hours Hours
      * @param int $limit Max calls per interval
      * @return static
@@ -200,10 +202,10 @@ class RateLimit extends \ScavixWDF\Model\Model
     {
         return $this->PerMinutes($hours*60, $limit);
     }
-    
+
     /**
      * Limit to $limit calls per $days days
-     * 
+     *
      * @param int $days Days
      * @param int $limit Max calls per interval
      * @return static
@@ -212,10 +214,10 @@ class RateLimit extends \ScavixWDF\Model\Model
     {
         return $this->PerHours($days*24, $limit);
     }
-    
+
     /**
      * Limit to $limit calls per $months months
-     * 
+     *
      * @param int $months Months
      * @param int $limit Max calls per interval
      * @return static
@@ -224,10 +226,10 @@ class RateLimit extends \ScavixWDF\Model\Model
     {
         return $this->PerDays($months*30, $limit);
     }
-    
+
     /**
      * Limit to $limit calls per $years years
-     * 
+     *
      * @param int $years Years
      * @param int $limit Max calls per interval
      * @return static

@@ -1045,6 +1045,18 @@ abstract class Model implements Iterator, Countable, ArrayAccess
         );
     }
 
+    /**
+     * Returns a JSON representation of this object.
+     *
+     * If fact it is just a shortcut to <code>json_encode($this->AsArray($filter))</code>.
+	 * @param mixed ...$filter List of column names to return (each: if value present)
+     * @return string
+     */
+    public function AsJson(...$filter)
+    {
+        return json_encode($this->AsArray(...$filter));
+    }
+
 	/**
 	 * Uses <system_sanitize_parameters> to sanitze all field values.
 	 *
