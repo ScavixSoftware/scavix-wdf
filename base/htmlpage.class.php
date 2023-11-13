@@ -37,7 +37,7 @@ default_string('ERR_JAVASCRIPT_AND_COOKIES_REQUIRED','This page requires JavaScr
 define("WDF_HTMLPAGE_TEMPLATE", __DIR__."/htmlpage.tpl.php");
 /**
  * Base class for all Html pages.
- * 
+ *
  * Will perform all rendering and collect js, css, meta and more.
  * @attribute[Resource('jquery.js')]
  * @attribute[Resource('htmlpage.js')]
@@ -52,7 +52,7 @@ class HtmlPage extends Template implements ICallable
 	public $inlineheader = false;
 	public $plaindocready = [];
 	public $wdf_settings = array('focus_first_input'=>true);
-    
+
     public static $RENDER_NOSCRIPT = true;
     public static $DOCTYPE = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 
@@ -61,15 +61,15 @@ class HtmlPage extends Template implements ICallable
 	 * @var bool|string Templatename or false
 	 */
 	public $SubTemplate = false;
-    
+
     public static $POLYFILLS = [];
-    
+
     /**
      * Adds polyfill to the rendered HTML page.
-     * 
+     *
      * This feature uses https://polyfill.io to magically make your
      * website work in nearly every browser.
-     * 
+     *
      * @param string|array $pf Requested polyfills
      * @return void
      */
@@ -79,7 +79,7 @@ class HtmlPage extends Template implements ICallable
             $pf = explode(",", str_replace([' ','|'],[',',','],$pf));
         self::$POLYFILLS = array_merge(self::$POLYFILLS,$pf);
     }
-    
+
     function __toString()
     {
         return "{$this->_storage_id} [".get_class($this)."]";
@@ -93,7 +93,7 @@ class HtmlPage extends Template implements ICallable
 	{
         if( current_event() == 'wdfgettext' )
             system_exit($this->WdfGetText(Args::request('id','')));
-        
+
 		// this makes HtmlPage.tpl.php the 'one and only' template
 		// for all derivered classes, unless they override it after
 		// parent::__construct with $this->file = X
@@ -108,32 +108,34 @@ class HtmlPage extends Template implements ICallable
 		$this->set("plaindocready",$this->plaindocready);
 		$this->set("inlineheaderpre",$this->inlineheaderpre);
 		$this->set("inlineheader",$this->inlineheader);
-		
+
 		if( $body_class )
 			$this->set("bodyClass","$body_class");
 
 		if( resourceExists("favicon.ico") )
 			$this->set("favicon", resFile("favicon.ico"));
-		
+
 		// set up correct display on mobile devices: http://stackoverflow.com/questions/8220267/jquery-detect-scroll-at-bottom
 		$this->addMeta("viewport","width=device-width, height=device-height, initial-scale=1.0");
 		$this->addMeta("referrer","strict-origin-when-cross-origin");
-        
+
     	$buffer = \ScavixWDF\Wdf::GetBuffer('wdf_js_strings')->mapToSession('wdf_js_strings');
-		if( !avail($_SESSION,'js_strings_version') )
+		$jsstrings = $this->getJsRegisteredStrings();
+		$jsstringsversion = md5(join('-', array_keys($jsstrings)).'-'.join('-', $jsstrings));
+		if( ifavail($_SESSION, 'js_strings_version') != $jsstringsversion )
 		{
-			foreach( $this->getJsRegisteredStrings() as $id=>$txt )
+			foreach( $jsstrings as $id=>$txt )
 			{
 				if( is_numeric($id) )
 					$id = $txt;
 				$buffer->set($id,$txt);
 			}
-			$_SESSION['js_strings_version'] = time();
+			$_SESSION['js_strings_version'] = $jsstringsversion;
 		}
         if(iterator_count($buffer))
             $this->addJs(buildQuery('wdfresource','texts').$_SESSION['js_strings_version'].".js");
 	}
-	
+
 	/**
 	 * Override this method to register texts for usage in JavaScript.
 	 *
@@ -154,7 +156,7 @@ class HtmlPage extends Template implements ICallable
             log_warn('"doctype" config is deprecated, use HtmlPage::$DOCTYPE instead');
         if( isset($GLOBALS['CONFIG']['system']['htmlpage']['render_noscript']) )
             log_warn('"render_noscript" config is deprecated, use HtmlPage::$RENDER_NOSCRIPT instead');
-        
+
         self::$_renderingRoot = $this;
 		execute_hooks(HOOK_PRE_RENDER,array($this));
 
@@ -162,7 +164,7 @@ class HtmlPage extends Template implements ICallable
 		$init_data['request_id'] = request_id();
 		$init_data['site_root']  = cfg_get('system','url_root');
         $init_data['rewrite'] = can_rewrite();
-		
+
 		if( cfg_getd('system','attach_session_to_ajax',false) )
 		{
 			$init_data['session_id'] = session_id();
@@ -170,23 +172,23 @@ class HtmlPage extends Template implements ICallable
 		}
 		if(isDevOrBeta() && !isset($init_data['log_to_console']) )
 			$init_data['log_to_console'] = true;
-		
+
 		if( isset($init_data['texts']) )
 		{
 			$buffer = \ScavixWDF\Wdf::GetBuffer('wdf_js_strings')->mapToSession('wdf_js_strings');
 			foreach( $init_data['texts'] as $id=>$txt )
 				$buffer->set(str_replace("[NT]","",$id),$txt);
 		}
-		
+
 		$this->set("wdf_init","wdf.init(".json_encode($init_data).");");
 		$this->set("docready",$this->docready);
 		$this->set("plaindocready",$this->plaindocready);
-        
+
         $this->set('polyfills',array_filter(array_unique(self::$POLYFILLS)));
 
 		return parent::WdfRenderAsRoot();
 	}
-	
+
 	/**
 	 * @override
 	 */
@@ -199,7 +201,7 @@ class HtmlPage extends Template implements ICallable
 				$this->set("isrtl", " dir='rtl'");
             $this->set("languagecode", $ci->Code);
 		}
-		
+
 		$res = $this->__collectResources();
 		$this->js = array_reverse($this->js,true);
 		foreach( Renderable::CategorizeResources(array_reverse($res)) as $r )
@@ -210,20 +212,20 @@ class HtmlPage extends Template implements ICallable
 				$this->addjs($r['url'],$r['key']);
 		}
 		$this->js = array_reverse($this->js,true);
-		
+
 		$this->set("css",$this->css);
 		$this->set("js",$this->js);
 		$this->set("meta",$this->meta);
 		$this->set("content",$this->_content);
 		$this->set("inlineheaderpre",$this->inlineheaderpre);
 		$this->set("inlineheader",$this->inlineheader);
-        
+
 		return parent::WdfRender();
 	}
 
 	/**
 	 * Adds a meta tag to the page
-	 * 
+	 *
 	 * Like this &lt;meta name='$name' content='$content' scheme='$scheme'/&gt;
 	 * @param string $name The name
 	 * @param string $content The content
@@ -240,7 +242,7 @@ class HtmlPage extends Template implements ICallable
 
 	/**
 	 * Adds a link tag to the page
-	 * 
+	 *
 	 * Like this: &lt;link rel='$rel' type='$type' title='$title' href='$href'/&gt;
 	 * @param string $rel The rel attribute
 	 * @param string $href The href attribute
@@ -259,7 +261,7 @@ class HtmlPage extends Template implements ICallable
 
 	/**
 	 * Adds a script tag to the page
-	 * 
+	 *
 	 * Like this: &lt;script type='text/javascript' src='$src'&gt;&lt;/script&gt;
 	 * @param string $src The src attribute
 	 * @param string $key Optional data-key attribute for the script tag
@@ -275,8 +277,8 @@ class HtmlPage extends Template implements ICallable
 	}
 
 	/**
-	 * Adds a link tag (type=css) to the page 
-	 * 
+	 * Adds a link tag (type=css) to the page
+	 *
 	 * Like this: &lt;link rel='stylesheet' type='text/css' href='$src'/&gt;
 	 * @param string $src The src attribute
 	 * @param string $key Optional data-key attribute for the link tag
@@ -293,7 +295,7 @@ class HtmlPage extends Template implements ICallable
 
 	/**
 	 * Adds raw code to the header
-	 * 
+	 *
 	 * @param string $code The raw code
 	 * @param bool $pre Should it be added before the standard css and js files in the header?
 	 * @return static
@@ -317,7 +319,7 @@ class HtmlPage extends Template implements ICallable
 
 	/**
 	 * Adds code to the document ready event.
-	 * 
+	 *
 	 * @param mixed $js_code JS code as string or array
 	 * @param bool $jq_wrapped If true adds the code to the ready event handler, else will be added inline into the head script element
 	 * @return static
@@ -345,7 +347,7 @@ class HtmlPage extends Template implements ICallable
 
 	/**
 	 * Sets InternetExplorer 'Pinned Site Metadata'
-	 * 
+	 *
 	 * See http://msdn.microsoft.com/en-us/library/ie/gg491732%28v=vs.85%29.aspx
 	 * @param string $application See [application-name](http://msdn.microsoft.com/en-us/library/ie/gg491732%28v=vs.85%29.aspx#application-name)
 	 * @param string $tooltip See [msapplication-tooltip](http://msdn.microsoft.com/en-us/library/ie/gg491732%28v=vs.85%29.aspx#msapplication-tooltip)
@@ -365,10 +367,10 @@ class HtmlPage extends Template implements ICallable
 			$this->addMeta('msapplication-navbutton-color',"$button_color");
 		return $this;
 	}
-	
+
 	/**
 	 * Adds a task to the InternetExplorer 'Jump List'
-	 * 
+	 *
 	 * See http://msdn.microsoft.com/en-us/library/ie/gg491725%28v=vs.85%29.aspx
 	 * @param string $name The task name that appears in the Jump List
 	 * @param string $url The address that is launched when the item is clicked
@@ -383,10 +385,10 @@ class HtmlPage extends Template implements ICallable
 		$this->addMeta('msapplication-task',"name=$name; action-uri=$url; icon-uri=$icon_url; window-type=$window_type");
 		return $this;
 	}
-	
+
 	/**
 	 * @internal Will be called automatically if missing strings are detected browserside.
-	 * 
+	 *
 	 * @attribute[RequestParam('id','string','')]
 	 */
 	function WdfGetText($id)
