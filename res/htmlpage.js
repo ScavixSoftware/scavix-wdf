@@ -773,8 +773,8 @@
                     var t = win.wdf_texts[name];
                     Object.keys(data).forEach(function(n)
                     {
-                        var re = new RegExp(n, "g");
-                        t = t.replace(re,data[n]);
+                        re = new RegExp(n.startsWith('{') ? n : ('{' + n + '}'), "g");
+                        t = t.replace(re, data[n]);
                     });
                     return t;
                 }
