@@ -400,6 +400,9 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
     private function __toTypedValue($column_name, $value, $convert_now_value = false)
     {
+		if (is_null($value))
+			return null;
+
         if (isset(self::$_typeMap[$this->_cacheKey][$column_name]))
             $t = self::$_typeMap[$this->_cacheKey][$column_name];
         else
@@ -894,7 +897,9 @@ abstract class Model implements Iterator, Countable, ArrayAccess
                         $v2 = @json_encode($v2);
                     }
 
-					if( $v1 != $v2 )
+					if((is_null($v1) || is_null($v2)) && ($v1 !== $v2))
+						$res[] = $col;
+					elseif( $v1 != $v2 )
 						$res[] = $col;
 				}
 			}
