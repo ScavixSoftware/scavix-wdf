@@ -25,9 +25,9 @@
 namespace ScavixWDF\Tasks;
 
 /**
- * Collect large number of same tasks into a pool and let it manage the processing 
+ * Collect large number of same tasks into a pool and let it manage the processing
  * without overloading the system.
- * 
+ *
  * To add Tasks to a pool simply Depend them on it:
  * <code php>
  * $pool = TaskPool::Async()->SetArg('processors',10);
@@ -39,6 +39,14 @@ namespace ScavixWDF\Tasks;
  */
 class TaskPool extends Task
 {
+    /**
+     * Creates a reusable TaskPool.
+     *
+     * Will check the wdf_tasks table to see if there's already a Taskpool with the same name.
+     * If so it will be used, else a new one will be created.
+     * @param mixed $name TaskPool name
+     * @return WdfTaskModel The new or loaded TaskPool
+     */
     public static function Reusable($name)
     {
         $res = self::Async();
@@ -58,15 +66,15 @@ class TaskPool extends Task
     {
         return parent::Async('run')->SetCascadeGo(false);
     }
-    
+
     /**
      * @internal Overwrites parent to fix 'run' method set up things.
      */
     public static function AsyncOnce($method = 'run', $return_original = false, $args = false): WdfTaskModel
-    {    
+    {
         return parent::AsyncOnce('run', $return_original, $args)->SetCascadeGo(false);
     }
-    
+
     /**
      * @internal TaskPool loop
      */
@@ -84,11 +92,11 @@ class TaskPool extends Task
 
             // After initial comparison check again existance of at least one child task.
             // This is needed to minimize hanging tasks created for a reusable pool.
-            $min_tasks_required = 0; 
+            $min_tasks_required = 0;
             $tasks = [];
 
             // Inner loop: Load and release some tasks and keep that number running while there are some in the preloaded IDs
-            while (count($task_ids) > 0) 
+            while (count($task_ids) > 0)
             {
                 while (count($tasks) < $processors)
                 {

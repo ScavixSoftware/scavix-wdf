@@ -27,7 +27,7 @@
  * @author Scavix Software GmbH & Co. KG https://www.scavix.com <info@scavix.com>
  * @copyright since 2019 Scavix Software GmbH & Co. KG
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
- * 
+ *
  * @SuppressWarnings
  */
 
@@ -44,16 +44,16 @@ define('globalcache_CACHE_FILES',7);
 
 /**
  * Initializes the globalcache module.
- * 
+ *
  * @return void
  */
 function globalcache_init()
 {
 	global $CONFIG;
-	
+
 	if( !isset($CONFIG['globalcache']) )
 		$CONFIG['globalcache'] = [];
-	
+
     // ensure valid config if present
     if( isset($CONFIG['globalcache']['CACHE']) )
     {
@@ -66,7 +66,7 @@ function globalcache_init()
         elseif( $CONFIG['globalcache']['CACHE'] == globalcache_CACHE_MEMCACHE )
             unset($CONFIG['globalcache']['CACHE']);
     }
-    
+
     // autodetect best cache if not set (or previously unset)
     if( !isset($CONFIG['globalcache']['CACHE']) )
     {
@@ -77,14 +77,14 @@ function globalcache_init()
         else
             $CONFIG['globalcache']['CACHE'] = globalcache_CACHE_DB;
     }
-    
+
 	$servername = isset($_SERVER['SERVER_NAME'])?$_SERVER['SERVER_NAME']:"SCAVIX_WDF_SERVER";
 	if( isset($CONFIG['globalcache']['key_prefix']))
 		$GLOBALS['globalcache_key_prefix'] = $CONFIG['globalcache']['key_prefix'];
 	else
 		$GLOBALS["globalcache_key_prefix"] = "K".md5($servername."-".session_name()."-".getAppVersion('nc'));
-    
-    
+
+
     if( $CONFIG['globalcache']['CACHE'] == globalcache_CACHE_YAC )
         $CONFIG['globalcache']['handler'] = new WdfYacWrapper($GLOBALS['globalcache_key_prefix']);
     elseif( $CONFIG['globalcache']['CACHE'] == globalcache_CACHE_FILES )
@@ -93,19 +93,19 @@ function globalcache_init()
 
 /**
  * Save a value/object in the global cache.
- * 
+ *
  * @param string $key the key of the value
  * @param mixed $value the object/string to save
  * @param int $ttl time to live (in seconds) of the caching
  * @return bool true if ok, false on error
- * 
+ *
  * @suppress PHP0404,PHP0417
  */
 function globalcache_set($key, $value, $ttl = false)
 {
     if( !hook_already_fired(HOOK_POST_INIT) )
         return false;
-    
+
 	global $CONFIG;
 	try
 	{
@@ -116,12 +116,12 @@ function globalcache_set($key, $value, $ttl = false)
 
 			case globalcache_CACHE_APC:
 				return apc_store($GLOBALS["globalcache_key_prefix"].$key, $value, $ttl);
-            
+
 			case globalcache_CACHE_YAC:
             case globalcache_CACHE_FILES:
                 $CONFIG['globalcache']['handler']->set($key, $value, $ttl);
                 return true;
-            
+
             case globalcache_CACHE_DB:
                 $val = session_serialize($value);
                 $ds = model_datasource($CONFIG['globalcache']['datasource']);
@@ -145,7 +145,7 @@ function globalcache_set($key, $value, $ttl = false)
                         valid_until DATETIME  NULL,
 						full_key TEXT  NOT NULL,
                         PRIMARY KEY (ckey))");
-					
+
 					if( $ttl > 0 )
 						$ds->ExecuteSql(
 							"REPLACE INTO wdf_cache(ckey,full_key,cvalue,valid_until)VALUES(?,?,?,".$ds->Driver->Now($ttl).")",
@@ -167,23 +167,23 @@ function globalcache_set($key, $value, $ttl = false)
 
 /**
  * Get a value/object from the global cache.
- * 
+ *
  * @param string $key the key of the value
  * @param mixed $default a default return value if the key can not be found in the cache
  * @return mixed The object from the cache or `$default`
- * 
+ *
  * @suppress PHP0404,PHP0417,PHP0412,PHP0423,PHP1412,PHP0443
  */
 function globalcache_get($key, $default = false)
 {
     if( !hook_already_fired(HOOK_POST_INIT) )
         return $default;
-    
+
 	global $CONFIG;
 	try {
 		if( !isset($CONFIG['globalcache']) || !isset($CONFIG['globalcache']['CACHE']) )
 			return $default;
-		
+
 		switch($CONFIG['globalcache']['CACHE'])
 		{
 			case globalcache_CACHE_OFF:
@@ -192,15 +192,15 @@ function globalcache_get($key, $default = false)
 			case globalcache_CACHE_APC:
 				$ret = apc_fetch($GLOBALS["globalcache_key_prefix"].$key, $success);
 				return $success?$ret:$default;
-            
+
             case globalcache_CACHE_YAC:
 				$ret = $CONFIG['globalcache']['handler']->get($key,$default);
 				return $ret===false?$default:$ret;
-            
+
             case globalcache_CACHE_FILES:
 				$ret = $CONFIG['globalcache']['handler']->get($key,$default,$exists);
 				return $exists?$ret:$default;
-            
+
             case globalcache_CACHE_DB:
                 $ds = model_datasource($CONFIG['globalcache']['datasource']);
 				try
@@ -223,16 +223,17 @@ function globalcache_get($key, $default = false)
 
 /**
  * Empty the whole cache.
- * 
+ *
+ * @param bool $expired_only If true, only expired entries will be deleted
  * @return bool true if ok, false on error
- * 
+ *
  * @suppress PHP0404,PHP0417
  */
 function globalcache_clear($expired_only=false)
 {
     if( !hook_already_fired(HOOK_POST_INIT) )
         return false;
-    
+
 	global $CONFIG;
 	switch($CONFIG['globalcache']['CACHE'])
 	{
@@ -243,11 +244,11 @@ function globalcache_clear($expired_only=false)
             if ($expired_only)
                 return true; // apc handles expiry itself
 			return apc_clear_cache('user');
-        
+
         case globalcache_CACHE_YAC:
         case globalcache_CACHE_FILES:
 			return $CONFIG['globalcache']['handler']->clear($expired_only);
-        
+
         case globalcache_CACHE_DB:
             $ds = model_datasource($CONFIG['globalcache']['datasource']);
             $sql = $expired_only ? "DELETE FROM wdf_cache WHERE valid_until<now()" : "DELETE FROM wdf_cache";
@@ -259,19 +260,19 @@ function globalcache_clear($expired_only=false)
 
 /**
  * Delete a value from the global cache.
- * 
+ *
  * @param string $key the key of the value
  * @param mixed $value the object/string to save
  * @param int $ttl time to live (in seconds) of the caching
  * @return bool true if ok, false on error
- * 
+ *
  * @suppress PHP0404,PHP0417
  */
 function globalcache_delete($key)
 {
     if( !hook_already_fired(HOOK_POST_INIT) )
         return false;
-    
+
 	global $CONFIG;
 	switch($CONFIG['globalcache']['CACHE'])
 	{
@@ -280,11 +281,11 @@ function globalcache_delete($key)
 
 		case globalcache_CACHE_APC:
 			return apc_delete($GLOBALS["globalcache_key_prefix"].$key);
-        
+
         case globalcache_CACHE_YAC:
         case globalcache_CACHE_FILES:
 			return $CONFIG['globalcache']['handler']->delete($key);
-        
+
         case globalcache_CACHE_DB:
             $ds = model_datasource($CONFIG['globalcache']['datasource']);
 			try{ $ds->ExecuteSql("DELETE FROM wdf_cache WHERE ckey=?",md5($key)); }catch(Exception $ex){}
@@ -295,17 +296,17 @@ function globalcache_delete($key)
 
 /**
  * Returns information about the cache usage.
- * 
+ *
  * Note: this currently returns various different information and format thus needs to be streamlined.
  * @return mixed Cache information
- * 
+ *
  * @suppress PHP0404,PHP0417
  */
 function globalcache_info()
 {
     if( !hook_already_fired(HOOK_POST_INIT) )
         return false;
-    
+
 	global $CONFIG;
 	$ret = false;
 	switch($CONFIG['globalcache']['CACHE'])
@@ -313,7 +314,7 @@ function globalcache_info()
 		case globalcache_CACHE_APC:
 			$status = apc_cache_info('user');
 			return(var_export($status, true));
-            
+
         case globalcache_CACHE_YAC:
         case globalcache_CACHE_FILES:
 			$status = $CONFIG['globalcache']['handler']->info();
@@ -321,10 +322,10 @@ function globalcache_info()
 
 		case globalcache_CACHE_OFF:
 			return "no stats available";
-			
+
         case globalcache_CACHE_DB:
             $ds = model_datasource($CONFIG['globalcache']['datasource']);
-			try{ 
+			try{
 				$ret  = "Global cache is handled by DB module.\n";
 				$ret .= "Datasource: {$CONFIG['globalcache']['datasource']}\n";
 				$ret .= "DSN: ".$ds->GetDsn()."\n";
@@ -338,16 +339,16 @@ function globalcache_info()
 
 /**
  * Gets a list of all keys in the cache.
- * 
+ *
  * @return array list of all keys
- * 
+ *
  * @suppress PHP0404,PHP0417
  */
 function globalcache_list_keys()
 {
     if( !hook_already_fired(HOOK_POST_INIT) )
         return [];
-    
+
 	global $CONFIG;
 	switch($CONFIG['globalcache']['CACHE'])
 	{
@@ -358,8 +359,8 @@ function globalcache_list_keys()
 				$rs = $ds->ExecuteSql("SELECT full_key FROM wdf_cache WHERE (valid_until IS NULL OR valid_until>=".$ds->Driver->Now().")");
 				return $rs->Enumerate('full_key');
 			}catch(Exception $ex){}
-			return []; 
-            
+			return [];
+
         case globalcache_CACHE_APC:
             $ret = [];
             $cacheinfo = apc_cache_info('user');
@@ -367,11 +368,11 @@ function globalcache_list_keys()
             foreach($cacheinfo['cache_list'] as $cacheentry)
                 $ret[] = substr($cacheentry['info'], $keyprefixlen);
             return $ret;
-            
+
         case globalcache_CACHE_YAC:
         case globalcache_CACHE_FILES:
             return $CONFIG['globalcache']['handler']->keys();
-            
+
 		default:
 			WdfException::Log("globalcache_list_keys not implemented for handler {$CONFIG['globalcache']['CACHE']}");
 			break;
@@ -386,13 +387,13 @@ function globalcache_list_keys()
 class WdfYacWrapper
 {
     private $id, $yac;
-    
+
     function __construct($key_prefix)
     {
         $this->id = substr(md5($key_prefix),0,16);
         $this->yac = new Yac("$this->id-");
     }
-    
+
     private function getKey($key)
     {
         $map = $this->yac->get('keymap')?:[];
@@ -402,36 +403,36 @@ class WdfYacWrapper
         $this->yac->set('keymap', $map);
         return $map[$key];
     }
-    
+
     function get($key,$default)
     {
         $k = $this->getKey($key);
         $ret = $this->yac->get($k);
         return ($ret === false)?$default:$ret;
     }
-    
+
     function set($key,$val,$ttl)
     {
         $this->yac->set($this->getKey($key),$val,$ttl);
     }
-    
+
     function delete($key)
     {
         $this->yac->delete($this->getKey($key));
     }
-    
+
     function clear($expired_only)
     {
         // ignore expired_only as Yac should handle itself
         $this->yac->flush();
         return true;
     }
-    
+
     function info()
     {
         return $this->yac->info();
     }
-    
+
     function keys()
     {
         return array_keys( $this->yac->dump(999999) );
@@ -442,7 +443,7 @@ class WdfYacWrapper
  * @internal Wrapper class file-based caching
  */
 class WdfFileCacheWrapper
-{                                                                   
+{
     private $root;
     private $prefix;
     private $map;
@@ -455,7 +456,7 @@ class WdfFileCacheWrapper
         $um = umask(0);
         @mkdir($this->root,0777,true);
         umask($um);
-        
+
         if( $this->get('WdfFileCacheWrapper::NextCleanup',0,$ex) < time() )
         {
             if( $lock = Wdf::GetLock(__METHOD__,0,false) )
@@ -508,7 +509,7 @@ class WdfFileCacheWrapper
         umask($um);
         //opcache_invalidate($dest);
     }
-    
+
     public function get($key,$default,&$exists)
     {
         $exists = false;
@@ -517,12 +518,12 @@ class WdfFileCacheWrapper
         $filemtime = @filemtime($file);
         if( isset($this->map[$key]) && $this->map[$key]['filemtime'] == $filemtime )
             return $this->map[$key]['data'];
-        
+
         $val = $this->unpack($file);
-        if (!isset($val['key']) || $val['key'] != $key ) 
+        if (!isset($val['key']) || $val['key'] != $key )
             return $default;
-        
-        if (!$val['exp'] || $val['exp'] > time()) 
+
+        if (!$val['exp'] || $val['exp'] > time())
         {
             $this->map[$key] = $val;
             $this->map[$key]['filemtime'] = $filemtime;
@@ -531,16 +532,16 @@ class WdfFileCacheWrapper
         }
         $this->delete($key);
         return $default;
-    }                                                                           
+    }
 
     public function delete($key)
-    {                                              
+    {
         $file = $this->getPath($key);
         @unlink($file);
-        if( isset($this->map[$key]) ) 
+        if( isset($this->map[$key]) )
             unset( $this->map[$key]);
     }
-    
+
     function clear($expired_only, $ttl = 10)
     {
         $count = 0;
@@ -550,7 +551,7 @@ class WdfFileCacheWrapper
             if( $expired_only )
             {
                 $val = $this->unpack($file,true);
-                if( !isset($val['exp']) || !$val['exp'] || $val['exp'] > time() ) 
+                if( !isset($val['exp']) || !$val['exp'] || $val['exp'] > time() )
                     return;
                 //usleep(100000);
             }
@@ -568,7 +569,7 @@ class WdfFileCacheWrapper
         $this->map = [];
         return true;
     }
-    
+
     function info($include_keys=true)
     {
         $r = [
@@ -590,7 +591,7 @@ class WdfFileCacheWrapper
             });
         return $r;
     }
-    
+
     function keys()
     {
         $ret = [];

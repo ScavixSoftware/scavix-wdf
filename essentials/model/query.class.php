@@ -526,6 +526,9 @@ class Condition
     }
 }
 
+/**
+ * @internal Encapsulates a condition argument
+ */
 class ConditionArgument
 {
     public $name, $value, $pattern;

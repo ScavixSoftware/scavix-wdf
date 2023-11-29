@@ -477,7 +477,7 @@ function log_return($label,$value)
  * log_if( !isset($some_var), "Missing data");
  * </code>
  * @param bool $condition true or false
- * @param_array mixed $a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10 Values to be logged
+ * @param mixed $args Values to be logged
  * @return bool Returns the $condition itself (true|false)
  */
 function log_if($condition,...$args)
@@ -498,7 +498,7 @@ function log_if($condition,...$args)
  * }
  * </code>
  * @param bool $condition true or false
- * @param_array mixed $a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10 Values to be logged
+ * @param mixed $args Values to be logged
  * @return bool
  */
 function log_if_not($condition,...$args)

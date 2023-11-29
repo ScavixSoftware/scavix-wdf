@@ -349,7 +349,7 @@ class SqLite implements IDatabaseDriver
 		$sql = preg_replace('/LIMIT\s+[\d\s,]+/i', '', $sql);
 		$sql = "SELECT count(*) FROM ($sql) AS x";
 		$stmt = $this->_pdo->prepare($sql);
-		$stmt->ExecuteWithArguments($input_arguments);
+		$stmt->execute($input_arguments);
 		$total = intval($stmt->fetchColumn());
 
 		return array

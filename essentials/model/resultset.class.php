@@ -176,6 +176,15 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 		return ResultSet::MergeSql($this->_ds,$this->GetSql(),$this->_arguments_used);
 	}
 
+    /**
+     * Executes the query representes by this <ResultSet>.
+     *
+     * Will autodetect if the query references named (:arg1, :arg2) or numerical (?) arguments
+     * and bind the values from $arguments accordingly.
+     *
+     * @param array $arguments Array of arguments, matching the SQL query given.
+     * @return mixed The query result
+     */
     function ExecuteWithArguments($arguments)
     {
 		if(DataSource::$LogSlowQueries)
@@ -628,7 +637,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 			else
 			{
 				$stmt = $this->_pdo->prepare("SELECT count(*) FROM( {$this->_sql_used} ) as x");
-				$stmt->ExecuteWithArguments($this->_arguments_used);
+				$stmt->execute($this->_arguments_used);
 				$this->_rowCount = $stmt->finishScalar();
 			}
 		}

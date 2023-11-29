@@ -30,7 +30,7 @@ use ScavixWDF\WdfException;
 
 /**
  * PHP session handling.
- * 
+ *
  * This is the default behaviour.
  */
 class CliSession extends PhpSession
@@ -60,6 +60,9 @@ class CliSession extends PhpSession
 		unset($_SESSION[$CONFIG['session']['prefix']."session"]);
 	}
 
+    /**
+	 * @implements <SessionBase::RegenerateId>
+	 */
     function RegenerateId($destroy_old_session = false)
 	{
         $ret = $this->GenerateSessionId();

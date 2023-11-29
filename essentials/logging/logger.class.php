@@ -32,7 +32,7 @@ namespace ScavixWDF\Logging;
 
 /**
  * Base class for logging.
- * 
+ *
  * Do not use this directly but the functions in logging.php instead.
  * Will ensure that logging information is writte to specified files.
  * Will also take care of rotating the logs and cleaning up old logfiles.
@@ -66,7 +66,7 @@ class Logger
         'STRICT'     => 'WARN',
         'PARSE'      => 'FATAL'
     ];
-    
+
 	const TRACE = 1;
 	const DEBUG = 2;
 	const INFO = 4;
@@ -84,11 +84,11 @@ class Logger
 	const WARNING    = self::WARN;
 	const STRICT     = self::WARN;
 	const PARSE      = self::FATAL;
-	
+
 	public static $Instances = [];
 	public static $FilenamePatterns = [];
     private $categories = [];
-	
+
     protected $path = false;
     protected $filename;
 
@@ -105,27 +105,27 @@ class Logger
 
 		foreach( $config as $k=>$v )
 			$this->$k = $v;
-		
+
 		if( !$this->path )
 			$this->path = dirname(ini_get('error_log'))."/";
-		
+
 		if( !is_object($this) || !isset($this) )
 			error_log(getmypid()." STACK: ".var_export(debug_backtrace(),true));
 		$this->path = realpath($this->path);
-		
+
 		if( isset($this->min_severity) )
 		{
 			$this->min_severity = constant("self::".$this->min_severity);
 			if( $this->min_severity == null )
 				unset($this->min_severity);
 		}
-		
+
 		$this->rotate();
 	}
-	
+
 	/**
 	 * Instanciates and return a <Logger> from a given config.
-	 * 
+	 *
 	 * @param array $config Logger configuration data
 	 * @return mixed The logger, may be of type <Logger> or whatever is specified in `$config['class']`
 	 */
@@ -146,7 +146,7 @@ class Logger
 		self::$Instances[] = $res;
 		return $res;
 	}
-	
+
 	protected function ensureFile()
 	{
         $touch = function ()
@@ -154,7 +154,7 @@ class Logger
             if (!file_exists($this->filename))
                 @touch($this->filename);
         };
-        
+
 		if( isset($this->filename) && $this->filename )
 			return $touch();
 
@@ -184,7 +184,7 @@ class Logger
 		}
         $touch();
 	}
-	
+
     /**
      * Forces log rotation.
      * @return void
@@ -193,23 +193,23 @@ class Logger
     {
         $this->rotate(true);
     }
-	
+
 	protected function rotate($force=false)
 	{
 		$this->ensureFile();
-		
+
 		if( !$force && (!isset($this->max_filesize) || @filesize($this->filename)<$this->max_filesize) )
 			return;
-		
+
 		$ext = pathinfo($this->filename, PATHINFO_EXTENSION);
-		
+
 		$archived = preg_replace('/.'.$ext.'$/',"_".date("Y-m-d-H-i-s").".$ext",$this->filename);
 		if(!@rename($this->filename,$archived))
 			return;
-		
+
 		$source = $archived;
 		$archived = $archived.".gz";
-		
+
 		if($fp_out=gzopen($archived,'wb9'))
 		{
 			if($fp_in=fopen($source,'rb'))
@@ -218,12 +218,12 @@ class Logger
 					@gzwrite($fp_out,fread($fp_in,1024*512));
 				@fclose($fp_in);
 			}
-			else 
+			else
 				$error=true;
 			@gzclose($fp_out);
 		}
 		@unlink($source);
-		
+
 		if( isset($this->keep_for_days) && $this->keep_for_days>0 )
 		{
 			$max_age = time()-(86400*$this->keep_for_days);
@@ -232,7 +232,7 @@ class Logger
 					@unlink($f);
 		}
 	}
-	
+
 	protected function render($content)
 	{
         $GLOBALS['logging_render_var_for_logger'] = true;
@@ -240,20 +240,20 @@ class Logger
         unset($GLOBALS['logging_render_var_for_logger']);
         return $r;
 	}
-	
+
 	protected function prepare($severity=false,$log_trace=false,...$args)
 	{
 		// translate PHP severities like NOTICE,... to our own
 		if( isset(Logger::$severity_map[$severity]))
 			$severity = Logger::$severity_map[$severity];
-		
+
 		if( isset($this->min_severity) )
 		{
 			$s = @constant("\\ScavixWDF\\Logging\\Logger::$severity");
 			if( $s!==null && $s<$this->min_severity  )
 				return false;
 		}
-				
+
 		if( !isset($this->filename) )
 			$this->ensureFile();
 		// if( !file_exists($this->filename) )
@@ -262,30 +262,30 @@ class Logger
         {
             $um = umask(0);
 			@chmod($this->filename, 0777);
-            
+
             umask($um);
         }
-		
+
 		$parts = array_map([$this,'render'], $args);
 
 		$max_trace_depth = isset($this->max_trace_depth)?$this->max_trace_depth:5;
         $time = (isset($this->log_date) && $this->log_date)?time():false;
 		$severity = (isset($this->log_severity) && $this->log_severity)?$severity:false;
 		$categories = (isset($this->log_categories) && $this->log_categories)?$this->categories:false;
-		
+
 		if( $log_trace )
 			$entry = new LogEntry($time,$severity, $categories, debug_backtrace(), implode("\t",$parts), $max_trace_depth);
 		else
 			$entry = new LogEntry($time,$severity, $categories, false, implode("\t",$parts), $max_trace_depth);
 		return $entry;
     }
-    
+
 	/**
 	 * Writes a log entry.
-	 * 
+	 *
 	 * @param string $severity Severity
 	 * @param bool $log_trace If true appends a trace (see <debug_backtrace>).
-	 * @param_array mixed $a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10 Data to be logged
+	 * @param mixed $args Data to be logged
 	 * @return void
 	 */
     public function write($severity=false,$log_trace=false,...$args)
@@ -293,7 +293,7 @@ class Logger
 		$content = $this->prepare($severity,$log_trace,...$args);
 		if( !$content ) return;
 		$content = $content->toReadable();
-        
+
         if( !$this->filename )
 		{
 			if( PHP_SAPI!='cli' )
@@ -309,10 +309,10 @@ class Logger
 		if($try >= 10)
 			error_log("Cannot write to {$this->filename}: ".$content);
 	}
-	
+
 	/**
 	 * Extends the log filename.
-	 * 
+	 *
 	 * @param string $key Key to use
 	 * @param string $value Value to use
 	 * @return void
@@ -325,7 +325,7 @@ class Logger
 
 	/**
 	 * Adds a category
-	 * 
+	 *
 	 * @param string $name Category to add
 	 * @return void
 	 */
@@ -337,7 +337,7 @@ class Logger
 
 	/**
 	 * Removes a category
-	 * 
+	 *
 	 * @param string $name Category to remove
 	 * @return void
 	 */
@@ -354,42 +354,42 @@ class Logger
 	/**
 	 * @shortcut Logs to severity TRACE
 	 */
-	function trace(...$args) 
+	function trace(...$args)
 	{ $this->write("TRACE",true,...$args); }
-	
+
 	/**
 	 * @shortcut Logs to severity DEBUG
 	 */
-	function debug(...$args) 
+	function debug(...$args)
 	{ $this->write("DEBUG",false,...$args); }
-	
+
 	/**
 	 * @shortcut Logs to severity INFO
 	 */
-	function info(...$args) 
+	function info(...$args)
 	{ $this->write( "INFO",false,...$args); }
-	
+
 	/**
 	 * @shortcut Logs to severity WARN
 	 */
-	function warn(...$args) 
+	function warn(...$args)
 	{ $this->write( "WARN",false,...$args); }
-	
+
 	/**
 	 * @shortcut Logs to severity ERROR
 	 */
-	function error(...$args) 
+	function error(...$args)
 	{ $this->write("ERROR",true,...$args); }
-	
+
 	/**
 	 * @shortcut Logs to severity FATAL
 	 */
-	function fatal(...$args) 
+	function fatal(...$args)
 	{ $this->write("FATAL",true,...$args); }
-	
+
 	/**
 	 * Writes a <LogReport> to the log.
-	 * 
+	 *
 	 * See <LogReport> class and <log_start_report>/<log_report> for details.
 	 * @param LogReport $report The report
 	 * @param string $severity Severity to use

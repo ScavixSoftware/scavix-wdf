@@ -150,6 +150,10 @@ function cli_run_script($php_script_path, $args=[], $extended_data=false, $retur
     exec($cmdline);
 }
 
+/**
+ * @internal Lists all processes.
+ * @return array Array of processes, key is process id, value is array of ppid, pid and cmd
+ */
 function cli_list_processes()
 {
     $res = [];
@@ -162,6 +166,12 @@ function cli_list_processes()
     return $res;
 }
 
+/**
+ * @internal Detects if script is running as root.
+ *
+ * @param mixed $pid Optional pid of process to check
+ * @return bool True or false
+ */
 function cli_running_as_sudo($pid=false)
 {
     static $depth = 0;

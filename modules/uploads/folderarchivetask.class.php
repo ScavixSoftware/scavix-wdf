@@ -79,7 +79,7 @@ class FolderArchiveTask extends Task
         {
             if (!realpath($folder))
                 $folder = __FILES__ . "/$folder";
-            
+
             return new WdfFolderArchive($folder);
         }
         return false;
@@ -107,7 +107,7 @@ class FolderArchiveTask extends Task
                 return self::FormatSize($size);
             }
         };
-        foreach( WdfFolderArchive::CreateFromBaseFolder(__FILES__) as $fa ) 
+        foreach( WdfFolderArchive::CreateFromBaseFolder(__FILES__) as $fa )
         {
             $a = "{$fa->folder}.7z";
             if (!file_exists($a))
@@ -119,6 +119,16 @@ class FolderArchiveTask extends Task
         }
     }
 
+    /**
+     * Updates the archive with (missing/updated) files from disk (can last quite long!).
+     *
+     * Note: If mode is 'move' files will be removed after beein archived.
+     * <code>
+     * // Syntax: folderarchive-update <folder> [mode=(copy|move|clean)]
+     * </code>
+     * @param array $args Cli arguments
+     * @return void
+     */
     function Update($args)
     {
         $fa = $this->getFolderArchive($args);
@@ -151,6 +161,15 @@ class FolderArchiveTask extends Task
         }
     }
 
+    /**
+     * Extracts a file/folder from the archive to a local folder.
+     *
+     * <code>
+     * // Syntax: folderarchive-extract <folder> <path-in-archive> <local-folder>
+     * </code>
+     * @param array $args Cli arguments
+     * @return void
+     */
     function Extract($args)
     {
         $fa = $this->getFolderArchive($args);

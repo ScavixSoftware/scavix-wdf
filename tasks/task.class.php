@@ -26,7 +26,7 @@ namespace ScavixWDF\Tasks;
 
 /**
  * Represents some work to be done.
- * 
+ *
  * Processes defined in Task class can be run from different SAPI.
  * You may create and run the directly:
  * `MyTask::Make()->DoMyWork()`
@@ -42,18 +42,18 @@ abstract class Task
 
     /** @var \ScavixWDF\Model\DataSource */
     public $ds;
-    
+
     function __construct(WdfTaskModel $model=null)
     {
         $this->model = $model;
         $this->ds = \ScavixWDF\Model\DataSource::Get();
     }
-    
+
     /**
      * Generic static construction method that can be called on subclasses.
-     * 
+     *
      * Sample: `MyTask::Make()->DoWork();`
-     * 
+     *
      * @return static
      */
     public static function Make() : Task
@@ -61,10 +61,10 @@ abstract class Task
         $name = get_called_class();
         return new $name();
     }
-    
+
     /**
      * Creates a WdfTaskModel for async processing.
-     * 
+     *
      * @param string $method Optional method name to be started.
      * @return \ScavixWDF\Tasks\WdfTaskModel
      */
@@ -73,10 +73,10 @@ abstract class Task
         $name = get_called_class()."-$method";
         return WdfTaskModel::Create($name);
     }
-    
+
     /**
      * Creates a WdfTaskModel for async processing if it not already exists.
-     * 
+     *
      * @param string $method Optional method name to be started.
      * @param bool $return_original If true and there's already another task present, return that one, else return a dummy if there's another one
      * @param mixed ...$args Optional arguments
@@ -89,11 +89,12 @@ abstract class Task
             $name .= '-'.md5(serialize($args));
         return WdfTaskModel::CreateOnce($name, $return_original)->SetArgs($args);
     }
-    
+
     /**
      * Checks if another Task is already running.
-     * 
+     *
      * @param string $method Task method to check for (default: run)
+     * @param array|false $args Optional arguments to check for (default: false)
      * @return bool true if present, else false
      */
     public static function IsRunning($method='run', $args = false)
@@ -103,10 +104,10 @@ abstract class Task
             $name .= '-'.md5(serialize($args));
         return !!WdfTaskModel::Make()->eq('name',$name)->scalar('id');
     }
-    
+
     /**
      * Runs this task in another (CLI) process.
-     * 
+     *
      * @see <cli_run_script>
      * @param array $args Arguments
      * @param string $method Optional method name
@@ -117,7 +118,7 @@ abstract class Task
     {
         if( !function_exists("cli_run_taskprocessor") )
             system_load_module('modules/cli.php');
-        
+
         array_unshift($args,get_called_class()."-{$method}");
         return cli_run_script(CLI_SELF,$args,$_SERVER,$return_cmdline);
     }
@@ -131,17 +132,17 @@ abstract class Task
     {
         return $args;
     }
-    
+
     /**
      * Central processing method. Subclasses must implement this.
      * @param array $args Array with arguments
      * @return void
      */
     abstract function Run($args);
-    
+
     /**
      * Called once the Task finished processing.
-     * 
+     *
      * @param string $method The method processed
      * @param int $runtime The total time from creation/start till not in ms
      * @param int $exectime The time in ms needed for actual execution (Run method)
@@ -150,14 +151,14 @@ abstract class Task
     public function Finished($method, $runtime, $exectime)
     {
     }
-    
+
     protected function mapCliArgs(&$args,$exact,$names)
     {
-        $ca = count($args); 
+        $ca = count($args);
         $cn = is_array($names)?count($names):$names;
         if( $ca<$cn || ($exact && $ca!=$cn) )
             return array_fill(0,$cn,false);
-        if( !is_array($names) ) 
+        if( !is_array($names) )
             $names = range(0,$cn-1);
         $res = [];
         foreach( $names as $n )
@@ -165,7 +166,7 @@ abstract class Task
         //log_debug($res);
         return $res;
     }
-    
+
     protected function getArg($args, ...$aliases)
     {
         foreach( $aliases as $a )
@@ -173,7 +174,7 @@ abstract class Task
                 return $args[$a];
         return null;
     }
-    
+
     protected function hasFlag($args, ...$names)
     {
         foreach( $names as $n )

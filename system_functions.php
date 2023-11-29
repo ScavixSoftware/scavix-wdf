@@ -979,6 +979,15 @@ function system_glob_rec($directory='',$pattern='*.*')
 	return $files;
 }
 
+/**
+ * Searches files in a given directory and calls a callback function for each file.
+ *
+ * @param mixed $folder Folder to search
+ * @param mixed $pattern <fnmatch> pattern
+ * @param mixed $callback Function to call for each file. If callback return false, the search will stop.
+ * @param mixed $recursive If true, recursively searches subfolders
+ * @return void
+ */
 function system_walk_files($folder, $pattern, $callback, $recursive = true)
 {
     $iti = new RecursiveDirectoryIterator($folder);
@@ -1149,6 +1158,7 @@ function ifnull(...$args)
  * @param mixed $true_value Returnvalue if $condition is true
  * @param mixed $false_value Returnvalue if $condition is false
  * @return mixed $true_value or $false_value
+ * @deprecated Not widely used, modern PHP offers better syntactic sugar
  */
 function sif($condition,$true_value,$false_value)
 {
@@ -1718,6 +1728,20 @@ function system_guess_mime($filename)
     return array_search($ext, $mime_map) ?: $mime;
 }
 
+/**
+ * Checks if an array contains only numeric keys and returns a valid 0-based indexed one if so.
+ *
+ * Samples:
+ * <code>
+ * $ar = array_clean_assoc_or_sequence(['a','b','c']); // ['a','b','c']
+ * $ar = array_clean_assoc_or_sequence([1=>'a',3=>'b',2=>'c']); // ['a','b','c']
+ * $ar = array_clean_assoc_or_sequence(['1'=>'a',3=>'b','2'=>'c']); // ['a','b','c']
+ * $ar = array_clean_assoc_or_sequence(['hallo'=>'a',3=>'b','2'=>'c']); // ['hallo'=>'a',3=>'b','2'=>'c']
+ * </code>
+ *
+ * @param mixed $array Array to clean
+ * @return array Cleaned array
+ */
 function array_clean_assoc_or_sequence($array)
 {
     if (!is_assoc($array))
@@ -1729,6 +1753,16 @@ function array_clean_assoc_or_sequence($array)
     return $array;
 }
 
+/**
+ * Returns information about a function caller.
+ *
+ * Searches the <debug_backtrace> to detect who called the caller of <system_get_caller>.
+ * Will skip all Scavix-Wdf related files.
+ *
+ * @param mixed $skip Optional: Number of entries to skip
+ * @param mixed $detailed Optional: Whether to return an array with keys 'location', 'caller' or location only (as string)
+ * @return array|string
+ */
 function system_get_caller($skip = 0, $detailed = false)
 {
     $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);

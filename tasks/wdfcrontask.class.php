@@ -26,7 +26,7 @@ namespace ScavixWDF\Tasks;
 
 /**
  * Entrypoint for a central cron handler.
- * 
+ *
  * To use this implement your own 'cron' class extenting from <WdfCronTask> and
  * implement the 'Process' method. It receives the interval in minutes
  * that triggered the current run.
@@ -45,7 +45,7 @@ abstract class WdfCronTask extends Task
         $fn = system_app_temp_dir('cron', false)."data.$interval";
         return intval(@file_get_contents($fn)?:'0');
     }
-    
+
     private function mustRun($interval)
     {
         $next = $this->nextRun($interval);
@@ -59,7 +59,7 @@ abstract class WdfCronTask extends Task
         file_put_contents($fn,time()+($interval*60));
         @chmod($fn, 0777);
     }
-    
+
     /**
      * @internal WdfCronTask main loop, creates sub-tasks
      */
@@ -74,7 +74,7 @@ abstract class WdfCronTask extends Task
         if( count($tasks) )
             WdfTaskModel::RunInstance();
     }
-    
+
     /**
      * @internal WdfCronTask sub-tasks main loop
      */
@@ -90,15 +90,21 @@ abstract class WdfCronTask extends Task
         }
         finally{ $this->done($interval); }
     }
-    
+
     /**
      * Subclass must implement: Main-Loop
-     * 
+     *
      * @param int $interval Interval this loop is called for (1,5,10,15,30,45,60 minutes)
      * @return void
      */
     abstract function Process($interval);
 
+    /**
+     * Prints status about cron tasks.
+     *
+     * @param mixed $args Unused
+     * @return void
+     */
     function Status($args)
     {
         foreach( [1,5,10,15,30,45,60] as $interval )
@@ -114,6 +120,15 @@ abstract class WdfCronTask extends Task
         }
     }
 
+    /**
+     * Manually triggers cron intervals.
+     *
+     * <code>
+     * // Syntax: wdfcron-trigger (1|5|10|15|30|45|60)
+     * </code>
+     * @param mixed $args CLI args
+     * @return void
+     */
     function Trigger($args)
     {
         $tasks = [];

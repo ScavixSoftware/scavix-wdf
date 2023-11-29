@@ -9,12 +9,13 @@ namespace ScavixWDF\Controls\Form;
 use ScavixWDF\Base\Control;
 
 /**
+ * This is a Toggle element.
  */
 class Toggle extends Control
 {
     public $cb, $thumb, $label;
     public $Options = [];
-    
+
 	function __construct($name = false)
 	{
         parent::__construct('div');
@@ -27,11 +28,11 @@ class Toggle extends Control
             $this->addClass("toggle-$name");
         store_object($this,$this->id);
     }
-    
+
     /**
      * Sets the current value.
-     * 
-     * @param mixed $value
+     *
+     * @param mixed $value The value
      * @return static
      */
     function setValue($value)
@@ -42,7 +43,7 @@ class Toggle extends Control
 
     /**
      * Sets if checked or not.
-     * 
+     *
      * @param bool $on true for checked, false for unchecked
      * @return static
      */
@@ -56,12 +57,22 @@ class Toggle extends Control
         return $this;
     }
 
+    /**
+     * Sets an URL to be called on change.
+     * @param string $url The target URL
+     * @return static
+     */
     function setChangeUrl($url)
     {
         $this->data('change-url', $url);
         return $this;
     }
 
+    /**
+     * Sets a label.
+     * @param string $label The label
+     * @return static
+     */
     function setLabel($label)
     {
         $this->label->content($label, true);

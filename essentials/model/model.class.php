@@ -62,9 +62,14 @@ use function unserializer_active;
 abstract class Model implements Iterator, Countable, ArrayAccess
 {
     /**
+     * Tries to find a model by its table name.
+     *
      * ATM this is crap. We'll need some kind of database schema description
      * to be able to map models to tables and on the same time ensure table structure.
      * That way we will get real Code-First ORM.
+     * @param string $tablename The name of the table
+     * @param DataSource $ds Optional datasource to use.
+     * @return string The <Model> classname if found, an empty string otherwise.
      */
     static function TryGetClassFromTablename($tablename, $ds = null): string
     {
@@ -855,6 +860,11 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 		return $this->__ensureTableSchema()->PrimaryColumnNames();
 	}
 
+    /**
+     * Returns the <TableSchema> of this <Model>.
+     *
+     * @return TableSchema
+     */
     public function GetTableSchema()
 	{
         return $this->__ensureTableSchema();
@@ -1899,6 +1909,12 @@ abstract class Model implements Iterator, Countable, ArrayAccess
         unset($this->_fieldValues[$name]);
     }
 
+    /**
+     * Checks if there's a value set for the given column.
+     *
+     * @param string $name Column name
+     * @return bool
+     */
     function HasValue($name)
     {
         return isset($this->name)

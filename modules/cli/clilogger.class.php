@@ -33,8 +33,8 @@ use ScavixWDF\Wdf;
 class CliLogger extends Logger
 {
 	public static $LOG_SEVERITY = true;
-	
-    private static $COLORS = 
+
+    private static $COLORS =
         [
             'TRACE' => '0;37',
             'DEBUG' => '0;37',
@@ -54,10 +54,10 @@ class CliLogger extends Logger
 
 	/**
 	 * Writes a log entry.
-	 * 
+	 *
 	 * @param string $severity Severity
 	 * @param bool $log_trace Ignored, will log traces only for 'FATAL'
-	 * @param_array mixed $a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10 Data to be logged
+	 * @param array $args Data to be logged
 	 * @return void
 	 */
     public function write($severity = false, $log_trace = false, ...$args)

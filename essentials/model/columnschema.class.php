@@ -62,11 +62,21 @@ class ColumnSchema
 		return $this->Key == "PRIMARY";
 	}
 
+    /**
+     * Checks if NULL is allowed for this column.
+     *
+     * @return bool
+     */
     function IsNullAllowed()
     {
         return avail($this, 'Null') && is_in(strtolower($this->Null), '1', 'yes');
     }
 
+    /**
+     * Checks if this column has a default value.
+     *
+     * @return bool
+     */
     function HasDefault()
     {
         return isset($this->Default);

@@ -160,6 +160,12 @@ class DataSource
 		$this->Driver->initDriver($this,$this->_pdo);
     }
 
+    /**
+     * Reconnects to the database.
+     *
+     * Note: This should only be nessesary in long running processes.
+     * @return void
+     */
     function Reconnect()
     {
         try{

@@ -27,6 +27,11 @@ use ScavixWDF\Wdf;
 use ScavixWDF\WdfException;
 
 /**
+ * Represents a monitored/archived folder.
+ *
+ * This class automatically monitors the given folder for files and creates an archive for them.
+ * Note that this will need you to install 7-zip manually in the system:
+ * https://www.7-zip.org/download.html
  */
 class WdfFolderArchive
 {
@@ -62,6 +67,14 @@ class WdfFolderArchive
             WdfException::Raise("Folder '$folder' not found ({$this->folder})");
     }
 
+    /**
+     * Creates an archive for each folder in the given base folder.
+     *
+     * Note that this will be the folder where the archive will be saved.
+     *
+     * @param mixed $folder Base folder
+     * @return array Created archives
+     */
     static function CreateFromBaseFolder($folder):array
     {
         $dir = realpath($folder);
@@ -229,6 +242,11 @@ class WdfFolderArchive
         }
     }
 
+    /**
+     * Checks if the archive file exists.
+     *
+     * @return bool True if the archive file exists, false otherwise
+     */
     function archiveExists()
     {
         return file_exists("{$this->folder}.7z");
@@ -261,6 +279,12 @@ class WdfFolderArchive
         return $res;
     }
 
+    /**
+     * Lists all files in the archive.
+     *
+     * @param mixed $callback Optional callback for each file. If it returns false, processinf is aborted
+     * @return array Array of files. If callback is used, will always be empty.
+     */
     function list($callback=false):array
     {
         return $this->runAtomar(function () use ($callback)
@@ -269,6 +293,12 @@ class WdfFolderArchive
         }, []);
     }
 
+    /**
+     * Checks if a path exists inside the archive.
+     *
+     * @param mixed $path_inside_archive Path inside the archive
+     * @return bool True if the path exists, false otherwise
+     */
     function contains($path_inside_archive):bool
     {
         $path = $this->makeRelativePath($path_inside_archive);
@@ -297,11 +327,22 @@ class WdfFolderArchive
         }, $is_file ? false : []);
     }
 
+    /**
+     * Rescans everything and updates the archive from disk.
+     *
+     * @return array Array of files that have been added or updated.
+     */
     function updateAll():array
     {
         return $this->addOrUpdate("{folder}",false);
     }
 
+    /**
+     * Updates a folder in the archive.
+     *
+     * @param mixed $path_inside_archive Path inside the archive
+     * @return array Array of updated files
+     */
     function updateFolder($path_inside_archive):array
     {
         $path = $this->makeFullPath($path_inside_archive);
@@ -317,6 +358,12 @@ class WdfFolderArchive
         return $this->addOrUpdate(escapeshellarg($path),false);
     }
 
+    /**
+     * Updates a file inside the archive from disk.
+     *
+     * @param mixed $path_inside_archive Path inside the archive.
+     * @return bool True if the file was updated, false otherwise.
+     */
     function updateFile($path_inside_archive):bool
     {
         $path = $this->makeFullPath($path_inside_archive);
@@ -332,6 +379,12 @@ class WdfFolderArchive
         return $this->addOrUpdate(escapeshellarg($path));
     }
 
+    /**
+     * Removes a file or folder from the archive.
+     *
+     * @param string $path_inside_archive Path inside the archive.
+     * @return array Array of file paths that were removed.
+     */
     function delete($path_inside_archive):array
     {
         return $this->runAtomar(function () use ($path_inside_archive, &$result)
@@ -346,6 +399,12 @@ class WdfFolderArchive
         },[]);
     }
 
+    /**
+     * Returns file contents from the archive.
+     *
+     * @param mixed $path_inside_archive File path inside the archive.
+     * @return mixed File contents or NULL
+     */
     function get($path_inside_archive)
     {
         $path = $this->makeRelativePath($path_inside_archive);
@@ -358,6 +417,16 @@ class WdfFolderArchive
         }, null);
     }
 
+    /**
+     * Adds contents to the archive.
+     *
+     * This will first create (or overwrite) a file locally on disk and then add it to the archive.
+     *
+     * @param mixed $path_inside_archive File-path inside the archive.
+     * @param mixed $content File contents.
+     * @param mixed $keep_local If false, the temporary file will be removed from the disk.
+     * @return bool True if the file was added, false otherwise.
+     */
     function add($path_inside_archive, $content, $keep_local = false):bool
     {
         $local_path = $this->makeFullPath($path_inside_archive);
@@ -370,7 +439,7 @@ class WdfFolderArchive
 			mkdir($dir,0777,true);
         file_put_contents($local_path, $content);
         umask($um);
-        
+
         $path = $this->makeRelativePath($local_path);
         $res = $this->addOrUpdate(escapeshellarg($path));
         if ($keep_local)
@@ -378,6 +447,16 @@ class WdfFolderArchive
         return $res;
     }
 
+    /**
+     * Walks files in the archive.
+     *
+     * The flags $present_in_archive and $not_present_in_archive can be used to filter the files.
+     * @param bool $present_in_archive File must be present in the archive.
+     * @param bool $present_local File must be present on disk.
+     * @param mixed $callback Callback to be called for each file. If it returns FALSE, processing is aborted.
+     * @param mixed $force_local_scan If true, buffer is skipped and local files are (re-)scanned.
+     * @return void
+     */
     function forEach(bool $present_in_archive, bool $present_local, $callback, $force_local_scan = false)
     {
         $archived = $this->listOrContains(false,false);
@@ -393,7 +472,7 @@ class WdfFolderArchive
                 $files[$this->folder][] = $this->canonialPath($file);
             });
         }
-        
+
         if( $present_in_archive )
         {
             foreach( $archived as $relative )
@@ -421,13 +500,18 @@ class WdfFolderArchive
         }
     }
 
+    /**
+     * Removes all empty folders in the monitored folder.
+     *
+     * @return void
+     */
     function removeEmptyLocalFolders()
     {
         // see https://stackoverflow.com/a/1833681
         $loop = function ($path)use(&$loop)
         {
             $empty = true;
-            foreach (glob("$path/*") as $file) 
+            foreach (glob("$path/*") as $file)
                 $empty &= is_dir($file) && $loop($file);
             return $empty && (is_readable($path) && count(scandir($path)) == 2) && @rmdir($path);
         };

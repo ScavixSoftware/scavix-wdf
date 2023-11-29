@@ -32,7 +32,7 @@ namespace ScavixWDF\Logging;
 
 /**
  * Generates a machine readable log.
- * 
+ *
  * Use WdfTracer to read these files.
  * https://github.com/ScavixSoftware/WebFramework/tree/master/tools
  * In fact writes a JSON encoded object per line that contains full tracing information.
@@ -41,10 +41,10 @@ class TraceLogger extends Logger
 {
 	/**
 	 * Writes a log entry.
-	 * 
+	 *
 	 * @param string $severity Severity
 	 * @param bool $log_trace Ignored, will log trace always
-	 * @param_array mixed $a1,$a2,$a3,$a4,$a5,$a6,$a7,$a8,$a9,$a10 Data to be logged
+	 * @param mixed $args Data to be logged
 	 * @return void
 	 */
     public function write($severity=false,$log_trace=false,...$args)

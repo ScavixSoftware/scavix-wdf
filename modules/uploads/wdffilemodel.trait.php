@@ -32,8 +32,11 @@ use ScavixWDF\WdfDbException;
 use ScavixWDF\WdfException;
 
 /**
+ * Provides methods for handling files.
+ *
+ * Use this in your own file-model class to be able to handle files and even archive them on disk!
  */
-trait WdfFileModel 
+trait WdfFileModel
 {
     /** @var int */
 	public $id;
@@ -67,6 +70,9 @@ trait WdfFileModel
         return null;
     }
 
+    /**
+     * @implements <Model::GetTableName>
+     */
     function GetTableName()
     {
         return "wdf_files";
@@ -81,7 +87,7 @@ trait WdfFileModel
         else
             WdfDbException::Raise("Unable to translate mysql table definition to sqlite. This is a known issue as uploads-module currently only works with mysql.");
     }
-    
+
     protected function GetCreateStatement()
     {
         return "CREATE TABLE IF NOT EXISTS `wdf_files` (
@@ -96,6 +102,11 @@ trait WdfFileModel
           )";
     }
 
+    /**
+     * Deletes this from DB and disk.
+     *
+     * @return bool True on success, false on failure.
+     */
     function Delete()
     {
         $res = parent::Delete();
@@ -113,7 +124,7 @@ trait WdfFileModel
         umask($um);
 		return "$base$filename";
 	}
-    
+
     protected static function relativeFilePath($fullpath)
 	{
 		return ltrim(str_replace(__FILES__.'/', '', $fullpath),'/');
@@ -147,7 +158,7 @@ trait WdfFileModel
             umask($um);
         }
     }
-	
+
     /**
      */
     protected function processFile($filename, $name=false, $mime=false, $removesourcefile=true, $extra_columns=[])
@@ -163,7 +174,7 @@ trait WdfFileModel
         $mime = $mime ?: system_guess_mime($filename);
 
         $extension = pathinfo($filename, PATHINFO_EXTENSION);
-        if( !$extension ) 
+        if( !$extension )
             $extension = pathinfo($name, PATHINFO_EXTENSION);
         if( !$extension && $mime )
             $extension = system_mime_to_extension($mime);
@@ -195,6 +206,14 @@ trait WdfFileModel
         return $this;
     }
 
+    /**
+     * Creates a new model from an uploaded file.
+     *
+     * @param mixed $file The $_FILES entry
+     * @param mixed $forced_mime Optionally set a mimetype
+     * @param mixed $extra_columns Currently unused
+     * @return static
+     */
 	public static function ProcessUpload($file,$forced_mime=false,$extra_columns=[])
 	{
         switch( $file['error'] )
@@ -225,7 +244,14 @@ trait WdfFileModel
         $res = new $cls();
         return $res->processFile($file['tmp_name'], $file['name'], $forced_mime);
 	}
-    
+
+    /**
+     * Processes the complete $_FILES array.
+     *
+     * @param mixed $forced_mime Optionally set a mimetype
+     * @param mixed $extra_columns Currently unused
+     * @return array Array of model instances
+     */
     public static function ProcessUploads($forced_mime=false, $extra_columns=[]):array
     {
         $res = array();
@@ -237,25 +263,55 @@ trait WdfFileModel
         }
         return $res;
     }
-    
+
+    /**
+     * Checks if this is an image.
+     *
+     * @param mixed $mime If given, the given value will be checked instead of $this->mime.
+     * @return bool True if this is an image, false otherwise.
+     */
     function IsImage($mime=false)
     {
         return starts_iwith($mime?:$this->mime,"image");
     }
+
+    /**
+     * Checks if this is a video.
+     *
+     * @param mixed $mime If given, the given value will be checked instead of $this->mime.
+     * @return bool True if this is a video, false otherwise.
+     */
     function IsVideo($mime=false)
     {
         return starts_iwith($mime?:$this->mime,"video");
     }
+
+    /**
+     * Checks if this is an audio.
+     *
+     * @param mixed $mime If given, the given value will be checked instead of $this->mime.
+     * @return bool True if this is an audio, false otherwise.
+     */
     function IsAudio($mime=false)
     {
         return starts_iwith($mime?:$this->mime,"audio");
     }
 
+    /**
+     * Returns the full path on disk.
+     *
+     * @return string Full path on disk.
+     */
 	function GetFullPath()
 	{
 		return __FILES__."/".ltrim($this->path,"/");
 	}
 
+    /**
+     * Checks if the file exists on disk.
+     *
+     * @return bool True if the file exists on disk, false otherwise.
+     */
     function Exists()
 	{
 		$res = file_exists($this->GetFullPath());
@@ -263,20 +319,37 @@ trait WdfFileModel
             $res = $fa->contains(ltrim($this->path,"/"));
         return $res;
 	}
-    
+
+    /**
+     * @shortcut static::FormatSize($this->size)
+     */
     function GetSizeString()
     {
         return static::FormatSize($this->size);
     }
-    
+
+    /**
+     * Returns a human readable string representation of a file size.
+     *
+     * @param int $size Size in bytes.
+     * @return string Human readable string representation the given size.
+     */
     static function FormatSize($size)
-    
+
     {
         $bytes = $size; $h = array('B','kB','MB','GB','TB','PB','EB','ZB','YB');
         for($i = 0; ($bytes / 1024) > 1; $i++, $bytes /= 1024) {}
         return round($bytes, 0).$h[$i];
     }
-        
+
+    /**
+     * Passed the files contents to the requesting browser.
+     *
+     * Valid headers will be genrerated too.
+     *
+     * @param mixed $asattachment If true, the file will be sent as an attachment (Content-Disposition).
+     * @return void
+     */
 	function PassToBrowser($asattachment = true)
 	{
         $file = $this->GetFullPath();
@@ -295,7 +368,7 @@ trait WdfFileModel
             if (!file_exists($file))
                 system_die_http(404);
         }
-        
+
         header("Content-Type: {$this->mime}");
         header("Content-Length: {$this->size}");
         if($asattachment)
@@ -313,6 +386,11 @@ trait WdfFileModel
         die();
 	}
 
+    /**
+     * Returns the files contents.
+     *
+     * @return mixed Contents of the file or NULL
+     */
     function getContent()
     {
         if (file_exists($this->GetFullPath()))

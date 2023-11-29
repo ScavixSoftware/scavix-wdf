@@ -31,16 +31,16 @@ use ScavixWDF\WdfException;
 
 /**
  * Handles the complete OAuth process.
- * 
+ *
  * @suppress PHP0413
  */
 class OAuthHandler
 {
-    protected static $map = 
+    protected static $map =
     [
-        // 'Official Provider Clients' https://oauth2-client.thephpleague.com/providers/league/ 
+        // 'Official Provider Clients' https://oauth2-client.thephpleague.com/providers/league/
         'facebook'  => [
-            'cls' => '\League\OAuth2\Client\Provider\Facebook',  
+            'cls' => '\League\OAuth2\Client\Provider\Facebook',
             'pkg' => 'league/oauth2-facebook',
             'cfg' => [ 'graphApiVersion' => 'v2.10' ],
         ],
@@ -48,7 +48,7 @@ class OAuthHandler
         'google'    => ['cls'=>'\League\OAuth2\Client\Provider\Google',    'pkg'=>'league/oauth2-google' ],
         'instagram' => ['cls'=>'\League\OAuth2\Client\Provider\Instagram', 'pkg'=>'league/oauth2-instagram' ],
         'linkedin'  => ['cls'=>'\League\OAuth2\Client\Provider\LinkedIn',  'pkg'=>'league/oauth2-linkedin' ],
-        
+
         // 'Third-party Provider Clients' https://oauth2-client.thephpleague.com/providers/thirdparty/
         'hubspot'    => ['cls'=>'\HelpScout\OAuth2\Client\Provider\HubSpot',        'pkg'=>'helpscout/oauth2-hubspot' ],
         'pipedrive'  => ['cls'=>'\Daniti\OAuth2\Client\Provider\Pipedrive',         'pkg'=>'daniti/oauth2-pipedrive' ],
@@ -62,28 +62,28 @@ class OAuthHandler
         'monday' => ['cls'=>'\League\OAuth2\Client\Provider\GenericProvider'],
     ];
     public $local_id, $provider_name, $provider_config, $state;
-    
+
     function __construct($local_id, $provider_name, $provider_config=[])
     {
         $this->local_id = $local_id;
         $this->provider_name = $provider_name;
         $this->state = false;
-        
+
         $def = ['redirectUri' => system_current_request(true)];
         $map = avail(self::$map,$provider_name,'cfg')?self::$map[$provider_name]['cfg']:[];
         $cfg = Wdf::GetBuffer('oauth_configurations')->get($provider_name,[]);
-        
+
         $this->provider_config = array_merge($def,$map,$cfg,$provider_config);
-        
+
         if( !avail($this->provider_config,'clientId') )
             WdfException::Raise("Missing clientId for OAuth provider ".$this->provider_name);
         if( !avail($this->provider_config,'clientSecret') )
             WdfException::Raise("Missing clientSecret for OAuth provider ".$this->provider_name);
     }
-    
+
     /**
      * Creates a provider-specific handler instance.
-     * 
+     *
      * @return \League\OAuth2\Client\Provider\AbstractProvider|null Provider
      */
     function getProviderInstance()
@@ -103,7 +103,7 @@ class OAuthHandler
         }
         return new $map['cls']($this->provider_config);
     }
-    
+
     /**
      * Creates an AccessToken from given data.
      *
@@ -115,10 +115,10 @@ class OAuthHandler
         // todo: check map for special classes
         return new \League\OAuth2\Client\Token\AccessToken($data);
     }
-    
+
     /**
      * Starts the OAuth process.
-     * 
+     *
      * @return void;
      */
     function authorize()
@@ -131,20 +131,20 @@ class OAuthHandler
                 log_error(__METHOD__,'OAuth error',$this,$_GET);
                 die();
             }
-            
+
             $provider = $this->getProviderInstance();
             if( !$provider )
             {
                 delete_object('oauth_current_handler');
                 return;
             }
-            
+
             if( !isset($_GET['code']) )
             {
                 $authorizationUrl = $provider->getAuthorizationUrl(); // must be called before ->getState() !
                 $this->state = $provider->getState();
                 store_object($this,'oauth_current_handler');
-                
+
                 if( isDev() )
                     log_debug(__METHOD__,'STAGE1',$this);
                 header('Location: ' . $authorizationUrl);
@@ -169,7 +169,7 @@ class OAuthHandler
                 $model->provider = $this->provider_name;
                 $model->local_id = $this->local_id;
                 $model->UpdateFromToken($token);
-                
+
                 try
                 {
                     $owner = $provider->getResourceOwner($token);
@@ -180,7 +180,7 @@ class OAuthHandler
                     if (isDev())
                         log_debug($ex);
                 }
-                
+
                 if( isDev() )
                     log_debug(__METHOD__,'Token',$token->jsonSerialize(),$token->getValues());
                 delete_object('oauth_current_handler');
@@ -192,11 +192,11 @@ class OAuthHandler
             die();
         }
     }
-    
+
     /**
      * Checks if the given model has valid oauth data.
-     * 
-     * @param OAuthStorageModel|false $model Optional model with stored oauth data
+     *
+     * @param OAuthStorageModel $model Optional model with stored oauth data
      * @return bool True or false
      */
     function isAuthorized($model=false)
@@ -204,23 +204,23 @@ class OAuthHandler
         $model = $model?:OAuthStorageModel::Search($this->local_id,$this->provider_name)->current();
         if( !$model )
             return false;
-        
+
         try
         {
             if( $model->expires->is_future_date() )
                 return true;
-            
+
             $token = $this->getTokenInstance($model->GetTokenData());
             if( !$token->hasExpired() )
                 return true;
-            
+
             $provider = $this->getProviderInstance();
             $token = $provider->getAccessToken('refresh_token', [
                 'refresh_token' => $token->getRefreshToken()
             ]);
-            
+
             $model->UpdateFromToken($token);
-            
+
             try
             {
                 $owner = $provider->getResourceOwner($token);
@@ -231,7 +231,7 @@ class OAuthHandler
                 if (isDev())
                     log_debug($ex);
             }
-            
+
             return true;
         }
         catch (Exception $ex)

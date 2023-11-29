@@ -36,7 +36,7 @@ use ScavixWDF\WdfException;
 
 /**
  * Extends <DateTime> with sime useful methods.
- * 
+ *
  */
 class DateTimeEx extends DateTime
 {
@@ -47,7 +47,7 @@ class DateTimeEx extends DateTime
 	const WEEKS   = 'weeks';
 	const MONTHS  = 'month';
 	const YEARS   = 'year';
-	
+
 	function __toString()
 	{
 		return $this->format("Y-m-d H:i:s");
@@ -55,7 +55,7 @@ class DateTimeEx extends DateTime
 
 	/**
 	 * Creates a new DateTimeEx object ready for method chaining.
-	 * 
+	 *
 	 * @param mixed $source <DateTimeEx>, <DateTime> or anything <DateTime> accepts in it's constructor
 	 * @param string $format Optional format to use when parsing $source
 	 * @return DateTimeEx The created instance
@@ -87,10 +87,10 @@ class DateTimeEx extends DateTime
 		}
 		return new DateTimeEx();
 	}
-    
+
     /**
      * Returns a new DateTimeEx from datamatching another Timzone.
-     * 
+     *
      * @param mixed $source <DateTimeEx::Make> compatible creation data
      * @param string $other_timezone The timezone $source is from
      * @param string $format Optional Format, see <DateTimeEx::Make>
@@ -102,30 +102,30 @@ class DateTimeEx extends DateTime
         $other->setTimezone(new \DateTimeZone(date_default_timezone_get()));
         return DateTimeEx::Make($other);
     }
-	
+
 	/**
 	 * Returns a new DateTimeEx object representing 'now'.
-	 * 
+	 *
 	 * @return DateTimeEx The created instance
 	 */
 	public static function Now()
 	{
 		return new DateTimeEx();
 	}
-	
+
 	/**
 	 * Returns a new DateTimeEx object representing the current day at midnight.
-	 * 
+	 *
 	 * @return DateTimeEx The created instance
 	 */
 	public static function Today()
 	{
 		return new DateTimeEx(date('Y-m-d 0:00:00'));
 	}
-	
+
 	/**
 	 * Returns a new DateTimeEx object representing the first day of the year.
-	 * 
+	 *
 	 * If `$date` is given that date's first day of year will be returned.
 	 * @param mixed $date Starting point for the calculation
 	 * @return DateTimeEx The created instance
@@ -134,10 +134,10 @@ class DateTimeEx extends DateTime
 	{
 		return new DateTimeEx(date('Y-1-1 00:00:00', intval(DateTimeEx::Make($date)->format('U'))));
 	}
-	
+
 	/**
 	 * Returns a new DateTimeEx object representing the first day of the month.
-	 * 
+	 *
 	 * If `$date` is given that date's first day of month will be returned.
 	 * @param mixed $date Starting point for the calculation
 	 * @return DateTimeEx The created instance
@@ -146,10 +146,10 @@ class DateTimeEx extends DateTime
 	{
 		return new DateTimeEx(date('Y-m-1 00:00:00', intval(DateTimeEx::Make($date)->format('U'))));
 	}
-	
+
 	/**
 	 * Returns a new DateTimeEx object representing the first day of the week.
-	 * 
+	 *
 	 * If `$date` is given that date's first day of week will be returned.
 	 * @param mixed $date Starting point for the calculation
 	 * @return DateTimeEx The created instance
@@ -160,10 +160,10 @@ class DateTimeEx extends DateTime
 		$dt->sub(new DateInterval('P'.($dt->format('w') > 0 ? $dt->format('w')-1 : 7).'D'));
 		return $dt;
 	}
-    
+
     /**
      * Returns this as seem in another timezone.
-     * 
+     *
      * @param string $other_timezone Target timzone
      * @return DateTimeEx
      */
@@ -173,10 +173,10 @@ class DateTimeEx extends DateTime
         $other->setTimezone(new \DateTimeZone($other_timezone));
         return $other;
     }
-	
+
 	/**
 	 * Adds an offset.
-	 * 
+	 *
 	 * Will not modify this object but return a clone.
 	 * $value and $interval are in fact only separated for good readability:
 	 * <code php>
@@ -194,20 +194,20 @@ class DateTimeEx extends DateTime
 		$res->add($di);
 		return $res;
 	}
-    
+
     /**
      * Returns the midnight value.
-     * 
+     *
      * @return DateTimeEx $this
      */
     public function midnight()
     {
         return new DateTimeEx(date("Y-m-d 00:00:00",$this->getTimestamp()));
     }
-	
+
 	/**
 	 * Calculates the age in x
-	 * 
+	 *
 	 * Depending on $unit returns the age of the object in years, months, days, hours, minutes or secods.
 	 * @param string $unit Values: sec, min, hour, day, weeks, month, year
 	 * @param DateTimeEx $zero_point The point in time this DateTimeEx object shall be compared to. Defaults to <DateTimeEx::Now>()
@@ -236,10 +236,10 @@ class DateTimeEx extends DateTime
 		WdfException::Raise("Getting the age is not possible in unit '$unit'");
         return 0;
 	}
-	
+
 	/**
 	 * Checks if this object is younger than x
-	 * 
+	 *
 	 * Best to understand with some samples:
 	 * <code php>
 	 * $dte->youngerThan(1,'day');
@@ -255,10 +255,10 @@ class DateTimeEx extends DateTime
 		$other = new DateTime("-".intval($value)." $interval");
 		return $this > $other;
 	}
-	
+
 	/**
 	 * Checks if this object is older than x
-	 * 
+	 *
 	 * Best to understand with some samples:
 	 * <code php>
 	 * $dte->olderThan(1,'day');
@@ -274,66 +274,66 @@ class DateTimeEx extends DateTime
 		$other = new DateTime("-".intval($value)." $interval");
 		return $this < $other;
 	}
-	
+
 	/**
 	 * @shortcut <DateTimeEx::youngerThan>($days,DateTimeEx::DAYS)
-	 */	
+	 */
 	public function yt_days($days)
 	{
 		return $this->youngerThan($days, self::DAYS);
 	}
-	
+
 	/**
 	 * @shortcut <DateTimeEx::youngerThan>($days,DateTimeEx::HOURS)
-	 */	
+	 */
 	public function yt_hours($hours)
 	{
 		return $this->youngerThan($hours, self::HOURS);
 	}
-	
+
 	/**
 	 * @shortcut <DateTimeEx::youngerThan>($days,DateTimeEx::MINUTES)
-	 */	
+	 */
 	public function yt_mins($minutes)
 	{
 		return $this->youngerThan($minutes, self::MINUTES);
 	}
-	
+
 	/**
 	 * @shortcut <DateTimeEx::olderThan>($days,DateTimeEx::DAYS)
-	 */	
+	 */
 	public function ot_days($days)
 	{
 		return $this->olderThan($days, self::DAYS);
 	}
-	
+
 	/**
 	 * @shortcut <DateTimeEx::olderThan>($days,DateTimeEx::HOURS)
-	 */	
+	 */
 	public function ot_hours($hours)
 	{
 		return $this->olderThan($hours, self::HOURS);
 	}
-	
+
 	/**
 	 * @shortcut <DateTimeEx::olderThan>($days,DateTimeEx::MINUTES)
-	 */	
+	 */
 	public function ot_mins($minutes)
 	{
 		return $this->olderThan($minutes, self::MINUTES);
 	}
-	
+
 	/**
 	 * @shortcut <DateTimeEx::Age>(DateTimeEx::SECONDS)
-	 */	
+	 */
 	public function age_secs()
 	{
 		return $this->Age(self::SECONDS);
 	}
-	
+
 	/**
 	 * Checks if this represents a date/time in the future.
-	 * 
+	 *
 	 * That sounds mystic, in fact just `return $this > self::Now();`
 	 * @param bool $date_only If true compared only the date part (default: false)
 	 * @return bool true or false
@@ -344,20 +344,20 @@ class DateTimeEx extends DateTime
             return $this > self::Today();
 		return $this > self::Now();
 	}
-    
+
 	/**
 	 * Checks if this DateTimeEx is today.
-	 * 
+	 *
 	 * @return bool True if today, else false
 	 */
     public function is_today()
     {
         return $this->format("Y-m-d") == date("Y-m-d");
     }
-	
+
 	/**
 	 * Checks if this represents a date/time in the past.
-	 * 
+	 *
 	 * In fact just `return $this < self::Now();`
 	 * @param bool $date_only If true compared only the date part (default: false)
 	 * @return bool true or false
@@ -369,11 +369,20 @@ class DateTimeEx extends DateTime
 		return $this < self::Now();
 	}
 
+    /**
+     * Returns the milliseconds since 1970-01-01 00:00:00.
+     *
+     * @return int
+     */
     public function getTimestampMs()
     {
         return intval($this->format('Uv'));
     }
 
+    /**
+     * @shortcut <DateTimeEx::format>('Y-m-d\TH:i:s.v').'Z'
+     * @return string
+     */
     public function formatIso8601()
     {
         return $this->format('Y-m-d\TH:i:s.v') . 'Z';

@@ -129,6 +129,12 @@ class TableSchema
 		return isset(self::$_hasColMap[$this->_cacheKey][$column_name]);
 	}
 
+    /**
+     * Returns the <ColumnSchema> object for the given column name.
+     *
+     * @param string $column_name Column name
+     * @return ColumnSchema|false The column or false if not found
+     */
     function GetColumn($column_name)
 	{
         foreach ($this->Columns as $c)
