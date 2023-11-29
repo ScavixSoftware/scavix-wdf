@@ -38,7 +38,7 @@ require_once(__DIR__.'/session/serializer.class.php');
 
 /**
  * Initializes the session essential.
- * 
+ *
  * @return void
  */
 function session_init()
@@ -69,7 +69,7 @@ function session_init()
 	// Classname of the Session Handler
 	if( !isset($CONFIG['session']['handler']))
 		$CONFIG['session']['handler'] = 'PhpSession';
-    
+
 	if( !isset($CONFIG['session']['object_store']))
 		$CONFIG['session']['object_store'] = 'SessionStore';
 }
@@ -80,6 +80,18 @@ function session_init()
 function session_run()
 {
 	global $CONFIG;
+
+    // Force SameSite=none in session cookies, will be overwritten in system_exit with 'partitioned'
+    $cookie_params = session_get_cookie_params();
+    if (isset($cookie_params['samesite']))
+    {
+        $cookie_params['samesite'] = 'none';
+        $cookie_params['httponly'] = true;
+        if (isSSL())
+            $cookie_params['secure'] = true;
+        session_set_cookie_params($cookie_params);
+    }
+
 	// check for backwards compatibility
 	if( isset($CONFIG['session']['usephpsession']))
 	{
@@ -87,23 +99,66 @@ function session_run()
 			(!$CONFIG['session']['usephpsession'] && $CONFIG['session']['handler'] == "PhpSession") )
 			WdfException::Raise('Do not use $CONFIG[\'session\'][\'usephpsession\'] anymore! See session_init() for details.');
 	}
-    
+
 	$CONFIG['session']['handler'] = fq_class_name($CONFIG['session']['handler']);
 	$CONFIG['session']['object_store'] = fq_class_name($CONFIG['session']['object_store']);
-    
+
     Wdf::$SessionHandler = new $CONFIG['session']['handler']();
     Wdf::$SessionHandler->store = Wdf::$ObjectStore = new $CONFIG['session']['object_store']();
-    
+
     if( !isset($_SESSION[$GLOBALS['CONFIG']['session']['prefix']."object_access"]) )
         $_SESSION[$GLOBALS['CONFIG']['session']['prefix']."object_access"] = [];
 
 	if (!isset($_SESSION["system_internal_cache"]))
 		$_SESSION["system_internal_cache"] = [];
+
+    if ('iframe' == strtolower(ifavail($_SERVER, 'HTTP_SEC_FETCH_DEST', 'REDIRECT_HTTP_SEC_FETCH_DEST')?:''))
+    {
+        $session_name = session_name();
+        $session_cookie_okay = false;
+        foreach (getallheaders() as $name => $value)
+        {
+            if (strtolower($name) != "cookie")
+                continue;
+            foreach (explode(";", $value) as $cookie)
+            {
+                if (starts_with(trim($cookie), "{$session_name}="))
+                {
+                    $session_cookie_okay = true;
+                    break 2;
+                }
+            }
+        }
+
+        if (!isset($_REQUEST[$session_name]) && !$session_cookie_okay)
+        {
+            log_debug("[IFRAME] Starting coockie detection roundtrip", system_current_request(true));
+            $CONFIG['session']['needs_get_args'] = true;
+            redirect(buildQuery(current_controller(), current_event(), $_GET));
+        }
+        elseif (isset($_GET[$session_name]))
+        {
+            unset($_GET[$session_name]);
+            unset($_REQUEST[$session_name]);
+            if ($session_cookie_okay)
+            {
+                log_debug("[IFRAME] Cookies okay, finishing coockie detection roundtrip", system_current_request(true));
+                $CONFIG['session']['needs_get_args'] = false;
+                redirect(buildQuery(current_controller(), current_event(), $_GET));
+            }
+            else
+                $CONFIG['session']['needs_get_args'] = true;
+        }
+        else
+            $CONFIG['session']['needs_get_args'] = false;
+    }
+    else // no change for requests outside of an iframe
+        $CONFIG['session']['needs_get_args'] = false;
 }
 
 /**
  * Checks if the unserializer is doing something.
- * 
+ *
  * @return bool true if running, else false
  */
 function unserializer_active()
@@ -113,7 +168,7 @@ function unserializer_active()
 
 /**
  * Tests two objects for equality.
- * 
+ *
  * Checks reference-equality or storage_id equality (if storage_id is set)
  * @param object $o1 First object to compare
  * @param object $o2 Second object to compare
@@ -124,7 +179,7 @@ function equals(&$o1, &$o2, $compare_classes=true)
 {
 	if($o1 === $o2)
 		return true;
-	
+
 	if( $compare_classes )
 	{
 		$iso1 = is_object($o1);
@@ -134,7 +189,7 @@ function equals(&$o1, &$o2, $compare_classes=true)
 		if( !$iso1 && !$iso2 )
 			return ($o1 === $o2);
 	}
-	
+
 	if( ($o1 instanceof Closure) || !($o2 instanceof Closure) )
 		return false;
 	if( !($o1 instanceof Closure) && ($o2 instanceof Closure) )
@@ -142,7 +197,7 @@ function equals(&$o1, &$o2, $compare_classes=true)
 	if( ($o1 instanceof Closure) && ($o2 instanceof Closure) && $o1==$o2 )
 		return true;
 
-    return 
+    return
         (ifavail($o1, '_storage_id') ?: '-1')
         ==
         (ifavail($o2, '_storage_id') ?: '-2');
@@ -159,7 +214,7 @@ function session_sanitize()
 
 /**
  * Truncates the session.
- * 
+ *
  * @return void
  */
 function session_kill_all()
@@ -185,10 +240,27 @@ function session_update($keep_alive=false)
     static $session_update_done = false;
     if( $session_update_done ) return;
     $session_update_done = true;
-    
-    if( current_controller(false) instanceof WdfResource )
+
+    $partitionCookies = function ()
+    {
+        $replace_headers = true;
+        foreach (headers_list() as $header)
+        {
+            if (!starts_iwith($header, 'set-cookie:'))
+                continue;
+            if( stripos($header, "partitioned") === false )
+                $header .= ends_with($header, ";") ? " Partitioned" : "; Partitioned";
+            header("$header", $replace_headers);
+            $replace_headers = false;
+        }
+    };
+
+    if (current_controller(false) instanceof WdfResource)
+    {
+        $partitionCookies();
         return;
-    
+    }
+
     if(Wdf::$ObjectStore)
     {
         if( !system_is_ajax_call() )
@@ -197,7 +269,12 @@ function session_update($keep_alive=false)
         Wdf::$ObjectStore->Update($keep_alive);
     }
     if (isset(Wdf::$SessionHandler) && is_object(Wdf::$SessionHandler))
-        return Wdf::$SessionHandler->Update();
+    {
+        $res = Wdf::$SessionHandler->Update();
+        $partitionCookies();
+        return $res;
+    }
+    $partitionCookies();
     return false;
 }
 
@@ -308,4 +385,14 @@ function session_unserialize($value)
 	$s = new Serializer();
 	$res = $s->Unserialize($value);
 	return $res;
+}
+
+/**
+ * @internal Checks if there's need to use GET arguments for session (because of missing cookies), for example if running in an iframe.
+ * @return bool
+ */
+function session_needs_url_arguments()
+{
+    global $CONFIG;
+    return isset($CONFIG['session']['needs_get_args']) ? $CONFIG['session']['needs_get_args'] : false;
 }

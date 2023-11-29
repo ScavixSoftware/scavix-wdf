@@ -89,52 +89,57 @@ class HtmlPage extends Template implements ICallable
 	 * @param string $title Page title
 	 * @param string $body_class Optional value for the class attribute of the &lt;body&gt; element
 	 */
-	function __construct($title="", $body_class=false)
-	{
-        if( current_event() == 'wdfgettext' )
-            system_exit($this->WdfGetText(Args::request('id','')));
+    function __construct($title = "", $body_class = false)
+    {
+        if (current_event() == 'wdfgettext')
+            system_exit($this->WdfGetText(Args::request('id', '')));
 
-		// this makes HtmlPage.tpl.php the 'one and only' template
-		// for all derivered classes, unless they override it after
-		// parent::__construct with $this->file = X
-		parent::__construct(WDF_HTMLPAGE_TEMPLATE);
+        // this makes HtmlPage.tpl.php the 'one and only' template
+        // for all derivered classes, unless they override it after
+        // parent::__construct with $this->file = X
+        parent::__construct(WDF_HTMLPAGE_TEMPLATE);
 
-		$this->set("title",$title);
-		$this->set("meta",$this->meta);
-		$this->set("js",$this->js);
-		$this->set("css",$this->css);
-		$this->set("content",[]);
-		$this->set("docready",$this->docready);
-		$this->set("plaindocready",$this->plaindocready);
-		$this->set("inlineheaderpre",$this->inlineheaderpre);
-		$this->set("inlineheader",$this->inlineheader);
+        $this->set("title", $title);
+        $this->set("meta", $this->meta);
+        $this->set("js", $this->js);
+        $this->set("css", $this->css);
+        $this->set("content", []);
+        $this->set("docready", $this->docready);
+        $this->set("plaindocready", $this->plaindocready);
+        $this->set("inlineheaderpre", $this->inlineheaderpre);
+        $this->set("inlineheader", $this->inlineheader);
 
-		if( $body_class )
-			$this->set("bodyClass","$body_class");
+        if ($body_class)
+            $this->set("bodyClass", "$body_class");
 
-		if( resourceExists("favicon.ico") )
-			$this->set("favicon", resFile("favicon.ico"));
+        if (resourceExists("favicon.ico"))
+            $this->set("favicon", resFile("favicon.ico"));
 
-		// set up correct display on mobile devices: http://stackoverflow.com/questions/8220267/jquery-detect-scroll-at-bottom
-		$this->addMeta("viewport","width=device-width, height=device-height, initial-scale=1.0");
-		$this->addMeta("referrer","strict-origin-when-cross-origin");
+        // set up correct display on mobile devices: http://stackoverflow.com/questions/8220267/jquery-detect-scroll-at-bottom
+        $this->addMeta("viewport", "width=device-width, height=device-height, initial-scale=1.0");
+        $this->addMeta("referrer", "strict-origin-when-cross-origin");
 
-    	$buffer = \ScavixWDF\Wdf::GetBuffer('wdf_js_strings')->mapToSession('wdf_js_strings');
-		$jsstrings = $this->getJsRegisteredStrings();
-		$jsstringsversion = md5(join('-', array_keys($jsstrings)).'-'.join('-', $jsstrings));
-		if( ifavail($_SESSION, 'js_strings_version') != $jsstringsversion )
-		{
-			foreach( $jsstrings as $id=>$txt )
-			{
-				if( is_numeric($id) )
-					$id = $txt;
-				$buffer->set($id,$txt);
-			}
-			$_SESSION['js_strings_version'] = $jsstringsversion;
-		}
-        if(iterator_count($buffer))
-            $this->addJs(buildQuery('wdfresource','texts').$_SESSION['js_strings_version'].".js");
-	}
+        $buffer = \ScavixWDF\Wdf::GetBuffer('wdf_js_strings')->mapToSession('wdf_js_strings');
+        $jsstrings = $this->getJsRegisteredStrings();
+        $jsstringsversion = md5(join('-', array_keys($jsstrings)) . '-' . join('-', $jsstrings));
+        if (ifavail($_SESSION, 'js_strings_version') != $jsstringsversion)
+        {
+            foreach ($jsstrings as $id => $txt)
+            {
+                if (is_numeric($id))
+                    $id = $txt;
+                $buffer->set($id, $txt);
+            }
+            $_SESSION['js_strings_version'] = $jsstringsversion;
+        }
+        if (iterator_count($buffer))
+        {
+            if (can_rewrite())
+                $this->addJs(buildQuery('wdfresource', 'texts') . $_SESSION['js_strings_version'] . ".js");
+            else
+                $this->addJs(buildQuery('wdfresource', 'texts', ['v' => $_SESSION['js_strings_version']]));
+        }
+    }
 
 	/**
 	 * Override this method to register texts for usage in JavaScript.
@@ -165,7 +170,7 @@ class HtmlPage extends Template implements ICallable
 		$init_data['site_root']  = cfg_get('system','url_root');
         $init_data['rewrite'] = can_rewrite();
 
-		if( cfg_getd('system','attach_session_to_ajax',false) )
+		if( session_needs_url_arguments() )
 		{
 			$init_data['session_id'] = session_id();
 			$init_data['session_name'] = session_name();

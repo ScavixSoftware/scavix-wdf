@@ -150,7 +150,6 @@ function system_config_default($reset = true)
 	$CONFIG['system']['cache_ttl'] = 3600; // secs
 
 	$CONFIG['system']['hook_logging'] = false;
-	$CONFIG['system']['attach_session_to_ajax'] = false;
 
 	$CONFIG['system']['header']['Content-Type'] = "text/html; charset=utf-8";
 	$CONFIG['system']['header']['X-XSS-Protection'] = "1; mode=block";
@@ -188,10 +187,6 @@ function system_config_default($reset = true)
 	$CONFIG['system']['admin']['enabled']  = false;
 	$CONFIG['system']['admin']['username'] = false;
 	$CONFIG['system']['admin']['password'] = false;
-
-    // deprecated: Use HtmlPage static properties instead!
-//	$CONFIG['system']['htmlpage']['doctype'] = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
-//	$CONFIG['system']['htmlpage']['render_noscript'] = true;
 }
 
 /**
@@ -668,6 +663,12 @@ function system_die($reason,$details_internal='',$log_error=true)
 	}
 }
 
+/**
+ * Terminates script execution and delivers valid HTTP header information.
+ *
+ * @param mixed $code The HTTP status code to be delivered, @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+ * @return void
+ */
 function system_die_http($code)
 {
     static $codes = [
@@ -1266,6 +1267,9 @@ function buildQuery($controller,$event="",$data="", $url_root=false)
 
 	if( isDev() && isset($_REQUEST["XDEBUG_PROFILE"]) )
         $data .= ($data?"&":"")."XDEBUG_PROFILE";
+
+    if (session_needs_url_arguments())
+        $data .= "&" . session_name() . "=" . session_id();
 
 	if( !$url_root )
 		$url_root = $CONFIG['system']['url_root'];

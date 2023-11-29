@@ -134,7 +134,10 @@
 			{
 				parts.shift(); parts.shift();
 				url_path += "&"+parts.join("/");
-			}
+            }
+            if( wdf.settings.session_name && wdf.settings.session_id )
+                url_path += "&" + wdf.settings.session_name + "=" + wdf.settings.session_id;
+
 			return url_path;
 		},
 
