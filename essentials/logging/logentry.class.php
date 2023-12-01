@@ -33,7 +33,7 @@ use \stdClass;
 
 /**
  * Represents a logfile entry.
- * 
+ *
  * We use this class to collect information before logging them.
  * It allows to create murch more detailed logs as the PHP standart allows.
  */
@@ -44,7 +44,7 @@ class LogEntry
     public $severity;
     public $trace;
     public $message;
-    
+
     function __construct($time,$severity,$categories,$trace,$message,$max_trace_depth)
     {
         $this->datetime = $time;
@@ -53,13 +53,10 @@ class LogEntry
         $this->trace = $trace?$this->cleanupTrace($trace,$max_trace_depth):false;
         $this->message = substr($message,0,1024*50);
     }
-    
+
 	private function cleanupTrace($stacktrace,$max_trace_depth)
 	{
-		$args = [];
-		$info = [];
 		$stack = [];
-		$stcnt = count($stacktrace);
 		foreach($stacktrace as $i=>$t0)
 		{
 			if( isset($t0['object']) )
@@ -70,10 +67,10 @@ class LogEntry
 				unset($t0['object']);
             }
             else $id = false;
-            
+
             if( isset($t0['class']) && $id )
                 $t0['class'] .= "($id)";
-            
+
 			if( isset($t0['file']) )
 			{
 				if( ends_with($t0['file'],"/essentials/logging/logger.class.php") ||
@@ -85,19 +82,19 @@ class LogEntry
 			}
 			else
 				$t0['location'] = "*UNKNOWN*";
-            
+
 			if( $t0['function'] == 'system_render_object_tree' ||
 				$t0['function'] == 'global_error_handler' ||
 				$t0['function'] == 'WdfRender' ||
 				$t0['function'] == 'WdfRenderAsRoot' ||
                 (isset($t0['class']) && ($t0['class'] == 'lessc' || $t0['class'] == "ScavixWDF\\LessCompiler")) )
 				$t0['args'] = array("*TRUNCATED*");
-            
+
 			$stack[] = $t0;
 			if( count($stack) == $max_trace_depth )
 				break;
 		}
-		
+
 		if( $stack[count($stack)-1]['function'] == 'system_execute' )
 			array_pop($stack);
 		if( $stack[count($stack)-1]['function'] == 'system_exit' )
@@ -106,14 +103,14 @@ class LogEntry
 			array_pop($stack);
 		if( $stack[count($stack)-1]['function'] == 'call_user_func_array' )
 			array_pop($stack);
-		
+
 		return $stack;
 	}
-    
+
     private function parseTrace($stacktrace)
 	{
 		$stack = [];
-		
+
 		foreach( $stacktrace as $t0 )
 		{
             if( isset($t0['class']) && isset($t0['type']) )
@@ -125,7 +122,7 @@ class LogEntry
             }
 			else
 				$function = $t0['function'];
-			
+
 			if( isset($t0['location']))
 				$stack[] = sprintf("+ %s(...) [in %s]",$function,$t0['location']);
 			else
@@ -133,14 +130,14 @@ class LogEntry
 		}
 		return implode("\n",$stack);
 	}
-    
+
 	/**
 	 * @internal Creates a human readable representation of this <LogEntry>
 	 */
     public function toReadable()
     {
         $content = ($this->datetime)
-            ? date("[Y-m-d H:i:s.v]", $this->datetime).' '
+            ? '['.\ScavixWDF\Base\DateTimeEx::Make($this->datetime)->Format('d.m.Y H:i:s.v').'] '
             : '';
         if( $this->severity )
 		    $content .= "[{$this->severity}] ";
@@ -151,7 +148,7 @@ class LogEntry
 			$content .= "\n".$this->parseTrace($this->trace);
         return $content;
     }
-	
+
 	/**
 	 * @internal Creates a machine readable representation of this <LogEntry>
 	 */
@@ -159,14 +156,14 @@ class LogEntry
 	{
         if( !function_exists('simplexml_load_file') )
             return "missing php-xml";
-        
+
         if( class_exists("\\ScavixWDF\\Base\\Renderable") )
             $mss = \ScavixWDF\Base\Renderable::StartSlimSerialize();
         else
             $mss = false;
-        
+
 		$res = new stdClass();
-		$res->dt = date("c",$this->datetime);
+		$res->dt = date("c", round($this->datetime));
 		$res->cat = [];
         if( is_array($this->categories) )
             foreach( array_values($this->categories) as $v )
@@ -190,10 +187,10 @@ class LogEntry
                     $t['args'] = $t['args']?[$t['args']]:['**UNRENDERABLE**'];
                 }
 				$res->trace[$i] = $t;
-			}	
+			}
 			$out = json_encode($res);
 		}
-        
+
         if( $mss )
             \ScavixWDF\Base\Renderable::StopSlimSerialize();
 		return $out;

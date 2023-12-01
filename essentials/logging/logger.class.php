@@ -269,7 +269,7 @@ class Logger
 		$parts = array_map([$this,'render'], $args);
 
 		$max_trace_depth = isset($this->max_trace_depth)?$this->max_trace_depth:5;
-        $time = (isset($this->log_date) && $this->log_date)?time():false;
+        $time = (isset($this->log_date) && $this->log_date)?microtime(true):false;
 		$severity = (isset($this->log_severity) && $this->log_severity)?$severity:false;
 		$categories = (isset($this->log_categories) && $this->log_categories)?$this->categories:false;
 

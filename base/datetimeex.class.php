@@ -60,7 +60,7 @@ class DateTimeEx extends DateTime
 	 * @param string $format Optional format to use when parsing $source
 	 * @return DateTimeEx The created instance
 	 */
-	public static function Make($source=false, $format = false)
+	public static function Make($source = false, $format = false)
 	{
 		if( $source )
 		{
@@ -69,18 +69,31 @@ class DateTimeEx extends DateTime
             if( $format )
             {
                 $os = $source;
-                $source = DateTime::createFromFormat($format,$source);
+                $source = DateTime::createFromFormat($format, $source);
                 if( !$source )
                     WdfException::Raise("Error creating DateTime object from format '$format' and source '$os'");
             }
 			if( $source instanceof DateTimeEx )
 				return clone $source;
 			if( $source instanceof DateTime )
-				return new DateTimeEx( $source->format('c') );
+				return new DateTimeEx( $source->format('Y-m-d\TH:i:s.u') );
+
 			if (is_numeric($source))
 			{
-				if (intval("$source") > 253370764800)		// if timestamp is in milliseconds, convert it to seconds
-					$source = round($source / 1000);
+				if(is_integer($source))
+				{
+					$l = strlen("$source");
+					if($l >= 16)
+						$source = $source / 1000000;	// assuming microseconds
+					elseif($l >= 13)
+						$source = $source / 1000;		// assuming milliseconds
+				}
+				if(is_float($source))
+				{
+					$dt = DateTimeEx::createFromFormat('U.u', number_format($source, 6, '.', ''));
+					$dt->setTimezone(new \DateTimeZone('Europe/Berlin'));
+					return $dt;
+				}
 				return new DateTimeEx(date('c', intval("$source")));
 			}
 			return new DateTimeEx($source);
