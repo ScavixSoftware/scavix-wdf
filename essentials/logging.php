@@ -691,7 +691,7 @@ function finish_timer($name,$min_ms = false)
         {
             return str_pad($a[2], $pad, ' ', STR_PAD_LEFT) . " ms for {$a[0]}";
         }, $trace);
-        array_unshift($trace, "started ".date("H:i:s.v",(int)$start));
+        array_unshift($trace, "started ".\ScavixWDF\Base\DateTimeEx::Make($start)->Format('H:i:s.v')); // date("H:i:s.v",(int)$start));
         $trace[] = "{$ms} ms total";
         log_debug("Timer finish:\t$label\n\t".implode("\n\t",$trace));
     }
