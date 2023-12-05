@@ -170,7 +170,7 @@ class HtmlPage extends Template implements ICallable
 		$init_data['site_root']  = cfg_get('system','url_root');
         $init_data['rewrite'] = can_rewrite();
 
-		if( session_needs_url_arguments() )
+		if (function_exists('session_needs_url_arguments') && session_needs_url_arguments())
 		{
 			$init_data['session_id'] = session_id();
 			$init_data['session_name'] = session_name();
