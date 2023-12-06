@@ -243,7 +243,7 @@ function session_update($keep_alive=false)
 
     $partitionCookies = function ()
     {
-        if (!isDev())
+        if (!isDev() || headers_sent() )
             return;
         $replace_headers = true;
         foreach (headers_list() as $header)
