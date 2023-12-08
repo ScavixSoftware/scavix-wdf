@@ -1783,3 +1783,25 @@ function system_get_caller($skip = 0, $detailed = false)
         'caller' => avail($trace[2], 'type') ? $trace[2]['class'] . $trace[2]['type'] . $trace[2]['function'] : $trace[2]['function']
     ] : $loc;
 }
+
+/**
+ * Returns all values for a cookie given in a raw cookie string.
+ *
+ * @see https://stackoverflow.com/a/54623825
+ *
+ * @param mixed $name Name of the cookie
+ * @param mixed $raw_cookie_string Raw cookie string
+ * @return array Array of cookie values
+ */
+function system_get_cookie_values($name, $raw_cookie_string)
+{
+    $cookies = array();
+    $tok     = strtok($raw_cookie_string, ';');
+    while ($tok !== false)
+    {
+        $a                       = sscanf($tok, "%[^=]=%[^;]");
+        $cookies[ltrim($a[0])][] = urldecode($a[1]);
+        $tok                     = strtok(';');
+    }
+    return ifavail($cookies, $name) ?: [];
+}
