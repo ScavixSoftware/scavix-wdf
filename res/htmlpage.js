@@ -768,6 +768,17 @@
 		{
             if( win.wdf_texts )
             {
+                if( wdf.controller && !win.wdf_texts[name] )
+                {
+                    wdf.controller.get('wdfgettext',{id:name},function(d)
+                    {
+                        Object.keys(d).forEach(function(k)
+                        {
+                            win.wdf_texts[k] = d[k];
+                        });
+                    });
+                }
+
                 if( win.wdf_texts[name] )
                 {
                     if( !data )
@@ -780,17 +791,6 @@
                         t = t.replace(re, data[n]);
                     });
                     return t;
-                }
-
-                if( wdf.controller )
-                {
-                    wdf.controller.get('wdfgettext',{id:name},function(d)
-                    {
-                        Object.keys(d).forEach(function(k)
-                        {
-                            win.wdf_texts[k] = d[k];
-                        });
-                    });
                 }
             }
 			wdf.debug("Missing text "+name);
