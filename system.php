@@ -1357,7 +1357,7 @@ function generatePW($len = 8, $case_sensitive=true, $chars='')
     }
     else
     {
-        mt_srand ((double) microtime() * 1000000);
+        mt_srand ((double) microtime(false) * 1000000);
         while( strlen($res) < $len )
             $res .= $chars[mt_rand(0,strlen($chars)-1)];
     }

@@ -133,7 +133,7 @@ trait WdfFileModel
     protected static function createFileStub($extension)
     {
         $folder = static::currentFilePath();
-        mt_srand ((double) microtime() * 1000000);
+        mt_srand((double) microtime(false) * 1000000);
         $prefix = date("His-");
         $lock = __METHOD__ . '_' . $folder;
         Wdf::GetLock($lock);
