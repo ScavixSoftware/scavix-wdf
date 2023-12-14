@@ -144,7 +144,6 @@ class FolderArchiveTask extends Task
         {
             $files = $fa->updateAll();
             log_debug("Updated ".count($files)." files",$files);
-            //foreach( $files as $file )
         }
 
         if( is_in($mode,'move','clean') )

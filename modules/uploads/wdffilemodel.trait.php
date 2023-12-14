@@ -133,6 +133,7 @@ trait WdfFileModel
     protected static function createFileStub($extension)
     {
         $folder = static::currentFilePath();
+        mt_srand ((double) microtime() * 1000000);
         $prefix = date("His-");
         $lock = __METHOD__ . '_' . $folder;
         Wdf::GetLock($lock);
@@ -142,7 +143,8 @@ trait WdfFileModel
             $i = 0;
             do
             {
-                $fn = $prefix . str_pad("$i", 4, '0', STR_PAD_LEFT) . ".$extension";
+                // $fn = $prefix . str_pad("$i", 4, '0', STR_PAD_LEFT) . ".$extension";
+                $fn = $prefix.str_pad(mt_rand(0, 999999), 6, '0', STR_PAD_LEFT).'.'.$extension;
             } while (file_exists("$folder$fn") && ++$i < 10000);
 
             if (file_exists("$folder$fn"))
@@ -179,8 +181,7 @@ trait WdfFileModel
         if( !$extension && $mime )
             $extension = system_mime_to_extension($mime);
 
-        $fullpath = static::createFileStub($extension ?: 'unknown');
-
+        $fullpath = static::createFileStub($extension ? strtolower($extension) : 'unknown');
         if( $filename != $fullpath )
         {
             $um = umask(0);
