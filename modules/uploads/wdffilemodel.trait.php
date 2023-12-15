@@ -141,7 +141,7 @@ trait WdfFileModel
             $i = 0;
             do
             {
-                $fn = date("His-").str_pad(date("v"), 3, '0', STR_PAD_LEFT).".$extension";
+                $fn = date("His-").str_pad(DateTimeEx::Now()->Format('v'), 3, '0', STR_PAD_LEFT).".$extension";
             } while (file_exists("$folder$fn") && (++$i < 10000));
 
             if (file_exists("$folder$fn"))
