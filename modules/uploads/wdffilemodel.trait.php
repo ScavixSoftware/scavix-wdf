@@ -133,8 +133,6 @@ trait WdfFileModel
     protected static function createFileStub($extension)
     {
         $folder = static::currentFilePath();
-        mt_srand((double) microtime(false) * 1000000);
-        $prefix = date("His-");
         $lock = __METHOD__ . '_' . $folder;
         Wdf::GetLock($lock);
         $um = umask(0);
@@ -143,15 +141,17 @@ trait WdfFileModel
             $i = 0;
             do
             {
-                // $fn = $prefix . str_pad("$i", 4, '0', STR_PAD_LEFT) . ".$extension";
-                $fn = $prefix.str_pad(mt_rand(0, 999999), 6, '0', STR_PAD_LEFT).'.'.$extension;
-            } while (file_exists("$folder$fn") && ++$i < 10000);
+                $fn = date("His-").str_pad(date("v"), 3, '0', STR_PAD_LEFT).".$extension";
+            } while (file_exists("$folder$fn") && (++$i < 10000));
 
             if (file_exists("$folder$fn"))
                 WdfException::Raise("Unable to find a unique filename");
 
             if (touch("$folder$fn"))
+            {
+                usleep(1000);       // wait to allow next createFileStub call to generate filename with correct timestamp
                 return "$folder$fn";
+            }
             WdfException::Raise("Unable to find a unique filename");
         }
         finally
