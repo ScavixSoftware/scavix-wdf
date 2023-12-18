@@ -1819,3 +1819,17 @@ if (!function_exists('json_validate'))
         return \json_last_error() === \JSON_ERROR_NONE;
     }
 }
+
+/** @see https://php.watch/versions/8.3/stream_context_set_options#stream_context_set_options-polyfill */
+if (\PHP_VERSION_ID < 80300)
+{
+    /**
+     * @param resource $context The stream or context resource to apply the options to
+     * @param array $options The options to set for `stream_or_context`
+     * @return bool Returns true success or false on failure.
+     */
+    function stream_context_set_options($context, array $options): bool
+    {
+        return \stream_context_set_option($context, $options);
+    }
+}
