@@ -39,7 +39,6 @@ use ScavixWDF\WdfDbException;
 
 /**
  * SqLite database driver.
-
  */
 class SqLite implements IDatabaseDriver
 {

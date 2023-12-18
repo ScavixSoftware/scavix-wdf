@@ -1805,3 +1805,17 @@ function system_get_cookie_values($name, $raw_cookie_string)
     }
     return ifavail($cookies, $name) ?: [];
 }
+
+/** @see https://php.watch/versions/8.3/json_validate#polyfill */
+if (!function_exists('json_validate'))
+{
+    function json_validate(string $json, int $depth = 512, int $flags = 0): bool
+    {
+        if ($flags !== 0 && $flags !== \JSON_INVALID_UTF8_IGNORE)
+            throw new \Exception('json_validate(): Argument #3 ($flags) must be a valid flag (allowed flags: JSON_INVALID_UTF8_IGNORE)');
+        if ($depth <= 0)
+            throw new \Exception('json_validate(): Argument #2 ($depth) must be greater than 0');
+        \json_decode($json, null, $depth, $flags);
+        return \json_last_error() === \JSON_ERROR_NONE;
+    }
+}

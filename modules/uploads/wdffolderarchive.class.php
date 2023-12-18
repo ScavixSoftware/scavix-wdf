@@ -229,7 +229,7 @@ class WdfFolderArchive
     {
         try
         {
-            $lock = get_class() . "_{$this->folder}";
+            $lock = get_class($this) . "_{$this->folder}";
             if (Wdf::GetLock($lock, 10, false))
                 return $callback();
             log_error("Unable to get lock");
