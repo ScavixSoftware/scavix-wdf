@@ -1,5 +1,78 @@
 <?php
 
+/**
+ * Act as router script.
+ * @see https://www.php.net/manual/en/features.commandline.webserver.php
+ * @see <DevServer> Task
+ */
+if( PHP_SAPI == 'cli-server' )
+{
+    $log_router = function (...$args)
+    {
+        $args = implode("\t", array_map(function ($a)
+        {
+            return (!is_string($a) ? json_encode($a) : $a);
+        }, $args));
+        file_put_contents("php://stderr", date("[D M d H:i:s Y]") . " $args\n");
+    };
+
+    $_SERVER['WDF_FEATURES_NOCACHE'] = 'on';
+    $_SERVER['WDF_FEATURES_REWRITE'] = 'on';
+
+    $requested_script = $_SERVER['SCRIPT_FILENAME'];
+    if( dirname($requested_script) == __DIR__ )
+        $requested_script = __FILE__;
+
+    if ($requested_script == __FILE__ || $_SERVER['SCRIPT_NAME'] == '/index.php' )
+    {
+        $requested_file = preg_replace('|(.*)/nc(\d+)/(.*)?(.*)|', '$1/$3', $_SERVER['DOCUMENT_ROOT'] . $_SERVER['REQUEST_URI']);
+        if( is_file($requested_file) )
+        {
+            $requested_script = $requested_file;
+        }
+        else
+        {
+            $requested_script = $_SERVER['DOCUMENT_ROOT'] . '/index.php';
+
+            // handle NC like in .htaccess
+            $_SERVER['REQUEST_URI'] = preg_replace('|(.*)/nc(\d+)/(.*)?(.*)|', '$1/$3?nc=$2&$4', $_SERVER['REQUEST_URI']);
+
+            // handle wdf_route like in .htaccess
+            $args = explode("?", $_SERVER['REQUEST_URI'], 2);
+            $wdf_route = ltrim(array_shift($args), '/');
+
+            $_REQUEST['wdf_route'] = $_GET['wdf_route'] = $wdf_route;
+        }
+    }
+
+    if (is_file($requested_script))
+    {
+        if (substr($requested_script, -4) == ".php")
+        {
+            $log_router("[REQUIRE] " . basename($requested_script),$_REQUEST);
+            require_once($requested_script);
+        }
+        else
+        {
+            $log_router("[DELIVER] $requested_script ".$_SERVER['SCRIPT_NAME']);
+            if (substr($requested_script, -4) == ".css")
+                header("Content-Type: text/css");
+            readfile($requested_script);
+        }
+    }
+    else
+    {
+        $log_router("Internal Server Error",$requested_script,$_REQUEST,$_SERVER);
+        $protocol = isset($_SERVER['SERVER_PROTOCOL']) ?$_SERVER['SERVER_PROTOCOL']: 'HTTP/1.1';
+        header("$protocol 500 Internal Server Error", true, 500);
+        die("500 Internal Server Error");
+    }
+    return;
+}
+
+/**
+ * Act as CLI start script, this is when `php phar://path/to/scavix-wdf.phar` is executed.
+ */
 if( PHP_SAPI != 'cli' ) exit;
 define("NO_CONFIG_NEEDED",true);
 require(__DIR__.'/system.php');
@@ -11,219 +84,5 @@ classpath_add(getcwd());
 
 if( count($GLOBALS['argv'])<2 )
 	$GLOBALS['argv'][] = 'helptask';
-
-
-/**
- * Standard help output
- */
-class HelpTask extends \ScavixWDF\Tasks\Task
-{
-	function Run($args)
-	{
-		$cls = array_shift($args);
-		$method = array_shift($args);
-		if( $cls )
-		{
-			$fqcls = fq_class_name($cls);
-			if( !class_exists($fqcls) )
-			{
-				if( !ends_iwith($cls,'task') ) 
-					$fqcls = fq_class_name("{$cls}task");
-				if( !class_exists($fqcls) )
-					return log_error("Unknown object: $cls");
-			}
-			
-			$ref = \ScavixWDF\Reflection\WdfReflector::GetInstance($fqcls);
-			if( $method )
-				$method = $ref->getMethod($method);
-			
-			$comment = $ref->getCommentObject($method?$method->getName():false);
-			$md = $comment?$comment->RenderAsMD():'';
-			$name = strtolower(str_ireplace("task","",array_last(explode("\\",$cls))));
-			log_info("\nClassname  : {$ref->getName()}");
-			
-			$par = $ref->getParentClass();
-			if( $par )
-				log_info("Parent     : {$par->getName()}");
-			
-			if( $method )
-			{
-				$dec = $method->getDeclaringClass();
-				if( $dec && $dec->getName() != $ref->getName() )
-					log_info("Declared in: {$dec->getName()}");
-				log_info("Method     : {$method->getName()}");
-			}
-			log_info("Description: {$md}");
-			
-			if( !$method )
-			{
-				$methods = [];
-				foreach( $ref->getMethods(ReflectionMethod::IS_PUBLIC) as $m )
-				{
-					$dec = $m->getDeclaringClass();
-					if( $dec && $dec->getName() != $ref->getName() )
-						continue;
-					if( !starts_with($m->getName(),'__') )
-						$methods[] = $m->getName();
-				}
-				if( count($methods) )
-					log_info("Methods    : ".implode(", ",$methods));
-			}
-		}
-		else
-		{
-			log_info("Syntax: php ".basename($GLOBALS['argv'][0])." (help|search|<cmd> [<args>])");
-			if( file_exists(__DIR__.'/VERSION') )
-			{
-				$v = array_map('trim',file(__DIR__.'/VERSION'));
-				log_info("\nGIT revision",array_shift($v));
-				log_info("GIT date",date("Y-m-d H:i:s",array_shift($v)));
-				log_info("GIT branch",array_shift($v));
-			}
-			log_info("\nCommand syntax: help [classname [methodname]]");
-			log_info("Command syntax: search");
-		}
-	}
-}
-
-/**
- * Searches current folder for Task implementations
- */
-class SearchTask extends \ScavixWDF\Tasks\Task	
-{
-    private function listFiles()
-    {
-        $res = [];
-        log_info("Searching for files in '".getcwd()."'...");
-		$dir = new RecursiveDirectoryIterator(getcwd());
-		$it = new RecursiveIteratorIterator($dir);
-		$regit = new RegexIterator($it, '/^.+\.php$/i', RecursiveRegexIterator::GET_MATCH);
-		foreach( $regit as $phpFile )
-			$res[] = $phpFile[0];
-		
-		$in_phar = (stripos(__DIR__,"phar://") !== false);
-		
-		if( $in_phar )
-			$res[] = __FILE__;
-		elseif( strpos(__DIR__,getcwd().'/') !== 0 ) 
-		{
-			log_info("Searching for files in '".__DIR__."'...");
-			$dir = new RecursiveDirectoryIterator(__DIR__,FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS);
-			$it = new RecursiveIteratorIterator($dir);
-			$regit = new RegexIterator($it, '/^.+\.php$/i', RecursiveRegexIterator::GET_MATCH);
-			foreach( $regit as $phpFile )
-				$res[] = $phpFile[0];
-		}
-        return $res;
-    }
-    
-	function Run($args)
-	{
-		$fqcns = []; $done = [];
-		$processClassFile = function($file)use(&$fqcns,&$done)
-		{
-			if( isset($done[$file]) ) return;
-			$done[$file] = true;
-			if( stripos($file,"/vendor/") ) return;
-			
-			$content = file_get_contents($file);
-			$tokens = @token_get_all($content);
-			$namespace = '';
-			for ($index = 0; isset($tokens[$index]); $index++)
-			{
-				if (!isset($tokens[$index][0])) {
-					continue;
-				}
-				if (T_NAMESPACE === $tokens[$index][0])
-				{
-					$namespace = '';
-					$index += 2;
-					while (isset($tokens[$index]) && is_array($tokens[$index])) {
-						$namespace .= $tokens[$index++][1];
-					}
-				}
-				if (T_CLASS === $tokens[$index][0] && T_WHITESPACE === $tokens[$index + 1][0] && T_STRING === $tokens[$index + 2][0])
-				{
-					$index += 2;
-					$fqcns[] = $namespace.'\\'.$tokens[$index][1];
-				}
-			}
-		};
-        
-        foreach( $this->listFiles() as $file )
-            $processClassFile($file);
-		
-        $in_phar = (stripos(__DIR__,"phar://") !== false);
-		$reflector = $in_phar?str_replace("phar://","",__DIR__):$GLOBALS['argv'][0];
-		$tasks = [];
-		foreach( array_chunk(array_unique($fqcns),20) as $chunk )
-		{
-			try
-			{
-                $cls = implode(" ",array_map(function($c){ return "\"$c\""; },$chunk));
-                $out = shell_exec("php $reflector searchtask-reflect $cls");
-				$test = json_decode("$out",true);
-				if( !$test )
-					continue;
-				foreach( $test as $entry )
-                {
-                    if( isset($entry['ex']) )
-                        log_error($entry['ex']);
-					else
-                        log_info("\nFile       : {$entry['file']}\nCommand    : {$entry['name']}\nDescription: {$entry['desc']}");
-                }
-			}
-			catch(\Exception $ex){ log_debug("Caught",$ex); }
-		}
-	}
-	
-	function Reflect($args)
-	{
-		ini_set('display_errors',0);
-		error_reporting(0);
-		$res = [];
-		while( count($args)>0 )
-		{
-			$ref = false;
-			$cls = array_shift($args);
-			try
-			{
-				cache_clear();
-				$ref = new \ScavixWDF\Reflection\WdfReflector($cls);
-				if( $ref && $ref->isSubclassOf(\ScavixWDF\Tasks\Task::class) )
-				{
-					$comment = $ref->getCommentObject();
-					$md = trim($comment?$comment->RenderAsMD():'');
-					$res[] = ['name'=>$cls,'file'=>$ref->getFileName(),'desc'=>$md];
-				}
-			}
-            catch(\Exception $ex){ }
-		}
-		die(json_encode($res));
-	}
-    
-    function LoadClassesTest($args)
-	{
-        $preload = implode(" ",array_map(function($c){ return "\"$c\""; },$args));
-        $in_phar = (stripos(__DIR__,"phar://") !== false);
-        $reflector = $in_phar?str_replace("phar://","",__DIR__):$GLOBALS['argv'][0];
-        foreach( $this->listFiles() as $file )
-        {
-            if( $file == __FILE__ || !fnmatch("*.class.php", $file) || strpos($file, "/system") )
-                continue;
-            $out = trim(shell_exec("php $reflector SearchTask-LoadClassesTestWorker $preload \"$file\" 2>&1"));
-            if( $out )
-                log_error("Error in file $file:\n$out\n");
-        }
-    }
-    
-    function LoadClassesTestWorker($args)
-	{
-        ob_start();
-        foreach( $args as $a )
-            require($a);
-        ob_end_clean();
-	}
-}
 
 \system_execute();
