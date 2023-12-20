@@ -112,7 +112,7 @@ function session_run()
 	if (!isset($_SESSION["system_internal_cache"]))
 		$_SESSION["system_internal_cache"] = [];
 
-    if (isDev() && ('iframe' == strtolower(ifavail($_SERVER, 'HTTP_SEC_FETCH_DEST', 'REDIRECT_HTTP_SEC_FETCH_DEST')?:'')))
+    if ('iframe' == strtolower(ifavail($_SERVER, 'HTTP_SEC_FETCH_DEST', 'REDIRECT_HTTP_SEC_FETCH_DEST')?:''))
     {
         $session_name = session_name();
         $session_cookie_okay = false;
@@ -132,7 +132,7 @@ function session_run()
 
         if (!isset($_REQUEST[$session_name]) && !$session_cookie_okay)
         {
-            log_debug("[IFRAME] Starting coockie detection roundtrip", system_current_request(true));
+            // log_debug("[IFRAME] Starting coockie detection roundtrip", system_current_request(true));
             $CONFIG['session']['needs_get_args'] = true;
             redirect(buildQuery(current_controller(), current_event(), $_GET));
         }
@@ -142,7 +142,7 @@ function session_run()
             unset($_REQUEST[$session_name]);
             if ($session_cookie_okay)
             {
-                log_debug("[IFRAME] Cookies okay, finishing coockie detection roundtrip", system_current_request(true));
+                // log_debug("[IFRAME] Cookies okay, finishing coockie detection roundtrip", system_current_request(true));
                 $CONFIG['session']['needs_get_args'] = false;
                 redirect(buildQuery(current_controller(), current_event(), $_GET));
             }
@@ -243,7 +243,7 @@ function session_update($keep_alive=false)
 
     $partitionCookies = function ()
     {
-        if (!isDev() || headers_sent() )
+        if (headers_sent() || ('iframe' != strtolower(ifavail($_SERVER, 'HTTP_SEC_FETCH_DEST', 'REDIRECT_HTTP_SEC_FETCH_DEST')?:'')) )
             return;
         $replace_headers = true;
         foreach (headers_list() as $header)
@@ -254,6 +254,7 @@ function session_update($keep_alive=false)
                 $header .= ends_with($header, ";") ? " Partitioned" : "; Partitioned";
             header("$header", $replace_headers);
             $replace_headers = false;
+            // log_debug("Cookie partitioned", $header,system_current_request(true));
         }
     };
 

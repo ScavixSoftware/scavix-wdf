@@ -50,9 +50,9 @@ if( isset($polyfills) && count($polyfills)>0 )
 	<?php foreach($js as $j) echo $j; ?>
 	<?php if(isset($inlineheader)) echo $inlineheader; ?>
 <script type='text/javascript'>
-$(function(){ 
+$(function(){
 <?php if( $render_noscript_block ): ?>
-	if( !navigator.cookieEnabled )
+	if( !navigator.cookieEnabled && window.self == window.top )
 		return $('body').empty().append('<?=$js_cookie_error?>');
 <?php endif; ?>
 <?php if( count($docready) > 0 ): ?>
@@ -82,7 +82,7 @@ $(function(){
         for(var t=0; t<texts.length; t++)
         {
             var txt = texts[t], part = txt.substr(0,testlen);
-            for(var i in wdf.translations) 
+            for(var i in wdf.translations)
             {
                 if( matches[i] )
                     continue;
