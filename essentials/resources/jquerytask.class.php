@@ -78,8 +78,17 @@ class jQueryTask extends \ScavixWDF\Tasks\Task
         $this->processTextures($args);
 
         $targetPath = "$target/jquery-ui";
-        @mkdir($targetPath);
-        @mkdir("$targetPath/images");
+        try
+        {
+            @mkdir($targetPath);
+        }
+        catch(Throwable $ex) {}
+        try
+        {
+            @mkdir("$targetPath/images");
+        }
+        catch(Throwable $ex) {}
+
         $vars = [];
         $props = [];
         $less = preg_replace_callback('/\s([^\s]*)\/\*{([^\*]+)}\*\//', function ($m) use ($args, &$vars, &$props, $targetPath)
