@@ -764,19 +764,21 @@
             });
             return $toast.colorize('#444','#fff').bottom();
         },
-		getText: function(name,data)
+		getText: function(name, data, getfromserver)
 		{
             if( win.wdf_texts )
             {
                 if( wdf.controller && !win.wdf_texts[name] )
                 {
-                    wdf.controller.get('wdfgettext',{id:name},function(d)
-                    {
-                        Object.keys(d).forEach(function(k)
-                        {
-                            win.wdf_texts[k] = d[k];
+                    if ((typeof (getfromserver) == "undefined") || getfromserver) {
+                        wdf.controller.get('wdfgettext', { id: name }, function (d) {
+                            Object.keys(d).forEach(function (k) {
+                                win.wdf_texts[k] = d[k];
+                            });
                         });
-                    });
+                    }
+                    else
+                        win.wdf_texts[name] = name;
                 }
 
                 if( win.wdf_texts[name] )
