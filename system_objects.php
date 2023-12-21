@@ -114,10 +114,7 @@ class Wdf
             $lock = md5($name);
             $dir = '/run/lock/wdf-'.md5(__SCAVIXWDF__);
             $um = umask(0);
-            try
-            {
-                @mkdir($dir, 0777, true);
-            } catch(\Throwable $ex) {}
+            @mkdir($dir, 0777, true);
             $end = time()+$timeout;
             do
             {

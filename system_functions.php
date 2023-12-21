@@ -1490,14 +1490,7 @@ function system_app_temp_dir($subfolder = '', $appendnc = true)
         $folder = str_replace('//', '/', $folder);
     if( !file_exists($folder) )
     {
-        try
-        {
-            @mkdir($folder, 0777, true);
-        }
-        catch (\Throwable $ex)
-        {
-            WdfException::Raise('Unable to create app temp folder: '.$folder);
-        }
+        @mkdir($folder, 0777, true);
     }
     if( substr(sprintf('%o', @fileperms($folder)), -3) != '777' )
     {
