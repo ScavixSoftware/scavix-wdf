@@ -80,6 +80,7 @@ class DateTimeEx extends DateTime
 
 			if (is_numeric($source))
 			{
+				$source = 0 + $source;		// convert to int or float
 				if(is_integer($source))
 				{
 					$l = strlen("$source");
