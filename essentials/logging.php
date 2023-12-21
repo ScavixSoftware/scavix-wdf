@@ -165,6 +165,8 @@ function logging_mem_ok()
 
 /**
  * @internal Global error handler. See <set_error_handler>
+ * @see https://maximivanov.github.io/php-error-reporting-calculator/
+ * @see https://www.php.net/manual/en/language.operators.errorcontrol.php
  */
 function global_error_handler($errno, $errstr, $errfile, $errline)
 {
@@ -174,30 +176,37 @@ function global_error_handler($errno, $errstr, $errfile, $errline)
         'E_RECOVERABLE_ERROR','E_DEPRECATED','E_USER_DEPRECATED','E_ALL'
     ];
 
-	// Use error_reporting() to check if @ operator is in use.
-	// This works as we set error_reporting(E_ALL) in logging_init().
-    // Note: Since PHP 8.0 <set_error_handler>-defined functions will be called even if @ is used.
-    //       See code below for handling this
-	if ( error_reporting() == 0 )
+	// Use error_reporting() to check if disabled or @-operator is in use.
+	if ( in_array(error_reporting(),[0,4437]) )
         return;
 
-	// As we skip E_STRICT check that too.
-    // E_STRICT has been changed to E_WARNING in php7 (see https://www.php.net/manual/de/migration70.incompatible.php)
-    // so we ignore the "Declaration of ... should be compatible with" warnings in live systems
-    if ((($errno & error_reporting()) == 0) || ($errno == E_STRICT) || (($errno == E_WARNING) && (strpos($errstr, 'Declaration of ') === 0) && (strpos($errstr, ' should be compatible with ') !== false)))
+    // Check if $errno is requested to be logged
+    // OR
+    // If $errstr is a warning about "Declaration of ... should be compatible with"
+    if ((($errno & error_reporting()) == 0) || (($errno == E_WARNING) && (strpos($errstr, 'Declaration of ') === 0) && (strpos($errstr, ' should be compatible with ') !== false)))
     {
         if( !isDev() ) // Completely ignore in LIVE env
             return;
 
-        if( stripos($errstr,'ScavixWDF\Model\PdoLayer::prepare') > 0 ) // known an handled, ignore savely
+        // Known as handled, ignore savely even in DEV
+        if( stripos($errstr,'ScavixWDF\Model\PdoLayer::prepare') > 0 )
             return;
 
-        // load line that triggered the error and check it for @-operator
+        // PHP 7 compat: The above 4437 is not returned in the @-case, so we have to check old-school
         if( $errfile && $errline )
         {
-            $entry = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)[1];
+            $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+            array_shift($trace);
+            do
+            {
+                $entry = array_shift($trace);
+            }
+            while(!isset($entry['file']) && count($entry)>0 );
+
             foreach ([[$errfile,$errline], [$entry['file'],$entry['line']]] as list($fn, $lineNo))
             {
+                if (!$fn)
+                    continue;
                 for ($seek = 1; $seek < 10; $seek++) // seek back 10 lines to find function call with args on next lines
                 {
                     $ln = $lineNo - $seek;
@@ -215,14 +224,12 @@ function global_error_handler($errno, $errstr, $errfile, $errline)
                             $file->seek($ln - 1);
                     }
                     $line = $file->fgets();
-                    //$errline .= " un@check=$fn:$ln=$line\n";
                     if (strpos($line, '@' . substr($errstr, 0, 6)) !== false) // @ is used, ignore
                         return;
                     if (strpos($line, '@\\' . substr($errstr, 0, 6)) !== false) // @ is used, ignore
                         return;
                 }
             }
-            //$errline .= " un@".system_stacktrace_to_string(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
         }
     }
 

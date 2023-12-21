@@ -454,11 +454,7 @@ class WdfFileCacheWrapper
         $this->map = [];
         $this->root = sys_get_temp_dir()."/wdf_globalcache/{$key_prefix}";
         $um = umask(0);
-        try
-        {
-            @mkdir($this->root,0777,true);
-        }
-        catch(\Throwable $ex) {}
+        @mkdir($this->root,0777,true);
         umask($um);
 
         if( $this->get('WdfFileCacheWrapper::NextCleanup',0,$ex) < time() )
@@ -478,22 +474,14 @@ class WdfFileCacheWrapper
         $file = md5($key);
         $dir = $this->root."/".substr($file, 0, 2);
         $um = umask(0);
-        try
-        {
-            @mkdir($dir, 0777, true);
-        }
-        catch(\Throwable $ex) {}
+        @mkdir($dir, 0777, true);
         umask($um);
         return "$dir/$file";
     }
 
     protected function unpack($file, $metadata_only = false)
     {
-        try
-        {
-            $c = @file_get_contents($file);
-        }
-        catch(Throwable $ex){ log_error($ex); }
+        $c = @file_get_contents($file);
         if (!$c)
             return null;
         $res = session_unserialize($c);
@@ -527,11 +515,7 @@ class WdfFileCacheWrapper
         $exists = false;
         $file = $this->getPath($key);
 
-        try
-        {
-            $filemtime = @filemtime($file);
-        }
-        catch(Throwable $ex){ log_error($ex); }
+        $filemtime = @filemtime($file);
 
         if( isset($this->map[$key]) && $this->map[$key]['filemtime'] == $filemtime )
             return $this->map[$key]['data'];

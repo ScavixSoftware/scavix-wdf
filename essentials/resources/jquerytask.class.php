@@ -78,16 +78,8 @@ class jQueryTask extends \ScavixWDF\Tasks\Task
         $this->processTextures($args);
 
         $targetPath = "$target/jquery-ui";
-        try
-        {
-            @mkdir($targetPath);
-        }
-        catch(Throwable $ex) {}
-        try
-        {
-            @mkdir("$targetPath/images");
-        }
-        catch(Throwable $ex) {}
+        @mkdir($targetPath);
+        @mkdir("$targetPath/images");
 
         $vars = [];
         $props = [];
