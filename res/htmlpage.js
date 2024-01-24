@@ -429,7 +429,7 @@
                             }
 
                             var param = json_result ? (typeof(json_result.html)!='undefined' ? json_result.html : json_result) : null;
-                            if( s.original_success || param )
+                            if( (s.original_success || param) && ajax_obj)
                             {
                                 var wp = ajax_obj.wait();
                                 Promise.all(loading||[]).finally(function()
@@ -770,11 +770,17 @@
             {
                 if( wdf.controller && !win.wdf_texts[name] )
                 {
-                    if ((typeof (getfromserver) == "undefined") || getfromserver) {
-                        wdf.controller.get('wdfgettext', { id: name }, function (d) {
-                            Object.keys(d).forEach(function (k) {
-                                win.wdf_texts[k] = d[k];
-                            });
+                    if ((typeof (getfromserver) == "undefined") || getfromserver)
+                    {
+                        var d = $.ajax(
+                        {
+                            url: wdf.settings.site_root + wdf.settings.controller + '/wdfgettext/?id=' + encodeURIComponent(name),
+                            type: 'GET',
+                            async: false,
+                            cache: true
+                        });
+                        Object.entries(d.responseJSON).forEach(([key, value]) => {
+                            win.wdf_texts[key] = value;
                         });
                     }
                     else
