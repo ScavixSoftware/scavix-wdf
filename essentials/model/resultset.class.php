@@ -90,7 +90,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 			{
                 $args = [];
                 foreach( force_array($a,false) as $arg )
-                    $args[] = is_null($arg)?"null":((is_numeric($arg) && (strpos($arg, '+') === false)) ?"$arg":"'".$ds->EscapeArgument("$arg")."'");
+                    $args[] = is_null($arg)?"null":((is_numeric($arg) && !starts_with("$arg",'0') && (strpos($arg, '+') === false)) ?"$arg":"'".$ds->EscapeArgument("$arg")."'");
                 $a = implode(",",$args);
 				if($hasqm)
 					$sql = preg_replace('/\?/', $a, $sql, 1);
