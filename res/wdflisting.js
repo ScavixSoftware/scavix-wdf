@@ -1,7 +1,7 @@
 
 wdf.ready.add(function()
 {
-    wdf.listings = 
+    wdf.listings =
     {
         initFilter: function(element)
         {
@@ -9,8 +9,8 @@ wdf.ready.add(function()
             {
                 var $filter = $(this);
                 $('.go:not(.ui-button)',$filter).button();
-                wdf.listings.markValued($(':input',$filter)); 
-                
+                wdf.listings.markValued($(':input',$filter));
+
                 $filter.submit(function(e)
                 {
                     e.preventDefault();
@@ -24,7 +24,7 @@ wdf.ready.add(function()
                     {
                         $('[type="checkbox"][name]',$form).each(function()
                         {
-                            var name = $(this).attr('name'), 
+                            var name = $(this).attr('name'),
                                 on = $(this).is(':checked');
                             $('[type="hidden"][name="'+name+'"]',$form).remove();
                             if( on )
@@ -43,7 +43,7 @@ wdf.ready.add(function()
                     {
                         var $listing = $('#'+l), elem = $('.table',$listing);
                         $listing.css('min-height',$listing.height());
-                        if( elem.length==0 )        
+                        if( elem.length==0 )
                             elem = $('#'+l+'.table');
                         var prevPos = $listing.css('position');
                         $listing.css('position', 'relative');
@@ -65,7 +65,7 @@ wdf.ready.add(function()
                     wdf.listings.markValued($(':input',$form));
                     $form.submit();
                 });
-            });   
+            });
         },
         init: function()
         {
@@ -73,11 +73,20 @@ wdf.ready.add(function()
                 .off('click.multiselect')
                 .on('click.multiselect', function(e)
                 {
-                    var multiselname = $(this).attr('data-multicheckboxname');        
-                    $('[name="' + multiselname + '"]').prop('checked', $(this).prop('checked'));
+                    var multiselname = $(this).attr('data-multicheckboxname');
+                    $('input[type="checkbox"][name="' + multiselname + '"]', $(this).parents('.listing')).prop('checked', $(this).prop('checked'));
                     e.stopPropagation();
                 });
-                
+
+            $('.listing.multiselect .tbody .td:first-child input[type="checkbox"]')
+                .off('click.multiselectitem')
+                .on('click.multiselectitem', function(e)
+                {
+                    if(!$(this).prop('checked'))
+                        $('.thead input[type="checkbox"][data-multicheckboxname]', $(this).parents('.listing')).prop('checked', false);
+                    e.stopPropagation();
+                });
+
             $('.listing.multiselect .td:first-child, .listing.multiselect .td:first-child td')
                 .off('click.multiselect')
                 .on('click.multiselect', function(e) { e.stopPropagation(); });
@@ -92,7 +101,7 @@ wdf.ready.add(function()
                     $(document).one('click',function(){ $('.column-state-popup').slideUp(function(){ $(this).remove(); }); });
 
                     var $listing = $(this).closest('.listing'),
-                        columns = $(this).data('column-state'), 
+                        columns = $(this).data('column-state'),
                         $d = $('<div/>').addClass('column-state-popup').hide(),
                         enabled = 0;
                     for(var i=0; i<columns.length; i++)
@@ -148,7 +157,7 @@ wdf.ready.add(function()
             {
                 if( $(this).data('gotoPage') )
                     return;
-                
+
                 $(this).data('gotoPage',function(table,n)
                 {
                     var tab = $(table), self = tab.closest('.listing');
@@ -171,12 +180,12 @@ wdf.ready.add(function()
                 })
             });
         },
-        
+
         each: function(callback)
         {
             $('.listing').each(function() { callback("#"+$(this).attr('id')); });
         },
-        
+
         states: false,
         pushState: function(id)
         {
@@ -204,7 +213,7 @@ wdf.ready.add(function()
                 window.history.pushState({trigger:'listing',id:id}, '', url);
             }
         },
-        
+
         restoreState: function(id)
         {
             var state = wdf.listings.states[id];
@@ -216,7 +225,7 @@ wdf.ready.add(function()
                     $(listing).html(state[listing]);
             });
         },
-        
+
         rowclick: function(evt, url)
         {
             if (evt.ctrlKey)
@@ -231,14 +240,14 @@ wdf.ready.add(function()
                 wdf.redirect(url);
             }
         },
-        
+
         setRowClickHandler: function(handler)
         {
             var prev = wdf.listings.rowclick;
             wdf.listings.rowclick = handler;
             return prev;
         },
-        
+
         geticon: function(req)
         {
             switch( req )
@@ -248,7 +257,7 @@ wdf.ready.add(function()
             }
             return'';
         },
-        
+
         markValued: function(element)
         {
             return $(element).filter(':input').each(function()
@@ -259,7 +268,7 @@ wdf.ready.add(function()
                     $(this).removeClass('hasvalue')
             });
         },
-        
+
         reload: function(listing, stateId)
         {
             return $(listing).each(function()
@@ -269,7 +278,7 @@ wdf.ready.add(function()
                 self.css('position', 'relative');
                 tab.addClass('blurred');
                 tab.overlay();
-                
+
                 wdf.get(self.attr('id')+'/reload',{"state_id":stateId||''},(d,s,p) =>
                 {
                     wdf.tables.update(tab,d,p.wait());
@@ -279,9 +288,9 @@ wdf.ready.add(function()
             });
         }
     };
-    
+
     wdf.listings.init();
     wdf.ajaxReady.add(wdf.listings.init);
-    
+
     wdf.defer(function(){ wdf.listings.pushState('-'); });
 });
