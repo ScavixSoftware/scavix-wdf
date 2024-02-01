@@ -26,7 +26,7 @@ namespace ScavixWDF\Tasks;
 
 /**
  * Wraps PDF printing using puppeteer
- * 
+ *
  * @see https://github.com/puppeteer/puppeteer
  */
 class PdfPrintTask extends Task
@@ -35,20 +35,40 @@ class PdfPrintTask extends Task
 const fs = require('fs'), util = require('util'), puppeteer = require('{{docroot}}/node_modules/puppeteer');
 async function wdf_print()
 {
-    var log = function (msg)
+    var resolveHandle = (handle) =>
+    {
+        return handle.executionContext().evaluate((d) =>
         {
-            msg = util.inspect(msg);
-            var dt = new Date().toISOString().slice(0,19).replace(/T/," ");
-            fs.appendFile('{{logfile}}','['+dt+'] [DEBUG] (PUP)\t'+msg+'\n',()=>{});
-        };
+            if( typeof(d) == "object" )
+                return JSON.stringify(d);
+            return d;
+        },handle);
+    };
+    var log = async function (input)
+    {
+        var msg = (input instanceof Error)?['['+input.name+']',input.message,input.cause]:[];
+        if( msg.length == 0 && typeof(input.text)=='function' )
+        {
+            var txt = input.text();
+            msg = await Promise.all(input.args().map(arg => resolveHandle(arg)));
+            if( msg.length == 0 )
+                msg.unshift(txt);
+            msg.unshift('[console]');
+        }
+        if( msg.length == 0 )
+            msg = [util.inspect(input)];
+
+        var dt = new Date().toISOString().slice(0,19).replace(/T/," ");
+        fs.appendFile('{{logfile}}','['+dt+'] [DEBUG] (PUP)\t'+msg.join('\t')+'\n',()=>{});
+    };
     const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
     const page = await browser.newPage();
     const ua = await browser.userAgent();
     await page.setUserAgent(ua+" WDF/Puppeteer");
     page.on('console', log).on('error', log).on('pageerror', log);
-    
+
     await page.goto('{{url}}', {waitUntil: 'networkidle0'}).catch(log);
-    await page.evaluate(async () => 
+    await page.evaluate(async () =>
     {
         document.body.scrollIntoView(false);
         await Promise.all(Array.from(document.getElementsByTagName('img'), image =>
@@ -70,7 +90,7 @@ async function wdf_print()
 };
 wdf_print();
 EOPS;
-    
+
     /**
      * @internal Checks if puppeteer is installed correctly
      */
@@ -78,7 +98,7 @@ EOPS;
     {
         if( !preg_match('/^v\d+\.\d+\.\d+/i',shell_exec("node -v")) )
             \ScavixWDF\WdfException::Raise("Node not found!");
-        
+
         $dir = str_replace("\\", "/", getcwd());
         while( !file_exists("{$dir}/node_modules/puppeteer") )
         {
@@ -89,7 +109,7 @@ EOPS;
         }
         if( file_exists("{$dir}/node_modules/puppeteer") )
             return $dir;
-        
+
         if( preg_match('/^\d+\.\d+\.\d+/i',shell_exec("npm -v")) )
         {
             $dir = shell_exec("npm roo --global");
@@ -98,10 +118,10 @@ EOPS;
         }
         \ScavixWDF\WdfException::Raise("Puppeteer not found!");
     }
-    
+
     /**
      * Runs PDF creation.
-     * 
+     *
      * @param array $args Named args: url=<url> pdf=<filename>
      * @return void
      */
@@ -114,14 +134,14 @@ EOPS;
             log_info("Syntax: pdfprint url=<url> pdf=<filename>");
             return;
         }
-        
+
         $fn = self::Url2Pdf($url);
         if( !file_exists($fn) )
         {
             log_error("Unable to create PDF");
             return;
         }
-        
+
         if( !rename($fn,$pdf) )
         {
             unlink($fn);
@@ -129,10 +149,10 @@ EOPS;
             return;
         }
     }
-    
+
     /**
      * Helper method to detect active puppeteer calls.
-     * 
+     *
      * May be used from within page renderer to detect if the call is from this task.
      * @return bool true or false
      */
@@ -140,10 +160,10 @@ EOPS;
     {
         return stripos(ifavail($_SERVER,'HTTP_USER_AGENT')?:'',"WDF/Puppeteer") > -1;
     }
-    
+
     /**
      * Actual PDF creation.
-     * 
+     *
      * This may be used sync from PHP code or async via Task.
      * @param string $url The URL to render as PDF
      * @return string|false Returns the PDF filename or false on error
@@ -152,12 +172,12 @@ EOPS;
     {
         $um = umask(0);
         $node_root = self::detectPuppeteer();
-        
+
 		$fn = tempnam(system_app_temp_dir(),'PdfPrintTask_Url2Pdf_');
         $cfg = false&&avail($GLOBALS,'CONFIG','system','logging','human_readable')
             ?$GLOBALS['CONFIG']['system']['logging']['human_readable']
             :['path'=>'','filename_pattern'=>ini_get('error_log')];
-        
+
 		// prepare JS script
 		$script = str_replace
         (
@@ -168,7 +188,7 @@ EOPS;
                 '{{logfile}}',
                 '{{docroot}}',
                 '{{isdev}}'
-            ], 
+            ],
             [
                 144,
                 str_replace("\\", "/", $fn),
@@ -181,7 +201,7 @@ EOPS;
             //file_get_contents(__DIR__."/puppeteer.js")
             self::puppeteer_script
         );
-        
+
 		file_put_contents("$fn.js", $script);
         chmod("$fn.js",0777);
 
@@ -189,14 +209,14 @@ EOPS;
         $puppeteerjs = "node $fn.js 2>&1";
         if(isDev())
             log_debug("Puppeteer CmdLine: $puppeteerjs",$script);
-		$res = trim(shell_exec($puppeteerjs));
+		$res = trim("".shell_exec($puppeteerjs));
         if( $res )
             log_debug("Puppeteer result:\n$res");
         umask($um);
-		
+
         if( file_exists("$fn.js") && !$res )
             unlink("$fn.js");
-        
+
         if( file_exists($fn) )
         {
             if( rename($fn,"$fn.pdf") )
