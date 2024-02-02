@@ -56,7 +56,7 @@ async function wdf_print()
             msg.unshift('[console]');
         }
         if( msg.length == 0 )
-            msg = [util.inspect(input)];
+            msg = ['[inspect]',util.inspect(input),"(URL was '{{url}}')"];
 
         var dt = new Date().toISOString().slice(0,19).replace(/T/," ");
         fs.appendFile('{{logfile}}','['+dt+'] [DEBUG] (PUP)\t'+msg.join('\t')+'\n',()=>{});
