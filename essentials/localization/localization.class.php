@@ -33,17 +33,17 @@ use ScavixWDF\WdfException;
 
 /**
  * Helper class to wrap some tool functions.
- * 
+ *
  */
 class Localization
 {
 	const USE_DEFAULT = 0x00;
 	const USE_IP = 0x01;
 	const USE_BROWSER = 0x02;
-    
+
 	/**
 	 * Gets a <CultureInfo> object representing a language.
-	 * 
+	 *
 	 * @param string $language_code Lanugage code (DE, EN, ...)
 	 * @return CultureInfo The object or false on error
 	 */
@@ -61,7 +61,7 @@ class Localization
 
 	/**
 	 * Tries to match the remote IP to a culture.
-	 * 
+	 *
 	 * @return CultureInfo|bool The detected culture or false
 	 */
 	public static function getIPCulture()
@@ -87,7 +87,8 @@ class Localization
 
 	/**
 	 * Detects the browsers culture settings.
-	 * 
+	 * $_SERVER['HTTP_FORCE_LANGUAGE'] = forced by request (like api calls from client, portal, ...)
+	 *
 	 * @return CultureInfo|bool The detected culture
 	 */
 	public static function getBrowserCulture()
@@ -95,86 +96,57 @@ class Localization
 		if( Args::sanitized('culture', false, 'CG') )
 			return self::getCultureInfo(Args::sanitized('culture', false, 'CG'));
 
-		// language detection forced by request (like api calls from client, portal, ...)
-		if( isset($_SERVER['HTTP_FORCE_LANGUAGE']) )
+		foreach (['HTTP_FORCE_LANGUAGE', 'HTTP_ACCEPT_LANGUAGE'] as $sk)
 		{
-			// Prepare the string that looks like this:
-			// ja,en-us;q=0.8,de-de;q=0.6,en;q=0.4,de;q=0.2
-			$langs = explode(",",$_SERVER['HTTP_FORCE_LANGUAGE']);
-			$parts = [];
-			foreach( $langs as $k=>$v )
+			if(avail($_SERVER, $sk))
 			{
-				$v = explode(";",$v);
-				$w = isset($v[1]) && (substr($v[1], 0, 2) == "q=") ? substr($v[1], 2)  : 1;
-				$parts[$w * 100] = trim($v[0]);
-			}
-			// check for first valid language
-			foreach( $parts as $k=>$v )
-			{
-				if(strlen($v) == 2)
+				// Prepare the string that looks like this:
+				// de-DE,de;q=0.9,en;q=0.8,en-US;q=0.7
+				$langs = explode(',', $_SERVER[$sk]);
+				$parts = [];
+				foreach ($langs as $k => $v)
 				{
-					// this is only a language, so get the default region
-					$regions = internal_getRegionsForLanguage($v);
-					$region = $regions[0];
-					$v = $region->KnownCultures[0];
+					$v         = explode(";", $v);
+					$w         = round(ceil((isset($v[1]) && (substr($v[1], 0, 2) == "q=")) ? (substr($v[1], 2) * 1000) : 1));
+					$parts[$w] = trim($v[0]);
 				}
-				$ci = self::getCultureInfo($v);
-				if( $ci )
-					return $ci;
+				// check for first valid language
+				foreach ($parts as $k => $v)
+				{
+					if (strlen($v) == 2)
+					{
+						// this is only a language, so get the default region
+						$regions = internal_getRegionsForLanguage($v);
+						if ($regions && (count($regions) > 0))
+							$v = $regions[0]->KnownCultures[0];
+						else
+							continue;
+					}
+					if ($ci = self::getCultureInfo($v))
+						return $ci;
+				}
 			}
 		}
 
-		if( isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) )
-		{
-			// Prepare the string that looks like this:
-			// ja,en-us;q=0.8,de-de;q=0.6,en;q=0.4,de;q=0.2
-			$langs = explode(",",$_SERVER['HTTP_ACCEPT_LANGUAGE']);
-			$parts = [];
-			foreach( $langs as $k=>$v )
-			{
-				$v = explode(";",$v);
-				$w = round(ceil((isset($v[1]) && (substr($v[1], 0, 2) == "q=")) ? (substr($v[1], 2) * 1000) : 1));
-				$parts[$w] = trim($v[0]);
-			}
-			// check for first valid language
-			foreach( $parts as $k=>$v )
-			{
-				if(strlen($v) == 2)
-				{
-					// this is only a language, so get the default region
-					$regions = internal_getRegionsForLanguage($v);
-					if( $regions && count($regions)>0 )
-					{
-						$region = $regions[0];
-						$v = $region->KnownCultures[0];
-					}
-					else
-						continue;
-				}
-				$ci = self::getCultureInfo($v);
-				if( $ci )
-					return $ci;
-			}
-		}
 		return false;
 	}
 
 	/**
 	 * Tries to detect the culture for the remote user.
-	 * 
+	 *
 	 * @param array $detectionOrder Array specifying the detection order like this: array(Localization::USE_BROWSER,Localization::USE_IP)
 	 * @return CultureInfo The detected culture or $CONFIG['localization']['default_culture']
 	 */
 	public static function detectCulture($detectionOrder = false)
 	{
 		global $CONFIG;
-		
+
 		if( !$detectionOrder || (count($detectionOrder)==1 && $detectionOrder[0] == self::USE_DEFAULT) )
 			$detectionOrder = $CONFIG['localization']['detection_order'];
-		
+
 		if( !is_array($detectionOrder) )
 			$detectionOrder = array($detectionOrder);
-		
+
 		$ci = false;
 		foreach( $detectionOrder as $type )
 		{
@@ -199,7 +171,7 @@ class Localization
 
 	/**
 	 * Ensures a culture to a given code.
-	 * 
+	 *
 	 * Calls <Localization::getCultureInfo> and if that fails <Localization::detectCulture> to ensure
 	 * there's a return value.
 	 * @param string $code Culture code
@@ -216,7 +188,7 @@ class Localization
 
 	/**
 	 * Retuns a CultureInfo object.
-	 * 
+	 *
 	 * @param string $code Country code, Language code or culture code
 	 * @return CultureInfo CultureInfo object representing the culture or false on error
 	 */
@@ -233,7 +205,7 @@ class Localization
 		{
             if(isset($CONFIG['localization']['default_culture']))
                 $ci = internal_getCultureInfo($CONFIG['localization']['default_culture']);
-            
+
 //			log_error("NO CI $code");
 			return $ci;
 		}
@@ -243,7 +215,7 @@ class Localization
 
 	/**
 	 * Returns the timezone by IP.
-	 * 
+	 *
 	 * Will fall back to the $CONFIG['localization']['default_timezone'] setting
 	 * @param string $ip IP to get the timezone for
 	 * @return string Timezone ID
@@ -262,7 +234,7 @@ class Localization
 
 	/**
 	 * Returns a list of all defined Timezones.
-	 * 
+	 *
 	 * Wraps <DateTimeZone::listIdentifiers>
 	 * @return array All Timezone IDs
 	 */
@@ -272,8 +244,8 @@ class Localization
 	}
 
 	/**
-	 * Returns the default Culture 
-	 * 
+	 * Returns the default Culture
+	 *
 	 * That is set in `$CONFIG['localization']['default_culture']`
 	 * @return string Default culture code
 	 */
@@ -284,7 +256,7 @@ class Localization
 
 	/**
 	 * Returns the currently selected currency.
-	 * 
+	 *
 	 * @param string $cultureCode The culture code for which we need the currency. defaults to current culture
 	 * @param bool $use_code true: return currency ISO code, false: return currency symbol
 	 * @return string Currency code|symbol
@@ -313,7 +285,7 @@ class Localization
 
 	/**
 	 * Returns a list of all languages.
-	 * 
+	 *
 	 * Note that this method returns the english names of the languages (German, French, ...).
 	 * @return array Associative array of lang_code=>lang_name pairs
 	 */
@@ -329,10 +301,10 @@ class Localization
 		natsort($res);
 		return $res;
 	}
-	
+
 	/**
 	 * Gets the default culture for a country.
-	 * 
+	 *
 	 * @param string $country_code Country code
 	 * @return CultureInfo|bool The default culture or false on error
 	 */
@@ -343,10 +315,10 @@ class Localization
 			return false;
 		return $region->DefaultCulture();
 	}
-    
+
     /**
 	 * Gets the <RegionInfo> for a country.
-	 * 
+	 *
 	 * @param string $country_code Country code
 	 * @return RegionInfo|bool The region info or false on error
 	 */
@@ -360,7 +332,7 @@ class Localization
 
 	/**
 	 * Gets a list of country names.
-	 * 
+	 *
 	 * @param mixed $culture_filter <CultureInfo> or code specifying a culture that must be present in a country
 	 * @return array Associative array of countrycode=>countryname pairs
 	 */
@@ -391,7 +363,7 @@ class Localization
 
 	/**
 	 * Returns a list of all supported currency codes.
-	 * 
+	 *
 	 * @return array List of currency codes
 	 */
 	public static function get_currency_codes()
@@ -401,7 +373,7 @@ class Localization
 
 	/**
 	 * Gets a <CultureInfo> from a currency code.
-	 * 
+	 *
 	 * @param string $currency_code Valid currency code(see <get_currency_codes>)
 	 * @return CultureInfo The detected culture or false on error
 	 */
@@ -413,7 +385,7 @@ class Localization
 
 	/**
 	 * Returns a list of cultures the given currency is used in.
-	 * 
+	 *
 	 * @param string $currency_code The currency to check
 	 * @return array string[] of currency codes
 	 */
@@ -424,7 +396,7 @@ class Localization
 
 	/**
 	 * Returns all defined regions.
-	 * 
+	 *
 	 * @param bool $only_codes If true only the codes are returned
 	 * @return array Array of depending on $only_codes only that or complete <RegionInfo> objects
 	 */
@@ -432,7 +404,7 @@ class Localization
 	{
 		if( $only_codes )
 			return internal_getAllRegionCodes();
-		
+
 		$res = [];
 		foreach( internal_getAllRegionCodes() as $code )
 			$res[] = internal_getRegion($code);
@@ -441,7 +413,7 @@ class Localization
 
 	/**
 	 * Returns an array of states for a country (USA only ATM).
-	 * 
+	 *
 	 * @param string $country_code The country code to list states of
 	 * @return array Associative array of code=>name pairs
 	 */
@@ -504,15 +476,15 @@ class Localization
 					"WY" => "Wyoming"
 				);
 				return $ret;
-				
+
 			default:
 				return [];
 		}
 	}
-	
+
 	/**
 	 * Returns the A2 ISO3166 country code from a given A3 ISO3166 country code.
-	 * 
+	 *
 	 * @param string $country_code The country code as A3
 	 * @return string The A2 ISO3166 or false on error
 	 */
@@ -520,10 +492,10 @@ class Localization
     {
         return self::convert_countrycode($country_code);
     }
-    
+
     /**
      * Converts 2-letter to 3-letter country codes and vice-versa.
-     * 
+     *
      * @param string $country_code country code.
      * @return bool|string Returns 2-letter if 3-letter was given, or vice-versa, or false if invalid
      */
@@ -540,24 +512,24 @@ class Localization
 			"BDI" => "BI", "KHM" => "KH", "CMR" => "CM", "CAN" => "CA", "CPV" => "CV",
 			"CYM" => "KY", "CAF" => "CF", "TCD" => "TD", "CHL" => "CL", "CHN" => "CN",
 			"CXR" => "CX", "CCK" => "CC", "COL" => "CO", "COM" => "KM", "COD" => "CD",
-			"COG" => "CG", "COK" => "CK", "CRI" => "CR", "CIV" => "CI", "HRV" => "HR",      
+			"COG" => "CG", "COK" => "CK", "CRI" => "CR", "CIV" => "CI", "HRV" => "HR",
 			"CUB" => "CU", "CYP" => "CY", "CZE" => "CZ", "DNK" => "DK", "DJI" => "DJ",
 			"DMA" => "DM", "DOM" => "DO", "ECU" => "EC", "EGY" => "EG", "SLV" => "SV",
 			"GNQ" => "GQ", "ERI" => "ER", "EST" => "EE", "ETH" => "ET", "FLK" => "FK",
 			"FRO" => "FO", "FJI" => "FJ", "FIN" => "FI", "FRA" => "FR", "GUF" => "GF",
-			"PYF" => "PF", "ATF" => "TF", "GAB" => "GA", "GMB" => "GM", "GEO" => "GE",  
+			"PYF" => "PF", "ATF" => "TF", "GAB" => "GA", "GMB" => "GM", "GEO" => "GE",
 			"DEU" => "DE", "GHA" => "GH", "GIB" => "GI", "GRC" => "GR", "GRL" => "GL",
 			"GRD" => "GD", "GLP" => "GP", "GUM" => "GU", "GTM" => "GT", "GIN" => "GN",
 			"GNB" => "GW", "GUY" => "GY", "HTI" => "HT", "HMD" => "HM", "HND" => "HN",
 			"HKG" => "HK", "HUN" => "HU", "ISL" => "IS", "IND" => "IN", "IDN" => "ID",
 			"IRN" => "IR", "IRQ" => "IQ", "IRL" => "IE", "ISR" => "IL", "ITA" => "IT",
 			"JAM" => "JM", "JPN" => "JP", "JOR" => "JO", "KAZ" => "KZ", "KEN" => "KE",
-			"KIR" => "KI", "PRK" => "KP", "KOR" => "KR", "KWT" => "KW", "KGZ" => "KG",  
+			"KIR" => "KI", "PRK" => "KP", "KOR" => "KR", "KWT" => "KW", "KGZ" => "KG",
 			"LAO" => "LA", "LVA" => "LV", "LBN" => "LB", "LSO" => "LS", "LBR" => "LR",
 			"LBY" => "LY", "LIE" => "LI", "LTU" => "LT", "LUX" => "LU", "MAC" => "MO",
 			"MKD" => "MK", "MDG" => "MG", "MWI" => "MW", "MYS" => "MY", "MDV" => "MV",
 			"MLI" => "ML", "MLT" => "MT", "MHL" => "MH", "MTQ" => "MQ", "MRT" => "MR",
-			"MUS" => "MU", "MYT" => "YT", "MEX" => "MX", "FSM" => "FM", "MDA" => "MD",  
+			"MUS" => "MU", "MYT" => "YT", "MEX" => "MX", "FSM" => "FM", "MDA" => "MD",
 			"MCO" => "MC", "MNG" => "MN", "MSR" => "MS", "MAR" => "MA", "MOZ" => "MZ",
 			"MMR" => "MM", "NAM" => "NA", "NRU" => "NR", "NPL" => "NP", "NLD" => "NL",
 			"ANT" => "AN", "NCL" => "NC", "NZL" => "NZ", "NIC" => "NI", "NER" => "NE",
@@ -579,7 +551,7 @@ class Localization
 			"VAT" => "VA", "VEN" => "VE", "VNM" => "VN", "VGB" => "VG", "VIR" => "VI",
 			"WLF" => "WF", "ESH" => "EH", "YEM" => "YE", "ZMB" => "ZM", "ZWE" => "ZW"
 		);
-		
+
 		if(isset($ret[$country_code]))
 			return $ret[$country_code];
         $flipped = array_flip($ret);
