@@ -64,10 +64,10 @@ async function wdf_print()
     const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
     const page = await browser.newPage();
     const ua = await browser.userAgent();
-    await page.setUserAgent(ua+" WDF/Puppeteer");
+    await page.setUserAgent((ua+" WDF/Puppeteer {{userAgentSuffix}}").trim());
     page.on('console', log).on('error', log).on('pageerror', log);
 
-    await page.goto('{{url}}', {waitUntil: 'networkidle0'}).catch(log);
+    await page.goto('{{url}}', {waitUntil: 'networkidle0', timeout: {{timeout}}}).catch(log);
     await page.evaluate(async () =>
     {
         document.body.scrollIntoView(false);
@@ -80,8 +80,8 @@ async function wdf_print()
                 image.addEventListener('error', reject);
             });
         }));
-        if( window.wdf && window.wdf.initPrinting )
-            window.wdf.initPrinting(29.7,parseInt('{{dpi}}'));
+        if( window.exists('{{pageInitFunction}}') )
+            window.{{pageInitFunction}}(29.7,parseInt('{{dpi}}'));
     });
 
     await page.setViewport({width: 1920, height: 1080, deviceScaleFactor: 2})
@@ -168,7 +168,7 @@ EOPS;
      * @param string $url The URL to render as PDF
      * @return string|false Returns the PDF filename or false on error
      */
-    static function Url2Pdf($url)
+    static function Url2Pdf($url, $options=[])
     {
         $um = umask(0);
         $node_root = self::detectPuppeteer();
@@ -178,25 +178,22 @@ EOPS;
             ?$GLOBALS['CONFIG']['system']['logging']['human_readable']
             :['path'=>'','filename_pattern'=>ini_get('error_log')];
 
+        $options = array_merge([
+            'dpi' => 144,
+            'fn' => str_replace("\\", "/", $fn),
+            'url' => $url,
+            'logfile' => str_replace("\\", "/", $cfg['path'] . $cfg['filename_pattern']),
+            'docroot' => $node_root,
+            'isdev' => (isDev() ? 'true' : 'false'),
+            'timeout' => 30000,
+            'userAgentSuffix' => '',
+            'pageInitFunction' => 'wdf.initPrinting',
+        ], $options);
+        $keys = array_map(function ($k){ return '{{' . $k . '}}'; }, array_keys($options));
+        $values = array_values($options);
+
 		// prepare JS script
-		$script = str_replace
-        (
-            [
-                '{{dpi}}',
-                '{{fn}}',
-                '{{url}}',
-                '{{logfile}}',
-                '{{docroot}}',
-                '{{isdev}}'
-            ],
-            [
-                144,
-                str_replace("\\", "/", $fn),
-                $url,
-                str_replace("\\","/",$cfg['path'].$cfg['filename_pattern']),
-                $node_root,
-                (isDev()?'true':'false')
-            ],
+        $script = str_replace($keys, $values,
             // for debugging/development put constant text into puppeteer.js next to this file
             //file_get_contents(__DIR__."/puppeteer.js")
             self::puppeteer_script
