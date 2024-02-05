@@ -53,6 +53,7 @@ async function wdf_print()
             msg = await Promise.all(input.args().map(arg => resolveHandle(arg)));
             if( msg.length == 0 )
                 msg.unshift(txt);
+            try{ msg.push(JSON.stringify(input.location())); }catch(nil){}
             msg.unshift('[console]');
         }
         if( msg.length == 0 )
