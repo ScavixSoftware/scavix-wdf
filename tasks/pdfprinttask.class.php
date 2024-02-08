@@ -63,31 +63,37 @@ async function wdf_print()
         fs.appendFile('{{logfile}}','['+dt+'] [DEBUG] (PUP)\t'+msg.join('\t')+'\n',()=>{});
     };
     const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
-    const page = await browser.newPage();
-    const ua = await browser.userAgent();
-    await page.setUserAgent((ua+" WDF/Puppeteer {{userAgentSuffix}}").trim());
-    page.on('console', log).on('error', log).on('pageerror', log);
-
-    await page.goto('{{url}}', {waitUntil: 'networkidle0', timeout: {{timeout}}}).catch(log);
-    await page.evaluate(async () =>
+    try
     {
-        document.body.scrollIntoView(false);
-        await Promise.all(Array.from(document.getElementsByTagName('img'), image =>
-        {
-            if (image.complete) return;
-            return new Promise((resolve, reject) =>
-            {
-                image.addEventListener('load', resolve);
-                image.addEventListener('error', reject);
-            });
-        }));
-        if( window.exists('{{pageInitFunction}}') )
-            window.{{pageInitFunction}}(29.7,parseInt('{{dpi}}'));
-    });
+        const page = await browser.newPage();
+        const ua = await browser.userAgent();
+        await page.setUserAgent((ua+" WDF/Puppeteer {{userAgentSuffix}}").trim());
+        page.on('console', log).on('error', log).on('pageerror', log);
 
-    await page.setViewport({width: 1920, height: 1080, deviceScaleFactor: 2})
-    await page.pdf({path: '{{fn}}', format: 'A4', printBackground: true, scale: 0.9}).catch(log);
-    await browser.close();
+        await page.goto('{{url}}', {waitUntil: 'networkidle0', timeout: {{timeout}}}).catch(log);
+        await page.evaluate(async () =>
+        {
+            document.body.scrollIntoView(false);
+            await Promise.all(Array.from(document.getElementsByTagName('img'), image =>
+            {
+                if (image.complete) return;
+                return new Promise((resolve, reject) =>
+                {
+                    image.addEventListener('load', resolve);
+                    image.addEventListener('error', reject);
+                });
+            }));
+            if( window.exists('{{pageInitFunction}}') )
+                window.{{pageInitFunction}}(29.7,parseInt('{{dpi}}'));
+        });
+
+        await page.setViewport({width: 1920, height: 1080, deviceScaleFactor: 2})
+        await page.pdf({path: '{{fn}}', format: 'A4', printBackground: true, scale: 0.9}).catch(log);
+    }
+    finally
+    {
+        await browser.close();
+    }
 };
 wdf_print();
 EOPS;
@@ -159,7 +165,7 @@ EOPS;
      */
     public static function IsPrinterCall()
     {
-        return stripos(ifavail($_SERVER,'HTTP_USER_AGENT')?:'',"WDF/Puppeteer") > -1;
+        return stripos(ifavail($_SERVER,'HTTP_USER_AGENT')?:'',"WDF/Puppeteer") !== false;
     }
 
     /**
