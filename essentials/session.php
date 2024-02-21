@@ -112,7 +112,7 @@ function session_run()
 	if (!isset($_SESSION["system_internal_cache"]))
 		$_SESSION["system_internal_cache"] = [];
 
-    if (isDev() && ('iframe' == strtolower(ifavail($_SERVER, 'HTTP_SEC_FETCH_DEST', 'REDIRECT_HTTP_SEC_FETCH_DEST')?:'')))
+    if ('iframe' == strtolower(ifavail($_SERVER, 'HTTP_SEC_FETCH_DEST', 'REDIRECT_HTTP_SEC_FETCH_DEST')?:''))
     {
         $session_name = session_name();
         $session_cookie_okay = false;
@@ -243,7 +243,7 @@ function session_update($keep_alive=false)
 
     $partitionCookies = function ()
     {
-        if (!isDev() || headers_sent() || ('iframe' != strtolower(ifavail($_SERVER, 'HTTP_SEC_FETCH_DEST', 'REDIRECT_HTTP_SEC_FETCH_DEST')?:'')) )
+        if ( headers_sent() || ('iframe' != strtolower(ifavail($_SERVER, 'HTTP_SEC_FETCH_DEST', 'REDIRECT_HTTP_SEC_FETCH_DEST')?:'')) )
             return;
         $replace_headers = true;
         foreach (headers_list() as $header)
