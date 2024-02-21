@@ -433,7 +433,6 @@ class TranslationAdmin extends TranslationAdminBase
 			$def = nl2br(htmlspecialchars("{$term['def']}"));
 			$ta = TextArea::Make($untranslated?'':$term['trans'])
                 ->addClass($term['id'])
-                //->attr('rows',count(explode('<br />', $def)) + 1)
                 ;
 			$btn = Button::Textual('Save')->addClass('save')->data('term',$term['id']);
 
@@ -443,8 +442,17 @@ class TranslationAdmin extends TranslationAdminBase
                 $wrap->append( "<span class='termdata' title='Sample: {$v}' onclick=\"$(this).closest('.td').find('textarea').insertAtCaret($(this).text());\">{$k}</span>" );
 
             $cpy = Button::Textual('&raquo;')->addClass('copy')
-                ->data('term',$term['id'])
-                ->data('def', json_encode($term['def'],JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT));
+                // ->data('term',$term['id'])
+                // ->data('def', json_encode($term['def'],JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT))
+                ;
+            $btns = $cpy->WdfRender();
+            if (( $lang != $CONFIG['localization']['default_language'] ) && avail($CONFIG['ai']['gemini'], 'enabled'))
+            {
+                $aitranslatebtn = Button::Textual('<i class="fas fa-robot fa-fw"></i>')
+                    ->addClass('aitranslate')
+                    ->attr('title', 'AI Translate');
+                $btns .= $aitranslatebtn->WdfRender();
+            }
 
             $one = Control::Make()
                 ->append(Anchor::Make(buildQuery('translationadmin','translateone',['term'=>$term['id']]),$term['id']))
@@ -452,11 +460,11 @@ class TranslationAdmin extends TranslationAdminBase
                 ->append(Control::Make("span")->addClass('term_action remove')->data('term', $term['id'])->append('remove'))
                 ;
 
-			$tab->AddNewRow($one,$def,$cpy,$wrap,$btn);
+			$tr = $tab->NewRow([$one,$def,$btns,$wrap,$btn]);
+            $tr->data('def', substr(json_encode($term['def'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT), 1, -1));
+            $tr->data('term', $term['id']);
+            $tr->GetCell(1)->style = 'width: 40%';
 		}
-
-		if($tab->GetCurrentRow())
-			$tab->GetCurrentRow()->GetCell(1)->style = 'width: 40%';
 
 		$pi = $rs->GetPagingInfo();
 		for($page=1;$page<=$pi['total_pages'];$page++)
@@ -546,6 +554,91 @@ class TranslationAdmin extends TranslationAdminBase
 			$this->ds->ExecuteSql("DELETE FROM wdf_translations WHERE lang=? AND id=?",array($lang,$term));
         cache_del('lang_'.$term);
 		return AjaxResponse::None();
+	}
+
+	/**
+	 * @internal
+	 * @attribute[RequestParam('lang','string')]
+     * @attribute[RequestParam('text','string','')]
+     */
+	function TranslateString($lang, $text)
+	{
+        global $CONFIG;
+        $ret = [];
+        $text = urldecode($text);
+
+        require_once(__REPOROOT__.'/vendor/autoload.php'); // most likely already loaded in index.php!
+
+        $gconfigfile = realpath(__FILES__.'/google-a6db6eda054d.json');
+        $gconfig = json_decode(file_get_contents($gconfigfile), true);
+        putenv('GOOGLE_APPLICATION_CREDENTIALS='.$gconfigfile);
+
+        $model                   = 'text-bison';
+        $predictionServiceClient = new \Google\Cloud\AIPlatform\V1\Client\PredictionServiceClient(['apiEndpoint' => ifavail($CONFIG['ai']['gemini'], 'apiendpoint') ?: 'us-central1-aiplatform.googleapis.com']);
+        $formattedEndpoint = \Google\Cloud\AIPlatform\V1\Client\PredictionServiceClient::projectLocationPublisherModelName($gconfig['project_id'], ifavail($CONFIG['ai']['gemini'], 'location') ?: 'us-central1', 'google', ifavail($CONFIG['ai']['gemini'], 'model') ?: 'text-bison');
+        // $formattedEndpoint = \Google\Cloud\AIPlatform\V1\Client\PredictionServiceClient::endpointName($gconfig['project_id'], 'us-central1', 'us-central1-aiplatform.googleapis.com');
+
+        // Prepare the request message.
+        $serializer = new \Google\ApiCore\Serializer();
+        $struct = $serializer->decodeMessage(new \Google\Protobuf\Struct(), ['fields' => ['prompt' => ['string_value' => 'Translate this text to '.$lang.':'.$text]]]);
+        $instances = [new \Google\Protobuf\Value(['struct_value' => $struct])];
+        $request = (new \Google\Cloud\AIPlatform\V1\PredictRequest())
+            ->setEndpoint($formattedEndpoint)
+            ->setInstances($instances);
+
+        // Call the API and handle any network failures.
+        try {
+            /** @var \Google\Cloud\AIPlatform\V1\PredictResponse $response */
+            $response = $predictionServiceClient->predict($request);
+            foreach ($response->getPredictions() as $r)
+            {
+                $d = json_decode($r->serializeToJsonString(), true);
+                if (avail($d, 'content'))
+                {
+                    $ret['response'] = trim($d['content']);
+                    break;
+                }
+            }
+            // log_debug('Response data', $response->serializeToJsonString());
+        } catch (\Google\ApiCore\ApiException $ex) {
+            log_debug('Call failed with message:', $ex->getMessage());
+        }
+
+        // $url = 'https://us-central1-aiplatform.googleapis.com/v1/projects/'.$gconfig['project_id'].'/locations/us-central1/publishers/google/models/text-bison:predict';
+        // $data = [
+        //     'instances' => [
+        //         [
+        //             'prompt' => 'Translate this text to '.$lang.': '.$text
+        //         ]
+        //     ]
+        // ];
+        // $headers = [
+        //     'Authorization: Bearer '.$CONFIG['system']['admin']['gemini']['api_token'],
+        //     'Content-Type: application/json; charset=utf-8'
+        // ];
+        // $r = downloadData($url, json_encode($data), $headers);
+        // foreach(json_decode($r, true) as $k => $p)
+        // {
+        //     // log_debug($k, $p);
+        //     if($k == 'predictions')
+        //     {
+        //         foreach ($p as $p2)
+        //         {
+        //             foreach ($p2 as $k3 => $p3)
+        //             {
+        //                 if ($k3 == 'content')
+        //                 {
+        //                     $ret['response'] = trim($p3);
+        //                     break;
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
+        // if(!avail($ret, 'response'))
+        //     log_debug($r, $data, $headers);
+
+		return AjaxResponse::Json($ret);
 	}
 
 	/**
