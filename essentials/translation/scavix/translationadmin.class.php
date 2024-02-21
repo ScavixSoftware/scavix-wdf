@@ -531,12 +531,15 @@ class TranslationAdmin extends TranslationAdminBase
                 $others[] = ["$name ({$lang})",$wrap,$btn];
         }
 
-        $this->content("<h1>Other languages</h1>");
-        $tab = Table::Make()->addClass('translations one')
-			->SetHeader('Language','Content','')
-			->appendTo($this);
-        foreach( $others as $row )
-            $tab->NewRow($row);
+        // if (count($others))
+        // {
+        //     $this->content("<h1>Other languages</h1>");
+        //     $tab = Table::Make()->addClass('translations one')
+        //         ->SetHeader('Language', 'Content', '')
+        //         ->appendTo($this);
+        //     foreach ($others as $row)
+        //         $tab->NewRow($row);
+        // }
 	}
 
 	/**
