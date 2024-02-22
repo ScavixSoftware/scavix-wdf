@@ -30,16 +30,16 @@ var auto_id = 0;
 
 var init_sysadmin = function()
 {
-    wdf.setCallbackDefault('exception', function(msg) 
-    { 
+    wdf.setCallbackDefault('exception', function(msg)
+    {
         alert(msg);
     });
-    
+
     hideLoaderOverlay();
-    
+
 //	$('input[type="button"], input[type="submit"], input[type="reset"], button:not(.stripe-button-el)').button();
 	$('input,select,textarea','.field').addClass('ui-corner-all');
-        
+
 //    $('input[type="submit"]:not(.activated), button[type="submit"]:not(.activated):not(.stripe-button-el)').addClass('activated').click( function(e)
 //    {
 //       e.preventDefault();
@@ -51,9 +51,9 @@ var init_sysadmin = function()
     {
        showLoaderOverlay();
     });
-    
+
     $('.side-menu .menu a[href^="http"]:not([target])').click( function() { showLoaderOverlay(); } );
-    
+
     if(!wdf.orig_redirect)
     {
         wdf.orig_redirect = wdf.redirect;
@@ -76,8 +76,8 @@ wdf.ready.add(function()
         else
             $('.side-menu').slideDown();
     });
-    
-    $('.menu ul li.hassubmenu>a').click(function() 
+
+    $('.menu ul li.hassubmenu>a').click(function()
     {
         $li = $(this).closest('li');
         $ul = $(this).closest('ul');
@@ -96,9 +96,9 @@ wdf.ready.add(function()
             });
         }
     });
-    
+
     $('table.new_string input.create').click( function()
-    { 
+    {
         var term = $(this).data('term') || $(this).closest('.new_string').find('[name="term"]').val();
         var text = encodeURIComponent( $('textarea.'+term).val() || ($(this).closest('.new_string').find('textarea').val()||'') );
 
@@ -110,16 +110,16 @@ wdf.ready.add(function()
 				wdf.reloadWithoutArgs();
         });
     });
-    
+
     $('table.new_string input.delete, table.new_string button.delete').click( function()
-    { 
+    {
         var term = $(this).data('term');
         wdf.controller.post('DeleteString',{term:term},function()
         {
             $('table.'+term).fadeOut( function(){ $('table.'+term).remove(); } );
         });
     });
-	
+
 	$('.translations input.save, .translations button.save').click( function()
     {
         showLoaderOverlay();
@@ -131,7 +131,7 @@ wdf.ready.add(function()
         wdf.controller.post('SaveString',{lang:lang,term:term,text:text},function()
 		{
 			btn.html('Saved').addClass('ok');
-            hideLoaderOverlay( function() { 
+            hideLoaderOverlay( function() {
                 btn.removeAttr('disabled').html('Save').removeClass('ok err');
                 if($('textarea', btn.parents('.tr').next('.tr')).length > 0)
                     $('textarea', btn.parents('.tr').next('.tr')).focus();
@@ -140,23 +140,39 @@ wdf.ready.add(function()
     });
 
   	$('.translations input.copy, .translations button.copy').click( function()
-    { 
-        var $ta = $(this).closest('.tr').find('textarea');
-        $ta.val( JSON.parse($(this).data('def')) ).height('auto').height($ta[0].scrollHeight);
+    {
+        $tr = $(this).closest('.tr');
+        var $ta = $tr.find('textarea');
+        $ta.val( JSON.parse('"' + $tr.data('def') + '"') ).height('auto').height($ta[0].scrollHeight);
+    });
+
+  	$('.translations input.aitranslate, .translations button.aitranslate').click( function()
+    {
+        showLoaderOverlay();
+        var $tr = $(this).closest('.tr');
+        var txt = encodeURIComponent(JSON.parse('"' + $tr.data('def') + '"'));
+        wdf.controller.post('translatestring',{lang:$('.translations').data('lang'),text:txt},function(r)
+        {
+            console.log(r);
+            hideLoaderOverlay( function() {
+                var $ta = $tr.find('textarea');
+                $ta.val(r.response);
+            });
+        });
     });
 
 	$('.translations .rename').not('.activated').addClass('activated').click( function()
-    { 
+    {
         wdf.controller.post('Rename',{term:$(this).data('term')},function(d){ $('body').append(d); });
     });
-	
+
 	$('.translations .remove').not('.activated').addClass('activated').click( function()
-    { 
+    {
         wdf.controller.post('Remove',{term:$(this).data('term')});
     });
-    
+
 	wdf.exception.add( function(msg){ alert(msg); } );
-    
+
     $.fn.insertAtCaret = function (text) {
         return this.each(function () {
             if (document.selection && this.tagName == 'TEXTAREA') {
@@ -183,7 +199,7 @@ wdf.ready.add(function()
             }
         });
     };
-    
+
     init_sysadmin();
 });
 

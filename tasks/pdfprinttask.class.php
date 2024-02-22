@@ -62,7 +62,7 @@ async function wdf_print()
         var dt = new Date().toISOString().slice(0,19).replace(/T/," ");
         fs.appendFile('{{logfile}}','['+dt+'] [DEBUG] (PUP)\t'+msg.join('\t')+'\n',()=>{});
     };
-    const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
+    const browser = await puppeteer.launch({headless: 'new', args: ['--no-sandbox', '--disable-setuid-sandbox']});
     try
     {
         const page = await browser.newPage();

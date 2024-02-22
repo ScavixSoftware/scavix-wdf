@@ -24,7 +24,7 @@ body.sysadmin
     font-weight: normal;
 	padding: 0px;
 	margin: 0px;
-    
+
     #loaderoverlay
     {
         position: fixed;
@@ -41,28 +41,40 @@ body.sysadmin
         cursor: wait;
         display: none;
     }
-    
+
+    .ui-widget-overlay
+    {
+        opacity: 0.7 !important;
+        filter: Alpha(Opacity=70) !important;
+
+        -webkit-transition: all 0.5s !important;
+        -moz-transition: all 0.5s !important;
+        -ms-transition: all 0.5s !important;
+        -o-transition: all 0.5s !important;
+        transition: all 0.5s !important;
+    }
+
     p, a, h1, h2, h3, h4, h5, td, div, span, button, input, select
     {
         font-family: "Open Sans",Verdana,Arial,serif;
     }
-    
+
     textarea
     {
         font-size: 14px;
         padding: 3px 10px;
     }
-    
+
     input[type="text"], input[type="password"], input[type="email"], textarea, select
     {
         padding: 4px 3px;
         border: 1px solid #cfcfcf;
         border-radius: 2px;
-    
+
         font-size: 12px;
         font-weight: normal;
     }
-    
+
     button, input[type="button"], input[type="submit"]
     {
         cursor: pointer;
@@ -75,37 +87,37 @@ body.sysadmin
     {
         cursor: default;
     }
-    
+
     h1
     {
         font-size: 20px;
-        border-bottom: 1px dotted @gray1; 
+        border-bottom: 1px dotted @gray1;
     }
 
-    h2 
-    { 
+    h2
+    {
         font-size: 18px;
         margin-top: 20px;
         margin-bottom: 15px;
-        border-bottom: 1px dotted @gray1; 
+        border-bottom: 1px dotted @gray1;
     }
 
     h3
-    { 
+    {
         font-size: 16px;
         margin-top: 8px;
         margin-bottom: 5px;
-        border-bottom: 1px dotted @gray1; 
+        border-bottom: 1px dotted @gray1;
     }
 
     h4
-    { 
+    {
         font-size: 14px;
         margin-top: 8px;
         margin-bottom: 5px;
     }
 
-    
+
     a, span, div, button, input[type="button"], input[type="submit"]
     {
         -webkit-transition: background 0.3s linear;
@@ -123,21 +135,21 @@ body.sysadmin
             margin: 90px 20px 20px 20px;
         }
         min-height: 700px;*/
-        
+
         .widget
         {
             border-radius: 2px;
-            
+
             .head
             {
                 background-color: @bgcolor1;
                 color: white;
             }
-            
+
             .widget_content
             {
                 padding: 0px 4px;
-                
+
                 .table
                 {
                     width: calc(100% ~'-' 8px) !important;
@@ -164,12 +176,12 @@ body.sysadmin
         line-height: 0px;
         font-size: 0px;
     }
-    
+
     /* tables */
     table, .table
     {
         border-spacing: 0px;
-        
+
         .tr, tr
         {
             margin: 0px;
@@ -196,7 +208,7 @@ body.sysadmin
             background-color: @bgcolor1;
         }
     }
-    
+
     .bordered
     {
         border: 1px solid @gray1;
@@ -206,7 +218,7 @@ body.sysadmin
             border-bottom: 1px solid @gray1;
         }
     }
-    
+
     /* login form */
     form.login
     {
@@ -214,7 +226,7 @@ body.sysadmin
         width: 400px;
         border: 1px solid @gray1;
 
-        input[type="text"], 
+        input[type="text"],
         input[type="password"]
         {
             width: 250px;
@@ -225,7 +237,7 @@ body.sysadmin
             width: 100%;
         }
     }
-    
+
     /* new string editor */
     table.new_string
     {
@@ -233,11 +245,11 @@ body.sysadmin
         float: left;
         border: 1px solid @gray1;
         margin: 5px;
-        
+
         textarea
         {
-            float:left; 
-            width:400px; 
+            float:left;
+            width:400px;
             height: 50px;
         }
     }
@@ -248,7 +260,7 @@ body.sysadmin
         margin-bottom: 15px;
         width: 50%;
 
-        .caption, 
+        .caption,
         .thead
         {
             background-color: @bgcolor1;
@@ -307,13 +319,20 @@ body.sysadmin
             cursor: pointer;
             display: block;
             font-size: 10px;
-            
+
             &:hover { text-decoration: underline; }
         }
-        
+
         .copy
         {
-            padding: 0px 3px 3px 4px;
+            padding: 0px 5px 1px 6px;
+            font-weight: bold;
+        }
+
+        .aitranslate
+        {
+            font-size: 10px;
+            padding: 0px 3px 2px 3px;
         }
 
         .tbody .tr:nth-child(odd)
@@ -321,7 +340,7 @@ body.sysadmin
             background: rgba(255,165,0,0.2);
         }
     }
-    
+
     .all
     {
         .td:nth-child(1){ width: 10%; }
@@ -331,7 +350,7 @@ body.sysadmin
         .td:nth-child(5){ width: 10%; }
     }
 
-    .one 
+    .one
     {
         .td:nth-child(1){ width: 10%; }
         .td:nth-child(2){ width: 80%; }
@@ -345,7 +364,7 @@ body.sysadmin
         font-size: 10px;
         &:hover { text-decoration: underline; }
     }
-    
+
 
     /***************************************************************
       Page header definitions
@@ -407,7 +426,7 @@ body.sysadmin
             color: #ffffff;
             text-align: right;
             margin: 16px 20px 15px 15px;
-            @media @phone, @tablet 
+            @media @phone, @tablet
             {
                 position: absolute;
                 right: 0;
@@ -471,9 +490,9 @@ body.sysadmin
                     position: relative;
                     line-height: 1;
                     width: 100%;
-                    &.focused 
-                    { 
-                        color: @linkhovercolor;  
+                    &.focused
+                    {
+                        color: @linkhovercolor;
                     }
                     a
                     {
@@ -481,9 +500,9 @@ body.sysadmin
                         display: block;
                         padding: 15px 22px;
                         text-decoration: none;
-                        &:hover 
-                        { 
-                            color: @linkhovercolor;  
+                        &:hover
+                        {
+                            color: @linkhovercolor;
                         }
                     }
                     border-left: 2px solid transparent;
@@ -535,9 +554,9 @@ body.sysadmin
                     position: relative;
                     line-height: 1;
                     width: 100%;
-                    &.focused 
-                    { 
-                        color: @linkhovercolor;  
+                    &.focused
+                    {
+                        color: @linkhovercolor;
                     }
                     a
                     {
@@ -545,9 +564,9 @@ body.sysadmin
                         display: block;
                         padding: 10px 40px;
                         text-decoration: none;
-                        &:hover 
-                        { 
-                            color: @linkhovercolor;  
+                        &:hover
+                        {
+                            color: @linkhovercolor;
                         }
                     }
                     &.current
@@ -609,7 +628,7 @@ body.sysadmin
                     text-decoration: none;
                 }
             }
-            
+
             .pagetoolbar
             {
                 margin-top: 6px;
@@ -627,7 +646,7 @@ body.sysadmin
                 }
             }
         }
-        .content 
+        .content
         {
             @media @desktop { padding: 20px 20px 15px 20px; }
             @media @phone, @tablet { padding: 10px 10px 15px 10px; }
@@ -665,7 +684,7 @@ body.sysadmin
 
                 &.panel100
                 {
-                    @media @desktop 
+                    @media @desktop
                     {
                         width: calc(100% ~'-' 20px);
                     }
@@ -674,7 +693,7 @@ body.sysadmin
 
                     &.last-in-row
                     {
-                        @media @desktop 
+                        @media @desktop
                         {
                             width: 100%;
                             margin-right: 0px;
@@ -684,7 +703,7 @@ body.sysadmin
 
                 &.panel75
                 {
-                    @media @desktop 
+                    @media @desktop
                     {
                         width: calc(75% ~'-' 20px);
                     }
@@ -693,7 +712,7 @@ body.sysadmin
 
                     &.last-in-row
                     {
-                        @media @desktop 
+                        @media @desktop
                         {
                             width: 75%;
                             margin-right: 0px;
@@ -703,7 +722,7 @@ body.sysadmin
 
                 &.panel50
                 {
-                    @media @desktop 
+                    @media @desktop
                     {
                         width: calc(50% ~'-' 20px);
                     }
@@ -712,7 +731,7 @@ body.sysadmin
 
                     &.last-in-row
                     {
-                        @media @desktop 
+                        @media @desktop
                         {
                             width: 50%;
                             margin-right: 0px;
@@ -722,7 +741,7 @@ body.sysadmin
 
                 &.panel33
                 {
-                    @media @desktop 
+                    @media @desktop
                     {
                         width: calc(33.3% ~'-' 20px);
                     }
@@ -741,7 +760,7 @@ body.sysadmin
 
                 &.panel25
                 {
-                    @media @desktop 
+                    @media @desktop
                     {
                         width: calc(25% ~'-' 20px);
                     }
@@ -750,7 +769,7 @@ body.sysadmin
 
                     &.last-in-row
                     {
-                        @media @desktop 
+                        @media @desktop
                         {
                             width: 25%;
                             margin-right: 0px;
@@ -803,8 +822,8 @@ body.sysadmin
             }
 
             .table
-            { 
-                width:100%; 
+            {
+                width:100%;
                 margin-bottom: 10px;
 
                 .tr
@@ -842,8 +861,8 @@ body.sysadmin
             }
 
             table
-            { 
-                width: 100%; 
+            {
+                width: 100%;
             }
 
             .flex_row
@@ -867,7 +886,7 @@ body.sysadmin
                     min-width: calc(100% ~'/' 8);
                 }
 
-                > *:not(:last-child) 
+                > *:not(:last-child)
                 {
                     margin-right: 20px;
                 }
@@ -959,7 +978,7 @@ body.sysadmin
         padding: 12px 30px;
         color: @gray1;
         font-size: 12px;
-        a 
+        a
         {
             color: @gray1;
         }
@@ -984,17 +1003,17 @@ body.sysadmin
         .page-break	{ display: block; page-break-before: always; }
     }
 
-    @media print 
-    {    
+    @media print
+    {
         .no-print, .no-print *, .pagetoolbar
         {
             display: none !important;
         }
 
-        #page_content 
+        #page_content
         {
-            width: 100%; 
-            margin: 0; 
+            width: 100%;
+            margin: 0;
             float: none;
         }
     }
