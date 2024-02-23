@@ -33,16 +33,16 @@ use ScavixWDF\Localization\CultureInfo;
 use ScavixWDF\Localization\Localization;
 use ScavixWDF\Model\Model;
 use ScavixWDF\Wdf;
- 
+
 /**
  * Initializes the translation essential.
- * 
+ *
  * @return void
  */
 function translation_init()
 {
 	global $CONFIG;
-    
+
     Wdf::$Translation = new stdClass();
     Wdf::$Translation->unknown_constants = [];
     Wdf::$Translation->translate_functions = [];
@@ -60,7 +60,7 @@ function translation_init()
 
     $CONFIG['class_path']['system'][] = __DIR__.'/translation/';
     $CONFIG['class_path']['system'][] = __DIR__.'/translation/'.strtolower($CONFIG['translation']['sync']['provider']).'/';
-    
+
 	if( !isset($CONFIG['translation']['searchpatterns']) )
 		$CONFIG['translation']['searchpatterns'] = [];
 
@@ -72,7 +72,7 @@ function translation_init()
 
 	if( !isset($CONFIG['translation']['detect_ci_callback']) )
 		$CONFIG['translation']['detect_ci_callback'] = false;
-	
+
 	if( !isset($CONFIG['translation']['default_strings']) )
 		$CONFIG['translation']['default_strings'] = [];
 
@@ -87,9 +87,9 @@ function translation_init()
 		$reg[] = '('.$pat.'[a-zA-Z0-9_-]+)(\[[^\]]+\])*';
 	$reg = "/".implode("|",$reg)."/";
 	Wdf::$Translation->translate_regpattern = $reg;
-    
+
 	Wdf::$Translation->data = [];
-	
+
     system_ensure_path_ending($CONFIG['translation']['data_path']);
 }
 
@@ -120,12 +120,12 @@ function translation_do_includes()
 			$GLOBALS['translation']['strings'] = [];
 		}
 	}
-	
+
     if( $CONFIG['translation']['sync']['datasource'] && isDev() )
     {
         $ds = model_datasource($CONFIG['translation']['sync']['datasource']);
         if( $ds->TableExists('wdf_unknown_strings') )
-            $CONFIG['translation']['default_strings'] = 
+            $CONFIG['translation']['default_strings'] =
                 $ds->ExecuteSql("SELECT term,default_val from wdf_unknown_strings WHERE ifnull(default_val,'')!=''")
                     ->Enumerate('default_val',false,'term');
     }
@@ -135,7 +135,7 @@ function translation_do_includes()
 
 /**
  * Adds a custom translation function.
- * 
+ *
  * Use this to add your own placeholder replacer function. Should accept a single argument which contains
  * the string and return the ready string.
  * <code php>
@@ -221,13 +221,13 @@ function __translate_sort_constants($a,$b)
 function __translate($text)
 {
 	global $CONFIG;
-	
+
 	// TODO: reactivate loop regarding unknown constants and thos that shall not be translated
 	//while( preg_match(Wdf::$Translation->translate_regpattern, $text) )
 	{
 		if(!is_string($text))
 			return $text;
-        
+
         if(count(Wdf::$Translation->data) > 0)
         {
             $repl = [];
@@ -242,7 +242,7 @@ function __translate($text)
 			$text
 		);
 	}
-	
+
 	if( ends_with($text, '[NT]') )
 		$text = substr($text, 0, -4);
 
@@ -255,11 +255,11 @@ function __translate($text)
 function translation_add_unknown_strings($unknown_constants=false)
 {
 	global $CONFIG;
-    
+
     if( !$unknown_constants ) $unknown_constants = Wdf::$Translation->unknown_constants;
     if( count($unknown_constants)<1 )
         return;
-    
+
 	if( $CONFIG['translation']['sync']['datasource'] )
 	{
 		$ds = model_datasource($CONFIG['translation']['sync']['datasource']);
@@ -286,17 +286,17 @@ function translation_add_unknown_strings($unknown_constants=false)
                 list($uc,$data) = $uc;
             else
                 $data = false;
-            
+
 			$def = cfg_getd('translation','default_strings',$uc,'');
-			$ds->Execute($sql1,[$uc,$def]);
+			$ds->ExecuteSql($sql1,[$uc,$def]);
             if( $def )
-                $ds->Execute($sql2a,[$def,$uc]);
+                $ds->ExecuteSql($sql2a,[$def,$uc]);
             else
-                $ds->Execute($sql2,[$uc]);
-            
+                $ds->ExecuteSql($sql2,[$uc]);
+
             if( is_array($data) )
                 foreach( $data as $k=>$v )
-                    $ds->Execute($sql3,[$uc,$k,$v]);
+                    $ds->ExecuteSql($sql3,[$uc,$k,$v]);
 		}
 	}
 	else
@@ -314,7 +314,7 @@ function __noTranslate_callback($matches)
 
 /**
  * Ensures that a specific content remains untranslated.
- * 
+ *
  * This may be useful when automatic translation would match one of you texts.
  * Also very good to prevent user-input from beeing translated!
  * @param string $content Content to remain untranslated
@@ -332,7 +332,7 @@ function noTranslate($content)
 
 /**
  * Detects the users supposed language.
- * 
+ *
  * Uses <Localization::detectCulture> to detect the users language.
  * @return string ISO2 code of detected language
  */
@@ -353,7 +353,7 @@ function detect_language()
 
 /**
  * Sets the language and return the current one.
- * 
+ *
  * @param mixed $code_or_ci Culture code or <CultureInfo>
  * @return string the previously set language
  */
@@ -371,7 +371,7 @@ function translation_set_language($code_or_ci)
 
 /**
  * Like <getString>(), but for a specific language.
- * 
+ *
  * @param string $lang Language to get string for
  * @param string $constant String to translate
  * @param array $arreplace Array with replacement data
@@ -411,7 +411,7 @@ function getString($constant, $arreplace = null, $unbuffered = false, $encoding 
 		else
 			$arreplace = Wdf::$Translation->data;
 	}
-    
+
 	if( !$arreplace )
 		return getStringOrig($constant,$arreplace,$unbuffered,$encoding);
 	$n = [];
@@ -421,8 +421,8 @@ function getString($constant, $arreplace = null, $unbuffered = false, $encoding 
 }
 
 /**
- * Returns a localized string from the current user's language. 
- * 
+ * Returns a localized string from the current user's language.
+ *
  * Replaces all placeholders in string from arreplace i.e. TXT_TEST => "this is a {tt}" with arreplace = aray("{tt}" => "test") => returns "this is a test"
  * Buffers all strings on first access of this function.
  * @param string $constant Text constant. i.e. TXT_...
@@ -438,10 +438,10 @@ function getStringOrig($constant, $arreplace = null, $unbuffered = false, $encod
 		detect_language();
 	if( !isset($GLOBALS['translation']['included_language']) || $GLOBALS['translation']['included_language'] != $GLOBALS['current_language'] )
 		translation_do_includes();
-	
+
 	if( $arreplace instanceof Model )
 		$arreplace = $arreplace->AsArray();
-	
+
 	if( !$unbuffered )
 	{
 		$key = "lang_{$GLOBALS['translation']['included_language']}_$constant".md5($constant.serialize($arreplace).$GLOBALS['current_language'].$encoding);
@@ -449,14 +449,14 @@ function getStringOrig($constant, $arreplace = null, $unbuffered = false, $encod
         if( $res !== false )
 			return $res;
 	}
-	
+
 	$GLOBALS['translation']['skip_buffering_once'] = false;
 	if( isset($GLOBALS['translation']['strings'][$constant]) )
     {
         $res = $GLOBALS['translation']['strings'][$constant];
         $res = ReplaceVariables($res, $arreplace);
     }
-    else 
+    else
     {
 		// may be one of the system default strings
 		$def = cfg_get('translation','default_strings',$constant);
@@ -482,10 +482,10 @@ function getStringOrig($constant, $arreplace = null, $unbuffered = false, $encod
 
 	if(!is_null($encoding))
         $res = iconv("UTF-8", $encoding."//IGNORE", $res);
-	
+
 	if( !$GLOBALS['translation']['skip_buffering_once'] && preg_match_all(Wdf::$Translation->translate_regpattern, $res, $m) )
 		$res = __translate($res);
-	
+
 	if( isset($key) && !$GLOBALS['translation']['skip_buffering_once'] )
 		cache_set($key,$res);
 
@@ -510,49 +510,49 @@ function ReplaceVariables($text, $arreplace = null)
 		$text = str_replace(array_keys($arreplace), array_values($arreplace), $text);
 	foreach( Wdf::$Translation->translate_functions as &$func )
 		$text = call_user_func($func, $text);
-    
+
     $text = preg_replace_callback('/{link\s*([^}]*)}(.*){\/link}/U',function($m)
     {
         list($o,$l,$n) = $m;
         $l = buildQuery(trim($l)?:$n);
         return "<a href='$l'>$n</a>";
     },$text);
-    
+
     $text = preg_replace_callback('/{offsite\s*([^}]*)}(.*){\/offsite}/U',function($m)
     {
         list($o,$l,$n) = $m;
         $l = buildQuery(trim($l)?:$n);
         return "<a href='$l' target='_blank'>$n</a>";
     },$text);
-    
+
 	return $text;
 }
 
 /**
  * Returns a list of all languages that have enough translated strings to be usable.
- * 
+ *
  * @param int $min_percent_translated Specifies how many percent must be translated for a language to be 'available'
  * @return array Array of language codes
  */
 function getAvailableLanguages( $min_percent_translated=false )
 {
 	global $CONFIG;
-	
+
 	// common 'ensure includes'-block. repeated multiple times in this file for performance reasons
 	if( !isset($GLOBALS['current_language']) )
 		detect_language();
 	if( !isset($GLOBALS['translation']['included_language']) || $GLOBALS['translation']['included_language'] != $GLOBALS['current_language'] )
 		translation_do_includes();
-	
+
 	if( $min_percent_translated === false )
 		$min_percent_translated = $CONFIG['translation']['minlangtransrate'];
 	elseif( $min_percent_translated > 1 )
 		$min_percent_translated /= 100;
-	
+
 	$key = "getAvailableLanguages_".$min_percent_translated;
 	if(isset($GLOBALS[$key]))
 		return $GLOBALS[$key];
-	
+
 	$res = [];
 	foreach( $GLOBALS['translation']['properties'] as $lang=>$data )
 		if( $data['percentage_empty'] < 1 - $min_percent_translated )
@@ -563,7 +563,7 @@ function getAvailableLanguages( $min_percent_translated=false )
 
 /**
  * Checks if there are translations for the given culture.
- * 
+ *
  * @param string $cultureCode Culture code to check for
  * @return string|bool The given culture code or false
  */
@@ -584,7 +584,7 @@ function checkForExistingLanguage($cultureCode)
 		$GLOBALS[$key] = $parentCulture;
 		return $parentCulture;
 	}
-	
+
 	$ci = Localization::getCultureInfo($cultureCode); // this is fallback for above, clean implementation
 	if($ci !== false)
 	{
@@ -595,14 +595,14 @@ function checkForExistingLanguage($cultureCode)
 			return $ci->Code;
 		}
 	}
-	
+
 	$GLOBALS[$key] = false;
 	return false;
 }
 
 /**
  * Returns a list of all known constants.
- * 
+ *
  * @return array List of all constants
  */
 function translation_known_constants()
@@ -610,7 +610,7 @@ function translation_known_constants()
     $res = cache_get('translation_known_constants');
 	if( $res )
 		return $res;
-	
+
 	if( !isset($GLOBALS['translation']['known_constants']) )
 	{
 		// common 'ensure includes'-block. repeated multiple times in this file for performance reasons
@@ -620,7 +620,7 @@ function translation_known_constants()
 			translation_do_includes();
 		$GLOBALS['translation']['known_constants'] = array_keys($GLOBALS['translation']['strings']);
 	}
-	
+
 	cache_set('translation_known_constants',$GLOBALS['translation']['known_constants']);
 	return $GLOBALS['translation']['known_constants'];
 }
@@ -635,7 +635,7 @@ function translation_skip_buffering()
 
 /**
  * Checks if a string constant exists.
- * 
+ *
  * You can use this to test if a string is a translation constant too.
  * @param string $constant Constant to check for existance
  * @return bool true or false
@@ -648,7 +648,7 @@ function translation_string_exists($constant)
 
 /**
  * Checks if the given text is a valid constant according to the translation regex pattern.
- * 
+ *
  * @param string $constant Text to be tested
  * @return bool
  */
@@ -693,7 +693,7 @@ function translation_ensure_nt($text_potentially_named_like_a_constant)
 
 /**
  * 'Registers' a string in the translation system with a default value.
- * 
+ *
  * This is used in ScavixWDF when components require user-interaction without forcing the implementor to
  * create 100ths of strings as the first he must do.
  * @param string $constant Constant name
@@ -703,7 +703,7 @@ function translation_ensure_nt($text_potentially_named_like_a_constant)
 function default_string($constant,$text)
 {
 	cfg_set('translation','default_strings',$constant,$text);
-    if( $text && isDev() ) // persist defaults in DB 
+    if( $text && isDev() ) // persist defaults in DB
     {
         global $CONFIG;
         if( $CONFIG['translation']['sync']['datasource'] )
@@ -714,7 +714,7 @@ function default_string($constant,$text)
                 $sql = "UPDATE wdf_unknown_strings SET default_val=? WHERE term=? AND default_val!=?;";
                 try
                 {
-                    $ds->Execute($sql,[$text,$constant,$text]);
+                    $ds->ExecuteSql($sql,[$text,$constant,$text]);
                 } catch (\ScavixWDF\WdfDbException $ex) {}
             }
         }
@@ -738,7 +738,7 @@ function set_trans_data($name,$data)
 
 /**
  * Adds data to the automatic translation system.
- * 
+ *
  * Use this to add a bunch of data to the translation system.
  * Sample is best to understand:
  * <code php>
@@ -766,7 +766,7 @@ function add_trans_data($name,$data,$depth=0)
 	// todo: more class-based exceptions
 	if( $depth > 1 )
 		return;
-	
+
 	$name = str_replace(array('{','}'),array('',''),$name);
 	if( $data instanceof Model )
 		$data = $data->AsArray();
@@ -791,7 +791,7 @@ function add_trans_data($name,$data,$depth=0)
 
 /**
  * Clears the translation data store.
- * 
+ *
  * @return void
  */
 function clear_trans_data()

@@ -56,6 +56,12 @@ class DataSource
 
 	static $LogSlowQueries = false;
 	static $LogSlowQueriesSeconds = 5;
+    private static $registeredLogSlowQueries = [];
+
+    public static function RegisterSlowQuery($sql, $expected_runtime_seconds)
+    {
+        self::$registeredLogSlowQueries[md5($sql)] = $expected_runtime_seconds;
+    }
 
 	/**
 	 * Returns a <DataSource> by name.
@@ -395,16 +401,29 @@ class DataSource
 	 */
 	function ExecuteSql($sql, $parameter=[])
 	{
-		if( !is_array($parameter) )
-			$parameter = array($parameter);
+        try
+        {
+            if ( count(self::$registeredLogSlowQueries)>0 && ($id = md5($sql)) && isset(self::$registeredLogSlowQueries[$id]) )
+            {
+                $mem_runtime = DataSource::$LogSlowQueriesSeconds;
+                DataSource::$LogSlowQueriesSeconds = self::$registeredLogSlowQueries[$id];
+            }
+            if (!is_array($parameter))
+                $parameter = array($parameter);
 
-		$stmt = $this->Prepare($sql);
+            $stmt = $this->Prepare($sql);
 
-		if( !$stmt->ExecuteWithArguments($parameter) )
-            WdfDbException::RaiseStatement($stmt);
+            if (!$stmt->ExecuteWithArguments($parameter))
+                WdfDbException::RaiseStatement($stmt);
 
-		$this->_last_affected_rows_count = $stmt->Count();
-		return $stmt;
+            $this->_last_affected_rows_count = $stmt->Count();
+            return $stmt;
+        }
+        finally
+        {
+            if (isset($mem_runtime))
+                DataSource::$LogSlowQueriesSeconds = $mem_runtime;
+        }
 	}
 
 	/**
