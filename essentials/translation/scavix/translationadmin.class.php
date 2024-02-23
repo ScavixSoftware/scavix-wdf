@@ -252,7 +252,9 @@ class TranslationAdmin extends TranslationAdminBase
         {
             $ds = model_datasource($GLOBALS['CONFIG']['translation']['sync']['datasource']);
             $ds->ExecuteSql("DELETE FROM wdf_unknown_strings");
-            $ds->ExecuteSql("DELETE FROM wdf_unknown_strings_data WHERE term NOT IN(SELECT id FROM wdf_translations)");
+            $allids = $ds->ExecuteSql('SELECT DISTINCT id FROM wdf_translations')->Enumerate('id');
+            if(count($allids))
+                $ds->ExecuteSql('DELETE FROM wdf_unknown_strings_data WHERE term NOT IN ("'.join('","', $allids).'")');
             $this->content("<div>Cleared the unknown strings tables &#10003;</div>");
 
             foreach( cache_list_keys() as $key )
