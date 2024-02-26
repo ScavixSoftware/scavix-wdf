@@ -115,7 +115,7 @@ function session_run()
     if ('iframe' == strtolower(ifavail($_SERVER, 'HTTP_SEC_FETCH_DEST', 'REDIRECT_HTTP_SEC_FETCH_DEST')?:''))
     {
         $session_name = session_name();
-        $session_cookie_okay = false;
+        $session_cookie_okay = true; // this disables cookie detection roundtrip, use 'false' to re-enable
         foreach (getallheaders() as $name => $value)
         {
             if (strtolower($name) != "cookie")
