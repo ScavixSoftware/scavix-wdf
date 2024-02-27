@@ -134,10 +134,16 @@ class HtmlPage extends Template implements ICallable
         }
         if (iterator_count($buffer))
         {
-            if (can_rewrite())
-                $this->addJs(buildQuery('wdfresource', 'texts') . $_SESSION['js_strings_version'] . ".js");
-            else
-                $this->addJs(buildQuery('wdfresource', 'texts', ['v' => $_SESSION['js_strings_version']]));
+			if (method_exists($this, 'WdfResourceTexts'))
+				$url = can_rewrite() ? buildQuery(current_controller(), 'wdfresourcetexts').$_SESSION['js_strings_version'].".js" : buildQuery(current_controller(), 'wdfresourcetexts', ['v' => $_SESSION['js_strings_version']]);
+			else
+				$url = can_rewrite() ? buildQuery('wdfresource', 'texts').$_SESSION['js_strings_version'].".js" : buildQuery('wdfresource', 'texts', ['v' => $_SESSION['js_strings_version']]);
+			$this->addJs($url);
+
+            // if (can_rewrite())
+            //     $this->addJs(buildQuery('wdfresource', 'texts').$_SESSION['js_strings_version'].".js");
+            // else
+            //     $this->addJs(buildQuery('wdfresource', 'texts', ['v' => $_SESSION['js_strings_version']]));
         }
     }
 
