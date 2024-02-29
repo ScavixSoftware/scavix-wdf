@@ -27,6 +27,7 @@ use ScavixWDF\Base\Renderable;
 use ScavixWDF\JQueryUI\uiMessage;
 use ScavixWDF\Model\DataSource;
 use ScavixWDF\Model\Model;
+use ScavixWDF\WdfDbException;
 use Swoole\MySQL\Exception;
 
 /**
@@ -36,32 +37,32 @@ class RequestLogEntry extends Model
 {
 	/** @var string */
 	public $id;
-	
+
 	/** @var \ScavixWDF\Base\DateTimeEx|string */
 	public $created;
-	
+
 	/** @var float */
 	public $ms;
-	
+
 	/** @var string */
 	public $session_id;
-	
+
 	/** @var string */
 	public $ip;
-	
+
 	/** @var string */
 	public $url;
-	
+
 	/** @var string */
 	public $post;
-	
+
 	/** @var string */
 	public $result;
 
     protected $started;
     protected $handled = false;
     protected static $Current = false;
-        
+
     /**
      * @implements <Model::GetTableName()>
      */
@@ -71,13 +72,13 @@ class RequestLogEntry extends Model
     {
         if( $this->_ds->Driver instanceof \ScavixWDF\Model\Driver\MySql )
             return parent::__ensureTableSchema();
-        
-        self::$_schemaCache[$this->_cacheKey] 
-            = $this->_tableSchema 
+
+        self::$_schemaCache[$this->_cacheKey]
+            = $this->_tableSchema
             = new \ScavixWDF\Model\TableSchema($this->_ds,$this->GetTableName());
         return $this->_tableSchema;
     }
-    
+
     protected function CreateTable()
     {
         if( $this->_ds->Driver instanceof \ScavixWDF\Model\Driver\MySql )
@@ -102,14 +103,14 @@ class RequestLogEntry extends Model
             $this->AlterTable();
         }
     }
-    
+
     protected function AlterTable(){}
-    
+
     protected function Blacklisted()
     {
         return stripos($this->url,"wdfresource")!== false;
     }
-    
+
     /**
      * @internal Starts a new request
      */
@@ -118,12 +119,12 @@ class RequestLogEntry extends Model
         $entry = new RequestLogEntry();
         $entry->SaveToDB();
     }
-    
+
     protected function SaveToDB($data=[], $url = false)
-    {        
+    {
         if( !($this->_ds->Driver instanceof \ScavixWDF\Model\Driver\MySql) )
             return;
-        
+
         $this->started = microtime(true); // not in DB!
         $this->session_id = session_id();
         $this->ip = get_ip_address();
@@ -133,10 +134,10 @@ class RequestLogEntry extends Model
             $url = substr($url, strpos($url,"/",strpos($url, "://") + 3));
         }
         $this->url = $url;
-        
+
         if( $this->Blacklisted() )
             return;
-        
+
         $post = $_POST;
         if(count($post) == 0)
         {
@@ -146,10 +147,10 @@ class RequestLogEntry extends Model
         }
         $this->post = json_encode($this->obfuscateData($post));
         $id = md5($this->ip.'-'.$this->url.'-'.$this->post.'-'.$this->started);
-        
+
         foreach( $data as $k=>$v )
             $this->$k = $v;
-        
+
         \ScavixWDF\WdfDbException::$DISABLE_LOGGING = true;
         $i = 0;
         do
@@ -182,34 +183,34 @@ class RequestLogEntry extends Model
         \ScavixWDF\WdfDbException::$DISABLE_LOGGING = false;
         return false;
     }
-    
+
     protected function obfuscateData(array $data): array
     {
         foreach( $data as $k=>$v )
             if( stripos($k,'pass') !== false )
                 $data[$k] = '***';
-            else if( is_string($v) && starts_iwith($v,"data:") ) 
+            else if( is_string($v) && starts_iwith($v,"data:") )
                 $data[$k] = substr($v,0,30)."-TRUNCATED";
         return $data;
     }
-    
+
     public function _died($data)
     {
         list($reason,$stacktrace) = $data;
         $this->_done([$reason."\nStacktrace:\n".system_stacktrace_to_string($stacktrace)]);
     }
-    
+
     public function _done($args)
     {
         if( !($this->_ds->Driver instanceof \ScavixWDF\Model\Driver\MySql) )
             return;
-        
+
         if( $this->handled )
-            return;        
+            return;
         $this->handled = true;
-        
+
         $message = array_shift($args);
-        
+
         if( $message instanceof uiMessage )
             $message = json_encode($message->messages);
         elseif( $message instanceof Renderable )
@@ -219,7 +220,7 @@ class RequestLogEntry extends Model
 
         $this->ms = ceil( (microtime(true)-$this->started)*1000 );
         $this->result = $message;
-        
+
         $changedcols = $this->GetChanges();
         if(count($changedcols) == 0)
             return;
@@ -234,13 +235,13 @@ class RequestLogEntry extends Model
         $args[] = $this->id;
         $this->_ds->ExecuteSql($sql, $args);
 //        log_debug($sql, $args);
-        
+
 //        $this->_ds->ExecuteSql(
 //            "UPDATE `wdf_requests` SET ms={$this->ms}, result=? WHERE id='{$this->id}'",
 //            [$this->result]
 //        );
     }
-    
+
     /**
      * @internal Finishes a previously started request
      */
@@ -248,24 +249,57 @@ class RequestLogEntry extends Model
     {
 //        if( !($this->_ds->Driver instanceof \ScavixWDF\Model\Driver\MySql) )
 //            return;
-        
+
         if( self::$Current )
             self::$Current->_done([$result]);
     }
-    
+
     /**
      * Cleans up entries older than a given age.
-     * 
+     *
      * @param string $maxage Age string like '30 day' or '1 year'
      * @return void
      */
     public static function Cleanup($maxage)
     {
-//        if( !($this->_ds->Driver instanceof \ScavixWDF\Model\Driver\MySql) )
-//            return;
-        
         DataSource::Get()->ExecuteSql(
             "DELETE FROM wdf_requests WHERE created<now()-interval $maxage"
         );
+    }
+
+    public static function Optimize()
+    {
+        if (PHP_SAPI != "cli")
+        {
+            log_error(__METHOD__ . " can only run from a task");
+            return;
+        }
+        $ds = DataSource::Get();
+        $started = $ds->TableExists("wdf_requests_old") || $ds->TableExists("wdf_requests_buffered");
+        if ($started)
+        {
+            log_info(__METHOD__, "Seems that process is already running");
+            return;
+        }
+
+        log_debug("Renaming 'wdf_requests' to 'wdf_requests_old'...");
+        $ds->ExecuteSql("RENAME TABLE wdf_requests TO wdf_requests_old");
+        log_debug("Optimizing table 'wdf_requests_old'...");
+        $ds->ExecuteSql("OPTIMIZE TABLE wdf_requests_old");
+        log_debug("Re-renaming table...");
+        try
+        {
+            $ds->ExecuteSql("RENAME TABLE wdf_requests_old TO wdf_requests");
+        }
+        catch (WdfDbException $ex)
+        {
+            log_debug("Seems data has been collected, preparing to integrate...");
+            $ds->ExecuteSql("RENAME TABLE wdf_requests TO wdf_requests_buffered, wdf_requests_old TO wdf_requests");
+            log_debug("Integrating missed data...");
+            $ds->ExecuteSql("INSERT IGNORE INTO wdf_requests SELECT * FROM wdf_requests_buffered");
+            log_debug("Removing 'wdf_requests_buffered'...");
+            $ds->ExecuteSql("DROP TABLE wdf_requests_buffered");
+        }
+        log_debug("Done");
     }
 }
