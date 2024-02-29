@@ -199,6 +199,14 @@ class Query
         $args = [];
         if (strpos($sql, "?") !== false)
         {
+            // Detect questionmarks inside text-literals and abstract the whole literal as argument.
+            // This avoids the questionmark to be recognized as argument placeholder.
+            $sql = preg_replace_callback('/([\'"])[^\1]*\?[^\1]*\1/', function ($m) use (&$args)
+            {
+                $n = $this->argName();
+                $args[$n] = new ConditionArgument($n, trim($m[0], $m[1]));
+                return $n;
+            }, $sql);
             $sql = preg_replace_callback('/\?/', function ($m) use (&$args, &$arguments)
             {
                 $n = $this->argName();

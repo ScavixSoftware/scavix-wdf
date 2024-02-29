@@ -1841,6 +1841,33 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 */
 	function gt($property,$value,$value_is_sql=false) { return $this->greaterThan($property,$value,$value_is_sql); }
 
+    /**
+     * @shortcut <Model::like>($property,"%$value%")
+     */
+    function contains($property,$value)
+    {
+        $value = $this->_ds->EscapeArgument($value);
+        return $this->like($property, "%$value%");
+    }
+
+    /**
+     * @shortcut <Model::like>($property,"$value%")
+     */
+    function startsWith($property,$value)
+    {
+        $value = $this->_ds->EscapeArgument($value);
+        return $this->like($property, "$value%");
+    }
+
+    /**
+     * @shortcut <Model::like>($property,"%$value")
+     */
+    function endsWith($property,$value)
+    {
+        $value = $this->_ds->EscapeArgument($value);
+        return $this->like($property, "%$value");
+    }
+
 	/**
 	 * Calls a callback function for each result dataset.
 	 *
