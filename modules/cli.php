@@ -268,8 +268,8 @@ function cli_execute()
 
     array_shift($argv);
     logging_add_category('CLI');
-    logging_add_category(getmypid());
-    logging_add_category(get_current_user());
+    // logging_add_category(getmypid());
+    // logging_add_category(get_current_user());
 
     $task = array_shift($argv);
     if( !$task )

@@ -385,6 +385,7 @@ function logging_set_level($min_severity = "INFO")
  * @param string $object_storage_id Storage ID of the object to check for
  * @param string $fieldname Name of field/property to use as category ('name' will use $obj->name as category)
  * @return void
+ * @deprecated Use <logging_add_category> instead
  */
 function logging_set_user($object_storage_id='user',$fieldname='username')
 {

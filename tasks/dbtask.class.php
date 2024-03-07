@@ -36,7 +36,7 @@ class DbTask extends Task
     {
         log_warn("Syntax: db-(info|list|update)");
     }
-        
+
     private function ensureArgs($args)
     {
         if( count($args) == 0 )
@@ -61,7 +61,7 @@ class DbTask extends Task
                 else
                     log_info("\tDatabase version: <none>");
             }
-            
+
             $tabs = $ds->Driver->listTables();
             log_info("Tables:\n\t".implode("\n\t",$tabs));
             return false;
@@ -73,7 +73,7 @@ class DbTask extends Task
         }
         return [$ds,$tab,$args];
     }
-    
+
     function Info($args)
     {
         $args = $this->ensureArgs($args);
@@ -83,23 +83,23 @@ class DbTask extends Task
         //log_info("Columns:\n\t".implode("\n\t",$cols));
         log_info("Schema:",$schema);
     }
-    
+
     function List($args)
     {
         $args = $this->ensureArgs($args);
         if( !$args ) return;
         list($ds,$tab,$args) = $args;
-        
+
         if( count($args) > 1 )
         {
             $limit = min(1000,abs(intval(array_shift($args))));
             $offset = abs(intval(array_shift($args)));
-        }        
+        }
         elseif( count($args) > 0 )
         {
             $limit = min(1000,abs(intval(array_shift($args))));
             $offset = 0;
-        }        
+        }
         else
         {
             $limit = 20;
@@ -108,36 +108,36 @@ class DbTask extends Task
         $lines = [];
         foreach( $ds->Query($tab)->page($offset,$limit) as $row )
             $lines[] = $row->AsArray();
-        
+
         $format = array_shift($args)?:'json';
         switch( $format )
         {
-            case 'json': 
-                log_debug("JSON:\n".json_encode($lines,JSON_PRETTY_PRINT)); 
+            case 'json':
+                log_debug("JSON:\n".json_encode($lines,JSON_PRETTY_PRINT));
                 return;
         }
         log_debug("Items =",$lines);
     }
-    
+
     function Update($args)
     {
         if( !defined("DATABASE_VERSION") || !defined("DATABASE_FOLDER") )
             \ScavixWDF\WdfException::Raise("You need to define DATABASE_VERSION and DATABASE_FOLDER");
         $ds = DataSource::Get();
-        
+
         $v = intval(array_shift($args));
         if( $v )
         {
             log_info(__METHOD__,"Preparing to replay version $v");
             $ds->ExecuteSql("DELETE FROM wdf_versions WHERE `version`=$v");
         }
-        
+
         model_update_db($ds, constant("DATABASE_VERSION"), constant("DATABASE_FOLDER"), function($v)
         {
             log_info(__METHOD__,"Updated to version $v");
         });
     }
-    
+
     function Vars($args)
     {
         $alias = array_shift($args);
@@ -152,13 +152,13 @@ class DbTask extends Task
         $lines = [];
         foreach( $lvars as $n=>$v )
             $lines[] = "$n\t= $v".(isset($gvars[$n])&&$v!=$gvars[$n]?"\tGLOBAL: {$gvars[$n]}":"");
-            
+
         if( PHP_SAPI == 'cli' )
             echo "Variables:\n".implode("\n",$lines)."\n";
         else
             log_info("Variables:\n".implode("\n",$lines)."\n");
     }
-    
+
     function Exec($args)
     {
         $alias = array_shift($args);
@@ -168,12 +168,12 @@ class DbTask extends Task
             log_warn("Please specify valid datasource as first argument");
             return;
         }
-        
+
         $sql = implode(" ",$args);
         log_debug("Executing SQL: $sql");
         log_info("Result: ".json_encode($ds->ExecuteSql($sql)->results(),JSON_PRETTY_PRINT));
     }
-    
+
     function ProcessWdfTasks($args)
     {
         if (count(Wdf::$Logger) > 1)
@@ -188,9 +188,10 @@ class DbTask extends Task
         {
             if( $task )
             {
-                logging_add_category("{$task->name}");
+                $cat = implode("-", array_slice(explode("-", $task->name), 0, 2));
+                logging_add_category($cat);
                 $task->Run();
-                logging_remove_category("{$task->name}");
+                logging_remove_category($cat);
             }
             else
                 usleep(100000);
