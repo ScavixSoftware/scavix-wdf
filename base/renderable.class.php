@@ -405,7 +405,7 @@ abstract class Renderable implements \JsonSerializable
 		if( $content instanceof Renderable )
         {
             if( $content->_parent instanceof Renderable )
-                $content->_parent->remove($content);
+                $content->_parent->rmContent($content);
 			$content->_parent = $this;
         }
 		if( !$replace && is_array($content) )
@@ -423,7 +423,7 @@ abstract class Renderable implements \JsonSerializable
 		return $this->_content[count($this->_content)-1];
 	}
 
-    function remove($content)
+    function rmContent($content)
     {
         $buf = $this->_content;
         $this->_content = [];
