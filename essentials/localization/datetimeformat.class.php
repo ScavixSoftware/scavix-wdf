@@ -35,7 +35,7 @@ use ScavixWDF\WdfException;
 
 /**
  * Helper class to deal with datetime values.
- * 
+ *
  */
 class DateTimeFormat
 {
@@ -89,8 +89,8 @@ class DateTimeFormat
 
 	/**
 	 * Formats a detetime value to a string.
-	 * 
-	 * @param int|array|\DateTime $date Time value (see <time>)
+	 *
+	 * @param \DateTime|int|array $date Time value (see <time>)
 	 * @param int $format_id Format identifier (one of the DateTimeFormta::DT_* constants)
 	 * @return string Formatted string
 	 */
@@ -137,7 +137,7 @@ class DateTimeFormat
 			if(strpos($format, $p) !== false)
 				$arplaceholders[] = $p;
 		}
-		
+
 		if( $date instanceof DateTime )
 			$date = $date->getTimestamp();
 
@@ -225,7 +225,7 @@ class DateTimeFormat
 
 	/**
 	 * Returns all known DateTime patterns.
-	 * 
+	 *
 	 * These are the basic ones referred to by the DF_* constants plus the following
 	 * combinations (separated by space):
 	 * - DF_SHORTDATE DF_SHORTTIME
@@ -257,7 +257,7 @@ class DateTimeFormat
 
 	/**
 	 * Converts a string to a unix timestamp.
-	 * 
+	 *
 	 * Tries all KnownDateTimePatterns() and uses the best match.
 	 * Known Bugs:
 	 * - Culture cs-CZ Format dd MMMM
@@ -338,7 +338,7 @@ class DateTimeFormat
 		}
 		if( count($found) < 1 )
 			return false;
-		
+
 		$d = 1; // because 0 would mktime return the last day of the previous month, so patterns like MMMM, YYYY would return prev month
 		$m = 0;
 		$y = 0;
@@ -355,7 +355,7 @@ class DateTimeFormat
 				case "d4":
 				case "d3":
 					break;
-				
+
 				case "M4":
 					for($mn=0; $mn<count($this->MonthNames); $mn++)
 						if( $this->MonthNames[$mn] == $found[$iter] )

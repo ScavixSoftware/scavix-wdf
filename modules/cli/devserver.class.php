@@ -9,6 +9,14 @@ use ScavixWDF\Tasks\Task;
  */
 class DevServer extends Task
 {
+    /**
+     * Starts a PHP develompent server.
+     *
+     * This is in fact `php -S` with a custom router script.
+     * @see https://www.php.net/manual/en/features.commandline.webserver.php
+     * @param mixed $args Optional endpoint, defaults to 127.0.0.1:80
+     * @return void
+     */
     function Run($args)
     {
         $endpoint = $this->getArg($args,0) ?: "127.0.0.1:80";

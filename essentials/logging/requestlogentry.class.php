@@ -267,6 +267,14 @@ class RequestLogEntry extends Model
         );
     }
 
+    /**
+     * Optimizes the requests table.
+     *
+     * Optimization will be done by renaming the table, optimizing that new table and then renaming it back.
+     * Of there's a new table created in the meantime, if will be renamed before and it's data will be integrated.
+     *
+     * @return void
+     */
     public static function Optimize()
     {
         if (PHP_SAPI != "cli")

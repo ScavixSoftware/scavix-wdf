@@ -1808,6 +1808,10 @@ function system_get_cookie_values($name, $raw_cookie_string)
 /** @see https://php.watch/versions/8.3/json_validate#polyfill */
 if (!function_exists('json_validate'))
 {
+    /**
+     * @internal Polyfill for PHP < 8.3
+     * @see https://php.watch/versions/8.3/json_validate#polyfill
+     */
     function json_validate(string $json, int $depth = 512, int $flags = 0): bool
     {
         if ($flags !== 0 && $flags !== \JSON_INVALID_UTF8_IGNORE)
@@ -1823,9 +1827,8 @@ if (!function_exists('json_validate'))
 if (\PHP_VERSION_ID < 80300)
 {
     /**
-     * @param resource $context The stream or context resource to apply the options to
-     * @param array $options The options to set for `stream_or_context`
-     * @return bool Returns true success or false on failure.
+     * @internal Polyfill for PHP < 8.3
+     * @see https://php.watch/versions/8.3/stream_context_set_options#stream_context_set_options-polyfill
      */
     function stream_context_set_options($context, array $options): bool
     {

@@ -58,6 +58,14 @@ class DataSource
 	static $LogSlowQueriesSeconds = 5;
     private static $registeredLogSlowQueries = [];
 
+    /**
+     * Registers a query as known to be slow.
+     *
+     * It will be logged only if the runtime exceeds the given expected runtime.
+     * @param mixed $sql The statement to be registered
+     * @param mixed $expected_runtime_seconds Extepcted runtime in seconds
+     * @return void
+     */
     public static function RegisterSlowQuery($sql, $expected_runtime_seconds)
     {
         self::$registeredLogSlowQueries[md5($sql)] = $expected_runtime_seconds;

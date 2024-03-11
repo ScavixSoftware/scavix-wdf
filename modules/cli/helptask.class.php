@@ -5,6 +5,12 @@
  */
 class HelpTask extends \ScavixWDF\Tasks\Task
 {
+    /**
+     * Prints information about classes.
+     *
+     * @param mixed $args The classname to print help for
+     * @return void
+     */
 	function Run($args)
 	{
 		$cls = array_shift($args);

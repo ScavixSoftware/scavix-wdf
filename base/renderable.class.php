@@ -423,6 +423,12 @@ abstract class Renderable implements \JsonSerializable
 		return $this->_content[count($this->_content)-1];
 	}
 
+    /**
+     * Removes content.
+     *
+     * @param mixed $content The content to be removed
+     * @return static
+     */
     function rmContent($content)
     {
         $buf = $this->_content;

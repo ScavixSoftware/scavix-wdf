@@ -28,6 +28,9 @@ use ScavixWDF\Base\Template;
 use ScavixWDF\Base\WdfClosure;
 use ScavixWDF\Controls\Form\TextInput;
 
+/**
+ * Simple filters for <WdfListing> controls.
+ */
 class WdfListingFilter extends Template
 {
     public $prefix = "";
@@ -51,10 +54,10 @@ class WdfListingFilter extends Template
             $this->set('action',buildQuery($controller,$method,compact('id')));
         else
             $this->set('action',buildQuery($controller,$method));
-        
+
         $this->script("wdf.listings.initFilter('#{$this->id}');");
     }
-    
+
     protected function persist($name,$value)
     {
         WdfListing::Storage()->set("{$this->prefix}_{$name}",$value);
@@ -71,7 +74,12 @@ class WdfListingFilter extends Template
     {
         return WdfListing::Storage()->get("{$this->prefix}_{$name}", $default);
     }
-    
+
+    /**
+     * Do not use! Use <WdfListing>::setFilter() instead.
+     * @param mixed $listing WdfListing instance
+     * @return static
+     */
     function setListing($listing)
     {
         // IMPORANT: Do not call this method, call WdfListing::setFilter instead
@@ -79,7 +87,12 @@ class WdfListingFilter extends Template
         $this->set('listings', array_map(function($l) { return $l->id; }, $this->listings));
         return $this;
     }
-	
+
+    /**
+     * Returns an input control by name.
+     * @param mixed $name The control name.
+     * @return mixed
+     */
 	function getInput($name)
 	{
 		foreach( $this->get('inputs') as $i )
@@ -87,7 +100,16 @@ class WdfListingFilter extends Template
 				return $i;
 		return null;
 	}
-	
+
+    /**
+     * Adds a search <TextInput> control.
+     *
+     * Note: This performs a case-insensitive substring search.
+     * @param mixed $name Name-attribute for the control.
+     * @param mixed $title Title-attribute for the control.
+     * @param mixed $columns Columns to search in
+     * @return mixed
+     */
 	function addSearchInput($name,$title,$columns)
 	{
 		return $this->addInput(
@@ -96,22 +118,35 @@ class WdfListingFilter extends Template
 			false
 		);
 	}
-	
+
+    /**
+     * Adds a EQ <Select> control.
+     * @param mixed $name Name-attribute for the control.
+     * @param mixed $title Title-attribute for the control.
+     * @param mixed $column Column name
+     * @return mixed
+     */
 	function addEqualsSelect($name,$title,$column)
 	{
 		return $this->addInput(
-			
+
 			\ScavixWDF\Controls\Form\Select::Make($name)->setValue($this->getValue($name))->setTitle($title),
 			$this->makeEqualsBuilder($column),
 			false
 		);
 	}
-	
+
+    /**
+     * Adds a EQ filter.
+     * @param mixed $control Input control (like <TextInput>)
+     * @param mixed $column Column name
+     * @return mixed
+     */
 	function addEqualsInput($control, $column)
 	{
 		$name = $control->attr('name');
 		return $this->addInput(
-			
+
 			$control->setValue($this->getValue($name)),
 			$this->makeEqualsBuilder($column)
 		);
@@ -128,13 +163,16 @@ class WdfListingFilter extends Template
         $val = Args::post($name);
         if( $val )
             $this->persist($name, $val);
-        
+
         // if( $control instanceof \ScavixWDF\Controls\Form\CheckBox )
         //     $this->onoffs[] = $name;
 
         return $return_self?$this:$control;
     }
 
+    /**
+     * @internal
+     */
     function dataFromPost()
     {
         if( Args::request("reset") == 1 )
@@ -155,24 +193,33 @@ class WdfListingFilter extends Template
         // wdflisting.js ensures that even unchecked checkboxes will be transferred as '0', so this bad 'always off' handling can be left out
 //        foreach( $this->onoffs as $name )
 //        {
-//            $val = Args::request($name,null); 
+//            $val = Args::request($name,null);
 //            if( $val === null )
 //                $this->persist($name, 0);
 //        }
         return $this;
     }
-    
+
+    /**
+     * @internal Resets all filter values.
+     */
     function resetValues()
     {
         foreach( WdfListing::Storage()->keys() as $k )
             if( starts_with($k,"{$this->prefix}_") )
                 $this->delValue(str_replace("{$this->prefix}_","",$k));
-        
+
         foreach( $this->get('inputs') as $control )
             $control->setValue('');
         return $this;
     }
 
+    /**
+     * Sets the value of a filter by name.
+     * @param mixed $name Filter name
+     * @param mixed $value Filter value	(in null is given, the value is removed)
+     * @return mixed
+     */
     function setValue($name,$value)
     {
         if( $value === false )
@@ -182,6 +229,12 @@ class WdfListingFilter extends Template
         return $value;
     }
 
+    /**
+     * Returns the value of a filter by name.
+     * @param mixed $name The filter name.
+     * @param mixed $default An optional default value.
+     * @return mixed
+     */
     function getValue($name,$default=false)
     {
         if(isset($_GET[$name]) && ($_GET[$name] != ''))     // filter value passed by GET parameter
@@ -195,6 +248,9 @@ class WdfListingFilter extends Template
         return $this->getSetting($name);
     }
 
+    /**
+     * @internal Returns prepare SQL fragment
+     */
     function getSql($for_listing_injection=false)
     {
         $res = [];
@@ -210,7 +266,7 @@ class WdfListingFilter extends Template
         $sql = count($res)==0?"(1=1)":"(".implode("AND",$res).")";
         if( $for_listing_injection )
             $sql = "/*BEG {$this->prefix}*/".$sql."/*{$this->prefix} END*/";
-            
+
         return $sql;
     }
 
@@ -233,7 +289,7 @@ class WdfListingFilter extends Template
             return "";
         });
     }
-    
+
     protected function makeEqualsBuilder($column)
     {
         return new WdfClosure(function($name,$value)use($column)

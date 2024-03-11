@@ -37,6 +37,12 @@ class SearchTask extends \ScavixWDF\Tasks\Task
         return $res;
     }
 
+    /**
+     * Searche for executable tasks.
+     *
+     * @param mixed $args No args
+     * @return void
+     */
 	function Run($args)
 	{
 		$fqcns = []; $done = [];
@@ -100,6 +106,9 @@ class SearchTask extends \ScavixWDF\Tasks\Task
 		}
 	}
 
+    /**
+     * @internal Helper
+     */
 	function Reflect($args)
 	{
 		ini_set('display_errors',0);
@@ -125,6 +134,9 @@ class SearchTask extends \ScavixWDF\Tasks\Task
 		die(json_encode($res));
 	}
 
+    /**
+     * @internal Helper
+     */
     function LoadClassesTest($args)
 	{
         $preload = implode(" ",array_map(function($c){ return "\"$c\""; },$args));
@@ -140,6 +152,9 @@ class SearchTask extends \ScavixWDF\Tasks\Task
         }
     }
 
+    /**
+     * @internal Helper
+     */
     function LoadClassesTestWorker($args)
 	{
         ob_start();

@@ -173,6 +173,7 @@ EOPS;
      *
      * This may be used sync from PHP code or async via Task.
      * @param string $url The URL to render as PDF
+     * @param string $options Some parameters are available to be specified as options. See source code for details.
      * @return string|false Returns the PDF filename or false on error
      */
     static function Url2Pdf($url, $options=[])
