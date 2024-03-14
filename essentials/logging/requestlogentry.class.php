@@ -28,7 +28,6 @@ use ScavixWDF\JQueryUI\uiMessage;
 use ScavixWDF\Model\DataSource;
 use ScavixWDF\Model\Model;
 use ScavixWDF\WdfDbException;
-use Swoole\MySQL\Exception;
 
 /**
  * Represents an entry in the wdf_requests table.
@@ -151,7 +150,7 @@ class RequestLogEntry extends Model
         foreach( $data as $k=>$v )
             $this->$k = $v;
 
-        \ScavixWDF\WdfDbException::$DISABLE_LOGGING = true;
+        WdfDbException::$DISABLE_LOGGING = true;
         $i = 0;
         do
         {
@@ -162,10 +161,10 @@ class RequestLogEntry extends Model
                 register_hook(HOOK_PRE_FINISH,$this,'_done',true);
                 register_hook(HOOK_SYSTEM_DIE,$this,'_died',true);
                 RequestLogEntry::$Current = $this;
-                \ScavixWDF\WdfDbException::$DISABLE_LOGGING = false;
+                WdfDbException::$DISABLE_LOGGING = false;
                 return true;
             }
-            catch(\ScavixWDF\WdfDbException $ex)
+            catch(WdfDbException $ex)
             {
                 if($ex->isTableNotExistException('wdf_requests'))
 				{
@@ -174,13 +173,13 @@ class RequestLogEntry extends Model
 				}
                 if(!$ex->isDuplicateKeyException('PRIMARY'))
                 {
-                    \ScavixWDF\WdfDbException::$DISABLE_LOGGING = false;
+                    WdfDbException::$DISABLE_LOGGING = false;
                     throw $ex;
                 }
             }
         }
         while($i++<10);
-        \ScavixWDF\WdfDbException::$DISABLE_LOGGING = false;
+        WdfDbException::$DISABLE_LOGGING = false;
         return false;
     }
 
@@ -282,32 +281,59 @@ class RequestLogEntry extends Model
             log_error(__METHOD__ . " can only run from a task");
             return;
         }
+        $cls = get_called_class();
+        $inst = new $cls();
+        $tab = $inst->getTableName();
+        $old = "{$tab}_old";
+        $buf = "{$tab}_buffered";
+
         $ds = DataSource::Get();
-        $started = $ds->TableExists("wdf_requests_old") || $ds->TableExists("wdf_requests_buffered");
+        $started = $ds->TableExists("$old") || $ds->TableExists("$buf");
         if ($started)
         {
             log_info(__METHOD__, "Seems that process is already running");
             return;
         }
 
-        log_debug("Renaming 'wdf_requests' to 'wdf_requests_old'...");
-        $ds->ExecuteSql("RENAME TABLE wdf_requests TO wdf_requests_old");
-        log_debug("Optimizing table 'wdf_requests_old'...");
-        $ds->ExecuteSql("OPTIMIZE TABLE wdf_requests_old");
+        log_debug("Renaming '$tab' to '$old'...");
+        $ds->ExecuteSql("RENAME TABLE `$tab` TO `$old`");
+        if (static::onBeforeOptimize($ds, $old))
+        {
+            log_debug("Optimizing table '$old'...");
+            $ds->ExecuteSql("OPTIMIZE TABLE `$old`");
+            static::onAfterOptimize($ds, $old);
+        }
         log_debug("Re-renaming table...");
         try
         {
-            $ds->ExecuteSql("RENAME TABLE wdf_requests_old TO wdf_requests");
+            $ds->ExecuteSql("RENAME TABLE `$old` TO `$tab`");
         }
         catch (WdfDbException $ex)
         {
             log_debug("Seems data has been collected, preparing to integrate...");
-            $ds->ExecuteSql("RENAME TABLE wdf_requests TO wdf_requests_buffered, wdf_requests_old TO wdf_requests");
+            $ds->ExecuteSql("RENAME TABLE `$tab` TO `$buf`, `$old` TO `$tab`");
             log_debug("Integrating missed data...");
-            $ds->ExecuteSql("INSERT IGNORE INTO wdf_requests SELECT * FROM wdf_requests_buffered");
-            log_debug("Removing 'wdf_requests_buffered'...");
-            $ds->ExecuteSql("DROP TABLE wdf_requests_buffered");
+            $ds->ExecuteSql("INSERT IGNORE INTO `$tab` SELECT * FROM `$buf`");
+            log_debug("Removing '$buf'...");
+            $ds->ExecuteSql("DROP TABLE `$buf`");
         }
         log_debug("Done");
+    }
+
+    /**
+     * May be overridden by subclasses to perform additional actions before the table is optimized.
+     *
+     * @param \ScavixWDF\Model\DataSource $ds The datasource instance used
+     * @param mixed $tablename The name of the table to be processed
+     * @return bool
+     */
+    protected static function onBeforeOptimize(DataSource $ds, $tablename)
+    {
+        return true;
+    }
+
+    protected static function onAfterOptimize(DataSource $ds, $tablename)
+    {
+
     }
 }
