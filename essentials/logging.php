@@ -657,7 +657,17 @@ function start_timer($name, $label=false)
 {
     if (!$label)
         $label = $name;
-    Wdf::$Timer[$name] = [ [$label,microtime(true),0] ];
+    if (isset(Wdf::$Timer[$name]))
+    {
+        hit_timer($name, "[");
+        Wdf::$Timer[$name]['instances']++;
+        hit_timer($name, "$label");
+    }
+    else
+        Wdf::$Timer[$name] = [
+            'instances' => 1,
+            'trace' => [[$label, microtime(true), 0]]
+        ];
     return $name;
 }
 
@@ -672,8 +682,9 @@ function hit_timer($name,$label='(no label)')
 {
     if (!isset(Wdf::$Timer[$name]))
         return;
-    $start = array_last(Wdf::$Timer[$name])[1];
-    Wdf::$Timer[$name][] = [$label,microtime(true),round((microtime(true)-$start)*1000)];
+    $start = array_last(Wdf::$Timer[$name]['trace'])[1];
+    $prefix = str_repeat("\t", Wdf::$Timer[$name]['instances'] - 1);
+    Wdf::$Timer[$name]['trace'][] = [$prefix.$label,microtime(true),round((microtime(true)-$start)*1000)];
 }
 
 /**
@@ -687,7 +698,13 @@ function finish_timer($name,$min_ms = false)
 {
     if( !isset(Wdf::$Timer[$name]) )
         return;
-    $trace = Wdf::$Timer[$name];
+    $trace = Wdf::$Timer[$name]['trace'];
+    if( Wdf::$Timer[$name]['instances'] > 1 )
+    {
+        Wdf::$Timer[$name]['instances']--;
+        hit_timer($name, "]");
+        return;
+    }
     list($label,$start,$dur) = array_shift($trace);
     unset(Wdf::$Timer[$name]);
 
