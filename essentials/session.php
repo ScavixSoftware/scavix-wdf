@@ -89,6 +89,8 @@ function session_run()
         $cookie_params['httponly'] = true;
         if (isSSL())
             $cookie_params['secure'] = true;
+        else
+            unset($cookie_params['samesite']);
         session_set_cookie_params($cookie_params);
     }
 
