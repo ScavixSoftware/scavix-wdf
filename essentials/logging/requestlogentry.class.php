@@ -257,13 +257,18 @@ class RequestLogEntry extends Model
      * Cleans up entries older than a given age.
      *
      * @param string $maxage Age string like '30 day' or '1 year'
+     * @param int $limit Maximum number of entries to delete
      * @return void
      */
-    public static function Cleanup($maxage)
+    public static function Cleanup($maxage, $limit = 50000)
     {
-        DataSource::Get()->ExecuteSql(
-            "DELETE FROM wdf_requests WHERE created<now()-interval $maxage"
-        );
+        $ds = DataSource::Get();
+        if ($ds->TableExists('wdf_requests'))
+        {
+            $ds->ExecuteSql(
+                "DELETE FROM wdf_requests WHERE created<now()-interval $maxage LIMIT $limit"
+            );
+        }
     }
 
     /**
