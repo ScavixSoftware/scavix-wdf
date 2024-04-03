@@ -32,13 +32,13 @@ namespace ScavixWDF\Controls\Form;
 
 /**
  * This is an &lt;input type=button/&gt;.
- * 
+ *
  */
 class Button extends Input
 {
 	/**
 	 * Creates a Button.
-	 * 
+	 *
 	 * Note that you can safely ignore all but the $label argument if your new button
 	 * shall not redirect elsewhere on click.
 	 * @param string $label Label text
@@ -61,10 +61,10 @@ class Button extends Input
 		if( $query != "" )
 			$this->onclick = $query;
 	}
-	
+
 	/**
 	 * Overrides <Control::Make> with own logic.
-	 * 
+	 *
      * @deprecated (2021/05) This hides the parent Make method and should not be used anymore
 	 * @param string $label Label
 	 * @param string $onclick OnClick JS code
@@ -75,15 +75,15 @@ class Button extends Input
         log_debug(__METHOD__,"Deprecated. Use Button::Textual instead");
         $label = isset($args[0])?$args[0]:'';
         $onclick = isset($args[1])?$args[1]:'';
-        
+
 		$res = new Button($label);
 		if( $onclick ) $res->onclick = $onclick;
 		return $res;
 	}
-    
+
     /**
 	 * Button creation shortcut
-	 * 
+	 *
 	 * @param string $label Label
 	 * @param string $onclick OnClick JS code
 	 * @return Button The new button
@@ -91,13 +91,18 @@ class Button extends Input
 	static function Textual($label, $onclick = false)
 	{
 		$res = new Button($label);
-		if( $onclick ) $res->onclick = $onclick;
+		if ($onclick)
+		{
+			if(starts_iwith($onclick, 'http://') || starts_iwith($onclick, 'https://'))
+				$onclick = "document.location.href = decodeURIComponent('".urlencode($onclick)."');";
+			$res->onclick = $onclick;
+		}
 		return $res;
 	}
-	
+
 	/**
 	 * Creates javascript code to redirect elsewhere on button click.
-	 * 
+	 *
  	 * @param mixed $controller The controller to be loaded (can be <Renderable> or string)
 	 * @param string $method The method to be executed
 	 * @param array|string $data Optional data to be passed

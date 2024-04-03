@@ -140,12 +140,14 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
 	/**
 	 * @implements <Iterator::current>
+	 * @suppress PHP2439
 	 */
     #[\ReturnTypeWillChange]
     function current(){ $this->__ensureResults(); return isset($this->_results[$this->_index])?$this->_results[$this->_index]:null; }
 
 	/**
 	 * @implements <Iterator::key>
+	 * @suppress PHP2439
 	 */
     #[\ReturnTypeWillChange]
     function key() { return $this->_index; }
