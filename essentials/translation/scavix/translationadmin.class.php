@@ -568,7 +568,7 @@ class TranslationAdmin extends TranslationAdminBase
      */
 	function TranslateString($lang, $text)
 	{
-        return AjaxResponse::Json(['response' => ai_predict('Translate this text to '.$lang.':'.urldecode($text), false, false, 300)]);
+        return AjaxResponse::Json(['response' => ai_predict('Translate this text to '.$lang.':'.urldecode($text), [], 300)]);
 	}
 
 	/**
