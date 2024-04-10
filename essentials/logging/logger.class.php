@@ -152,7 +152,11 @@ class Logger
         $touch = function ()
         {
             if (!file_exists($this->filename))
+            {
+                $um = umask(0);
                 @touch($this->filename);
+                umask($um);
+            }
         };
 
 		if( isset($this->filename) && $this->filename )
@@ -258,11 +262,10 @@ class Logger
 			$this->ensureFile();
 		// if( !file_exists($this->filename) )
 		// 	touch($this->filename);
-		if( (fileperms($this->filename) & 0777) != 0777 )
+		if( (@fileperms($this->filename) & 0777) != 0777 )
         {
             $um = umask(0);
 			@chmod($this->filename, 0777);
-
             umask($um);
         }
 
