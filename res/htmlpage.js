@@ -41,6 +41,37 @@ Object.defineProperty(Object.prototype, 'exists', {
     }
 });
 
+Object.defineProperty(Object.prototype, 'getFromPath', {
+    value: function ()
+    {
+        var keys = (arguments.length==1&&arguments[0].indexOf('.')>-1)?arguments[0].split('.'):Array.from(arguments);
+        var cur = this;
+        for(var i=0; i<keys.length; i++){
+            var key = keys[i];
+            var cur = cur[key];
+            if(typeof(cur)=='undefined')
+                return null;
+        }
+        return cur;
+    }
+});
+
+Object.defineProperty(String.prototype, 'hashCode', {
+    value: function ()
+    {
+        var hash = 0,
+            i, chr;
+        if (this.length === 0) return hash;
+        for (i = 0; i < this.length; i++)
+        {
+            chr = this.charCodeAt(i);
+            hash = ((hash << 5) - hash) + chr;
+            hash |= 0;
+        }
+        return hash;
+    }
+});
+
 (function(win,$,undefined)
 {
     var document = win.document,
