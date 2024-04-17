@@ -63,14 +63,14 @@ function ai_init()
     }
 }
 
-function ai_predict($prompt, $maxtokens = false, $temperature = false, $cache = false)
+function ai_predict($prompt, $options = [], $cache = false)
 {
     global $CONFIG;
 
     if(!avail($CONFIG['ai'], 'handler'))
         throw new Exception('AI module not configured');
 
-    return $CONFIG['ai']['handler']->predict($prompt, $maxtokens, $temperature, $cache);
+    return $CONFIG['ai']['handler']->predict($prompt, $options, $cache);
 }
 
 /**
@@ -87,13 +87,20 @@ class WdfGoogleAIWrapper
         $this->gconfig = $config;
     }
 
-    function Predict($prompt, $maxtokens = false, $temperature = false, $cache = false)
+    /**
+     * *
+     * @param mixed $prompt
+     * @param mixed $options i.e. maxOutputTokens, temperature
+     * @param mixed $cache
+     * @return mixed
+     */
+    function Predict($prompt, $options = [], $cache = false)
     {
         global $CONFIG;
 
         if($cache)
         {
-            $cache_key = __METHOD__.'-'.sha1($prompt.$maxtokens.$temperature);
+            $cache_key = __METHOD__.'-'.sha1($prompt.'-'.implode('-', array_keys($options)).'-'.implode('-', $options));
             if ($v = cache_get($cache_key))
                 return $v;
         }
@@ -112,10 +119,8 @@ class WdfGoogleAIWrapper
             ->setEndpoint($formattedEndpoint)
             ->setInstances([$this->__toprotobuf('prompt', $prompt)]);
 
-        if ($maxtokens)
-            $request->setParameters($this->__toprotobuf('maxOutputTokens', $maxtokens));
-        if ($temperature)
-            $request->setParameters($this->__toprotobuf('temperature', $temperature));
+        foreach($options as $key => $value)
+            $request->setParameters($this->__toprotobuf($key, $value));
 
         // log_debug('request', $request->serializeToJsonString());
 
@@ -138,7 +143,7 @@ class WdfGoogleAIWrapper
         }
 
         if(isDev())
-            log_debug(__METHOD__, $prompt, $maxtokens, $temperature, $ret);
+            log_debug(__METHOD__, $prompt, $options, $ret);
 
         if ($cache)
         {
