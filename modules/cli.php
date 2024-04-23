@@ -100,7 +100,7 @@ function cli_run_script($php_script_path, $args=[], $extended_data=false, $retur
     $ini = system_app_temp_dir()."php_cli.ini";
     $out = ini_get('error_log');
 
-    if( php_ini_loaded_file() != $ini && (!file_exists($ini) || filemtime($ini)<time()-3600) ) // TTL for INI files is 1 hour
+    if( php_ini_loaded_file() && php_ini_loaded_file() != $ini && (!file_exists($ini) || filemtime($ini)<time()-3600) ) // TTL for INI files is 1 hour
     {
         $inidata = file_get_contents(php_ini_loaded_file());
         $inidata = preg_replace('/^disable_functions/m', ';disable_functions', $inidata);
