@@ -845,7 +845,7 @@ Object.defineProperty(String.prototype, 'hashCode', {
                     return t;
                 }
             }
-			wdf.debug("Missing text "+name);
+			(wdf.debug||console.log)("Missing text "+name);
 			return name;
 		},
         pushedStates: false,
