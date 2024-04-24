@@ -1085,7 +1085,7 @@ function castObject($instance, $className)
  *
  * This function ignores all namespace stuff and only return the good old classname.
  * Not sure if we will need it for a longer time, but in fact it IS needed for namespace redesign.
- * @param object $object The object to get the classname from
+ * @param object|string $object The object to get the classname from
  * @param bool $lower_case What do you think?
  * @return string Simplified classname
  */

@@ -666,7 +666,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	 * @implements <ArrayAccess::offsetGet>
 	 */
     #[\ReturnTypeWillChange]
-	public function offsetGet($offset)
+	public function offsetGet($offset):mixed
 	{
 		if( !$this->_current ) $this->_current = $this->fetch();
 		return isset($this->_current[$offset]) ? $this->_current[$offset] : null;
@@ -694,7 +694,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	 * @implements <Iterator::current>
 	 */
     #[\ReturnTypeWillChange]
-	public function current(){
+	public function current():mixed{
 		if( !$this->_current ) $this->_current = $this->fetch();
 		return $this->_current;
 	}
@@ -703,7 +703,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	 * @implements <Iterator::key>
 	 */
     #[\ReturnTypeWillChange]
-	public function key() {
+	public function key():mixed {
 		return $this->_index;
 	}
 

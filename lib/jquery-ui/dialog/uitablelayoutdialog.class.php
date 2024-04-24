@@ -33,13 +33,16 @@ default_string('TITLE_DIALOG', 'Dialog');
 
 /**
  * Dialog that displayd data in two columns.
- * 
+ *
  * This is handy for option dialogs with label-input pairs.
  */
 class uiTableLayoutDialog extends uiDialog
 {
+    /**
+     * @var Table $_table
+     */
 	private $_table;
-	
+
 	/**
 	 * @param string $title Dialog title
 	 * @param array $options Options as in <uiDialog>
@@ -49,10 +52,10 @@ class uiTableLayoutDialog extends uiDialog
 		parent::__construct($title,$options);
 		$this->_table = $this->content( new Table() );
 	}
-	
+
 	/**
 	 * Adds a line to the diaklog.
-	 * 
+	 *
 	 * @param mixed $label Label for the first column
 	 * @param mixed $control Control for the second column
 	 * @return static

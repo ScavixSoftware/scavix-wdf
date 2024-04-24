@@ -579,7 +579,7 @@ class WdfTaskModel extends Model
      * Creates a child task and returns it.
      *
      * @param string $name Task name
-     * @param array $args Optional arguments.
+     * @param array|string $args Optional arguments.
      * @param bool $only_if_not_running Creates a virtual dummy child, if there's already another task with the same name.
      * @return WdfTaskModel The child task
      */

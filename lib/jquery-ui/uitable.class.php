@@ -27,16 +27,17 @@
  */
 namespace ScavixWDF\JQueryUI;
 
+use ScavixWDF\Base\Control;
 use ScavixWDF\Controls\Table\Table;
 
 /**
  * Wrapper class to ensure jQueryUI is loaded.
- * 
- * @attribute[Resource('jquery-ui/jquery-ui.js')] 
- * @attribute[Resource('jquery-ui/jquery-ui.less')] 
+ *
+ * @attribute[Resource('jquery-ui/jquery-ui.js')]
+ * @attribute[Resource('jquery-ui/jquery-ui.less')]
  */
 class uiTable extends Table
-{	
+{
 	/**
 	 * @override
 	 */
@@ -45,7 +46,7 @@ class uiTable extends Table
 		$this->_ensureCaptionObject();
 		$this->addClass('ui-widget ui-widget-content ui-corner-all');
 		if( $this->header ) $this->header->addClass('ui-widget-header');
-		if( $this->Caption ) $this->Caption->addClass('ui-widget-header');
+		if( $this->Caption instanceof Control ) $this->Caption->addClass('ui-widget-header');
 		if( $this->footer ) $this->footer->addClass('ui-widget-content');
 		return parent::WdfRender();
 	}
