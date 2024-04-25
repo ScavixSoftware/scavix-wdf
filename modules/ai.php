@@ -76,6 +76,7 @@ function ai_predict($prompt, $options = [], $cache = false)
 /**
  * @internal Wrapper class for Google AI
  * @link https://cloud.google.com/php/docs/reference/cloud-ai-platform/latest
+ * @suppress PHP0413
  */
 class WdfGoogleAIWrapper
 {
