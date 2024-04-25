@@ -1614,6 +1614,14 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
         {
             if(isset($this->columns['__CHECKBOX__']))
                 unset($this->columns['__CHECKBOX__']);
+            if (isset($this->formats['__CHECKBOX__']))
+            {
+                unset($this->formats['__CHECKBOX__']);
+                $n = [];
+                foreach ($tab->ColFormats as $k => $v)
+                    $n[$k - 1] = $v;
+                $tab->ColFormats = $n;
+            }
             $tab->Header()->NewRow($this->columns);
             $tab->SetFormat( array_values($this->formats) );
         }
