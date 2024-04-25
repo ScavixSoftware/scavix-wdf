@@ -41,7 +41,7 @@ use ScavixWDF\Model\Model;
 
 /**
  * ScavixWDF sysadmin page
- * 
+ *
  * This is a tweak mechanism that allows you to manage your application.
  * For example you can create strings, manage the cache and check the PHP configuration.
  * @attribute[NoMinify]
@@ -50,39 +50,39 @@ class SysAdmin extends HtmlPage
 {
 	public $PrefedinedCacheSearches = array('autoload_template','autoload_class',
 		'lang_','method_','ref_attr_','resource_','filemtime_','doccomment_','DB_Cache_');
-    
+
     protected $_contentdiv = false;
 	protected $_subnav = false;
     protected $user = false;
     private $breadcrumbs = [];
     protected $pagetoolbar = false;
-    
+
     function __construct($title = "", $body_class = false)
     {
         global $CONFIG;
-        
+
 		// sometimes state-/UI-less sites (like APIs) trickout the AJAX detection by setting this.
 		// as we need UI this must be reset here
-		unset($GLOBALS['result_of_system_is_ajax_call']); 
-		
+		unset($GLOBALS['result_of_system_is_ajax_call']);
+
 		header("Content-Type: text/html; charset=utf-8"); // overwrite previously set header to ensure we deliver HTML
 		unset($CONFIG["use_compiled_js"]);
 		unset($CONFIG["use_compiled_css"]);
-        
+
         $this->user = SysAdminUser::GetCurrent();
         $this->set('user', $this->user);
         $this->set('pagetoolbar', $this->pagetoolbar);
         if( $title )
 			$this->set("page_title", $title);
-        
+
         $_SESSION['wdf_translator_mode'] = (($this->user !== false) && (current_controller() == '\scavixwdf\translation\translationadmin') && (current_event() == 'translate'));
         if( current_event() != 'login' && !$this->user )
             redirect('sysadmin','login');
-        
+
         parent::__construct("SysAdmin".($title ? " - $title" : ""), 'sysadmin');
         $this->_translate = false;
         $this->addJs('https://kit.fontawesome.com/5b6a078735.js');
-        
+
         if( current_event() != 'login' )
         {
             $this->AddNavLink('home', 'Home', 'sysadmin', 'index');
@@ -98,12 +98,12 @@ class SysAdmin extends HtmlPage
             $this->AddNavLink('hdd', 'Cache', 'sysadmin', 'cache');
             $this->AddNavLink('cogs', 'PHP info', 'sysadmin', 'phpinfo');
             $this->AddNavLink('database', 'Database', 'sysadmin', 'database');
-                
+
 //            $head = parent::content(new Control('div'));
 //            $head->class = "header";
 //            $nav = $head->content(new Control('div'));
 //            $nav->class = "navigation";
-//			
+//
 //            $navdata = [];
 //            $navdata['Home']          = ['sysadmin','index'];
 //            $navdata['Translations']  = ['translationadmin','newstrings'];
@@ -111,7 +111,7 @@ class SysAdmin extends HtmlPage
 //            $navdata['Cache']         = ['sysadmin','cache'];
 //            $navdata['PHP info']      = ['sysadmin','phpinfo'];
 //            $navdata['Database']      = ['sysadmin','database'];
-//            
+//
 //            foreach( $navdata as $label=>$def )
 //            {
 //                if( !class_exists(fq_class_name($def[0])) )
@@ -120,7 +120,7 @@ class SysAdmin extends HtmlPage
 //                    continue;
 //                $nav->content( new Anchor(buildQuery($def[0],$def[1]),$label) );
 //            }
-//			
+//
 //            $nav->content(new Anchor(buildQuery('sysadmin','logout'),'Logout', 'logout'));
 //            $nav->content(new Anchor(buildQuery('',''),gethostname(), 'logout'));
 //			$this->_subnav = $head->content(new Control('div'));
@@ -135,15 +135,15 @@ class SysAdmin extends HtmlPage
                     die("Invalid user config");
             }
         }
-        
+
 //        $this->_contentdiv = parent::content(new Control('div'))->addClass('content');
-        
+
 //        $copylink = new Anchor('https://www.scavix.com', '&#169; 2012-'.date('Y').' Scavix&#174; Software GmbH &amp; Co. KG');
 //        $copylink->target = '_blank';
 //        $footer = parent::content(new Control('div'))->addClass('footer');
 //		$footer->content("<br class='clearer'/>");
 //        $footer->content($copylink);
-        
+
         if( $this->user && !$this->user->hasAccess(current_controller(), current_event()) )
             redirect('sysadmin','forbidden');
     }
@@ -156,7 +156,7 @@ class SysAdmin extends HtmlPage
         $this->content("<h1>Error!</h1>");
 		$this->content("<p>You do not have permisison to use this feature.</p>");
     }
-    
+
 	/**
 	 * @override Redirects contents to inner content div
 	 */
@@ -164,7 +164,7 @@ class SysAdmin extends HtmlPage
 //	{
 //		return $this->_contentdiv->content($content);
 //	}
-	
+
 	protected function subnav($label,$controller,$method,$data=[])
 	{
 		if( $this->user && $this->user->hasAccess($controller,$method) )
@@ -173,7 +173,7 @@ class SysAdmin extends HtmlPage
 			$tb->content( new \ScavixWDF\Controls\Form\Button($label, $controller,$method,$data) );
 		}
 	}
-	
+
 	/**
 	 * @internal SysAdmin index page.
 	 */
@@ -183,7 +183,7 @@ class SysAdmin extends HtmlPage
 		$this->content("<h1>Welcome ".$this->user->username.",</h1>");
 		$this->content("<p>please select an action from the menu.</p>");
 	}
-	
+
     /**
 	 * @internal SysAdmin login page.
      * @attribute[RequestParam('username','string','')]
@@ -196,15 +196,15 @@ class SysAdmin extends HtmlPage
             $this->content(Template::Make('sysadminlogin'));
             return;
         }
-        
+
         if( SysAdminUser::Login($username,$password) )
             redirect(get_class_simple($this));
         else
             redirect(get_class_simple($this),'login');
-        
-        
+
+
 	}
-    
+
     /**
 	 * @internal SysAdmin logout event.
      */
@@ -214,7 +214,7 @@ class SysAdmin extends HtmlPage
             $this->user->Logout();
         redirect(get_class_simple($this),'login');
     }
-	
+
 	/**
 	 * @internal SysAdmin cache manager.
 	 * @attribute[RequestParam('search','string',false)]
@@ -224,21 +224,21 @@ class SysAdmin extends HtmlPage
     function Cache($search,$show_info,$kind)
     {
 		$this->setTitle('Cache contents');
-		
+
 		$form = $this->content( new Form() );
 		$form->AddText('search',$search);
 		$form->AddSubmit('Search key')->name = 'kind';
 		$form->AddSubmit('Search content')->name = 'kind';
-		
+
 		$form->content( '&nbsp;&nbsp;&nbsp;' );
 		$form->content( new Anchor(buildQuery('sysadmin','cacheclear'),'Clear the complete cache') );
-		
+
 		if( system_is_module_loaded('globalcache') )
 		{
 			$form->content( '&nbsp;&nbsp;' );
 			$form->content( new Anchor(buildQuery('sysadmin','cache','show_info=1'),'Global cache info') );
 		}
-		
+
 		$form->content( '<div><b>Predefined searches:</b><br/>' );
 		foreach( $this->PrefedinedCacheSearches as $s )
 		{
@@ -246,7 +246,7 @@ class SysAdmin extends HtmlPage
 			$form->content( '&nbsp;' );
 		}
 		$form->content( '</div>' );
-		
+
 		if( !isset($_SESSION['admin_handler_last_cache_searches']) )
 			$_SESSION['admin_handler_last_cache_searches'] = [];
 
@@ -261,10 +261,10 @@ class SysAdmin extends HtmlPage
 			}
 			$form->content( '</div>' );
 		}
-		
+
 		if( $show_info && system_is_module_loaded('globalcache') )
 			$form->content( "<pre>".globalcache_info()."</pre>" );
-		
+
 		if( $search )
 		{
 			if( !in_array($search,$this->PrefedinedCacheSearches) )
@@ -272,7 +272,7 @@ class SysAdmin extends HtmlPage
 				$_SESSION['admin_handler_last_cache_searches'][] = ($kind=='Search content')?"content:$search":"key:$search";
 				$_SESSION['admin_handler_last_cache_searches'] = array_unique($_SESSION['admin_handler_last_cache_searches']);
 			}
-			
+
 			$this->content("<br/>");
 			$tabform = $this->content( new Form() );
 			$tabform->action = buildQuery('sysadmin','cachedelmany');
@@ -288,8 +288,8 @@ class SysAdmin extends HtmlPage
 				{
 					$cb = new CheckBox('keys[]');
 					$cb->value = $key;
-					
-					$del = new Anchor('','delete');					
+
+					$del = new Anchor('','delete');
 					$del->onclick = "$.post('$q',{key:'".addslashes($key)."'},function(){ $('#{$del->id}').parents('.tr').fadeOut(function(){ $(this).remove(); }); })";
 					$tab->AddNewRow($cb,$key,$del);
 				}
@@ -298,14 +298,14 @@ class SysAdmin extends HtmlPage
 			$footer->content( new Anchor('','all') )->onclick = "$('#{$tab->id} .tbody input').prop('checked',true);";
 			$footer->content('&nbsp;');
 			$footer->content( new Anchor('','none') )->onclick = "$('#{$tab->id} .tbody input').prop('checked',false)";
-			
+
 			$footer = $tab->Footer()->NewCell();
 			$footer->content( new Anchor('','delete') )->onclick = "$('#{$tabform->id}').submit()";
-            
+
             $tab->Footer()->NewCell();
 		}
     }
-	
+
 	/**
 	 * @internal SysAdmin cache manager: delete event.
 	 * @attribute[RequestParam('key','string',false)]
@@ -315,7 +315,7 @@ class SysAdmin extends HtmlPage
 		cache_del($key);
 		return AjaxResponse::None();
 	}
-	
+
 	/**
 	 * @internal SysAdmin cache manager: delete many event.
 	 * @attribute[RequestParam('keys','array',array())]
@@ -326,7 +326,7 @@ class SysAdmin extends HtmlPage
 			cache_del($k);
 		redirect('sysadmin','cache');
 	}
-	
+
 	/**
 	 * @internal SysAdmin cache manager: clear event.
      */
@@ -335,7 +335,7 @@ class SysAdmin extends HtmlPage
 		cache_clear();
 		redirect('sysadmin','cache');
 	}
-	
+
 	/**
 	 * @internal SysAdmin phpinfo.
 	 * @attribute[RequestParam('extension','string',false)]
@@ -349,7 +349,7 @@ class SysAdmin extends HtmlPage
 			$search = $extension = "";
 		if( $search )
 			$extension = null;
-		
+
 		foreach( ini_get_all() as $k=>$v)
 		{
 			$k = explode('.',$k,2);
@@ -359,7 +359,7 @@ class SysAdmin extends HtmlPage
 			$data[$k[0]][$k[1]] = $v;
 		}
 		ksort($data);
-		
+
 		$tab = $this->content( Table::Make() );
 		$tab->addClass('phpinfo')
 			->SetCaption("Basic information")
@@ -379,14 +379,14 @@ class SysAdmin extends HtmlPage
             $tab->AddNewRow("Stream transports",implode(', ',stream_get_transports()));
         if(function_exists('stream_get_filters'))
             $tab->AddNewRow("Stream filters",implode(', ',stream_get_filters()));
-		
+
 		$ext_nav = $this->content(new Control('div'))->css('margin-bottom','25px');
 		$ext_nav->content("Select extension: ");
 		$sel = $ext_nav->content(new Select());
 		$ext_nav->content("&nbsp;&nbsp;&nbsp;Or search: ");
 		$tb = $ext_nav->content(new TextInput());
 		$tb->value = $search;
-		
+
 		$q = buildQuery('sysadmin','phpinfo');
 		$sel->onchange = "wdf.redirect({extension:$(this).val()})";
 		$tb->onkeydown = "if( event.which==13 ) wdf.redirect({search:$(this).val()})";
@@ -394,21 +394,21 @@ class SysAdmin extends HtmlPage
 		$ext_nav->content('&nbsp;&nbsp;&nbsp;Or ');
 		$q = buildQuery('sysadmin','phpinfo','dump_server=1');
 		$ext_nav->content( new Anchor($q,'dump the $_SERVER variable') );
-		
+
 		$get_version = function($ext)
 		{
 			$res = ($ext=='zend')?zend_version():phpversion($ext);
 			return $res?" [$res]":'';
 		};
-		
-		$sel->SetCurrentValue($extension)->AddOption('','(select one)');
+
+		$sel->setValue($extension)->AddOption('','(select one)');
 		$sel->AddOption('all','All values');
 		foreach( array_keys($data) as $ext )
 		{
 			$ver = ($ext=='zend')?zend_version():phpversion($ext);
 			$sel->AddOption($ext,$ext.$get_version($ext)." (".count($data[$ext]).")");
 		}
-		
+
 		if( $dump_server )
 		{
 			$tab = $this->content( new Table() )
@@ -424,13 +424,13 @@ class SysAdmin extends HtmlPage
 			{
 				if( !$search && $k != $extension && $extension != 'all' )
 					continue;
-				
+
 				$tab = false;
 				foreach( $config as $ck=>$v )
 				{
 					if( $search && stripos($ck,$search)===false && stripos($v['local_value'],$search)===false && stripos($v['global_value'],$search)===false )
 						continue;
-					
+
 					if( !$tab )
 					{
 						$tab = $this->content( new Table() )
@@ -445,7 +445,7 @@ class SysAdmin extends HtmlPage
 			}
 		}
 	}
-	
+
 	/**
 	 * @internal SysAdmin database info.
 	 * @attribute[RequestParam('name','string',false)]
@@ -454,7 +454,7 @@ class SysAdmin extends HtmlPage
 	function Database($name,$table)
 	{
         $this->setTitle('Database');
-        
+
         if( !$name )
         {
             $this->content("<h2>Please select a database:</h2>");
@@ -462,9 +462,9 @@ class SysAdmin extends HtmlPage
                 \ScavixWDF\Controls\Form\Button::Textual($alias)->LinkTo('sysadmin','database',['name'=>$alias])->appendTo($this);
             return;
         }
-        
+
         $this->content("<h1>Database '$name'</h1>");
-        
+
         $versioning_mode = ifavail($_SESSION,'sysadmin_sql_versioning') == '1';
         if( $versioning_mode == '1' )
             \ScavixWDF\Controls\Form\Button::Textual("Show plain SQL create statements","wdf.controller.get('togglesqlmode',{on:0})")
@@ -472,16 +472,16 @@ class SysAdmin extends HtmlPage
         else
             \ScavixWDF\Controls\Form\Button::Textual("Show versioning-prepared create statements","wdf.controller.get('togglesqlmode',{on:1})")
                 ->appendTo($this);
-        
+
         $this->content("<h2>Tables</h2>");
         $ds = model_datasource($name);
         foreach( $ds->Driver->listTables() as $tab )
             \ScavixWDF\Controls\Form\Button::Textual($tab)->LinkTo('sysadmin','database',['name'=>$name,'table'=>$tab])
                 ->appendTo($this);
-        
+
         if( !$table )
             return;
-        
+
         $this->content("<h2>Table '$table' (".($versioning_mode?'for versioning':'plain').")</h2>");
         $schema = $ds->Driver->getTableSchema($table);
         //log_debug($schema);
@@ -494,12 +494,12 @@ class SysAdmin extends HtmlPage
             $create = preg_replace('/\sDEFAULT\sCHARSET=[^\s]+\s/i',' ',$create);
             $create = preg_replace('/\sCOLLATE=[^\s]+(\s*)/i','$1',$create);
             $create = preg_replace('/\sUSING\sBTREE/i','',$create);
-            
+
             $create .= ";";
-            
+
             $create = preg_replace('/CREATE\sALGORITHM.*VIEW/i',"CREATE OR REPLACE VIEW",$create);
             $create = preg_replace('/CREATE TABLE `/i','CREATE TABLE IF NOT EXISTS `',$create);
-            
+
             if( stripos($create,"CREATE OR REPLACE VIEW") !== false )
             {
                 $create = preg_replace('/(\sAS)\s+(SELECT\s)/i',"$1\n$2",$create);
@@ -508,7 +508,7 @@ class SysAdmin extends HtmlPage
                 $create = preg_replace('/\s(LEFT JOIN\s)/i',"\n$1",$create);
                 $create = preg_replace('/\s(WHERE\s)/i',"\n$1",$create);
                 $create = preg_replace('/\s(GROUP BY\s)/i',"\n$1",$create);
-                
+
                 $create .= "\n\n<b style='color:red'>NOTE THAT THIS IS A VIEW AND IT SHOULD BE UPDATED FROM SOURCE BECAUSE OF * REFERENCES</b>";
             }
             else
@@ -525,7 +525,7 @@ class SysAdmin extends HtmlPage
                         else
                         {
                             $this->append("<b style='color:red'>Definition file '$fn' differs. Make sure the update path contains all ALTERs.</b>");
-                            
+
                             if( shell_exec("which diff") )
                             {
                                 $test = system_app_temp_dir('sysadmin_db')."$table.create.sql";
@@ -546,7 +546,7 @@ class SysAdmin extends HtmlPage
             }
         }
         $this->content("<pre id='table-code'>$create</pre><br/><br/>");
-        
+
         $properties = ["/**"];
         $fields = [];
         foreach( $schema->Columns as $col )
@@ -605,13 +605,13 @@ class SysAdmin extends HtmlPage
             }
             EOT;
         $this->content("<pre>$code</pre><br/><br/>");
-        
+
         $listing = \ScavixWDF\JQueryUI\uiDatabaseTable::Make($ds,false,$table)
             ->AddPager()
             ->appendTo($this);
         $listing->PagerAtTop = true;
 	}
-    
+
     /**
 	 * @internal SysAdmin toggle database info mode.
 	 * @attribute[RequestParam('on','bool',false)]
@@ -621,14 +621,14 @@ class SysAdmin extends HtmlPage
         $_SESSION['sysadmin_sql_versioning'] = $on?1:0;
         return AjaxResponse::Reload();
     }
-    
-    
+
+
 	protected function AddBreadcrumb($caption, $url = false)
 	{
 		if( !isset($this->breadcrumbs[$caption]) )
 			$this->breadcrumbs[$caption] = array('caption' => $caption, 'url' => $url);
 	}
-	
+
     protected function GenerateBreadcrumbNavigation()
 	{
 		$ret = '';
@@ -653,7 +653,7 @@ class SysAdmin extends HtmlPage
 		}
 		return $ret;
 	}
-	
+
 	protected function AddNavLink($icon, $label, $page, $event = false)
 	{
         if($event)
@@ -681,7 +681,7 @@ class SysAdmin extends HtmlPage
 
 		$li = Control::Make('li');
 		$li->content($link);
-		
+
 		if(is_array($page))
 		{
 			$iscurrent = false;
@@ -698,7 +698,7 @@ class SysAdmin extends HtmlPage
                     $iscurrent = true;
                 }
 			}
-            
+
 			// it has a submenu
 			$link->content("<span class='arrow'><i class='fas fa-angle-".($iscurrent ? 'down' : 'right')."'></i></span>");
 			$ul = Control::Make('ul')->addClass('dropdown');
@@ -712,7 +712,7 @@ class SysAdmin extends HtmlPage
 				$sublink = new Anchor(buildQuery($subitem[1], isset($subitem[2]) ? $subitem[2] : ''), "");
 				$sublink->content("<span class='label'>&nbsp;&nbsp;".$subitem[0]."</span>");
 				$subli->content($sublink);
-                
+
                 // set main menu item as current
                 if(((current_controller(true) == strtolower($subitem[1])) || ends_iwith(current_controller(true), '\\'.$subitem[1])) && ((isset($subitem[2]) ? $subitem[2] : 'init') == current_event()))
 					$subli->addClass('current');
@@ -734,7 +734,7 @@ class SysAdmin extends HtmlPage
 		$this->add2var('navlinks', $li);
 		return $this;
 	}
-    
+
     protected function addToolbar()
     {
         if(!$this->pagetoolbar)
@@ -744,7 +744,7 @@ class SysAdmin extends HtmlPage
         }
         return $this->pagetoolbar;
     }
-    
+
     protected function setTitle($title)
     {
         $this->set("page_title",$title);
