@@ -149,6 +149,17 @@ abstract class Renderable implements \JsonSerializable
         return "{$this->_storage_id} [".get_class($this)."](parent=$p, content=$c)";
     }
 
+    public function __clone()
+	{
+        create_storage_id($this);
+        $this->_parent = false;
+        foreach( $this->_content as $i=>$c )
+        {
+            if( $c instanceof Renderable )
+                $this->_content[$i] = clone $c;
+        }
+	}
+
     /**
      * @internal Dummy. Can be used in subclasses by overriding.
      */
@@ -396,9 +407,10 @@ abstract class Renderable implements \JsonSerializable
 	 * <code php>
 	 * $this->content( new Control('div') )->css('border','1px solid red')->addClass('mydiv')->content('DIVs content');
 	 * </code>
-	 * @param mixed $content The content to be added
+     * @template T
+	 * @param T $content The content to be added
 	 * @param bool $replace if true replaces the whole content.
-	 * @return mixed The content added
+	 * @return T The content added
 	 */
 	function &content($content,$replace=false)
 	{

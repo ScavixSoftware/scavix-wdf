@@ -30,20 +30,21 @@ default_string('TITLE_DIALOG', 'Dialog');
 
 /**
  * Dialog that contains a single form.
- * 
+ *
  * This is handy for AJAX based option requests.
  */
 class uiFormDialog extends uiDialog
 {
+    /** @var \ScavixWDF\Controls\Form\Form $form */
     public $form;
-    
+
 	function __construct($title,$width = 450, $height = 300)
     {
         $options = [
             'width' => $width,
             'height' => $height,
-            'autoOpen' => false, 
-            'show' => ['effect' => 'fade', 'duration' => 300], 
+            'autoOpen' => false,
+            'show' => ['effect' => 'fade', 'duration' => 300],
             'hide' => ['effect' => 'fade', 'duration' => 300]
         ];
         parent::__construct($title, $options);
@@ -52,7 +53,7 @@ class uiFormDialog extends uiDialog
         $this->AddButton("BTN_CANCEL",$this->CloseButtonAction);
         $this->script("$('#{self}').dialog('open');");
     }
-    
+
     private function setButtonText($index,$text)
     {
         $keys = array_keys($this->Buttons);
@@ -60,10 +61,10 @@ class uiFormDialog extends uiDialog
         $this->Buttons = array_combine($keys, array_values($this->Buttons));
         return $this;
     }
-    
+
     /**
      * Sets the text for the OK button.
-     * 
+     *
      * @param string $text Text
      * @return static
      */
@@ -71,7 +72,7 @@ class uiFormDialog extends uiDialog
 
     /**
      * Sets the text for the Cancel button.
-     * 
+     *
      * @param string $text Text
      * @return static
      */

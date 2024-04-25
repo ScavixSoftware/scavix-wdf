@@ -34,7 +34,7 @@ use ScavixWDF\WdfException;
 
 /**
  * Base class for interactive webpage content like AJAX TextInputs.
- * 
+ *
  * @attribute[Resource('jquery.js')]
  */
 class Control extends Renderable
@@ -48,7 +48,7 @@ class Control extends Renderable
      * Tags that will NOT be echoed when there's no content
      */
     protected static $html_skip_if_empty = ['tbody'=>1,'thead'=>1,'tfoot'=>1,'tr'=>1];
-    
+
     /**
      * These are unsiversal HTML attributes.
      * Each (1st dimension) array key represents an attribute and the value (array) contains
@@ -73,7 +73,7 @@ class Control extends Renderable
         'onkeyup' => ['applet', 'base', 'basefont', 'bdo', 'br', 'font', 'frame', 'frameset', 'head', 'html', 'iframe', 'isindex', 'param', 'script', 'style', 'title'],
         'contextmenu' => []
        ];
-    
+
     /**
      * These are HTML tags.
      * Each (1st dimension) array key represents a tag and the value (array) contains
@@ -150,18 +150,18 @@ class Control extends Renderable
         'svg' => ['width','height','viewbox','preserveaspectratio'],
         'rect' => ['x','y','width','height','id'],
        ];
-    
+
     protected static $html_universals_keys = [];
     protected static $html_attributes_keys = [];
-    
+
 	public $Tag = "";
-	
+
 	public $_css = [];
 	public $_attributes = [];
 	public $_data_attributes = [];
-	
+
 	public $_skipRendering = false;
-    
+
     function __toString()
     {
         $r = parent::__toString();
@@ -170,7 +170,7 @@ class Control extends Renderable
 
 	/**
 	 * Constructs a Control
-	 * 
+	 *
 	 * @param string $tag The HTML Tag of this control. Default ""
 	 */
 	function __construct($tag = "")
@@ -184,7 +184,7 @@ class Control extends Renderable
         if( $class != $this->Tag && $class != "control" )
             $this->class = $class;
 	}
-    
+
     function __constructed()
     {
         if( !hook_already_fired(HOOK_PRE_RENDER) )
@@ -214,7 +214,7 @@ class Control extends Renderable
 
 		if( isset($this->_attributes[$name]) )
 			return $this->_attributes[$name];
-	
+
 		return null;
 	}
 
@@ -232,7 +232,7 @@ class Control extends Renderable
 		if( strtolower("$varname") == "id" )
 			$this->_storage_id = $value;
 	}
-	
+
 	/**
 	 * @internal Magic method __isset.
 	 * See [Member overloading](http://ch2.php.net/manual/en/language.oop5.overloading.php#language.oop5.overloading.members)
@@ -259,17 +259,17 @@ class Control extends Renderable
 			return true;
 		return false;
     }
-	
+
 	/**
 	 * Static creator method
-	 * 
+	 *
 	 * This is cabable of creating derivered classes too:
 	 * <code php>
 	 * Control::Make('div')->content('Doh!');
 	 * TextInput::Make()->css('width','300px');
 	 * </code>
 	 * Arguments will be passed to constructor.
-     * 
+     *
      * @param mixed ...$args Arguments as described
 	 * @return static The created control
 	 */
@@ -282,7 +282,7 @@ class Control extends Renderable
 
 	/**
 	 * Adds a CSS property to the control.
-	 * 
+	 *
 	 * If value is an integer (or numeric string like '12') 'px' will be added.
 	 * @param string $name Name of the CSS property (like width, background-image,...)
 	 * @param string $value Value of the CSS property
@@ -297,7 +297,7 @@ class Control extends Renderable
 
 	/**
 	 * Checks whether this control needs a closing tag (in HTML code).
-	 * 
+	 *
 	 * @return bool true if needed
 	 */
 	protected function CloseTagNeeded()
@@ -307,7 +307,7 @@ class Control extends Renderable
 
 	/**
 	 * Checks if the given attribute is valid for a html element like this (depending on tag).
-	 * 
+	 *
 	 * @param string $attr The attribute to check
 	 * @return bool true if valid
 	 */
@@ -336,7 +336,7 @@ class Control extends Renderable
 
 	/**
 	 * Will be executed on HOOK_PRE_RENDER.
-	 * 
+	 *
 	 * Adds this controls init code to rendering <HtmlPage> if root is of that type.
 	 * @internal
 	 */
@@ -344,7 +344,7 @@ class Control extends Renderable
 	{
 		if( $this->_skipRendering )
 			return;
-        
+
 		if( count($args) > 0 && count($this->_script) > 0 )
 		{
 			$controller = $args[0];
@@ -380,7 +380,7 @@ class Control extends Renderable
 		}
 		return $this->WdfRender();
 	}
-    
+
     function __renderStructure($content)
     {
 		if( isset(Control::$html_skip_if_empty[$this->Tag]) )
@@ -389,7 +389,7 @@ class Control extends Renderable
         $content = count($content)>0?implode("",$content):"";
         if( !$this->Tag )
             return "$content";
-        
+
         $attr = [];
 		foreach( $this->_attributes as $name=>$value )
 		{
@@ -400,14 +400,14 @@ class Control extends Renderable
 		foreach( $this->_data_attributes as $name=>$value )
 			$attr[] = "data-$name=\"".str_replace("\"","&#34;","$value")."\"";
 //			$attr[] = "data-$name='".str_replace("'","\\'",$value)."'";
-		
+
 		$css = [];
 		foreach( $this->_css as $key=>$val )
 			$css[] = "$key:$val;";
 
 		$attr = count($attr)>0?" ".implode(" ",$attr):"";
 		$css = count($css)>0?" style=\"".implode(" ",$css)."\"":"";
-        
+
         if( $content || $this->CloseTagNeeded() )
             return "<{$this->Tag}{$attr}{$css}>{$content}</{$this->Tag}>";
         else
@@ -435,7 +435,7 @@ class Control extends Renderable
 
 	/**
 	 * Adds a value to the 'class' attribute.
-	 * 
+	 *
 	 * Note: you may pass multiple classes at once in a tring space separated: 'cls1 cls2'
 	 * @param string $class CSS class(es)
 	 * @return static
@@ -450,7 +450,7 @@ class Control extends Renderable
 
 	/**
 	 * Removes a value from the 'class' attribute.
-	 * 
+	 *
 	 * @param string $class CSS class
 	 * @return static
 	 */
@@ -460,13 +460,13 @@ class Control extends Renderable
 		$this->class = str_replace("  "," ",trim($this->class));
 		return $this;
 	}
-	
+
 	/**
 	 * Set a value to a data-$name attribute.
-	 * 
+	 *
 	 * Those can be accessed in JS easily using jQuery.data method
 	 * @param string $name Data name
-	 * @param mixed $value Data value (<system_to_json> will be used for arrays and objects) 
+	 * @param mixed $value Data value (<system_to_json> will be used for arrays and objects)
 	 * @return static
      * @deprecated (2021/10) Use <Control::data> instead
 	 */
@@ -479,10 +479,10 @@ class Control extends Renderable
 			$this->_data_attributes[$name] = $value;
 		return $this;
 	}
-	
+
 	/**
 	 * Removes a data-$name attribute.
-	 * 
+	 *
 	 * @param string $name Data name
 	 * @return static
 	 */
@@ -492,10 +492,10 @@ class Control extends Renderable
 			unset($this->_data_attributes[$name]);
 		return $this;
 	}
-    
+
     /**
 	 * Removes attribute $name.
-	 * 
+	 *
 	 * @param string $name Attribute name
 	 * @return static
 	 */
@@ -505,12 +505,12 @@ class Control extends Renderable
 			unset($this->_attributes[$name]);
 		return $this;
 	}
-    
+
     /**
 	 * data-* attribute Handling
-	 * 
+	 *
      * This work exaclty like <Control::attr> but with all the data-* attributes.
-     * 
+     *
      * @param mixed ...$args Arguments as described
 	 * @return static|mixed `$this`, a data-attribute value or an array of data-attributes
 	 */
@@ -521,7 +521,7 @@ class Control extends Renderable
 		{
 			case 0:
 				return $this->_data_attributes;
-			case 1: 
+			case 1:
 				$name = $args[0];
 				if( is_array($name) )
 				{
@@ -532,7 +532,7 @@ class Control extends Renderable
 				return isset($this->_data_attributes[$name])
                     ?$this->_data_attributes[$name]
                     :null;
-			case 2: 
+			case 2:
                 list($name,$value) = $args;
                 if( is_array($value) || is_object($value) )
                     $this->_data_attributes[$name] = system_to_json($value);
@@ -541,23 +541,24 @@ class Control extends Renderable
 				return $this;
 		}
         WdfException::Raise("Control::data needs 0,1 or 2 parameters");
+        return null;
 	}
-	
+
 	/**
 	 * Attribute handling.
-	 * 
+	 *
 	 * This method may be used in four different ways:
 	 * 1. to get all attributes
 	 * 2. to get one attribute
 	 * 3. to set one attribute
 	 * 4. to set many attributes
-	 * 
+	 *
 	 * To achieve this pass different parameters into like this:
 	 * 1. $c->attr() returns all attributes
 	 * 2. $c->attr('name') returns the 'name' attributes value
 	 * 3. $c->attr('name','mycontrol') sets the 'name' attribute values
 	 * 4. $c->attr(['name'=>'myname','href'=>'my.domain']) sets 'name' and 'href' attribute values
-	 * 
+	 *
 	 * Note: Will return `$this` in cases 3. and 4. (the set cases).
      * @param mixed ...$args Arguments as described
 	 * @return static|mixed `$this`, an attribute value or an array of attribute values
@@ -569,7 +570,7 @@ class Control extends Renderable
 		{
 			case 0:
 				return $this->_attributes;
-			case 1: 
+			case 1:
 				$name = $args[0];
 				if( is_array($name) )
 				{
@@ -578,17 +579,18 @@ class Control extends Renderable
 					return $this;
 				}
 				return $this->$name;
-			case 2: 
+			case 2:
 				$name = $args[0];
 				$this->$name = $args[1];
 				return $this;
 		}
 		WdfException::Raise("Control::attr needs 0,1 or 2 parameters");
+        return null;
 	}
-    
+
     /**
      * Sets the title attribute.
-     * 
+     *
      * @param string $title Value for the title-atribute
      * @return static
      */
@@ -596,10 +598,10 @@ class Control extends Renderable
     {
         return $this->attr('title',$title);
     }
-    
+
 	/**
      * Overrides <Renderable::capture> to ensure a valid `id`.
-     * 
+     *
 	 * @see <Renderable::capture>
      * @param static $variable Variable to assign `$this` to
 	 * @return static
