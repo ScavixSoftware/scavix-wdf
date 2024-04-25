@@ -51,14 +51,33 @@ class CultureInfo
 	public $EnglishName;
 	public $NativeName;
 
+    /**
+     * @var DateTimeFormat
+     */
 	public $DateTimeFormat;
+    /**
+     * @var CurrencyFormat
+     */
 	public $CurrencyFormat;
+    /**
+     * @var PercentFormat
+     */
 	public $PercentFormat;
+    /**
+     * @var NumberFormat
+     */
 	public $NumberFormat;
 	public $IsRTL;
 
+    /**
+     * @var RegionInfo
+     */
 	public $Region;
-	public $Parent;
+
+    /**
+     * @var CultureInfo
+     */
+    public $Parent;
 
 	public $DefaultDateFormat = DateTimeFormat::DF_SHORTDATE;
 	public $DefaultTimeFormat = DateTimeFormat::DF_SHORTTIME;
@@ -101,6 +120,15 @@ class CultureInfo
 			}
 		}
 		return $res;
+	}
+
+    public function __clone()
+	{
+		$this->DateTimeFormat = clone $this->DateTimeFormat;
+		$this->CurrencyFormat = clone $this->CurrencyFormat;
+		$this->PercentFormat = clone $this->PercentFormat;
+		$this->NumberFormat = clone $this->NumberFormat;
+		$this->Region = clone $this->Region;
 	}
 
 	protected function _ensureTimeStamp($date)

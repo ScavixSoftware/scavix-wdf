@@ -149,6 +149,17 @@ abstract class Renderable implements \JsonSerializable
         return "{$this->_storage_id} [".get_class($this)."](parent=$p, content=$c)";
     }
 
+    public function __clone()
+	{
+        create_storage_id($this);
+        $this->_parent = false;
+        foreach( $this->_content as $i=>$c )
+        {
+            if( $c instanceof Renderable )
+                $this->_content[$i] = clone $c;
+        }
+	}
+
     /**
      * @internal Dummy. Can be used in subclasses by overriding.
      */
