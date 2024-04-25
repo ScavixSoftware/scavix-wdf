@@ -38,7 +38,7 @@ default_string("TXT_NO_DATA_FOUND","no data found");
 
 /**
  * Allows to easily integrate database tables into UI.
- * 
+ *
  */
 class DatabaseTable extends Table implements ICallable
 {
@@ -69,7 +69,7 @@ class DatabaseTable extends Table implements ICallable
 	public $contentNoData = "TXT_NO_DATA_FOUND";
 
 	public $ParsingBehaviour = self::PB_HTMLSPECIALCHARS;
-    
+
     public $SlimSerialization = false;
 
 	/**
@@ -81,15 +81,15 @@ class DatabaseTable extends Table implements ICallable
 	{
 		parent::__construct();
 		$this->DataSource = $datasource;
-		
+
 		if( $datatype )
 			$this->DataTable = $this->DataSource->TableForType($datatype);
 		elseif( $datatable )
 			$this->DataTable = $datatable;
-		
+
 		store_object($this);
 	}
-    
+
     function __sleep()
     {
         $res = get_object_vars($this);
@@ -102,17 +102,24 @@ class DatabaseTable extends Table implements ICallable
             unset($res['current_row_group']);
             unset($res['current_row']);
             unset($res['current_cell']);
-            
+
             unset($res['_content']);
         }
         return array_keys($res);
     }
-    
+
+	public function __clone()
+	{
+		if($this->ResultSet instanceof \ScavixWDF\Model\ResultSet)
+			$this->ResultSet = clone $this->ResultSet;
+		return parent::__clone();
+	}
+
 	private function ExecuteSql($sql,$prms=[])
 	{
         if( $this->logIfSlow )
             $logtimer = start_timer("[".\ScavixWDF\Model\ResultSet::MergeSql($this->DataSource,$sql,$prms)."]");
-        
+
 		if( $this->ExecuteSqlHandler )
 			call_user_func($this->ExecuteSqlHandler,$this,$sql,$prms);
 		else
@@ -173,7 +180,7 @@ class DatabaseTable extends Table implements ICallable
 	}
     /**
      * Returns the SQL statement used in this table.
-     * 
+     *
      * @return string The SQL statement
      */
     final function GetSQL()
@@ -231,13 +238,13 @@ class DatabaseTable extends Table implements ICallable
         $sql = str_replace("@having@",$this->Having,$sql);
         $sql = str_replace("@orderby@","/*BEG-ORDER*/{$this->OrderBy}/*END-ORDER*/",$sql);
         $sql = str_replace("@limit@","/*BEG-LIMIT*/$this->Limit/*END-LIMIT*/",$sql);
-        
+
         return $sql;
     }
 
 	/**
 	 * Allows to override the default execute method
-	 * 
+	 *
 	 * This will allow you to integrate your own execution handler
 	 * @param object $handler Object containing the handler method
 	 * @param string $function Name of handler method
@@ -247,10 +254,10 @@ class DatabaseTable extends Table implements ICallable
 	{
 		$this->ExecuteSqlHandler = array($handler,$function);
 	}
-	
+
 	/**
 	 * Allows to assign your own handler to the AddHeader function
-	 * 
+	 *
 	 * Sometimes you do not want to inherit from this, but create a table and assign the handlers
 	 * to another object.
 	 * @param object $handler Object containing the handler method
@@ -263,10 +270,10 @@ class DatabaseTable extends Table implements ICallable
 		$this->OnAddHeader = array($handler,$function);
 		return $this;
 	}
-    
+
 	/**
 	 * Allows to assign your own handler to the AddRow function
-	 * 
+	 *
 	 * Sometimes you do not want to inherit from this, but create a table and assign the handlers
 	 * to another object.
 	 * @param object $handler Object containing the handler method
@@ -279,10 +286,10 @@ class DatabaseTable extends Table implements ICallable
 		$this->OnAddRow = array($handler,$function);
 		return $this;
 	}
-    
+
 	/**
 	 * Allows to assign your own handler to the AddFooter function
-	 * 
+	 *
 	 * Sometimes you do not want to inherit from this, but create a table and assign the handlers
 	 * to another object.
 	 * @param object $handler Object containing the handler method
@@ -303,10 +310,10 @@ class DatabaseTable extends Table implements ICallable
 	protected function GetHaving(){return "";}
 	protected function GetOrderBy(){return "";}
 	protected function GetLimit(){return "";}
-	
+
 	/**
 	 * Default AddRow method
-	 * 
+	 *
 	 * This will be called for each row to add (from the execution routines).
 	 * If you override this in derivered classes you can easily react on that.
 	 * Uses <Table::NewRow>() internally
@@ -314,10 +321,10 @@ class DatabaseTable extends Table implements ICallable
 	 * @return void
 	 */
 	function AddRow(&$data) { $this->NewRow($data); }
-	
+
 	/**
 	 * Default AddHeader method
-	 * 
+	 *
 	 * Creates a table header with the given keys as text.
 	 * Uses <Table::Header>() internally
 	 * @param array $keys Array of columns this <DatabaseTable> contains
@@ -328,10 +335,10 @@ class DatabaseTable extends Table implements ICallable
 		$head = array_combine($keys,$keys);
 		$this->Header()->NewRow($head);
 	}
-	
+
 	/**
 	 * Default AddFooter method
-	 * 
+	 *
 	 * Creates a table footer with the given keys as text.
 	 * Uses <Table::Footer>() internally
 	 * @param array $keys Array of columns this <DatabaseTable> contains
@@ -381,20 +388,20 @@ class DatabaseTable extends Table implements ICallable
 		}
 		return $row;
 	}
-	
+
 	/**
 	 * @override Calls <DatabaseTable::GetData>() and loops thru the <ResultSet> creating the table content before calling <OVERRIDE::DatabaseTable::PreRender>
 	 */
 	function PreRender($args = [])
 	{
-        // stop rebuilding the table of row-action was clicked: 
-        // - performance 
+        // stop rebuilding the table of row-action was clicked:
+        // - performance
         // - row-ids would change and trigger error on subsequent clicked actions
         if( current_event() == 'onactionclicked' && current_controller(false) instanceof Table )
             return parent::PreRender($args);
-        
+
 		$this->GetData();
-		
+
         if( !$this->ResultSet || $this->ResultSet->Count()==0 )
 		{
             $this->addClass('empty');
@@ -403,17 +410,17 @@ class DatabaseTable extends Table implements ICallable
                 $this->content($this->contentNoData);
                 return $this->contentNoData;
             }
-			
+
 			if( !$this->header || $this->header->length()==0 )
 				if( $this->OnAddHeader )
 					$this->OnAddHeader[0]->{$this->OnAddHeader[1]}($this, []);
 				else
 					$this->AddHeader([]);
-                
+
 			if( !$this->footer )
 				if( $this->OnAddFooter )
 					$this->OnAddFooter[0]->{$this->OnAddFooter[1]}($this, []);
-				
+
 			$td = $this->SetColFormat(0,"")->NewCell($this->contentNoData);
 			$td->colspan = $this->header->GetMaxCellCount();
 			$this->HidePager = true;
@@ -430,7 +437,7 @@ class DatabaseTable extends Table implements ICallable
 						$this->OnAddHeader[0]->{$this->OnAddHeader[1]}($this, array_keys($row));
                     else
                         $this->AddHeader(array_keys($row));
-                
+
                 $cnt = $this->current_row_group?$this->current_row_group->length():0;
                 if( $this->OnAddRow )
                     $this->OnAddRow[0]->{$this->OnAddRow[1]}($this, $row, $raw_row);
@@ -455,14 +462,14 @@ class DatabaseTable extends Table implements ICallable
 	const EXPORT_FORMAT_XLS  = 'xls';
 	const EXPORT_FORMAT_XLSX = 'xlsx';
 	const EXPORT_FORMAT_CSV  = 'csv';
-	
+
 	static $export_def = array
 	(
 		'xls'  => array( 'fn'=>'export_{date}.xls',  'mime'=>'application/vnd.ms-excel' ),
 		'xlsx' => array( 'fn'=>'export_{date}.xlsx', 'mime'=>'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ),
 		'csv'  => array( 'fn'=>'export_{date}.csv',  'mime'=>'text/csv' ),
 	);
-	
+
 	/**
 	 * @internal Currently untested, so marked <b>internal</b>
 	 * @attribute[RequestParam('format','string')]
@@ -480,7 +487,7 @@ class DatabaseTable extends Table implements ICallable
 				break;
 		}
 	}
-	
+
 	private function _export_get_header()
 	{
 		$res = [];
@@ -500,15 +507,15 @@ class DatabaseTable extends Table implements ICallable
 		}
 		return $res;
 	}
-	
+
 	private function _export_get_data(CultureInfo $ci=null, $rowcallback = null)
 	{
 		$copy = clone $this;
-		$copy->ItemsPerPage = false; 
+		$copy->ItemsPerPage = false;
 		if( $ci )
 			$copy->Culture = $ci;
 		$copy->GetData();
-		
+
 		$res = [];
 		$copy->ResultSet->FetchMode = PDO::FETCH_ASSOC;
         $cols = [];
@@ -543,7 +550,7 @@ class DatabaseTable extends Table implements ICallable
 		}
 		return $res;
 	}
-    
+
 	/**
 	 * @suppress PHP0413,PHP0409
 	 */
@@ -552,7 +559,7 @@ class DatabaseTable extends Table implements ICallable
         //log_debug(__METHOD__,$format);
         if( !class_exists("\\PhpOffice\\PhpSpreadsheet\\Spreadsheet") )
             \ScavixWDF\WdfException::Raise("Missing PhpSpreadsheet. Please install using composer (composer require phpoffice/phpspreadsheet).");
-        
+
 		$xls = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
 		$sheet = $xls->getActiveSheet();
 		$row = 1;
@@ -560,7 +567,7 @@ class DatabaseTable extends Table implements ICallable
 		$ci = ExcelCulture::FromCode(isset($this->Culture) && $this->Culture ? $this->Culture->Code : 'en-US');
 		$head_rows = $this->_export_get_header();
 		$first_data_row = count($head_rows)+1;
-        
+
         if( !\PhpOffice\PhpSpreadsheet\Settings::setLocale($ci->Code) )
         if( !\PhpOffice\PhpSpreadsheet\Settings::setLocale($ci->LanguageCode) )
             log_debug("Invalid Excel locale. Tried {$ci->Code} and {$ci->LanguageCode}");
@@ -576,7 +583,7 @@ class DatabaseTable extends Table implements ICallable
 			}
 			$row++;
 		}
-        
+
 		for($i=0;$i<=$max_cell; $i++)
 		{
 			$sheet->getColumnDimensionByColumn($i + 1)->setAutoSize(true);
@@ -593,7 +600,7 @@ class DatabaseTable extends Table implements ICallable
 		if(count($head_rows))
         	$sheet->freezePane('A2');
         $sheet->setSelectedCell('A1');
-		
+
         if( isset(self::$export_def[$format]['metadata']) && is_array(self::$export_def[$format]['metadata']) )
         {
             foreach( self::$export_def[$format]['metadata'] as $name=>$value )
@@ -603,15 +610,15 @@ class DatabaseTable extends Table implements ICallable
                     $xls->$m($value);
             }
         }
-        
+
 		if( $format == self::EXPORT_FORMAT_XLS )
 			$xlswriter = new \PhpOffice\PhpSpreadsheet\Writer\Xls($xls);
 		else
 			$xlswriter = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($xls);
-		
+
 		$filename = str_replace("{date}",date("Y-m-d_H-i-s"),self::$export_def[$format]['fn']);
 		$mime = self::$export_def[$format]['mime'];
-		
+
 		header("Content-Type: $mime");
 		header("Content-Disposition: attachment; filename=\"".$filename."\";");
 		header("Content-Transfer-Encoding: binary");
@@ -622,7 +629,7 @@ class DatabaseTable extends Table implements ICallable
 		$xlswriter->save('php://output');
 		die('');
 	}
-	
+
 	protected function _exportCsv($rowcallback = null)
 	{
 		$esc = '"';
@@ -641,11 +648,11 @@ class DatabaseTable extends Table implements ICallable
 			}
 			$csv[] = implode($sep,$csv_line);
 		}
-		
+
 		$csv = implode($newline,$csv);
 		$filename = str_replace("{date}",date("Y-m-d_H-i-s"),self::$export_def[self::EXPORT_FORMAT_CSV]['fn']);
 		$mime = self::$export_def[self::EXPORT_FORMAT_CSV]['mime'];
-		
+
 		header("Content-Type: $mime");
 		header("Content-Disposition: attachment; filename=\"".$filename."\";");
 		header("Content-Transfer-Encoding: binary");
@@ -656,20 +663,20 @@ class DatabaseTable extends Table implements ICallable
 		header("Cache-Control: private",false);
 		die($csv);
 	}
-	
+
 	protected function RenderPager()
 	{
 //        if( $this->ItemsPerPage && !$this->HidePager )
 //            $this->TotalItems = $this->ResultSet?$this->ResultSet->GetpagingInfo('total_rows'):0;
 		return parent::RenderPager();
 	}
-    
+
     public $logIfSlow = false;
-    
+
     /**
      * Write a log information if querying was slow.
-     * 
-     * @param int $min_ms Minimum milliseconds that must be reached to really write info to log 
+     *
+     * @param int $min_ms Minimum milliseconds that must be reached to really write info to log
      * @return static
      */
     function LogIfSlow($min_ms)

@@ -124,6 +124,14 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
 		return parent::Make($datatype,$controller,$table);
 	}
 
+    public function __clone()
+    {
+        $this->ci = clone $this->ci;
+        $this->table = clone $this->table;
+        $this->log_sql_done = false;
+        return parent::__clone();
+    }
+
     /**
      * Sets the controller to be used as details target.
      * @param mixed $controller Controller name
@@ -1170,7 +1178,7 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
                 default:
                     if($label != '')
                     {
-                        if( $this->sortable && $this->table->ResultSet && array_key_exists($name, $this->table->ResultSet->current()) )
+                        if( $this->sortable && $this->table->ResultSet && ($current = $this->table->ResultSet->current()) && array_key_exists($name, $current) )
                             $a = Anchor::Make('javascript:void(0)', $label)->data("sort", $name);
                         else
                             $a = Control::Make('span')->append($label);

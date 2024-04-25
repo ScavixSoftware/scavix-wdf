@@ -72,6 +72,13 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 		}
 	}
 
+	public function __clone()
+	{
+		if($this->_stmt instanceof WdfPdoStatement)
+			$this->_stmt = clone $this->_stmt;
+		$this->rewind();
+	}
+
 	/**
 	 * Merges arguments into an SQL statement.
 	 *
