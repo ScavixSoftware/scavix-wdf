@@ -124,11 +124,16 @@ class CultureInfo
 
     public function __clone()
 	{
-		$this->DateTimeFormat = clone $this->DateTimeFormat;
-		$this->CurrencyFormat = clone $this->CurrencyFormat;
-		$this->PercentFormat = clone $this->PercentFormat;
-		$this->NumberFormat = clone $this->NumberFormat;
-		$this->Region = clone $this->Region;
+		if($this->DateTimeFormat instanceof DateTimeFormat)
+			$this->DateTimeFormat = clone $this->DateTimeFormat;
+		if($this->CurrencyFormat instanceof CurrencyFormat)
+			$this->CurrencyFormat = clone $this->CurrencyFormat;
+		if($this->PercentFormat instanceof PercentFormat)
+			$this->PercentFormat = clone $this->PercentFormat;
+		if($this->NumberFormat instanceof NumberFormat)
+			$this->NumberFormat = clone $this->NumberFormat;
+		if($this->Region instanceof RegionInfo)
+			$this->Region = clone $this->Region;
 	}
 
 	protected function _ensureTimeStamp($date)
