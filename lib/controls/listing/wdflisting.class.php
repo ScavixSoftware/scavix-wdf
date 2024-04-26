@@ -29,6 +29,7 @@ use ScavixWDF\Base\Control;
 use ScavixWDF\Controls\Anchor;
 use ScavixWDF\JQueryUI\uiControl;
 use ScavixWDF\JQueryUI\uiDatabaseTable;
+use ScavixWDF\Localization\CultureInfo;
 use ScavixWDF\Model\DataSource;
 use ScavixWDF\JQueryUI\Dialog\uiDialog;
 use ScavixWDF\Controls\Form\Select;
@@ -126,8 +127,10 @@ class WdfListing extends Control implements \ScavixWDF\ICallable
 
     public function __clone()
     {
-        $this->ci = clone $this->ci;
-        $this->table = clone $this->table;
+        if( $this->ci instanceof CultureInfo )
+            $this->ci = clone $this->ci;
+        if( $this->table instanceof Control )
+            $this->table = clone $this->table;
         $this->log_sql_done = false;
         return parent::__clone();
     }
