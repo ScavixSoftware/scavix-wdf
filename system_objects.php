@@ -403,6 +403,15 @@ interface ICallable {}
 
 
 /**
+ * Defines an objects that handles log-string creation itself.
+ */
+interface ILogWritable
+{
+    public function __toLogString(): string;
+}
+
+
+/**
  * Transparently wraps Exceptions thus providing a way to catch them easily while still having the original
  * Exception information.
  *

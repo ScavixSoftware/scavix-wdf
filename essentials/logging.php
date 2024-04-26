@@ -29,6 +29,7 @@
  * @license http://www.opensource.org/licenses/lgpl-license.php LGPL
  */
 
+use ScavixWDF\ILogWritable;
 use ScavixWDF\Logging\Logger;
 use ScavixWDF\Logging\LogReport;
 use ScavixWDF\Wdf;
@@ -585,7 +586,11 @@ function logging_render_var($content,&$stack=[],$indent="")
 	elseif( is_object($content) )
 	{
 		$stack[] = $content;
-		if( $content instanceof WdfException )
+        if( $content instanceof ILogWritable)
+        {
+            $res[] = $content->__toLogString();
+        }
+		elseif( $content instanceof WdfException )
 		{
 			$res[] = get_class($content).": ".$content->getMessageEx();
             if( isDev() )
