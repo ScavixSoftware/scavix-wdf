@@ -955,7 +955,7 @@ function system_stacktrace_to_string($stacktrace)
 			$rp_file = $t0['file'];
 			$stack[] = sprintf("+ %s(...) [in %s:%s]",$function,$rp_file,$t0['line']);
 		}
-		else
+		elseif($function)
 			$stack[] = sprintf("+ %s(...)",$function);
 	}
 	return implode("\n",$stack);

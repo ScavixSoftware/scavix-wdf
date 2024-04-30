@@ -1486,12 +1486,11 @@ function system_app_temp_dir($subfolder = '', $appendnc = true)
     $folder = (stripos(PHP_OS, 'WIN') === 0)
         ?preg_replace('/[^0-9a-zA-Z\/\-\_\\\\:]/', '', $folder) // accept \ and : on windows
         :preg_replace('/[^0-9a-zA-Z\/\-\_]/', '', $folder);
-    while(strpos($folder, '//'))
+    while(strpos($folder, '//') !== false)
         $folder = str_replace('//', '/', $folder);
     if( !file_exists($folder) )
-    {
         @mkdir($folder, 0777, true);
-    }
+
     if( substr(sprintf('%o', @fileperms($folder)), -3) != '777' )
     {
         @chmod($folder, 0777);

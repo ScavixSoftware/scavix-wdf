@@ -125,7 +125,7 @@ class LogEntry
 
 			if( isset($t0['location']))
 				$stack[] = sprintf("+ %s(...) [in %s]",$function,$t0['location']);
-			else
+			elseif($function)
 				$stack[] = sprintf("+ %s(...)",$function);
 		}
 		return implode("\n",$stack);

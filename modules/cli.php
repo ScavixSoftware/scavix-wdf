@@ -104,8 +104,14 @@ function cli_run_script($php_script_path, $args=[], $extended_data=false, $retur
     {
         $inidata = file_get_contents($loadedini);
         $inidata = preg_replace('/^disable_functions/m', ';disable_functions', $inidata);
-        if (file_exists($ini_extrafile = dirname($php_script_path).'/.cli_php_extra.ini') && (parse_ini_file($ini_extrafile) !== false))
-            $inidata .= file_get_contents($ini_extrafile);
+        foreach(array_unique(array_filter([ifavail($_SERVER, 'DOCUMENT_ROOT'), dirname($php_script_path), dirname($php_script_path).'/..', dirname($php_script_path).'/../..', dirname($php_script_path).'/../../..'])) as $dir)
+        {
+            if(file_exists($ini_extrafile = $dir.'/.cli_php_extra.ini') && (parse_ini_file($ini_extrafile) !== false))
+            {
+                $inidata .= file_get_contents($ini_extrafile);
+                break;
+            }
+        }
 
         file_put_contents($ini, $inidata);
         @chmod($ini, 0777);
