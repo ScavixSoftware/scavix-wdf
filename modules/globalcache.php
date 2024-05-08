@@ -189,7 +189,8 @@ function globalcache_get($key, $default = false)
 			case globalcache_CACHE_OFF:
 				return $default;
 
-			case globalcache_CACHE_APC:
+            case globalcache_CACHE_APC:
+                $success = false;
 				$ret = apc_fetch($GLOBALS["globalcache_key_prefix"].$key, $success);
 				return $success?$ret:$default;
 
@@ -198,6 +199,7 @@ function globalcache_get($key, $default = false)
 				return $ret===false?$default:$ret;
 
             case globalcache_CACHE_FILES:
+                $exists = false;
 				$ret = $CONFIG['globalcache']['handler']->get($key,$default,$exists);
 				return $exists?$ret:$default;
 
