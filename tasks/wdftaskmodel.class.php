@@ -275,10 +275,14 @@ class WdfTaskModel extends Model
 		return $this;
 	}
 
-    public function SetArgs($arguments)
+    public function SetArgs($arguments, $replace = true)
     {
-        $this->arguments = serialize($arguments?:[]);
-		return $this;
+        if ($replace)
+            $this->arguments = serialize($arguments ?: []);
+        else
+            foreach ($arguments as $n => $v)
+                $this->SetArg($n, $v);
+        return $this;
     }
 
     public function GetArg($name,$default=false)
@@ -382,6 +386,13 @@ class WdfTaskModel extends Model
                     }
                 }
             }
+        }
+        elseif( !$this->isVirtual )
+        {
+            if (avail($this, 'worker_pid'))
+                log_debug(__METHOD__, "Cannot modify running task", system_get_caller());
+            else
+                $this->Save();
         }
 		if( $run_instance && !avail($this,'worker_pid') )
 			WdfTaskModel::RunInstance();

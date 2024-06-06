@@ -87,7 +87,7 @@ abstract class Task
         $name = get_called_class()."-$method";
         if($args)
             $name .= '-'.md5(serialize($args));
-        return WdfTaskModel::CreateOnce($name, $return_original)->SetArgs($args);
+        return WdfTaskModel::CreateOnce($name, $return_original)->SetArgs($args, !$return_original);
     }
 
     /**
