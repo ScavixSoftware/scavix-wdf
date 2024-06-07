@@ -9,14 +9,14 @@ namespace ScavixWDF\Controls\Form;
 
 /**
  * See https://select2.org/
- * 
+ *
  * @attribute[Resource('select2/select2.min.css')]
  * @attribute[Resource('select2/select2.full.min.js')]
  */
 class Select2 extends Select
 {
     public $Options = [];
-    
+
 	function __construct($name = false)
 	{
         parent::__construct($name);
@@ -24,11 +24,11 @@ class Select2 extends Select
         $this->opt('width',false);
         store_object($this,$this->id);
     }
-    
+
     /**
 	 * Sets or gets an option
-	 * 
-	 * if you specify a $value will set it and retunr `$this`. else will return the option value
+	 *
+	 * if you specify a $value will set it and return `$this`. else will return the option value
 	 * @param string $name option name
 	 * @param mixed $value option value or null
 	 * @return static|mixed If setting an option returns `$this`, else returns the option value
@@ -42,25 +42,26 @@ class Select2 extends Select
             return $this;
         }
 		if( $value === null )
-			return $this->Options[$name];
+			return ifavail($this->Options, $name);
 		$this->Options[$name] = $value;
         return $this->data('config',$this->Options);
 	}
-    
+
     /**
      * Sets the current value.
-     * 
+     *
      * @param mixed $value The value
      * @return static
      */
     function setValue($value)
     {
-        return $this->opt('selected',$value);
+        $this->opt('selected',$value);
+        return $this;
     }
-    
+
     /**
      * De-/Activates the multi-select feature.
-     * 
+     *
      * @param bool $on True=on, false=off
      * @param bool $sort_selection If true embedded sorting is on, else it will be deactivated
      * @return static
@@ -78,13 +79,14 @@ class Select2 extends Select
             $this->setName(str_replace("[]","",$this->attr('name')));
             $this->removeAttr('multiple');
         }
-        
-        return $this->opt('multiple',$on)->opt('skip_multi_sorting',!$sort_selection);
+
+        $this->opt('multiple',!!$on)->opt('skip_multi_sorting',!$sort_selection);
+        return $this;
     }
-    
+
     /**
      * Sets up AJAX loading of values.
-     * 
+     *
      * @param string $url The data URL
      * @return static
      */
