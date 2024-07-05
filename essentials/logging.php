@@ -32,6 +32,7 @@
 use ScavixWDF\ILogWritable;
 use ScavixWDF\Logging\Logger;
 use ScavixWDF\Logging\LogReport;
+use ScavixWDF\TerminationException;
 use ScavixWDF\Wdf;
 use ScavixWDF\WdfException;
 
@@ -260,6 +261,11 @@ function global_exception_handler($ex)
 {
 	try
 	{
+        if( $ex instanceof TerminationException )
+        {
+            $ex->writeLog();
+            return;
+        }
 		// system_die will handle logging itself. perhaps restructure that to
 		// keep things in place and let that function only handle the exception
 		// foreach( Wdf::$Logger as $l )

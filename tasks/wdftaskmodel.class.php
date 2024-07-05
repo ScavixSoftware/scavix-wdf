@@ -493,7 +493,15 @@ class WdfTaskModel extends Model
                 $method = 'run';
             }
             $exectime = microtime(true);
-			$worker->$method($args);
+            try
+            {
+                $worker->$method($args);
+            }
+            catch (\ScavixWDF\TerminationException $tex)
+            {
+                $tex->writeLog();
+            }
+
             $exectime = round((microtime(true) - $exectime) * 1000);
 
             $start = DateTimeEx::Make(ifavail($this,'start','created'));

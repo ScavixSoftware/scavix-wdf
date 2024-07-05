@@ -25,6 +25,7 @@
 namespace ScavixWDF\Tasks;
 
 use ScavixWDF\Model\DataSource;
+use ScavixWDF\TerminationException;
 use ScavixWDF\Wdf;
 
 /**

@@ -446,16 +446,7 @@ class WdfException extends Exception
 	 */
 	public static function Raise(...$args)
 	{
-		$msgs = [];
-		$inner_exception = false;
-		foreach( $args as $m )
-		{
-			if( !$inner_exception && ($m instanceof Exception) )
-				$inner_exception = $m;
-			else
-				$msgs[] = logging_render_var($m);
-		}
-        $message = array_shift($msgs);
+        [$message, $msgs, $inner_exception] = self::_prepareArgs(...$args);
 
         /**
          * @var WdfException $classname
@@ -469,6 +460,21 @@ class WdfException extends Exception
         $ex->details = implode("\t",$msgs);
         throw $ex;
 	}
+
+    protected static function _prepareArgs(...$args)
+    {
+        $msgs = [];
+		$inner_exception = false;
+		foreach( $args as $m )
+		{
+			if( !$inner_exception && ($m instanceof Exception) )
+				$inner_exception = $m;
+			else
+				$msgs[] = logging_render_var($m);
+		}
+        $message = array_shift($msgs);
+        return [$message, $msgs, $inner_exception];
+    }
 
 	/**
 	 * Use this to easily log an exception the nice way.
@@ -693,3 +699,51 @@ class WdfDbException extends WdfException
         return (preg_match($regex, $msg, $dummy) != false);
     }
 }
+
+/**
+ * Thrown when some process reached a state where graceful but immidiate termination is required.
+ *
+ * We use this like this: `TerminationException::WithCode('HTTP_500','Server responded with 500, cannot do that now')`
+ */
+class TerminationException extends WdfException
+{
+    private $verbose, $reason;
+
+    private static function _make(string $reason, bool $verbose, ...$args)
+    {
+        [$message, $msgs, $inner_exception] = self::_prepareArgs(...$args);
+        $message = $message?"$reason: $message":$reason;
+        if( $inner_exception )
+			$ex = new TerminationException($message,$inner_exception->getCode(),$inner_exception);
+		else
+			$ex = new TerminationException($message);
+
+        $ex->details = implode("\t",$msgs);
+        $ex->verbose = $verbose;
+        $ex->reason = $reason;
+        return $ex;
+    }
+
+    static function Silent(string $reason, ...$args)
+    {
+        throw self::_make($reason, isDev(), ...$args);
+    }
+
+    static function Verbose(string $reason, ...$args)
+    {
+        throw self::_make($reason, true, ...$args);
+    }
+
+    public function getReason()
+    {
+        return $this->reason;
+    }
+
+    public function writeLog()
+    {
+        if (!$this->verbose)
+            return;
+        log_debug($this->getMessageEx());
+    }
+}
+
