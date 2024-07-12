@@ -209,8 +209,11 @@ class WdfListingFilter extends Template
             if( starts_with($k,"{$this->prefix}_") )
                 $this->delValue(str_replace("{$this->prefix}_","",$k));
 
-        foreach( $this->get('inputs') as $control )
-            $control->setValue('');
+        foreach ($this->get('inputs') as $control)
+        {
+            if(method_exists($control, 'setValue'))
+                $control->setValue('');
+        }
         return $this;
     }
 
