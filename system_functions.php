@@ -1782,6 +1782,14 @@ function system_get_caller($skip = 0, $detailed = false)
     ] : $loc;
 }
 
+function system_get_caller_by_type($classname)
+{
+    foreach(debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT|DEBUG_BACKTRACE_IGNORE_ARGS) as $entry)
+        if (isset($entry['object']) && isset($entry['class']) && $entry['class'] == $classname)
+            return $entry['object'];
+    return null;
+}
+
 /**
  * Returns all values for a cookie given in a raw cookie string.
  *
