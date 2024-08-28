@@ -148,12 +148,24 @@ wdf.ready.add(function()
 
   	$('.translations input.aitranslate, .translations button.aitranslate').click( function()
     {
+        var e = $(this);
         showLoaderOverlay();
         var $tr = $(this).closest('.tr');
-        var txt = encodeURIComponent(JSON.parse('"' + $tr.data('def') + '"'));
-        wdf.controller.post('translatestring',{lang:$('.translations').data('lang'),text:txt},function(r)
+        var txt = targetlang = '';
+        if ($tr.data('def'))
         {
-            console.log(r);
+            txt = encodeURIComponent(JSON.parse('"' + $tr.data('def') + '"'));
+            targetlang = $('.translations').data('lang');
+        }
+        else
+        {
+            targetlang = $tr.data('lang');
+            $othertr = $tr.parents('.table').find('.tr[data-lang!="' + targetlang + '"]');
+            txt = encodeURIComponent($('textarea', $othertr).val());
+        }
+        wdf.controller.post('translatestring',{lang:targetlang,text:txt},function(r)
+        {
+            // console.log(r);
             hideLoaderOverlay( function() {
                 var $ta = $tr.find('textarea');
                 $ta.val(r.response);

@@ -521,16 +521,27 @@ class TranslationAdmin extends TranslationAdminBase
             $btn = new Button('Save');
 			$btn->addClass('save')->data('term',$row['id'])->data('lang',$lang);
 
+            if (system_is_module_loaded('ai'))
+            {
+                $aitranslatebtn = Button::Textual('<i class="fas fa-robot fa-fw"></i>')
+                    ->addClass('aitranslate')
+                    ->attr('title', 'AI Translate');
+                $btn = $btn->WdfRender().'&nbsp;'.$aitranslatebtn->WdfRender();
+            }
+
             $wrap = Control::Make()
                 ->append($ta)
                 ->append('<br/>');
             foreach( $variables as $k=>$v )
                 $wrap->append( "<span class='termdata' title='Sample: {$v}' onclick=\"$(this).closest('.td').find('textarea').insertAtCaret($(this).text());\">{$k}</span>" );
 
-            if( in_array($lang,$started) )
-                $tab->AddNewRow("$name ({$lang})",$wrap,$btn);
-            else
-                $others[] = ["$name ({$lang})",$wrap,$btn];
+            if (in_array($lang, $started))
+            {
+                $tr = $tab->NewRow(["$name ({$lang})", $wrap, $btn]);
+                $tr->data('lang', $lang);
+            }
+            // else
+            //     $others[] = ["$name ({$lang})",$wrap,$btn];
         }
 
         // if (count($others))
