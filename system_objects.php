@@ -425,6 +425,11 @@ interface ILogWritable
  */
 class WdfException extends Exception
 {
+    use WdfThrowable;
+}
+
+trait WdfThrowable
+{
     public $details = '';
 
 	private function ex()
@@ -705,8 +710,9 @@ class WdfDbException extends WdfException
  *
  * We use this like this: `TerminationException::WithCode('HTTP_500','Server responded with 500, cannot do that now')`
  */
-class TerminationException extends WdfException
+class TerminationException extends \Error
 {
+    use WdfThrowable;
     private $verbose, $reason;
 
     private static function _make(string $reason, bool $verbose, ...$args)
