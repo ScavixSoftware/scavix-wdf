@@ -1710,42 +1710,48 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	 * @return bool In fact always true, WdfDbException will be thrown in error case
 	 * @throws WdfDbException
 	 */
-	public function Save($columns_to_update=false, &$changed=null)
-	{
-        if( $changed !== null )
+    public function Save($columns_to_update = false, &$changed = null)
+    {
+        if ($changed !== null)
             $buf = $this->GetChanges();
 
-        if( $columns_to_update !== false && !is_array($columns_to_update) )
+        if ($columns_to_update !== false && !is_array($columns_to_update))
             WdfException::Raise("Please specify 'columns_to_update' as array");
 
-		$args = [];
-		$stmt = $this->_ds->Driver->getSaveStatement($this,$args,$columns_to_update);
+        $args = [];
+        $stmt = $this->_ds->Driver->getSaveStatement($this, $args, $columns_to_update);
 
-		if( !$stmt )
-			return true; // nothing to save
+        if (!$stmt)
+            return true; // nothing to save
 
-		if( !$stmt->ExecuteWithArguments($args) )
-			WdfDbException::RaiseStatement($stmt);
+        if (!$stmt->ExecuteWithArguments($args))
+            WdfDbException::RaiseStatement($stmt);
 
-		$pkcols = $this->GetPrimaryColumns();
-		if( count($pkcols) == 1 )
-		{
-			$id = $pkcols[0];
-			if( !isset($this->$id) )
-				$this->$id = $this->_ds->LastInsertId();
+        $pkcols = $this->GetPrimaryColumns();
+        if (count($pkcols) != 1)
+        {
+            $this->__init_db_values(false, true, $columns_to_update);
+            return true;
+        }
 
-            $this->Load("{$pkcols[0]}=?",[$this->$id]);
-            if( isset($buf) && count($args)>0 )
-            {
-                $changed = [];
-                foreach( $buf as $i=>list($o,$n) )
-                    $changed[$i] = [$o,$this->$i];
-                return true;
-            }
-		}
-		$this->__init_db_values(false,true,$columns_to_update);
-		return true;
-	}
+        $id = $pkcols[0];
+        if (!isset($this->$id))
+            $this->$id = $this->_ds->LastInsertId();
+
+        if ($columns_to_update === false)
+            $this->Load("{$pkcols[0]}=?", [$this->$id]);
+        else
+            $this->__init_db_values(false, true, $columns_to_update);
+
+        if (isset($buf) && count($args) > 0)
+        {
+            $changed = [];
+            foreach ($buf as $i => list($o, $n))
+                if( $columns_to_update === false || in_array($i, $columns_to_update)  )
+                   $changed[$i] = [$o, $this->$i];
+        }
+        return true;
+    }
 
 	/**
 	 * Passes all given arguments as column names to the Save method.
