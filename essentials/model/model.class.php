@@ -1734,9 +1734,9 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 			if( !isset($this->$id) )
 				$this->$id = $this->_ds->LastInsertId();
 
+            $this->Load("{$pkcols[0]}=?",[$this->$id]);
             if( isset($buf) && count($args)>0 )
             {
-                $this->Load("{$pkcols[0]}=?",[$this->$id]);
                 $changed = [];
                 foreach( $buf as $i=>list($o,$n) )
                     $changed[$i] = [$o,$this->$i];
