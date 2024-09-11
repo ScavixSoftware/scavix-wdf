@@ -91,9 +91,9 @@ class Localization
 	 *
 	 * @return CultureInfo|bool The detected culture
 	 */
-	public static function getBrowserCulture()
+	public static function getBrowserCulture($checkoverride = true)
 	{
-		if( Args::sanitized('culture', false, 'CG') )
+		if( $checkoverride && Args::sanitized('culture', false, 'CG') )
 			return self::getCultureInfo(Args::sanitized('culture', false, 'CG'));
 
 		foreach (['HTTP_FORCE_LANGUAGE', 'HTTP_ACCEPT_LANGUAGE'] as $sk)
