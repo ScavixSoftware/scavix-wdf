@@ -162,24 +162,29 @@ class Wdf
     /**
      * Releases a LOCK.
      *
-     * @param string $name The LOCK name
+     * @param string|array $name The LOCK name as single string or array of lock names to release
      * @return bool True if successful, else false
      */
     public static function ReleaseLock($name)
     {
-        if( PHP_OS_FAMILY == "Linux" )
+        $locks = array_filter(force_array($name));
+        $ret   = false;
+        foreach ($locks as $lockname)
         {
-            $lock = md5($name);
-            if( isset(self::$locks[$lock]) )
+            if (PHP_OS_FAMILY == "Linux")
             {
-                @unlink('/run/lock/wdf-'.md5(__SCAVIXWDF__).'/'.$lock);
-                unset(self::$locks[$lock]);
-                return true;
+                $lock = md5($lockname);
+                if (isset(self::$locks[$lock]))
+                {
+                    @unlink('/run/lock/wdf-'.md5(__SCAVIXWDF__).'/'.$lock);
+                    unset(self::$locks[$lock]);
+                    $ret = true;
+                }
             }
-            return false;
+            if (system_release_lock($lockname, \ScavixWDF\Model\DataSource::Get()))
+                $ret = true;
         }
-        system_release_lock($name,\ScavixWDF\Model\DataSource::Get());
-        return true;
+        return $ret;
     }
 }
 

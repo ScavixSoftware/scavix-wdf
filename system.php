@@ -2033,10 +2033,11 @@ function system_get_lock($name,$datasource='internal',$timeout=10)
  * See <system_get_lock>() for details about this.
  * @param string $name Name of the lock to release
  * @param mixed $datasource Name of datasource to use or <DataSource> object itself.
- * @return void
+ * @return bool Returns true if the lock was released, else false.
  */
 function system_release_lock($name,$datasource='internal')
 {
 	$ds = ($datasource instanceof DataSource)?$datasource:model_datasource($datasource);
-	$ds->ExecuteSql("DELETE FROM wdf_locks WHERE lockname=?",$name);
+	$rs = $ds->ExecuteSql("DELETE FROM wdf_locks WHERE lockname=?",$name);
+	return ($rs->Count() > 0);
 }
