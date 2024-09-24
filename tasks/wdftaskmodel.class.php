@@ -448,16 +448,17 @@ class WdfTaskModel extends Model
 
 	public static function Reserve()
 	{
+        $ds = DataSource::Get();
 		$wpid = getmypid();
         try
         {
             $where = "enabled=1 AND isnull(worker_pid) AND isnull(parent_task) AND isnull(assigned) AND (ISNULL(start) OR start<=now())";
 
-            $ids = DataSource::Get()->ExecuteSql("SELECT id FROM wdf_tasks WHERE $where ORDER BY id DESC LIMIT 10")->Enumerate('id');
+            $ids = $ds->ExecuteSql("SELECT id FROM wdf_tasks WHERE $where ORDER BY id DESC LIMIT 10")->Enumerate('id');
             if (count($ids) == 0)
                 return false;
 
-            DataSource::Get()->ExecuteSql(
+            $ds->ExecuteSql(
                 "UPDATE wdf_tasks SET worker_pid=?, assigned=now() WHERE
                     $where AND id IN(".implode(",",$ids).")
                     ORDER BY id DESC LIMIT 1"
@@ -470,7 +471,7 @@ class WdfTaskModel extends Model
                 log_error($ex);
             return false;
         }
-		return WdfTaskModel::Make()->eq('worker_pid',$wpid)->current();
+		return WdfTaskModel::Make($ds)->eq('worker_pid',$wpid)->current();
 	}
 
 	public function Run($inline=false)
@@ -511,13 +512,13 @@ class WdfTaskModel extends Model
             if( $inline )
             {
                 // seeems unused. todo: check and remove
-                foreach( WdfTaskModel::Make()->eq('parent_task',$this->id)->orderBy('id') as $child )
+                foreach( WdfTaskModel::Make($this->_ds)->eq('parent_task',$this->id)->orderBy('id') as $child )
                     $child->Run(true);
             }
             else
             {
                 // make sure children are enabled if (for whatever reason) they are not
-                $children = WdfTaskModel::Make()->eq('parent_task', $this->id)->eq('enabled', 0); //    ->orX(2)->isNull('start')->isPast('start');
+                $children = WdfTaskModel::Make($this->_ds)->eq('parent_task', $this->id)->eq('enabled', 0); //    ->orX(2)->isNull('start')->isPast('start');
                 foreach ($children as $t)
                 {
                     $t->Go(false);

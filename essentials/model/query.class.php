@@ -136,6 +136,8 @@ class Query
 
 	protected function &__conditionTree()
 	{
+        if( !$this->_where )
+            $this->_where = new ConditionTree();
 		return $this->_where;
 	}
 
