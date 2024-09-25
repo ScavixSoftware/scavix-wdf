@@ -353,6 +353,14 @@ function logging_add_category($name)
 		$l->addCategory($name);
 }
 
+function logging_has_category($name)
+{
+    foreach (Wdf::$Logger as $l)
+        if ($l->hasCategory($name))
+            return true;
+    return false;
+}
+
 /**
  * Removes a category from all loggers.
  *

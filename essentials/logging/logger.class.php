@@ -338,6 +338,11 @@ class Logger
 			$this->categories[] = $name;
 	}
 
+    function hasCategory($name)
+	{
+		return in_array($name, $this->categories);
+	}
+
 	/**
 	 * Removes a category
 	 *
