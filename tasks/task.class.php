@@ -105,6 +105,21 @@ abstract class Task
         return !!WdfTaskModel::Make()->eq('name',$name)->scalar('id');
     }
 
+    public static function Kill($method='run', $args = false)
+    {
+        $name = get_called_class()."-$method";
+        if($args)
+            $name .= '-'.md5(serialize($args));
+        if($t = WdfTaskModel::Make()->eq('name',$name)->current())
+        {
+            if(avail($t, 'worker_pid'))
+               exec("kill -9 {$t->worker_pid}");
+            $t->Delete();
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Runs this task in another (CLI) process.
      *

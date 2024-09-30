@@ -1831,7 +1831,7 @@ if (!function_exists('json_validate'))
 }
 
 /** @see https://php.watch/versions/8.3/stream_context_set_options#stream_context_set_options-polyfill */
-if (\PHP_VERSION_ID < 80300)
+if ((\PHP_VERSION_ID < 80300) && !function_exists('stream_context_set_options'))
 {
     /**
      * @internal Polyfill for PHP < 8.3
