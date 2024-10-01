@@ -45,7 +45,7 @@ use Serializable;
 
 /**
  * Serializer/Unserializer
- * 
+ *
  * We have our very own that support some specialities like database reconnection, datetime formats, reflection,...
  * As we implemented our own object storage and serialize it in one run, we can be sure that
  * the referential integrity will be given.
@@ -57,14 +57,14 @@ class Serializer
 	public $sleepmap;
 	public $Lines;
     public $Index;
-    
+
     public static $unserializing_level = 0;
 
     private static function prepareSerialization($data,$stack=null)
     {
         if( !$stack )
             $stack = new \SplObjectStorage();
-            
+
         if( $data instanceof Serializable )
             return $data;
         if( $data instanceof PDOStatement )
@@ -108,10 +108,10 @@ class Serializer
         }
         return $data;
     }
-    
+
 	/**
 	 * Serializes a value
-	 * 
+	 *
 	 * Can be anything from complex object to bool value
 	 * @param mixed $data Value to serialize
 	 * @return string Serialized data string
@@ -124,13 +124,13 @@ class Serializer
 //        if( $data instanceof \Listing )
 //            log_debug(__METHOD__,"B", $data);
 //        return serialize($data);
-        
+
 		$this->Stack  = [];
 		$this->clsmap = [];
 		$this->sleepmap = [];
 		return $this->Ser_Inner($data);
 	}
- 
+
 	private function Ser_Inner(&$data,$level=0)
 	{
 		if( is_string($data) )
@@ -190,7 +190,7 @@ class Serializer
 				return "y:".$data->getName()."\n";
 			if( $data instanceof SimpleXMLElement )
 				return "z:".addcslashes($data->asXML(),"\n")."\n";
-			
+
 			$index = array_search($data, $this->Stack, true);
 			if( $index !== false  )
 				return "r:$index\n";
@@ -208,7 +208,7 @@ class Serializer
 			$res = ( $data instanceof Model)
 				?"o:$id:$max:$classname:{$data->DataSourceName()}\n"
 				:"o:$id:$max:$classname:\n";
-			
+
 			foreach( $vars as $field )
 			{
 				$res .= $this->Ser_Inner($field,$level+1);
@@ -221,26 +221,31 @@ class Serializer
 
 	/**
 	 * Restores something from a serialized data string
-	 * 
+	 *
 	 * Note that of course all types used in that string must be known to the unserializing application!
 	 * @param string $data Serialized data
 	 * @return mixed Whatever was serialized
 	 */
-	function Unserialize($data)
-	{
-		self::$unserializing_level++;
-        
-		$this->Index = 0;
-		$this->Lines = explode("\n",trim($data));
-		$this->Stack = [];
-		$res = $this->Unser_Inner();
-        
-		self::$unserializing_level--;
-		return $res;
-	}
-    
+    function Unserialize($data)
+    {
+        try
+        {
+            self::$unserializing_level++;
+            $this->Index = 0;
+            $this->Lines = explode("\n", trim($data));
+            $this->Stack = [];
+            $res = $this->Unser_Inner();
+            return $res;
+
+        }
+        finally
+        {
+            self::$unserializing_level--;
+        }
+    }
+
     private $existsBuffer = [];
-    
+
 	private function Unser_Inner()
 	{
 		$orig_line = $this->Lines[$this->Index++];
@@ -258,7 +263,7 @@ class Serializer
                 $line = substr($line, 2);
             }
 		}
-        
+
 		try
 		{
 			switch( $type )
