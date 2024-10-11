@@ -526,8 +526,12 @@ class DatabaseTable extends Table implements ICallable
 		foreach( $copy->ResultSet as $row )
 		{
 			$row = $copy->_preProcessData($row);
-            if( $rowcallback != null )
+            if ($rowcallback != null)
+            {
                 $row = $rowcallback($row);
+                if($row === false)
+                    continue;
+            }
             $r = [];
             foreach( $cols as $k )
                 if(isset($row[$k]))
