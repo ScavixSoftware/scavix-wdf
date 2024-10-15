@@ -28,7 +28,7 @@
 
 /**
  * Initializes the textdata module
- * 
+ *
  * This module provides functions for text-file processing
  * @return void
  */
@@ -38,7 +38,7 @@ function textdata_init()
 
 /**
  * Parses CSV data into an array.
- * 
+ *
  * See http://www.php.net/manual/de/function.str-getcsv.php#95132
  * @param string $csv CSV data as string
  * @param string $delimiter CSV delimiter used
@@ -50,17 +50,17 @@ function textdata_init()
 function csv_to_array($csv, $delimiter = false, $enclosure = '"', $escape = '\\',$callback=false)
 {
     $csv = str_replace("\r\n","\n",$csv);
-    
+
     if( !$delimiter )
         $delimiter = csv_detect_delimiter(substr($csv,0,1024));
-    
+
     $result = [];
-    $rows = explode("\n",trim($csv));
-    $csv = ""; 
+    $csv    = trim($csv);
+    $rows = preg_split('~\R~', $csv);
+    $csv = "";
     $names = str_getcsv(array_shift($rows),$delimiter,$enclosure,$escape);
 	$names = array_map('trim', $names);
-    $nc = count($names);
-    
+
     $line = "";
     foreach( $rows as $row )
 	{
@@ -85,7 +85,7 @@ function csv_to_array($csv, $delimiter = false, $enclosure = '"', $escape = '\\'
 
 /**
  * Extracts the header from a CSV data string
- * 
+ *
  * This is usually the first line which contains the field names.
  * @param string $csv CSV data as string
  * @param string $delimiter CSV delimiter used
@@ -103,7 +103,7 @@ function csv_header($csv, $delimiter = ',', $enclosure = '"', $escape = '\\')
 
 /**
  * Tries to detect the CSV field delimiter
- * 
+ *
  * This may be one of: ';'  ','  '|'  '\t'
  * @param string $csv CSV data as string
  * @param string $terminator CSV line terminator
@@ -118,12 +118,12 @@ function csv_detect_delimiter($csv)
 	foreach( array(';',',','|',"\t") as $delim )
 		$counts[count(explode($delim,$r))] = $delim;
 	krsort($counts);
-    return array_shift($counts);	
+    return array_shift($counts);
 }
 
 /**
  * Removes the BOM header from a string.
- * 
+ *
  * @see http://stackoverflow.com/a/15423899
  * @param string $text Text, potentially with leading BOM
  * @return string Clean string
