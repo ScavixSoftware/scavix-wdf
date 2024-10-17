@@ -359,7 +359,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
                     $result = $this->_stmt->execute();
                 else
                     $result = $this->_stmt->execute($input_parameters);
-                hit_timer("WdfSqlPerformance", $this->_sql_used); //.(($this->_arguments_used != null) ? ' ('.var_export($this->_arguments_used, true).')' : ''));
+                hit_timer("WdfSqlPerformance", ResultSet::MergeSql($this->_ds,$this->_sql_used,$this->_arguments_used));
             }
             catch(\PDOException $ex)
             {
