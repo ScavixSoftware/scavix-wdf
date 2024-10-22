@@ -369,8 +369,12 @@ class WdfTaskModel extends Model
                 if ($this->cascade_go)
                 {
                     if ($depth++ < 50) // limit depth to 50 to avoid too large trees)
-                        foreach (WdfTaskModel::Make()->eq('parent_task', $this->id)->eq('enabled', 0) as $t)
+                    {
+                        if (count($this->children) == 0)
+                            $this->children = WdfTaskModel::Make()->eq('parent_task', $this->id)->eq('enabled', 0)->results();
+                        foreach ($this->children as $t)
                             $t->Go(false, $depth);
+                    }
                 }
                 elseif(count($this->children))
                 {
