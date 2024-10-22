@@ -181,7 +181,7 @@ class Wdf
                     $ret = true;
                 }
             }
-            if (system_release_lock($lockname, \ScavixWDF\Model\DataSource::Get()))
+            elseif (system_release_lock($lockname, \ScavixWDF\Model\DataSource::Get()))
                 $ret = true;
         }
         return $ret;
