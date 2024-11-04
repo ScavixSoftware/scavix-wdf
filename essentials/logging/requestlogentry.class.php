@@ -253,6 +253,18 @@ class RequestLogEntry extends Model
             self::$Current->_done([$result]);
     }
 
+    public static function Drop()
+    {
+        if (self::$Current)
+        {
+            self::$Current->_ds->ExecuteSql(
+                "DELETE LOW_PRIORITY FROM `wdf_requests` WHERE id=?",
+                [self::$Current->id]
+            );
+            self::$Current = false;
+        }
+    }
+
     /**
      * Cleans up entries older than a given age.
      *
