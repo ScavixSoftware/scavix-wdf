@@ -188,7 +188,7 @@ class WdfTaskModel extends Model
 	public static function RunInstance($runtime_seconds=null)
 	{
         static $counter = false;
-        if ($counter === false)
+        if ($counter === false || PHP_SAPI == 'cli' )
             $counter = self::countRunningInstances();
         if ($counter >= self::$MAX_PROCESSES)
             return;
