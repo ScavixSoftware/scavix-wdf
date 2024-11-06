@@ -152,77 +152,51 @@ class WdfTaskModel extends Model
         return !!DataSource::Get()->ExecuteScalar("SELECT count(*) FROM wdf_tasks WHERE enabled=1 AND ISNULL(parent_task)");
     }
 
-	public static function RunInstance($runtime_seconds=null)
-	{
-        // $t = start_timer("processors");
+    private static function countRunningInstances()
+    {
+        $filter = CLI_SELF . " " . self::$PROCESS_FILTER;
+        $filterlen = strlen($filter) - 3;
 
-        // $cnt = count(self::getRunningProcessors());      // too slow...
+        $files = glob("/proc/[0-9]*/cmdline");
+        self::$_checkedprocs = array_intersect_key(self::$_checkedprocs, array_fill_keys($files, true));
 
-        $filter = '/'.preg_quote(CLI_SELF,'/').".*".preg_quote(self::$PROCESS_FILTER,'/').'/i';
-        $cnt = 0;
-        $filterlen = strlen(str_replace("\\", "", $filter)) - 3;
-
-        // foreach(array_filter(explode("\n", shell_exec('ps -C php -o pid=,cmd=')."\n")) as $proc)
-        // {
-        //     list($pp, $c) = explode(' ', $proc, 2);
-        //     if(isset(self::$_checkedprocs[$pp]))
-        //     {
-        //         if (self::$_checkedprocs[$pp])
-        //         {
-        //             if ($cnt++ >= self::$MAX_PROCESSES)
-        //                 return;
-        //         }
-        //         else
-        //             continue;
-        //     }
-        //     if ($c && (strlen($c) > $filterlen) && preg_match($filter, $c))
-        //     {
-        //         self::$_checkedprocs[$pp] = true;
-        //         if ($cnt++ >= self::$MAX_PROCESSES)
-        //             return;
-        //     }
-        //     else
-        //         self::$_checkedprocs[$pp] = false;
-        // }
-
-        foreach( glob("/proc/[0-9]*/cmdline") as $pp )
+        foreach( $files as $pp )
         {
             if(isset(self::$_checkedprocs[$pp]))
-            {
-                if (self::$_checkedprocs[$pp])
-                {
-                    if ($cnt++ >= self::$MAX_PROCESSES)
-                        return;
-                }
-                else
-                    continue;
-            }
+                continue;
+
             $c = @file_get_contents("$pp");
-            if ($c && (strlen($c) > $filterlen)) //preg_match($filter, $c))
+            if ($c && (strlen($c) > $filterlen))
             {
-                // $c = str_replace("\0", " ", $c);
                 $f1 = strpos($c, CLI_SELF);
-                if ($f1 === false)
-                    continue;
-                $f2 = strpos($c, self::$PROCESS_FILTER);
-                if (($f2 === false) || ($f1 > $f2))
-                    continue;
-                // log_debug($f1, $f2, CLI_SELF, $c);
-                self::$_checkedprocs[$pp] = true;
-                if ($cnt++ >= self::$MAX_PROCESSES)
-                    return;
+                if ($f1 !== false)
+                {
+                    $f2 = strpos($c, self::$PROCESS_FILTER);
+                    if (($f2 !== false) && ($f1 <= $f2))
+                    {
+                        self::$_checkedprocs[$pp] = true;
+                        continue;
+                    }
+                }
             }
-            else
-                self::$_checkedprocs[$pp] = false;
+            self::$_checkedprocs[$pp] = false;
         }
 
-        // hit_timer("processors", "cnt: $cnt max: ".self::$MAX_PROCESSES);
+        return count(array_filter(self::$_checkedprocs));
+    }
+
+	public static function RunInstance($runtime_seconds=null)
+	{
+        static $counter = false;
+        if ($counter === false)
+            $counter = self::countRunningInstances();
+        if ($counter >= self::$MAX_PROCESSES)
+            return;
+        $counter++;
 
         if( !function_exists("cli_run_taskprocessor") )
             system_load_module('modules/cli.php');
         cli_run_taskprocessor($runtime_seconds);
-
-        // finish_timer($t);
 	}
 
     public static function CreateOnce($name, $return_original=false)
@@ -398,30 +372,10 @@ class WdfTaskModel extends Model
             else
                 $this->Save();
         }
-		if( $run_instance && !avail($this,'worker_pid') )
-			WdfTaskModel::RunInstance();
+        if ($run_instance && !avail($this, 'worker_pid'))
+            WdfTaskModel::RunInstance();
 		return $this;
 	}
-
-    private static function getRunningProcessors($pids=false)
-    {
-        $filter = '/'.preg_quote(CLI_SELF,'/').".*".preg_quote(self::$PROCESS_FILTER,'/').'/i';
-        $filterlen = strlen(str_replace("\\", "", $filter)) - 3;
-        $res = [];
-        if( $pids )
-            $pids = array_map(function($p){ return "/proc/$p/cmdline"; },$pids);
-        else
-            $pids = glob("/proc/*/cmdline");
-
-        foreach( $pids as $pp )
-        {
-            $c = @file_get_contents("$pp");
-            if ($c && (strlen($c) > $filterlen) && preg_match($filter, $c))
-                $res[] = basename(dirname($pp));
-        }
-
-        return $res;
-    }
 
     public static function FreeOrphans()
     {
@@ -430,7 +384,6 @@ class WdfTaskModel extends Model
         //$ds->ExecuteSql("UPDATE wdf_tasks SET parent_task=null WHERE parent_task IS NOT NULL AND parent_task NOT IN(SELECT id FROM wdf_tasks)");
 
         $test = $ds->ExecuteSql("SELECT DISTINCT worker_pid FROM wdf_tasks WHERE worker_pid IS NOT NULL")->Enumerate('worker_pid');
-        //$tasks = self::getRunningProcessors($test);
         $tasks = array_filter($test,'system_process_running');
 
         $pids = implode(",",array_filter(array_diff($test,$tasks)));
