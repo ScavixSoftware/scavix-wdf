@@ -67,8 +67,8 @@ class HtmlPage extends Template implements ICallable
     /**
      * Adds polyfill to the rendered HTML page.
      *
-     * This feature uses https://polyfill.io to magically make your
-     * website work in nearly every browser.
+     * This feature uses polyfill to magically make your website work in nearly every browser
+     * See https://www.all-about-security.de/der-angriff-auf-die-polyfill-io-domaene/ why it's loaded from cloudflare
      *
      * @param string|array $pf Requested polyfills
      * @return void

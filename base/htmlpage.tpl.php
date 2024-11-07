@@ -38,7 +38,7 @@ echo '<?xml version="1.0" encoding="UTF-8" ?>'."\n$doctype\n";?>
 <head>
 <?php
 if( isset($polyfills) && count($polyfills)>0 )
-    echo '<script src="https://polyfill.io/v3/polyfill.js?features='.implode(",",$polyfills).'"></script>';
+    echo '<script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.js?features='.implode(",",$polyfills).'"></script>';
 ?>
 	<title><?=$title?></title>
 <?php if(isset($favicon) && $favicon) { ?>
