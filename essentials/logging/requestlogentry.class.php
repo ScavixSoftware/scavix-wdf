@@ -253,6 +253,9 @@ class RequestLogEntry extends Model
             self::$Current->_done([$result]);
     }
 
+    /**
+     * @internal Drops a previously started request from the DB (discaroding it)
+     */
     public static function Drop()
     {
         if (self::$Current)

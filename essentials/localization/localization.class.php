@@ -87,8 +87,12 @@ class Localization
 
 	/**
 	 * Detects the browsers culture settings.
-	 * $_SERVER['HTTP_FORCE_LANGUAGE'] = forced by request (like api calls from client, portal, ...)
 	 *
+     * $_SERVER['HTTP_FORCE_LANGUAGE'] = forced by request (like api calls from client, portal, ...)
+     * An override can be given by setting GET['culture'] or COOKIE['culture'], it will be
+     * checked only when $checkoverride is true.
+	 *
+     * @param bool $checkoverride Whether to check for given culture
 	 * @return CultureInfo|bool The detected culture
 	 */
 	public static function getBrowserCulture($checkoverride = true)

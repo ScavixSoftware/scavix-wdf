@@ -338,6 +338,12 @@ class Logger
 			$this->categories[] = $name;
 	}
 
+    /**
+	 * Checks for a category
+	 *
+	 * @param string $name Category to check for
+	 * @return bool Whether the category is set or not
+	 */
     function hasCategory($name)
 	{
 		return in_array($name, $this->categories);

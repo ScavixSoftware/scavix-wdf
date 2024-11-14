@@ -735,21 +735,44 @@ class TerminationException extends \Error
         return $ex;
     }
 
+    /**
+     * Raises a silent TerminationException.
+     *
+     * @param string $reason The reason for the Exception
+     * @param array $args Additional arguments to be logged.
+     * @return void
+     */
     static function Silent(string $reason, ...$args)
     {
         throw self::_make($reason, isDev(), ...$args);
     }
 
+    /**
+     * Raises a verbose TerminationException.
+     *
+     * @param string $reason The reason for the Exception
+     * @param array $args Additional arguments to be logged.
+     * @return void
+     */
     static function Verbose(string $reason, ...$args)
     {
         throw self::_make($reason, true, ...$args);
     }
 
+    /**
+     * Returns the reason string.
+     *
+     * @return string The reason this exception was thrown of.
+     */
     public function getReason()
     {
         return $this->reason;
     }
 
+    /**
+     * Writes the exception to the log if it is verbose.
+     * @return void
+     */
     public function writeLog()
     {
         if (!$this->verbose)

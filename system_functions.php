@@ -1782,6 +1782,14 @@ function system_get_caller($skip = 0, $detailed = false)
     ] : $loc;
 }
 
+/**
+ * Returns a specific function caller.
+ *
+ * Searches the <debug_backtrace> for an object of a given type (classname).
+ *
+ * @param mixed $classname The classname to search for
+ * @return object|null Object of the given type or null if not found
+ */
 function system_get_caller_by_type($classname)
 {
     foreach(debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT|DEBUG_BACKTRACE_IGNORE_ARGS) as $entry)

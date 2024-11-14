@@ -105,6 +105,15 @@ abstract class Task
         return !!WdfTaskModel::Make()->eq('name',$name)->scalar('id');
     }
 
+    /**
+     * Kills a running Task identifier by it's name.
+     *
+     * The name is calculated from the 'run'-method and the given arguments (see <Task::Async> and <Task::AsyncOnce>).
+     *
+     * @param mixed $method The run-method (default: run)
+     * @param mixed $args Optional arguments given to the task at creation
+     * @return bool True if killed, else false
+     */
     public static function Kill($method='run', $args = false)
     {
         $name = get_called_class()."-$method";

@@ -63,6 +63,14 @@ function ai_init()
     }
 }
 
+/**
+ * Creates a AI based prediction.
+ *
+ * @param mixed $prompt Prompt for the AI engine
+ * @param mixed $options Optional options
+ * @param mixed $cache if true, cache the result for a while (default: false)
+ * @return mixed
+ */
 function ai_predict($prompt, $options = [], $cache = false)
 {
     global $CONFIG;

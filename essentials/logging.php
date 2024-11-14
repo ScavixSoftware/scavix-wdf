@@ -353,6 +353,12 @@ function logging_add_category($name)
 		$l->addCategory($name);
 }
 
+/**
+ * Checks if a category has been added.
+ *
+ * @param string $name Category to check for
+ * @return bool Whether the category is present.
+ */
 function logging_has_category($name)
 {
     foreach (Wdf::$Logger as $l)
