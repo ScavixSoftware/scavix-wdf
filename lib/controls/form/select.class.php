@@ -34,7 +34,7 @@ use ScavixWDF\Base\Control;
 
 /**
  * Represents a select element.
- * 
+ *
  */
 class Select extends Control
 {
@@ -51,10 +51,10 @@ class Select extends Control
         if( $name )
             $this->name = $name;
 	}
-	
+
 	/**
 	 * Sets the name attribute.
-	 * 
+	 *
 	 * @param string $name The type
 	 * @return static
 	 */
@@ -64,10 +64,10 @@ class Select extends Control
 			$this->name = $name;
 		return $this;
 	}
-	
+
 	/**
 	 * Sets the value attribute.
-	 * 
+	 *
 	 * @param string $value The value
 	 * @return static
 	 */
@@ -78,7 +78,7 @@ class Select extends Control
             $this->_setval($this->_content, $value);
 		return $this;
 	}
-	
+
 	/**
 	 * @deprecated (2021/03) Use <Select::setValue> instead
 	 */
@@ -86,7 +86,7 @@ class Select extends Control
 	{
 		return $this->setValue($value);
 	}
-    
+
     /**
      * Set the option(s) as selected after the options have been added
      */
@@ -98,7 +98,7 @@ class Select extends Control
             {
                 if(isset($opt->Tag) && ($opt->Tag == 'optgroup'))
                     $this->_setval($opt->_content, $val);
-                if((is_array($val) && in_array($opt->value, $val)) || ($opt->value == $val) && ($opt->Tag != 'optgroup'))
+                if((is_array($val) && in_array($opt->value, $val)) || (($opt->value == $val) && ($opt->Tag != 'optgroup')))
                     $opt->attr('selected', 'selected');
                 elseif(isset($opt->_attributes['selected']))
                     unset($opt->_attributes['selected']);
@@ -108,7 +108,7 @@ class Select extends Control
 
 	/**
 	 * Creates an option element.
-	 * 
+	 *
 	 * @param mixed $value The value
 	 * @param mixed $label An optional label
 	 * @param bool $selected True if selected (hint: use <Select::SetCurrentValue> instead of evaluating selected state for each option)
@@ -120,10 +120,10 @@ class Select extends Control
 		$this->CreateOption($value,$label,$selected,$opt_group);
 		return $this;
 	}
-	
+
     /**
      * Creates an option and returns it.
-     * 
+     *
 	 * @param mixed $value The value
 	 * @param mixed $label An optional label
 	 * @param bool $selected True if selected (hint: use <Select::SetCurrentValue> instead of evaluating selected state for each option)
@@ -149,7 +149,7 @@ class Select extends Control
 			$opt->attr("selected","selected");
 //		if( $value!=='' )
 			$opt->attr("value",$value);
-		
+
 		if( $opt_group )
 			return $opt_group->content($opt);
 		return $this->content($opt);
@@ -157,7 +157,7 @@ class Select extends Control
 
 	/**
 	 * Creates an optgroup element.
-	 * 
+	 *
 	 * @param string $label The label text
 	 * @param bool $disabled True if disabled
 	 * @return static
@@ -168,10 +168,10 @@ class Select extends Control
 		$this->CreateGroup($label, $disabled);
 		return $this;
 	}
-	
+
 	/**
 	 * Creates an optgroup element and returns it.
-	 * 
+	 *
 	 * Same as <Select::AddGroup>, but return the OptGroup <Control> instead to `$this`.
 	 * @param string $label The label text
 	 * @param bool $disabled True if disabled
@@ -185,10 +185,10 @@ class Select extends Control
 			$opt->disabled = 'disabled';
 		return $this->content($opt);
 	}
-	
+
 	/**
 	 * Creates a label element for this select.
-	 * 
+	 *
 	 * Note that this only ensures that the label is correctly assigned to this select.
 	 * It will not add it somewhere!
 	 * @param string $text Text for the label
@@ -198,10 +198,10 @@ class Select extends Control
 	{
 		return new Label($text,$this->id);
 	}
-    
+
     /**
      * Created and return a <Select> control.
-     * 
+     *
 	 * @deprecated (2022/07) Use Make and method-chaining instead
      * @param array $options Options
      * @param string $name Optional name attribute
@@ -216,12 +216,12 @@ class Select extends Control
             $res->AddOption($k,$v);
         return $res;
     }
-    
+
     /**
      * Enables form auto-submission on value change.
-     * 
+     *
      * This is done by submitting `$(this).closest('form')`
-     * 
+     *
      * @param bool $on if true, activates, else stops
      * @return static
      */
