@@ -81,17 +81,20 @@ function session_run()
 {
 	global $CONFIG;
 
-    // Force SameSite=none in session cookies, will be overwritten in system_exit with 'partitioned'
-    $cookie_params = session_get_cookie_params();
-    if (isset($cookie_params['samesite']))
+    if (ini_get('session.use_cookies'))
     {
-        $cookie_params['samesite'] = 'none';
-        $cookie_params['httponly'] = true;
-        if (isSSL())
-            $cookie_params['secure'] = true;
-        else
-            unset($cookie_params['samesite']);
-        session_set_cookie_params($cookie_params);
+        // Force SameSite=none in session cookies, will be overwritten in system_exit with 'partitioned'
+        $cookie_params = session_get_cookie_params();
+        if (isset($cookie_params['samesite']))
+        {
+            $cookie_params['samesite'] = 'none';
+            $cookie_params['httponly'] = true;
+            if (isSSL())
+                $cookie_params['secure'] = true;
+            else
+                unset($cookie_params['samesite']);
+            session_set_cookie_params($cookie_params);
+        }
     }
 
 	// check for backwards compatibility
