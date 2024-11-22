@@ -276,13 +276,17 @@ class HtmlPage extends Template implements ICallable
 	 * Like this: &lt;script type='text/javascript' src='$src'&gt;&lt;/script&gt;
 	 * @param string $src The src attribute
 	 * @param string $key Optional data-key attribute for the script tag
+     * @param array $attrs Additional attributes for the script tag
 	 * @return static
 	 */
-	function addJs($src,$key='')
+	function addJs($src,$key='',$attrs=[])
 	{
 		if( isset($this->js[$src]) )
 			return $this;
-		$js = "\t<script type='text/javascript' src='$src'".($key != '' ? " data-key='$key'" : '')."></script>\n";
+		$js = "\t<script type='text/javascript' src='".str_replace("'", "\'", $src)."'".($key != '' ? " data-key='".str_replace("'", "\'", $key)."'" : '');
+        foreach($attrs as $k => $v)
+            $js .= " ".str_replace("'", "\'", $k)."='".str_replace("'", "\'", $v)."'";
+        $js .= "></script>\n";
 		$this->js[$src] = $js;
 		return $this;
 	}
