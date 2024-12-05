@@ -72,6 +72,7 @@ class WdfTaskModel extends Model
     private $isVirtual = false, $prevent_duplicate = false, $cascade_go = true, $children = [];
     public static $PROCESS_FILTER = 'db-processwdftasks';
     public static $MAX_PROCESSES = 10;
+    public static $MIN_RUNTIME = 0;
 
 	public function GetTableName() { return 'wdf_tasks'; }
 
@@ -161,6 +162,18 @@ class WdfTaskModel extends Model
             $shmdir = "/run/shm/" . $GLOBALS['CONFIG']['system']['application_name'];
 
         return count(glob("{$shmdir}/*.*"));
+    }
+
+    public static function GetRunningInstances()
+    {
+        static $shmdir = false;
+        if( $shmdir === false )
+            $shmdir = "/run/shm/" . $GLOBALS['CONFIG']['system']['application_name'];
+
+        $pids = [];
+        foreach (glob("{$shmdir}/*.*") as $f)
+            $pids[] = intval(array_first(explode(".", basename($f))));
+        return array_filter($pids);
     }
 
 	public static function RunInstance($runtime_seconds=null)
@@ -439,7 +452,7 @@ class WdfTaskModel extends Model
             }
 
             @touch("{$shm}.{$state}");
-            log_debug(__METHOD__, "{$shm}.{$state}");
+            // log_debug(__METHOD__, "{$shm}.{$state}");
             if ($state == 'idle')
             {
                 $ttl = time() - 30;
@@ -452,7 +465,7 @@ class WdfTaskModel extends Model
                         @touch($f);
                     else
                     {
-                        log_debug("unklink $f");
+                        // log_debug("unklink $f");
                         @unlink($f);
                     }
                 }

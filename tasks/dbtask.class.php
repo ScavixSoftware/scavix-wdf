@@ -180,15 +180,29 @@ class DbTask extends Task
         if (count(Wdf::$Logger) > 1)
             logging_remove_logger('cli');
         logging_add_category(getmypid());
+
+        register_shutdown_function(function ()
+        {
+            WdfTaskModel::SetState('done');
+        });
+        pcntl_async_signals(true);
+        pcntl_signal(SIGTERM, function ()
+        {
+            TerminationException::Verbose("SIGTERM received, terminating");
+        });
+
         WdfTaskModel::SetState('idle');
-        $ttl = intval(array_shift($args)?:0)?:0;
+        $ttl = intval(array_shift($args) ?: -1) ?: -1;
+        if ($ttl < 0)
+            $ttl = WDftaskmodel::$MIN_RUNTIME;
         $eol = time() + $ttl;
         WdfTaskModel::FreeOrphans();
         $task = WdfTaskModel::Reserve();
         set_time_limit(0);
-        while( $task || time()<$eol )
+
+        while ($task || time() < $eol)
         {
-            if( $task )
+            if ($task)
             {
                 WdfTaskModel::SetState('running');
                 $cat = implode("-", array_slice(explode("-", $task->name), 0, 2));
@@ -203,11 +217,90 @@ class DbTask extends Task
                 continue;
 
             $running = WdfTaskModel::CountRunningInstances();
-            if ( $running >= WdfTaskModel::$MAX_PROCESSES)
+            if ($running >= WdfTaskModel::$MAX_PROCESSES)
                 break;
 
             $task = WdfTaskModel::Reserve();
         }
-        WdfTaskModel::SetState('done');
+    }
+
+    function ListWdfTasks($args)
+    {
+        foreach (Wdf::$Logger as $name => $l)
+            if ($name != 'cli')
+                logging_remove_logger($name);
+
+        $tasks = [];
+        foreach( WdfTaskModel::Make()->notNull('worker_pid') as $dbt )
+            $tasks[$dbt->worker_pid] = $dbt;
+
+        $pids = WdfTaskModel::GetRunningInstances();
+        $running = $idle = 0;
+        sort($pids);
+        $tab = [];
+        if (count($pids) > 0)
+            $tab[] = ['NO', 'PID', 'RUNTIME', 'PRIO', 'NAME', 'ARGUMENTS'];
+        foreach ($pids as $i => $pid)
+        {
+            $zombie = @file_exists("/proc/$pid/cmdline") ? false : '<zombie>';
+            $info = [
+                $i+1,
+                $pid
+            ];
+            if( isset($tasks[$pid]) )
+            {
+                $info[] = $zombie ?: (avail($tasks[$pid], 'assigned') ? $tasks[$pid]->assigned->age_secs() . "s" : '');
+                $info[] = $tasks[$pid]->priority;
+                $info[] = implode("-", array_slice(explode("-", $tasks[$pid]->name), 0, 2));
+                $info[] = json_encode($tasks[$pid]->GetArgs());
+                $running++;
+            }
+            else
+            {
+                $info[] = $zombie ?: '<idle>';
+                $idle++;
+            }
+            $tab[] = $info;
+        }
+        $sizes = array_fill(0,6,0);
+        foreach( $tab as $row )
+        {
+            foreach (array_map(function ($v){ return strlen($v); }, $row) as $i => $len)
+                $sizes[$i] = max($sizes[$i], $len);
+        }
+        $width = trim(shell_exec("tput cols"));
+        foreach( $tab as $row )
+        {
+            foreach ($row as $i => $cell)
+                $row[$i] = str_pad($cell, $sizes[$i], ' ');
+            $line = substr(implode(' ', $row), 0, $width - 1);
+            echo "{$line}\n";
+        }
+        if (avail($args, 'expand') || array_shift($args)=='expand' )
+            for ($i = count($pids); $i <= WdfTaskModel::$MAX_PROCESSES; $i++)
+                echo str_pad($i, $sizes[0], ' ')."\n";
+
+        echo "\nRunning: $running, Idle: $idle, Max: ".WdfTaskModel::$MAX_PROCESSES.", Free: ".(WdfTaskModel::$MAX_PROCESSES-count($pids));
+    }
+
+    function StopWdfTasks($args)
+    {
+        foreach (Wdf::$Logger as $name => $l)
+            if ($name != 'cli')
+                logging_remove_logger($name);
+
+        $sig = is_in(strtolower(array_shift($args) . ''), 'k', 'kill', '9') ? SIGKILL : SIGTERM;
+        foreach (WdfTaskModel::GetRunningInstances() as $pid)
+        {
+            echo (($sig==SIGTERM)?"Stopping ":"Killing ")."$pid...";
+            if (posix_kill($pid, $sig))
+            {
+                if ($sig == SIGKILL)
+                    @unlink("/run/shm/{$GLOBALS['CONFIG']['system']['application_name']}/{$pid}.*");
+                echo "ok\n";
+            }
+            else
+                echo "failed\n";
+        }
     }
 }
