@@ -381,15 +381,15 @@ class WdfTaskModel extends Model
         }
     }
 
-	public static function Reserve(int $max_prioority=0)
+	public static function Reserve(int $max_priority=0)
 	{
         $ds = DataSource::Get();
 		$wpid = getmypid();
         try
         {
             $where = "enabled=1 AND isnull(worker_pid) AND isnull(parent_task) AND isnull(assigned) AND (ISNULL(start) OR start<=now())";
-            if( $max_prioority )
-                $where .= " AND priority<=$max_prioority";
+            if( $max_priority )
+                $where .= " AND priority<=$max_priority";
 
             $ids = $ds->ExecuteSql("SELECT id FROM wdf_tasks WHERE $where ORDER BY id DESC LIMIT 10")->Enumerate('id');
             if (count($ids) == 0)
