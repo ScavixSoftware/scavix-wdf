@@ -31,6 +31,12 @@ use Exception;
 
 if( !defined('FRAMEWORK_LOADED') || FRAMEWORK_LOADED != 'uSI7hcKMQgPaPKAQDXg5' ) die('');
 
+define("TASK_PRIORITY_HIGHEST", 1);
+define("TASK_PRIORITY_HIGH", 2);
+define("TASK_PRIORITY_NORMAL", 3);
+define("TASK_PRIORITY_LOW", 4);
+define("TASK_PRIORITY_LOWEST", 5);
+
 /**
  * WDF internal replacement for $GLOBALS usage.
  */

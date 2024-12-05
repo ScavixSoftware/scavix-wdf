@@ -180,6 +180,7 @@ class DbTask extends Task
         if (count(Wdf::$Logger) > 1)
             logging_remove_logger('cli');
         logging_add_category(getmypid());
+        WdfTaskModel::SetState('idle');
         $ttl = intval(array_shift($args)?:0)?:0;
         $eol = time() + $ttl;
         WdfTaskModel::FreeOrphans();
@@ -189,14 +190,24 @@ class DbTask extends Task
         {
             if( $task )
             {
+                WdfTaskModel::SetState('running');
                 $cat = implode("-", array_slice(explode("-", $task->name), 0, 2));
                 logging_add_category($cat);
                 $task->Run();
                 logging_remove_category($cat);
+                WdfTaskModel::SetState('idle');
             }
             else
                 usleep(100000);
+            if ($task = WdfTaskModel::Reserve(TASK_PRIORITY_HIGHEST))
+                continue;
+
+            $running = WdfTaskModel::CountRunningInstances();
+            if ( $running >= WdfTaskModel::$MAX_PROCESSES)
+                break;
+
             $task = WdfTaskModel::Reserve();
         }
+        WdfTaskModel::SetState('done');
     }
 }

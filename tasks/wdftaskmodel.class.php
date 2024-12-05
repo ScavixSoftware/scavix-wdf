@@ -46,6 +46,9 @@ class WdfTaskModel extends Model
 	/** @var int */
 	public $enabled;
 
+	/** @var int */
+	public $priority;
+
 	/** @var \ScavixWDF\Base\DateTimeEx|string */
 	public $created;
 
@@ -70,8 +73,6 @@ class WdfTaskModel extends Model
     public static $PROCESS_FILTER = 'db-processwdftasks';
     public static $MAX_PROCESSES = 10;
 
-    private static $_checkedprocs = [];
-
 	public function GetTableName() { return 'wdf_tasks'; }
 
     function __construct($datasource = null)
@@ -89,6 +90,7 @@ class WdfTaskModel extends Model
                 `parent_task` INT(11) UNSIGNED NULL DEFAULT NULL,
                 `follow_deletion` TINYINT(1) UNSIGNED NULL DEFAULT '0',
                 `enabled` TINYINT(4) NULL DEFAULT '0',
+                `priority` TINYINT(4) NULL DEFAULT '3',
                 `created` DATETIME NULL DEFAULT NULL,
                 `start` DATETIME NULL DEFAULT NULL,
                 `assigned` DATETIME NULL DEFAULT NULL,
@@ -152,44 +154,20 @@ class WdfTaskModel extends Model
         return !!DataSource::Get()->ExecuteScalar("SELECT count(*) FROM wdf_tasks WHERE enabled=1 AND ISNULL(parent_task)");
     }
 
-    private static function countRunningInstances()
+    public static function CountRunningInstances()
     {
-        $filter = CLI_SELF . " " . self::$PROCESS_FILTER;
-        $filterlen = strlen($filter) - 3;
+        static $shmdir = false;
+        if( $shmdir === false )
+            $shmdir = "/run/shm/" . $GLOBALS['CONFIG']['system']['application_name'];
 
-        $files = glob("/proc/[0-9]*/cmdline");
-        self::$_checkedprocs = array_intersect_key(self::$_checkedprocs, array_fill_keys($files, true));
-
-        foreach( $files as $pp )
-        {
-            if(isset(self::$_checkedprocs[$pp]))
-                continue;
-
-            $c = @file_get_contents("$pp");
-            if ($c && (strlen($c) > $filterlen))
-            {
-                $f1 = strpos($c, CLI_SELF);
-                if ($f1 !== false)
-                {
-                    $f2 = strpos($c, self::$PROCESS_FILTER);
-                    if (($f2 !== false) && ($f1 <= $f2))
-                    {
-                        self::$_checkedprocs[$pp] = true;
-                        continue;
-                    }
-                }
-            }
-            self::$_checkedprocs[$pp] = false;
-        }
-
-        return count(array_filter(self::$_checkedprocs));
+        return count(glob("{$shmdir}/*.*"));
     }
 
 	public static function RunInstance($runtime_seconds=null)
 	{
         static $counter = false;
         if ($counter === false || PHP_SAPI == 'cli' )
-            $counter = self::countRunningInstances();
+            $counter = self::CountRunningInstances();
         if ($counter >= self::$MAX_PROCESSES)
             return;
         $counter++;
@@ -403,13 +381,15 @@ class WdfTaskModel extends Model
         }
     }
 
-	public static function Reserve()
+	public static function Reserve(int $max_prioority=0)
 	{
         $ds = DataSource::Get();
 		$wpid = getmypid();
         try
         {
             $where = "enabled=1 AND isnull(worker_pid) AND isnull(parent_task) AND isnull(assigned) AND (ISNULL(start) OR start<=now())";
+            if( $max_prioority )
+                $where .= " AND priority<=$max_prioority";
 
             $ids = $ds->ExecuteSql("SELECT id FROM wdf_tasks WHERE $where ORDER BY id DESC LIMIT 10")->Enumerate('id');
             if (count($ids) == 0)
@@ -418,7 +398,7 @@ class WdfTaskModel extends Model
             $ds->ExecuteSql(
                 "UPDATE wdf_tasks SET worker_pid=?, assigned=now() WHERE
                     $where AND id IN(".implode(",",$ids).")
-                    ORDER BY id DESC LIMIT 1"
+                    ORDER BY priority ASC, id DESC LIMIT 1"
                 ,$wpid);
         }
         catch(WdfDbException $ex)
@@ -430,6 +410,65 @@ class WdfTaskModel extends Model
         }
 		return WdfTaskModel::Make($ds)->eq('worker_pid',$wpid)->current();
 	}
+
+    public static function SetState($state = 'idle')
+    {
+        static $shmdir = false, $shm = false;
+        $um = umask(0);
+        try
+        {
+            if ($shm === false)
+            {
+                $shmdir = "/run/shm/" . $GLOBALS['CONFIG']['system']['application_name'];
+                @mkdir($shmdir, 0777, true);
+                $shm = "{$shmdir}/" . getmypid();
+            }
+            switch ($state)
+            {
+                case 'idle':
+                    @unlink("{$shm}.running");
+                    break;
+                case 'running':
+                    @unlink("{$shm}.idle");
+                    break;
+                case 'done':
+                    @unlink("{$shm}.running");
+                    @unlink("{$shm}.idle");
+                default:
+                    return;
+            }
+
+            @touch("{$shm}.{$state}");
+            log_debug(__METHOD__, "{$shm}.{$state}");
+            if ($state == 'idle')
+            {
+                $ttl = time() - 30;
+                foreach (glob("{$shmdir}/*.*") as $f)
+                {
+                    if (!($mt = @filemtime($f)) || ($mt > $ttl))
+                        continue;
+                    $pid = array_first(explode(".", basename($f)));
+                    if (file_exists("/proc/$pid/cmdline"))
+                        @touch($f);
+                    else
+                    {
+                        log_debug("unklink $f");
+                        @unlink($f);
+                    }
+                }
+            }
+        }
+        finally
+        {
+            umask($um);
+        }
+    }
+
+    public function SetPriority(int $priority = 3)
+    {
+        $this->priority = $priority;
+        return $this;
+    }
 
 	public function Run($inline=false)
 	{
@@ -443,6 +482,7 @@ class WdfTaskModel extends Model
 
 		if( is_subclass_of($name, \ScavixWDF\Tasks\Task::class) )
 		{
+
             $worker = new $name($this);
 
             if( !method_exists($worker, $method) )
