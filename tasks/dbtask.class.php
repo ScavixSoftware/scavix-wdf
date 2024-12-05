@@ -207,9 +207,25 @@ class DbTask extends Task
                 WdfTaskModel::SetState('running');
                 $cat = implode("-", array_slice(explode("-", $task->name), 0, 2));
                 logging_add_category($cat);
+
+                $exectime = microtime(true);
+                $startUsage = getrusage();
+
                 $task->Run();
+
+                $endUsage = getrusage();
+                $cputime = 0;
+                foreach (['ru_utime', 'ru_stime'] as $k)
+                    $cputime += ($endUsage["$k.tv_sec"] - $startUsage["$k.tv_sec"]) + ($endUsage["$k.tv_usec"] - $startUsage["$k.tv_usec"]) / 1e6;
+                $exectime = microtime(true) - $exectime;
+                $cpuUsage = ($cputime / $exectime) * 100;
+
+                if (isDev() && $exectime>1000 && $cpuUsage > 90)
+                    log_debug("High CPU-Usage: " . round($cpuUsage, 2) . "%");
+
                 logging_remove_category($cat);
                 WdfTaskModel::SetState('idle');
+                usleep(10000);
             }
             else
                 usleep(100000);
