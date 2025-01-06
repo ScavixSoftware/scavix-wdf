@@ -315,7 +315,7 @@ class Serializer
 					for($i=0; $i<$len; $i++)
 					{
 						$field = $this->Unser_Inner();
-						if( $field == "" )
+						if( !is_string($field) || $field == "" )
 							continue;
 						$this->Stack[$id]->$field = $this->Unser_Inner();
 					}
