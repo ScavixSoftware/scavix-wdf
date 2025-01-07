@@ -97,14 +97,14 @@ class WdfTaskModel extends Model
                 `assigned` DATETIME NULL DEFAULT NULL,
                 `worker_pid` INT(11) NULL DEFAULT NULL,
                 `name` VARCHAR(255) NULL DEFAULT NULL,
-                `arguments` VARCHAR(21000) NULL DEFAULT NULL,
+                `arguments` MEDIUMTEXT NULL DEFAULT NULL,
                 PRIMARY KEY (`id`),
                 INDEX `enabled_workerpid_parenttask_id` (`enabled`, `worker_pid`, `parent_task`, `id`),
                 INDEX `worker_pid` (`worker_pid`, `assigned`),
                 INDEX `name` (`name`),
                 INDEX `parent_task` (`parent_task`)
             )
-            ENGINE=MEMORY;
+            ENGINE=InnoDB;
             ");
     }
 
