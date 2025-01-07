@@ -31,7 +31,7 @@ use ScavixWDF\WdfException;
 
 /**
  * Stores objects in the filesystem.
- * 
+ *
  * This is by far the fastets <ObjectStore> implementation. As we use it mostly,
  * it is most commonly updated!
  */
@@ -39,7 +39,7 @@ class FilesStore extends ObjectStore
 {
     protected $serializer;
     protected $path = false;
-    
+
     protected function getPath($sid=false)
     {
         if( $sid )
@@ -48,42 +48,46 @@ class FilesStore extends ObjectStore
             return $this->path;     // already checked/created
         else
             $directory = $this->path = $GLOBALS['CONFIG']['session']['filesstore']['path'].session_id();
-        
+
         if( is_file($directory) )
             unlink($directory);
         if( !file_exists($directory) )
         {
             $origumask = umask(0);
-            if(!mkdir($directory, 0777, true))
-                log_error('unable to create '.$directory, error_get_last());
+            if (!@mkdir($directory, 0777, true))
+            {
+                $err = error_get_last();
+                if( stripos($err['message'],"File exists") !== false )
+                    log_error('unable to create ' . $directory, $err);
+            }
             umask($origumask);
         }
         return $directory;
     }
-    
+
     protected function getFile($id)
     {
         return $this->getPath()."/$id";
     }
-    
+
     protected function _key($key)
     {
         return $key;
     }
-    
+
     public function __construct()
     {
         global $CONFIG;
-        
+
         if( !isset($CONFIG['session']['filesstore']['path']) )
             $CONFIG['session']['filesstore']['path'] = system_app_temp_dir("filesstore", false);
-        
+
         $this->serializer = new Serializer();
-        
+
         if( !isset($_SESSION['object_ids']) )
             $_SESSION['object_ids'] = [];
     }
-    
+
     /**
      * @override <ObjectStore::Store>
      */
@@ -99,7 +103,7 @@ class FilesStore extends ObjectStore
 		}
 		else
 			$obj->_storage_id = $id;
-  
+
         /* serialization and storage will be done in Update method */
 //        $content = $this->serializer->Serialize($obj);
 //        $this->_stats(__METHOD__.'/SER',$start);
@@ -108,7 +112,7 @@ class FilesStore extends ObjectStore
         ObjectStore::$buffer[$id] = $obj;
         $this->_stats(__METHOD__,$start);
     }
-    
+
     /**
      * @override <ObjectStore::Delete>
      */
@@ -117,13 +121,13 @@ class FilesStore extends ObjectStore
         $start = microtime(true);
 		if( is_object($id) && isset($id->_storage_id) )
 			$id = $id->_storage_id;
-        
+
         if( isset(ObjectStore::$buffer[$id]) )
             unset(ObjectStore::$buffer[$id]);
 		@unlink($this->getFile($id));
         $this->_stats(__METHOD__,$start);
     }
-    
+
     /**
      * @override <ObjectStore::Exists>
      */
@@ -140,7 +144,7 @@ class FilesStore extends ObjectStore
         $this->_stats(__METHOD__,$start);
 		return $res;
     }
-    
+
     /**
      * @override <ObjectStore::Restore>
      */
@@ -170,7 +174,7 @@ class FilesStore extends ObjectStore
         }
 		return $res;
     }
-    
+
     /**
      * @override <ObjectStore::CreateId>
      */
@@ -194,7 +198,7 @@ class FilesStore extends ObjectStore
         $this->_stats(__METHOD__,$start);
         return $obj->_storage_id;
     }
-    
+
     /**
      * @override <ObjectStore::Cleanup>
      */
@@ -226,7 +230,7 @@ class FilesStore extends ObjectStore
                     @unlink($f);
             @rmdir($d);
             //log_debug(__METHOD__,"Session removed:",$d);
-        }   
+        }
         foreach( system_glob_rec($this->getPath(),'*') as $f )
         {
             $time = @filemtime($f);
@@ -238,14 +242,14 @@ class FilesStore extends ObjectStore
         }
         $this->_stats(__METHOD__,$start);
     }
-    
+
     /**
      * @override <ObjectStore::Update>
      */
     function Update($keep_alive=false)
     {
         $start = microtime(true);
-        
+
         if( $keep_alive )
         {
             foreach( system_glob_rec($this->getFile(''),'*') as $f )
@@ -274,7 +278,7 @@ class FilesStore extends ObjectStore
         touch( $this->getPath() );
         $this->_stats(__METHOD__.($keep_alive?"/KA":''),$start);
     }
-    
+
     /**
      * @override <ObjectStore::Migrate>
      */

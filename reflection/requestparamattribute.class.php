@@ -35,7 +35,7 @@ use ScavixWDF\Wdf;
 
 /**
  * Allows to automatically pass REQUEST parameters to methods arguments.
- * 
+ *
  * <at>attribute[RequestParam('joe','string',false)]
  * in the doccomment will make the following usable:
  * function SomeMethod($joe){ log_debug($joe); }
@@ -53,7 +53,7 @@ class RequestParamAttribute extends WdfAttribute
 		$this->Type = $type;
 		$this->Default = $default;
 		$this->Filter = $filter;
-		
+
 		if( !is_null($this->Type) && is_null($this->Filter) )
 		{
 			switch( strtolower($this->Type) )
@@ -67,7 +67,7 @@ class RequestParamAttribute extends WdfAttribute
 
 	/**
 	 * Checks if the argument is optional
-	 * 
+	 *
 	 * This is done by checking if there's a default value specified.
 	 * @return bool true or false
 	 */
@@ -78,7 +78,7 @@ class RequestParamAttribute extends WdfAttribute
 
 	/**
 	 * Checks a given array for data for this and updates another array accordingly
-	 * 
+	 *
 	 * This is kind of internal, so will not be documented further. Only that it ensures typed data in the $args argument
 	 * from the $data argument. We will most likely clean this procedure up in the future.
 	 * @param array $data Combined request data
@@ -87,7 +87,7 @@ class RequestParamAttribute extends WdfAttribute
 	 * @return bool|string true if everything went fine, an error string if not
 	 */
 	function UpdateArgs($data, &$args, $is_last = false)
-	{		
+	{
 		global $CONFIG;
 		if( $CONFIG['requestparam']['ignore_case'] )
 		{
@@ -143,6 +143,8 @@ class RequestParamAttribute extends WdfAttribute
 					return true;
 				case 'string':
 				case 'text':
+                    if( is_array($data[$name]) )
+                        return 'invalid float value';
 					if( $this->Filter )
 						$args[$this->Name] = preg_replace('/\x00|<[^>]*>?/', '', "{$data[$name]}");      // see https://stackoverflow.com/questions/69207368/constant-filter-sanitize-string-is-deprecated
 					else
@@ -171,7 +173,7 @@ class RequestParamAttribute extends WdfAttribute
 						$args[$this->Name] = $this->Default;
 						return true;
 					}
-					
+
 //					if( isset($CONFIG['localization']['float_conversion']) )
 //						$data[$name] = call_user_func($CONFIG['localization']['float_conversion'],$data[$name]);
 //					else if( !is_float(floatval($data[$name])) )
