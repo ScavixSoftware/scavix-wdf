@@ -75,19 +75,23 @@ class lessc {
     static protected $nextImportId = 0; // uniquely identify imports
 
     // attempts to find the path of an import url, returns null for css files
+    // scavix optimized
     protected function findImport($url) {
+        if(starts_iwith($url, 'http'))
+            return null;
         foreach ((array)$this->importDir as $dir) {
             $full = $dir.(substr($dir, -1) != '/' ? '/' : '').$url;
-            if ($this->fileExists($file = $full.'.less') || $this->fileExists($file = $full)) {
+            if (!ends_iwith($full, '.less') && $this->fileExists($file = $full.'.less'))
                 return $file;
-            }
+            if ($this->fileExists($file = $full))
+                return $file;
         }
 
         return null;
     }
 
     protected function fileExists($name) {
-        return is_file($name);
+        return @is_file($name);
     }
 
     public static function compressList($items, $delim) {
