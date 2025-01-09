@@ -87,7 +87,7 @@ class TaskPool extends Task
         while (true) // Loop for Reusable pools, (re-)load child-tasks from DB
         {
             $task_ids = WdfTaskModel::Make()->eq('parent_task', $this->model->id)
-                ->orderBy('priotity')->orderBy('start')
+                ->orderBy('priority')->orderBy('start')
                 ->enumerate('id');
             if (count($task_ids) <= $min_tasks_required)
                 break;
