@@ -99,14 +99,19 @@ function cli_run_script($php_script_path, $args=[], $extended_data=false, $retur
 
     $ini = system_app_temp_dir()."php_cli.ini";
     $out = ini_get('error_log');
+    // log_debug($out);
 
     if( ($loadedini = php_ini_loaded_file()) && ($loadedini != $ini) && (!file_exists($ini) || (filemtime($ini)<time()-3600))) // TTL for INI files is 1 hour
     {
-        $inidata = file_get_contents($loadedini);
-        $inidata = preg_replace('/^disable_functions/m', ';disable_functions', $inidata);
+        // $inidata = file_get_contents($loadedini);
+        // $inidata = preg_replace('/^disable_functions/m', ';disable_functions', $inidata);
+        $inidata = ini_get_all(null, false);
+        if (isset($inidata['disable_functions']))
+            unset($inidata['disable_functions']);
+        $inidata = implode("\n", array_map(function($k,$v){ return "{$k}={$v}"; }, array_keys($inidata), $inidata));
         foreach(array_unique(array_filter([ifavail($_SERVER, 'DOCUMENT_ROOT'), dirname($php_script_path), dirname($php_script_path).'/..', dirname($php_script_path).'/../..', dirname($php_script_path).'/../../..'])) as $dir)
         {
-            if(file_exists($ini_extrafile = $dir.'/.cli_php_extra.ini') && (parse_ini_file($ini_extrafile) !== false))
+            if(@file_exists($ini_extrafile = $dir.'/.cli_php_extra.ini') && (parse_ini_file($ini_extrafile) !== false))
             {
                 $inidata .= file_get_contents($ini_extrafile);
                 break;
@@ -151,8 +156,8 @@ function cli_run_script($php_script_path, $args=[], $extended_data=false, $retur
     if (cli_running_as_sudo())
         $cmdline = str_replace("nohup php -c", "nohup sudo php -c", $cmdline);
 
-    if( $return_cmdline )
-        return $cmdline;
+    if ($return_cmdline)
+        log_debug($cmdline);
 
     exec($cmdline);
 }

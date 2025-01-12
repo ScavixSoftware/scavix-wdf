@@ -1946,7 +1946,6 @@ function fq_class_name($classname)
 /**
  * Checks if a process it still running.
  *
- * Note that this depends on <shell_exec>(), so make sure it not  disabled in `php.ini`.
  * @param int $pid Process id to check
  * @return bool true if running, else false
  */
@@ -1954,13 +1953,18 @@ function system_process_running($pid)
 {
     if (PHP_OS_FAMILY == "Linux")
     {
-        $stat = @file_get_contents("/proc/$pid/stat");
-        if (!$stat)
-            return false;
-        $d = sscanf($stat, "%d %s %c %d");
-        if (!isset($d[2]))
-            return false;
-        return $d[2] == 'S' || $d[2] == 'R' || $d[2] == 'D';
+        $retval = null;
+        passthru("kill -0 $pid", $retval);
+        // log_debug($pid, $retval, ($retval === 0), @file_get_contents("/proc/$pid/stat"));
+        return ($retval === 0);
+
+        // $stat = @file_get_contents("/proc/$pid/stat");
+        // if (!$stat)
+        //     return false;
+        // $d = sscanf($stat, "%d %s %c %d");
+        // if (!isset($d[2]))
+        //     return false;
+        // return $d[2] == 'S' || $d[2] == 'R' || $d[2] == 'D';
     }
     return strpos(shell_exec("tasklist /FI \"PID eq $pid\" /FO \"CSV\" /NH"), "\"$pid\"");
 }
