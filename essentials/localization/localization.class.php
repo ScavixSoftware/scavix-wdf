@@ -76,9 +76,9 @@ class Localization
 					return $region->DefaultCulture();
 			}
 		}
-        if(isset($_SERVER["GEOIP_COUNTRY_CODE"]))
+        if(isset($_SERVER["GEOIP_COUNTRY_CODE"]) || isset($_SERVER["GEOIP_COUNTRY_CODE_V6"]))
 		{
-            $region = internal_getRegion($_SERVER["GEOIP_COUNTRY_CODE"]);
+            $region = internal_getRegion(isset($_SERVER["GEOIP_COUNTRY_CODE"]) ? $_SERVER["GEOIP_COUNTRY_CODE"] : $_SERVER["GEOIP_COUNTRY_CODE_V6"]);
             if($region)
 				return $region->DefaultCulture();
 		}
