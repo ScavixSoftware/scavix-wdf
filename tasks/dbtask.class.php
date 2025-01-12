@@ -258,7 +258,8 @@ class DbTask extends Task
             $tab[] = ['NO', 'PID', 'RUNTIME', 'PRIO', 'NAME', 'ARGUMENTS'];
         foreach ($pids as $i => $pid)
         {
-            $zombie = @file_exists("/proc/$pid/cmdline") ? false : '<zombie>';
+            // $zombie = @file_exists("/proc/$pid/cmdline") ? false : '<zombie>';
+            $zombie = system_process_running($pid) ? false : '<zombie>';
             $info = [
                 $i+1,
                 $pid

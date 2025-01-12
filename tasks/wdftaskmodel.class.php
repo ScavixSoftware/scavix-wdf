@@ -461,7 +461,8 @@ class WdfTaskModel extends Model
                     if (!($mt = @filemtime($f)) || ($mt > $ttl))
                         continue;
                     $pid = array_first(explode(".", basename($f)));
-                    if (file_exists("/proc/$pid/cmdline"))
+                    // if (file_exists("/proc/$pid/cmdline"))
+                    if (system_process_running($pid))
                         @touch($f);
                     else
                     {

@@ -69,19 +69,21 @@ if( !isset($_ENV['CURRENT_ENVIRONMENT']) )
  */
 function detectEnvironment($directory)
 {
+    if(getenv('SCAVIX_DEVSERVER') == 1)
+        switchToDev();
 
     // auto-detect DEV system: Check the filesystem up to '/' (max 10 folders away) for a file named '.scavixwdf.dev'
-    $i = 0;
-    do
-    {
-        $p = isset($p) ? dirname($p) : realpath($directory);
-        if( file_exists($p.(dirname($p)==$p?'':'/').".scavixwdf.dev") )
-        {
-            switchToDev();
-            break;
-        }
-    }
-    while (dirname($p) != $p && $i++<10);
+    // $i = 0;
+    // do
+    // {
+    //     $p = isset($p) ? dirname($p) : realpath($directory);
+    //     if( @file_exists($p.(dirname($p)==$p?'':'/').".scavixwdf.dev") )
+    //     {
+    //         switchToDev();
+    //         break;
+    //     }
+    // }
+    // while (dirname($p) != $p && $i++<10);
 }
 
 /**
