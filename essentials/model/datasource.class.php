@@ -442,10 +442,11 @@ class DataSource
 	 * @param string $sql   SQL statement
 	 * @param array $prms   Arguments for the query
 	 * @param int $lifetime Optional Lifetime in seconds
+     * @param bool $cacherefresh If true, refresh the cache from DB immediately
 	 * @return ResultSet The ResultSet
 	 * @throws WdfDbException
 	 */
-	function CacheExecuteSql($sql,$prms=[],$lifetime=false)
+	function CacheExecuteSql($sql, $prms=[], $lifetime = false, $cacherefresh = false)
 	{
 		if( !system_is_module_loaded('globalcache') || $lifetime === 0 )
 			return $this->ExecuteSql($sql, $prms);
@@ -455,7 +456,7 @@ class DataSource
 
 		$key = 'DB_Cache_Sql_'.md5( $sql.serialize($prms).$lifetime );
 		$null = null;
-		if( is_null($res = cache_get($key, $null, true, false)) )
+		if( $cacherefresh || is_null($res = cache_get($key, $null, true, false)) )
 		{
 			$res = $this->ExecuteSql($sql, $prms);
 			if( $res )
