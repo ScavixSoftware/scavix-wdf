@@ -1951,12 +1951,16 @@ function fq_class_name($classname)
  */
 function system_process_running($pid)
 {
+    if( !$pid || !is_numeric($pid) )
+        return false;
+
     if (PHP_OS_FAMILY == "Linux")
     {
-        $retval = null;
-        passthru("kill -0 $pid", $retval);
-        // log_debug($pid, $retval, ($retval === 0), @file_get_contents("/proc/$pid/stat"));
-        return ($retval === 0);
+        $result = $stdout = null;
+        exec("kill -0 $pid 2>&1", $stdout, $result);
+        if ($result > 1)
+            log_debug("Process $pid not found: " . json_encode(compact('result', 'stdout')));
+        return ($result === 0);
 
         // $stat = @file_get_contents("/proc/$pid/stat");
         // if (!$stat)
