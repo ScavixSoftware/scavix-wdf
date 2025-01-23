@@ -518,9 +518,11 @@ class WdfFileCacheWrapper
         $file = $this->getPath($key);
 
         $filemtime = @filemtime($file);
-
-        if( isset($this->map[$key]) && $this->map[$key]['filemtime'] == $filemtime )
+        if (isset($this->map[$key]) && $this->map[$key]['filemtime'] == $filemtime)
+        {
+            $exists = true;
             return $this->map[$key]['data'];
+        }
 
         $val = $this->unpack($file);
         if (!isset($val['key']) || $val['key'] != $key )
