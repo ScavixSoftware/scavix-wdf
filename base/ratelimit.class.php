@@ -131,7 +131,7 @@ class RateLimit extends \ScavixWDF\Model\Model
         $q = [];
         foreach( $this->limits as $s=>$l )
             $q[] = "SUM(IF(age < $s,1,0)) as '$s'";
-        $sql = "SELECT SQL_NO_CACHE ".implode(",",$q)." FROM (SELECT timestampdiff(second,created,now()) as age FROM wdf_ratelimits WHERE name='{$this->name}') as x";
+        $sql = "SELECT SQL_NO_CACHE ".implode(",",$q)." FROM (SELECT timestampdiff(second,created,now()) as age FROM wdf_ratelimits WHERE name=?) as x";
 
         $maxage = array_first(array_keys($this->limits));
 
@@ -143,15 +143,15 @@ class RateLimit extends \ScavixWDF\Model\Model
                 usleep(10000);
                 continue;
             }
-            $this->_ds->ExecuteSql("DELETE FROM wdf_ratelimits WHERE name='{$this->name}' AND created<NOW()-INTERVAL $maxage SECOND");
+            $this->_ds->ExecuteSql('DELETE FROM wdf_ratelimits WHERE name=? AND created<NOW()-INTERVAL ? SECOND', [$this->name, $maxage]);
             $ok = true;
-            $count = $this->_ds->ExecuteSql($sql)->current();
+            $count = $this->_ds->ExecuteSql($sql, [$this->name])->current();
             foreach( $this->limits as $seconds=>$limit )
                 $ok &= $count[$seconds] < $limit;
 
             if( $ok )
             {
-                $this->_ds->ExecuteSql("INSERT INTO wdf_ratelimits(name)VALUES('{$this->name}')");
+                $this->_ds->ExecuteSql('INSERT INTO wdf_ratelimits SET name=?', [$this->name]);
                 \ScavixWDF\Wdf::ReleaseLock($this->name);
                 return true;
             }
