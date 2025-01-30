@@ -1954,23 +1954,57 @@ function system_process_running($pid)
     if( !$pid || !is_numeric($pid) )
         return false;
 
-    if (PHP_OS_FAMILY == "Linux")
+    static $detection_mode = 0;
+    if( $detection_mode === 0)
     {
-        $result = $stdout = null;
-        exec("kill -0 $pid 2>&1", $stdout, $result);
-        if ($result > 1)
-            log_debug("Process $pid not found: " . json_encode(compact('result', 'stdout')));
-        return ($result === 0);
-
-        // $stat = @file_get_contents("/proc/$pid/stat");
-        // if (!$stat)
-        //     return false;
-        // $d = sscanf($stat, "%d %s %c %d");
-        // if (!isset($d[2]))
-        //     return false;
-        // return $d[2] == 'S' || $d[2] == 'R' || $d[2] == 'D';
+        if (PHP_OS_FAMILY == "Linux")
+        {
+            if (function_exists('posix_getpgid')) // this is the fastest way to check if a process is running
+                $detection_mode = 1;
+            else
+                $detection_mode = 2; // see further method testing below
+        }
+        else
+            $detection_mode = -1; // this is currenlty windows, the 'default' below
     }
-    return strpos(shell_exec("tasklist /FI \"PID eq $pid\" /FO \"CSV\" /NH"), "\"$pid\"");
+
+    switch( $detection_mode )
+    {
+        case 1:
+            return !!posix_getpgid($pid);
+
+        case 2: // 2 signals that further "best-method-testing" is needed
+
+        case 10: // try to get process info via /proc
+            $stat = @file_get_contents("/proc/$pid/stat");
+            if ($stat)
+            {
+                $d = sscanf($stat, "%d %s %c %d");
+                if (isset($d[2]))
+                {
+                    if ($detection_mode == 2)
+                        $detection_mode = 10;
+                    return $d[2] == 'S' || $d[2] == 'R' || $d[2] == 'D';
+                }
+            }
+            if ($detection_mode == 10) // if "best-method-testing" succeeded before, 'false' is correct result
+                return false;
+            // fall thru to "ps"-detection because "proc" access may be forbidden
+
+        case 11:
+            $output = [];
+            exec("ps -q $pid -o pid= 2>/dev/null", $output); // this is in fact really slow but failsafe
+            if (!empty($output))
+            {
+                if ($detection_mode == 2) // if "proc"-detection faild but this check worked, disable "proc"
+                    $detection_mode = 11;
+                return true;
+            }
+            return false;
+
+        default:
+            return strpos(shell_exec("tasklist /FI \"PID eq $pid\" /FO \"CSV\" /NH"), "\"$pid\"");
+    }
 }
 
 /**
