@@ -57,7 +57,7 @@ class FilesStore extends ObjectStore
             if (!@mkdir($directory, 0777, true))
             {
                 $err = error_get_last();
-                if( stripos($err['message'],"File exists") !== false )
+                if( $err && isset($err['message']) && stripos($err['message'],"File exists") !== false )
                     log_error('unable to create ' . $directory, $err);
             }
             umask($origumask);
