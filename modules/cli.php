@@ -108,22 +108,23 @@ function cli_run_script($php_script_path, $args=[], $extended_data=false, $retur
             if (array_key_exists($s, $inidata))
                 unset($inidata[$s]);
         }
-        $inidata = implode("\n", array_map(function ($k, $v)
+        foreach(array_unique(array_filter([ifavail($_SERVER, 'DOCUMENT_ROOT'), dirname($php_script_path), dirname($php_script_path).'/..', dirname($php_script_path).'/../..', dirname($php_script_path).'/../../..'])) as $dir)
+        {
+            if(@file_exists($ini_extrafile = $dir.'/.cli_php_extra.ini') && ($extra = parse_ini_file($ini_extrafile)) && ($extra !== false))
+            {
+                foreach ($extra as $k => $v)
+                    $inidata[$k] = $v;
+                break;
+            }
+        }
+        $inidata = array_map(function ($k, $v)
         {
             if(($v != '') && !is_numeric($v))
                 $v = '"'.$v.'"';
             return "{$k}={$v}";
-        }, array_keys($inidata), $inidata));
-        foreach(array_unique(array_filter([ifavail($_SERVER, 'DOCUMENT_ROOT'), dirname($php_script_path), dirname($php_script_path).'/..', dirname($php_script_path).'/../..', dirname($php_script_path).'/../../..'])) as $dir)
-        {
-            if(@file_exists($ini_extrafile = $dir.'/.cli_php_extra.ini') && (parse_ini_file($ini_extrafile) !== false))
-            {
-                $inidata .= file_get_contents($ini_extrafile);
-                break;
-            }
-        }
+        }, array_keys($inidata));
 
-        file_put_contents($ini, $inidata);
+        file_put_contents($ini, implode("\n", $inidata));
         @chmod($ini, 0777);
     }
 
