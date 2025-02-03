@@ -122,7 +122,7 @@ function cli_run_script($php_script_path, $args=[], $extended_data=false, $retur
             if(($v != '') && !is_numeric($v))
                 $v = '"'.$v.'"';
             return "{$k}={$v}";
-        }, array_keys($inidata));
+        }, array_keys($inidata), $inidata);
 
         file_put_contents($ini, implode("\n", $inidata));
         @chmod($ini, 0777);
