@@ -1286,6 +1286,8 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 	{
 		$res = clone $this;
 		$res->__ensureSelect();
+        $res->_query->andX(2);
+		$res->_query->notEqual($this->__ensureFieldname($property),$this->__toTypedSQLValue($property,$value));
 		$res->_query->notBinary($this->__ensureFieldname($property),$this->__toTypedSQLValue($property,$value));
 		return $res;
 	}
