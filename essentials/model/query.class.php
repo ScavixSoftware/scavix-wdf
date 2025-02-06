@@ -97,14 +97,18 @@ class Query
 	public function GetSql()
 	{
 		if( !$this->_statement )
-			return "";
+			return $this->__toString();
 		return $this->_statement->GetSql();
 	}
 
 	public function GetArgs()
 	{
-		if( !$this->_statement )
-			return [];
+        if (!$this->_statement)
+        {
+            if ($this->_where)
+                return $this->_where->__getArgs();
+            return [];
+        }
 		return $this->_statement->GetArgs();
 	}
 

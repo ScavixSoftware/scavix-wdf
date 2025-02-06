@@ -347,7 +347,7 @@ class DataSource
             return "(0=1)";
         $r = [];
         foreach( $values as $v )
-            $r[] = $this->QuoteArgument($v);
+            $r[] = $this->QuoteArgument("$v");
         return "(`$field` IN(".implode(',',$r)."))";
     }
 
@@ -373,7 +373,7 @@ class DataSource
             return "(1=1)";
         $r = [];
         foreach( $values as $v )
-            $r[] = $this->QuoteArgument($v);
+            $r[] = $this->QuoteArgument("$v");
         return "(`$field` NOT IN(".implode(',',$r)."))";
     }
 

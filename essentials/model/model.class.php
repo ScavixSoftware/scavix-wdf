@@ -59,7 +59,7 @@ use function unserializer_active;
  * foreach( $some_does as $sd ) echo $sd;
  * </code>
  */
-abstract class Model implements Iterator, Countable, ArrayAccess
+abstract class Model implements Iterator, Countable, ArrayAccess, \ScavixWDF\ILogWritable
 {
     /**
      * Tries to find a model by its table name.
@@ -291,7 +291,9 @@ abstract class Model implements Iterator, Countable, ArrayAccess
 
     function __toString()
     {
-        return get_class($this)." ".json_encode($this->AsArray());
+        if ($this->IsQuery())
+            return get_class($this) . " query: " . ResultSet::MergeSql($this->_ds, $this->_query->__toString(), $this->_query->GetArgs());
+        return get_class($this) . logging_render_var($this->AsArray());
     }
 
     function __construct($datasource=null)
@@ -1955,5 +1957,10 @@ abstract class Model implements Iterator, Countable, ArrayAccess
         return isset($this->name)
             || array_key_exists($name, $this->_fieldValues)
             || array_key_exists($name,get_object_vars($this));
+    }
+
+    public function __toLogString(): string
+    {
+        return $this->__toString();
     }
 }
