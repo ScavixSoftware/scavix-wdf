@@ -120,19 +120,83 @@ class WdfFolderArchive
         return $return_value;
     }
 
+    protected function tryFetch7zBinary()
+    {
+        $arch = trim(strtolower(php_uname('m')));
+        if ($arch === 'i686' || $arch === 'i386' || $arch === 'x86')
+            $arch = 'ia32';
+        elseif ($arch === 'x86_64' || $arch === 'amd64')
+            $arch = 'x64';
+        elseif ($arch === 'aarch64')
+            $arch = 'arm64';
+        elseif ($arch === 'armv7l')
+            $arch = 'arm';
+
+        switch( strtolower(PHP_OS_FAMILY) )
+        {
+            case 'linux':
+                $path = "linux/{$arch}/7zzs";
+                break;
+            case 'windows':
+                $path = "win32/{$arch}/7za.exe";
+                break;
+            case 'darwin':
+                $path = 'darwin/7zz';
+                break;
+            default:
+                return '';
+        }
+
+        // MIT License Information for the 7-zip precompiled binaries:
+        // @see https://github.com/Alex-Kondakov/7zip-binaries/blob/main/LICENSE
+
+        /*
+        Copyright (c) 2022 Aleksandr Kondakov
+
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+
+        The above copyright notice and this permission notice shall be included in
+        all copies or substantial portions of the Software.
+
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+        THE SOFTWARE.
+        */
+
+        $url = "https://github.com/Alex-Kondakov/7zip-binaries/raw/main/bin/{$path}";
+        $binPath = system_app_temp_dir('uploads',false) . basename($path);
+        log_Info(__CLASS__, "Fetching 7-zip precompiled binary ($path)...");
+        $um = umask(0);
+        $bytes = @file_put_contents($binPath, @file_get_contents($url));
+        @chmod($binPath, 0777);
+        umask($um);
+        return (file_exists($binPath) && $bytes) ? $binPath : '';
+    }
+
     protected function get7z()
     {
         static $bin = false;
 
         if ($bin === false)
         {
-            $buffer = system_app_temp_dir('uploads') . "7z.binary";
+            $buffer = system_app_temp_dir('uploads',false) . "7z.binary";
             $bin = @file_get_contents($buffer);
             if (file_exists($bin) )
                 return $bin;
 
             if (PHP_OS_FAMILY == "Linux")
+            {
                 $bin = trim(shell_exec("which 7z"));
+            }
             elseif (PHP_OS_FAMILY == "Windows")
             {
                 $end = time() + 10;
@@ -160,8 +224,12 @@ class WdfFolderArchive
             else
                 WdfException::Raise("Unsupported operating system '" . PHP_OS_FAMILY . "'");
 
-            if (!file_exists($bin))
-                WdfException::Raise("7-zip binary not found ('$bin', ".PHP_OS_FAMILY.")");
+            if (!@file_exists($bin) )
+            {
+                $bin = $this->tryFetch7zBinary();
+                if( !@file_exists($bin) )
+                    WdfException::Raise("7-zip binary not found ('$bin', " . PHP_OS_FAMILY . ")");
+            }
 
             file_put_contents($buffer, $bin);
         }
@@ -282,7 +350,7 @@ class WdfFolderArchive
     /**
      * Lists all files in the archive.
      *
-     * @param mixed $callback Optional callback for each file. If it returns false, processinf is aborted
+     * @param mixed $callback Optional callback for each file. If it returns false, processing is aborted
      * @return array Array of files. If callback is used, will always be empty.
      */
     function list($callback=false):array
