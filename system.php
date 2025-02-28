@@ -568,7 +568,7 @@ function system_exit($result=null,$die=true)
         while( count($_SESSION['latest_requests']) > 20 )
             array_shift($_SESSION['latest_requests']);
 
-		if( $result instanceof Renderable)
+		if($result instanceof Renderable)
 		{
 			$response = $result->WdfRenderAsRoot();
 			if( $result->_translate && system_is_module_loaded("translation") )
@@ -586,6 +586,11 @@ function system_exit($result=null,$die=true)
         session_update();
 
 	execute_hooks(HOOK_PRE_FINISH, [$response]);
+
+    if($response instanceof stdClass)
+        $response = (array) $response;
+    if(is_array($response))
+        $response = json_encode($response);
 
 	if( $die )
 		die($response);
