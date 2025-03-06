@@ -124,6 +124,37 @@ class WdfGoogleAIWrapper
             'text' => (new \Google\Cloud\AIPlatform\V1\Part())->setText($prompt),
         ];
 
+        $options = array_merge($options, $CONFIG['ai']['google']);
+        $gconfig  = new \Google\Cloud\AIPlatform\V1\GenerationConfig();
+        foreach($options as $key => $val)
+        {
+            switch(strtolower($key))
+            {
+                case 'temperature':
+                    $gconfig->setTemperature($val);
+                    break;
+                case 'topk':
+                    $gconfig->setTopK($val);
+                    break;
+                case 'topp':
+                    $gconfig->setTopP($val);
+                    break;
+                case 'candidate_count':
+                    $gconfig->setCandidateCount($val);
+                    break;
+                case 'max_output_tokens':
+                    $gconfig->setMaxOutputTokens($val);
+                    break;
+                case 'stop_sequences':
+                    $gconfig->setStopSequences($val);
+                    break;
+                case 'system_instructions':
+                    if(is_array($val))
+                        $contentsParts['system_instruction'] = (new \Google\Cloud\AIPlatform\V1\Part())->setText(implode('. ', $val));
+                    break;
+            }
+        }
+
         $content = (new \Google\Cloud\AIPlatform\V1\Content())
             ->setParts($contentsParts)
             ->setRole('user');
@@ -131,7 +162,9 @@ class WdfGoogleAIWrapper
         $request = new \Google\Cloud\AIPlatform\V1\GenerateContentRequest();
         $request
             ->setModel($gmodel)
-            ->setContents($contents);
+            ->setContents($contents)
+            ->setGenerationConfig($gconfig);
+
         try {
             $stream = $predictionServiceClient->streamGenerateContent($request);
             foreach ($stream->readAll() as $element) {
