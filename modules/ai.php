@@ -114,42 +114,109 @@ class WdfGoogleAIWrapper
                 return $v;
         }
 
-        // log_debug(__METHOD__, $prompt);
-
         $ret                     = false;
+        $model                   = ifavail($CONFIG['ai']['google'], 'model') ?: 'text-bison';
         $predictionServiceClient = new \Google\Cloud\AIPlatform\V1\Client\PredictionServiceClient(['apiEndpoint' => ifavail($CONFIG['ai']['google'], 'apiendpoint') ?: 'us-central1-aiplatform.googleapis.com']);
-        $formattedEndpoint = \Google\Cloud\AIPlatform\V1\Client\PredictionServiceClient::projectLocationPublisherModelName($this->gconfig['project_id'], ifavail($CONFIG['ai']['google'], 'location') ?: 'us-central1', 'google', ifavail($CONFIG['ai']['google'], 'model') ?: 'text-bison');
+        $gmodel = \Google\Cloud\AIPlatform\V1\Client\PredictionServiceClient::projectLocationPublisherModelName($this->gconfig['project_id'], ifavail($CONFIG['ai']['google'], 'location') ?: 'us-central1', 'google', $model);
 
         // Prepare the request message.
-        // $serializer = new \Google\ApiCore\Serializer();
-        // $struct = $serializer->decodeMessage(new \Google\Protobuf\Struct(), ['fields' => ['prompt' => ['string_value' => $prompt]]]);
-        // $instances = [new \Google\Protobuf\Value(['struct_value' => $struct])];
-        $request = (new \Google\Cloud\AIPlatform\V1\PredictRequest())
-            ->setEndpoint($formattedEndpoint)
-            ->setInstances([$this->__toprotobuf('prompt', $prompt)]);
+        $contentsParts = [
+            'text' => (new \Google\Cloud\AIPlatform\V1\Part())->setText($prompt),
+        ];
 
-        foreach($options as $key => $value)
-            $request->setParameters($this->__toprotobuf($key, $value));
-
-        // log_debug('request', $request->serializeToJsonString());
-
-        // Call the API and handle any network failures.
-        try {
-            /** @var \Google\Cloud\AIPlatform\V1\PredictResponse $response */
-            $response = $predictionServiceClient->predict($request);
-            foreach ($response->getPredictions() as $r)
+        $options = array_merge($options, $CONFIG['ai']['google']);
+        $gconfig  = new \Google\Cloud\AIPlatform\V1\GenerationConfig();
+        foreach($options as $key => $val)
+        {
+            switch(strtolower($key))
             {
-                $d = json_decode($r->serializeToJsonString(), true);
-                if (avail($d, 'content'))
-                {
-                    $ret = trim($d['content']);
+                case 'temperature':
+                    $gconfig->setTemperature($val);
                     break;
+                case 'topk':
+                    $gconfig->setTopK($val);
+                    break;
+                case 'topp':
+                    $gconfig->setTopP($val);
+                    break;
+                case 'candidate_count':
+                    $gconfig->setCandidateCount($val);
+                    break;
+                case 'max_output_tokens':
+                    $gconfig->setMaxOutputTokens($val);
+                    break;
+                case 'stop_sequences':
+                    $gconfig->setStopSequences($val);
+                    break;
+                case 'system_instructions':
+                    if(is_array($val))
+                        $contentsParts['system_instruction'] = (new \Google\Cloud\AIPlatform\V1\Part())->setText(implode('. ', $val));
+                    break;
+            }
+        }
+
+        $content = (new \Google\Cloud\AIPlatform\V1\Content())
+            ->setParts($contentsParts)
+            ->setRole('user');
+        $contents = [$content];
+        $request = new \Google\Cloud\AIPlatform\V1\GenerateContentRequest();
+        $request
+            ->setModel($gmodel)
+            ->setContents($contents)
+            ->setGenerationConfig($gconfig);
+
+        try {
+            $stream = $predictionServiceClient->streamGenerateContent($request);
+            foreach ($stream->readAll() as $element) {
+                foreach ($element->getCandidates() as $candidate) {
+                    $content = $candidate->getContent();
+                    if ($content) {
+                        foreach ($candidate->getContent()->getParts() as $part) {
+                            if ($ret === false)
+                                $ret = '';
+                            $ret .= $part->getText();
+                        }
+                    }
                 }
             }
-            // log_debug('Response data', $response->serializeToJsonString());
-        } catch (\Google\ApiCore\ApiException $ex) {
-            log_debug('Call failed with message:', $ex->getMessage());
+        } catch (\Exception $e) {
+            log_error($e);;
+        } finally {
+            $predictionServiceClient->close();
         }
+
+        // $formattedEndpoint = \Google\Cloud\AIPlatform\V1\Client\PredictionServiceClient::projectLocationPublisherModelName($this->gconfig['project_id'], ifavail($CONFIG['ai']['google'], 'location') ?: 'us-central1', 'google', $model);
+
+        // // Prepare the request message.
+        // // $serializer = new \Google\ApiCore\Serializer();
+        // // $struct = $serializer->decodeMessage(new \Google\Protobuf\Struct(), ['fields' => ['prompt' => ['string_value' => $prompt]]]);
+        // // $instances = [new \Google\Protobuf\Value(['struct_value' => $struct])];
+        // $request = (new \Google\Cloud\AIPlatform\V1\PredictRequest())
+        //     ->setEndpoint($formattedEndpoint)
+        //     ->setInstances([$this->__toprotobuf('prompt', $prompt)]);
+
+        // foreach($options as $key => $value)
+        //     $request->setParameters($this->__toprotobuf($key, $value));
+
+        // // log_debug('request', $request->serializeToJsonString());
+
+        // // Call the API and handle any network failures.
+        // try {
+        //     /** @var \Google\Cloud\AIPlatform\V1\PredictResponse $response */
+        //     $response = $predictionServiceClient->predict($request);
+        //     foreach ($response->getPredictions() as $r)
+        //     {
+        //         $d = json_decode($r->serializeToJsonString(), true);
+        //         if (avail($d, 'content'))
+        //         {
+        //             $ret = trim($d['content']);
+        //             break;
+        //         }
+        //     }
+        //     // log_debug('Response data', $response->serializeToJsonString());
+        // } catch (\Google\ApiCore\ApiException $ex) {
+        //     log_error('Call failed with message:', $ex->getMessage());
+        // }
 
         if(isDev())
             log_debug(__METHOD__, $prompt, $options, $ret);
