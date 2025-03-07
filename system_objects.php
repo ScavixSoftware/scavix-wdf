@@ -404,6 +404,16 @@ class WdfBuffer implements \Iterator, \JsonSerializable
     {
         return isset($this->keys()[$this->position]);
     }
+
+    public static function SafeStatic(string $name, string $context, callable $initFunction)
+    {
+        $buf = Wdf::GetBuffer(__METHOD__."/$name");
+        $present = $buf->get('context','');
+        if ($present != $context)
+            $buf->clear();
+        $buf->set('context',$context);
+        return $buf->get('data', $initFunction);
+    }
 }
 
 /**

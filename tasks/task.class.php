@@ -37,7 +37,7 @@ namespace ScavixWDF\Tasks;
  */
 abstract class Task
 {
-    /** @var \ScavixWDF\Model\DataSource|null */
+    /** @var WdfTaskModel|null */
     public $model;
 
     /** @var \ScavixWDF\Model\DataSource */
