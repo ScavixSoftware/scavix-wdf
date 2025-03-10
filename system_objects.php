@@ -90,13 +90,15 @@ class Wdf
      * Optionally, buffers can be mapped to a SESSION variable.
      *
      * @param string $name Buffer identifier
-     * @param array|callable $initial_data Array with initial data or callback returning this initial data
+     * @param array|callable|string $initial_data Array with initial data or callback returning this initial data or name of initial context
      * @return \ScavixWDF\WdfBuffer
      */
-    public static function GetBuffer($name,$initial_data=[])
+    public static function GetBuffer($name, $initial_data = [])
     {
-        if( !isset(self::$buffers[$name]) )
-            self::$buffers[$name] = new WdfBuffer($initial_data);
+        if (!isset(self::$buffers[$name]))
+            self::$buffers[$name] = new WdfBuffer(is_string($initial_data) ? [] : $initial_data);
+        if (is_string($initial_data))
+            self::$buffers[$name]->switchContext($initial_data);
         return self::$buffers[$name];
     }
 
@@ -199,6 +201,7 @@ class Wdf
  */
 class WdfBuffer implements \Iterator, \JsonSerializable
 {
+    protected string $context = '';
     protected $changed = false;
     protected $data = [];
     protected $session_name = false;
@@ -210,6 +213,14 @@ class WdfBuffer implements \Iterator, \JsonSerializable
             $this->data = $initial_data();
         else
             $this->data = is_array($initial_data)?$initial_data:[];
+    }
+
+    public function switchContext(string $context)
+    {
+        if ($context != $this->context)
+            $this->clear();
+        $this->context = $context;
+        return $this;
     }
 
 	/**
@@ -403,16 +414,6 @@ class WdfBuffer implements \Iterator, \JsonSerializable
     public function valid():bool
     {
         return isset($this->keys()[$this->position]);
-    }
-
-    public static function SafeStatic(string $name, string $context, callable $initFunction)
-    {
-        $buf = Wdf::GetBuffer(__METHOD__."/$name");
-        $present = $buf->get('context','');
-        if ($present != $context)
-            $buf->clear();
-        $buf->set('context',$context);
-        return $buf->get('data', $initFunction);
     }
 }
 
