@@ -1801,6 +1801,23 @@ function system_get_caller_by_type($classname)
 }
 
 /**
+ * Counts the number of times a function occurs in the current debug_backtrace.
+ *
+ * This is useful to detect externally triggered recursions.
+ *
+ * @param string $function_name name of function/method to check (case-insensitive)
+ * @return int Number of times the function occurs
+ */
+function system_get_call_depth(string $function_name): int
+{
+    $count = 0;
+    foreach (debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS) as $entry)
+        if (isset($entry['function']) && strcasecmp($entry['function'], $function_name) == 0 )
+            $count++;
+    return $count;
+}
+
+/**
  * Returns all values for a cookie given in a raw cookie string.
  *
  * @see https://stackoverflow.com/a/54623825
