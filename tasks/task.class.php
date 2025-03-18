@@ -206,4 +206,13 @@ abstract class Task
                 return true;
         return false;
     }
+
+    protected function startTerminalMode()
+    {
+        $names = array_keys(\ScavixWDF\Wdf::$Logger);
+        if (in_array('cli', $names))
+            foreach ($names as $n)
+                if ($n != 'cli')
+                    logging_remove_logger($n);
+    }
 }
