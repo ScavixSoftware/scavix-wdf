@@ -342,6 +342,18 @@ function logging_extend_logger($alias,$key,$value)
 }
 
 /**
+ * Replaces all previously set categories in all loggers.
+ *
+ * @param string $name Category to add
+ * @return void
+ */
+function logging_set_categories(array $names)
+{
+    foreach( Wdf::$Logger as $l )
+		$l->setCategories($names);
+}
+
+/**
  * Adds a category to all loggers.
  *
  * @param string $name Category to add
