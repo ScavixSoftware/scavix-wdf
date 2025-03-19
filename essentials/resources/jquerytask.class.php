@@ -19,7 +19,7 @@ class jQueryTask extends \ScavixWDF\Tasks\Task
     /**
      * Updates the standard jQuery UI assets that are delivered with the Scavix-WDF.
      *
-     * @param mixed $args Optional arguments, version=<v> may override the standard version 1.13.2
+     * @param mixed $args Optional arguments, version=<v> may override the standard version 1.14.1
      * @return void
      */
     function UpdateUI($args)
@@ -41,10 +41,10 @@ class jQueryTask extends \ScavixWDF\Tasks\Task
         $target = $target?realpath($target.''):'';
         if( !$target || !is_dir($target) || !file_exists($target) )
         {
-            log_error("Syntax: jquery-grabui target=<resource-folder> [version=<jq-version, default=1.13.2>] [<varname>=<value>|url=<url from downloaded themeroller file>]");
+            log_error("Syntax: jquery-grabui target=<resource-folder> [version=<jq-version, default=1.14.1>] [<varname>=<value>|url=<url from downloaded themeroller file>]");
             return;
         }
-        $version = ifavail($args, 'version')?:'1.13.2';
+        $version = ifavail($args, 'version')?:'1.14.1';
         if( $url = ifavail($args,'url') )
         {
             $url = parse_url($url);
