@@ -326,6 +326,17 @@ class Logger
 		unset($this->filename);
 	}
 
+    /**
+	 * Replaces all previously set categories.
+	 *
+	 * @param array $names Category names
+	 * @return void
+	 */
+    function setCategories(array $names)
+	{
+        $this->categories = array_values($names);
+	}
+
 	/**
 	 * Adds a category
 	 *
