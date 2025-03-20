@@ -623,12 +623,17 @@ function system_die($reason,$details_internal='',$log_error=true)
 		$stacktrace = debug_backtrace();
 
     $errid = uniqid();
+    $logmsg = 'Fatal system error (ErrorID: '.$errid.')'."\n".$reason.$details_internal."\n".system_stacktrace_to_string($stacktrace);
     if( $log_error )
     {
+        if(avail($_SERVER, 'REQUEST_URI'))
+            $logmsg.= "\nRequest URI: ".$_SERVER['REQUEST_URI'];
+        if(count($_POST))
+            $logmsg.= "\nPOST: ".logging_render_var($_POST);
         if( function_exists('log_fatal') )
-            log_fatal('Fatal system error (ErrorID: '.$errid.')'."\n".$reason.$details_internal."\n".system_stacktrace_to_string($stacktrace));
+            log_fatal($logmsg);
         else
-            error_log('Fatal system error (ErrorID: '.$errid.')'."\n".$reason.$details_internal."\n".system_stacktrace_to_string($stacktrace));
+            error_log($logmsg);
     }
     if( isset(Wdf::$Hooks[HOOK_SYSTEM_DIE]) && count(Wdf::$Hooks[HOOK_SYSTEM_DIE]) > 0 )
 	{
@@ -639,18 +644,15 @@ function system_die($reason,$details_internal='',$log_error=true)
 	}
     if( PHP_SAPI == 'cli' )
     {
-        if(isDev())
-            $res = 'Fatal system error (ErrorID: '.$errid.')'."\n".$reason.$details_internal."\n".system_stacktrace_to_string($stacktrace);
-        else
-            $res = 'Oh no! A fatal system error occured. Please try again. Contact our technical support if this problem occurs again (ErrorID: '.$errid.')';
-		system_exit("$res\n");
+        if(!isDev())
+            $logmsg = 'Oh no! A fatal system error occured. Please try again. Contact our technical support if this problem occurs again (ErrorID: '.$errid.')';
+		system_exit("$logmsg\n");
     }
     elseif( system_is_ajax_call() )
 	{
-        if(isDev())
-            $res = AjaxResponse::Error('Fatal system error (ErrorID: '.$errid.')'."\n".$reason.$details_internal."\n".system_stacktrace_to_string($stacktrace),true);
-        else
-            $res = AjaxResponse::Error('Oh no! A fatal system error occured. Please try again. Contact our technical support if this problem occurs again (ErrorID: '.$errid.')',true);
+        if(!isDev())
+            $logmsg = 'Oh no! A fatal system error occured. Please try again. Contact our technical support if this problem occurs again (ErrorID: '.$errid.')';
+        $res = AjaxResponse::Error($logmsg, true);
 		system_exit($res->Render());
 	}
 	else
