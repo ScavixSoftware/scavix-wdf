@@ -78,7 +78,7 @@ function ai_predict($prompt, $options = [], $cache = false)
     if(!avail($CONFIG['ai'], 'handler'))
         throw new Exception('AI module not configured');
 
-    return $CONFIG['ai']['handler']->predict($prompt, $options, $cache);
+    return $CONFIG['ai']['handler']->Predict($prompt, $options, $cache);
 }
 
 /**
@@ -126,6 +126,7 @@ class WdfGoogleAIWrapper
 
         $options = array_merge($options, $CONFIG['ai']['google']);
         $gconfig  = new \Google\Cloud\AIPlatform\V1\GenerationConfig();
+        $system_instructions = [];
         foreach($options as $key => $val)
         {
             switch(strtolower($key))
@@ -149,11 +150,15 @@ class WdfGoogleAIWrapper
                     $gconfig->setStopSequences($val);
                     break;
                 case 'system_instructions':
+                case 'instructions':
                     if(is_array($val))
-                        $contentsParts['system_instruction'] = (new \Google\Cloud\AIPlatform\V1\Part())->setText(implode('. ', $val));
+                        $system_instructions = array_merge($system_instructions, $val);
                     break;
             }
         }
+
+        if ($system_instructions)
+            $contentsParts['system_instruction'] = (new \Google\Cloud\AIPlatform\V1\Part())->setText(implode('. ', $system_instructions));
 
         $content = (new \Google\Cloud\AIPlatform\V1\Content())
             ->setParts($contentsParts)
