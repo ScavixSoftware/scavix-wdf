@@ -1869,3 +1869,15 @@ if ((\PHP_VERSION_ID < 80300) && !function_exists('stream_context_set_options'))
         return \stream_context_set_option($context, $options);
     }
 }
+
+/** @see https://www.php.net/manual/en/function.array-any.php */
+if (!function_exists('array_any'))
+{
+    function array_any(array $array, callable $callable): bool
+    {
+        foreach ($array as $key => $value)
+            if ($callable($value, $key))
+                return true;
+        return false;
+    }
+}
