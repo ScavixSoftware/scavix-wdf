@@ -1833,7 +1833,7 @@ function system_get_cookie_values($name, $raw_cookie_string)
     while ($tok !== false)
     {
         $a                       = sscanf($tok, "%[^=]=%[^;]");
-        $cookies[ltrim($a[0])][] = urldecode($a[1]);
+        $cookies[ltrim($a[0])][] = urldecode($a[1].'');
         $tok                     = strtok(';');
     }
     return ifavail($cookies, $name) ?: [];
