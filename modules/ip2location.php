@@ -27,7 +27,7 @@ use ScavixWDF\WdfException;
 
 /**
  * Module to localize ip-addresses.
- * 
+ *
  * Uses [IP2Location](https://lite.ip2location.com/ip2location-lite)
  * Needs 'composer require ip2location/ip2location-php'
  * @return void
@@ -38,22 +38,22 @@ function ip2location_init()
 
 	if( !Wdf::$ClientIP )
 		Wdf::$ClientIP = get_ip_address();
-	
+
 	if( !isset($CONFIG['ip2location']) || (!file_exists($CONFIG['ip2location']['ipv4_bin_file']) && !file_exists($CONFIG['ip2location']['ipv6_bin_file'])) )
 		WdfException::Raise("ip2location module: missing database BIN file. Get it from https://lite.ip2location.com/ip2location-lite");
-    
+
 	if( !isset($CONFIG['ip2location']['autoload_file']) || !file_exists($CONFIG['ip2location']['autoload_file']) )
 		WdfException::Raise("ip2location module: missing autoloader at '".ifavail($CONFIG['ip2location'],'autoload_file')."'");
-    
+
     require_once($CONFIG['ip2location']['autoload_file']);
 }
 
 /**
  * Resolves an IP address to a location.
- * 
+ *
  * @param string $ip IP address to check (defaults to <get_ip_address>)
  * @return stdClass|false Object containing location information
- * 
+ *
  * @suppress PHP0413
  */
 function get_geo_location_by_ip($ip = false)
@@ -63,12 +63,12 @@ function get_geo_location_by_ip($ip = false)
 		$ip = Wdf::$ClientIP;
 	if(starts_with($ip, "1.1 ") || starts_with($ip, "192.168."))
 		return false;
-    
+
     $key = "get_geo_location_by_ip.".getAppVersion('nc')."-".$ip;
     $ret = cache_get($key);
 	if( $ret )
 		return $ret;
-    
+
     global $CONFIG;
     if(filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4))
         $binfile = $CONFIG['ip2location']['ipv4_bin_file'];
@@ -76,7 +76,7 @@ function get_geo_location_by_ip($ip = false)
         $binfile = $CONFIG['ip2location']['ipv6_bin_file'];
     else
         return false;
-        
+
     $ipdb = new \IP2Location\Database($binfile, \IP2Location\Database::FILE_IO);
     $ret = $ipdb->lookup($ip, \IP2Location\Database::ALL);
     if($ret === false)
@@ -84,13 +84,13 @@ function get_geo_location_by_ip($ip = false)
     $ret = (object) $ret;
 //    log_debug($ret);
     cache_set($key, $ret, 60 * 60); // keep that in cache for an hour
-    
+
     return $ret;
 }
 
 /**
  * Returns the region name for the current IP address
- * 
+ *
  * See <get_ip_address>
  * @param string $ip IP address to resolve (defaults to <get_ip_address>)
  * @return string|false Location name or empty string if unknown
@@ -105,7 +105,7 @@ function get_geo_region($ip = false)
 
 /**
  * Resolves an IP address to geo coordinates.
- * 
+ *
  * @param string $ip IP address to resolve (defaults to <get_ip_address>)
  * @return array|false Associative array with keys 'latitude' and 'longitude'
  */
@@ -123,7 +123,7 @@ function get_coordinates_by_ip($ip = false)
 
 /**
  * Resolves an IP address to a country code
- * 
+ *
  * @param string $ip IP address to resolve (defaults to <get_ip_address>)
  * @return array|false Country code or empty string if not found
  */
@@ -137,7 +137,7 @@ function get_countrycode_by_ip($ip = false)
 
 /**
  * Returns the country name from the current IP
- * 
+ *
  * @param string $ip IP address to resolve (defaults to <get_ip_address>)
  * @return string|false Country name or empty string if unknown
  */
@@ -151,7 +151,7 @@ function get_countryname_by_ip($ip = false)
 
 /**
  * Returns the timezone for an IP address.
- * 
+ *
  * @suppress PHP0416
  * @param string $ip IP address to check (defaults to <get_ip_address>)
  * @return string Timezone identifier or false on error
@@ -166,83 +166,14 @@ function get_timezone_by_ip($ip = false)
 
     if(!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE))
 		return false;
-    
+
 	$key = "get_timezone_by_ip.".getAppVersion('nc')."-".$ip;
     if($ret = cache_get($key))
 		return $ret;
-    
-    $services = [];
-    $triedurls = [];
-    
-    $services['ip2location'] = (file_exists($CONFIG['ip2location']['ipv4_bin_file']) || file_exists($CONFIG['ip2location']['ipv6_bin_file']));
-    
-// freegeoip is now ipstack.com and doesn't offer timezone information for free anymore
-//    $services["https://freegeoip.net/xml/$ip"] = function($response)
-//    {
-//        if( !preg_match_all('/<TimeZone>([^<]*)<\/TimeZone>/', $response, $zone, PREG_SET_ORDER) )
-//            return false;
-//        $zone = $zone[0];
-//        return ($zone[1] != "")?$zone[1]:false;
-//    };
-  
-    if( isset($CONFIG['geoip']['ip-api']) && isset($CONFIG['geoip']['ip-api']['apikey']) )
-    {
-        $services["https://pro.ip-api.com/php/$ip?key=".$CONFIG['geoip']['ip-api']['apikey']] = function($response)
-        {
-            $data = @unserialize($response);
-            if( $data && $data['status'] == 'success' )
-                return [$data['timezone'], $data['countryCode']];
-            return false;
-        };
-    }
-    
-    // use ip-api free service (limited)
-    if( !isset($CONFIG['geoip']['ip-api']) || !isset($CONFIG['geoip']['ip-api']['usefree']) || $CONFIG['geoip']['ip-api']['usefree'] )
-    {
-        $services["http://ip-api.com/php/$ip"] = function($response)
-        {
-            $data = @unserialize($response);
-            if( $data && $data['status'] == 'success' )
-                return [$data['timezone'], $data['countryCode']];
-            return false;
-        };
-    }
-    
-    if( isset($CONFIG['geoip']['ipinfodb']) && isset($CONFIG['geoip']['ipinfodb']['apikey']) )
-    {
-        $services["https://api.ipinfodb.com/v3/ip-city/?key={$CONFIG['geoip']['ipinfodb']['apikey']}&ip={$ip}&format=xml"] = function($response)
-        {
-            $data = simplexml_load_string($response);
-            if(avail($data, 'timeZone'))
-                return [(string)$data->timeZone, (string)ifavail($data, 'countryCode')];
-            return false;
-        };
-    }
-    if( isset($CONFIG['geoip']['geonames']) && isset($CONFIG['geoip']['geonames']['username']) )
-        $services['geo'] = false; // prepare geo search inline to avoid overhead here
-    
-    // use geobytes free service (limited). Free API key is 7c756203dbb38590a66e01a5a3e1ad96
-    $apikey = (isset($CONFIG['geoip']['geobytes']) && isset($CONFIG['geoip']['geobytes']['apikey'])) ? $CONFIG['geoip']['geobytes']['apikey'] : '7c756203dbb38590a66e01a5a3e1ad96';
-    $services["https://secure.geobytes.com/GetCityDetails?key=".$apikey."&fqcn=$ip"] = function($response)
-    {
-        $data = json_decode($response, true);
-        if( $data && $data['geobytestimezone'] )
-        {
-            $tz = $data['geobytestimezone'];
-            if(strpos($tz, ':') !== false)
-            {
-                if(date('I'))
-                {
-                    list($hours, $minutes) = explode(':', $tz);
-                    $hours = intval($hours) + 1;
-                    $tz = ($hours >= 0 ? '+' : '-').sprintf('%02d:%02d', abs($hours), $minutes);
-                }
-            }
-            return [$tz, ifavail($data, 'geobytesinternet')];
-        }
-        return false;
-    };
-    
+
+    if(($data = get_geo_location_by_ip($ip)) && (ifavail($data, 'countryCode') == 'DE'))
+        return 'Europe/Berlin';     // Germany is always Europe/Berlin
+
     $isDst = date('I');
     // better way to figure out if our german server is in summer time:
     $year     = date('Y');
@@ -259,16 +190,76 @@ function get_timezone_by_ip($ip = false)
         }
     }
 
+    $services = [];
+    $triedurls = [];
+
+    $services['ip2location'] = (file_exists($CONFIG['ip2location']['ipv4_bin_file']) || file_exists($CONFIG['ip2location']['ipv6_bin_file']));
+
+    if( isset($CONFIG['geoip']['ip-api']) && isset($CONFIG['geoip']['ip-api']['apikey']) )
+    {
+        $services["https://pro.ip-api.com/php/$ip?key=".$CONFIG['geoip']['ip-api']['apikey']] = function($response)
+        {
+            $data = @unserialize($response);
+            if( $data && $data['status'] == 'success' )
+                return [$data['timezone'], $data['countryCode']];
+            return false;
+        };
+    }
+
+    // use ip-api free service (limited)
+    if( !isset($CONFIG['geoip']['ip-api']) || !isset($CONFIG['geoip']['ip-api']['usefree']) || $CONFIG['geoip']['ip-api']['usefree'] )
+    {
+        $services["http://ip-api.com/php/$ip"] = function($response)
+        {
+            $data = @unserialize($response);
+            if( $data && $data['status'] == 'success' )
+                return [$data['timezone'], $data['countryCode']];
+            return false;
+        };
+    }
+
+    if( isset($CONFIG['geoip']['ipinfodb']) && isset($CONFIG['geoip']['ipinfodb']['apikey']) )
+    {
+        $services["https://api.ipinfodb.com/v3/ip-city/?key={$CONFIG['geoip']['ipinfodb']['apikey']}&ip={$ip}&format=xml"] = function($response)
+        {
+            $data = simplexml_load_string($response);
+            if(avail($data, 'timeZone'))
+                return [(string)$data->timeZone, (string)ifavail($data, 'countryCode')];
+            return false;
+        };
+    }
+    if( isset($CONFIG['geoip']['geonames']) && isset($CONFIG['geoip']['geonames']['username']) )
+        $services['geo'] = false; // prepare geo search inline to avoid overhead here
+
+    // use geobytes free service (limited). Free API key is 7c756203dbb38590a66e01a5a3e1ad96
+    $apikey = (isset($CONFIG['geoip']['geobytes']) && isset($CONFIG['geoip']['geobytes']['apikey'])) ? $CONFIG['geoip']['geobytes']['apikey'] : '7c756203dbb38590a66e01a5a3e1ad96';
+    $services["https://secure.geobytes.com/GetCityDetails?key=".$apikey."&fqcn=$ip"] = function($response) use ($isDst)
+    {
+        $data = json_decode($response, true);
+        if( $data && $data['geobytestimezone'] )
+        {
+            $tz = $data['geobytestimezone'];
+            if($isDst && (strpos($tz, ':') !== false))
+            {
+                list($hours, $minutes) = explode(':', $tz);
+                $hours = intval($hours) + 1;
+                $tz = ($hours >= 0 ? '+' : '-').sprintf('%02d:%02d', abs($hours), $minutes);
+            }
+            return [$tz, ifavail($data, 'geobytesinternet')];
+        }
+        return false;
+    };
+
     foreach( $services as $url=>$cb )
     {
-        $triedurls[] = $url;        
+        $triedurls[] = $url;
 
         if( $url == 'geo' ) // prepare geo search inline to only have overhead when we reach that case
         {
             $coords = get_coordinates_by_ip($ip);
             if( !$coords )
                 continue;
-            
+
             $url = "http://api.geonames.org/timezone?username={$CONFIG['geoip']['geonames']['username']}&lat={$coords['latitude']}&lng={$coords['longitude']}";
             $cb = function($response)
             {
@@ -283,16 +274,16 @@ function get_timezone_by_ip($ip = false)
             $url = false;
             $cb = function($response) use ($ip, &$isDst)
             {
-                $data = get_geo_location_by_ip($ip);
-                if(avail($data, 'timeZone'))
+                if(($data = get_geo_location_by_ip($ip)) && avail($data, 'timeZone'))
                 {
-                    $isDst = 1;         // ip2location database is always with DST
+                    // not reliable at all! timezone in ip2location files is with DST, but it depends on download date of bin files :-()
+                    $isDst = true;
                     return [$data->timeZone, $data->countryCode];
                 }
                 return false;
             };
         }
-        
+
         $resp = ($url ? downloadData($url, false, false, 60 * 60, 2) : false);
         $zone = $cb($resp);
     //    log_debug($ip, $url, $zone, $isDst);
@@ -318,6 +309,7 @@ function get_timezone_by_ip($ip = false)
                         }
                     }
                     $possibletz = array_intersect($tzincountry, $validtz);
+                    // log_debug($tzincountry, $possibletz);
                     if(count($possibletz))
                         $tz = array_first($possibletz);
                 }
@@ -326,20 +318,20 @@ function get_timezone_by_ip($ip = false)
                     // Get timezone name from seconds
                     $tz = timezone_name_from_abbr('', $seconds, $isDst);
                     // Workaround for bug #44780
-                    if($tz === false) 
+                    if($tz === false)
                         $tz = timezone_name_from_abbr('', $seconds, ($isDst ? 0 : 1));
                 }
                 if($tz)
                     $zone[0] = $tz;
             }
-            
+
         //    if(isDev())
-        //        log_debug($url, $zone, $tz, $isDst, $triedurls);
+            //    log_debug($url, $zone, $tz, $isDst, $triedurls);
             cache_set($key, $zone[0], 24 * 60 * 60);
             return $zone[0];
         }
     }
-    
+
     $zone = isset($CONFIG['geoip']['default_timezone'])
         ?$CONFIG['geoip']['default_timezone']
         :date_default_timezone_get();

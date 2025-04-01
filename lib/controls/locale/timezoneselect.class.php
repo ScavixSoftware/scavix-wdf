@@ -35,7 +35,7 @@ use ScavixWDF\Localization\Localization;
 
 /**
  * Timezone selector.
- * 
+ *
  * @attribute[Resource('locale_settings.js')]
  */
 class TimezoneSelect extends Select
@@ -50,7 +50,7 @@ class TimezoneSelect extends Select
 		$this->data('role', 'timezone');
 		if( !$current_timezone )
 			$current_timezone = Localization::getTimeZone();
-		
+
         $sel = false;
         $alltimezones = Localization::GetAllTimeZones();
 		foreach($alltimezones as $tz )
@@ -68,7 +68,7 @@ class TimezoneSelect extends Select
             // Get timezone name from seconds
             $tz = timezone_name_from_abbr('', $seconds, $isDst);
             // Workaround for bug #44780
-            if($tz === false) 
+            if($tz === false)
                 $tz = timezone_name_from_abbr('', $seconds, ($isDst ? 0 : 1));
             if($tz)
                 $this->setValue($tz);
