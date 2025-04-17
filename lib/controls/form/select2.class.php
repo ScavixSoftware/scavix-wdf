@@ -39,10 +39,7 @@ class Select2 extends Select
                     $this->opt('language', $lang);
 
                     if ($resfile = resFile('select2/i18n/'.$lang.'.js'))
-                    {
-                        log_debug($resfile);
                         $this->addLazyResources($resfile);
-                    }
                 }
             }
 		}
