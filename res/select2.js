@@ -6,6 +6,10 @@ wdf.RegisterElement('select','wdf-select2',class extends wdf.ExtendElement(HTMLS
         this.config = JSON.parse(this.dataset.config) || {};
         // console.log("Select 2 onReady", this.config);
 
+        // known issue (otherwise search input is not focusable): https://select2.org/troubleshooting/common-problems
+        if (this.config.dropdownParent && $(this).parents('.ui-dialog').length)
+            this.config.dropdownParent = $(this).parents('.ui-dialog');
+
         if( !this.config.templateResult ) this.config.templateResult = this.renderItem;
         if( !this.config.templateSelection ) this.config.templateSelection = this.renderItem;
 
@@ -13,10 +17,7 @@ wdf.RegisterElement('select','wdf-select2',class extends wdf.ExtendElement(HTMLS
         if( this.config.skip_multi_sorting )
             $(this).on("select2:select",function(evt){ var $element = $(evt.params.data.element); $element.detach(); $(this).append($element); $(this).trigger("change"); });
         if( this.config.selected )
-        {
-            //wdf.debug("preselecting",this.config.selected);
             $(this).val(this.config.selected).trigger('change');
-        }
     }
 
     renderItem(item)

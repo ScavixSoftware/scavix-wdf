@@ -12,8 +12,8 @@ namespace ScavixWDF\Controls\Form;
  * See https://github.com/select2/select2 and https://select2.org/
  *
  * @attribute[Resource('select2/select2.min.css')]
- * @attribute[Resource('select2/select2.full.min.js')]
- * //@ attribute[Resource('select2/i18n/de.js')]
+//  * @attribute[Resource('select2/select2.full.min.js')]
+//  * @attribute[Resource('select2/i18n/de.js')]
  */
 class Select2 extends Select
 {
@@ -25,18 +25,26 @@ class Select2 extends Select
         $this->attr('is','wdf-select2');
         $this->opt('width',false);
 
+        // this is necessary because the order of the includes is vital. Using attributes mixes the order of includes (won't work i.e. in uiDialogs)
+        $this->addLazyResources(resFile('select2/select2.full.min.js'));
+
         if( system_is_module_loaded('localization') )
 		{
-            global $CONFIG;
-			$ci = \ScavixWDF\Localization\Localization::detectCulture();
-			if( $ci->IsRTL )
-				$this->opt('dir', 'rtl');
-            $this->opt('language', $ci->Iso2);
-            // if (($ci->Iso2 == 'de') && avail($CONFIG, 'resources_system_url_root'))
-            // {
-            //     // $this->opt('amdLanguageBase', '/system/res/select2/');
-            //     // $this->Ress
-            // }
+            if ($ci = \ScavixWDF\Localization\Localization::detectCulture())
+            {
+                if (avail($ci, 'IsRTL'))
+                    $this->opt('dir', 'rtl');
+                if ($lang = ifavail($ci, 'Iso2'))
+                {
+                    $this->opt('language', $lang);
+
+                    if ($resfile = resFile('select2/i18n/'.$lang.'.js'))
+                    {
+                        log_debug($resfile);
+                        $this->addLazyResources($resfile);
+                    }
+                }
+            }
 		}
 
         store_object($this,$this->id);
