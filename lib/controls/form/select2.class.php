@@ -12,7 +12,7 @@ namespace ScavixWDF\Controls\Form;
  * See https://github.com/select2/select2 and https://select2.org/
  *
  * @attribute[Resource('select2/select2.min.css')]
- * @attribute[Resource('select2/select2.full.min.js')]
+//  * @ attribute[Resource('select2/select2.full.min.js')]
  */
 class Select2 extends Select
 {
@@ -39,6 +39,8 @@ class Select2 extends Select
                 }
             }
 		}
+
+        $this->addLazyResources(resFile('select2/select2.full.min.js'));
 
         store_object($this,$this->id);
     }

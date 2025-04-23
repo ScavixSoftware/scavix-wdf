@@ -7,7 +7,7 @@ wdf.RegisterElement('select','wdf-select2',class extends wdf.ExtendElement(HTMLS
         // console.log("Select 2 onReady", this.config);
 
         // known issue (otherwise search input is not focusable): https://select2.org/troubleshooting/common-problems
-        if (this.config.dropdownParent && $(this).parents('.ui-dialog').length)
+        if (!this.config.dropdownParent && $(this).parents('.ui-dialog').length)
             this.config.dropdownParent = $(this).parents('.ui-dialog');
 
         if( !this.config.templateResult ) this.config.templateResult = this.renderItem;
