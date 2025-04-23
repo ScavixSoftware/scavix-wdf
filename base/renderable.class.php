@@ -333,10 +333,10 @@ abstract class Renderable implements \JsonSerializable
     protected static $_lazy_resources = [];
     protected static function addLazyResources($res)
 	{
-        self::$_lazy_resources = array_merge(
-            array_reverse(force_array($res)),
+        self::$_lazy_resources = array_unique(array_merge(
+            force_array($res),
             self::$_lazy_resources
-        );
+        ));
 	}
 
     public static function __getLazyResources()

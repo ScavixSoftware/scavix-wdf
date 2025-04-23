@@ -12,8 +12,7 @@ namespace ScavixWDF\Controls\Form;
  * See https://github.com/select2/select2 and https://select2.org/
  *
  * @attribute[Resource('select2/select2.min.css')]
-//  * @attribute[Resource('select2/select2.full.min.js')]
-//  * @attribute[Resource('select2/i18n/de.js')]
+ * @attribute[Resource('select2/select2.full.min.js')]
  */
 class Select2 extends Select
 {
@@ -24,9 +23,6 @@ class Select2 extends Select
         parent::__construct($name);
         $this->attr('is','wdf-select2');
         $this->opt('width',false);
-
-        // this is necessary because the order of the includes is vital. Using attributes mixes the order of includes (won't work i.e. in uiDialogs)
-        $this->addLazyResources(resFile('select2/select2.full.min.js'));
 
         if( system_is_module_loaded('localization') )
 		{
