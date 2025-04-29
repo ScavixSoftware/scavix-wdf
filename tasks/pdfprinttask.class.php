@@ -60,7 +60,10 @@ async function wdf_print()
             msg = ['[inspect]',util.inspect(input),"(URL was '{{url}}')"];
 
         var dt = new Date().toISOString().slice(0,19).replace(/T/," ");
-        fs.appendFile('{{logfile}}','['+dt+'] [DEBUG] (PUP)\t'+msg.join('\t')+'\n',()=>{});
+        m = msg.join('\t');
+        if((m == '') || (m == '{}') || (m == 'ConsoleMessage {}))
+            return;
+        fs.appendFile('{{logfile}}','['+dt+'] [DEBUG] (PUP)\t' + m + '\n',()=>{});
     };
     const browser = await puppeteer.launch({headless: 'new', args: ['--no-sandbox', '--disable-setuid-sandbox']});
     try
