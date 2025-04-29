@@ -76,7 +76,8 @@ async function wdf_print()
         await page.goto('{{url}}', {waitUntil: 'networkidle0', timeout: {{timeout}}}).catch(log);
         await page.evaluate(async () =>
         {
-            document.body.scrollIntoView(false);
+            if( document.body )
+                document.body.scrollIntoView(false);
             await Promise.all(Array.from(document.getElementsByTagName('img'), image =>
             {
                 if (image.complete) return;
@@ -86,7 +87,7 @@ async function wdf_print()
                     image.addEventListener('error', reject);
                 });
             }));
-            if( window.exists('{{pageInitFunction}}') )
+            if( window && window.exists && window.exists('{{pageInitFunction}}') )
                 window.{{pageInitFunction}}(29.7,parseInt('{{dpi}}'));
         });
 
