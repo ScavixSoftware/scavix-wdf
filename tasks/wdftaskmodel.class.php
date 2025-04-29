@@ -372,7 +372,22 @@ class WdfTaskModel extends Model
     {
         $ds = DataSource::Get();
 
-        //$ds->ExecuteSql("UPDATE wdf_tasks SET parent_task=null WHERE parent_task IS NOT NULL AND parent_task NOT IN(SELECT id FROM wdf_tasks)");
+        $missing_parents = $ds->ExecuteSql("SELECT DISTINCT parent_task FROM wdf_tasks WHERE
+            created<now()-interval 1 minute AND parent_task IS NOT NULL
+            AND parent_task NOT IN(SELECT id FROM wdf_tasks) LIMIT 10"
+        )->Enumerate('parent_task');
+        foreach( $missing_parents as $task_id )
+        {
+            $tn = new WdfTaskModel();
+            $tn->created = 'now()';
+            $tn->enabled = 0;
+            $tn->name = TaskPool::class . "-run-{$task_id}";
+            $tn->arguments = serialize([]);
+            $tn->id = $task_id;
+            $tn->RecreateOnSave = true;
+            $tn->Save();
+            $tn->Go();
+        }
 
         $test = $ds->ExecuteSql("SELECT DISTINCT worker_pid FROM wdf_tasks WHERE worker_pid IS NOT NULL")->Enumerate('worker_pid');
         $tasks = array_filter($test,'system_process_running');
