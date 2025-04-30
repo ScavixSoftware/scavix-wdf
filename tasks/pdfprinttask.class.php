@@ -61,7 +61,7 @@ async function wdf_print()
 
         var dt = new Date().toISOString().slice(0,19).replace(/T/," ");
         m = msg.join('\t');
-        if((m == '') || (m == '{}') || (m == 'ConsoleMessage {}))
+        if((m == '') || (m == '{}') || (m == 'ConsoleMessage {}'))
             return;
         fs.appendFile('{{logfile}}','['+dt+'] [DEBUG] (PUP)\t' + m + '\n',()=>{});
     };
@@ -219,7 +219,7 @@ EOPS;
         if(isDev())
             log_debug("Puppeteer CmdLine: $puppeteerjs",$script);
 		$res = trim("".shell_exec($puppeteerjs));
-        if( $res )
+        if ($res)
             log_debug("Puppeteer result:\n$res");
         umask($um);
 
