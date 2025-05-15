@@ -582,7 +582,11 @@ class DatabaseTable extends Table implements ICallable
 			foreach( array_values($data_row) as $i=>$val )
 			{
                 $col = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($i+1);
-                $sheet->setCellValue("$col$row",$val);
+                if($val && starts_with(trim($val), '='))
+                    $sheet->setCellValue("$col$row", trim($val), new \PhpOffice\PhpSpreadsheet\Cell\StringValueBinder());
+                else
+                    $sheet->setCellValue("$col$row", $val);
+                $sheet->getStyle("$col$row")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT)->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_TOP);
 				if( $i>$max_cell ) $max_cell = $i;
 			}
 			$row++;
@@ -591,6 +595,8 @@ class DatabaseTable extends Table implements ICallable
 		for($i=0;$i<=$max_cell; $i++)
 		{
 			$sheet->getColumnDimensionByColumn($i + 1)->setAutoSize(true);
+			if( !isset($this->ColFormats[$i]) )
+			    $this->ColFormats[$i] = new CellFormat('text');
 			if( isset($this->ColFormats[$i]) )
 			{
 				$ef = $ci->GetExcelFormat($this->ColFormats[$i]);
@@ -601,6 +607,14 @@ class DatabaseTable extends Table implements ICallable
 					->setFormatCode($ef);
 			}
 		}
+
+        // foreach($sheet->getRowIterator() as $row) {
+        //     foreach($row->getCellIterator() as $cell) {
+        //         $cellCoordinate = $cell->getCoordinate();
+        //         $sheet->getStyle($cellCoordinate)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT)->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_TOP);
+        //     }
+        // }
+
 		if(count($head_rows))
         	$sheet->freezePane('A2');
         $sheet->setSelectedCell('A1');
@@ -630,6 +644,7 @@ class DatabaseTable extends Table implements ICallable
 		header('Pragma: public');
 		header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
 		header("Cache-Control: private",false);
+        // $xlswriter->setPreCalculateFormulas(false);
 		$xlswriter->save('php://output');
 		die('');
 	}
