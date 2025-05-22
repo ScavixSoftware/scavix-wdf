@@ -187,7 +187,7 @@ function global_error_handler($errno, $errstr, $errfile, $errline)
     // If $errstr is a warning about "Declaration of ... should be compatible with"
     if ((($errno & error_reporting()) == 0) || (($errno == E_WARNING) && (strpos($errstr, 'Declaration of ') === 0) && (strpos($errstr, ' should be compatible with ') !== false)))
     {
-        if( !isDev() ) // Completely ignore in LIVE env
+        if(!isDev() && !isSandbox()) // Completely ignore in LIVE env
             return;
 
         // Known as handled, ignore savely even in DEV
@@ -625,7 +625,7 @@ function logging_render_var($content,&$stack=[],$indent="")
 		elseif( $content instanceof WdfException )
 		{
 			$res[] = get_class($content).": ".$content->getMessageEx();
-            if( isDev() )
+            if( isDev() || isSandbox() )
 				$res[] = "in " . $content->getFileEx() . ":" . $content->getLineEx();
             if( isset($GLOBALS['logging_render_var_for_logger']) )
 			{
@@ -637,7 +637,7 @@ function logging_render_var($content,&$stack=[],$indent="")
 		elseif( ($content instanceof Exception) || ($content instanceof Error) )
 		{
 			$res[] = get_class($content).": ".$content->getMessage();
-            if( isDev() )
+            if( isDev() || isSandbox() )
                 $res[] = "in ".$content->getFile().":".$content->getLine();
             if( isset($GLOBALS['logging_render_var_for_logger']) )
                 $res[] = $content->getTraceAsString();
