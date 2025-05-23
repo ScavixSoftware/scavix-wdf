@@ -33,7 +33,7 @@ use ScavixWDF\WdfException;
 
 /**
  * Initializes the mail module.
- * 
+ *
  * @return void
  */
 function mail_init()
@@ -42,17 +42,13 @@ function mail_init()
 
 	if( !isset($CONFIG['mail']['logging']) )
 		$CONFIG['mail']['logging'] = false;
-	
-	$CONFIG['class_path']['system'][] = __DIR__.'/mail/';
 
-// whatch out: setting this will only send the emails matching this array
-//	if( !isset($CONFIG['mail']['dev_whitelist']) )
-//		$CONFIG['mail']['dev_whitelist'] = array("");
+	$CONFIG['class_path']['system'][] = __DIR__.'/mail/';
 }
 
 /**
  * Prepares an email.
- * 
+ *
  * @suppress PHP0416
  * @param string $recipient The mail recipient
  * @param string $subject The subject
@@ -68,35 +64,42 @@ function mail_prepare($recipient,$subject,$message,$plainmessage="",$attachments
 	require_once(__DIR__."/mail/class.smtp.php");
 	require_once(__DIR__."/mail/class.phpmailer.php");
 
+    $prefix = false;
 	if( isDev() && isset($CONFIG['mail']['dev_whitelist']))
+	    $prefix = 'dev';
+	if( isBeta() && isset($CONFIG['mail']['beta_whitelist']))
+	    $prefix = 'beta';
+	if( isSandbox() && isset($CONFIG['mail']['sandbox_whitelist']))
+	    $prefix = 'sandbox';
+	if($prefix && isset($CONFIG['mail'][$prefix.'_whitelist']))
 	{
 		$isvalidrecipient = false;
 		// on dev server, only domains/recipients in the whitelist are allowed
-		foreach($CONFIG['mail']['dev_whitelist'] as $needle)
+		foreach($CONFIG['mail'][$prefix.'whitelist'] as $needle)
 		{
-			if( !isset($CONFIG['mail']['dev_recipient']) )
-				$CONFIG['mail']['dev_recipient'] = $needle;				
+			if( !isset($CONFIG['mail'][$prefix.'_recipient']) )
+				$CONFIG['mail'][$prefix.'_recipient'] = $needle;
 			if(stripos($recipient, $needle) !== false)
 			{
 				$isvalidrecipient = true;
 				break;
 			}
 		}
-		if(!$isvalidrecipient && isset($CONFIG['mail']['dev_catchall']) )
+		if(!$isvalidrecipient && isset($CONFIG['mail'][$prefix.'_catchall']) )
         {
             $domain = array_last(explode("@",$recipient,2));
-            if( avail($CONFIG['mail']['dev_catchall'],$domain) )
+            if( avail($CONFIG['mail'][$prefix.'_catchall'],$domain) )
             {
-                log_debug("email recipient changed from ".var_export($recipient, true)." to ".var_export($CONFIG['mail']['dev_catchall'][$domain], true));
-                $recipient = $CONFIG['mail']['dev_catchall'][$domain];
+                log_debug("email recipient changed from ".var_export($recipient, true)." to ".var_export($CONFIG['mail'][$prefix.'_catchall'][$domain], true));
+                $recipient = $CONFIG['mail'][$prefix.'_catchall'][$domain];
                 $isvalidrecipient = true;
             }
         }
-		if(!$isvalidrecipient && isset($CONFIG['mail']['dev_recipient']) )
+		if(!$isvalidrecipient && isset($CONFIG['mail'][$prefix.'_recipient']) )
 		{
 			// if not found in whitelist, send to predefined recipient
-			log_debug("email recipient changed from ".var_export($recipient, true)." to ".var_export($CONFIG['mail']['dev_recipient'], true));
-			$recipient = $CONFIG['mail']['dev_recipient'];
+			log_debug("email recipient changed from ".var_export($recipient, true)." to ".var_export($CONFIG['mail'][$prefix.'_recipient'], true));
+			$recipient = $CONFIG['mail'][$prefix.'_recipient'];
 		}
 	}
 
@@ -105,7 +108,7 @@ function mail_prepare($recipient,$subject,$message,$plainmessage="",$attachments
     {
         $mail->debug_lines[] = "[MAIL][$level]\t{$str}";
     };
-    
+
 	$mail->SetLanguage("en", __DIR__."/mail/language/");
 	$mail->CharSet = "utf-8";
 
@@ -136,7 +139,7 @@ function mail_prepare($recipient,$subject,$message,$plainmessage="",$attachments
 			$mail->AddAddress($recipient);
 	}
 	catch(Exception $ex){ WdfException::Log($ex); $res = false;}
-	
+
 	$mail->AddReplyTo($CONFIG['mail']['from']);
 
 	$mail->WordWrap = 80;
@@ -149,7 +152,7 @@ function mail_prepare($recipient,$subject,$message,$plainmessage="",$attachments
 	    if( isDev() && !starts_with($subject, "[$env]"))
 			$subject = "[$env] $subject";
 	}
-	
+
 	$mail->Subject = $subject;
 	$mail->ContentType = "text/html";
 
@@ -163,7 +166,7 @@ function mail_prepare($recipient,$subject,$message,$plainmessage="",$attachments
     $message = str_ireplace("\r\n","<br/>",$message);
     $message = str_ireplace("\n","<br/>",$message);
     $message = str_ireplace("<br/>","<br/>\n",$message);
-	
+
 	$mail->Body    = $message;
 	$mail->AltBody = strip_tags($plainmessage==""?preg_replace("/<style\\b[^>]*>(.*?)<\\/style>/s", "", $message):str_ireplace("<br/>","\n",$plainmessage));
 
@@ -175,13 +178,13 @@ function mail_prepare($recipient,$subject,$message,$plainmessage="",$attachments
 			$mail->AddAttachment($a, (is_numeric($k) ? '' : $k));
 		else
 			log_debug("email attachment not found: $a");
-	
+
 	return $mail;
 }
 
 /**
  * Sends an email.
- * 
+ *
  * @suppress PHP0416
  * @param mixed $recipient Email recipient as string. If $recipient is <PHPMailer> will ignore all other arguments and use this.
  * @param string $subject The subject
@@ -215,7 +218,7 @@ function mail_send($recipient,$subject="",$message="",$plainmessage="",$attachme
 
 /**
  * Checks if a string is a syntactically correct email address.
- * 
+ *
  * @param string $string String to check
  * @return bool true or false
  */
@@ -226,7 +229,7 @@ function is_mail($string)
 
 /**
  * Checks for valid email address.
- * 
+ *
  * @param string $email Value to check
  * @param bool $check_dns_too If true will check the domain part for valid DNS records too
  * @return bool true or false
