@@ -1759,17 +1759,45 @@ function array_clean_assoc_or_sequence($array)
  * Searches the <debug_backtrace> to detect who called the caller of <system_get_caller>.
  * Will skip all Scavix-Wdf related files.
  *
- * @param mixed $skip Optional: Number of entries to skip
+ * @param mixed $skip Optional: If an integer is given: Number of entries to skip. If a string is given: Pattern to match against the file name to skip. If an array is given: Array of patterns to match against the file name to skip.
  * @param mixed $detailed Optional: Whether to return an array with keys 'location', 'caller' or location only (as string)
  * @return array|string
  */
 function system_get_caller($skip = 0, $detailed = false)
 {
     $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-    if( $skip>0 )
+    if (is_numeric($skip) && $skip > 0)
+    {
         array_splice($trace, 0, min(count($trace), $skip));
-    while (count($trace)>1 && (!isset($trace[1]['file']) || starts_with($trace[1]['file'], __SCAVIXWDF__)) )
-        array_shift($trace);
+        while (count($trace)>1 && (!isset($trace[1]['file']) || starts_with($trace[1]['file'], __SCAVIXWDF__)) )
+            array_shift($trace);
+    }
+    elseif( is_string($skip) && strlen($skip) > 0 )
+    {
+        while (count($trace)>1 && (!isset($trace[1]['file']) || fnmatch($skip,$trace[1]['file'])) )
+            array_shift($trace);
+    }
+    elseif( is_array($skip) )
+    {
+        while (count($trace)>1 )
+        {
+            if( !isset($trace[1]['file']) )
+                array_shift($trace);
+            else
+            {
+                foreach ($skip as $pat)
+                {
+                    if (fnmatch($pat, $trace[1]['file']))
+                    {
+                        array_shift($trace);
+                        continue 2;
+                    }
+                }
+                break;
+            }
+        }
+
+    }
     while (count($trace) < 3)
         $trace[] = ['file' => '(unknown)', 'line' => '(unknown)', 'function' => '(unknown)'];
     if (starts_with($trace[1]['file'], dirname(__SCAVIXWDF__)))
