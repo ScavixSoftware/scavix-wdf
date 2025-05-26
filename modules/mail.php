@@ -75,7 +75,7 @@ function mail_prepare($recipient,$subject,$message,$plainmessage="",$attachments
 	{
 		$isvalidrecipient = false;
 		// on dev server, only domains/recipients in the whitelist are allowed
-		foreach($CONFIG['mail'][$prefix.'whitelist'] as $needle)
+		foreach($CONFIG['mail'][$prefix.'_whitelist'] as $needle)
 		{
 			if( !isset($CONFIG['mail'][$prefix.'_recipient']) )
 				$CONFIG['mail'][$prefix.'_recipient'] = $needle;
