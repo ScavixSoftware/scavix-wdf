@@ -194,6 +194,56 @@ class Wdf
         }
         return $ret;
     }
+
+    private static $timeouts = [], $nextTimeoutId = 1, $alarmHandlerInstalled = false;
+    public static function SetTimeout(int $delay_seconds, callable $callback)
+    {
+        if (!function_exists('pcntl_async_signals'))
+        {
+            if (PHP_SAPI == 'cli')
+                log_warn(__METHOD__, "pcntl_async_signals doesn't exist, cannot start timeout handling", system_get_caller());
+            return;
+        }
+
+        $id = self::$nextTimeoutId++;
+        self::$timeouts[$id] = [
+            'due' => time() + $delay_seconds,
+            'cb' => $callback
+        ];
+        if (!self::$alarmHandlerInstalled)
+        {
+            pcntl_async_signals(true);
+            self::$alarmHandlerInstalled = pcntl_signal(SIGALRM, function ($signo)
+            {
+                foreach (self::$timeouts as $id => ['due' => $due, 'cb' => $cb])
+                {
+                    if (time() >= $due)
+                    {
+                        $delay = $cb();
+                        if ($delay > 0)
+                            self::$timeouts[$id]['due'] = time() + $delay;
+                        else
+                            unset(self::$timeouts[$id]);
+                    }
+                }
+                if (count(self::$timeouts))
+                    pcntl_alarm(1);
+                else
+                {
+                    pcntl_signal(SIGALRM, SIG_IGN);
+                    self::$alarmHandlerInstalled = false;
+                }
+            });
+            pcntl_alarm(1);
+        }
+        return $id;
+    }
+
+    public static function ClearTimeout($id)
+    {
+        if( isset(self::$timeouts[$id]) )
+            unset(self::$timeouts[$id]);
+    }
 }
 
 /**

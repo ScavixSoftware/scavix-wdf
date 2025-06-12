@@ -189,6 +189,32 @@ class DbTask extends Task
         {
             TerminationException::Verbose("SIGTERM received, terminating");
         });
+        Wdf::SetTimeout(1, function ()
+        {
+            static $shm = false;
+            if ($shm === false)
+                $shm = "/run/shm/{$GLOBALS['CONFIG']['system']['application_name']}/" . getmypid() . '.cmd';
+
+            if (file_exists($shm) && ($cmd = @file_get_contents($shm)) !== false)
+            {
+                @unlink($shm);
+                $cmd = trim($cmd);
+                switch ($cmd)
+                {
+                    case 'stop':
+                    case 'exit':
+                        log_debug("'$cmd' command received, forcing stop");
+                        die();
+                    case 'terminate':
+                        TerminationException::Verbose("'$cmd' command received, terminating");
+                        break;
+                    default:
+                        log_debug("Unknown command: '$cmd'");
+                        break;
+                }
+            }
+            return 1;
+        });
 
         WdfTaskModel::SetState('idle');
         $ttl = intval(array_shift($args) ?: -1) ?: -1;
@@ -198,6 +224,16 @@ class DbTask extends Task
         WdfTaskModel::FreeOrphans();
         $task = WdfTaskModel::Reserve();
         set_time_limit(0);
+
+        Wdf::SetTimeout(1, function ()
+        {
+            if ($f = $this->codeHasChanged())
+            {
+                log_debug(__CLASS__, "Code has changed, stopping ($f)");
+                die();
+            }
+            return 10;
+        });
 
         while ($task || time() < $eol)
         {
@@ -304,18 +340,24 @@ class DbTask extends Task
             if ($name != 'cli')
                 logging_remove_logger($name);
 
-        $sig = is_in(strtolower(array_shift($args) . ''), 'k', 'kill', '9') ? SIGKILL : SIGTERM;
-        foreach (WdfTaskModel::GetRunningInstances() as $pid)
+        $sig = is_in(strtolower(array_first($args) . ''), 'k', 'kill', '9') ? SIGKILL : SIGTERM;
+        if( $sig == SIGKILL )
         {
-            echo (($sig==SIGTERM)?"Stopping ":"Killing ")."$pid...";
-            if (posix_kill($pid, $sig))
-            {
-                if ($sig == SIGKILL)
-                    @unlink("/run/shm/{$GLOBALS['CONFIG']['system']['application_name']}/{$pid}.*");
-                echo "ok\n";
-            }
-            else
-                echo "failed\n";
+            log_warn("Deprecated syntax used. Arguments is a list of PIDs now.");
+            return;
         }
+        if (count($args) == 1 && is_in($args[0],'a','all'))
+            $pids = WdfTaskModel::GetRunningInstances();
+        else
+            $pids = array_filter($args, 'is_numeric');
+
+        if( !count($pids) )
+        {
+            log_info("Syntax: db-stopwdftasks pid [pid...]",$args);
+            return;
+        }
+
+        foreach ($pids as $pid)
+            WdfTaskModel::Stop($pid);
     }
 }

@@ -161,7 +161,7 @@ class WdfTaskModel extends Model
         if( $shmdir === false )
             $shmdir = "/run/shm/" . $GLOBALS['CONFIG']['system']['application_name'];
 
-        return count(glob("{$shmdir}/*.*"));
+        return count(self::GetRunningInstances());
     }
 
     public static function GetRunningInstances()
@@ -173,7 +173,7 @@ class WdfTaskModel extends Model
         $pids = [];
         foreach (glob("{$shmdir}/*.*") as $f)
             $pids[] = intval(array_first(explode(".", basename($f))));
-        return array_filter($pids);
+        return array_unique(array_filter($pids));
     }
 
 	public static function RunInstance($runtime_seconds=null)
@@ -462,6 +462,7 @@ class WdfTaskModel extends Model
                 case 'done':
                     @unlink("{$shm}.running");
                     @unlink("{$shm}.idle");
+                    @unlink("{$shm}.cmd");
                 default:
                     return;
             }
@@ -491,6 +492,51 @@ class WdfTaskModel extends Model
         {
             umask($um);
         }
+    }
+
+    public static function SendCommand(int|string $pid, string $command = '')
+    {
+        static $shmdir = false;
+        if ($shmdir === false)
+            $shmdir = "/run/shm/".$GLOBALS['CONFIG']['system']['application_name'];
+        $cmdfile = "$shmdir/{$pid}.cmd";
+        try
+        {
+            $end = time() + 3;
+            file_put_contents($cmdfile, trim($command));
+            while (file_exists($cmdfile) && $end > time())
+                usleep(100000);
+            return !file_exists($cmdfile);
+        }
+        finally
+        {
+            @unlink($cmdfile);
+        }
+    }
+
+    public static function Stop(int|string $pid, bool $gracefully = true)
+    {
+        $verbose = function_exists('cli_is_terminal') && cli_is_terminal();
+        if ($verbose)
+            echo $gracefully ? "Terminating $pid..." : "Stopping $pid...";
+        if (!WdfTaskModel::SendCommand($pid, $gracefully ? 'terminate' : 'stop'))
+        {
+            if ($verbose && $gracefully)
+                echo "failed, trying SIGTERM...";
+            if (!$gracefully || !posix_kill($pid, SIGTERM))
+            {
+                if ($verbose)
+                    echo "failed, trying SIGKILL...";
+                if (!posix_kill($pid, SIGKILL))
+                {
+                    if ($verbose)
+                        echo "failed\n";
+                    return;
+                }
+            }
+        }
+        if ($verbose)
+            echo "ok\n";
     }
 
     public function SetPriority(int $priority = 3)

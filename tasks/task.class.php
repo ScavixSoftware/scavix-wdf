@@ -122,7 +122,7 @@ abstract class Task
         if($t = WdfTaskModel::Make()->eq('name',$name)->current())
         {
             if(avail($t, 'worker_pid'))
-               exec("kill -9 {$t->worker_pid}");
+                WdfTaskModel::Stop($t->worker_pid, false);
             $t->Delete();
             return true;
         }
@@ -214,5 +214,18 @@ abstract class Task
             foreach ($names as $n)
                 if ($n != 'cli')
                     logging_remove_logger($n);
+    }
+
+    protected function codeHasChanged()
+    {
+        static $file_index = [];
+        foreach (get_included_files() as $f)
+        {
+            if (!isset($file_index[$f]))
+                $file_index[$f] = max(filemtime($f), filectime($f));
+            elseif ($file_index[$f] < max(filemtime($f), filectime($f)))
+                return $f;
+        }
+        return false;
     }
 }

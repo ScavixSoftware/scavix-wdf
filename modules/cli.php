@@ -368,3 +368,8 @@ function cli_execute()
     else
         \ScavixWDF\WdfException::Raise("Unknown task '$task'");
 }
+
+function cli_is_terminal()
+{
+    return defined('STDOUT') && function_exists('posix_isatty') && posix_isatty(STDOUT);
+}
