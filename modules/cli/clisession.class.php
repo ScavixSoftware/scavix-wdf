@@ -68,6 +68,6 @@ class CliSession extends PhpSession
         $ret = $this->GenerateSessionId();
         $old = session_id($ret);
         $this->store->Migrate($old,$ret);
-		return $ret;
+		return true;
 	}
 }

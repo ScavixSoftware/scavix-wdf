@@ -36,7 +36,7 @@ use ScavixWDF\WdfException;
 
 /**
  * Base class for SessionHandlers.
- * 
+ *
  * Implements basic functionalities and defines some more as
  * abstract which must be implemented by inherited classes.
  */
@@ -44,67 +44,67 @@ abstract class SessionBase
 {
     public $store;
     public $I;
-    
+
     protected static $session_request_id = false;
-    
+
 	/**
 	 * Implement to perform sanitations like checking if users IP has changed.
-	 * 
+	 *
 	 * @return void
 	 */
 	abstract function Sanitize();
-	
+
 	/**
 	 * Clears the complete object store.
-	 * 
+	 *
 	 * @return void
 	 */
 	abstract function KillAll();
-	
+
 	/**
 	 * Perform a session keep alive.
-	 * 
+	 *
 	 * @param string $request_key Key in the REQUEST variable containing the request_id value
 	 * @return void
 	 */
 	abstract function KeepAlive($request_key='PING');
-	
+
 	/**
 	 * Store an object into the object store.
-	 * 
+	 *
 	 * @param object $obj Object to be stored
 	 * @param string $id Key to store object under (use <create_storage_id> if not given)
 	 * @return void
 	 */
 	abstract function Store(&$obj,$id="");
-	
+
 	/**
 	 * Removes an object from the object store.
-	 * 
+	 *
 	 * @param string $id Key of the object to remove
 	 * @return void
 	 */
 	abstract function Delete($id);
-	
+
 	/**
 	 * Checks if an object exists in the object store.
-	 * 
+	 *
 	 * @param string $id Key of the object to check for
 	 * @return bool true or false
 	 */
 	abstract function Exists($id);
-	
+
 	/**
 	 * Restores an object from the object store.
-	 * 
+	 *
 	 * @param string $id Key of the object to restore
-	 * @return object The restored object
+	 * @return object|null The restored object
 	 */
 	abstract function &Restore($id);
 
 	/**
 	 * Generates a secure session id
-	 * 
+	 *
 	 * See http://www.php-security.org/2010/05/09/mops-submission-04-generating-unpredictable-session-ids-and-hashes/index.html#more-204
 	 * @param int $maxLength Maximum length of resulting id
 	 * @return string Session id
@@ -134,9 +134,9 @@ abstract class SessionBase
 		}
 
 		$hash = hash('whirlpool', $entropy);
-		if ($maxLength) 
+		if ($maxLength)
 			return substr($hash, 0, $maxLength);
-		
+
 		return $hash;
 	}
 
@@ -153,7 +153,7 @@ abstract class SessionBase
 //                log_debug("AJAX call without valid session");
 //				die();
 //            }
-            
+
 			if( isset($_REQUEST[$name]) )
 			{
 				$regen_needed = false;
@@ -166,7 +166,7 @@ abstract class SessionBase
 					$_REQUEST[$name] = $_COOKIE[$name] = $_POST[$name];
 					$regen_needed = true;
 				}
-				
+
 				// in case that there is a session id passed in the cookie and in the get, prefer the one in get,
 				// but do not set the COOKIE to make multi-session handling possible
 				if(isset($_GET[$name]) && $_REQUEST[$name] != $_GET[$name])
@@ -213,7 +213,7 @@ abstract class SessionBase
 
 	/**
 	 * Regenerates the session id
-	 * 
+	 *
 	 * See http://www.php.net/manual/en/function.session-regenerate-id.php
 	 * @param bool $destroy_old_session Whether to delete the old associated session file or not
 	 * @return bool true or false
@@ -229,11 +229,11 @@ abstract class SessionBase
 
 	/**
 	 * Ensures object validity
-	 * 
-	 * Calls <store_object> for every <Renderable> object in the object store to ensure that the stored 
+	 *
+	 * Calls <store_object> for every <Renderable> object in the object store to ensure that the stored
 	 * objects really match the serialized ones. This is needed because fields/properties can change after
 	 * the initial save and our caching will hide that from system.
-	 * 
+	 *
 	 * No need to call this manually, ScavixWDF will do!
 	 * @return void
 	 */
@@ -245,7 +245,7 @@ abstract class SessionBase
 
 	/**
 	 * Returns a (new) request id
-	 * 
+	 *
 	 * ScavixWDF creates a new ID for every request and passed it to every subsequent AJAX call.
 	 * This method does the real magic and creates a new request id or returns the current.
 	 * @return string A new request id or the current one
@@ -263,7 +263,7 @@ abstract class SessionBase
 
 	/**
 	 * Creates a object id
-	 * 
+	 *
 	 * ScavixWDF will create IDs for <Renderable> objects automatically and ensures uniqueness for
 	 * the whole session. This method creates such an id based on the given objects classname.
 	 * It will store it to `$obj->_storage_id` and return it.

@@ -484,14 +484,14 @@ class MySql implements IDatabaseDriver
         else
             $total = intval($found_rows);
 
-		return array
-		(
-			'rows_per_page'=> $length,
-			'current_page' => $length==0?0:floor($offset / $length) + 1,
-			'total_pages'  => $length==0?0:ceil($total / $length),
-			'total_rows'   => $total,
-			'offset'       => $offset,
-		);
+		return
+            [
+                'rows_per_page' => $length,
+                'current_page' => $length == 0 ? 0 : floor($offset / $length) + 1,
+                'total_pages' => $length == 0 ? 0 : ceil($total / $length),
+                'total_rows' => $total,
+                'offset' => $offset,
+            ];
 	}
 
 	/**

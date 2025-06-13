@@ -199,7 +199,7 @@ class SqLite implements IDatabaseDriver
 		foreach( $objSchema->Columns as $col )
 			$sql[] = $this->columnDef($col);
 
-		$sql = 'CREATE TABLE "'.$objSchema->Table.'" ('."\n".implode(",\n",$sql)."\n".')';
+		$sql = 'CREATE TABLE "'.$objSchema->Name.'" ('."\n".implode(",\n",$sql)."\n".')';
 		$stmt = $this->_pdo->prepare($sql);//,array(PDO::ATTR_CURSOR=>PDO::CURSOR_SCROLL));
 		if( !$stmt->execute() )
 			WdfDbException::RaiseStatement($stmt);

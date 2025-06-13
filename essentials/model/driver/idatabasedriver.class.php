@@ -32,7 +32,7 @@ namespace ScavixWDF\Model\Driver;
 
 /**
  * Interface for database drivers.
- * 
+ *
  * Although ScavixWDF uses <PDO> each database has it's specialities so we need a driver interface.
  * The actual database drivers must imeplement this to be compatible with ScavixWDF.
  */
@@ -40,16 +40,16 @@ interface IDatabaseDriver
 {
 	/**
 	 * Initializes the driver.
-	 * 
+	 *
 	 * @param \ScavixWDF\Model\DataSource $datasource The datasource object using this driver (it is called $this over there)
 	 * @param \ScavixWDF\Model\PdoLayer $pdo The PDO database connection
 	 * @return void
 	 */
 	function initDriver($datasource,$pdo);
-	
+
 	/**
 	 * Returns the schema of a table.
-	 * 
+	 *
 	 * @param string $tablename The tables name
 	 * @return \ScavixWDF\Model\TableSchema The tables schema
 	 */
@@ -57,14 +57,14 @@ interface IDatabaseDriver
 
 	/**
 	 * Returns a list of all tables.
-	 * 
+	 *
 	 * @return array List of tables
 	 */
 	function listTables();
-	
+
 	/**
 	 * Returns a list of all column names in a table.
-	 * 
+	 *
 	 * @param string $tablename Name of table to query
 	 * @return array Array of column names
 	 */
@@ -72,15 +72,15 @@ interface IDatabaseDriver
 
 	/**
 	 * Checks if a table exists.
-	 * 
+	 *
 	 * @param string $tablename name of table to check for
 	 * @return bool true or false
 	 */
 	function tableExists($tablename);
-	
+
 	/**
 	 * Create a table from an objects schema.
-	 * 
+	 *
 	 * We are not sure if we will ever implement this side as we prefer to create our tables in the database.
 	 * @param \ScavixWDF\Model\TableSchema $objSchema Tableschema as specified by the Model
 	 * @return void
@@ -89,53 +89,53 @@ interface IDatabaseDriver
 
 	/**
 	 * Creates a valid save statement to store an object into the database.
-	 * 
+	 *
 	 * @param \ScavixWDF\Model\Model $model The model to store
 	 * @param array $args <b>OUT:</b>The values extracted from $model that have changed wince last save (or all if new object)
 	 * @param array $columns_to_update If given only these fields will be updated. If not Model tries to detect changed columns automatically.
-	 * @return string SQL statement with argument placeholders for all change columns (see $args)
+	 * @return \ScavixWDF\Model\ResultSet|false SQL statement with argument placeholders for all change columns (see $args)
 	 */
 	function getSaveStatement($model,&$args,$columns_to_update=false);
-	
+
 	/**
 	 * Creates a valid statement to delete the given model from the database.
-	 * 
+	 *
 	 * @param \ScavixWDF\Model\Model $model Model to delete
 	 * @param array $args <b>OUT:</b>The values extracted from $model to uniquely identify it (the primary key values)
 	 * @return bool|\ScavixWDF\Model\ResultSet SQL statement with argument placeholders to identify $model (see $args)
 	 */
 	function getDeleteStatement($model,&$args);
-	
+
 	/**
 	 * Create a pages statement from an unpaged one.
-	 * 
+	 *
 	 * @param string $sql The original statement
 	 * @param int $page The one-based page index
 	 * @param int $items_per_page Items per page
 	 * @return \ScavixWDF\Model\ResultSet Paged SQL statement
 	 */
 	function getPagedStatement($sql,$page,$items_per_page);
-	
+
 	/**
 	 * Returns paging informaton about a query.
-	 * 
+	 *
 	 * @param string $sql SQL statement to get information for
 	 * @param array $input_arguments Input parameters for the SQL statement
-	 * @return array An array containing: rows_per_page, current_page, total_pages, total_rows, offset
+	 * @return array|false An array containing: rows_per_page, current_page, total_pages, total_rows, offset
 	 */
 	function getPagingInfo($sql,$input_arguments=null);
-    
+
 	/**
 	 * Returns an SQL query to get the current datetime.
-	 * 
+	 *
 	 * @param int $seconds_to_add Offset to now in seconds (can also be negative)
 	 * @return string Query to get now from the Db
 	 */
     function Now($seconds_to_add=0);
-    
+
 	/**
 	 * Preprocesses an SQL statement.
-	 * 
+	 *
 	 * Some drivers need to perform some extra parameter specifier processing or stuff.
 	 * Can be implemented here as this will be called with every query.
 	 * @param string $sql RAW SQL statement
