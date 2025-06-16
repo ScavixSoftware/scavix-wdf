@@ -98,7 +98,8 @@ class TaskPool extends Task
             $tasks = [];
 
             // Inner loop: Load and release some tasks and keep that number running while there are some in the preloaded IDs
-            while (count($task_ids) > 0)
+            $keep_list_until = time() + 10; // do not keep the task list forever as this would kill priority handling for reusable pools
+            while (count($task_ids) > 0 && time() < $keep_list_until)
             {
                 while (count($tasks) < $processors)
                 {

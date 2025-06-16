@@ -1190,15 +1190,15 @@ function sif($condition,$true_value,$false_value)
  * if( isset($a) && is_array($a['system']) && isset($a['system']['data']) && $a['system']['data'] )
  *     log_debug("SysData",$a['system']['data']);
  * </code>
- * @param mixed ...$args Subject and path to check
+ * @param mixed $subject Subject to check
+ * @param mixed $arg0 Key to check for
+ * @param mixed ...$args Path (more keys) to check for
  * @return bool True if the requested data is available, else false
  */
-function avail(...$args)
+function avail($subject, $arg0, ...$args)
 {
-	if( count($args) < 2 )
-		ScavixWDF\WdfException::Raise("avail needs at least two arguments");
-
-	$ar = array_shift($args);
+    array_unshift($args, $arg0);
+    $ar = $subject;
 	if( !is_array($ar) && !is_object($ar) )
 		return false;
     if ($ar instanceof \ScavixWDF\Model\Model)
