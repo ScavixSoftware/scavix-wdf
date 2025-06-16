@@ -1743,7 +1743,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess, \ScavixWDF\ILo
             $this->$id = $this->_ds->LastInsertId();
 
         if ($columns_to_update === false)
-            $this->Load("{$pkcols[0]}=?", [$this->$id]);
+            $this->Load($this->__ensureFieldname($pkcols[0]).'=?', [$this->$id]);
         else
             $this->__init_db_values(false, true, $columns_to_update);
 
