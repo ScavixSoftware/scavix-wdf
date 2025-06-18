@@ -32,7 +32,7 @@ use ScavixWDF\Base\DateTimeEx;
 
 /**
  * Represents a Chart.js chart
- * 
+ *
  * @attribute[Resource('chartjs3/chart.min.js')]
  * @attribute[Resource('chartjs3/luxon.js')]
  * @attribute[Resource('chartjs3/chartjs-adapter-luxon.js')]
@@ -52,17 +52,17 @@ class ChartJS3 extends Control
     public $query = false;
     public $colors, $named_colors;
     public $series_order;
-    
+
     protected static $currentInstance;
-    
+
     public static $NAMED_COLORS = [];
     public static $COLORS = ['red','green','blue','yellow','brown'];
     protected $currentColor = 0;
     protected $xBasedData;
     protected $missingPointCallback = false;
-    
+
     public static $CI;
-    
+
     protected function setXMinMax($val)
     {
         if( $val instanceof \DateTime )
@@ -71,7 +71,7 @@ class ChartJS3 extends Control
         if( !$this->xMax || $val > $this->xMax ) $this->xMax = $val;
         return $val;
     }
-    
+
     /**
      * @internal Handler for points of type Time
      */
@@ -82,7 +82,7 @@ class ChartJS3 extends Control
         //return ['x'=>"[jscode]new Date('".$dt->format("c")."')", 'y'=>$y, 'xval'=>$xval];
         return ['x'=>$dt->getTimestamp()*1000, 'y'=>$y, 'xval'=>$xval];
     }
-    
+
     /**
      * @internal Handler for points of type Date
      */
@@ -95,7 +95,7 @@ class ChartJS3 extends Control
         if( $row ) $pt['raw'] = $row;
         return $pt;
     }
-    
+
     /**
      * @internal Handler for points of type Week
      */
@@ -105,7 +105,7 @@ class ChartJS3 extends Control
         list($year,$week) = explode(" ",$dt->format('o W'));
         $xval = DateTimeEx::FirstDayOfWeek("{$year}-01-01 00:00:00")
             ->Offset($week,"week")->getTimestamp();
-        
+
         $pt = ['x'=>"$year W $week", 'y'=>$y, 'xval'=>$xval];
         if( $row ) $pt['raw'] = $row;
         return $pt;
@@ -122,7 +122,7 @@ class ChartJS3 extends Control
         if( $row ) $pt['raw'] = $row;
         return $pt;
     }
-    
+
     /**
      * @shortcut Create a Line chart
      */
@@ -139,35 +139,35 @@ class ChartJS3 extends Control
      * @shortcut Create a Doughnut chart
      */
     public static function Doughnut($title='',$height=false) { return ChartJS3::Make($title,'doughnut',$height)->scaleX('display',false); }
-    
+
     /**
      * @shortcut Create a Stacked-Bar chart
      */
     public static function StackedBar($title='',$height=false) { return ChartJS3::Make($title,'bar',$height)->setStacked(); }
-    
+
 	function __construct($title='',$type='line',$height=false)
 	{
         self::$currentInstance = $this;
 		parent::__construct('div');
-        
+
         $this->colors = []+self::$COLORS;
         $this->named_colors = []+self::$NAMED_COLORS;
-        
+
         $this->chart_title = $this->content(Control::Make('div')->append($title))->addClass('caption');
         $this->canvas = Control::Make('canvas');
         $wrap = $this->content($this->canvas->wrap('div'))->addClass('wrap');
-        
+
         $this->setType($type)
             ->opt('responsive',true)
             ->opt('maintainAspectRatio',false);
         if( $height )
             $wrap->css('height',$height);
-        
+
         \ScavixWDF\Base\HtmlPage::AddPolyfills('default,Object.assign,Object.is');
         \ScavixWDF\Base\HtmlPage::AddPolyfills('Number.isNaN,String.prototype.repeat');
         \ScavixWDF\Base\HtmlPage::AddPolyfills('Math.trunc,Math.sign');
 	}
-    
+
     /**
      * @override
      */
@@ -175,26 +175,26 @@ class ChartJS3 extends Control
     {
         if( $this->_skipRendering )
             return;
-        
+
         if( count($this->detectedCategories)>0 && $this->xLabels()===null )
             $this->xLabels($this->detectedCategories);
-        
+
         $this->scaleX("ticks.maxRotation",0)->scaleX('offset',true);
         if( $this->detectedDateseries )
             $this->setTimeAxesX('day');
-        
+
         if( $this->xMin !== false )
             $this->scaleX("ticks.min",$this->xMin);
         if( $this->xMax !== false )
             $this->scaleX("ticks.max",$this->xMax);
-        
+
         if( \ScavixWDF\Wdf::Once(__METHOD__) && self::$CI instanceof \ScavixWDF\Localization\CultureInfo )
         {
             $lang = self::$CI->ResolveToLanguage()->Code;
             $script = "try{ luxon.Settings.defaultLocale = '$lang'; } catch(ex){ console.log('luxon error',ex); }";
             $this->script($script);
         }
-        
+
         if( $this->series_order && count($this->series)>1 )
         {
             $sort = function($a,$b)
@@ -207,7 +207,7 @@ class ChartJS3 extends Control
             usort($this->series,$sort);
             $this->legend('reverse',true);
         }
-        
+
         foreach( $this->series as $i=>&$series )
         {
             if( $this->series_order && ifavail($series,'isPieData') )
@@ -223,7 +223,7 @@ class ChartJS3 extends Control
                 uksort($series['backgroundColor'],$sort);
                 uksort($series['borderColor'],$sort);
             }
-            
+
             if( ifavail($series,'isPieData') )
             {
                 unset($series['isPieData']);
@@ -231,16 +231,16 @@ class ChartJS3 extends Control
                 $series['backgroundColor'] = array_values(force_array($series['backgroundColor']));
                 $series['borderColor'] = array_values(force_array($series['borderColor']));
             }
-            
+
             if( count($series['data']) < 100 || ifavail($series,'raw_large_datasets') )
                 continue;
             $series['type'] = 'line';
             $series['fill'] = false;
             $series['lineTension'] = 0;
-            
-            if( !isset($series['elements']) ) 
+
+            if( !isset($series['elements']) )
 				$series['elements'] = [];
-			if( !isset($series['elements']['point']) ) 
+			if( !isset($series['elements']['point']) )
 				$series['elements']['point'] = [];
 			$series['elements']['point']['pointStyle'] = 'line';
 			$series['elements']['point']['borderWidth'] = 0;
@@ -252,7 +252,7 @@ class ChartJS3 extends Control
         parent::PreRender($args);
         $this->_skipRendering = true;
     }
-    
+
     protected function conf($name,$value=null)
 	{
         $parts = explode(".",$name);
@@ -273,10 +273,10 @@ class ChartJS3 extends Control
         $cfg = $value;
 		return $this;
 	}
-    
+
     /**
 	 * Sets or gets an option
-	 * 
+	 *
 	 * if you specify a $value will set it and retunr `$this`. else will return the option value
 	 * @param string $name option name
 	 * @param mixed $value option value or null
@@ -286,10 +286,10 @@ class ChartJS3 extends Control
 	{
         return $this->conf("options.$name",$value);
 	}
-    
+
     /**
      * Adds a plugin to be loaded.
-     * 
+     *
      * @todo AFAIK this is untested
      * @param string $name Plugin name
      * @return static
@@ -300,11 +300,11 @@ class ChartJS3 extends Control
         $p[] = "[jscode]$name";
         return $this->conf("plugins",$p);
     }
-    
+
     /**
      * Get/Set dataset related configuration.
-     * 
-     * @param int $index Datase index
+     *
+     * @param int|string $index Datase index
      * @param string $name Config name
      * @param mixed $value Optional value
      * @return mixed Returns $this is value is given, else the data requested
@@ -315,7 +315,7 @@ class ChartJS3 extends Control
         $all = preg_replace('/[*all-]/','',"$index")=="";
         if( $all && $value === null )
             throw new \Exception("Cannot get property '$name' of all datasets");
-        
+
         foreach( $this->series as $i=>$s )
         {
             //log_debug("[$index] series $i",$s);
@@ -323,7 +323,7 @@ class ChartJS3 extends Control
             {
                 if( $value === null )
                     return $this->conf("data.datasets.$i.$name");
-                
+
                 $this->series[$i][$name] = $value;
                 $this->conf("data.datasets.$i.$name",$value);
                 if( !$all )
@@ -332,10 +332,10 @@ class ChartJS3 extends Control
         }
         return $this;
 	}
-    
+
     /**
      * Get/Set scale related configuration.
-     * 
+     *
      * @param string $axes Scale ID
      * @param int $index Axes index
      * @param string $name Config name
@@ -349,7 +349,7 @@ class ChartJS3 extends Control
         {
             if( $value === null )
                 throw new \Exception("Cannot get property '$name' of all scales");
-            
+
             $scales = array_merge(['x'=>[],'y'=>[]],$this->opt("scales")?:[]);
             foreach( $scales as $id=>$sc )
                 $this->scales($id, $name, $value);
@@ -365,7 +365,7 @@ class ChartJS3 extends Control
         //log_debug("scales.$scaleId",$this->opt("scales.$scaleId"));
         return $this;
     }
-    
+
     /**
      * @shortcut <ChartJS3::scales>
      */
@@ -381,10 +381,10 @@ class ChartJS3 extends Control
     {
         return $this->scales('y',$name,$value);
     }
-    
+
     /**
      * Gets/Sets X-Axes labels.
-     * 
+     *
      * @param array $labels Optional labels as array
      * @return mixed $this is lables is given, else the data requested
      */
@@ -392,10 +392,10 @@ class ChartJS3 extends Control
     {
         return $this->conf('data.labels',$labels);
     }
-    
+
     /**
      * Gets/Sets the legend.
-     * 
+     *
      * @param string $name Name
      * @param mixed $value Optional value
      * @return mixed Returns $this is value is given, else the data requested
@@ -404,10 +404,10 @@ class ChartJS3 extends Control
     {
         return $this->opt("plugins.legend.$name",$value);
     }
-    
+
     /**
      * Gets/Sets the tooltip.
-     * 
+     *
      * @param string $name Name
      * @param mixed $value Optional value
      * @return mixed Returns $this is value is given, else the data requested
@@ -416,10 +416,10 @@ class ChartJS3 extends Control
     {
         return $this->opt("plugins.tooltip.$name",$value);
     }
-    
+
     /**
      * Sets the chart type.
-     * 
+     *
      * @param string $type The type name
      * @return $this
      */
@@ -428,10 +428,10 @@ class ChartJS3 extends Control
         $this->config['type'] = $type;
         return $this;
     }
-    
+
     /**
      * Sets the chart title.
-     * 
+     *
      * @param string $text Title
      * @return $this
      */
@@ -440,20 +440,20 @@ class ChartJS3 extends Control
         $this->chart_title->content($text,true);
         return $this;
     }
-    
+
     /**
      * Sets this chart to be stacked.
-     * 
+     *
      * @return $this
      */
     function setStacked()
     {
         return $this->scales('*','stacked',true);
     }
-    
+
     /**
      * Sets the xAxes to be a time-scale.
-     * 
+     *
      * @param string $unit OPtional unit specifier
      * @return $this
      */
@@ -466,25 +466,25 @@ class ChartJS3 extends Control
             $this->scaleX("time.stepSize",2);
         return $this;
     }
-    
+
     /**
      * Sets Y-Axis to be a percentual scale.
-     * 
+     *
      * @return $this
      */
     function setPercentAxesY()
     {
         if( $this->opt("percentScale",true)->percentizeData() )
             $this->conf('data.datasets',$this->series);
-        
+
         return $this->scaleY('min',0)->scaleY('max',100)->scaleY('ticks',[
             'callback'=>"function(value,index,values){ return value+'%'; }",
         ]);
     }
-    
+
     /**
      * Sets a <ColorRange> for the chart.
-     * 
+     *
      * @param \ScavixWDF\Base\Color\ColorRange $range Range of colors
      * @return $this
      */
@@ -493,10 +493,10 @@ class ChartJS3 extends Control
         $this->colorRange = $range;
         return $this;
     }
-    
+
     /**
      * Sets the chart colors.
-     * 
+     *
      * @param array $colors Array of color valus
      * @return $this
      */
@@ -508,7 +508,7 @@ class ChartJS3 extends Control
 
     /**
      * Sets the named chart colors.
-     * 
+     *
      * @param array $colors Associative array of color valus
      * @return $this
      */
@@ -517,7 +517,7 @@ class ChartJS3 extends Control
         $this->named_colors = $colors;
         return $this;
     }
-    
+
     protected function getColor($name=false,$label=false,$value=false)
     {
         if( $value && $this->colorRange )
@@ -525,10 +525,10 @@ class ChartJS3 extends Control
         $col = ifavail($this->named_colors,$name,$label);
         return $col?$col:($this->colors[($this->currentColor++)%count($this->colors)]);
     }
-    
+
     /**
      * Sets series names.
-     * 
+     *
      * @param array $seriesNames Series names
      * @param bool $append If true, series will be appended, else existing will be replaced
      * @return $this
@@ -548,10 +548,10 @@ class ChartJS3 extends Control
         }
         return $this;
     }
-    
+
     /**
      * Sets data.
-     * 
+     *
      * @param iterable $data The actual data
      * @param string $x_value_row Name of the field that represents the series name
      * @param string $pointType Optional classname of the Point handler
@@ -562,13 +562,13 @@ class ChartJS3 extends Control
     {
         return $this->fill(function($series)use($data, $x_value_row, $pointType, $pointdatacallback)
         {
-            $d = []; 
-            foreach( $data as $r ) 
+            $d = [];
+            foreach( $data as $r )
             {
                 if( $pointdatacallback && is_callable($pointdatacallback) )
                 {
                     $v = isset($r[$series])?$r[$series]:0;
-                    $d[] = array_merge(ChartJS3::$pointType($r[$x_value_row],floatval($v)), $pointdatacallback($r, $series, $x_value_row)); 
+                    $d[] = array_merge(ChartJS3::$pointType($r[$x_value_row],floatval($v)), $pointdatacallback($r, $series, $x_value_row));
                 }
                 elseif (is_callable($pointType))
                 {
@@ -577,17 +577,17 @@ class ChartJS3 extends Control
                 elseif( isset($r[$series]) )
                 {
                     $v = isset($r[$series])?$r[$series]:0;
-                    $d[] = ChartJS3::$pointType($r[$x_value_row],floatval($v)); 
+                    $d[] = ChartJS3::$pointType($r[$x_value_row],floatval($v));
                 }
             }
             //log_debug("SER $series",$d);
-            return $d; 
+            return $d;
         });
     }
-    
+
     /**
      * Sets series data.
-     * 
+     *
      * @param iterable $data The actual data
      * @param string $series_row Name of the field with the series name
      * @param string $x_value_row Name of the field with the x-values
@@ -597,41 +597,41 @@ class ChartJS3 extends Control
      * @return $this
      */
     function setSeriesData(iterable $data, string $series_row, string $x_value_row, string $y_value_row, $pointType="StrPoint", $pointdatacallback = false)
-    {   
+    {
         $series = [];
         foreach( $data as $r )
             $series[] = $r[$series_row];
-        
+
         $this->setSeries(array_filter(array_unique($series)));
         return $this->fill(function($series)use($data, $series_row, $x_value_row, $y_value_row, $pointType, $pointdatacallback)
         {
-            $d = []; 
-            foreach( $data as $r ) 
+            $d = [];
+            foreach( $data as $r )
             {
                 if( ifavail($r,$series_row) != $series )
                     continue;
-                
+
                 if( $pointdatacallback && is_callable($pointdatacallback) )
                 {
                     $v = isset($r[$series])?$r[$series]:0;
-                    $d[] = array_merge(ChartJS3::$pointType($r[$x_value_row],floatval($v)), $pointdatacallback($r,$series,$series_row,$x_value_row,$y_value_row)); 
+                    $d[] = array_merge(ChartJS3::$pointType($r[$x_value_row],floatval($v)), $pointdatacallback($r,$series,$series_row,$x_value_row,$y_value_row));
                 }
                 elseif( is_callable($pointType) )
                     $d[] = $pointType($r,$series,$series_row,$x_value_row,$y_value_row);
                 else
                 {
                     $v = isset($r[$y_value_row])?$r[$y_value_row]:0;
-                    $d[] = ChartJS3::$pointType($r[$x_value_row],floatval($v),$r); 
+                    $d[] = ChartJS3::$pointType($r[$x_value_row],floatval($v),$r);
                 }
             }
 //            log_debug("MULTISER $series",$d);
-            return $d; 
+            return $d;
         });
     }
-    
+
     /**
      * Sets data for a Pie chart.
-     * 
+     *
      * @param array $name_value_pairs key-value pairs of data
      * @return static
      */
@@ -648,10 +648,10 @@ class ChartJS3 extends Control
         }
         return $this->xLabels($labels)->conf('data.datasets',$this->series);
     }
-    
+
     /**
      * Appends data for a Pie chart.
-     * 
+     *
      * @param array $name_value_pairs key-value pairs of data
      * @return static
      */
@@ -669,10 +669,10 @@ class ChartJS3 extends Control
         }
         return $this->xLabels($labels)->conf('data.datasets',$this->series);
     }
-    
+
     /**
      * Sets a handler to be called when points are missing.
-     * 
+     *
      * This can be the case when harmonizing data (so that every series has the same X-Values) or when <fillGaps> is called.
      * @param \Closure $missingPointCallback Callback function that receives series_name, x and xval parameters and must return a point
      * @return $this
@@ -685,7 +685,7 @@ class ChartJS3 extends Control
 
     /**
      * Fill the chart with data using a callback.
-     * 
+     *
      * @param callable $seriesCallback Callback that will receive the series name and must return an array with data
      * @return $this
      */
@@ -715,23 +715,23 @@ class ChartJS3 extends Control
         }
 		return $this->conf('data.datasets',$this->series);
 	}
-    
+
     protected function sortHarmonizedValues()
     {
         foreach( $this->series as &$series )
             usort($series['data'], function($a,$b)
             {
-                $a = ifavail($a,'xval','x'); 
-                $b = ifavail($b,'xval','x'); 
+                $a = ifavail($a,'xval','x');
+                $b = ifavail($b,'xval','x');
                 return $a<$b?-1:($a>$b?1:0);
             });
     }
-    
+
     protected function harmonizeData()
     {
         if( !$this->xBasedData || count($this->xBasedData)==0 )
             return false;
-        
+
         $cb = is_callable($this->missingPointCallback)?$this->missingPointCallback:false;
         foreach( $this->xBasedData as $x=>&$point )
         {
@@ -749,12 +749,12 @@ class ChartJS3 extends Control
 
         return true;
     }
-    
+
     protected function percentizeData()
     {
         if( !$this->opt('percentScale') || !$this->xBasedData || count($this->xBasedData)==0 )
             return false;
-        
+
         foreach( $this->xBasedData as $x=>$point )
         {
             foreach( $point['data'] as $sn=>$y )
@@ -767,7 +767,7 @@ class ChartJS3 extends Control
                 {
                     if( $pt['x'] != $x )
                         continue;
-                    
+
                     $pt['yval'] = $pt['y'];
                     $pt['y'] = ($point['total']>0)
                         ?$pt['yval'] / $point['total'] * 100
@@ -778,7 +778,7 @@ class ChartJS3 extends Control
         }
         return true;
     }
-    
+
     protected static function phpXVal($val)
     {
         if( !$val || !is_numeric($val) )
@@ -792,7 +792,7 @@ class ChartJS3 extends Control
 
     /**
      * Fills all series with contiguous points.
-     * 
+     *
      * @param int|\Closure $increment An integer value or a callback, that receives a X-value and returns the next
      * @return $this
      */
@@ -816,7 +816,7 @@ class ChartJS3 extends Control
         $existing = [];
         foreach( $this->series as &$series )
             $existing[$series['name']] = array_map(function($d){ return self::phpXVal(ifavail($d,'xval','x')); },$series['data']);
-            
+
         $cur = self::phpXVal($this->xMin);
         $max = self::phpXVal($this->xMax);
         $missing = is_callable($this->missingPointCallback)?$this->missingPointCallback:false;
@@ -832,14 +832,14 @@ class ChartJS3 extends Control
                 $cur += $increment;
             elseif( is_callable($increment) )
                 $cur = max($increment($cur),$cur);
-            
+
             if( $end < time() )
             {
                 log_warn(__METHOD__,"Running too long, aborting",date("Y-m-d",$cur));
                 break;
             }
         }
-        
+
         $this->sortHarmonizedValues();
         return $this;
     }
@@ -857,7 +857,7 @@ class ChartJS3 extends Control
             $chart->query = $data;
             $data = $data->results();
         }
-        
+
         $series = array_unique(array_map(function($row)use($dataset_name){ return $row[$dataset_name]; },$data));
         if( count($series)<1 )
         {
@@ -865,7 +865,7 @@ class ChartJS3 extends Control
             return $chart;
         }
         $chart->setSeries($series);
-        
+
         $chart->scaleX('type','time');
         return $chart->fill(function($name)use($data,$dataset_name,$x_name,$y_name)
         {
@@ -887,10 +887,10 @@ class ChartJS3 extends Control
             return $res;
         });
 	}
-    
+
     /**
      * Iterates series.
-     * 
+     *
      * @param callable $callback Callback that received each searies
      * @return static
      */
@@ -902,10 +902,10 @@ class ChartJS3 extends Control
         }
         return $this->conf('data.datasets',$this->series);
     }
-    
+
     /**
      * Prepare the data to be ajax usable.
-     * 
+     *
      * @return array The data
      */
     public function getAjaxData()
@@ -913,10 +913,10 @@ class ChartJS3 extends Control
         $this->PreRender();
         return $this->conf('data');
     }
-    
+
     /**
      * Sets if the chart should load it's data via AJAX.
-     * 
+     *
      * @param string $url The data URL
      * @param int $refresh_interval Optional interval to refresh the data (default: -1 = off)
      * @return static
@@ -929,7 +929,7 @@ class ChartJS3 extends Control
 
     /**
      * Defines the drawing order of the data series.
-     * 
+     *
      * @param array $names Seriesnames in correct order
      * @return static
      */

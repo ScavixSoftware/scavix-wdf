@@ -508,7 +508,7 @@ class DatabaseTable extends Table implements ICallable
 		return $res;
 	}
 
-	private function _export_get_data(CultureInfo $ci=null, $rowcallback = null)
+	private function _export_get_data(?CultureInfo $ci=null, $rowcallback = null)
 	{
 		$copy = clone $this;
 		$copy->ItemsPerPage = false;

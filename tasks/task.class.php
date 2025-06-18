@@ -46,7 +46,7 @@ abstract class Task
     /** @var \ScavixWDF\Model\DataSource */
     public $ds;
 
-    function __construct(WdfTaskModel $model = null)
+    function __construct(?WdfTaskModel $model = null)
     {
         $this->model = $model;
         $this->ds = \ScavixWDF\Model\DataSource::Get();

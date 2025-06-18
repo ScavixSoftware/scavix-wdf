@@ -62,7 +62,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 
 	public $FetchMode = PDO::FETCH_ASSOC;
 
-	function __construct(DataSource $ds=null, WdfPdoStatement $statement=null)
+	function __construct(?DataSource $ds=null, ?WdfPdoStatement $statement=null)
 	{
 		$this->_ds = $ds;
 		if( $statement )
@@ -395,7 +395,7 @@ class ResultSet implements Iterator, ArrayAccess, \Serializable
 	 * @return mixed See php.net docs
 	 */
     #[\ReturnTypeWillChange]
-    function fetch(int $mode = null, int $cursorOrientation = null, int $cursorOffset = null)
+    function fetch(?int $mode = null, ?int $cursorOrientation = null, ?int $cursorOffset = null)
 	{
 		$this->_data_fetched = true;
 		if( $this->_index < (count($this->_rowbuffer)-1) )

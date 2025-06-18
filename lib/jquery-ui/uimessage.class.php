@@ -31,7 +31,7 @@ use ScavixWDF\Base\Control;
 
 /**
  * This is an inline message.
- * 
+ *
  * Will use the jQueryUI standard theming.
  * @attribute[Resource('jquery-ui/ui.message.css')]
  */
@@ -39,16 +39,16 @@ class uiMessage extends uiControl
 {
 	public $sub;
     public $messages = [];
-	
+
 	function __construct($message,$type='highlight',$closeable=true,$autoclose=false)
 	{
 		parent::__construct('div');
 		$this->class = "ui-widget ui-message";
-		
+
 		if( function_exists('translation_string_exists') && translation_string_exists($message) )
 			$message = getString($message);
 		$icon = $type=='highlight'?'info':'alert';
-		
+
 		$this->sub = $this->content( new Control('div') );
 		$this->sub->class = "ui-state-$type ui-corner-all";
         if($autoclose)
@@ -60,39 +60,43 @@ class uiMessage extends uiControl
         if($closeable)
             $this->sub->content("<span class='ui-icon ui-icon-close' onclick=\"$(this).parent().parent().slideUp('fast', function(){ $(this).remove(); })\"></span>");
 		$this->sub->content("<p><span class='ui-icon ui-icon-$icon'></span>$message</p>");
-		
+
 		$this->InitFunctionName = false;
-        $this->messages[] = $message;            
+        $this->messages[] = $message;
 	}
-	
+
 	/**
 	 * Creates a new uiMessage as hint.
-	 * 
+	 *
 	 * @param string $message Hint text
      * @param bool $closeable Display close button true|false
      * @param int|bool $autoclose If int, represents the number of seconds until autoclose. If True will be 10 seconds, if false autoclose is disabled.
-	 * @return static A new uiMessage 
+	 * @return static A new uiMessage
 	 */
 	static function Hint($message,$closeable=true,$autoclose=false)
 	{
 		return new uiMessage($message,'highlight',$closeable,$autoclose);
 	}
-	
+
 	/**
 	 * Creates a new uiMessage as error.
-	 * 
+	 *
 	 * @param string $message Error text
      * @param bool $closeable Display close button true|false
      * @param int|bool $autoclose If int, represents the number of seconds until autoclose. If True will be 10 seconds, if false autoclose is disabled.
-	 * @return static A new uiMessage 
+	 * @return static A new uiMessage
 	 */
 	static function Error($message,$closeable=true,$autoclose=false)
 	{
 		return new uiMessage($message,'error',$closeable,$autoclose);
 	}
-	
+
     /**
      * @override
+     * @template T
+	 * @param T $content The content to be added
+	 * @param bool $replace if true replaces the whole content.
+	 * @return T The content added
      */
 	function &content($content, $replace = false)
 	{
@@ -103,7 +107,7 @@ class uiMessage extends uiControl
 		}
 		return parent::content($content, $replace);
 	}
-	
+
     /**
      * @override
      */
@@ -113,10 +117,10 @@ class uiMessage extends uiControl
 			return $this->sub->insert($content,1);
 		return parent::append($content);
 	}
-    
+
     /**
      * Prepends a line to the message.
-     * 
+     *
      * @param mixed $message The message to be added
      * @param string $icon Icon to be used
      * @return static
@@ -127,10 +131,10 @@ class uiMessage extends uiControl
         $this->sub->prepend("<p><span class='ui-icon ui-icon-$icon'></span>$message</p>");
         return $this;
     }
-    
+
     /**
      * Adds a line to the message.
-     * 
+     *
      * @param mixed $message The message to be added
      * @param string $icon Icon to be used
      * @return static
@@ -141,10 +145,10 @@ class uiMessage extends uiControl
         $this->sub->content("<p><span class='ui-icon ui-icon-$icon'></span>$message</p>");
         return $this;
     }
-    
+
     /**
      * Adds lines to the message.
-     * 
+     *
      * @param array $messages Array of messages to be added
      * @param string $icon Icon to be used
      * @return static

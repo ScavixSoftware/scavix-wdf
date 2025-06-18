@@ -33,7 +33,7 @@ use ScavixWDF\Localization\Localization;
 
 /**
  * Initializes the localization essential.
- * 
+ *
  * @return void
  */
 function localization_init()
@@ -42,13 +42,13 @@ function localization_init()
 
 	$p = __DIR__.'/localization/';
 	$CONFIG['class_path']['system'][] = $p;
-	
+
 	if( !isset($CONFIG['localization']['default_culture']) )
 		$CONFIG['localization']['default_culture'] = 'en-US';
 
 	if( !isset($CONFIG['localization']['default_timezone']) )
 		$CONFIG['localization']['default_timezone'] = "Europe/Berlin";
-	
+
 	if( !isset($CONFIG['localization']['detection_order']) )
 		$CONFIG['localization']['detection_order'] = array(Localization::USE_BROWSER,Localization::USE_IP);
 
@@ -56,10 +56,10 @@ function localization_init()
 }
 
 /**
- * Returns whether given value is a valid float value or not
+ * Returns given string value as a valid float representation or false
  *
  * @param string $value floatnumber to be checked
- * @return bool true if valid
+ * @return string|false valid string representation of float, else false
  */
 function localized_to_float_number($value)
 {

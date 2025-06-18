@@ -36,16 +36,16 @@ use ScavixWDF\Wdf;
 
 /**
  * Initializes the model essential.
- * 
+ *
  * @return void
  */
 function model_init()
 {
 	global $CONFIG;
-	
+
 	$CONFIG['class_path']['model'][]   = __DIR__.'/model/';
 	$CONFIG['class_path']['model'][]   = __DIR__.'/model/driver/';
-    
+
     // trick out the autoloader as it consults the cache which needs a model thus circular...
     require_once(__DIR__.'/model/pdolayer.class.php');
     require_once(__DIR__.'/model/resultset.class.php');
@@ -75,7 +75,7 @@ function model_init()
 
 /**
  * Initializes a database connection.
- * 
+ *
  * @param string $name Alias name (like system, internal, data, mydb,...)
  * @param string $constr Connection string
  * @param string $dstype Datasource type
@@ -98,7 +98,7 @@ function model_store()
 
 /**
  * Get a database connection.
- * 
+ *
  * @param string $name The datasource alias.
  * @return DataSource|null The database connection
  */
@@ -112,7 +112,7 @@ function &model_datasource($name)
     elseif( strpos($name, "://") !== false )
     {
         $cstr = $name;
-        $name = md5($name); 
+        $name = md5($name);
         model_init_db($name, $cstr);
     }
 
@@ -128,7 +128,7 @@ function &model_datasource($name)
 			$res = call_user_func('model_on_unknown_datasource',$name);
 			return $res;
 		}
-        
+
 		log_fatal("Unknown datasource '$name'!");
 		$res = null;
 		return $res;
@@ -150,7 +150,7 @@ function &model_datasource($name)
 
 /**
  * Get the name/alias of a given DataSource.
- * 
+ *
  * @param DataSource $ds The datasource
  * @return string the name/alias
  */
@@ -161,7 +161,7 @@ function model_datasource_name($ds)
 
 /**
  * Creates a valid connection string.
- * 
+ *
  * @param string $type Shouls be 'DataSource'
  * @param string $server The Db server
  * @param string $username The DB username
@@ -180,19 +180,19 @@ function model_build_connection_string($type,$server,$username,$password,$databa
  * To use the DB versioning you must:
  * 1. Create a folder containing SQL scripts '<dbversion>.sql', <dbversion> must be 0-padded to a length of 4 chars ('0001.sql')
  * 2. Call this function like this model_update_db('system',1,'/path/to/sql/scripts');
- * 
+ *
  * SQL scripts are executed using <model_run_script>, please see documentation there for features.
- * 
+ *
  * Update will stop on error which will be written to the wdf_versions table. You'll then have
  * to correct the script and remove the versions dataset from wdf_versions to let it run again.
- * 
+ *
  * @param mixed $datasource The datasource to be used
  * @param string|int $version Target version
  * @param string $script_folder Folder with the SQL update scripts
  * @param callable $after_sql_callback Optional callback that get hit after every version step and receives this version as only argument
  * @return array Array of results
  */
-function model_update_db($datasource,$version,$script_folder,callable $after_sql_callback = null)
+function model_update_db($datasource,$version,$script_folder,?callable $after_sql_callback = null)
 {
     $ds = ($datasource instanceof DataSource)?$datasource:model_datasource($datasource);
     $ds->ExecuteSql(
@@ -204,13 +204,13 @@ function model_update_db($datasource,$version,$script_folder,callable $after_sql
             PRIMARY KEY (`version`)
           ) CHARSET=utf8 COLLATE=utf8_unicode_ci;"
         );
-    
+
     $current = $ds->ExecuteScalar("SELECT version FROM wdf_versions ORDER BY version DESC");
     if( $current == $version )
         return [];
     if( !$current )
         $current = 0;
-    
+
     $res = [];
     $files = glob("$script_folder/*.sql");
     sort($files);
@@ -223,16 +223,16 @@ function model_update_db($datasource,$version,$script_folder,callable $after_sql
         }
         //log_debug("Cheking '$file': ",$m);
         $v = intval($m[1]);
-        
+
         // skip past and future updates
         if( $v < $current || $v > $version )
             continue;
-        
-        // 'reserve' the update 
+
+        // 'reserve' the update
         $ds->ExecuteSql("INSERT IGNORE INTO wdf_versions(version,started)VALUES(?,now())",$v);
         if( $ds->getAffectedRowsCount() == 0 )
             continue;
-        
+
         try
         {
             log_debug("Upgrading DB to version '$v'");
@@ -247,7 +247,7 @@ function model_update_db($datasource,$version,$script_folder,callable $after_sql
         }
         catch(Exception $ex)
         {
-            $ds->ExecuteSql("UPDATE wdf_versions SET error=? WHERE version=?",array($ex->getMessage(),$v)); 
+            $ds->ExecuteSql("UPDATE wdf_versions SET error=? WHERE version=?",array($ex->getMessage(),$v));
             log_error("Error upgrading DB to version '$v'",$ex);
             $res[$v] = $ex->getMessage();
         }
@@ -264,13 +264,13 @@ function model_update_db($datasource,$version,$script_folder,callable $after_sql
  * These include statements must be one-per-line and they must be terminated by semi-colon (;).
  * The path must be relative to the including SQL file.
  * Note that includes may contain filename placeholders: @include(data/autogen_*.sql);
- * 
+ *
  * Scripts should always ensure that statements can be executed without erroring out, to
  * help you with that, you can prepend an @-symbol to each statement. Errors will be ignored and only logged
  * to the error.log. This way you can for example 'ALTER TABLE's with columns that alread exist.
  *
  * If @ is not used, an Exception will be thrown on SQL errors.
- * 
+ *
  * @param string $file Script filename
  * @param mixed $datasource The datasource to be used
  * @param bool $verbose If true writes some information to the log.
@@ -282,10 +282,10 @@ function model_run_script($file,$datasource=false,$verbose=false)
     $ds = ($datasource instanceof DataSource)
         ?$datasource
         :($datasource?model_datasource($datasource):DataSource::Get());
-    
+
     $sql = file_get_contents($file);
     $stack = [realpath($file)];
-            
+
     while( strpos($sql,'@include') !== false )
     {
         $check = $sql;
@@ -309,7 +309,7 @@ function model_run_script($file,$datasource=false,$verbose=false)
             }
             return implode("\n", array_filter($res));
         },$sql);
-        
+
         if( $check == $sql )
             break;
     }

@@ -332,7 +332,7 @@ function cli_execute()
 
         $task = new $class();
 
-        $ref = new ReflectionMethod($task, $method);
+        $ref = $ref->getMethod($method);
         if( !$ref )
             \ScavixWDF\WdfException::Raise("Unreflectable class '$class'");
         if( !$ref->isFinal() )

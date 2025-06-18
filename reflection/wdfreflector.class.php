@@ -37,7 +37,7 @@ use ScavixWDF\Base\Control;
 
 /**
  * Wraps ReflectionClass and provides additional functionality regarding Attributes and DocComments
- * 
+ *
  * This is central class as it ensures correct DocComment parsing even if a bytecode cache (like APC) is active and removing them.
  * There's also intensive caching active to improve speed.
  */
@@ -45,17 +45,17 @@ class WdfReflector extends ReflectionClass
 {
 	protected $Instance = false;
 	protected $Classname = false;
-    
+
     protected static $cache = [];
 
 	public function __construct($classname)
 	{
 		parent::__construct($classname);
 	}
-    
+
 	/**
 	 * Create a WdfReflector instance
-	 * 
+	 *
 	 * Return a reflector for the given classname or object.
 	 * @param string|object $classname Classname or object to be reflected
 	 * @return WdfReflector A new instance of type WdfReflector
@@ -185,7 +185,7 @@ class WdfReflector extends ReflectionClass
 		$pattern = '/@attribute\[([^\]]*)\]/im';
 		if( !preg_match_all($pattern, $comment, $matches) )
 			return [];
-		
+
 		if( !is_array($filter) )
 			$filter = array($filter);
 		foreach( $filter as $i=>$f )
@@ -194,9 +194,9 @@ class WdfReflector extends ReflectionClass
 		$res = [];
 		$pattern = '/([^\(]*)\((.*)\)/im';
 		foreach( $matches[1] as $m )
-		{			
+		{
 			$m = trim($m);
-			
+
 			if( preg_match_all($pattern, $m, $inner) )
 			{
 				$name = str_replace("Attribute","",$inner[1][0]);
@@ -214,13 +214,13 @@ class WdfReflector extends ReflectionClass
 					log_trace("Invalid Attribute: $m ({$name}Attribute) found in Comment '$comment'");
 				continue;
 			}
-			
+
 			$parts = explode("(",$attr,2);
 
 			/** @var WdfAttribute $attr */
 			$attr = fq_class_name($parts[0])."(".$parts[1];
 			eval('$attr = new '.$attr.';');
-			
+
 			$name = strtolower($name);
 			$add = count($filter) == 0;
 			foreach( $filter as $f )
@@ -233,7 +233,7 @@ class WdfReflector extends ReflectionClass
 			}
 
 			if( $add )
-			{				
+			{
 				$attr->Reflector = $this;
 				$attr->Class = $this->Classname;
 				if( $object && is_object($object) ) $attr->Object = $object;
@@ -247,7 +247,7 @@ class WdfReflector extends ReflectionClass
 
 	/**
 	 * Creates a new object of the reflected type
-	 * 
+	 *
 	 * Will call the constructor for the reflected type like this:
 	 * <code php>
 	 * return $this->newInstanceArgs($args);
@@ -262,7 +262,7 @@ class WdfReflector extends ReflectionClass
 
 	/**
 	 * Returns class attributes.
-	 * 
+	 *
 	 * Class attributes are DocComment parts following the syntax <at>attribute[&lt;Attribute&gt;].
 	 * <at> := The <at> sign.
 	 * &lt;Attribute&gt; :=	Construction string of the attribute. May miss the part 'Attribute' at the end
@@ -286,7 +286,7 @@ class WdfReflector extends ReflectionClass
 	{
 		if( !is_array($filter) )
 			$filter = array($filter);
-		
+
 		$res = $this->_getCached($this->Classname,$filter);
 		if( $res )
 			return $res;
@@ -294,13 +294,13 @@ class WdfReflector extends ReflectionClass
 		$comment = $this->_getComment();
 		$res = $this->_getAttributes($comment,$filter,$this->Instance,false,false,$allowAttrInheritance);
 		$this->_setCached("",$filter,$res);
-		
+
 		return $res;
 	}
 
 	/**
 	 * Returns method attributes.
-	 * 
+	 *
 	 * For a detailed description see <WdfReflector::GetClassAttributes>
 	 * @param string $method_name The name of the method.
 	 * @param string|array $filter	Return only Attributes tha match the given filter. May be string for a single attribute or array of string for multiple attributes.
@@ -331,7 +331,7 @@ class WdfReflector extends ReflectionClass
 
 	/**
 	 * Returns a list of property names
-	 * 
+	 *
 	 * May also step down inheritance graph and include properties from there
 	 * @param bool $include_derivered If true steps down inheritance graph
 	 * @return array An array of property names
@@ -347,10 +347,10 @@ class WdfReflector extends ReflectionClass
 		}
 		return $res;
 	}
-	
+
 	/**
 	 * Returns the DocComment for a method
-	 * 
+	 *
 	 * Perhaps use <WdfReflector::getCommentObject>() instead as that one returns a <PhpDocComment> object.
 	 * @param string $method_name Name of method
 	 * @return string The DocComment
@@ -359,10 +359,10 @@ class WdfReflector extends ReflectionClass
 	{
 		return $this->_getComment($method_name);
 	}
-	
+
 	/**
 	 * Returns the DocComment for a method(or the class) as object
-	 * 
+	 *
 	 * This is the modern version of <WdfReflector::getCommentString>().
 	 * @param string $method_name Name of method or false if you want the class comment
 	 * @return PhpDocComment The DocComment wrapped as PhpDocComment
@@ -371,21 +371,5 @@ class WdfReflector extends ReflectionClass
 	{
 		$comment = $this->_getComment($method_name);
 		return PhpDocComment::Parse($comment);
-	}
-	
-	/**
-	 * Overrides <ReflectionClass::getMethod> to enable <WdfReflectionMethod> handling.
-	 * 
-	 * @param string $name Name of the method to get
-	 * @return WdfReflectionMethod|null A WdfReflectionMethod instance or false on error
-	 */
-	public function getMethod($name): \ReflectionMethod
-	{
-		try
-		{
-			$res = new WdfReflectionMethod($this->Classname,$name);
-			return $res;
-		}catch(Exception $e){}
-		return $res;
 	}
 }

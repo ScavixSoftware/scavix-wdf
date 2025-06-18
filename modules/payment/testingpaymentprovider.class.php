@@ -33,26 +33,26 @@ use ScavixWDF\Model\Model;
 
 /**
  * Payment provider for testing.
- * 
+ *
  */
 class TestingPaymentProvider extends PaymentProvider
 {
 	public $type = PaymentProvider::PROCESSOR_TESTING;
 	public $type_name = "testing";
-	
+
 	function __construct()
 	{
 		parent::__construct();
 	}
-	
+
 	/**
 	 * @override
 	 */
 	public function IsAvailable()
 	{
 		return isDevOrBeta();		// this one is only available on dev and beta
-	}	
-	
+	}
+
 	/**
 	 * @override Testing provider only sets order paid and forwards to dashboard
 	 */
@@ -61,7 +61,7 @@ class TestingPaymentProvider extends PaymentProvider
 		$order->SetPaid(PaymentProvider::PROCESSOR_TESTING, -1);
 		if( $order instanceof Model)
 			$order->Save();
-		
+
 		if( $ok_url )
 		{
 			$data = http_build_query(array("provider" => $this->type_name, "status" => "ok", "invoice_id" => $order->GetInvoiceId()));
@@ -69,6 +69,6 @@ class TestingPaymentProvider extends PaymentProvider
 			redirect($ok_url);
 		}
 
-		return true;
+		return null;
 	}
 }

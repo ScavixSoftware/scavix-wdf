@@ -38,7 +38,7 @@ use ScavixWDF\WdfException;
 
 /**
  * An HTML table in DIV notation.
- * 
+ *
  */
 class Table extends Control
 {
@@ -58,9 +58,9 @@ class Table extends Control
 	public $RowOptions = [];
 	public $ColFormats = [];
 	public $Culture = false;
-	
+
 	public $DataCallback = false;
-	
+
 	public $ItemsPerPage = false;
 	public $CurrentPage = false;
 	public $MaxPagesToShow = false;
@@ -68,12 +68,12 @@ class Table extends Control
 	public $HidePager = false;
     public $PagerAtTop = false;
     public $ShowTotalText = false;
-    
+
     public $PersistName = false;
     public $force_ajax_dependenciesloading = false;
-    
+
     public $OnPageChanged;
-	
+
 	function __construct()
 	{
 		parent::__construct("div");
@@ -81,7 +81,7 @@ class Table extends Control
         if(system_is_ajax_call())
             $this->force_ajax_dependenciesloading = true;
 	}
-    
+
     protected final function checkCallIsCorrectlyListingWrapped($hard=false)
     {
         if( !$this->_parent || !($this->par() instanceof \ScavixWDF\Controls\Listing\WdfListing) )
@@ -106,7 +106,7 @@ class Table extends Control
             WdfException::Raise($msg);
         log_warn($msg."\n\t".implode("\n\t",$stack));
     }
-    
+
     protected $persistance_storage;
     protected function storage()
     {
@@ -114,33 +114,33 @@ class Table extends Control
             $this->persistance_storage = \ScavixWDF\Wdf::GetBuffer("table_storage")->mapToSession("table_storage");
         return $this->persistance_storage;
     }
-    
+
     protected function getSetting($name,$default=false)
     {
         if( !$this->PersistName )
             return $default;
         return $this->storage()->get("{$this->PersistName}_{$name}", $default);
     }
-    
+
     protected function hasSetting($name)
     {
         if( !$this->PersistName )
             return false;
         return $this->storage()->has("{$this->PersistName}_{$name}");
     }
-    
+
     protected function setSetting($name,$value)
     {
         if( $this->PersistName )
             $this->storage()->set("{$this->PersistName}_{$name}", $value);
     }
-    
+
     protected function delSetting($name)
     {
         if( $this->PersistName )
             $this->storage()->del("{$this->PersistName}_{$name}");
     }
-    
+
     protected function TriggerOnPageChanged()
     {
         if( $this->OnPageChanged )
@@ -149,17 +149,17 @@ class Table extends Control
             $f("{$this->PersistName}_page",$this->CurrentPage);
         }
     }
-    
+
     function __collectResourcesInternal($template,&$static_stack = [])
 	{
         if(system_is_ajax_call() && !$this->force_ajax_dependenciesloading)
             return [];
         return parent::__collectResourcesInternal($template,$static_stack);
     }
-	
+
 	/**
 	 * Sets the format for a specific column.
-	 * 
+	 *
 	 * @param int $index Zero based column index
 	 * @param string $format See <CellFormat> for explanation
 	 * @param bool $blank_if_false If shall be empty if content is false (that may be 0 or '' too)
@@ -176,10 +176,10 @@ class Table extends Control
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Gets the <CellFormat> for a column.
-	 * 
+	 *
 	 * @param int $index Zero based column index
 	 * @return CellFormat The <CellFormat> object
 	 */
@@ -192,7 +192,7 @@ class Table extends Control
 
 	/**
 	 * Clears the complete table.
-	 * 
+	 *
 	 * @return static
 	 */
 	function Clear()
@@ -209,7 +209,7 @@ class Table extends Control
 
 	/**
 	 * Gets the table header.
-	 * 
+	 *
 	 * Creates one if needed.
 	 * @return THead The tables header
 	 */
@@ -222,7 +222,7 @@ class Table extends Control
 
 	/**
 	 * Gets the table footer.
-	 * 
+	 *
 	 * Creates one if needed.
 	 * @param bool $clear If true deleted previously set footer
 	 * @return TFoot The tables footer
@@ -236,7 +236,7 @@ class Table extends Control
 
 	/**
 	 * Gets the <ColGroup> definition
-	 * 
+	 *
 	 * Creates one if needed.
 	 * @return ColGroup The tables <ColGroup> object
 	 */
@@ -249,7 +249,7 @@ class Table extends Control
 
 	/**
 	 * Creates a new row group and sets it the current
-	 * 
+	 *
 	 * Newly created rows will then be added to this group.
 	 * @param array $options See <TBody> for options
 	 * @return TBody The row group
@@ -267,7 +267,7 @@ class Table extends Control
 
 	/**
 	 * Creates a new row.
-	 * 
+	 *
 	 * Will be added to the current row group (which wis created if none yet).
 	 * @param array $data Data to be added to the row automatically
 	 * @param array $options Rows options, see <TBody::NewRow>
@@ -288,7 +288,7 @@ class Table extends Control
 
 	/**
 	 * Creates a new cell
-	 * 
+	 *
 	 * New row will be created if there's not one already.
 	 * @param mixed $content Content to be added to the cell automatically
 	 * @return Td The new <Td> object
@@ -301,10 +301,10 @@ class Table extends Control
 		$this->current_cell = $this->current_row_group->NewCell($content);
         return $this->current_cell;
     }
-	
+
 	/**
 	 * Returns the current row, if any.
-	 * 
+	 *
 	 * @return Tr The current row object or false
 	 */
 	function GetCurrentRow()
@@ -337,7 +337,7 @@ class Table extends Control
 		}
 		parent::PreRender($args);
 	}
-	
+
 	protected function _ensureCaptionObject()
 	{
 		if( $this->Caption && !($this->Caption instanceof Control) )
@@ -348,9 +348,9 @@ class Table extends Control
 			$this->Caption = $tmp;
 		}
 	}
-	
+
 	/**
-	 * @override 
+	 * @override
 	 */
 	function WdfRender()
     {
@@ -360,7 +360,7 @@ class Table extends Control
 			$args = array($this);
 			system_call_user_func_array_byref($this->DataCallback[0], $this->DataCallback[1], $args);
 		}
-			
+
         if( $this->footer )
             $this->prepend($this->footer);
         if( $this->header )
@@ -374,7 +374,7 @@ class Table extends Control
 			$this->_ensureCaptionObject();
             $this->prepend($this->Caption);
         }
-		
+
         foreach( $this->_content as &$c )
         {
 			if( !is_object($c) )
@@ -388,8 +388,8 @@ class Table extends Control
                 $r->FormatCells($this);
 			}
         }
-        
-		
+
+
 //        log_debug(__METHOD__, $this->TotalItems);
 //        $this->setData('rowcount', $this->TotalItems);
         if( $this->ItemsPerPage && !$this->HidePager )
@@ -403,12 +403,12 @@ class Table extends Control
 
 		return $res;
     }
-	
+
 /* --------------- High level methods returning $this for easy usage --------------------- */
-	
+
 	/**
 	 * Just sets the caption.
-	 * 
+	 *
 	 * @param string $cap Caption text
 	 * @return static
 	 */
@@ -417,10 +417,10 @@ class Table extends Control
 		$this->Caption = $cap;
 		return $this;
 	}
-	
+
 	/**
 	 * Takes all arguments given and uses each as row-title.
-	 * 
+	 *
 	 * @param mixed ...$args Titles
 	 * @return static
 	 */
@@ -431,10 +431,10 @@ class Table extends Control
 		$this->Header()->NewRow($args);
 		return $this;
 	}
-	
+
 	/**
 	 * Takes all arguments given and uses each as cell-value to add a footer row.
-	 * 
+	 *
 	 * @param mixed ...$args Cell-values
 	 * @return static
 	 */
@@ -445,10 +445,10 @@ class Table extends Control
 		$this->Footer()->NewRow($args);
 		return $this;
 	}
-	
+
 	/**
 	 * Same as NewRowGroup($options) but returns $this to allow method chaining.
-	 * 
+	 *
 	 * @param array $options See <TBody> for options
 	 * @return static
 	 */
@@ -457,24 +457,24 @@ class Table extends Control
 		$this->NewRowGroup($options);
 		return $this;
 	}
-	
+
 	/**
 	 * Adds a new row, takes all arguments given and uses each as new data-cell.
-	 * 
+	 *
 	 * @param mixed ...$args Values for the new row
 	 * @return static
 	 */
 	function AddNewRow(...$args)
 	{
         if((count($args) == 1) && is_array($args[0]))
-            $args = $args[0];        
+            $args = $args[0];
 		$this->NewRow($args);
 		return $this;
 	}
-	
+
 	/**
 	 * Takes one argument for each (previously set) column
-	 * 
+	 *
 	 * possible values: l, r, c (or: left, right, center) as strings
 	 * sample $tab->SetAlignment('l','l','c','r') when there are 4+ columns
 	 * to skip a column just pass an empty string: $tab->SetAlignment('l','','','r')
@@ -494,14 +494,14 @@ class Table extends Control
                 $tbody->SetAlignment($args);
 		return $this;
 	}
-	
+
 	/**
 	 * Takes one argument for each (previously set) column
-	 * 
+	 *
 	 * possible values: see CellFormat class
 	 * sample $tab->SetFormat('int','f2') when there are 2+ columns
 	 * to skip a column just pass an empty string: $tab->SetFormat('int','','','f2')
-	 * 
+	 *
 	 * @param mixed ...$args Format values
 	 * @return static
 	 */
@@ -518,10 +518,10 @@ class Table extends Control
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Just sets the culture.
-	 * 
+	 *
 	 * This will be used when value are formatted using a <CellFormat> specified via <Table::SetColFormat> or <Table::SetFormat>
 	 * @param CultureInfo $ci <CultureInfo> object speficying the culture
 	 * @return static
@@ -531,15 +531,15 @@ class Table extends Control
 		$this->Culture = $ci;
 		return $this;
 	}
-	
+
 	public $_actions = false;
 	public $_rowModels = [];
 	public $_actionHandler = [];
 	public $_sortHandler = false;
-	
+
 	/**
 	 * Adds a data object to the current row.
-	 * 
+	 *
 	 * This will be stored for AJAX acceess
 	 * @param mixed $model Data object
 	 * @return static
@@ -552,10 +552,10 @@ class Table extends Control
 		$this->_rowModels[$this->current_row->id] = $model;
 		return $this;
 	}
-	
+
 	/**
 	 * Gets the model for a specific row id.
-	 * 
+	 *
 	 * Note that $row_id is the id of the <Tr> object, not the index in the row listing!
 	 * @param string $row_id Id of the <Tr> object
 	 * @return mixed The data object
@@ -564,10 +564,10 @@ class Table extends Control
 	{
 		return $this->_rowModels[$row_id];
 	}
-	
+
 	/**
 	 * Adds an action to the current row.
-	 * 
+	 *
 	 * This is in fact a little icon displayed on hovering the row. Clicking on it
 	 * will trigger an AJAX action.
 	 * @param string $icon Valid <uiControl::Icon>
@@ -580,22 +580,22 @@ class Table extends Control
 	{
 		if( !$this->_actions )
 			$this->_actions = $this->content(new Control('div'))->css('display','none')->css('position','absolute')->addClass('ui-table-actions');
-		
+
 		$ra = new Control('span');
 		$ra->class = "ui-icon ui-icon-$icon";
 		$ra->title = $label;
 		$ra->id = $ra->_storage_id;
 		$ra->data('action',$icon);
-		
+
 		$this->_actions->content( $ra->wrap('div') );
-		
+
 		if( $handler && $method )
 			$this->_actionHandler[$icon] = array($handler,$method);
 
 		store_object($this);
 		return $this;
 	}
-	
+
 	/**
 	 * @internal Handles row action clicks and calls the defined handlers (<Table::AddRowAction>)
 	 * @attribute[RequestParam('action','string')]
@@ -611,10 +611,10 @@ class Table extends Control
 		log_warn("No handler defined for $action");
 		return AjaxResponse::None();
 	}
-	
+
 	/**
 	 * Sets a sort handler for this table
-	 * 
+	 *
 	 * Note: this does not mean that the data can be sorted for display, but that the user may rearrange the rows via mouse drag and drop!
 	 * @param object $handler Object handling the drop
 	 * @param string $method Method to be called
@@ -629,7 +629,7 @@ class Table extends Control
 		store_object($this);
 		return $this;
 	}
-	
+
 	/**
 	 * @internal Handles the sort-drop event and calls the hanlder (<Table::Sortable>)
 	 * @attribute[RequestParam('rows','array',array())]
@@ -638,10 +638,10 @@ class Table extends Control
 	{
 		return call_user_func_array($this->_sortHandler,array($this,$rows));
 	}
-	
+
 	/**
 	 * Adds a Pager to the table
-	 * 
+	 *
 	 * Will be displayed in the tables footer. See <Table::SetDataCallback> for details how to
 	 * add data to a paged table.
 	 * @param int $items_per_page Items per page to be displayed
@@ -655,7 +655,7 @@ class Table extends Control
         if( count($toomany) > 0 )
             WdfException::Raise("Use of obsolete method signature");
         $this->checkCallIsCorrectlyListingWrapped();
-        
+
 		$this->TotalItems = 0;
 		$this->ItemsPerPage = $items_per_page;
         if($current_page !== false)
@@ -668,15 +668,15 @@ class Table extends Control
 		store_object($this);
 		return $this;
 	}
-    
+
     /**
      * Store this tables current page in the Session.
-     * 
+     *
      * @param string $name A (session-)unique name for the table
      * @param \ScavixWDF\WdfBuffer $storage Optional external Buffer to use a storage container
      * @return static
      */
-    function Persist($name, \ScavixWDF\WdfBuffer $storage=null)
+    function Persist($name, ?\ScavixWDF\WdfBuffer $storage=null)
     {
         $this->checkCallIsCorrectlyListingWrapped();
         $this->persistance_storage = $storage;
@@ -691,10 +691,10 @@ class Table extends Control
         store_object($this);
         return $this;
     }
-    
+
     /**
      * Sets the storage container.
-     * 
+     *
      * @param \ScavixWDF\WdfBuffer $storage Buffer to be used as storage
      * @return void
      */
@@ -703,26 +703,26 @@ class Table extends Control
         $this->checkCallIsCorrectlyListingWrapped();
         $this->persistance_storage = $storage;
     }
-    
+
     /**
      * Resets the current page to be the first.
-     * 
+     *
      * @return static
      */
     function ResetPager()
     {
         $this->checkCallIsCorrectlyListingWrapped();
-        
+
         if( $this->ItemsPerPage )
            $this->CurrentPage = 1;
         $this->delSetting('page');
         $this->TriggerOnPageChanged();
         return $this;
     }
-	
+
 	/**
 	 * Sets a handler to be called whenever the table needs data.
-	 * 
+	 *
 	 * Use this in conjuction with <Table::AddPager> to generate dynamic data.
 	 * @param object $handler Object that will handle the request.
 	 * @param string $method Name of the method to be called
@@ -733,7 +733,7 @@ class Table extends Control
 		$this->DataCallback = array($handler,$method);
 		return $this;
 	}
-	
+
 	/**
 	 * @internal Will be polled via AJAX to change the page if you defined a pager using <DatabaseTable::AddPager>
 	 * @attribute[RequestParam('number','int')]
@@ -745,20 +745,20 @@ class Table extends Control
         $this->setSetting('page', $this->CurrentPage);
         $this->TriggerOnPageChanged();
 	}
-	
+
     public $PagerPrefix = false;
 	protected function RenderPager()
 	{
 		$pages = ceil($this->TotalItems / $this->ItemsPerPage);
         $hidden = ($pages < 2) && (!$this->ShowTotalText || ($this->TotalItems == 0));
-        
+
 		if( $hidden && !$this->PagerPrefix )
 			return;
-		
+
         $this->addClass('haspager');
 		$ui = new Control('div');
 		$ui->addClass("pager");
-        
+
         if( $this->PagerPrefix )
             $ui->content($this->PagerPrefix);
         if( $hidden )
@@ -775,7 +775,7 @@ class Table extends Control
 			$ui->content( new Anchor("javascript: wdf.tables.gotoPage('#$this->id',1)","1 &laquo;") );
 			$ui->content( new Anchor("javascript: wdf.tables.gotoPage('#$this->id',".($this->CurrentPage-1).")","&lsaquo;") );
 		}
-        
+
 		for( $i=$start; $i<=$pages && $i<($start+$this->MaxPagesToShow); $i++ )
 		{
 			if( $i == $this->CurrentPage )
@@ -783,7 +783,7 @@ class Table extends Control
 			else
 				$ui->content(new Anchor("javascript: wdf.tables.gotoPage('#$this->id',$i)", ($this->Culture !== false ? $this->Culture->FormatInt($i) : $i)));
 		}
-        
+
 		if( $i == $pages )
             $ui->content(new Anchor("javascript: wdf.tables.gotoPage('#$this->id',$i)", ($this->Culture !== false ? $this->Culture->FormatInt($i) : $i)));
         elseif( $i < $pages )
@@ -791,7 +791,7 @@ class Table extends Control
 			$ui->content( new Anchor("javascript: wdf.tables.gotoPage('#$this->id',".($this->CurrentPage+1).")","&rsaquo;") );
 			$ui->content( new Anchor("javascript: wdf.tables.gotoPage('#$this->id',$pages)","&raquo; ".($this->Culture !== false ? $this->Culture->FormatInt($pages) : $pages)) );
 		}
-        
+
         if( $this->ShowTotalText )
             $ui->append("<span class='total'>".sprintf($this->ShowTotalText, ($this->Culture !== false ? $this->Culture->FormatInt($this->TotalItems) : $this->TotalItems))."</span>");
 

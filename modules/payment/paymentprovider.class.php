@@ -31,7 +31,7 @@ use ScavixWDF\Controls\Form\Form;
 
 /**
  * Payment providers must extend this class.
- * 
+ *
  */
 abstract class PaymentProvider
 {
@@ -40,20 +40,20 @@ abstract class PaymentProvider
 	public $type_name = null;
 	public $small_image = null;
 	protected $data = [];
-	
+
 	const PROCESSOR_INTERNAL	= 0; //"internal";
 	const PROCESSOR_PAYPAL		= 1; //"paypal";
 	const PROCESSOR_GATE2SHOP	= 2; //"gate2shop";
 	const PROCESSOR_TESTING		= 3; //"test";
-	
+
 	protected function LoadOrder($order_id)
 	{
 		return call_user_func("{$GLOBALS['CONFIG']["payment"]["order_model"]}::FromOrderId",$order_id);
 	}
-	
+
 	/**
 	 * Sets data for the PaymentProvider.
-	 * 
+	 *
 	 * @param string $name Argument name
 	 * @param mixed $value Argument value
 	 * @return PaymentProvider `$this`
@@ -63,31 +63,31 @@ abstract class PaymentProvider
 		$this->data[$name] = $value;
 		return $this;
 	}
-	
+
 	function __construct()
 	{
 		$this->title = "TXT_PAYMENTPROVIDER_".strtoupper(get_class_simple($this));
 	}
-	
+
 	/**
 	 * Possibility to disable/enable the payment provider list
-	 * @return bool 
+	 * @return bool
 	 */
 	public function IsAvailable()
 	{
 		return true;
 	}
-	
+
 	/**
 	 * Handle the IPN (called DMN at g2s, ...) call from the payment provider
 	 * @param mixed $ipndata Array with IPN data (i.e. POST data) from payment provider
-	 * @return bool|string True if everything went well, errormessage as string otherwise 
+	 * @return bool|string True if everything went well, errormessage as string otherwise
 	 */
 	public function HandleIPN($ipndata)
 	{
 		return true;
 	}
-	
+
 	/**
 	 * Ensure a valid processor_id
 	 * @param string $processor_id One of PROCESSOR_PAYPAL or PROCESSOR_GATE2SHOP.
@@ -102,12 +102,12 @@ abstract class PaymentProvider
 			case self::PROCESSOR_PAYPAL:
 			case self::PROCESSOR_TESTING:
 				return $processor_id;
-				
+
 			default:
 				return self::PROCESSOR_PAYPAL;
 		}
-	}	
-	
+	}
+
 	protected function Redirect($url)
 	{
 		$q = [];
@@ -115,7 +115,7 @@ abstract class PaymentProvider
 			$q[] = "$k=".urldecode($v);
         redirect("$url?" . implode("&", $q));
 	}
-	
+
 	protected function CheckoutForm($url)
 	{
 		$form = new Form();
@@ -127,7 +127,7 @@ abstract class PaymentProvider
 		$form->script("$('#{$form->id}').submit();");
 		return $form;
 	}
-	
+
     /**
      * Return any fields that need to be shown in the checkout process before the checkout can be used
      * @return array
@@ -136,10 +136,10 @@ abstract class PaymentProvider
 	{
 		return [];
 	}
-    
+
     /**
      * Return the renderable object that shows any button, form or qr code to start the checkout process
-     * 
+     *
      * @param IShopOrder $order The order to get UI for
      * @return bool
      */
@@ -147,40 +147,40 @@ abstract class PaymentProvider
     {
         return false;
     }
-	
+
 	/**
 	 * Starts the checkout process
-	 * 
+	 *
 	 * @param IShopOrder $order The order to start checkout for
 	 * @param string $ok_url URL to be redirected to after payment
 	 * @param string $cancel_url URL to be redirected to when user cancels payment
-	 * @return Form Must return a <Form> control 
+	 * @return Form|null Must return a <Form> control
 	 */
 	abstract public function StartCheckout(IShopOrder $order, $ok_url=false, $cancel_url=false);
-	
+
 	/**
 	 * Correct the status from the arguments passed by the PP.
-	 * 
+	 *
 	 * @param string $status status passed by PP
 	 * @param array $ipndata data from the PP
-	 * @return string the status 
+	 * @return string the status
 	 */
 	public function SanitizeStatusFromPP($status, $ipndata)
 	{
 		return $status;
 	}
-	
+
 	/**
 	 * Process the user returning from the PP.
-	 * 
+	 *
 	 * @param mixed $ipndata Data returned from PP
-	 * @return bool currently always true
+	 * @return bool|string currently always true
 	 */
-	public function HandleReturnFromPP($ipndata) 
+	public function HandleReturnFromPP($ipndata)
 	{
 		return true;
 	}
-    
+
     protected function compatConfig()
     {
         if( !avail($GLOBALS,'CONFIG',"invoices","invoice_id_prefix") )
