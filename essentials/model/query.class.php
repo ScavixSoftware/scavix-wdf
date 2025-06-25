@@ -231,7 +231,7 @@ class Query
                 $args[$n] = new ConditionArgument($n, $v);
             }
         }
-        $this->__conditionTree()->Add(new Condition("SQL", $sql, $args));
+        $this->__conditionTree()->Add(new Condition("SQL", "($sql)", $args));
 	}
 
     protected function stdOp($op, $property, $value, $value_is_sql=false, $prefix='', $suffix='')
