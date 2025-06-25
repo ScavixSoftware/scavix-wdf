@@ -64,7 +64,7 @@ function logging_init()
 
 	// remove error module from module-auto-load config and fake that it has been loaded
         if( isset($CONFIG['system']['modules']) && is_array($CONFIG['system']['modules']) )
-            $CONFIG['system']['modules'] = array_diff($CONFIG['system']['modules'],array('error'));
+            $CONFIG['system']['modules'] = array_diff($CONFIG['system']['modules'], ['error']);
 
 	require_once(__DIR__.'/logging/logentry.class.php');
 	require_once(__DIR__.'/logging/logreport.class.php');
@@ -75,7 +75,7 @@ function logging_init()
 	// default logger if nothing configured uses defined php error_log (see Logger constructor)
 	// no further limits and/or features are enabled, so plain logging is active
 	if( !isset($CONFIG['system']['logging']) )
-		$CONFIG['system']['logging'] = array('default' => []);
+		$CONFIG['system']['logging'] = ['default' => []];
 
 	foreach( $CONFIG['system']['logging'] as $alias=>$conf )
 		Wdf::$Logger[$alias] = Logger::Get($conf);
@@ -428,6 +428,17 @@ function logging_set_user($object_storage_id='user',$fieldname='username')
 		if( $lu && isset($lu->username) && $lu->username )
 			logging_add_category($lu->username);
 	}
+}
+
+/**
+ * Cleanup the log (files)
+ *
+ * @return void
+ */
+function logging_cleanup()
+{
+    foreach( Wdf::$Logger as $l )
+		$l->Cleanup();
 }
 
 /**

@@ -222,18 +222,27 @@ class Logger
 					@gzwrite($fp_out,fread($fp_in,1024*512));
 				@fclose($fp_in);
 			}
-			else
-				$error=true;
 			@gzclose($fp_out);
 		}
 		@unlink($source);
 
-		if( isset($this->keep_for_days) && $this->keep_for_days>0 )
-		{
-			$max_age = time()-(86400*$this->keep_for_days);
-			foreach( system_glob( str_replace(".$ext","_*.gz",$this->filename) ) as $f )
-				if( @filemtime($f) < $max_age )
-					@unlink($f);
+        $this->Cleanup();
+    }
+
+    /**
+     * Remove old log files older than `keep_for_days`.
+     * @return void
+     */
+    function Cleanup()
+    {
+        if (!isset($this->keep_for_days) || ($this->keep_for_days <= 0))
+            return;
+        $ext = pathinfo($this->filename, PATHINFO_EXTENSION);
+        $max_age = time()-(86400 * $this->keep_for_days);
+        foreach( system_glob( str_replace(".$ext","_*.$ext.gz",$this->filename) ) as $f )
+        {
+            if( @filemtime($f) < $max_age )
+                @unlink($f);
 		}
 	}
 
