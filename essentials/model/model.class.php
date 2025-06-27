@@ -1242,7 +1242,7 @@ abstract class Model implements Iterator, Countable, ArrayAccess, \ScavixWDF\ILo
 	{
 		$res = clone $this;
 		$res->__ensureSelect();
-		$res->_query->sql($sql_statement_part,force_array($args, false));
+		$res->_query->sql("($sql_statement_part)", force_array($args, false));
 		return $res;
 	}
 
