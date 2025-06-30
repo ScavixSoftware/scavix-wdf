@@ -78,7 +78,7 @@ function logging_init()
 		$CONFIG['system']['logging'] = ['default' => []];
 
 	foreach( $CONFIG['system']['logging'] as $alias=>$conf )
-		Wdf::$Logger[$alias] = Logger::Get($conf);
+		logging_add_logger($alias, $conf);
 
 	ini_set("display_errors", 0);
 	ini_set("log_errors", 1);
