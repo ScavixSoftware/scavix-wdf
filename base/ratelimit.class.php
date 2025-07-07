@@ -69,6 +69,8 @@ class RateLimit extends \ScavixWDF\Model\Model
 
     private $limits = [];
 
+    private $hits = [];
+
     public $internal_name;
 
     protected function CreateTable()
@@ -146,8 +148,16 @@ class RateLimit extends \ScavixWDF\Model\Model
             $this->_ds->ExecuteSql('DELETE FROM wdf_ratelimits WHERE name=? AND created<NOW()-INTERVAL ? SECOND', [$this->name, $maxage]);
             $ok = true;
             $count = $this->_ds->ExecuteSql($sql, [$this->name])->current();
-            foreach( $this->limits as $seconds=>$limit )
-                $ok &= $count[$seconds] < $limit;
+            $this->hits = [];
+            foreach ($this->limits as $seconds => $limit)
+            {
+                if( $count[$seconds] >= $limit )
+                {
+                    $this->hits[$seconds] = ['count' => $count[$seconds], 'limit' => $limit];
+                    $ok = false;
+                }
+                // $ok &= $count[$seconds] < $limit;
+            }
 
             if( $ok )
             {
@@ -163,6 +173,11 @@ class RateLimit extends \ScavixWDF\Model\Model
         if ($verbose)
             log_debug(__METHOD__ . " failed, internal_name={$this->internal_name}, caller=" . system_get_caller());
         return false;
+    }
+
+    function getHits()
+    {
+        return $this->hits;
     }
 
     /**
