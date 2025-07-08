@@ -29,44 +29,44 @@ use ScavixWDF\OAuth\OAuthHandler;
 
 /**
  * Represents a dataset in the wdf_oauthstore table.
- * 
+ *
  * @suppress PHP0413
  */
 class OAuthStorageModel extends Model
 {
 	/** @var int */
 	public $local_id;
-	
+
 	/** @var string */
 	public $provider;
-	
+
 	/** @var string */
 	public $identifier;
-	
+
 	/** @var string */
 	public $access_token;
-	
+
 	/** @var string */
 	public $refresh_token;
-	
+
 	/** @var \ScavixWDF\Base\DateTimeEx|string */
 	public $created;
-	
+
 	/** @var \ScavixWDF\Base\DateTimeEx|string */
 	public $expires;
-	
+
 	/** @var \ScavixWDF\Base\DateTimeEx|string */
 	public $deleted;
-	
+
 	/** @var string */
 	public $resource_owner_id;
-	
+
 	/** @var string */
 	public $data;
-	
+
 	/** @var string */
 	public $owner_data;
-    
+
     /**
      * @implements <Model::GetTableName()>
      */
@@ -90,10 +90,10 @@ class OAuthStorageModel extends Model
                 PRIMARY KEY (`local_id`, `provider`) USING BTREE
             );");
     }
-    
+
     /**
      * Searches datasets for a local_id, optionally filtered for a provider.
-     * 
+     *
      * @param mixed $local_id The local user ID
      * @param string $provider_name Optional provider filter
      * @return OAuthStorageModel
@@ -106,8 +106,8 @@ class OAuthStorageModel extends Model
 
     /**
      * Generates a anonymous local ID.
-     * 
-     * This may be used later once the OAuth flow returns. 
+     *
+     * This may be used later once the OAuth flow returns.
      * Use case: Registration with OAuth without local user account.
      * @return mixed The local id
      */
@@ -123,7 +123,7 @@ class OAuthStorageModel extends Model
 
     /**
      * Change a (previously anonymous) local ID.
-     * 
+     *
      * @param mixed $new_local_id The new ID for the dataset.
      * @return static
      */
@@ -140,7 +140,7 @@ class OAuthStorageModel extends Model
         $this->local_id = $new_local_id;
         return $this;
     }
-    
+
     /**
      * @internal Updates this datasets oauth token data.
      */
@@ -152,18 +152,18 @@ class OAuthStorageModel extends Model
         $this->expires = $this->expires?DateTimeEx::Make($this->expires):null;
         if( $token instanceof \League\OAuth2\Client\Token\ResourceOwnerAccessTokenInterface )
             $this->resource_owner_id = $token->getResourceOwnerId();
-        
+
         $this->data = json_encode($token->getValues());
         $this->Save();
     }
-    
+
     /**
      * @internal Updates this datasets oauth owner data.
      */
     function UpdateFromOwner(\League\OAuth2\Client\Provider\ResourceOwnerInterface $owner)
     {
         $data = $owner->toArray();
-        
+
         $this->identifier = ifavail(array_change_key_case($data,CASE_LOWER),'email','e-mail','e_mail','userid','user-id','user_id');
         if( !$this->identifier )
         {
@@ -182,10 +182,10 @@ class OAuthStorageModel extends Model
         $this->owner_data = json_encode($data);
         $this->Save();
     }
-    
+
     /**
      * Return oauth token data.
-     * 
+     *
      * @return array
      */
     function GetTokenData()
@@ -194,15 +194,33 @@ class OAuthStorageModel extends Model
         $data['expires'] = avail($this,'expires')?$this->expires->getTimestamp():null;
         return $data;
     }
-    
+
     /**
      * Checks if this dataset still contains valid OAuth data.
-     * 
+     *
      * @return bool True is valid, else false
      */
     function Validate()
     {
         $handler = new OAuthHandler($this->local_id, $this->provider);
         return $handler->isAuthorized($this);
+    }
+
+    /**
+     * Cleans up entries older than a given age.
+     *
+     * @param string $maxage Age string like '30 day' or '1 year'
+     * @param int $limit Maximum number of entries to delete
+     * @return void
+     */
+    public static function Cleanup($maxage = '30 day', $limit = 50000)
+    {
+        $ds = DataSource::Get();
+        if ($ds->TableExists('wdf_oauthstore'))
+        {
+            $ds->ExecuteSql(
+                "DELETE FROM wdf_oauthstore WHERE created<NOW()-INTERVAL $maxage OR deleted IS NOT NULL OR expires<NOW() LIMIT $limit"
+            );
+        }
     }
 }
