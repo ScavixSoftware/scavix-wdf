@@ -213,13 +213,13 @@ class OAuthStorageModel extends Model
      * @param int $limit Maximum number of entries to delete
      * @return void
      */
-    public static function Cleanup($maxage = '30 day', $limit = 50000)
+    public static function Cleanup($limit = 50000)
     {
         $ds = DataSource::Get();
         if ($ds->TableExists('wdf_oauthstore'))
         {
             $ds->ExecuteSql(
-                "DELETE FROM wdf_oauthstore WHERE created<NOW()-INTERVAL $maxage OR deleted IS NOT NULL OR expires<NOW() LIMIT $limit"
+                "DELETE FROM wdf_oauthstore WHERE deleted IS NOT NULL OR expires<NOW() LIMIT $limit"
             );
         }
     }
