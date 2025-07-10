@@ -60,6 +60,10 @@ class ChartJS3 extends Control
     protected $currentColor = 0;
     protected $xBasedData;
     protected $missingPointCallback = false;
+    protected $orderByValue = false;
+    protected int $topXOnly = 0;
+    protected $topXOthersName = false;
+    protected $seriesRankByValue = [];
 
     public static $CI;
 
@@ -205,7 +209,28 @@ class ChartJS3 extends Control
                 return $ia<$ib?-1:($ia>$ib?1:0);
             };
             usort($this->series,$sort);
-            $this->legend('reverse',true);
+            // $this->legend('reverse',true);
+        }
+
+        if ($this->conf('type') != 'pie' && $this->topXOnly > 0 && count($this->series) > ($this->topXOnly+1)) // +1 because combining 1 to 'others' is useless
+        {
+            $others = array_splice($this->series, $this->topXOnly);
+            $new = $others[0];
+            $new['name'] = 'generated_others_series';
+            $new['label'] = $this->topXOthersName;
+            $new['data'] = [];
+            foreach( $others as $o )
+            {
+                if( count($new['data']) == 0 )
+                {
+                    foreach ($o['data'] as $entry)
+                        $new['data'][] = array_merge(sub_array($entry, ['x']), ['y' => 0]);
+                }
+                log_debug("Other",$o);
+                foreach ($o['data'] as $i => $entry)
+                    $new['data'][$i]['y'] += $entry['y'];
+            }
+            $this->series[] = $new;
         }
 
         foreach( $this->series as $i=>&$series )
@@ -246,6 +271,7 @@ class ChartJS3 extends Control
 			$series['elements']['point']['borderWidth'] = 0;
 			$series['elements']['point']['hoverBorderWidth'] = 0;
         }
+
         $this->conf('data.datasets',$this->series);
 
         $this->script("wdf.chartjs3.init('{$this->canvas->id}',".system_to_json($this->config).");");
@@ -637,16 +663,8 @@ class ChartJS3 extends Control
      */
     function setPieData(array $name_value_pairs)
     {
-        $labels = []; $this->series = [['isPieData'=>true,'data'=>[],'backgroundColor'=>[],'borderColor'=>[]]];
-        foreach( $name_value_pairs as $name=>$val )
-        {
-            $labels[] = $name;
-            $col = $this->getColor($name,false,$val);
-            $this->series[0]['data'][$name] = floatval($val);
-            $this->series[0]['backgroundColor'][$name] = $col;
-            $this->series[0]['borderColor'][$name] = $col;
-        }
-        return $this->xLabels($labels)->conf('data.datasets',$this->series);
+        $this->series = [];
+        return $this->addPieData($name_value_pairs);
     }
 
     /**
@@ -657,6 +675,22 @@ class ChartJS3 extends Control
      */
     function addPieData(array $name_value_pairs)
     {
+        if ($this->orderByValue == 'asc')
+            asort($name_value_pairs);
+        elseif ($this->orderByValue == 'desc')
+            arsort($name_value_pairs);
+
+        if ($this->topXOnly > 0 && $this->topXOnly < count($name_value_pairs))
+        {
+            $chunks = array_chunk($name_value_pairs, $this->topXOnly, true);
+            $name_value_pairs = array_shift($chunks);
+            $sum = 0;
+            foreach ($chunks as $chunk)
+                $sum += array_sum($chunk);
+            if ($sum > 0)
+                $name_value_pairs[$this->topXOthersName] = $sum;
+        }
+
         $labels = []; $this->series[] = ['isPieData'=>true,'data'=>[],'backgroundColor'=>[],'borderColor'=>[]];
         $i = count($this->series)-1;
         foreach( $name_value_pairs as $name=>$val )
@@ -693,22 +727,37 @@ class ChartJS3 extends Control
 	{
         $harmonize = ($this->conf('type') != 'pie');
         $data = [];
+        $this->seriesRankByValue = [];
         foreach( $this->series as &$series )
         {
             $series['data'] = $seriesCallback($series['name']);
             if( !$harmonize )
                 continue;
+            $series_total = 0;
             foreach( $series['data'] as $point )
             {
+                $series_total += $point['y'];
                 $data[$point['x']]['data'][$series['name']] = $point['y'];
                 $data[$point['x']]['xval'] = ifavail($point,'xval','x');
                 $data[$point['x']]['total'] = (isset($data[$point['x']]['total']))
                     ?$data[$point['x']]['total']+$point['y']
                     :$point['y'];
             }
+            $this->seriesRankByValue[$series['name']] = $series_total;
         }
         if( $harmonize )
         {
+            if ($this->orderByValue == 'asc')
+            {
+                asort($this->seriesRankByValue);
+                $this->setSeriesOrder(array_keys($this->seriesRankByValue));
+            }
+            elseif ($this->orderByValue == 'desc')
+            {
+                arsort($this->seriesRankByValue);
+                $this->setSeriesOrder(array_keys($this->seriesRankByValue));
+            }
+
             $this->xBasedData = $data;
             $this->harmonizeData();
             $this->percentizeData();
@@ -937,5 +986,33 @@ class ChartJS3 extends Control
     {
         $this->series_order = $names;
         return $this;
+    }
+
+    protected function reApplyPieData()
+    {
+        if ($this->conf('type') == 'pie')
+        {
+            $series = $this->series;
+            $this->series = [];
+            foreach( $series as $s )
+            {
+                $nvp = $s['data'];
+                $this->addPieData($nvp);
+            }
+        }
+        return $this;
+    }
+
+    public function setOrderByValue($ascending=true)
+    {
+        $this->orderByValue = $ascending ? 'asc' : 'desc';
+        return $this->reApplyPieData();
+    }
+
+    function setTopXOnly(int $topx = 10, string $others_name = '(others)')
+    {
+        $this->topXOnly = $topx;
+        $this->topXOthersName = $others_name;
+        return $this->reApplyPieData();
     }
 }
