@@ -81,7 +81,7 @@ class ChartJS3 extends Control
      */
     public static function TimePoint($x,float $y)
     {
-        $dt = DateTimeEx::Make($x);
+        $dt = ($x instanceof DateTimeEx) ? $x : DateTimeEx::Make($x);
         $xval = self::$currentInstance->setXMinMax($dt);
         //return ['x'=>"[jscode]new Date('".$dt->format("c")."')", 'y'=>$y, 'xval'=>$xval];
         return ['x'=>$dt->getTimestamp()*1000, 'y'=>$y, 'xval'=>$xval];
@@ -93,7 +93,7 @@ class ChartJS3 extends Control
     public static function DatePoint($x,float $y,$row=false)
     {
         self::$currentInstance->detectedDateseries = true;
-        $dt = DateTimeEx::Make($x);
+        $dt = ($x instanceof DateTimeEx) ? $x : DateTimeEx::Make($x);
         $xval = self::$currentInstance->setXMinMax($dt);
         $pt = ['x'=>$dt->format("Y-m-d"), 'y'=>$y, 'xval'=>$xval];
         if( $row ) $pt['raw'] = $row;
