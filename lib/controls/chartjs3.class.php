@@ -183,7 +183,7 @@ class ChartJS3 extends Control
         if( count($this->detectedCategories)>0 && $this->xLabels()===null )
             $this->xLabels($this->detectedCategories);
 
-        $this->scaleX("ticks.maxRotation",0)->scaleX('offset',true);
+        $this->scaleX("ticks.maxRotation",0)->scaleX('offset',true)->scaleX('autoSkip',false);
         if( $this->detectedDateseries )
             $this->setTimeAxesX('day');
 
