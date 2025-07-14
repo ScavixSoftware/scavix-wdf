@@ -42,15 +42,15 @@
     Chart.defaults.plugins.tooltip.bodyFont.size = 20;
     Chart.defaults.plugins.tooltip.bodyFont.family = Chart.defaults.plugins.tooltip.titleFontFamily
     Chart.defaults.plugins.tooltip.padding = 15;
-    
+
     Chart.defaults.plugins.legend.position = 'right';
-    
+
     Chart.defaults.datasets.line.borderWidth = 2;
     Chart.defaults.datasets.line.pointRadius = 3;
     Chart.defaults.datasets.line.pointHoverRadius = 5;
     Chart.defaults.datasets.line.pointHoverBackgroundColor = 'transparent';
-    
-	win.wdf.chartjs3 = 
+
+	win.wdf.chartjs3 =
 	{
 		charts: {},
 
@@ -85,7 +85,9 @@
         {
             if( !str )
                 return str;
-            if( str.match(/\d\d\d\d-\d\d-\d\d/) )
+            if( str.match(/\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d/) )
+                str = win.luxon.DateTime.fromFormat(str,"yyyy-MM-dd HH:mm:ss").toLocaleString();
+            else if( str.match(/\d\d\d\d-\d\d-\d\d/) )
                 str = win.luxon.DateTime.fromFormat(str,"yyyy-MM-dd").toLocaleString();
             return str.replace(/,\s00:00:00/,'');
         },
@@ -93,15 +95,15 @@
 		init: function(id,config)
 		{
             var ctx = document.getElementById(id);
-            
+
             $('#'+id).closest('.chartjs3').data('raw',config);
             switch( config.type )
             {
-                case 'pie': 
-                case 'doughnut': 
+                case 'pie':
+                case 'doughnut':
                     this._deepSet(config,'options.plugins.tooltip.callbacks',win.wdf.chartjs3.pieTooltips(id));
                     break;
-                default: 
+                default:
                     this._deepSet(config,'options.plugins.tooltip.callbacks',win.wdf.chartjs3.stdTooltips(id));
                     break;
             }
@@ -114,14 +116,14 @@
             {
                 this._deepSet(config,'options.plugins.tooltip.filter',function(){ return false; });
             }
-            
+
             this._prepareColors(id,config);
-            
+
             this.charts[id] = new Chart(ctx.getContext('2d'),config);
             if( config.options.refresh )
                 win.wdf.chartjs3.loadData(id,true);
 		},
-        
+
         _prepareColors: function(id,config)
         {
             var elem = id.get ? id.get(0) : $('#' + id).get(0);
@@ -132,7 +134,7 @@
                 {
                     var m = dataset[k].match(/var\((.*)\)/);
                     if( !m ) return;
-                    
+
                     var orig = dataset[k];
                     dataset[k] = function()
                     {
@@ -153,7 +155,7 @@
                             orig.forEach(function(value)
                             {
                                 var m = value.match(/var\((.*)\)/);
-                                if( m ) 
+                                if( m )
                                     res.push(value.replace(/var\(.*\)/,style.getPropertyValue(m[1])));
                                 else
                                     res.push(value);
@@ -179,17 +181,17 @@
                 });
 			});
         },
-        
+
         grabGlobalLegendItem: function(item,data)
         {
             var $glob = $('#chartjs3-global-legend');
             if( $glob.length == 0 )
                 $glob = $('<div/>').attr('id','chartjs3-global-legend').appendTo('body');
-            
+
             var $item = $('[data-text="'+item.text+'"]',$glob);
             if( $item.length > 0 )
                 return false;
-           
+
             $('<div data-text="'+item.text+'"/>')
                 .css('--border', "2px solid " + item.fillStyle)
                 .css('--background-color',item.fillStyle)
@@ -203,7 +205,7 @@
                     for( var cid in win.wdf.chartjs3.charts )
                     {
                         var c = win.wdf.chartjs3.charts[cid];
-                        
+
                         (c.data.labels || []).forEach(function(label,i)
                         {
                             if( label != lab )
@@ -220,10 +222,10 @@
                         c.update();
                     }
                 });
-                
+
             return false;
         },
-		
+
 		getChart: function(id)
         {
             if (typeof id == 'object' && typeof id.attr == 'function')
@@ -232,7 +234,7 @@
             }
 			return this.charts[id] || null;
 		},
-        
+
         pieTooltips: function(id)
         {
             try
@@ -243,7 +245,7 @@
                     //wdf.debug("pie.label",typeof(item.raw),item);
                     if (typeof (item.raw) !== 'object')
                         item.raw = { raw: item.raw };
-                        
+
                     if (!item.raw.label)
                     {
                         var val = item.parsed || 0;
@@ -258,7 +260,7 @@
                 return res;
             } catch (ex) { console.log("chartjs3.pieTooltips Exception:", ex); }
         },
-        
+
         stdTooltips: function(id)
         {
             try
@@ -269,8 +271,8 @@
                     {
                         if( typeof(items[0].raw) !== 'object' )
                             items[0].raw = {raw:items[0].raw};
-                        if( !items[0].raw.title ) 
-                        {                    
+                        if( !items[0].raw.title )
+                        {
                             if( items[0].chart.data.datasets.length > 1 )
                                 items[0].raw.title = wdf.chartjs3._dtFormat(items[0].label);
                             else
@@ -296,24 +298,11 @@
                                 var l = (chart.config.data.datasets.length > 1)
                                     ?dataset.label || item.label || ''
                                     :item.label || dataset.label || '';
-                                
+
                                 return wdf.chartjs3._dtFormat(l) +": "+ (val || item.y);
                             };
-                            
-                            if( false && item.parsed._stacks && item.chart.data.datasets.length > 1 )
-                            {                            var temp = [];
-                                item.chart.data.datasets.forEach(function(ds)
-                                {
-                                    temp.push( formatLine(item.chart, ds, ds.data[item.dataIndex]) );
-                                    //wdf.debug("pushed "+temp.length);
-                                });
-                                item.raw.label = temp;
-                                //wdf.debug(item.raw.label);
-                            }
-                            else
-                            {
-                                item.raw.label = formatLine(item.chart,item.dataset,item);
-                            }
+
+                            item.raw.label = formatLine(item.chart,item.dataset,item);
                         }
                         return item.raw.label;
                     }
@@ -321,7 +310,7 @@
                 return res;
             } catch (ex) { console.log("chartjs3.stdTooltips Exception:", ex); }
         },
-        
+
         convertToSvg: function()
         {
             if( !window.C2S )
@@ -339,7 +328,7 @@
                     $wrap = $('#'+id).closest('.wrap'),
                     raw = $cjs.data('raw'),
                     c2s = C2S($wrap.width(),$wrap.height());
-             
+
                 raw.options.responsive = false;
                 raw.options.animation = false;
                 this.charts[id] = new Chart(c2s,raw);
@@ -349,16 +338,16 @@
             }
             this.charts = {};
         },
-        
+
         refreshAll: function()
         {
             for(var p in wdf.chartjs3.charts)
                 wdf.chartjs3.loadData(p,'now');
         },
-        
+
         loadData: function(id,start)
         {
-            var chart = wdf.chartjs3.getChart(id), 
+            var chart = wdf.chartjs3.getChart(id),
                 config = $('#'+id).closest('.chartjs3').data('raw'),
                 cfg = config.options.refresh || {},
                 int = cfg.interval || 0,
@@ -366,7 +355,7 @@
             if( !url ) return;
             if( start===true && wdf.chartjs3._deepGet(chart,"data.datasets.0.data",[]).length > 0 )
                 return setTimeout(wdf.chartjs3.loadData,int?int:1000,id);
-            
+
             wdf.get(url,function(data)
             {
                 wdf.chartjs3.updateData(id,data);
@@ -374,7 +363,7 @@
                     setTimeout(wdf.chartjs3.loadData,int,id);
             });
         },
-        
+
         update: function(id)
         {
             Object.keys(wdf.chartjs3.charts).forEach(function(cid)
@@ -387,13 +376,13 @@
                 chart.update();
             });
         },
-        
+
         updateData: function(id, data)
         {
             var chart = wdf.chartjs3.getChart(id);
             if( wdf.chartjs3.dataEquals(chart.data,data) )
                 return;
-            
+
             this._prepareColors(id,data);
             // todo: improve to detect changes only and change only that values -> better animations!
             chart.data = data;
@@ -406,10 +395,10 @@
                     $item = $('[data-text="' + ds.label + '"]', $glob);
                     ds.hidden = $item.is('.data-hidden');
                 });
-            }            
+            }
             chart.update('none'); // remove 'none' once we have DIFFed data
         },
-        
+
         dataEquals: function( x, y )
         {
             if ( x === y ) return true;
@@ -432,5 +421,5 @@
             return true;
         }
 	};
-	
+
 })(window,jQuery);

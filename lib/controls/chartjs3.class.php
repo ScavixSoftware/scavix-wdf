@@ -79,12 +79,14 @@ class ChartJS3 extends Control
     /**
      * @internal Handler for points of type Time
      */
-    public static function TimePoint($x,float $y)
+    public static function TimePoint($x,float $y,$row=false)
     {
         $dt = ($x instanceof DateTimeEx) ? $x : DateTimeEx::Make($x);
         $xval = self::$currentInstance->setXMinMax($dt);
-        //return ['x'=>"[jscode]new Date('".$dt->format("c")."')", 'y'=>$y, 'xval'=>$xval];
-        return ['x'=>$dt->getTimestamp()*1000, 'y'=>$y, 'xval'=>$xval];
+        // $pt = ['x'=>$dt->format("Y-m-d H:i:s"), 'y'=>$y, 'xval'=>$xval];
+        $pt = ['x'=>$dt->getTimestampMs(), 'y'=>$y, 'xval'=>$xval];
+        if( $row ) $pt['raw'] = $row;
+        return $pt;
     }
 
     /**
@@ -226,7 +228,7 @@ class ChartJS3 extends Control
                     foreach ($o['data'] as $entry)
                         $new['data'][] = array_merge(sub_array($entry, ['x']), ['y' => 0]);
                 }
-                log_debug("Other",$o);
+                // log_debug("Other",$o);
                 foreach ($o['data'] as $i => $entry)
                     $new['data'][$i]['y'] += $entry['y'];
             }
@@ -235,27 +237,32 @@ class ChartJS3 extends Control
 
         foreach( $this->series as $i=>&$series )
         {
-            if( $this->series_order && ifavail($series,'isPieData') )
-            {
-                $sort = function($a,$b)
-                {
-                    $ia = array_search($a,$this->series_order);
-                    $ib = array_search($b,$this->series_order);
-                    if( $ia == $ib ) return 0;
-                    return $ia<$ib?-1:($ia>$ib?1:0);
-                };
-                uksort($series['data'],$sort);
-                uksort($series['backgroundColor'],$sort);
-                uksort($series['borderColor'],$sort);
-            }
-
             if( ifavail($series,'isPieData') )
             {
+                if($this->series_order)
+                {
+                    $sort = function($a,$b)
+                    {
+                        $ia = array_search($a,$this->series_order);
+                        $ib = array_search($b,$this->series_order);
+                        if( $ia == $ib ) return 0;
+                        return $ia<$ib?-1:($ia>$ib?1:0);
+                    };
+                    uksort($series['data'],$sort);
+                    uksort($series['backgroundColor'],$sort);
+                    uksort($series['borderColor'],$sort);
+                }
+
                 unset($series['isPieData']);
                 $series['data'] = array_values($series['data']);
                 $series['backgroundColor'] = array_values(force_array($series['backgroundColor']));
                 $series['borderColor'] = array_values(force_array($series['borderColor']));
             }
+            array_walk($series['data'], function (&$row)
+            {
+                if (isset($row['xval']))
+                    unset($row['xval']);
+            });
 
             if( count($series['data']) < 100 || ifavail($series,'raw_large_datasets') )
                 continue;
@@ -606,7 +613,7 @@ class ChartJS3 extends Control
                     $d[] = ChartJS3::$pointType($r[$x_value_row],floatval($v));
                 }
             }
-            //log_debug("SER $series",$d);
+            // log_debug("SER $series",$d);
             return $d;
         });
     }
@@ -639,7 +646,7 @@ class ChartJS3 extends Control
 
                 if( $pointdatacallback && is_callable($pointdatacallback) )
                 {
-                    $v = isset($r[$series])?$r[$series]:0;
+                    $v = isset($r[$y_value_row])?$r[$y_value_row]:0;
                     $d[] = array_merge(ChartJS3::$pointType($r[$x_value_row],floatval($v)), $pointdatacallback($r,$series,$series_row,$x_value_row,$y_value_row));
                 }
                 elseif( is_callable($pointType) )
@@ -650,7 +657,7 @@ class ChartJS3 extends Control
                     $d[] = ChartJS3::$pointType($r[$x_value_row],floatval($v),$r);
                 }
             }
-//            log_debug("MULTISER $series",$d);
+            // log_debug("MULTISER $series",$d);
             return $d;
         });
     }
