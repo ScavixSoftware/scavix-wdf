@@ -104,7 +104,9 @@ function model_store()
  */
 function &model_datasource($name)
 {
-	if( strpos($name,"DataSource::") !== false )
+    if(getenv('MEMDB') == 1)
+        model_init_db($name, "sqlite::memory:");
+	elseif( strpos($name,"DataSource::") !== false )
 	{
 		$name = explode("::",$name);
 		$name = $name[1];
