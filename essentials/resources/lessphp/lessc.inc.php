@@ -77,11 +77,11 @@ class lessc {
     // attempts to find the path of an import url, returns null for css files
     // scavix optimized
     protected function findImport($url) {
-        if(starts_iwith($url, 'http'))
+        if(stripos($url, 'http') === 0)
             return null;
         foreach ((array)$this->importDir as $dir) {
             $full = $dir.(substr($dir, -1) != '/' ? '/' : '').$url;
-            if (!ends_iwith($full, '.less') && $this->fileExists($file = $full.'.less'))
+            if (!str_ends_with(strtolower($full), '.less') && $this->fileExists($file = $full.'.less'))
                 return $file;
             if ($this->fileExists($file = $full))
                 return $file;
