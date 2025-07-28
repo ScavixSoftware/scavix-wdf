@@ -124,7 +124,7 @@ class RateLimit extends \ScavixWDF\Model\Model
      * End point for method chaining.
      *
      * Tries to reseve a 'slot' for this limit if possible for $timeout_seconds seconds.
-     * @param int $timeout_seconds Maximum secods to try for
+     * @param int $timeout_seconds Maximum seconds to try
      * @param bool $verbose If true will <log_debug> if Reserve fails
      * @return bool True if reserved successfully, else false
      */

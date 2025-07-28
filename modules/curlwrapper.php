@@ -36,14 +36,14 @@ function curlwrapper_init()
 {
     if( !function_exists('curl_init') )
         ScavixWDF\WdfException::Raise("CURL not found, please install php-curl");
-    
+
     classpath_add(__DIR__.'/curlwrapper');
     create_class_alias(ScavixWDF\Tasks\WebRequest::class,'WebRequest');
 }
 
 /**
  * Sets a proxy for all subsequent downloads.
- * 
+ *
  * @param string $ip Hostname/IP Address
  * @param string|int $port Port
  * @param int $type CURLPROXY_HTTP or CURLPROXY_SOCKS5
@@ -57,7 +57,7 @@ function setDownloadProxy($ip,$port,$type=CURLPROXY_SOCKS5)
 
 /**
  * Removes the Proxy specification set with <setDownloadProxy>
- * 
+ *
  * @return void
  */
 function releaseDownloadProxy()
@@ -76,7 +76,7 @@ function sendHTTPRequest($url, $postdata = false, $cacheTTLsec = false, &$respon
 
 /**
  * Downloads remote contents into a string.
- * 
+ *
  * @param string $url URL to download
  * @param array|string $postdata Data to POST, associative array or string from <http_build_query>
  * @param array|bool $request_header Headers to send along with the request (one entry per header)
@@ -136,24 +136,24 @@ function downloadData($url, $postdata = false, $request_header = [], $cacheTTLse
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-	
+
 	if( isset($GLOBALS['download']['proxy']) )
 	{
 		//log_debug("Using download proxy {$GLOBALS['download']['proxy']}");
 		curl_setopt($ch, CURLOPT_PROXY, $GLOBALS['download']['proxy']);
 		curl_setopt($ch, CURLOPT_PROXYTYPE, $GLOBALS['download']['proxy_type']);
 	}
-	
+
 	if( $cookie_file )
 	{
 		curl_setopt($ch,CURLOPT_COOKIEJAR,$cookie_file);
-		curl_setopt($ch,CURLOPT_COOKIEFILE,$cookie_file); 
+		curl_setopt($ch,CURLOPT_COOKIEFILE,$cookie_file);
 	}
 
 	if( is_array($request_header) && count($request_header) > 0  )
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $request_header);
 
-	$result = curl_exec($ch);	
+	$result = curl_exec($ch);
 	$info = curl_getinfo($ch);
 	if($result === false)
 	{
@@ -193,13 +193,13 @@ function downloadData($url, $postdata = false, $request_header = [], $cacheTTLse
 
 	if($cacheTTLsec)
 		cache_set("CURL_$hash", $result, $cacheTTLsec, true, false);
-	
+
 	return $result;
 }
 
 /**
  * Downloads a file via HTTP(s).
- * 
+ *
  * $url may contain username:password for basic http auth, but this is the only supported
  * authentication method.
  * URL Examples:
@@ -253,14 +253,14 @@ function downloadFile($url, $postdata = false, $request_header = [], $follow_loc
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 0);
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-	
+
 	if( !$cookie_file && $follow_location )
 		$cookie_file = tempnam(system_app_temp_dir(), "downloadFile_cookie_");
-	
+
 	if( $cookie_file )
 	{
 		curl_setopt($ch,CURLOPT_COOKIEJAR,$cookie_file);
-		curl_setopt($ch,CURLOPT_COOKIEFILE,$cookie_file); 
+		curl_setopt($ch,CURLOPT_COOKIEFILE,$cookie_file);
 	}
 
 	if( count($request_header) > 0  )
@@ -275,7 +275,7 @@ function downloadFile($url, $postdata = false, $request_header = [], $follow_loc
 	$result = curl_exec($ch);
 	if( curl_errno($ch) )
 		$result = false;
-	
+
 	curl_close($ch);
 	fclose($tmp_fp);
 
@@ -284,7 +284,7 @@ function downloadFile($url, $postdata = false, $request_header = [], $follow_loc
 
 	$result = $GLOBALS['downloadFile_data'];
 	$result['size'] = filesize($GLOBALS['downloadFile_data']['tmp_name']);
-	
+
 	unset($GLOBALS['downloadFile_data']);
 	return $result;
 }
@@ -305,7 +305,7 @@ function downloadFile_header($ch, $header)
         if(isset($hk[1]))
             $GLOBALS['downloadFile_data']['response_headers'][trim($hk[0])] = trim($hk[1]);
     }
-    
+
 	if( preg_match('/Content-Disposition:\s*(.*)/i', $header, $res) )
 	{
 		$p = explode(";",$res[1]);
@@ -314,7 +314,7 @@ function downloadFile_header($ch, $header)
 			$args = explode("=",trim($part));
 			if( count($args) < 2 || $args[0] != 'filename' )
 				continue;
-			
+
 			$name = trim(trim($args[1],"\""));
 			if( $name )
 			{
