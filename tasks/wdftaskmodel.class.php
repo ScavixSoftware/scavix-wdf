@@ -70,9 +70,10 @@ class WdfTaskModel extends Model
     public $RecreateOnSave = false;
 
     private $isVirtual = false, $prevent_duplicate = false, $cascade_go = true, $children = [];
-    public static $PROCESS_FILTER = 'db-processwdftasks';
+
     public static $MAX_PROCESSES = 10;
     public static $MIN_RUNTIME = 0;
+    public static $SHMSUBFOLDER = false;
 
 	public function GetTableName() { return 'wdf_tasks'; }
 
@@ -159,7 +160,7 @@ class WdfTaskModel extends Model
     {
         static $shmdir = false;
         if( $shmdir === false )
-            $shmdir = "/run/shm/" . $GLOBALS['CONFIG']['system']['application_name'];
+            $shmdir = "/run/shm/".(self::$SHMSUBFOLDER ?: $GLOBALS['CONFIG']['system']['application_name']);
 
         return count(self::GetRunningInstances());
     }
@@ -168,7 +169,7 @@ class WdfTaskModel extends Model
     {
         static $shmdir = false;
         if( $shmdir === false )
-            $shmdir = "/run/shm/" . $GLOBALS['CONFIG']['system']['application_name'];
+            $shmdir = "/run/shm/".(self::$SHMSUBFOLDER ?: $GLOBALS['CONFIG']['system']['application_name']);
 
         $pids = [];
         foreach (glob("{$shmdir}/*.*") as $f)
@@ -447,7 +448,7 @@ class WdfTaskModel extends Model
         {
             if ($shm === false)
             {
-                $shmdir = "/run/shm/" . $GLOBALS['CONFIG']['system']['application_name'];
+                $shmdir = "/run/shm/".(self::$SHMSUBFOLDER ?: $GLOBALS['CONFIG']['system']['application_name']);
                 @mkdir($shmdir, 0777, true);
                 $shm = "{$shmdir}/" . getmypid();
             }
@@ -498,7 +499,7 @@ class WdfTaskModel extends Model
     {
         static $shmdir = false;
         if ($shmdir === false)
-            $shmdir = "/run/shm/".$GLOBALS['CONFIG']['system']['application_name'];
+            $shmdir = "/run/shm/".(self::$SHMSUBFOLDER ?: $GLOBALS['CONFIG']['system']['application_name']);
         $cmdfile = "$shmdir/{$pid}.cmd";
         try
         {

@@ -193,7 +193,7 @@ class DbTask extends Task
         {
             static $shm = false;
             if ($shm === false)
-                $shm = "/run/shm/{$GLOBALS['CONFIG']['system']['application_name']}/" . getmypid() . '.cmd';
+                $shm = "/run/shm/".(WdfTaskModel::$SHMSUBFOLDER ?: $GLOBALS['CONFIG']['system']['application_name'])."/".getmypid().'.cmd';
 
             if (file_exists($shm) && ($cmd = @file_get_contents($shm)) !== false)
             {
@@ -219,7 +219,7 @@ class DbTask extends Task
         WdfTaskModel::SetState('idle');
         $ttl = intval(array_shift($args) ?: -1) ?: -1;
         if ($ttl < 0)
-            $ttl = WDftaskmodel::$MIN_RUNTIME;
+            $ttl = WdfTaskModel::$MIN_RUNTIME;
         $eol = time() + $ttl;
         WdfTaskModel::FreeOrphans();
         $task = WdfTaskModel::Reserve();
@@ -255,8 +255,8 @@ class DbTask extends Task
                 $exectime = microtime(true) - $exectime;
                 $cpuUsage = ($cputime / $exectime) * 100;
 
-                if (isDev() && $exectime>1000 && $cpuUsage > 90)
-                    log_debug("High CPU-Usage: " . round($cpuUsage, 2) . "%");
+                if (isDev() && $exectime>100 && $cpuUsage > 90)
+                    log_debug("High CPU-Usage: " . round($cpuUsage, 2) . "% for ".$exectime, ifavail($task, 'arguments'));
 
                 WdfTaskModel::SetState('idle');
                 usleep(10000);
