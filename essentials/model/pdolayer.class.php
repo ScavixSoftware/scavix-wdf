@@ -31,10 +31,11 @@
 namespace ScavixWDF\Model;
 
 use PDO;
+use ScavixWDF\WdfDbException;
 
 /**
  * Just the original slightly extended
- * 
+ *
  * We need some more functionalities, so extending PDO and using this when connecting to DB in <DataSource>.
  */
 class PdoLayer extends PDO
@@ -43,7 +44,7 @@ class PdoLayer extends PDO
     public $LastPreparedSqlCode = false;
 	/**
 	 * Overrides parent to perform preparations
-	 * 
+	 *
 	 * For historical reasons we had some weird argument placeholders in various SQL queries.
 	 * This is central point to replace them. Additionally polls drivers PreprocessSql method before
 	 * passing flow to parents method.
@@ -57,10 +58,10 @@ class PdoLayer extends PDO
     {
 		// remove the counter from ?0, ?,... so that they are simply ?,?,...
 		$statement = preg_replace('/\?\d+/','?',$statement);
-        
-        // uncomment deprecated SQL_CALC_FOUND_ROWS 
+
+        // uncomment deprecated SQL_CALC_FOUND_ROWS
 		$statement = str_ireplace(' SQL_CALC_FOUND_ROWS ',' /*SQL_CALC_FOUND_ROWS*/ ',$statement);
-        
+
         // replace ifavail{a,b,c} with a when statement.
         // this is replacement for coalesce but not checking agains NULL but against NULL or empty strings
         $statement = preg_replace_callback('/ifavail{([^}]+)}/iU',function($m)
@@ -70,11 +71,18 @@ class PdoLayer extends PDO
                 $r[] = "WHEN IFNULL($p,'')!='' THEN $p";
             return "CASE ".implode(" ",$r)." END";
         },$statement);
-        
+
         if( $this->Driver )
             $statement = $this->Driver->PreprocessSql($statement);
-        
+
         $this->LastPreparedSqlCode = $statement;
-		return parent::prepare($statement, $driver_options);
+        try
+        {
+            return parent::prepare($statement, $driver_options);
+        }
+        catch(\PDOException $e)
+        {
+            WdfDbException::Raise(...array_filter(["SQL Syntaxt error", isDev() ? "SQL: $statement" : false, $e]));
+        }
 	}
 }

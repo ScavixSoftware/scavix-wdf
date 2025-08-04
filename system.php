@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Scavix Web Development Framework
  *
@@ -2036,16 +2037,22 @@ function system_process_running($pid)
 function system_get_lock($name,$datasource='internal',$timeout=10)
 {
 	$ds = ($datasource instanceof DataSource)?$datasource:model_datasource($datasource);
-	$ds->ExecuteSql("CREATE TABLE IF NOT EXISTS `wdf_locks` (
-        `lockname` VARCHAR(500) NOT NULL,
-        `pid` INT(10) UNSIGNED NOT NULL,
-        `created` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (`lockname`)
-        ) ENGINE=MEMORY;");
+    if( $ds->Driver instanceof \ScavixWDF\Model\Driver\MySql )
+        $ds->ExecuteSql("CREATE TABLE IF NOT EXISTS `wdf_locks` (
+            `lockname` VARCHAR(500) NOT NULL,
+            `pid` INT(10) UNSIGNED NOT NULL,
+            `created` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (`lockname`)
+            ) ENGINE=MEMORY;");
+    else
+    {
+        log_warn("Locking in sqlite DB is unsupported and will never generate a valid lock");
+        return true;
+    }
 
 	$start = microtime(true);
 
-	$args = array($name,getmypid());
+	$args = [$name, getmypid()];
 	do
 	{
 		if( isset($cnt) )

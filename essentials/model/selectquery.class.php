@@ -73,7 +73,7 @@ class SelectQuery extends Query
 		}
 
 		$sql = parent::__generateSql();
-	
+
 		if( count($this->_join) > 0 )
 		{
 			//debug($this->_join);
@@ -91,7 +91,7 @@ class SelectQuery extends Query
 
 			$sql .= " GROUP BY ".implode(",",$tmp);
 		}
-		
+
 		if( $this->_having instanceof ConditionTree )
 			$sql .= $this->_having->__generateSql();
 
@@ -104,12 +104,13 @@ class SelectQuery extends Query
 				else
 					$tmp[] = "$d";
 
-			$sql .= " ORDER BY ".implode(",",$tmp);
+			$sql .= "/*BEG-ORDER*/ORDER BY ".implode(",",$tmp)."/*END-ORDER*/";
 		}
 
 		if( count($this->_limit) > 0 )
 		{
-			$sql .= " LIMIT {$this->_limit[0]},{$this->_limit[1]}";
+			$sql .= "/*BEG-LIMIT*/LIMIT {$this->_limit[0]},{$this->_limit[1]}/*END-LIMIT*/";
+            // $sql .= " LIMIT {$this->_limit[0]},{$this->_limit[1]}";
 		}
 
 		return $sql;
@@ -133,7 +134,7 @@ class SelectQuery extends Query
 
 	function limit($offset,$limit)
 	{
-		$this->_limit = array($offset,$limit);
+		$this->_limit = [$offset, $limit];
 	}
 
 	/**

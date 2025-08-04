@@ -334,15 +334,17 @@ class SqLite implements IDatabaseDriver
 	 */
 	function getPagingInfo($sql,$input_arguments=null)
 	{
-		if( !preg_match('/LIMIT\s+([\d\s,]+)/i', $sql, $amounts) )
+		if( !preg_match('/\/\*BEG-LIMIT\*\/\s*LIMIT\s+([\d\s,]+)\/\s*\*END-LIMIT\*\//i', $sql, $amounts)
+            &&
+            !preg_match('/LIMIT\s+([\d\s,]+)/i', $sql, $amounts) )
 			return false;
 
 		$amounts = explode(",",$amounts[1]);
 		if( count($amounts) > 1 )
-			list($offset,$length) = $amounts;
+            [$offset, $length] = $amounts;
 		else
-			list($offset,$length) = array(0,$amounts[0]);
-		$offset = intval($offset);
+            [$offset, $length] = [0, $amounts[0]];
+        $offset = intval($offset);
 		$length = intval($length);
 
 		$sql = preg_replace('/LIMIT\s+[\d\s,]+/i', '', $sql);
@@ -351,14 +353,13 @@ class SqLite implements IDatabaseDriver
 		$stmt->execute($input_arguments);
 		$total = intval($stmt->fetchColumn());
 
-		return array
-		(
-			'rows_per_page'=> $length,
-			'current_page' => $length==0?0:floor($offset / $length) + 1,
-			'total_pages'  => $length==0?0:ceil($total / $length),
-			'total_rows'   => $total,
-			'offset'       => $offset,
-		);
+		return [
+            'rows_per_page' => $length,
+            'current_page' => $length == 0 ? 0 : floor($offset / $length) + 1,
+            'total_pages' => $length == 0 ? 0 : ceil($total / $length),
+            'total_rows' => $total,
+            'offset' => $offset,
+        ];
 	}
 
 	/**
