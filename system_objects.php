@@ -529,8 +529,16 @@ trait WdfThrowable
          * @var WdfException $classname
          */
 		$classname = get_called_class();
-		if( $inner_exception )
-			$ex =  new $classname($message,$inner_exception->getCode(),$inner_exception);
+        if ($inner_exception)
+        {
+            $code = $inner_exception->getCode();
+            if (!is_numeric($code))
+            {
+                $message = "[$code] $message";
+                $code = 0;
+            }
+            $ex = new $classname($message, intval($code), $inner_exception);
+        }
 		else
 			$ex = new $classname($message);
 
@@ -550,6 +558,8 @@ trait WdfThrowable
 				$msgs[] = logging_render_var($m);
 		}
         $message = array_shift($msgs);
+        if (!$message)
+            $message = $inner_exception ? $inner_exception->getMessage() : "";
         return [$message, $msgs, $inner_exception];
     }
 
