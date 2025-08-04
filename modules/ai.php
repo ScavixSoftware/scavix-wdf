@@ -109,7 +109,7 @@ class WdfGoogleAIWrapper
 
         if($cache)
         {
-            $cache_key = __METHOD__.'-'.sha1($prompt.'-'.implode('-', array_keys($options)).'-'.implode('-', $options));
+            $cache_key = __METHOD__.'-'.sha1($prompt.'-'.json_encode($options));
             if ($v = cache_get($cache_key))
                 return $v;
         }
