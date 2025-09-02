@@ -3,7 +3,8 @@
 /**
  * lessphp v0.8.0
  * http://leafo.net/lessphp
- * Using commit from https://github.com/mjphaynes/lessphp/blob/26d2dbd46dadee5558ff88b77f867825bd97fc21/lessc.inc.php
+ *
+ * Using fork at https://github.com/ScavixSoftware/lessphp
  *
  * LESS CSS compiler, adapted from http://lesscss.org
  *
