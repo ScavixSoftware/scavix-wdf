@@ -194,10 +194,9 @@ wdf.ready.add(function()
                 wdf.listings.states = {};
                 window.addEventListener('popstate', function(event)
                 {
-                    var estate = event.state || {trigger:'listing',id:'-'};
-                    if( !estate || estate.trigger !== 'listing' )
+                    if( !event.state || !event.state.id )
                         return;
-                    wdf.listings.restoreState(estate.id);
+                    wdf.listings.restoreState(event.state.id);
                 });
             }
             wdf.listings.states[id] = {};
