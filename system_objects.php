@@ -123,46 +123,49 @@ class Wdf
             $dir = '/run/lock/wdf-'.md5(__SCAVIXWDF__);
             $um = umask(0);
             @mkdir($dir, 0777, true);
-            $end = time()+$timeout;
-            do
+            if (is_dir($dir))
             {
-                $fp = @fopen("$dir/$lock","x+");
-                if( !$fp )
+                $end = time() + $timeout;
+                do
                 {
-                    if( $timeout > 0 )
-                        usleep(100000);
-                    continue;
-                }
-                fwrite($fp,getmypid());
-                fflush($fp);
-                fclose($fp);
-
-                if( self::$locks === false )
-                {
-                    self::$locks = [];
-                    register_shutdown_function(function()
+                    $fp = @fopen("$dir/$lock", "x+");
+                    if (!$fp)
                     {
-                        foreach( Wdf::$locks as $lock=>$fp )
-                            @unlink('/run/lock/wdf-'.md5(__SCAVIXWDF__).'/'.$lock);
-                    });
+                        if ($timeout > 0)
+                            usleep(100000);
+                        continue;
+                    }
+                    fwrite($fp, getmypid());
+                    fflush($fp);
+                    fclose($fp);
+
+                    if (self::$locks === false)
+                    {
+                        self::$locks = [];
+                        register_shutdown_function(function ()
+                        {
+                            foreach (Wdf::$locks as $lock => $fp)
+                                @unlink('/run/lock/wdf-'.md5(__SCAVIXWDF__).'/'.$lock);
+                        });
+                    }
+
+                    self::$locks[$lock] = $fp;
+                    umask($um);
+                    return true;
                 }
+                while (time() < $end);
 
-                self::$locks[$lock] = $fp;
+                foreach (glob("$dir/???*") as $f)
+                {
+                    if (!system_process_running(trim(@file_get_contents($f))))
+                        @unlink($f);
+                }
                 umask($um);
-                return true;
+                if (($timeout <= 0) || !$exceptiononfailure)
+                    return false;
+                else
+                    WdfException::Raise("Timeout while awaiting the lock '$name'");
             }
-            while(time()<$end);
-
-            foreach( glob("$dir/???*") as $f )
-            {
-                if( !system_process_running(trim(@file_get_contents($f))) )
-                    @unlink($f);
-            }
-            umask($um);
-            if( ($timeout <= 0) || !$exceptiononfailure )
-                return false;
-            else
-                WdfException::Raise("Timeout while awaiting the lock '$name'");
         }
         return system_get_lock($name,\ScavixWDF\Model\DataSource::Get(),$timeout);
     }
@@ -177,14 +180,16 @@ class Wdf
     {
         $locks = array_filter(force_array($name));
         $ret   = false;
+        $dir = '/run/lock/wdf-'.md5(__SCAVIXWDF__);
+        $uselockfiles = (PHP_OS_FAMILY == "Linux") && is_dir($dir);
         foreach ($locks as $lockname)
         {
-            if (PHP_OS_FAMILY == "Linux")
+            if ($uselockfiles)
             {
                 $lock = md5($lockname);
                 if (isset(self::$locks[$lock]))
                 {
-                    @unlink('/run/lock/wdf-'.md5(__SCAVIXWDF__).'/'.$lock);
+                    @unlink($dir.'/'.$lock);
                     unset(self::$locks[$lock]);
                     $ret = true;
                 }
